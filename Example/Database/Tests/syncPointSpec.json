@@ -1,0 +1,8203 @@
+[
+  {
+    "name": "Default listen handles a parent set",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Now do a set at the parent. Expect only the 'a' child to get events",
+        "type": "set",
+        "path": "",
+        "data": {
+          "a": 1,
+          "b": 2
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": 1
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Default listen handles a set at the same level",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Do a set at the same level. Expect the full value to raise events",
+        "type": "set",
+        "path": "a",
+        "data": {
+          "foo": "bar",
+          "yes": true
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "yes",
+            "prevName": "foo",
+            "data": true
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "foo": "bar",
+              "yes": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "A query can get a complete cache then a merge",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "tag": 1,
+          "limitToFirst": 3,
+          "startAt": {"index": null}
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "a",
+        "data": {
+          "a": 1,
+          "b": 2,
+          "d": 4
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "b",
+            "data": 4
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "a": 1,
+              "b": 2,
+              "d": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "tag": 1,
+        "path": "a",
+        "data": {
+          "a": 5,
+          "c": 3
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "d",
+            "data": 4
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "a",
+            "prevName": null,
+            "data": 5
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "a": 5,
+              "b": 2,
+              "c": 3
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Server merge on listener with complete children",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 1,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "a/b",
+        "data": {"c": 3, "d": 4},
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": 4
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"c": 3, "d": 4}
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {"c": 3, "d": 4}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Empty set doesn't prevent server updates",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "foo": "bar"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo" : "bar"
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "empty-path",
+        "data": null,
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": { "foo": "new-bar" },
+        "events": [
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "foo",
+            "prevName": null,
+            "data": "new-bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo" : "new-bar"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Deep merge on listener with complete children",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "path": "a/x/y/z",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/x/y/z",
+        "data": null,
+        "events": [
+          {
+            "path": "a/x/y/z",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "a/x/y/z",
+        "data": {"c": 3, "d": 4},
+        ".comment": "No events for the top-level listener, since it's not a complete child",
+        "events": [
+          {
+            "path": "a/x/y/z",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "a/x/y/z",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": 4
+          },
+          {
+            "path": "a/x/y/z",
+            "type": "value",
+            "data": {"c": 3, "d": 4}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update child listener twice",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 1,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b/c",
+        "data": "foo",
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": "foo"
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"c": "foo"}
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {"c": "foo"}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update child of default listen that already has a complete cache",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Fill the listen's cache so we can test a child set with an existing cache",
+        "type": "serverUpdate",
+        "path": "a",
+        "data": {
+          "b": 2,
+          "c": 3
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "b": 2,
+              "c": 3
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Now do a set at a child, expect the child event and a value event",
+        "type": "set",
+        "path": "a/b",
+        "data": 4,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 4
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "b": 4,
+              "c": 3
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update child of default listen that has no cache",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Now do a set at a child, expect the child event only",
+        "type": "set",
+        "path": "a/b",
+        "data": 4,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 4
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update (via set) the child of a co-located default listener and query",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "tag": 1,
+          "startAt": {"index": null, "name": "b"},
+          "endAt": {"index": null, "name": "g"}
+        },
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Fill the cache. Since the default listener is there, no tag needed",
+        "type": "serverUpdate",
+        "path": "a",
+        "data": {
+          "a": 1,
+          "c": 3,
+          "d": 4
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "a",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": 4
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": 4
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"a": 1, "c": 3, "d": 4}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"c": 3, "d": 4}
+          }
+        ]
+      },
+      {
+        ".comment": "Cache is primed. Now do the child set",
+        "type": "set",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"a": 1, "b":2, "c": 3, "d": 4}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b":2, "c": 3, "d": 4}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update (via set) the child of a query with a full cache",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "tag": 1,
+          "startAt": {"index": null, "name": "b"},
+          "endAt": {"index": null, "name": "g"}
+        },
+        "events": []
+      },
+      {
+        ".comment": "Fill the cache first",
+        "type": "serverUpdate",
+        "path": "a",
+        "tag": 1,
+        "data": {
+          "c": 3,
+          "d": 4
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": 4
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"c": 3, "d": 4}
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 2, "c": 3, "d": 4}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update (via set) a child below an empty query",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "tag": 1,
+          "startAt": {"name": "b", "index": null},
+          "endAt": {"name": "g", "index": null}
+        },
+        "events": []
+      },
+      {
+        ".comment": "Set a single child, outside the window",
+        "type": "set",
+        "path": "a/h",
+        "data": 8,
+        "events": []
+      },
+      {
+        ".comment": "Now set a single child inside the window",
+        "type": "set",
+        "path": "a/e",
+        "data": 5,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "e",
+            "prevName": null,
+            "data": 5
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update descendant of default listener with full cache",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Fill the cache",
+        "type": "serverUpdate",
+        "path": "a",
+        "data": {
+          "b": {
+            "d": 4
+          },
+          "e": 5
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {
+              "d": 4
+            }
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "e",
+            "prevName": "b",
+            "data": 5
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "b": {
+                "d": 4
+              },
+              "e": 5
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Now do a set at a/b/c, expect child event + new value event",
+        "type": "set",
+        "path": "a/b/c",
+        "data": 3,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {
+              "c": 3,
+              "d": 4
+            }
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "b": {
+                "c": 3,
+                "d": 4
+              },
+              "e": 5
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Descendant set below an empty default listener is ignored",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Now do a set at a/b/c, expect no events",
+        "type": "set",
+        "path": "a/b/c",
+        "data": 3,
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Update of a child. This can happen if a child listener is added and removed",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Revert set with only child caches",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": 3,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 3
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Can revert a duplicate child set",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": 3,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 3
+          }
+        ]
+      },
+      {
+        ".comment": "This set duplicates the data in the previous one, so no events expected",
+        "type": "set",
+        "path": "a/b",
+        "data": 3,
+        "events": []
+      },
+      {
+        ".comment": "Clearing the second set should have no effect, as the underlying set still exists",
+        "type": "ackUserWrite",
+        "writeId": 1,
+        "revert": true,
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Can revert a child set and see the underlying data",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": 3,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 3
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": 4,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 4
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 3,
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 4
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": []
+      },
+      {
+        ".comment": "Clearing the second set should make the underlying set visible again, as it is now confirmed",
+        "type": "ackUserWrite",
+        "writeId": 1,
+        "revert": true,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 3
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Revert child set with no server data",
+    "steps": [
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": {"d": 4, "e": 5},
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {"d": 4, "e": 5}
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/c",
+        "data": {"z": 26},
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": {"z": 26}
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "b",
+            "data": {"d": 4, "e": 5}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Revert deep set with no server data",
+    "steps": [
+      {
+        "type": "set",
+        "path": "a/b/c",
+        "data": {"d": 4, "e": 5},
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "a/x/y",
+        "data": {"z": 26},
+        "events": []
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Revert set covered by non-visible transaction",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        ".comment": "Initial server value is X.",
+        "type": "serverUpdate",
+        "path": "",
+        "data": "X",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": "X"
+          }
+        ]
+      },
+      {
+        ".comment": "Set to Y.",
+        "type": "set",
+        "path": "",
+        "data": "Y",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": "Y"
+          }
+        ]
+      },
+      {
+        ".comment": "Overwrite with a non-visible 'transaction'.",
+        "type": "set",
+        "path": "",
+        "data": "Z",
+        "visible": false,
+        "events": []
+      },
+      {
+        ".comment": "Revert set to Y (e.g. security failed), so we should see it go back to Y.",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": "X"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Clear parent shadowing server values set with server children",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a",
+        "data": {"b": 28, "c": 3},
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 28
+          }
+        ]
+      },
+      {
+        ".comment": "This listen should get a complete event snap, as well as complete server children",
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 28
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 28, "c": 3}
+          }
+        ]
+      },
+      {
+        ".comment": "Do a serverUpdate with a conflicting value for b, simulates a server value. It's still shadowed though",
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 29,
+        "events": []
+      },
+      {
+        ".comment": "Clearing the set should result in updated values for b",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 29
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 29
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 29, "c": 3}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Clear child shadowing server values set with server children",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": 28,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 28
+          }
+        ]
+      },
+      {
+        ".comment": "This listen should get an event child snap, as well as a complete server child: b",
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 28
+          }
+        ]
+      },
+      {
+        ".comment": "Do a serverUpdate with a conflicting value for b, simulates a server value. It's still shadowed though",
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 29,
+        "events": []
+      },
+      {
+        ".comment": "Clearing the set should result in no events. We don't yet have the server data at the parent",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 29
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 29
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Unrelated merge doesn't shadow server updates",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": null,
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "a",
+        "data": {"b": 2, "c": 3},
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 2, "c": 3}
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/d",
+        "data": 4,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": 4
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 2, "c": 3, "d": 4}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Can set alongside a remote merge",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": null,
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 2}
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "a",
+        "data": {"b": 28, "c": 3},
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 2, "c": 3}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "setPriority on a location with no cache",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "a/.priority",
+        "data": "foo",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": "bar",
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": { ".priority": "foo", ".value": "bar" }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "deep update deletes child from limit window and pulls in new child",
+    "steps": [
+      {
+        "type": "set",
+        "path": "a",
+        "data": {
+          "a": {"aa": 2, "aaa": 3},
+          "b": {"bb": 2, "bbb": 3},
+          "c": {"cc": 2, "ccc": 3}
+        },
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "tag": 1,
+          "limitToLast": 2
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {"bb": 2, "bbb": 3}
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": {"cc": 2, "ccc": 3}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "b": {"bb": 2, "bbb": 3},
+              "c": {"cc": 2, "ccc": 3}
+            }
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "a/b",
+        "data": {
+          "bb": null,
+          "bbb": null
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "b",
+            "data": {"bb": 2, "bbb": 3}
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": {"aa": 2, "aaa": 3}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "a": {"aa": 2, "aaa": 3},
+              "c": {"cc": 2, "ccc": 3}
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "deep set deletes child from limit window and pulls in new child",
+    "steps": [
+      {
+        "type": "set",
+        "path": "a",
+        "data": {
+          "a": {"aa": 2},
+          "b": {"bb": 2},
+          "c": {"cc": 2}
+        },
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "tag": 1,
+          "limitToLast": 2
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {"bb": 2}
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": {"cc": 2}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "b": {"bb": 2},
+              "c": {"cc": 2}
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b/bb",
+        "data": null,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "b",
+            "data": {"bb": 2}
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": {"aa": 2}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "a": {"aa": 2},
+              "c": {"cc": 2}
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Edge case in newChildForChange_",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/d",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a/b/c",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/d",
+        "data": 4,
+        "events": [
+          {
+            "type": "value",
+            "path": "a/d",
+            "data": 4
+          },
+          {
+            "type": "child_added",
+            "path": "a",
+            "name": "d",
+            "prevName": null,
+            "data": 4
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b/c",
+        "data": 3,
+        "events": [
+          {
+            "path": "a/b/c",
+            "type": "value",
+            "data": 3
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Revert set in query window",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "limitToLast": 1,
+          "tag": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "tag": 1,
+        "data": {"b": 2},
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 2}
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/c",
+        "data": 3,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "b",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"c": 3}
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        "revert": true,
+        "writeId": 0,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "c",
+            "data": 3
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 2}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Handles a server value moving a child out of a query window",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": {"b": {"c": {"value": 3}, "d": {"value": 4}}},
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {"c": {"value": 3}, "d": {"value": 4}}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": {"c": {"value": 3}, "d": {"value": 4}}}
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1,
+          "orderBy": "value"
+        },
+        "path": "a/b",
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "d",
+            "prevName": null,
+            "data": {"value": 4}
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"d": {"value": 4}}
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b/d/value",
+        "data": 5,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_moved",
+            "name": "d",
+            "prevName": null,
+            "data": {"value": 5}
+          },
+          {
+            "path": "a/b",
+            "type": "child_changed",
+            "name": "d",
+            "prevName": null,
+            "data": {"value": 5}
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"d": {"value": 5}}
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {"c": {"value": 3}, "d": {"value": 5}}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": {"c": {"value": 3}, "d": {"value": 5}}}
+          }
+        ]
+      },
+      {
+        ".comment": "The query is shadowed, so only one data update arrives. We're simulating a server value, so it's different than what was set",
+        "type": "serverUpdate",
+        "path": "a/b/d/value",
+        "data": 2,
+        "events": []
+      },
+      {
+        ".comment": "Now that we're acking the write, we should see the effect of the change",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_removed",
+            "name": "d",
+            "data": {"value": 5}
+          },
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": {"value": 3}
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"c": {"value": 3}}
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {"c": {"value": 3}, "d": {"value": 2}}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": {"c": {"value": 3}, "d": {"value": 2}}}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Update of indexed child works",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": {"b": {"c": {"value": 3}, "d": {"value": 4}}},
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {"c": {"value": 3}, "d": {"value": 4}}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": {"c": {"value": 3}, "d": {"value": 4}}}
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1,
+          "orderBy": "value"
+        },
+        "path": "a/b",
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "d",
+            "prevName": null,
+            "data": {"value": 4}
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"d": {"value": 4}}
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "a/b/c",
+        "data": {"value": 5},
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_removed",
+            "name": "d",
+            "data": {"value": 4}
+          },
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": {"value": 5}
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"c": {"value": 5}}
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {"c": {"value": 5}, "d": {"value": 4}}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": {"c": {"value": 5}, "d": {"value": 4}}}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Merge applied to empty limit",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "params": {
+          "limitToLast": 1,
+          "tag": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "tag": 1,
+        "data": null,
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "a",
+        "data": {"b": 1},
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"b": 1}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Limit is refilled from server data after merge",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a/b",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": {"a": 1, "b": {"c": 3, "d": 4}},
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "d",
+            "prevName": null,
+            "data": 4
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"d": 4}
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": {"c": 3, "d": 4}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"a": 1, "b": {"c": 3, "d": 4}}
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "a/b",
+        "data": {"d": null},
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_removed",
+            "name": "d",
+            "data": 4
+          },
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"c": 3}
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": "a",
+            "data": {"c": 3}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"a": 1, "b": {"c": 3}}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Handle repeated listen with merge as first update",
+    "steps": [
+      {
+        ".comment": "Assume that we just unlistened on this path, and before the unlisten arrives, a merge was sent by the server",
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "This happens when a merge arriving from the server while the 2nd listen is in flight",
+        "type": "serverMerge",
+        "path": "a",
+        "data": {"c": 3},
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Limit is refilled from server data after set",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a/b",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": {"a": 1, "b": {"c": 3, "d": 4}},
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "d",
+            "prevName": null,
+            "data": 4
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"d": 4}
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": {"c": 3, "d": 4}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"a": 1, "b": {"c": 3, "d": 4}}
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/b/d",
+        "data": null,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_removed",
+            "name": "d",
+            "data": 4
+          },
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {"c": 3}
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": "a",
+            "data": {"c": 3}
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"a": 1, "b": {"c": 3}}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "query on weird path.",
+    ".comment": "We used to use '|' as a separator, which broke with paths containing |",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo|!@%^&*()_<>?+={}blah",
+        "params": {
+          "tag": 1,
+          "limitToLast": 5
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo|!@%^&*()_<>?+={}blah",
+        "tag": 1,
+        "data": { "a": "a" },
+        "events": [
+          {
+            "path": "foo|!@%^&*()_<>?+={}blah",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": "a"
+          },
+          {
+            "path": "foo|!@%^&*()_<>?+={}blah",
+            "type": "value",
+            "data": { "a": "a" }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "runs, round2",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "foo",
+        "data": "baz",
+        "events": [
+          {
+            "path": "foo",
+            "type": "value",
+            "data": "baz"
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "foo/new",
+        "data": "bar",
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "new",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": { "new" : "bar"}
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": "baz",
+        "events": []
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": { "new" : "bar"},
+        "events": []
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 1,
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": { "new" : true, "other" : "bar"},
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "other",
+            "prevName": "new",
+            "data": "bar"
+          },
+          {
+            "path": "foo",
+            "type": "child_changed",
+            "name": "new",
+            "prevName": null,
+            "data": true
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": { "new": true, "other": "bar"}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "handles nested listens",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "foo/bar",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          "foo": {
+            "a": 1,
+            "b": 2,
+            "bar": {
+              "c": true,
+              "d": false
+            }
+          },
+          "baz": false
+        },
+        "events": [
+          {
+            "path": "foo/bar",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": true
+          },
+          {
+            "path": "foo/bar",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": false
+          },
+          {
+            "path": "foo/bar",
+            "type": "value",
+            "data": {"c": true, "d": false}
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": 2
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "bar",
+            "prevName": "b",
+            "data": {"c": true, "d": false}
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "a": 1,
+              "b": 2,
+              "bar": {
+                "c": true,
+                "d": false
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          "foo": {
+            "a": 1,
+            "b": 2,
+            "bar": {
+              "c": false,
+              "d": false,
+              "e": true
+            },
+            "f": 3
+          },
+          "baz": false
+        },
+        "events": [
+          {
+            "path": "foo/bar",
+            "type": "child_added",
+            "name": "e",
+            "prevName": "d",
+            "data": true
+          },
+          {
+            "path": "foo/bar",
+            "type": "child_changed",
+            "name": "c",
+            "prevName": null,
+            "data": false
+          },
+          {
+            "path": "foo/bar",
+            "type": "value",
+            "data": {
+              "c": false,
+              "d": false,
+              "e": true
+            }
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "f",
+            "prevName": "bar",
+            "data": 3
+          },
+          {
+            "path": "foo",
+            "type": "child_changed",
+            "name": "bar",
+            "prevName": "b",
+            "data": {
+              "c": false,
+              "d": false,
+              "e": true
+            }
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "a": 1,
+              "b": 2,
+              "bar": {
+                "c": false,
+                "d": false,
+                "e": true
+              },
+              "f": 3
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Duplicate set, no events raised",
+        "type": "set",
+        "path": "",
+        "data": {
+          "foo": {
+            "a": 1,
+            "b": 2,
+            "bar": {
+              "c": false,
+              "d": false,
+              "e": true
+            },
+            "f": 3
+          },
+          "baz": false
+        },
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Handles a set below a listen",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "foo",
+        "data": 1,
+        ".comment": "We only expect a child_added, since it does not completely fill the view",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "does non-default queries",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          "foo": {
+            "a": 1,
+            "b": 2
+          }
+        },
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "b": 2
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Now have the server send the same data to the query. No events result because there is no change",
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "foo",
+        "data": {
+          "b": 2
+        },
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "handles a co-located default listener and query",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "foo",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "foo",
+        "data": { "a": 1, "b": 2},
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": 2
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": { "a": 1, "b": 2}
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {"b": 2}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Default and non-default listener at same location with server update",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "foo",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": {"a": 1, "b": 2},
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "a",
+            "data": 1,
+            "prevName": null
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "b",
+            "data": 2,
+            "prevName": "a"
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {"a": 1, "b": 2}
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "b",
+            "data": 2,
+            "prevName": null
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {"b": 2}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Add a parent listener to a complete child listener, expect child event",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": 1,
+        "events": [
+          {
+            "path": "foo",
+            "type": "value",
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Add listens to a set, expect correct events, including a child event",
+    "steps": [
+      {
+        "type": "set",
+        "path": "foo",
+        "data": {"bar": 1, "baz": 2},
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "foo/bar",
+        "events": [
+          {
+            "path": "foo/bar",
+            "type": "value",
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": {"bar": 1, "baz": 2}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "ServerUpdate to a child listener raises child events at parent",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": 1,
+        "events": [
+          {
+            "path": "foo",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "ServerUpdate to a child listener raises child events at parent query",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": 1,
+        "events": [
+          {
+            "path": "foo",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Multiple complete children are handled properly",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo/a",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "foo/b",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo/a",
+        "data": 1,
+        "events": [
+          {
+            "path": "foo/a",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "foo/b",
+            "type": "value",
+            "data": 2
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": 2
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Write leaf node, overwrite at parent node",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/aa",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "a/aa",
+        "data": 1,
+        "events": [
+          {
+            "path": "a/aa",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "aa",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a",
+        "data": {
+          "aa": 2
+        },
+        "events": [
+          {
+            "path": "a/aa",
+            "type": "value",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "aa",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "aa": 2
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Confirm complete children from the server",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/aa",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/aa",
+        "data": 1,
+        "events": [
+          {
+            "path": "a/aa",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "aa",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        ".comment": "At some point in the future, we might consider sending a hash here to avoid duplicate data",
+        "data": {"aa": 1},
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"aa": 1}
+          }
+        ]
+      },
+      {
+        ".comment": "Now, delete the same child and make sure we get the right events",
+        "type": "serverUpdate",
+        "path": "a/aa",
+        "data": null,
+        "events": [
+          {
+            "path": "a/aa",
+            "type": "value",
+            "data": null
+          },
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "aa",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": null
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Write leaf, overwrite from parent",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/aa",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a/bb",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "First set is at leaf. Expect only a child_added for the parent, nothing for the sibling",
+        "type": "set",
+        "path": "a/aa",
+        "data": 1,
+        "events": [
+          {
+            "path": "a/aa",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "aa",
+            "prevName": null,
+            "data": 1
+          }
+        ]
+      },
+      {
+        ".comment": "Now set at the parent. Expect value events for everyone",
+        "type": "set",
+        "path": "a",
+        "data": {"aa": 2},
+        "events": [
+          {
+            "path": "a/aa",
+            "type": "value",
+            "data": 2
+          },
+          {
+            "path": "a/bb",
+            "type": "value",
+            "data": null
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "aa",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {"aa": 2}
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Basic update test",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "b",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        ".comment": "Initial data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": 1,
+          "b": 2,
+          "c": 3
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": 1
+          },
+          {
+            "path": "b",
+            "type": "value",
+            "data": 2
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": 2
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": 3
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": 1,
+              "b": 2,
+              "c": 3
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Now update two children. Not b, there should be no events at b",
+        "type": "update",
+        "path": "",
+        "data": {
+          "a": true,
+          "c": false
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": true
+          },
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "a",
+            "prevName": null,
+            "data": true
+          },
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "c",
+            "prevName": "b",
+            "data": false
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": true,
+              "b": 2,
+              "c": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "No double value events for user ack",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "params": {
+          "tag": 1,
+          "limitToLast": 1,
+          "endAt": {"index": null, "name": "d"}
+        },
+        "events": []
+      },
+      {
+        ".comment": "user sets data",
+        "type": "set",
+        "path": "foo",
+        "data": {
+          "a": 1,
+          "b": 2,
+          "c": 3
+        },
+        "events": [
+          {
+            "path": "foo",
+            "type": "value",
+            "data": { "c": 3 }
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          }
+        ]
+      },
+      {
+        ".comment": "server acks data, but local overwrite causes no events to fire",
+        "type": "serverUpdate",
+        "path": "foo",
+        "tag": 1,
+        "data": null,
+        "events": []
+      },
+      {
+        ".comment": "server sends data with merge",
+        "type": "serverMerge",
+        "path": "foo",
+        "tag": 1,
+        "data": {
+          "c": 3
+        },
+        "events": [ ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": false,
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "foo/d",
+        "data": 4,
+        "events": [
+          {
+            "path": "foo",
+            "type": "value",
+            "data": { "d": 4 }
+          },
+          {
+            "path": "foo",
+            "type": "child_removed",
+            "name": "c",
+            "prevName": null,
+            "data": 3
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "d",
+            "prevName": null,
+            "data": 4
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "foo",
+        "tag": 1,
+        "data": {
+          "d": 4
+        },
+        "events": [ ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 1,
+        "revert": false,
+        "events": []
+      }
+    ]
+  },
+  {
+    "name": "Basic key index sanity check",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderByKey": true,
+          "startAt": { "index": "aa" },
+          "endAt": { "index": "e" }
+        },
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          "a": { ".priority": 10, ".value": "a" },
+          "b": { ".priority": 5, ".value": "b" },
+          "c": { ".priority": 20, ".value": "c" },
+          "d": { ".priority": 7, ".value": "d" },
+          "e": { ".priority": 30, ".value": "e" },
+          "f": { ".priority": 8, ".value": "f" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {".priority": 5, ".value": "b"}
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": {".priority": 20, ".value": "c"}
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": {".priority": 7, ".value": "d"}
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "e",
+            "prevName": "d",
+            "data": {".priority": 30, ".value": "e"}
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { ".priority": 5, ".value": "b" },
+              "c": { ".priority": 20, ".value": "c" },
+              "d": { ".priority": 7, ".value": "d" },
+              "e": { ".priority": 30, ".value": "e" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Add a new item outside of range and make sure we get events.",
+        "type": "set",
+        "path": "a",
+        "data": "hello!",
+        "events": [ ]
+      },
+      {
+        ".comment": "Add a new item within range and ensure we get ld_added.",
+        "type": "set",
+        "path": "bass",
+        "data": 3.14,
+        "events":
+        [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "bass",
+            "prevName": "b",
+            "data": 3.14
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { ".priority": 5, ".value": "b" },
+              "bass": 3.14,
+              "c": { ".priority": 20, ".value": "c" },
+              "d": { ".priority": 7, ".value": "d" },
+              "e": { ".priority": 30, ".value": "e" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Modify an item and ensure we get child_changed.",
+        "type": "set",
+        "path": "b",
+        "data": 42,
+        "events":
+        [
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 42
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": 42,
+              "bass": 3.14,
+              "c": { ".priority": 20, ".value": "c" },
+              "d": { ".priority": 7, ".value": "d" },
+              "e": { ".priority": 30, ".value": "e" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Collect correct subviews to listen on",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "callbackId": 1,
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "callbackId": 1,
+        "path": "/a",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "callbackId": 1,
+        "path": "/a/b",
+        "events": []
+      },
+      {
+        ".comment": "should not cause /a/b to be listened upon",
+        "type": "unlisten",
+        "callbackId": 1,
+        "path": "",
+        "events": []
+      },
+      {
+        ".comment": "should now cause /a/b to be listened upon",
+        "type": "unlisten",
+        "callbackId": 1,
+        "path": "/a",
+        "events": []
+      }
+    ]
+  },
+  {
+    "name": "Limit to first one on ordered query",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "vanished",
+          "limitToFirst": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "triceratops": {"vanished": -66000000},
+          "stegosaurus": {"vanished": -155000000},
+          "pterodactyl": {"vanished": -75000000}
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "stegosaurus",
+            "prevName": null,
+            "data": {"vanished": -155000000}
+          },
+          {
+            "path": "",
+            "type": "value",
+            "name": "",
+            "prevName": null,
+            "data": {"stegosaurus": {"vanished": -155000000}}
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Limit to last one on ordered query",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "vanished",
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "triceratops": {"vanished": -66000000},
+          "stegosaurus": {"vanished": -155000000},
+          "pterodactyl": {"vanished": -75000000}
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "triceratops",
+            "prevName": null,
+            "data": {"vanished": -66000000}
+          },
+          {
+            "path": "",
+            "type": "value",
+            "name": "",
+            "prevName": null,
+            "data": {"triceratops": {"vanished": -66000000}}
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Update indexed value on existing child from limited query",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "age",
+          "limitToLast": 4
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "",
+        "data": {
+          "4": { "age": 41, "highscore": 400, "name": "old mama"},
+          "5": { "age": 18, "highscore": 1200, "name": "young mama"},
+          "6": { "age": 20, "highscore": 1003, "name": "micheal blub"},
+          "7": { "age": 30, "highscore": 10000, "name": "no. 7"}
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "4",
+            "prevName": "7",
+            "data": { "age": 41, "highscore": 400, "name": "old mama"}
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "5",
+            "prevName": null,
+            "data": { "age": 18, "highscore": 1200, "name": "young mama"}
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "6",
+            "prevName": "5",
+            "data": { "age": 20, "highscore": 1003, "name": "micheal blub"}
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "7",
+            "prevName": "6",
+            "data": { "age": 30, "highscore": 10000, "name": "no. 7"}
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "4": { "age": 41, "highscore": 400, "name": "old mama"},
+              "5": { "age": 18, "highscore": 1200, "name": "young mama"},
+              "6": { "age": 20, "highscore": 1003, "name": "micheal blub"},
+              "7": { "age": 30, "highscore": 10000, "name": "no. 7"}
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update the order by value, should cause a new value event",
+        "type": "serverUpdate",
+        "path": "4/age",
+        "tag": 1,
+        "data": 25,
+        "events": [
+          {
+            "path": "",
+            "type": "child_moved",
+            "name": "4",
+            "prevName": "6",
+            "data": { "age": 25, "highscore": 400, "name": "old mama"}
+          },
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "4",
+            "prevName": "6",
+            "data": { "age": 25, "highscore": 400, "name": "old mama"}
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "4": { "age": 25, "highscore": 400, "name": "old mama"},
+              "5": { "age": 18, "highscore": 1200, "name": "young mama"},
+              "6": { "age": 20, "highscore": 1003, "name": "micheal blub"},
+              "7": { "age": 30, "highscore": 10000, "name": "no. 7"}
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Can create startAt, endAt, equalTo queries with bool",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "boolKey",
+          "startAt": {"index": true}
+        },
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 2,
+          "orderBy": "boolKey",
+          "endAt": {"index": true}
+        },
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 3,
+          "orderBy": "boolKey",
+          "equalTo": {"index": true}
+        },
+        "events": []
+      },
+      {
+        "type": "suppressWarning",
+        "events": []
+      }
+    ]
+  },
+  {
+    "name": "Query with existing server snap",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "age"
+        },
+        "events": []
+      },
+      {
+        ".comment": "untagged update, since index doesn't exist",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "foo": { "age": 10, "score": 100, "bar": "baz" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": { "age": 10, "score": 100, "bar": "baz" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": { "age": 10, "score": 100, "bar": "baz" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "new listen should use existing data and index correctly",
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 2,
+          "orderBy": "score"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": { "age": 10, "score": 100, "bar": "baz" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": { "age": 10, "score": 100, "bar": "baz" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Server data is not purged for non-server-indexed queries",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "highscore",
+          "limitToLast": 2
+        },
+        "events": []
+      },
+      {
+        ".comment": "server has no index, so it sends down everything",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "highscore": 100, "value": "a" },
+          "b": { "highscore": 200, "value": "b" },
+          "c": { "highscore": 0, "value": "c" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "highscore": 100, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "highscore": 200, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "highscore": 100, "value": "a" },
+              "b": { "highscore": 200, "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update of highscore leads to only a partial update",
+        "type": "serverUpdate",
+        "path": "c/highscore",
+        "data": 300,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "prevName": null,
+            "data": { "highscore": 100, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "highscore": 300, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { "highscore": 200, "value": "b" },
+              "c": { "highscore": 300, "value": "c" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Limit with custom orderBy is refilled with correct item",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "age",
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "age": 4 },
+          "b": { "age": 3 },
+          "c": { "age": 2 },
+          "d": { "age": 1 }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "age": 4 }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "age": 4 }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "delete 'a' and make sure 'b' comes into view.",
+        "type": "set",
+        "path": "a",
+        "data": null,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": { "age": 4 }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": { "age": 3 }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { "age": 3 }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "startAt/endAt dominates limit",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": 1 },
+          "endAt": { "index": 2 },
+          "limitToFirst": 2
+        },
+        "events": []
+      },
+      {
+        ".comment": "server has no index, so it sends down everything",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 1000, "value": "b" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update from server to fill limit and beyond",
+        "type": "serverMerge",
+        "path": "",
+        "data": {
+          "b": { "index": 1, "value": "b" },
+          "c": { "index": 2, "value": "c" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 1, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 1, "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update from server to move entry out of window",
+        "type": "serverUpdate",
+        "path": "a/index",
+        "data": 1000,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "index": 2, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { "index": 1, "value": "b" },
+              "c": { "index": 2, "value": "c" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update from server to move all but one entry out of window",
+        "type": "serverUpdate",
+        "path": "b/index",
+        "data": 1000,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "b",
+            "data": { "index": 1, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "c": { "index": 2, "value": "c" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Update to single child that moves out of window",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": 1 },
+          "endAt": { "index": 10 },
+          "limitToFirst": 2
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends all data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 2, "value": "b" },
+          "c": { "index": 3, "value": "c" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 2, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update from server to move child out of query",
+        "type": "serverUpdate",
+        "path": "a/index",
+        "data": -1,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "index": 3, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { "index": 2, "value": "b" },
+              "c": { "index": 3, "value": "c" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update from server to move child out of query",
+        "type": "serverUpdate",
+        "path": "b/index",
+        "data": -1,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "b",
+            "data": { "index": 2, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "c": { "index": 3, "value": "c" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Limited query doesn't pull in out of range child",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": 1 },
+          "endAt": { "index": 10 },
+          "limitToFirst": 2
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends all data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 2, "value": "b" },
+          "c": { "index": 1000, "value": "c" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 2, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update from server to move child out of query",
+        "type": "serverUpdate",
+        "path": "a/index",
+        "data": -1,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { "index": 2, "value": "b" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Merge for location with default and limited listener",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        ".comment": "complete update",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 2, "value": "b" },
+          "c": { "index": 3, "value": "c" },
+          "d": { "index": 4, "value": "d" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 2, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "index": 3, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "c",
+            "data": { "index": 4, "value": "d" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" },
+              "c": { "index": 3, "value": "c" },
+              "d": { "index": 4, "value": "d" }
+            }
+          }
+        ]
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "limitToFirst": 2
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 2, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "update from server pulls in other node",
+        "type": "serverMerge",
+        "path": "",
+        "data": {
+          "a": null,
+          "d": null
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "d",
+            "data": { "index": 4, "value": "d" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "index": 3, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { "index": 2, "value": "b" },
+              "c": { "index": 3, "value": "c" }
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": { "index": 2, "value": "b" },
+              "c": { "index": 3, "value": "c" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "User merge pulls in correct values",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": 1 },
+          "endAt": { "index": 10 },
+          "limitToFirst": 3
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends all data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 2, "value": "b" },
+          "c": { "index": 3, "value": "c" },
+          "d": { "index": 1000, "value": "d" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 2, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "index": 3, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" },
+              "c": { "index": 3, "value": "c" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user merge pulls in existing value",
+        "type": "update",
+        "path": "d",
+        "data": { "index": 2 },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "c",
+            "data": { "index": 3, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "b",
+            "data": { "index": 2, "value": "d" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" },
+              "d": { "index": 2, "value": "d" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "User deep set pulls in correct values",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": 1 },
+          "endAt": { "index": 10 },
+          "limitToFirst": 3
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends all data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 2, "value": "b" },
+          "c": { "index": 3, "value": "c" },
+          "d": { "index": 1000, "value": "d" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 2, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "index": 3, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" },
+              "c": { "index": 3, "value": "c" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user deep set pulls in existing value",
+        "type": "set",
+        "path": "d/index",
+        "data": 2,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "c",
+            "data": { "index": 3, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "d",
+            "prevName": "b",
+            "data": { "index": 2, "value": "d" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 2, "value": "b" },
+              "d": { "index": 2, "value": "d" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Queries with equalTo(null) work",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": null },
+          "endAt": { "index": null }
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends all data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "value": "a" },
+          "b": { "value": "b" },
+          "c": { "value": "c", "index": 1 }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "value": "a" },
+              "b": { "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "server updates existing value (bringing c into query)",
+        "type": "serverUpdate",
+        "path": "c/index",
+        "data": null,
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "value": "a" },
+              "b": { "value": "b" },
+              "c": { "value": "c" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "server updates existing value (sending c out of query)",
+        "type": "serverUpdate",
+        "path": "c/index",
+        "data": 1,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "c",
+            "data": { "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "value": "a" },
+              "b": { "value": "b" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Reverted writes update query",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": 1 },
+          "endAt": { "index": 10 },
+          "limitToFirst": 2
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends only query data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 5, "value": "b" },
+          "d": { "index": 6, "value": "d" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 5, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 5, "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user adds new value should update query",
+        "type": "set",
+        "path": "",
+        "data": {
+          "c": { "index": 2, "value": "c" },
+          "a": { "index": 1, "value": "a" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "b",
+            "data": { "index": 5, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "a",
+            "data": { "index": 2, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "c": { "index": 2, "value": "c" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "write is reverted should revert query to old state",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "c",
+            "data": { "index": 2, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 5, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 5, "value": "b" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Deep set for non-local data doesn't raise events",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "startAt": { "index": 1 },
+          "endAt": { "index": 10 },
+          "limitToFirst": 2
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends only query data",
+        "type": "serverUpdate",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "a": { "index": 1, "value": "a" },
+          "b": { "index": 5, "value": "b" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "index": 1, "value": "a" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "index": 5, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "b": { "index": 5, "value": "b" }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user updates a value for node outside of query, should trigger no events",
+        "type": "set",
+        "path": "c/index",
+        "data": 1,
+        "events": [ ]
+      },
+      {
+        ".comment": "update from server now contains complete data",
+        "type": "serverMerge",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "c": { "index": 1, "value": "c" }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "b",
+            "data": { "index": 5, "value": "b" }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "a",
+            "data": { "index": 1, "value": "c" }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": { "index": 1, "value": "a" },
+              "c": { "index": 1, "value": "c" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "User update with new children triggers events",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "orderBy": "value",
+          "tag": 1
+        },
+        "events": []
+      },
+      {
+        ".comment": "update from server sends query data",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "value": 5 },
+          "c": { "value": 3 }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": null,
+            "data": { "value": 3 }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": "c",
+            "data": { "value": 5 }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "c": { "value": 3 },
+              "a": { "value": 5 }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user adds new children through an update",
+        "type": "update",
+        "path": "",
+        "data": {
+          "b": { "value": 4 },
+          "d": { "value": 2 }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "d",
+            "prevName": null,
+            "data": { "value": 2 }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "c",
+            "data": { "value": 4 }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "d": { "value": 2 },
+              "c": { "value": 3 },
+              "b": { "value": 4 },
+              "a": { "value": 5 }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "server send new server",
+        "type": "serverMerge",
+        "path": "",
+        "data": {
+          "b": { "value": 4 },
+          "d": { "value": 2 }
+        },
+        "events": []
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": false,
+        "events": [ ]
+      }
+    ]
+  },
+  {
+    "name": "User write with deep user overwrite",
+    "steps":
+    [
+      {
+        "type": "listen",
+        "path": "/foo",
+        "params": {
+          "orderBy": "value",
+          "tag": 1
+        },
+        "events": []
+      },
+      {
+        ".comment": "user sets initial data",
+        "type": "set",
+        "path": "/foo",
+        "data": {
+          "a": { "value": 1 },
+          "b": { "value": 5 },
+          "c": { "value": 10 }
+        },
+        "events": [
+          {
+            "path": "/foo",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": { "value": 1 }
+          },
+          {
+            "path": "/foo",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": { "value": 5 }
+          },
+          {
+            "path": "/foo",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": { "value": 10 }
+          },
+          {
+            "path": "/foo",
+            "type": "value",
+            "data": {
+              "a": { "value": 1 },
+              "b": { "value": 5 },
+              "c": { "value": 10 }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user quickly overwrites value",
+        "type": "set",
+        "path": "/foo/c/value",
+        "data": 3,
+        "events": [
+          {
+            "path": "/foo",
+            "type": "child_moved",
+            "name": "c",
+            "prevName": "a",
+            "data": { "value": 3 }
+          },
+          {
+            "path": "/foo",
+            "type": "child_changed",
+            "name": "c",
+            "prevName": "a",
+            "data": { "value": 3 }
+          },
+          {
+            "path": "/foo",
+            "type": "value",
+            "data": {
+              "a": { "value": 1 },
+              "c": { "value": 3 },
+              "b": { "value": 5 }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "server sends complete but outdated data",
+        "type": "serverUpdate",
+        "path": "/foo",
+        "data": {
+          "a": { "value": 1 },
+          "b": { "value": 5 },
+          "c": { "value": 10 }
+        },
+        "events": [ ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": [ ]
+      },
+      {
+        ".comment": "server sends update",
+        "type": "serverUpdate",
+        "path": "/foo/c/value",
+        "data": 3,
+        "events": [ ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 1,
+        "events": [ ]
+      }
+    ]
+  },
+
+  {
+    "name": "Deep server merge",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "foo": {
+            "bar1" : { "a": "baz1", "b": "qux1" },
+            "bar2" : { "a": "baz2", "b": "qux2" }
+          }
+        },
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "bar1",
+            "prevName": null,
+            "data": { "a": "baz1", "b": "qux1" }
+          },
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "bar2",
+            "prevName": "bar1",
+            "data": { "a": "baz2", "b": "qux2" }
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "bar1" : { "a": "baz1", "b": "qux1" },
+              "bar2" : { "a": "baz2", "b": "qux2" }
+            }
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "foo",
+        "data": {
+          "bar1/a": "newbaz1",
+          "bar2/b": "newqux2"
+        },
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_changed",
+            "name": "bar1",
+            "prevName": null,
+            "data": { "a": "newbaz1", "b": "qux1" }
+          },
+          {
+            "path": "foo",
+            "type": "child_changed",
+            "name": "bar2",
+            "prevName": "bar1",
+            "data": { "a": "baz2", "b": "newqux2" }
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "bar1" : { "a": "newbaz1", "b": "qux1" },
+              "bar2" : { "a": "baz2", "b": "newqux2" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Server updates priority",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "a/foo",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "data": { "foo": "bar" },
+        "events": [
+          {
+            "path": "a/foo",
+            "type": "value",
+            "data": "bar"
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": { "foo": "bar" }
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/foo/.priority",
+        "data": "qux",
+        "events": [
+          {
+            "path": "a/foo",
+            "type": "value",
+            "data": { ".value": "bar", ".priority": "qux" }
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "foo",
+            "prevName": null,
+            "data": { ".value": "bar", ".priority": "qux" }
+          },
+          {
+            "path": "a",
+            "type": "child_moved",
+            "name": "foo",
+            "prevName": null,
+            "data": { ".value": "bar", ".priority": "qux" }
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "foo": { ".value": "bar", ".priority": "qux" }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Revert underlying full overwrite",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "key-a": "val-a",
+          "key-b": "val-b"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-a",
+            "prevName": null,
+            "data": "val-a"
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-b",
+            "prevName": "key-a",
+            "data": "val-b"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-a": "val-a",
+              "key-b": "val-b"
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          "key-c": "val-c",
+          "key-d": "val-d"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-a",
+            "data": "val-a"
+          },
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-b",
+            "data": "val-b"
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-c",
+            "prevName": null,
+            "data": "val-c"
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-d",
+            "prevName": "key-c",
+            "data": "val-d"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-c": "val-c",
+              "key-d": "val-d"
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          "key-e": "val-e",
+          "key-f": "val-f"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-c",
+            "data": "val-c"
+          },
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-d",
+            "data": "val-d"
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-e",
+            "prevName": null,
+            "data": "val-e"
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-f",
+            "prevName": "key-e",
+            "data": "val-f"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-e": "val-e",
+              "key-f": "val-f"
+            }
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": [ ]
+      }
+    ]
+  },
+
+  {
+    "name": "User child overwrite for non-existent server node",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "foo",
+        "data": { "bar": "qux" },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": { "bar": "qux" }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Revert user overwrite of child on leaf node",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": "foo",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": "foo"
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "key",
+        "data": "value",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key",
+            "prevName": null,
+            "data": "value"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": { "key": "value" }
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key",
+            "prevName": null,
+            "data": "value"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": "foo"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Server overwrite with deep user delete",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "key-1": "value-1"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": "value-1"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": "value-1"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "User deletes non-existent key, which shouldn't trigger events",
+        "type": "set",
+        "path": "key-2/non-key",
+        "data": null,
+        "events": []
+      },
+      {
+        ".comment": "Server updates node with deep user delete",
+        "type": "serverUpdate",
+        "path": "key-2",
+        "data": {
+          "deep-key": "deep-value"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-2",
+            "prevName": "key-1",
+            "data": {
+              "deep-key": "deep-value"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": "value-1",
+              "key-2": {
+                "deep-key": "deep-value"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "User overwrites leaf node with priority",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          ".value": "value",
+          ".priority": "prio"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".value": "value",
+              ".priority": "prio"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Overwrite leaf with children node",
+        "type": "set",
+        "path": "foo",
+        "data": "bar",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".priority": "prio",
+              "foo": "bar"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "User overwrites inherit priority values from leaf nodes",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          ".value": "value",
+          ".priority": "prio"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".value": "value",
+              ".priority": "prio"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user updates the node",
+        "type": "set",
+        "path": "foo",
+        "data": "foo-value",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "foo-value"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".priority": "prio",
+              "foo": "foo-value"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "The server updates the data for the set",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          ".value": "value",
+          ".priority": "prio"
+        },
+        "events": []
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": false,
+        "events": []
+      },
+      {
+        ".comment": "Add another update, should not have old priority",
+        "type": "set",
+        "path": "bar",
+        "data": "bar-value",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "bar",
+            "prevName": null,
+            "data": "bar-value"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".priority": "prio",
+              "foo": "foo-value",
+              "bar": "bar-value"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "User update on user set leaf node with priority after server update",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": null,
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          ".value": "value",
+          ".priority": "prio"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".value": "value",
+              ".priority": "prio"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user overwrite shadows server data",
+        "type": "serverMerge",
+        "path": "",
+        "data": {
+          "foo": "bar"
+        },
+        "events": [ ]
+      },
+      {
+        ".comment": "user updates the node",
+        "type": "update",
+        "path": "deep/deeper",
+        "data": {
+            "0-key": null,
+            "key": "value"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "deep",
+            "prevName": null,
+            "data": { "deeper": { "key": "value" } }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".priority": "prio",
+              "deep": { "deeper": { "key": "value" } }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Server deep delete on leaf node",
+    ".comment": "This is a contrived example, as the server will probably not send null updates to leaf nodes",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": "foo",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": "foo"
+          }
+        ]
+      },
+      {
+        ".comment": "this should trigger no events",
+        "type": "serverUpdate",
+        "path": "deep/child",
+        "data": null,
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "User sets root priority",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "foo": "bar"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": "bar"
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": ".priority",
+        "data": "prio",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".priority": "prio",
+              "foo": "bar"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "User updates priority on empty root",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        ".comment": "Priority on empty root should not trigger events",
+        "type": "set",
+        "path": ".priority",
+        "data": "prio",
+        "events": []
+      },
+      {
+        ".comment": "This should a value event without priority",
+        "type": "serverUpdate",
+        "path": "",
+        "data": null,
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        ".comment": "This should now have the user priority",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "foo": "bar"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".priority": "prio",
+              "foo": "bar"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Revert set at root with priority",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "foo": "bar"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": "bar"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "User overwrites root",
+        "type": "set",
+        "path": "",
+        "data": {
+          "baz": "qux",
+          ".priority": "prio"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "baz",
+            "prevName": null,
+            "data": "qux"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".priority": "prio",
+              "baz": "qux"
+            }
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "baz",
+            "prevName": null,
+            "data": "qux"
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": "bar"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Server updates priority after user sets priority",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": { ".value": "foo", ".priority": "prio" },
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": { ".value": "foo", ".priority": "prio" }
+          }
+        ]
+      },
+      {
+        ".comment": "User overwrites priority",
+        "type": "set",
+        "path": ".priority",
+        "data": "prio-2",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": { ".value": "foo", ".priority": "prio-2" }
+          }
+        ]
+      },
+      {
+        ".comment": "this should not trigger any events since a user write is shadowing",
+        "type": "serverUpdate",
+        "path": ".priority",
+        "data": null,
+        "events": [ ]
+      }
+    ]
+  },
+
+  {
+    "name": "User updates priority twice, first is reverted",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": { "foo": "bar" },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": { "foo": "bar" }
+          }
+        ]
+      },
+      {
+        ".comment": "User overwrites priority first time",
+        "type": "set",
+        "path": ".priority",
+        "data": "prio-1",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": "bar",
+              ".priority": "prio-1"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "User overwrites priority second time",
+        "type": "set",
+        "path": ".priority",
+        "data": "prio-2",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": "bar",
+              ".priority": "prio-2"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "revert should not trigger event",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": true,
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "foo",
+        "data": "new-bar",
+        "events": [
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "foo",
+            "prevName": null,
+            "data": "new-bar"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": "new-bar",
+              ".priority": "prio-2"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Server acks root priority set after user deletes root node",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": "foo",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": "foo"
+          }
+        ]
+      },
+      {
+        ".comment": "User overwrites root priority",
+        "type": "set",
+        "path": ".priority",
+        "data": "prio",
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              ".value": "foo",
+              ".priority": "prio"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "User deletes root node",
+        "type": "set",
+        "path": "",
+        "data": null,
+        "events": [
+          {
+            "path": "",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": ".priority",
+        "data": "prio",
+        "events": []
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": false,
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "A delete in a merge doesn't push out nodes",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "limitToFirst": 3,
+          "startAt": {"index": null}
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "key-1": 1,
+          "key-3": 3,
+          "key-4": 4
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-3",
+            "prevName": "key-1",
+            "data": 3
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-4",
+            "prevName": "key-3",
+            "data": 4
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": 1,
+              "key-3": 3,
+              "key-4": 4
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Since key-3 is deleted, key-5 should still remain in the query",
+        "type": "serverMerge",
+        "path": "",
+        "data": {
+          "key-3": null,
+          "key-2": 2
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-3",
+            "data": 3
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-2",
+            "prevName": "key-1",
+            "data": 2
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": 1,
+              "key-2": 2,
+              "key-4": 4
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "A tagged query fires events eventually",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "limitToLast": 2
+        },
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "",
+        "data": {
+          "key-1": 1,
+          "key-2": 2,
+          "key-3": 3
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-2",
+            "prevName": null,
+            "data": 2
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-3",
+            "prevName": "key-2",
+            "data": 3
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-2": 2,
+              "key-3": 3
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server updates tagged data, should filter key-1 node",
+        "type": "serverUpdate",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "key-2": 2,
+          "key-3": 3
+        },
+        "events": []
+      },
+      {
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": false,
+        "events": []
+      },
+      {
+        ".comment": "User deletes element, only child removed event is fired, since data is not available",
+        "type": "set",
+        "path": "key-2",
+        "data": null,
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-2",
+            "data": 2
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-3": 3
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server updates tagged data, should filter key-1 node",
+        "type": "serverMerge",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "key-1": 1,
+          "key-2": null
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "",
+            "type": "value",
+            "name": "",
+            "data": {
+              "key-1": 1,
+              "key-3": 3
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "A server update that leaves user sets unchanged is not ignored",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "key-1": 1,
+          "key-2": 2
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": 1
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-2",
+            "prevName": "key-1",
+            "data": 2
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": 1,
+              "key-2": 2
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user adds a new node",
+        "type": "set",
+        "path": "key-3",
+        "data": 3,
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-3",
+            "prevName": "key-2",
+            "data": 3
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": 1,
+              "key-2": 2,
+              "key-3": 3
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server adds new children with full overwrite",
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "key-1": 1,
+          "key-2": 2,
+          "key-4": 4
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-4",
+            "prevName": "key-3",
+            "data": 4
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": 1,
+              "key-2": 2,
+              "key-3": 3,
+              "key-4": 4
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "User write outside of limit is ignored for tagged queries",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "limitToFirst": 2,
+          "startAt": {"index": null}
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "",
+        "data": {
+          "key-1": {
+            "index": 1,
+            "other-key": "foo"
+          },
+          "key-4": {
+            "index": 4,
+            "other-key": "bar"
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-4",
+            "prevName": "key-1",
+            "data": {
+              "index": 4,
+              "other-key": "bar"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "foo"
+              },
+              "key-4": {
+                "index": 4,
+                "other-key": "bar"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "user updates index of child outside, which should bring it in view eventually, but not before the server sends the complete node",
+        "type": "set",
+        "path": "key-2/index",
+        "data": 2,
+        "events": []
+      },
+      {
+        ".comment": "In the meantime the server adds another node",
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "",
+        "data": {
+          "key-1": {
+            "index": 1,
+            "other-key": "new-foo"
+          },
+          "key-3": {
+            "index": 3,
+            "other-key": "baz"
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-4",
+            "data": {
+              "index": 4,
+              "other-key": "bar"
+            }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-3",
+            "prevName": "key-1",
+            "data": {
+              "index": 3,
+              "other-key": "baz"
+            }
+          },
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "new-foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "new-foo"
+              },
+              "key-3": {
+                "index": 3,
+                "other-key": "baz"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server now incorperates user update",
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "key-2",
+        "data": {
+          "index": 2,
+          "other-key": "qux"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "key-3",
+            "data": {
+              "index": 3,
+              "other-key": "baz"
+            }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-2",
+            "prevName": "key-1",
+            "data": {
+              "index": 2,
+              "other-key": "qux"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "new-foo"
+              },
+              "key-2": {
+                "index": 2,
+                "other-key": "qux"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Ack for merge doesn't raise value event for later listen",
+    "steps": [
+      {
+        "type": "update",
+        "path": "",
+        "data": {
+          "foo": "bar"
+        },
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "",
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": "bar"
+          }
+        ]
+      },
+      {
+        "type": "ackUserWrite",
+        ".comment": "This acks a merge, so we can't raise a value event yet",
+        "writeId": 0,
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "foo": "bar",
+          "qux": "quux"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "qux",
+            "prevName": "foo",
+            "data": "quux"
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "foo": "bar",
+              "qux": "quux"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Clear parent shadowing server values merge with server children",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 2,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 2
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "a",
+        "data": {"b": 28, "c": 3},
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 28
+          }
+        ]
+      },
+      {
+        ".comment": "This listen should get a complete event snap, as well as complete server children",
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": 28
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": 3
+          }
+        ]
+      },
+      {
+        ".comment": "Do a serverUpdate with a conflicting value for b, simulates a server value. It's still shadowed though",
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": 29,
+        "events": []
+      },
+      {
+        ".comment": "Clearing the set should result in updated values for b",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": 29
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": 29
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Priorities don't make me sick",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "set",
+        "path": "a/foo",
+        "data": {
+          "bar": "baz",
+          ".priority": "prio"
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "foo",
+            "prevName": null,
+            "data": {
+              "bar": "baz",
+              ".priority": "prio"
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "a/foo/bar",
+        "data": null,
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "foo",
+            "data": {
+              "bar": "baz",
+              ".priority": "prio"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "this caused vomitting in the past...",
+        "type": "set",
+        "path": "a/foo/bar",
+        "data": null,
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Merge that moves child from window to boundary does not cause child to be readded",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": [],
+        "params": {
+          "tag": 1,
+          "limitToFirst": 2,
+          "startAt": {"index": 1},
+          "orderBy": "index"
+        }
+      },
+      {
+        "type": "serverUpdate",
+        "path": "a",
+        "tag": 1,
+        "data": {
+          "2-a": {
+            "index": 10
+          },
+          "1-b": {
+            "index": 20
+          }
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "2-a",
+            "prevName": null,
+            "data": {
+              "index": 10
+            }
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "1-b",
+            "prevName": "2-a",
+            "data": {
+              "index": 20
+            }
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "2-a": { "index": 10 },
+              "1-b": { "index": 20 }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "2-a will be the 'next' child after the old '1-b' which will be updated first, but it shouldn't be added because it will actually be out of the window...",
+        "type": "update",
+        "path": "a",
+        "data": {
+          "1-b": { "index": 0 },
+          "2-a": { "index": 30 },
+          "3-c": { "index": 5 },
+          "4-d": { "index": 6 }
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "2-a",
+            "data": { "index": 10 }
+          },
+          {
+            "path": "a",
+            "type": "child_removed",
+            "name": "1-b",
+            "data": { "index": 20 }
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "3-c",
+            "prevName": null,
+            "data": { "index": 5 }
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "4-d",
+            "prevName": "3-c",
+            "data": { "index": 6 }
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "3-c": { "index": 5 },
+              "4-d": { "index": 6 }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Deep merge ack is handled correctly.",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        ".comment": "Initial server data.",
+        "type": "serverUpdate",
+        "path": "a",
+        "data": null,
+        "events": [
+          {
+            "path": "a",
+            "type": "value",
+            "data": null
+          }
+        ]
+      },
+      {
+        ".comment": "Do deep merge.",
+        "type": "update",
+        "path": "a/b",
+        "data": {
+          "c": 42,
+          "d": "hi"
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {
+              "c": 42,
+              "d": "hi"
+            }
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "b": {
+                "c": 42,
+                "d": "hi"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server update for our deep merge.",
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": {
+          "c": 42,
+          "d": "hi"
+        },
+        "events": []
+      },
+      {
+        ".comment": "ack deep merge.",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Deep merge ack (on incomplete data, and with server values)",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a/b",
+        "events": []
+      },
+      {
+        ".comment": "Initial server data.",
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": {
+          "c": "original-server-value"
+        },
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_added",
+            "name": "c",
+            "data": "original-server-value",
+            "prevName": null
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {
+              "c": "original-server-value"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Do deep merge.",
+        "type": "update",
+        "path": "a/b",
+        "data": {
+          "c": "user-merge-value"
+        },
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_changed",
+            "name": "c",
+            "data": "user-merge-value",
+            "prevName": null
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {
+              "c": "user-merge-value"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Listen on a (which won't have complete data).",
+        "type": "listen",
+        "path": "a",
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "name": "b",
+            "prevName": null,
+            "data": {
+              "c": "user-merge-value"
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server update for our deep merge, but change data (simulate server value).",
+        "type": "serverUpdate",
+        "path": "a/b",
+        "data": {
+          "c": "user-merge-value-after-server-resolution"
+        },
+        "events": []
+      },
+      {
+        ".comment": "ack deep merge.",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "events": [
+          {
+            "path": "a/b",
+            "type": "child_changed",
+            "name": "c",
+            "data": "user-merge-value-after-server-resolution",
+            "prevName": null
+          },
+          {
+            "path": "a/b",
+            "type": "value",
+            "data": {
+              "c": "user-merge-value-after-server-resolution"
+            }
+          },
+          {
+            "path": "a",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {
+              "c": "user-merge-value-after-server-resolution"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Limit query handles deep server merge for out-of-view item.",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "params": {
+          "tag": 1,
+          "limitToFirst": 1
+        },
+        "events": []
+      },
+      {
+        ".comment": "Initial server data.",
+        "type": "serverUpdate",
+        "path": "foo",
+        "tag": 1,
+        "data": {
+          "a": {
+            "val": "a-val",
+            ".priority": "a-pri"
+          }
+        },
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": {
+              "val": "a-val",
+              ".priority": "a-pri"
+            }
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "a": {
+                "val": "a-val",
+                ".priority": "a-pri"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server merge for out-of-view child 'b' (perhaps for another listener).  Shouldn't trigger events since we don't have complete data.",
+        "type": "serverMerge",
+        "path": "foo/b",
+        "data": {
+          "val": "b-val"
+        },
+        "events": [ ]
+      }
+    ]
+  },
+
+  {
+    "name": "Limit query handles deep user merge for out-of-view item.",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "params": {
+          "tag": 1,
+          "limitToFirst": 1
+        },
+        "events": []
+      },
+      {
+        ".comment": "Initial server data.",
+        "type": "serverUpdate",
+        "path": "foo",
+        "tag": 1,
+        "data": {
+          "a": {
+            "val": "a-val",
+            ".priority": "a-pri"
+          }
+        },
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": {
+              "val": "a-val",
+              ".priority": "a-pri"
+            }
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "a": {
+                "val": "a-val",
+                ".priority": "a-pri"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "User merge for out-of-view child 'b'.  Shouldn't trigger events since we don't have complete data.",
+        "type": "update",
+        "path": "foo/b",
+        "data": {
+          "val": "b-val"
+        },
+        "events": [ ]
+      }
+    ]
+  },
+
+  {
+    "name": "Limit query handles deep user merge for out-of-view item followed by server update.",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "foo",
+        "params": {
+          "tag": 1,
+          "limitToFirst": 1
+        },
+        "events": []
+      },
+      {
+        ".comment": "Initial server data.",
+        "type": "serverUpdate",
+        "path": "foo",
+        "tag": 1,
+        "data": {
+          "a": {
+            "val": "a-val",
+            ".priority": "a-pri"
+          }
+        },
+        "events": [
+          {
+            "path": "foo",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": {
+              "val": "a-val",
+              ".priority": "a-pri"
+            }
+          },
+          {
+            "path": "foo",
+            "type": "value",
+            "data": {
+              "a": {
+                "val": "a-val",
+                ".priority": "a-pri"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "User merge for out-of-view child 'b'.  Shouldn't trigger events since we don't have complete data.",
+        "type": "update",
+        "path": "foo/b",
+        "data": {
+          "val": "b-val-new"
+        },
+        "events": [ ]
+      },
+      {
+        ".comment": "Server update for 'b', bringing it into view.",
+        "type": "serverUpdate",
+        "path": "foo/b",
+        "data": {
+          "val": "b-val-old",
+          "val2": "b-val2"
+        },
+        "events": [
+          {
+            "type": "child_removed",
+            "path": "foo",
+            "name": "a",
+            "prevName": null,
+            "data": {
+              "val": "a-val",
+              ".priority": "a-pri"
+            }
+          },
+          {
+            "type": "child_added",
+            "path": "foo",
+            "name": "b",
+            "prevName": null,
+            "data": {
+              "val": "b-val-new",
+              "val2": "b-val2"
+            }
+          },
+          {
+            "type": "value",
+            "path": "foo",
+            "data": {
+              "b": {
+                "val": "b-val-new",
+                "val2": "b-val2"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Unrelated, untagged update is not cached in tagged listen",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "limitToFirst": 1,
+          "startAt": {"index": null}
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "",
+        "data": {
+          "key-1": {
+            "index": 1,
+            "other-key": "foo"
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "foo"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "server sends update for key-2 which should not be cached or marked complete",
+        "type": "serverUpdate",
+        "path": "key-2",
+        "data": {
+          "index": 2,
+          "other-key": "bar"
+        },
+        "events": []
+      },
+      {
+        ".comment": "Now an update for key-1 comes in, marking query as filtered",
+        "type": "serverMerge",
+        "tag": 1,
+        "path": "key-1",
+        "data": {
+          "other-key": "new-foo"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "new-foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "new-foo"
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Server now updates node out of view, should not mark view unfiltered",
+        "type": "serverUpdate",
+        "path": "key-3",
+        "data": { "index": 3, "other-key": "qux" },
+        "events": []
+      },
+      {
+        ".comment": "Server now updates node out of view, should not raise any events",
+        "type": "serverMerge",
+        "path": "key-2",
+        "data": { "index": 0 },
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Unrelated, acked set is not cached in tagged listen",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "limitToFirst": 1,
+          "startAt": {"index": null}
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "",
+        "data": {
+          "key-1": {
+            "index": 1,
+            "other-key": "foo"
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "foo"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "set",
+        "path": "key-1/other-key",
+        "data": "new-foo",
+        "events": [
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "new-foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "new-foo"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "serverUpdate",
+        "path": "key-1/other-key",
+        "tag": 1,
+        "data": "new-foo",
+        "events": []
+      },
+      {
+        ".comment": "The ack should not mark key-2 complete in tagged listen",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": false,
+        "events": []
+      },
+      {
+        ".comment": "Server now updates node out of view, should not raise any events",
+        "type": "serverMerge",
+        "path": "key-2",
+        "data": { "index": 0 },
+        "events": []
+      }
+    ]
+  },
+
+  {
+    "name": "Unrelated, acked update is not cached in tagged listen",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "index",
+          "limitToFirst": 1,
+          "startAt": {"index": null}
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "tag": 1,
+        "path": "",
+        "data": {
+          "key-1": {
+            "index": 1,
+            "other-key": "foo"
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "foo"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "key-1",
+        "data": {
+          "other-key": "new-foo"
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "key-1",
+            "prevName": null,
+            "data": {
+              "index": 1,
+              "other-key": "new-foo"
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "key-1": {
+                "index": 1,
+                "other-key": "new-foo"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "key-1",
+        "tag": 1,
+        "data": {
+          "other-key": "new-foo"
+        },
+        "events": []
+      },
+      {
+        ".comment": "The ack should not mark key-2 complete in tagged listen",
+        "type": "ackUserWrite",
+        "writeId": 0,
+        "revert": false,
+        "events": []
+      },
+      {
+        ".comment": "Server now updates node out of view, should not raise any events",
+        "type": "serverMerge",
+        "path": "key-2",
+        "data": { "index": 0 },
+        "events": []
+      }
+    ]
+  },
+  {
+    "name": "Deep update raises immediate events only if has complete data",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "age",
+          "limitToLast": 1
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "a": {
+            "age": 4
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": {
+              "age": 4
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": {
+                "age": 4
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "",
+        "data": {
+          "a/age": 0,
+          "e": {
+            "age": 4
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": {
+              "age": 4
+            }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "e",
+            "prevName": null,
+            "data": {
+              "age": 4
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "e": {
+                "age": 4
+              }
+            }
+          }
+        ]
+      },
+      {
+        ".comment": "Now we don't have a full data for child /f, don't raise the event. The events for child /e are correct, although may be confusing for customers.",
+        "type": "update",
+        "path": "",
+        "data": {
+          "e/age": 0,
+          "f/age": 4
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_moved",
+            "name": "e",
+            "prevName": null,
+            "data": {
+              "age": 0
+            }
+          },
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "e",
+            "prevName": null,
+            "data": {
+              "age": 0
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "e": {
+                "age": 0
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "f": {
+            "age": 4
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "e",
+            "data": {
+              "age": 0
+            }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "f",
+            "prevName": null,
+            "data": {
+              "age": 4
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "f": {
+                "age": 4
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Deep update returns minimum data required",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "",
+        "params": {
+          "tag": 1,
+          "orderBy": "idx",
+          "equalTo": { "index": true }
+        },
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "a": {
+            "name": "foo",
+            "idx": true
+          },
+          "b": {
+            "name": "bar",
+            "idx": true
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "a",
+            "prevName": null,
+            "data": {
+              "name": "foo",
+              "idx": true
+            }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "b",
+            "prevName": "a",
+            "data": {
+              "name": "bar",
+              "idx": true
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "a": {
+                "name": "foo",
+                "idx": true
+              },
+              "b": {
+                "name": "bar",
+                "idx": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "",
+        "tag": 1,
+        "data": {
+          "a/idx": false,
+          "b/name": "blah",
+          "c": {
+            "name": "bar",
+            "idx": true
+          }
+        },
+        "events": [
+          {
+            "path": "",
+            "type": "child_removed",
+            "name": "a",
+            "data": {
+              "name": "foo",
+              "idx": true
+            }
+          },
+          {
+            "path": "",
+            "type": "child_changed",
+            "name": "b",
+            "prevName": null,
+            "data": {
+              "name": "blah",
+              "idx": true
+            }
+          },
+          {
+            "path": "",
+            "type": "child_added",
+            "name": "c",
+            "prevName": "b",
+            "data": {
+              "name": "bar",
+              "idx": true
+            }
+          },
+          {
+            "path": "",
+            "type": "value",
+            "data": {
+              "b": {
+                "name": "blah",
+                "idx": true
+              },
+              "c": {
+                "name": "bar",
+                "idx": true
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Deep update raises all events",
+    "steps": [
+      {
+        "type": "listen",
+        "path": "a",
+        "events": []
+      },
+      {
+        "type": "listen",
+        "path": "b",
+        "events": []
+      },
+      {
+        "type": "serverUpdate",
+        "path": "",
+        "data": {
+          "a": { "aa": 1, "ab": 2 },
+          "b": { "ba": 3, "bb": 4 }
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_added",
+            "prevName": null,
+            "name": "aa",
+            "data": 1
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "prevName": "aa",
+            "name": "ab",
+            "data": 2
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "aa": 1,
+              "ab": 2
+            }
+          },
+          {
+            "path": "b",
+            "type": "child_added",
+            "prevName": null,
+            "name": "ba",
+            "data": 3
+          },
+          {
+            "path": "b",
+            "type": "child_added",
+            "prevName": "ba",
+            "name": "bb",
+            "data": 4
+          },
+          {
+            "path": "b",
+            "type": "value",
+            "data": {
+              "ba": 3,
+              "bb": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "update",
+        "path": "",
+        "data": {
+          "a/aa": 0,
+          "b/ba": 0
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_changed",
+            "prevName": null,
+            "name": "aa",
+            "data": 0
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "aa": 0,
+              "ab": 2
+            }
+          },
+          {
+            "path": "b",
+            "type": "child_changed",
+            "prevName": null,
+            "name": "ba",
+            "data": 0
+          },
+          {
+            "path": "b",
+            "type": "value",
+            "data": {
+              "ba": 0,
+              "bb": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "serverMerge",
+        "path": "a",
+        "data": {
+          "ab/abc": 1,
+          "ac/acd": 2
+        },
+        "events": [
+          {
+            "path": "a",
+            "type": "child_changed",
+            "prevName": "aa",
+            "name": "ab",
+            "data": { "abc": 1 }
+          },
+          {
+            "path": "a",
+            "type": "child_added",
+            "prevName": "ab",
+            "name": "ac",
+            "data": { "acd": 2 }
+          },
+          {
+            "path": "a",
+            "type": "value",
+            "data": {
+              "aa": 0,
+              "ab": { "abc": 1 },
+              "ac": { "acd": 2 }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

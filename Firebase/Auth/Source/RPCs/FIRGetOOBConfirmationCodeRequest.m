@@ -1,0 +1,229 @@
+/*
+ * Copyright 2017 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import "FIRGetOOBConfirmationCodeRequest.h"
+
+#import "../Private/FIRActionCodeSettings.h"
+#import "../Private/FIRAuthErrorUtils.h"
+#import "../Private/FIRAuth_Internal.h"
+
+/** @var kKind
+    @brief The value for the required "kind" property in the request.
+ */
+static NSString *const kKind = @"identitytoolkit#relyingparty";
+
+/** @var kEndpoint
+    @brief The getOobConfirmationCode endpoint name.
+ */
+static NSString *const kEndpoint = @"getOobConfirmationCode";
+
+/** @var kKindKey
+    @brief The name of the required "kind" property in the request.
+ */
+static NSString *const kKindKey = @"kind";
+
+/** @var kRequestTypeKey
+    @brief The name of the required "requestType" property in the request.
+ */
+static NSString *const kRequestTypeKey = @"requestType";
+
+/** @var kEmailKey
+    @brief The name of the "email" property in the request.
+ */
+static NSString *const kEmailKey = @"email";
+
+/** @var kIDTokenKey
+    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+        despite it's confusing (backwards compatiable) parameter name.
+ */
+static NSString *const kIDTokenKey = @"idToken";
+
+/** @var kContinueURLKey
+    @brief The key for the "continue URL" value in the request.
+ */
+static NSString *const kContinueURLKey = @"continueUrl";
+
+/** @var kIosBundeIDKey
+    @brief The key for the "iOS Bundle Identifier" value in the request.
+ */
+static NSString *const kIosBundleIDKey = @"iOSBundleId";
+
+/** @var kIosAppStoreIDKey
+    @brief The key for the "iOS App Store Id" value in the request.
+ */
+static NSString *const kIosAppStoreIDKey = @"iOSAppStoreId";
+
+/** @var kAndroidPackageNameKey
+    @brief The key for the "Android Package Name" value in the request.
+ */
+static NSString *const kAndroidPackageNameKey = @"androidPackageName";
+
+/** @var kAndroidInstallAppKey
+    @brief The key for the request parameter indicating whether the android app should be installed
+        or not.
+ */
+static NSString *const kAndroidInstallAppKey = @"androidInstallApp";
+
+/** @var kAndroidMinimumVersionKey
+    @brief The key for the "minimum Android version supported" value in the request.
+ */
+static NSString *const kAndroidMinimumVersionKey = @"androidMinimumVersion";
+
+/** @var kCanHandleCodeInAppKey
+    @brief The key for the request parameter indicating whether the action code can be handled in
+        the app or not.
+ */
+static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
+
+/** @var kPasswordResetRequestTypeValue
+    @brief The value for the "PASSWORD_RESET" request type.
+ */
+static NSString *const kPasswordResetRequestTypeValue = @"PASSWORD_RESET";
+
+/** @var kVerifyEmailRequestTypeValue
+    @brief The value for the "VERIFY_EMAIL" request type.
+ */
+static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
+
+@interface FIRGetOOBConfirmationCodeRequest ()
+
+/** @fn initWithRequestType:email:APIKey:
+    @brief Designated initializer.
+    @param requestType The types of OOB Confirmation Code to request.
+    @param email The email of the user.
+    @param accessToken The STS Access Token of the currently signed in user.
+    @param APIKey The client's API Key.
+    @param actionCodeSettings A FIRActionCodeSettings object that contains the settings related to
+        the handling action codes.
+ */
+- (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
+                                       email:(nullable NSString *)email
+                                 accessToken:(nullable NSString *)accessToken
+                                      APIKey:(nullable NSString *)APIKey
+                          actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                              NS_DESIGNATED_INITIALIZER;
+
+@end
+
+@implementation FIRGetOOBConfirmationCodeRequest
+
+/** @var requestTypeStringValueForRequestType:
+    @brief Returns the string equivilent for an @c FIRGetOOBConfirmationCodeRequestType value.
+ */
++ (NSString *)requestTypeStringValueForRequestType:
+    (FIRGetOOBConfirmationCodeRequestType)requestType {
+  switch (requestType) {
+    case FIRGetOOBConfirmationCodeRequestTypePasswordReset:
+      return kPasswordResetRequestTypeValue;
+    case FIRGetOOBConfirmationCodeRequestTypeVerifyEmail:
+      return kVerifyEmailRequestTypeValue;
+    // No default case so that we get a compiler warning if a new value was added to the enum.
+  }
+}
+
++ (FIRGetOOBConfirmationCodeRequest *)
+    passwordResetRequestWithEmail:(NSString *)email
+               actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                           APIKey:(NSString *)APIKey {
+  return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypePasswordReset
+                                     email:email
+                               accessToken:nil
+                                    APIKey:APIKey
+                        actionCodeSettings:actionCodeSettings];
+}
+
++ (FIRGetOOBConfirmationCodeRequest *)
+    verifyEmailRequestWithAccessToken:(NSString *)accessToken
+                   actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                               APIKey:(NSString *)APIKey {
+  return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeVerifyEmail
+                                     email:nil
+                               accessToken:accessToken
+                                    APIKey:APIKey
+                        actionCodeSettings:actionCodeSettings];
+}
+
+- (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
+                                       email:(nullable NSString *)email
+                                 accessToken:(nullable NSString *)accessToken
+                                      APIKey:(nullable NSString *)APIKey
+                          actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings {
+  self = [super initWithEndpoint:kEndpoint APIKey:APIKey];
+  if (self) {
+    _requestType = requestType;
+    _email = email;
+    _accessToken = accessToken;
+    _continueURL = actionCodeSettings.URL.absoluteString;
+    _iOSBundleID = actionCodeSettings.iOSBundleID;
+    _iOSAppStoreID = actionCodeSettings.iOSAppStoreID;
+    _androidPackageName = actionCodeSettings.androidPackageName;
+    _androidMinimumVersion = actionCodeSettings.androidMinimumVersion;
+    _androidInstallApp = actionCodeSettings.androidInstallIfNotAvailable;
+    _handleCodeInApp = actionCodeSettings.handleCodeInApp;
+  }
+  return self;
+}
+
+- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
+  NSMutableDictionary *body = [@{
+    kKindKey : kKind,
+    kRequestTypeKey : [[self class] requestTypeStringValueForRequestType:_requestType]
+  } mutableCopy];
+
+  // For password reset requests, we only need an email address in addition to the already required
+  // fields.
+  if (_requestType == FIRGetOOBConfirmationCodeRequestTypePasswordReset) {
+    body[kEmailKey] = _email;
+  }
+
+  // For verify email requests, we only need an STS Access Token in addition to the already required
+  // fields.
+  if (_requestType == FIRGetOOBConfirmationCodeRequestTypeVerifyEmail) {
+    body[kIDTokenKey] = _accessToken;
+  }
+
+  if (_continueURL) {
+    body[kContinueURLKey] = _continueURL;
+  }
+
+  if (_iOSBundleID) {
+    body[kIosBundleIDKey] = _iOSBundleID;
+  }
+
+  if (_iOSAppStoreID) {
+    body[kIosAppStoreIDKey] = _iOSAppStoreID;
+  }
+
+  if (_androidPackageName) {
+    body[kAndroidPackageNameKey] = _androidPackageName;
+  }
+
+  if (_androidMinimumVersion) {
+    body[kAndroidMinimumVersionKey] = _androidMinimumVersion;
+  }
+
+  if (_androidInstallApp) {
+    body[kAndroidInstallAppKey] = @YES;
+  }
+
+  if (_handleCodeInApp) {
+    body[kCanHandleCodeInAppKey] = @YES;
+  }
+
+  return body;
+}
+
+@end
