@@ -14,10 +14,6 @@
 //   limitations under the License.
 //
 
-//
-//   Distributed with modifications by Firebase ( https://www.firebase.com )
-//
-
 #import <Foundation/Foundation.h>
 
 @interface FSRUtilities : NSObject

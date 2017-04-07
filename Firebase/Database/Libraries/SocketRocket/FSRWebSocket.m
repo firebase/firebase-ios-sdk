@@ -14,11 +14,6 @@
 //   limitations under the License.
 //
 
-//
-//   Distributed with modifications by Firebase ( https://www.firebase.com )
-//
-
-
 #import "FSRWebSocket.h"
 
 #if TARGET_OS_IPHONE

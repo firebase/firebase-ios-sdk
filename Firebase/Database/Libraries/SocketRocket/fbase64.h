@@ -13,10 +13,6 @@
 //   limitations under the License.
 //
 
-//
-//   Distributed with modifications by Firebase ( https://www.firebase.com )
-//
-
 #ifndef FSocketRocket_base64_h
 #define FSocketRocket_base64_h
 

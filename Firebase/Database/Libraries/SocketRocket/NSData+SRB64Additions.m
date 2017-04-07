@@ -14,10 +14,6 @@
 //   limitations under the License.
 //
 
-//
-//   Distributed with modifications by Firebase ( https://www.firebase.com )
-//
-
 #import "NSData+SRB64Additions.h"
 #import "fbase64.h"
 

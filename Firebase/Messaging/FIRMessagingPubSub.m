@@ -40,7 +40,7 @@ static NSString *const kPendingSubscriptionsListKey =
 
 - (instancetype)init {
   FIRMessagingInvalidateInitializer();
-  // Need this to disable a stupid Xcode warning.
+  // Need this to disable an Xcode warning.
   return [self initWithClient:nil];
 }
 

@@ -10,7 +10,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.homepage         = 'https://firebase.google.com'
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
-  s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
   s.default_subspec  = 'Root'
