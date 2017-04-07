@@ -607,7 +607,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
       dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
         id mockSetAccountInfoResponse = OCMClassMock([FIRSetAccountInfoResponse class]);
         OCMStub([mockSetAccountInfoResponse displayName]).andReturn(kNewDisplayName);
-        // TODO(xiangtian): enable the following line once we have photoURL property in
+        // TODO: enable the following line once we have photoURL property in
         // FIRSetAccountInfoResponse. The server already returns this field.
         // OCMStub([mockSetAccountInfoResponse photoURL]).andReturn(kNewPhotoURL);
         callback(mockSetAccountInfoResponse, nil);

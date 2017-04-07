@@ -31,7 +31,7 @@
  * default FIRApp instance if we need it. Since protocols don't carry any runtime information and selectors
  * are invoked by name we can write code against this protocol as long as the method signatures don't change.
  *
- * TODO(mikelehen): Consider weak-linking the actual Firebase/Core framework or something.
+ * TODO: Consider weak-linking the actual Firebase/Core framework or something.
  */
 
 extern NSString *const kFIRDefaultAppName;
@@ -59,8 +59,8 @@ static NSString *const FIREBASE_SEMVER = @"XXX_TAG_VERSION_XXX";
  * A static NSMutableDictionary of FirebaseApp names to FirebaseDatabase instance. To ensure thread-
  * safety, it should only be accessed in databaseForApp, which is synchronized.
  *
- * TODO(mikelehen): This serves a duplicate purpose as RepoManager.  We should clean up.
- * TODO(mikelehen): We should maybe be conscious of leaks and make this a weak map or similar
+ * TODO: This serves a duplicate purpose as RepoManager.  We should clean up.
+ * TODO: We should maybe be conscious of leaks and make this a weak map or similar
  * but we have a lot of work to do to allow FirebaseDatabase/Repo etc. to be GC'd.
  */
 + (NSMutableDictionary *)instances {

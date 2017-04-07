@@ -20,7 +20,7 @@
  * A bunch of different fake connections are used to simulate various connection behaviours.
  * A fake connection that successfully conects to remote host.
  */
-// TODO(mosharma): Split FIRMessagingConnection to make it more testable.
+// TODO: Split FIRMessagingConnection to make it more testable.
 @interface FIRMessagingFakeConnection : FIRMessagingConnection
 
 @property(nonatomic, readwrite, assign) BOOL shouldFakeSuccessLogin;
@@ -54,7 +54,7 @@
 /**
  * A fake connection that simulates failure a certain number of times before success.
  */
-// TODO(mosharma): Coalesce this with the FIRMessagingFakeConnection itself.
+// TODO: Coalesce this with the FIRMessagingFakeConnection itself.
 @interface FIRMessagingFakeFailConnection : FIRMessagingFakeConnection
 
 @property(nonatomic, readwrite, assign) int failCount;

@@ -45,7 +45,7 @@ static const int kMaxDelaySeconds = 60 * 60; // 1 hour
 static NSString *const kFromForInstanceIDMessages = @"google.com/iid";
 static NSString *const kFromForFIRMessagingMessages = @"mcs.android.com";
 static NSString *const kGSFMessageCategory = @"com.google.android.gsf.gtalkservice";
-// TODO(mosharma): Update Gcm to FIRMessaging in the constants below
+// TODO: Update Gcm to FIRMessaging in the constants below
 static NSString *const kGcmMessageCategory = @"com.google.gcm";
 static NSString *const kMessageReservedPrefix = @"google.";
 
@@ -217,7 +217,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
     [message setObject:item.value forKey:item.key];
   }
-  // TODO(mosharma): Add support for encrypting raw data later
+  // TODO: Add support for encrypting raw data later
   return [NSDictionary dictionaryWithDictionary:message];
 }
 
@@ -226,7 +226,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   if ([message[kGcmMessageSpecialMessage] length]) {
     NSString *messageType = message[kGcmMessageSpecialMessage];
     if ([kGcmMessageTypeDeletedMessages isEqualToString:messageType]) {
-      // TODO(mosharma): Maybe trim down message to remove some unnecessary fields.
+      // TODO: Maybe trim down message to remove some unnecessary fields.
       // tell the gcm receiver of deleted messages
       [self.delegate didDeleteMessagesOnServer];
       return;
@@ -262,7 +262,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   NSString *appPackage = [self categoryForUpstreamMessages];
   GtalkDataMessageStanza *stanza = [[GtalkDataMessageStanza alloc] init];
 
-  // TODO(mosharma): enforce TTL (right now only ttl=0 is special, means no storage)
+  // TODO: enforce TTL (right now only ttl=0 is special, means no storage)
   int ttl = [ttlNumber intValue];
   if (ttl < 0 || ttl > self.ttl) {
     ttl = self.ttl;

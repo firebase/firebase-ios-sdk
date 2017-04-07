@@ -88,7 +88,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
         FIRAuthCredential instance.
  */
 - (void)testCredentialWithVerificationID {
-  // TODO:zsika update this test whenVerifyPhoneNumberRequest is added.
+  // TODO: update this test whenVerifyPhoneNumberRequest is added.
   FIRAuthCredential *credential =
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kTestVerificationID
                                                    verificationCode:kTestVerificationCode];

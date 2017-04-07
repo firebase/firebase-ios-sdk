@@ -48,7 +48,7 @@ static int const kInvalidStreamId = -1;
 // Threshold for number of messages removed that we will ack, for short lived connections
 static int const kMessageRemoveAckThresholdCount = 5;
 
-// TODO(mosharma): adjust to desired heartbeat interval
+// TODO: adjust to desired heartbeat interval
 static NSTimeInterval const kHeartbeatInterval = 30.0;
 static NSTimeInterval const kConnectionTimeout = 20.0;
 static int32_t const kAckingInterval = 10;
@@ -480,7 +480,7 @@ static NSString *const kRemoteFromAddress = @"from";
 }
 
 - (void)didReceiveDataMessageStanza:(GtalkDataMessageStanza *)dataMessageStanza {
-  // TODO(mosharma): Maybe add support raw data later
+  // TODO: Maybe add support raw data later
   [self.delegate connectionDidRecieveMessage:dataMessageStanza];
 }
 
@@ -626,7 +626,7 @@ static NSString *const kRemoteFromAddress = @"from";
  * been received by MCS.
  */
 - (void)didReceiveAckForRmqIds:(NSArray *)rmqIds {
-  // TODO(mosharma): let the user know that the following messages were received by the server
+  // TODO: let the user know that the following messages were received by the server
 }
 
 - (void)confirmAckedS2dIdsWithStreamId:(int)lastReceivedStreamId {
@@ -634,7 +634,7 @@ static NSString *const kRemoteFromAddress = @"from";
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeConnection019,
                           @"RMQ: Server last received stream Id: %d.", lastReceivedStreamId);
   if (lastReceivedStreamId < self.outStreamId) {
-    // TODO(mosharma): This could be a good indicator that we need to re-send something (acks)?
+    // TODO: This could be a good indicator that we need to re-send something (acks)?
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeConnection020,
                             @"RMQ: There are unsent messages that should be send...\n"
                              "server received: %d\nlast stream id sent: %d",

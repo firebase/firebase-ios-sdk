@@ -1115,7 +1115,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             [_outputStream close];
             [_inputStream close];
 
-            // TODO(mikelehen): Why are we missing the SocketRocket code to call unscheduleFromRunLoop???
+            // TODO: Why are we missing the SocketRocket code to call unscheduleFromRunLoop???
         }
         
         if (!_failed) {

@@ -62,7 +62,7 @@ NSString *const kFIRStorageMetadataUpdated = @"updated";
 NSString *const kFIRStorageMetadataName = @"name";
 NSString *const kFIRStorageMetadataDownloadTokens = @"downloadTokens";
 
-// TODO (mpmcdonald): add notification support
+// TODO: add notification support
 NSString *const kFIRStorageTaskStatusResumeNotification =
     @"kFIRStorageTaskStatusResumeNotification";
 NSString *const kFIRStorageTaskStatusPauseNotification = @"kFIRStorageTaskStatusResumeNotification";

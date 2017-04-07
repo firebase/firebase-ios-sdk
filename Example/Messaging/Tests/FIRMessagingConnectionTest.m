@@ -223,7 +223,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
 }
 
 - (void)testLoginRequest_withPendingMessagesInRmq {
-  // TODO(mosharma): add fake messages to rmq and test login request with them
+  // TODO: add fake messages to rmq and test login request with them
 }
 
 - (void)testLoginRequest_withSuccessfulResponse {
@@ -365,7 +365,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
   XCTAssertTrue(self.didSuccessfullySendData);
 }
 
-// TODO(mosharma): Add tests for Selective/Stream ACK's
+// TODO: Add tests for Selective/Stream ACK's
 
 #pragma mark - Stubs
 

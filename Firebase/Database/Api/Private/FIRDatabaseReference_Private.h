@@ -21,12 +21,12 @@
 
 @interface FIRDatabaseReference ()
 
-// TODO(mikelehen): Update all of our tests to go through FIRDatabase instead of these initializers.
+// TODO: Update all of our tests to go through FIRDatabase instead of these initializers.
 - (id)initWithUrl:(NSString *)url;
 - (id)initWithUrl:(NSString *)url config:(FIRDatabaseConfig *)config;
 
 - (id)initWithRepo:(FRepo *)repo path:(FPath *)path;
 
-// TODO(mikelehen): Update tests to not use this.
+// TODO: Update tests to not use this.
 + (FIRDatabaseConfig *)defaultConfig;
 @end

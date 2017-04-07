@@ -28,7 +28,7 @@
  */
 typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSData *data);
 
-// TODO(mosharma): These constants should be prefixed by FIRMessaging
+// TODO: These constants should be prefixed by FIRMessaging
 
 /// Outgoing messages RMQ table
 extern NSString *const kTableOutgoingRmqMessages;

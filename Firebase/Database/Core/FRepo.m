@@ -98,7 +98,7 @@
 }
 
 - (void)deferredInit {
-    // TODO(dimond): cleanup on dealloc
+    // TODO: cleanup on dealloc
     __weak FRepo *weakSelf = self;
     [self.config.authTokenProvider listenForTokenChanges:^(NSString *token) {
         [weakSelf.connection refreshAuthToken:token];

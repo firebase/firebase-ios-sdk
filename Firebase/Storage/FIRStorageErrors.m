@@ -89,7 +89,7 @@
       break;
 
     case FIRStorageErrorCodeNonMatchingChecksum: {
-      // TODO (mpmcdonald): replace with actual checksum strings when we choose to implement.
+      // TODO: replace with actual checksum strings when we choose to implement.
       NSString *const kChecksumFailedErrorFormat =
           @"Uploaded/downloaded object %@ has checksum: %@ "
           @"which does not match server checksum: %@. Please retry the upload/download.";

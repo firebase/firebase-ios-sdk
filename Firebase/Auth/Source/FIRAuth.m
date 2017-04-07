@@ -333,7 +333,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       });
     };
 
-    // TODO(xiangtian): Add unit tests for the getUID implementation. See b/36897163.
+    // TODO: Add unit tests for the getUID implementation. See b/36897163.
     app.getUIDImplementation = ^NSString *_Nullable() {
       __block NSString *uid;
       dispatch_sync(FIRAuthGlobalWorkQueue(), ^{

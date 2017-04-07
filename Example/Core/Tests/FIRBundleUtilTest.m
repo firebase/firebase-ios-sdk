@@ -38,7 +38,7 @@ static NSString *const kFileType = @"fileType";
   XCTAssertEqual([NSBundle mainBundle], [FIRBundleUtil relevantBundles][0]);
 }
 
-// TODO(westarle): test that adding a bundle appears in "all bundles"
+// TODO: test that adding a bundle appears in "all bundles"
 // once the use-case is understood.
 
 - (void)testFindOptionsDictionaryPath {

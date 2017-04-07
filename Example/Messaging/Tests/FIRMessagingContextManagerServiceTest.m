@@ -62,7 +62,7 @@
   XCTAssertTrue([FIRMessagingContextManagerService isContextManagerMessage:message]);
 }
 
-// TODO(mosharma): Enable these tests. They fail because we cannot schedule local
+// TODO: Enable these tests. They fail because we cannot schedule local
 // notifications on OSX without permission. It's better to mock AppDelegate's
 // scheduleLocalNotification to mock scheduling behavior.
 

@@ -19,7 +19,7 @@
 #import "FIRStorageMetadata_Private.h"
 #import "FIRStorageUtils.h"
 
-// TODO (mpmcdonald): consider rewriting this using GTLR (GTLRStorageObjects.h)
+// TODO: consider rewriting this using GTLR (GTLRStorageObjects.h)
 @implementation FIRStorageMetadata
 
 #pragma mark - Initializers

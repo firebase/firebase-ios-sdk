@@ -136,7 +136,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   notification.timeZone = [NSTimeZone defaultTimeZone];
   notification.fireDate = date;
 
-  // TODO(mosharma): what is the best way to put all of this extra data?
+  // TODO: what is the best way to put all of this extra data?
   // In the current solution all of the display stuff goes into a special "aps" dictionary
   // being sent in the message.
   if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {

@@ -713,7 +713,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     // If the response type returns a non-nil value for the "expectedKind" message, we perform
     // validation of the "kind" property of the response.
     NSString *expectedKind = [response expectedKind];
-    // TODO:(zsika) remove kKind from the backend response and all sites of this validation
+    // TODO: remove kKind from the backend response and all sites of this validation
     // (including unit tests).
     if (expectedKind && ![expectedKind isEqual:dictionary[kKindKey]]) {
       NSError *unexpectedResponse =

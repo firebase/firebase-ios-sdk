@@ -38,7 +38,7 @@ NSString *const kFIRIsAnalyticsCollectionDeactivated = @"FIREBASE_ANALYTICS_COLL
 NSString *const kFIRIsAnalyticsEnabled = @"IS_ANALYTICS_ENABLED";
 NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 
-// TODO(paulbeusterien): Remove bug from comment before open source
+// TODO: Remove bug from comment before open source
 // Library version ID. Fix b/28753358 (>1 digit minor version number support)
 NSString *const kFIRLibraryVersionID =
     @"3"     // Major version (one or more digits)

@@ -200,7 +200,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
   OCMVerifyAll(self.mockReceiver);
 }
 
-// TODO(mosharma): Add test with rawData exceeding 4KB in size
+// TODO: Add test with rawData exceeding 4KB in size
 
 - (void)testSendValidMessage_withRmqSaveError {
   NSString *messageID = @"1";
@@ -251,7 +251,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
   OCMVerifyAll(self.mockClient);
 }
 
-// TODO(chliang):failed on simulator 7.1 & 8.2, take this out temporarily
+// TODO:failed on simulator 7.1 & 8.2, take this out temporarily
 - (void)XXX_testSendValidMessage_withTTL0AndNoFIRMessagingConnection {
   // simulate a invalid connection
   [[[self.mockClient stub] andReturnValue:@NO] isConnectionActive];
@@ -287,7 +287,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
   OCMVerifyAll(self.mockClient);
 }
 
-// TODO(mosharma): Investigate why is this test flaky on TAP. It works perfectly
+// TODO: Investigate why is this test flaky on TAP. It works perfectly
 // fine on my local system.
 - (void)xxx_testSendValidMessage_withTTL0AndNoNetwork {
   // simulate a invalid connection
@@ -314,7 +314,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
   OCMVerifyAll(self.mockReceiver);
 }
 
-// TODO(Chliang):failed on simulator 7.1 & 8.2, take this out temporarily
+// TODO:failed on simulator 7.1 & 8.2, take this out temporarily
 - (void)XXX_testDelayedMessagesBeingResentOnReconnect {
   static BOOL isConnectionActive = NO;
   OCMStub([self.mockClient isConnectionActive]).andDo(^(NSInvocation *invocation) {
@@ -554,7 +554,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
 }
 
 - (void)testResendingExpiredMessagesFails {
-  // TODO(mosharma): Test that expired messages should not be sent on resend
+  // TODO: Test that expired messages should not be sent on resend
   static BOOL isClientConnected = NO;
   [[[self.mockClient stub] andDo:^(NSInvocation *invocation) {
     [invocation setReturnValue:&isClientConnected];
@@ -602,7 +602,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
 #pragma mark - Private
 
 - (void)addFakeFIRMessagingRegistrationToken {
-  // TODO(mosharma): Fix this ??
+  // TODO: Fix this ??
   // [[FIRMessagingDefaultsManager sharedInstance] saveAppIDToken:kFIRMessagingAppIDToken];
 }
 

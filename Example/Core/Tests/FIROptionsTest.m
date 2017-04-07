@@ -135,7 +135,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.storageBucket, kStorageBucket);
   XCTAssertEqualObjects(options.bundleID, kBundleID);
 
-  // TODO(wilsonryan): Add projectID to the FIROptions constructor for I/O (b/35308705).
+  // TODO: Add projectID to the FIROptions constructor for I/O (b/35308705).
   if (matchProjectID) {
     XCTAssertEqualObjects(options.projectID, kProjectID);
   }

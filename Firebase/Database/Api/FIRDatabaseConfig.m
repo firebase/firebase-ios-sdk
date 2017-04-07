@@ -80,7 +80,7 @@
     self->_isFrozen = YES;
 }
 
-// TODO(mikelehen): Only used for tests.  Migrate to FIRDatabase and remove.
+// TODO: Only used for tests.  Migrate to FIRDatabase and remove.
 + (FIRDatabaseConfig *)defaultConfig {
     static dispatch_once_t onceToken;
     static FIRDatabaseConfig *defaultConfig;
@@ -90,7 +90,7 @@
     return defaultConfig;
 }
 
-// TODO(mikelehen): This is only used for tests.  We should fix them to go through FIRDatabase and remove
+// TODO: This is only used for tests.  We should fix them to go through FIRDatabase and remove
 // this method and the sessionsConfigs dictionary (FIRDatabase automatically creates one config per app).
 + (FIRDatabaseConfig *)configForName:(NSString *)name {
     NSRegularExpression *expression = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9-_]+$" options:0 error:nil];

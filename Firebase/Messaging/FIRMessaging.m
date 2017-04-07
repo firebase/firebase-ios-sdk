@@ -179,8 +179,8 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   [self setupLogger:self.config.logLevel];
   [self setupReceiverWithConfig:self.config];
 
-  // TODO(jielu): b/31255903 update GIPReachability.m to check the device version as well.
-  // TODO(jielu): figure out a more generic way to check device version that is compatible for
+  // TODO: b/31255903 update GIPReachability.m to check the device version as well.
+  // TODO: figure out a more generic way to check device version that is compatible for
   // different platforms, e.g. iOS/watchOS/macOS/etc.
 //  if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_x_Max) {
 //    // Use the IPv6 friendly method SCNetworkReachabilityCreateWithName to check the reachability.

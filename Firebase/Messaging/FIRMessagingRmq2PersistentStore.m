@@ -605,7 +605,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 }
 
 - (BOOL)deleteSyncMessageWithRmqID:(NSString *)rmqID {
-  // TODO(mosharma): Move this method
+  // TODO: Move this method
   _FIRMessagingDevAssert([rmqID length], @"Invalid rmqID key %@ to delete in SYNC_RMQ", rmqID);
   return [self deleteMessagesFromTable:kTableSyncMessages withRmqIds:@[rmqID]] > 0;
 }

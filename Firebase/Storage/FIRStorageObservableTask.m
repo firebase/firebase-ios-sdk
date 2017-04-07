@@ -53,7 +53,7 @@
 
   // Note: self.snapshot is synchronized
   FIRStorageTaskSnapshot *snapshot = self.snapshot;
-  // TODO (mpmcdonald): use an increasing counter instead of a random UUID
+  // TODO: use an increasing counter instead of a random UUID
   NSString *UUIDString = [[NSUUID UUID] UUIDString];
   switch (status) {
     case FIRStorageTaskStatusPause:
@@ -198,7 +198,7 @@
     callbackQueue = dispatch_get_main_queue();
   }
 
-  // TODO (mpmcdonald): iterate over this list in a consistent order
+  // TODO: iterate over this list in a consistent order
   NSMutableDictionary<NSString *, FIRStorageVoidSnapshot> *handlersCopy;
   @synchronized(self) {
     handlersCopy = [handlers copy];

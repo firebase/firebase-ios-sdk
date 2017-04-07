@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * TODO(mikelehen): Merge FIRDatabaseConfig into FIRDatabase.
+ * TODO: Merge FIRDatabaseConfig into FIRDatabase.
  */
 @interface FIRDatabaseConfig : NSObject
 

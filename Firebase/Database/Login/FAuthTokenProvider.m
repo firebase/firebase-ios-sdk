@@ -126,7 +126,7 @@ typedef NS_ENUM(NSUInteger, FIRErrorCode) {
 }
 
 - (void) fetchTokenForcingRefresh:(BOOL)forceRefresh withCallback:(fbt_void_nsstring_nserror)callback {
-    // TODO(dimond): Don't fetch token if there is no current user
+    // TODO: Don't fetch token if there is no current user
     [self.app getTokenForcingRefresh:forceRefresh withCallback:^(NSString * _Nullable token, NSError * _Nullable error) {
         dispatch_async([FIRDatabaseQuery sharedQueue], ^{
             if (error != nil) {
