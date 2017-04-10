@@ -18,11 +18,7 @@
 
 #import "sqlite3.h"
 
-#if FIRMessaging_GYP_PROJECT
-#import "buzz/mobile/proto/GtalkCore.pb.h"
-#else
 #import "Protos/GtalkCore.pbobjc.h"
-#endif
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"

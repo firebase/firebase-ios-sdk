@@ -16,8 +16,6 @@
 
 #import "FIRMessagingClient.h"
 
-//#import "googlemac/iPhone/Shared/Net/GIPReachability.h"
-
 #import "FIRMessagingConnection.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
@@ -26,6 +24,7 @@
 #import "FIRMessagingRmqManager.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "FIRMessagingUtilities.h"
+#import "FIRReachabilityChecker.h"
 #import "NSError+FIRMessaging.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;
@@ -92,7 +91,7 @@ static NSUInteger FIRMessagingServerPort() {
 
 // FIRMessagingService owns these instances
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
-@property(nonatomic, readwrite, weak) GIPReachability *reachability;
+@property(nonatomic, readwrite, weak) FIRReachabilityChecker *reachability;
 
 @property(nonatomic, readwrite, assign) int64_t lastConnectedTimestamp;
 @property(nonatomic, readwrite, assign) int64_t lastDisconnectedTimestamp;
@@ -121,7 +120,7 @@ static NSUInteger FIRMessagingServerPort() {
 }
 
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate
-                    reachability:(GIPReachability *)reachability
+                    reachability:(FIRReachabilityChecker *)reachability
                      rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager {
   self = [super init];
   if (self) {
@@ -477,22 +476,24 @@ static NSUInteger FIRMessagingServerPort() {
 #pragma mark - Schedulers
 
 - (void)scheduleConnectRetry {
-//  if (!self.reachability.isReachable) {
-//    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient010,
-//                            @"Internet not reachable when signing into MCS during a retry");
-//
-//    FIRMessagingConnectCompletionHandler handler = [self.connectHandler copy];
-//    // disconnect before issuing a callback
-//    [self disconnectWithTryToConnectLater:YES];
-//    NSError *error = [NSError errorWithDomain:@"No internet available, cannot connect to FIRMessaging"
-//                                         code:kFIRMessagingErrorCodeNetwork
-//                                     userInfo:nil];
-//    if (handler) {
-//      handler(error);
-//      self.connectHandler = nil;
-//    }
-//    return;
-//  }
+  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
+  BOOL isReachable = (status == kFIRReachabilityViaWifi || status == kFIRReachabilityViaCellular);
+  if (!isReachable) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient010,
+                            @"Internet not reachable when signing into MCS during a retry");
+
+    FIRMessagingConnectCompletionHandler handler = [self.connectHandler copy];
+    // disconnect before issuing a callback
+    [self disconnectWithTryToConnectLater:YES];
+    NSError *error = [NSError errorWithDomain:@"No internet available, cannot connect to FIRMessaging"
+                                         code:kFIRMessagingErrorCodeNetwork
+                                     userInfo:nil];
+    if (handler) {
+      handler(error);
+      self.connectHandler = nil;
+    }
+    return;
+  }
 
   NSUInteger retryInterval = [self nextRetryInterval];
 

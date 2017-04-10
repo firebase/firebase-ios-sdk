@@ -16,11 +16,7 @@
 
 #import "FIRMessagingRmqManager.h"
 
-#if FIRMessaging_GYP_PROJECT
-#import "buzz/mobile/proto/GtalkCore.pb.h"
-#else
 #import "Protos/GtalkCore.pbobjc.h"
-#endif
 #import "sqlite3.h"
 
 #import "FIRMessagingDefines.h"

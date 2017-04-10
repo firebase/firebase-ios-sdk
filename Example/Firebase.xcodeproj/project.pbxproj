@@ -2632,6 +2632,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2663,6 +2664,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2738,7 +2740,6 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
@@ -2763,7 +2764,6 @@
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
 					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";

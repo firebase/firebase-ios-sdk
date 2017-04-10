@@ -16,7 +16,7 @@
 
 #import "FIRMessagingTopicsCommon.h"
 
-@class GIPReachability;
+@class FIRReachabilityChecker;
 @class GPBMessage;
 
 @class FIRMessagingConnection;
@@ -48,7 +48,7 @@ typedef void(^FIRMessagingConnectCompletionHandler)(NSError *error);
 
 // Designated initializer
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate
-                    reachability:(GIPReachability *)reachability
+                    reachability:(FIRReachabilityChecker *)reachability
                      rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager;
 
 - (void)teardown;

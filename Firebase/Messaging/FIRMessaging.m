@@ -23,9 +23,6 @@
 
 #import <UIKit/UIKit.h>
 
-// FIXME b/36640532
-//#import "googlemac/iPhone/Shared/Net/GIPReachability.h"
-
 #import "FIRMessagingAnalytics.h"
 #import "FIRMessagingClient.h"
 #import "FIRMessagingConfig.h"
@@ -40,6 +37,8 @@
 #import "FIRMessagingSyncMessageManager.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
+
+#import "FIRReachabilityChecker.h"
 
 static const NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
@@ -105,7 +104,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 
 @end
 
-@interface FIRMessaging () <FIRMessagingClientDelegate>
+@interface FIRMessaging () <FIRMessagingClientDelegate, FIRReachabilityDelegate>
 
 // FIRApp properties
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
@@ -117,7 +116,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 @property(nonatomic, readwrite, assign) BOOL isClientSetup;
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
-@property(nonatomic, readwrite, strong) GIPReachability *reachability;
+@property(nonatomic, readwrite, strong) FIRReachabilityChecker *reachability;
 @property(nonatomic, readwrite, strong) FIRMessagingDataMessageManager *dataMessageManager;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
@@ -155,7 +154,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 }
 
 - (void)dealloc {
-//  [self.reachability stop];
+  [self.reachability stop];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [self teardown];
 }
@@ -179,21 +178,11 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   [self setupLogger:self.config.logLevel];
   [self setupReceiverWithConfig:self.config];
 
-  // TODO: b/31255903 update GIPReachability.m to check the device version as well.
-  // TODO: figure out a more generic way to check device version that is compatible for
-  // different platforms, e.g. iOS/watchOS/macOS/etc.
-//  if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_x_Max) {
-//    // Use the IPv6 friendly method SCNetworkReachabilityCreateWithName to check the reachability.
-//    self.reachability =
-////        [[GIPReachability alloc] initWithHostName:kFIRMessagingReachabilityHostname];
-//  } else {
-//    // Use the SCNetworkReachabilityCreateWithAddress method to check reachability for devices
-//    // running iOS 8 or below, as there is some DNS lookup issue with the older versions
-//    // (see b/31040435).
-//    self.reachability = [[GIPReachability alloc] init];
-//  }
-
- // [self.reachability startWithCompletionHandler:nil];
+  NSString *hostname = kFIRMessagingReachabilityHostname;
+  self.reachability = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
+                                                                    loggerDelegate:nil
+                                                                          withHost:hostname];
+  [self.reachability start];
 
   [self setupApplicationSupportSubDirectory];
   // setup FIRMessaging objects
@@ -217,10 +206,6 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 - (void)setupNotificationListeners {
   // To prevent multiple notifications remove self as observer for all events.
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-//  [[NSNotificationCenter defaultCenter] addObserver:self
-//                                           selector:@selector(networkStatusChanged)
-//                                               name:kGIPReachabilityChangedNotification
-//                                             object:nil];
 
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didReceiveDefaultFCMToken:)
@@ -385,7 +370,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
     return;
   }
 
-  NSString *originArgument = @"REPLACEME";
+  NSString *originArgument = @"TODO kFIREventOriginFCM";
   Class lifecycleEventClass = NSClassFromString(kClassNameLifecycleEvent);
   id lifecycleEvent = [[lifecycleEventClass alloc] init];
   // Discard oldest experiments policy = 1
@@ -435,7 +420,6 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 }
 
 - (void)logAnalyticsForMessage:(NSDictionary *)message {
-#if !defined(FIRMessaging_GYP_PROJECT)
   if (![FIRMessagingAnalytics canLogNotification:message]) {
     return;
   }
@@ -457,7 +441,6 @@ NSString * const FIRMessagingMessagesDeletedNotification =
       // is in the background. These messages aren't loggable anyway.
       break;
   }
-#endif
 }
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message {
@@ -652,26 +635,32 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   }
 }
 
+#pragma mark - FIRReachabilityDelegate
+
+- (void)reachability:(FIRReachabilityChecker *)reachability
+       statusChanged:(FIRReachabilityStatus)status {
+  [self onNetworkStatusChanged];
+}
+
 #pragma mark - Network
 
 - (BOOL)isNetworkAvailable {
-  return YES;
- // return self.reachability.isReachable;
+  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
+  return (status == kFIRReachabilityViaCellular || status == kFIRReachabilityViaWifi);
 }
 
 - (FIRMessagingNetworkStatus)networkType {
+  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
   if (![self isNetworkAvailable]) {
     return kFIRMessagingReachabilityNotReachable;
-//  } else if ([self.reachability isCellularNetwork]) {
-//    return kFIRMessagingReachabilityReachableViaWWAN;
+  } else if (status == kFIRReachabilityViaCellular) {
+    return kFIRMessagingReachabilityReachableViaWWAN;
   } else {
     return kFIRMessagingReachabilityReachableViaWiFi;
   }
 }
 
-#pragma mark - Notifications
-
-- (void)networkStatusChanged {
+- (void)onNetworkStatusChanged {
   if (![self.client isConnected] && [self isNetworkAvailable]) {
     if (self.client.shouldStayConnected) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging014,
@@ -681,6 +670,8 @@ NSString * const FIRMessagingMessagesDeletedNotification =
     [self.pubsub scheduleSync:YES];
   }
 }
+
+#pragma mark - Notifications
 
 - (void)didReceiveDefaultFCMToken:(NSNotification *)notification {
   if (![notification.object isKindOfClass:[NSString class]]) {

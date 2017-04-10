@@ -16,21 +16,8 @@
 
 #import "FIRMessagingConnection.h"
 
-//#import "googlemac/iPhone/Shared/Net/GIPReachability.h"
-
-/**
- *  Daylight version of FIRMessaging cannot depend on arbitrary protos. We need to define our protos
- *  in the source itself. This prevents us from generating the protos on the fly. For the
- *  project since we are only going to use it internally we can generate the protos on
- *  the fly as well.
- */
-#if FIRMessaging_GYP_PROJECT
-#import "buzz/mobile/proto/GtalkCore.pb.h"
-#import "buzz/mobile/proto/GtalkExtensions.pb.h"
-#else
 #import "Protos/GtalkCore.pbobjc.h"
 #import "Protos/GtalkExtensions.pbobjc.h"
-#endif
 
 #import "FIRMessaging.h"
 #import "FIRMessagingDataMessageManager.h"

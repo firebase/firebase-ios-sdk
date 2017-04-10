@@ -16,11 +16,7 @@
 
 #import "FIRMessagingDataMessageManager.h"
 
-#if FIRMessaging_GYP_PROJECT
-#import "buzz/mobile/proto/GtalkCore.pb.h"
-#else
 #import "Protos/GtalkCore.pbobjc.h"
-#endif
 
 #import "FIRMessagingClient.h"
 #import "FIRMessagingConnection.h"

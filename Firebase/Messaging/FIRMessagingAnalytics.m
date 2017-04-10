@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#if !defined(FIRMessaging_GYP_PROJECT)
-
 #import "FIRMessagingAnalytics.h"
 
 //#import "analytics-private/FIRAnalytics+Internal.h"
@@ -195,6 +193,4 @@ static NSString *const kAnalyticsTrackConversions =     @"google.c.a." @"tc";
 }
 
 @end
-
-#endif
 

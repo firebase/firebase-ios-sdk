@@ -19,7 +19,6 @@
 #import <OCMock/OCMock.h>
 
 #import "Protos/GtalkCore.pbobjc.h"
-//#import "googlemac/iPhone/Shared/Net/GIPReachability.h"
 
 #import "FIRMessagingCheckinService.h"
 #import "FIRMessagingClient.h"
@@ -31,6 +30,8 @@
 #import "FIRMessagingSecureSocket.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
+
+#import "FIRReachabilityChecker.h"
 
 static NSString *const kFIRMessagingUserDefaultsSuite = @"FIRMessagingClientTestUserDefaultsSuite";
 
@@ -103,7 +104,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
   [super setUp];
   _mockClientDelegate =
       OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
- // _mockReachability = OCMClassMock([GIPReachability class]);
+  _mockReachability = OCMClassMock([FIRReachabilityChecker class]);
   _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
   _client = [[FIRMessagingClient alloc] initWithDelegate:_mockClientDelegate
                                    reachability:_mockReachability
@@ -149,14 +150,14 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
   XCTAssertNotNil(self.client.connection.delegate);
 }
 
-- (void)testConnectSuccess_withCachedGcmDefaults {
+- (void)testConnectSuccess_withCachedFcmDefaults {
   [self addFIRMessagingPreferenceKeysToUserDefaults];
 
   // login request should be successful
   [self setupConnectionWithFakeLoginResult:YES heartbeatTimeout:1.0];
 
   XCTestExpectation *setupConnection = [self
-      expectationWithDescription:@"Gcm should successfully setup a connection"];
+      expectationWithDescription:@"Fcm should successfully setup a connection"];
 
   [self.client connectWithHandler:^(NSError *error) {
       XCTAssertNil(error);
@@ -168,8 +169,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
   }];
 }
 
-#ifdef DISABLE_REACH
-- (void)testsConnectWithNoNetworkError_withCachedGcmDefaults {
+- (void)testsConnectWithNoNetworkError_withCachedFcmDefaults {
   // connection timeout interval is 1s
   [[[self.mockClient stub] andReturnValue:@(1)] connectionTimeoutInterval];
   [self addFIRMessagingPreferenceKeysToUserDefaults];
@@ -196,15 +196,14 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
                                }];
 }
 
-#endif
-
-- (void)testConnectSuccessOnSecondTry_withCachedGcmDefaults {
+- (void)testConnectSuccessOnSecondTry_withCachedFcmDefaults {
   // connection timeout interval is 1s
   [[[self.mockClient stub] andReturnValue:@(1)] connectionTimeoutInterval];
   [self addFIRMessagingPreferenceKeysToUserDefaults];
 
   // the network is available
-//  [[[self.mockReachability stub] andReturnValue:@(YES)] isReachable];
+  [[[self.mockReachability stub]
+      andReturnValue:@(kFIRReachabilityViaWifi)] reachabilityStatus];
 
   [self setupFakeConnectionWithClass:[FIRMessagingFakeFailConnection class]
           withSetupCompletionHandler:^(FIRMessagingConnection *connection) {
@@ -241,10 +240,11 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
   [[[self.mockClient stub] andReturnValue:@(1)] connectionTimeoutInterval];
 
   // the network is available
-//  [[[self.mockReachability stub] andReturnValue:@(YES)] isReachable];
+  [[[self.mockReachability stub]
+      andReturnValue:@(kFIRReachabilityViaWifi)] reachabilityStatus];
 
   XCTestExpectation *setupConnection =
-      [self expectationWithDescription:@"Gcm should successfully setup a connection"];
+      [self expectationWithDescription:@"Fcm should successfully setup a connection"];
 
   __block int timesConnected = 0;
   FIRMessagingConnectCompletionHandler handler = ^(NSError *error) {
@@ -261,7 +261,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
           [(FIRMessagingFakeConnection *)fakeConnection disconnectNow];
         });
       } else {
-        XCTFail(@"Gcm should only connect at max 2 times");
+        XCTFail(@"Fcm should only connect at max 2 times");
       }
   };
   [self.mockClient connectWithHandler:handler];
