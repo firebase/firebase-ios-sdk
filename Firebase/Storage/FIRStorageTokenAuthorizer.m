@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "../../FirebaseCore/Core/Private/FIRAppInternal.h"
+
 #import "FIRStorageTokenAuthorizer.h"
 
 #import "FIRStorageConstants.h"
@@ -21,8 +23,6 @@
 #import "FirebaseStorage.h"
 
 #import "FIRApp.h"
-
-#import "../../FirebaseCore/Core/Private/FIRAppInternal.h"
 #import "FIROptions.h"
 
 @implementation FIRStorageTokenAuthorizer {
@@ -71,7 +71,6 @@
 
     [invocation retainArguments];
     if (_app.getTokenImplementation) {
-
       [_app getTokenForcingRefresh:NO
                       withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
                         if (error) {

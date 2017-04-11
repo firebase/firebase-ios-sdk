@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+#import "../../../FirebaseCore/Core/Private/FIRAppInternal.h"
+
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import "FIRApp.h"
-#import "../../../FirebaseCore/Core/Private/FIRAppInternal.h"
 #import "FIROptions.h"
 
 #import "FIRStorageConstants.h"
