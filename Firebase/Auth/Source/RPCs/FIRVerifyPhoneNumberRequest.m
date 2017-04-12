@@ -38,7 +38,28 @@ static NSString *const kVerificationCodeKey = @"code";
  */
 static NSString *const kIDTokenKey = @"idToken";
 
+/** @var kTemporaryProofKey
+    @brief The key for the temporary proof value in the request.
+ */
+static NSString *const kTemporaryProofKey = @"temporaryProof";
+
+/** @var kPhoneNumberKey
+    @brief The key for the phone number value in the request.
+ */
+static NSString *const kPhoneNumberKey = @"phoneNumber";
+
 @implementation FIRVerifyPhoneNumberRequest
+
+- (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
+                                    phoneNumber:(NSString *)phoneNumber
+                                         APIKey:(NSString *)APIKey {
+  self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint APIKey:APIKey];
+  if (self) {
+    _temporaryProof = [temporaryProof copy];
+    _phoneNumber = [phoneNumber copy];
+  }
+  return self;
+}
 
 - (nullable instancetype)initWithVerificationID:(NSString *)verificationID
                                verificationCode:(NSString *)verificationCode
@@ -61,6 +82,12 @@ static NSString *const kIDTokenKey = @"idToken";
   }
   if (_accessToken) {
     postBody[kIDTokenKey] = _accessToken;
+  }
+  if (_temporaryProof) {
+    postBody[kTemporaryProofKey] = _temporaryProof;
+  }
+  if (_phoneNumber) {
+    postBody[kPhoneNumberKey] = _phoneNumber;
   }
   return postBody;
 }

@@ -187,9 +187,10 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
 
 /** @fn auth
     @brief Gets the auth object for the default Firebase app.
-    @remarks Thread safe.
+    @remarks The default Firebase app must have already been configured or an exception will be
+        raised.
  */
-+ (nullable FIRAuth *)auth NS_SWIFT_NAME(auth());
++ (FIRAuth *)auth NS_SWIFT_NAME(auth());
 
 /** @fn authWithApp:
     @brief Gets the auth object for a @c FIRApp.
@@ -197,7 +198,7 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
     @param app The FIRApp for which to retrieve the associated FIRAuth instance.
     @return The FIRAuth instance associated with the given FIRApp.
  */
-+ (nullable FIRAuth *)authWithApp:(FIRApp *)app;
++ (FIRAuth *)authWithApp:(FIRApp *)app;
 
 /** @property app
     @brief Gets the @c FIRApp object that this auth object is connected to.

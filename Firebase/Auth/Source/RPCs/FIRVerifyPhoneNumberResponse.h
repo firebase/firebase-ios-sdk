@@ -44,6 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly, nullable) NSString *phoneNumber;
 
+/** @property temporaryProof
+    @brief The temporary proof code returned by the backend.
+ */
+@property(nonatomic, strong, readonly, nullable) NSString *temporaryProof;
+
 /** @property isNewUser
     @brief Flag indicating that the user signing in is a new user and not a returning user.
  */

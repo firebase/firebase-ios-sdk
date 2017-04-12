@@ -37,11 +37,31 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *accessToken;
 
+/** @var temporaryProof
+    @brief The a temporary proof code pertaining to this credentil, returned from the backend.
+ */
+@property(nonatomic, readonly, nonnull) NSString *temporaryProof;
+
+/** @var phoneNumber
+    @brief The a phone number pertaining to this credential, returned from the backend.
+ */
+@property(nonatomic, readonly, nonnull) NSString *phoneNumber;
+
 /** @fn initWithEndpoint:APIKey:
     @brief Please use initWithPhoneNumber:APIKey:
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                                    APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+
+/** @fn initWithTemporaryProof:phoneNumberAPIKey
+    @brief Designated initializer.
+    @param temporaryProof The temporary proof sent by the backed.
+    @param phoneNumber The phone number associated with the credential to be signed in.
+    @param APIKey The client's API Key.
+ */
+- (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
+                                    phoneNumber:(NSString *)phoneNumber
+                                         APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
 
 /** @fn initWithVerificationID:verificationCode:APIKey
     @brief Designated initializer.

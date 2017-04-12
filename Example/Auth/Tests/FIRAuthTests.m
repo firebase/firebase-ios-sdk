@@ -251,6 +251,14 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertEqual(auth1.app, [FIRApp defaultApp]);
 }
 
+/** @fn testNilAppException
+    @brief Verifies the @c auth method raises an exception if the default FIRApp is not configured.
+ */
+- (void)testNilAppException {
+  [FIRApp resetApps];
+  XCTAssertThrows([FIRAuth auth]);
+}
+
 /** @fn testAppAPIkey
     @brief Verifies the API key is correctly copied from @c FIRApp to @c FIRAuth .
  */
@@ -296,6 +304,18 @@ static const NSTimeInterval kWaitInterval = .5;
   // i.e., the app is the sole owner of the auth.
   XCTAssertNil(app);
   XCTAssertNil(auth);
+}
+
+/** @fn testGetUID
+    @brief Verifies that FIRApp's getUIDImplementation is correctly set by FIRAuth.
+ */
+- (void)testGetUID {
+  FIRApp *app = [FIRApp defaultApp];
+  XCTAssertNotNil(app.getUIDImplementation);
+  [[FIRAuth auth] signOut:NULL];
+  XCTAssertNil(app.getUIDImplementation());
+  [self waitForSignIn];
+  XCTAssertEqualObjects(app.getUIDImplementation(), kLocalID);
 }
 
 #pragma mark - Server API Tests

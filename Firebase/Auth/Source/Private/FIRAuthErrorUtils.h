@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRPhoneAuthCredential;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthErrorUtils
@@ -250,9 +252,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn credentialAlreadyInUseErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeCredentialAlreadyInUse code.
     @param message Error message from the backend, if any.
+    @param credential Auth credential to be added to the Error User Info dictionary.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)credentialAlreadyInUseErrorWithMessage:(nullable NSString *)message;
++ (NSError *)credentialAlreadyInUseErrorWithMessage:(nullable NSString *)message
+                                         credential:(nullable FIRPhoneAuthCredential *)credential;
 
 /** @fn operationNotAllowedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeOperationNotAllowed code.

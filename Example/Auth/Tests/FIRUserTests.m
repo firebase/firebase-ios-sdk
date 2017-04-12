@@ -19,6 +19,7 @@
 #import "EmailPassword/FIREmailPasswordAuthProvider.h"
 #import "Facebook/FIRFacebookAuthProvider.h"
 #import "Google/FIRGoogleAuthProvider.h"
+#import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Phone/FIRPhoneAuthProvider.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
@@ -107,6 +108,11 @@ static NSString *const kEmail = @"user@company.com";
     @brief The fake user phone number.
  */
 static NSString *const kPhoneNumber = @"12345658";
+
+/** @var kTemporaryProof
+    @brief The fake temporary proof.
+ */
+static NSString *const kTemporaryProof = @"12345658";
 
 /** @var kNewEmail
     @brief A new value for the fake user email.
@@ -438,16 +444,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
   [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
                                              completion:^(FIRUser *user) {
-    OCMExpect([_mockBackend verifyPhoneNumber:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(^(FIRVerifyPhoneNumberRequest *_Nullable request,
-                     FIRVerifyPhoneNumberResponseCallback callback) {
-      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-        id mockVerifyPhoneNumberResponse = OCMClassMock([FIRVerifyPhoneNumberResponse class]);
-        OCMStub([mockVerifyPhoneNumberResponse phoneNumber]).andReturn(kPhoneNumber);
-        callback(mockVerifyPhoneNumberResponse, nil);
-      });
-    });
-
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber error:nil];
     id userInfoResponseUpdate = mockUserInfoWithPhoneNumber(kPhoneNumber);
     [self expectGetAccountInfoWithMockUserInfoResponse:userInfoResponseUpdate];
 
@@ -607,9 +604,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
       dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
         id mockSetAccountInfoResponse = OCMClassMock([FIRSetAccountInfoResponse class]);
         OCMStub([mockSetAccountInfoResponse displayName]).andReturn(kNewDisplayName);
-        // TODO: enable the following line once we have photoURL property in
-        // FIRSetAccountInfoResponse. The server already returns this field.
-        // OCMStub([mockSetAccountInfoResponse photoURL]).andReturn(kNewPhotoURL);
         callback(mockSetAccountInfoResponse, nil);
       });
     });
@@ -810,7 +804,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
                             FIRGoogleAuthProviderID);
       [expectation fulfill];
     }];
-
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   [self assertUserGoogle:[FIRAuth auth].currentUser];
@@ -1385,6 +1378,145 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testlinkPhoneAuthCredentialSuccess
+    @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
+        call using a phoneAuthCredential.
+ */
+- (void)testlinkPhoneAuthCredentialSuccess {
+  id (^mockUserInfoWithPhoneNumber)(NSString *) = ^(NSString *phoneNumber) {
+    id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+    OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+    OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+    OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+    if (phoneNumber.length) {
+      OCMStub([mockGetAccountInfoResponseUser phoneNumber]).andReturn(phoneNumber);
+    }
+    return mockGetAccountInfoResponseUser;
+  };
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
+  [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
+                                             completion:^(FIRUser *user) {
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber error:nil];
+    id userInfoResponseUpdate = mockUserInfoWithPhoneNumber(kPhoneNumber);
+    [self expectGetAccountInfoWithMockUserInfoResponse:userInfoResponseUpdate];
+
+    FIRPhoneAuthCredential *credential =
+        [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
+                                                     verificationCode:kVerificationCode];
+    [user linkAndRetrieveDataWithCredential:credential
+                                 completion:^(FIRAuthDataResult *_Nullable
+                                              linkAuthResult,
+                                              NSError *_Nullable error) {
+      XCTAssertNil(error);
+      XCTAssertEqualObjects([FIRAuth auth].currentUser.phoneNumber, kPhoneNumber);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testlinkPhoneAuthCredentialFailure
+    @brief Tests the flow of a failed call to @c linkAndRetrieveDataWithCredential:completion: due
+        to a phone provider already being linked.
+ */
+- (void)testlinkPhoneAuthCredentialFailure {
+  id (^mockUserInfoWithPhoneNumber)(NSString *) = ^(NSString *phoneNumber) {
+    id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+    OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+    OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+    OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+    if (phoneNumber.length) {
+      OCMStub([mockGetAccountInfoResponseUser phoneNumber]).andReturn(phoneNumber);
+    }
+    return mockGetAccountInfoResponseUser;
+  };
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
+  [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
+                                             completion:^(FIRUser *user) {
+    NSError *error = [FIRAuthErrorUtils providerAlreadyLinkedError];
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:nil error:error];
+    FIRPhoneAuthCredential *credential =
+        [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
+                                                     verificationCode:kVerificationCode];
+    [user linkAndRetrieveDataWithCredential:credential
+                                 completion:^(FIRAuthDataResult *_Nullable
+                                              linkAuthResult,
+                                              NSError *_Nullable error) {
+      XCTAssertNotNil(error);
+      XCTAssertEqual(error.code, FIRAuthErrorCodeProviderAlreadyLinked);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testlinkPhoneCredentialAlreadyExistsError
+    @brief Tests the flow of @c linkAndRetrieveDataWithCredential:completion:
+        call using a phoneAuthCredential and a credential already exisits error. In this case we
+        should get a FIRAuthCredential in the error object.
+ */
+- (void)testlinkPhoneCredentialAlreadyExistsError {
+  id (^mockUserInfoWithPhoneNumber)(NSString *) = ^(NSString *phoneNumber) {
+    id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+    OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+    OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+    OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+    if (phoneNumber.length) {
+      OCMStub([mockGetAccountInfoResponseUser phoneNumber]).andReturn(phoneNumber);
+    }
+    return mockGetAccountInfoResponseUser;
+  };
+
+   void (^expectVerifyPhoneNumberRequest)(NSString *) = ^(NSString *phoneNumber) {
+    OCMExpect([_mockBackend verifyPhoneNumber:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRVerifyPhoneNumberRequest *_Nullable request,
+                         FIRVerifyPhoneNumberResponseCallback callback) {
+      XCTAssertEqualObjects(request.verificationID, kVerificationID);
+      XCTAssertEqualObjects(request.verificationCode, kVerificationCode);
+      XCTAssertEqualObjects(request.accessToken, kAccessToken);
+      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+        FIRPhoneAuthCredential *credential =
+            [[FIRPhoneAuthCredential alloc] initWithTemporaryProof:kTemporaryProof
+                                                       phoneNumber:kPhoneNumber
+                                                        providerID:FIRPhoneAuthProviderID];
+        callback(nil,
+                 [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:nil
+                                                                credential:credential]);
+      });
+    });
+  };
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
+  [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
+                                             completion:^(FIRUser *user) {
+    expectVerifyPhoneNumberRequest(kPhoneNumber);
+
+    FIRPhoneAuthCredential *credential =
+        [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
+                                                     verificationCode:kVerificationCode];
+    [user linkAndRetrieveDataWithCredential:credential
+                                 completion:^(FIRAuthDataResult *_Nullable
+                                              linkAuthResult,
+                                              NSError *_Nullable error) {
+      XCTAssertNil(linkAuthResult);
+      XCTAssertEqual(error.code, FIRAuthErrorCodeCredentialAlreadyInUse);
+      FIRPhoneAuthCredential *credential = error.userInfo[FIRAuthUpdatedCredentialKey];
+      XCTAssertEqual(credential.temporaryProof, kTemporaryProof);
+      XCTAssertEqual(credential.phoneNumber, kPhoneNumber);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 #pragma mark - Helpers
 
 /** @fn signInWithEmailPasswordWithMockGetAccountInfoResponse:completion:
@@ -1529,6 +1661,10 @@ static const NSTimeInterval kExpectationTimeout = 1;
   });
 }
 
+/** @fn expectVerifyAssertionRequest:federatedID:displayName:profile:providerAccessToken:
+    @brief Expects a Verify Assertion request on the mock backend and calls back with fake account
+        data.
+ */
 - (void)expectVerifyAssertionRequest:(NSString *)providerId
                          federatedID:(NSString *)federatedID
                          displayName:(NSString *)displayName
@@ -1556,6 +1692,32 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
   });
   [self expectGetAccountInfo:providerId federatedID:federatedID displayName:displayName];
+}
+
+/** @fn expectVerifyPhoneNumberRequestWithPhoneNumber:error:
+    @brief Expects a verify phone numner request on the mock backend and calls back with fake
+        account data or an error.
+    @param phoneNumber Optionally; The phone number to use in the mocked response.
+    @param error Optionally; The error to return in the mocked response.
+ */
+- (void)expectVerifyPhoneNumberRequestWithPhoneNumber:(nullable NSString *)phoneNumber
+                                                error:(nullable NSError*)error {
+  OCMExpect([_mockBackend verifyPhoneNumber:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyPhoneNumberRequest *_Nullable request,
+                     FIRVerifyPhoneNumberResponseCallback callback) {
+    XCTAssertEqualObjects(request.verificationID, kVerificationID);
+    XCTAssertEqualObjects(request.verificationCode, kVerificationCode);
+    XCTAssertEqualObjects(request.accessToken, kAccessToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      if (error) {
+        callback(nil, error);
+        return;
+      }
+      id mockVerifyPhoneNumberResponse = OCMClassMock([FIRVerifyPhoneNumberResponse class]);
+      OCMStub([mockVerifyPhoneNumberResponse phoneNumber]).andReturn(phoneNumber);
+      callback(mockVerifyPhoneNumberResponse, nil);
+    });
+  });
 }
 
 @end

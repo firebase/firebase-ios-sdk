@@ -107,7 +107,6 @@
 		DE9315681E86C71C0083EDBF /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150D1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeRequestTests.m */; };
 		DE9315691E86C71C0083EDBF /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150E1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeResponseTests.m */; };
 		DE93156A1E86C71C0083EDBF /* FIRGitHubAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150F1E86C6FF0083EDBF /* FIRGitHubAuthProviderTests.m */; };
-		DE93156B1E86C71C0083EDBF /* FIRPhoneAuhtProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315101E86C6FF0083EDBF /* FIRPhoneAuhtProviderTests.m */; };
 		DE93156C1E86C71C0083EDBF /* FIRResetPasswordRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315111E86C6FF0083EDBF /* FIRResetPasswordRequestTests.m */; };
 		DE93156D1E86C71C0083EDBF /* FIRResetPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315121E86C6FF0083EDBF /* FIRResetPasswordResponseTests.m */; };
 		DE93156E1E86C71C0083EDBF /* FIRSendVerificationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315131E86C6FF0083EDBF /* FIRSendVerificationCodeRequestTests.m */; };
@@ -173,6 +172,7 @@
 		DEB61EC91E7C5DBB00C04B96 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */; };
 		DEB61ECA1E7C5DBB00C04B96 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC21E7C5DBB00C04B96 /* Images.xcassets */; };
 		DEB61ECB1E7C5DBB00C04B96 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EC31E7C5DBB00C04B96 /* main.m */; };
+		DECE039B1E9ED01600164CA4 /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */; };
 		DEE14D7E1E844677006FA992 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D681E844677006FA992 /* LaunchScreen.storyboard */; };
 		DEE14D7F1E844677006FA992 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D6A1E844677006FA992 /* Main.storyboard */; };
 		DEE14D811E844677006FA992 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D6E1E844677006FA992 /* FIRAppDelegate.m */; };
@@ -421,7 +421,6 @@
 		DE93150D1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetOOBConfirmationCodeRequestTests.m; sourceTree = "<group>"; };
 		DE93150E1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetOOBConfirmationCodeResponseTests.m; sourceTree = "<group>"; };
 		DE93150F1E86C6FF0083EDBF /* FIRGitHubAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGitHubAuthProviderTests.m; sourceTree = "<group>"; };
-		DE9315101E86C6FF0083EDBF /* FIRPhoneAuhtProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRPhoneAuhtProviderTests.m; sourceTree = "<group>"; };
 		DE9315111E86C6FF0083EDBF /* FIRResetPasswordRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRResetPasswordRequestTests.m; sourceTree = "<group>"; };
 		DE9315121E86C6FF0083EDBF /* FIRResetPasswordResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRResetPasswordResponseTests.m; sourceTree = "<group>"; };
 		DE9315131E86C6FF0083EDBF /* FIRSendVerificationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRSendVerificationCodeRequestTests.m; sourceTree = "<group>"; };
@@ -505,6 +504,7 @@
 		DEB61EC21E7C5DBB00C04B96 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		DEB61EC31E7C5DBB00C04B96 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DEB61EC41E7C5DBB00C04B96 /* Storage-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Storage-Info.plist"; sourceTree = "<group>"; };
+		DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRPhoneAuthProviderTests.m; sourceTree = "<group>"; };
 		DEE14D411E84464D006FA992 /* Core_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE14D591E84464D006FA992 /* Core_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE14D691E844677006FA992 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -875,6 +875,7 @@
 		DE9314F91E86C6FF0083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */,
 				DE9314FB1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.h */,
 				DE9315091E86C6FF0083EDBF /* FIRFakeBackendRPCIssuer.h */,
 				DE9315231E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.h */,
@@ -898,7 +899,6 @@
 				DE93150D1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeRequestTests.m */,
 				DE93150E1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeResponseTests.m */,
 				DE93150F1E86C6FF0083EDBF /* FIRGitHubAuthProviderTests.m */,
-				DE9315101E86C6FF0083EDBF /* FIRPhoneAuhtProviderTests.m */,
 				DE9315111E86C6FF0083EDBF /* FIRResetPasswordRequestTests.m */,
 				DE9315121E86C6FF0083EDBF /* FIRResetPasswordResponseTests.m */,
 				DE9315131E86C6FF0083EDBF /* FIRSendVerificationCodeRequestTests.m */,
@@ -2006,12 +2006,12 @@
 				DE93155D1E86C71C0083EDBF /* FIRAuthKeychainTests.m in Sources */,
 				DE93155C1E86C71C0083EDBF /* FIRAuthGlobalWorkQueueTests.m in Sources */,
 				DE9315631E86C71C0083EDBF /* FIRDeleteAccountRequestTests.m in Sources */,
+				DECE039B1E9ED01600164CA4 /* FIRPhoneAuthProviderTests.m in Sources */,
 				DE93157A1E86C71C0083EDBF /* FIRVerifyPasswordRequestTest.m in Sources */,
 				DE9315621E86C71C0083EDBF /* FIRCreateAuthURIResponseTests.m in Sources */,
 				DE93155A1E86C71C0083EDBF /* FIRAuthBackendRPCImplementationTests.m in Sources */,
 				DE93157D1E86C71C0083EDBF /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
 				DE93157E1E86C71C0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
-				DE93156B1E86C71C0083EDBF /* FIRPhoneAuhtProviderTests.m in Sources */,
 				DE9315771E86C71C0083EDBF /* FIRVerifyAssertionResponseTests.m in Sources */,
 				DE9315721E86C71C0083EDBF /* FIRSignUpNewUserRequestTests.m in Sources */,
 				DE9315671E86C71C0083EDBF /* FIRGetAccountInfoResponseTests.m in Sources */,

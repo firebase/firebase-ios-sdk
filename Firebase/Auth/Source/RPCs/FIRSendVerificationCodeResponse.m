@@ -20,8 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRSendVerificationCodeResponse
 
-// TODO: Added to supress warning, should be removed in a future CL as well as all
-// validations of expected kind.
+// TODO: remove when resolving b/37169084 .
 - (nullable NSString *)expectedKind {
   return nil;
 }

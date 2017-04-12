@@ -32,6 +32,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRPhoneAuthCredential
 
+- (instancetype)initWithTemporaryProof:(NSString *)temporaryProof
+                           phoneNumber:(NSString *)phoneNumber
+                            providerID:(NSString *)providerID {
+  self = [super initWithProvider:providerID];
+  if (self) {
+    _temporaryProof = [temporaryProof copy];
+    _phoneNumber = [phoneNumber copy];
+  }
+  return self;
+}
+
 - (nullable instancetype)initWithProvider:(NSString *)provider {
   [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
       @"Please call the designated initializer."];

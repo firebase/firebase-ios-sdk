@@ -36,11 +36,32 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nonnull) NSString *verificationCode;
 
+/** @var temporaryProof
+    @brief The a temporary proof code perftaining to this credential, returned from the backend.
+ */
+@property(nonatomic, readonly, nonnull) NSString *temporaryProof;
+
+/** @var phoneNumber
+    @brief The a phone number pertaining to this credential, returned from the backend.
+ */
+@property(nonatomic, readonly, nonnull) NSString *phoneNumber;
+
+/** @var initWithTemporaryProof:phoneNumber:
+    @brief Designated Initializer.
+    @param providerID The provider ID associated with the phone auth credential being created.
+    @param verificationID The verification ID associated witht Phone Auth credential being created.
+    @param verificationCode The verification code associated witht Phone Auth credential being
+        created.
+ */
+- (instancetype)initWithTemporaryProof:(NSString *)temporaryProof
+                           phoneNumber:(NSString *)phoneNumber
+                            providerID:(NSString *)providerID NS_DESIGNATED_INITIALIZER;
+
 /** @var initWithProviderID:verificationID:verificationCode:
     @brief Designated Initializer.
     @param providerID The provider ID associated with the phone auth credential being created.
     @param verificationID The verification ID associated witht Phone Auth credential being created.
-    @param verificationID The verification code associated witht Phone Auth credential being
+    @param verificationCode The verification code associated witht Phone Auth credential being
         created.
  */
 - (instancetype)initWithProviderID:(NSString *)providerID

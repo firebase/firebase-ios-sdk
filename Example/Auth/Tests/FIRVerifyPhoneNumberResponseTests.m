@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #import <XCTest/XCTest.h>
 
+#import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthErrors.h"
 #import "FIRVerifyPhoneNumberRequest.h"
@@ -68,6 +68,16 @@ static NSString *const kInvalidVerificationCodeErrorMessage = @"INVALID_VERIFICA
         provided.
  */
 static NSString *const kInvalidVerificationIDErrorMessage = @"INVALID_VERIFICATION_ID";
+
+/** @var kFakePhoneNumber
+    @brief The fake user phone number.
+ */
+static NSString *const kFakePhoneNumber = @"12345658";
+
+/** @var kFakeTemporaryProof
+    @brief The fake temporary proof.
+ */
+static NSString *const kFakeTemporaryProof = @"12345658";
 
 /** @var kEpsilon
     @brief Allowed difference when comparing floating point numbers.
@@ -191,6 +201,38 @@ static const double kEpsilon = 1e-3;
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
   XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kEpsilon);
   XCTAssertTrue(RPCResponse.isNewUser);
+}
+
+/** @fn testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof
+    @brief Tests a succesful to verify phone number flow with temporary proof response.
+ */
+- (void)testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof {
+  FIRVerifyPhoneNumberRequest *request =
+      [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:kFakeTemporaryProof
+                                                      phoneNumber:kFakePhoneNumber
+                                                           APIKey:kTestAPIKey];
+  __block BOOL callbackInvoked;
+  __block FIRVerifyPhoneNumberResponse *RPCResponse;
+  __block NSError *RPCError;
+
+  [FIRAuthBackend verifyPhoneNumber:request
+                           callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+    RPCResponse = response;
+    RPCError = error;
+    callbackInvoked = YES;
+  }];
+
+  [_RPCIssuer respondWithJSON:@{
+    @"temporaryProof" : kFakeTemporaryProof,
+    @"phoneNumber" : kFakePhoneNumber
+  }];
+
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  FIRPhoneAuthCredential *credential = RPCError.userInfo[FIRAuthUpdatedCredentialKey];
+  XCTAssertEqualObjects(credential.temporaryProof, kFakeTemporaryProof);
+  XCTAssertEqualObjects(credential.phoneNumber, kFakePhoneNumber);
 }
 
 @end

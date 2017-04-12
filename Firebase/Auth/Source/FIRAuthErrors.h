@@ -42,6 +42,12 @@
 extern NSString *const FIRAuthErrorDomain;
 
 /**
+    @brief The key used to read the updated credential from the userinfo dictionary of the NSError
+        object returned in the case that the credential being linked in already in use.
+ */
+extern NSString *const FIRAuthUpdatedCredentialKey;
+
+/**
     @brief The name of the key for the "error_name" string in the NSError userinfo dictionary.
  */
 extern NSString *const FIRAuthErrorNameKey;

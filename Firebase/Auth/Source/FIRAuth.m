@@ -174,7 +174,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance.
     @param app The application to associate the auth instance with.
  */
-- (nullable instancetype)initWithApp:(FIRApp *)app;
+- (instancetype)initWithApp:(FIRApp *)app;
 
 @end
 
@@ -265,15 +265,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
-+ (nullable FIRAuth *)auth {
++ (FIRAuth *)auth {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    return nil;
+    [NSException raise:NSInternalInconsistencyException
+                format:@"The default FIRApp instance must be configured before the default FIRAuth"
+                       @"instance can be initialized. One way to ensure that is to call "
+                       @"`[FIRApp configure];` is called in "
+                       @"`application:didFinishLaunchingWithOptions:`."];
   }
   return [self authWithApp:defaultApp];
 }
 
-+ (nullable FIRAuth *)authWithApp:(FIRApp *)app {
++ (FIRAuth *)authWithApp:(FIRApp *)app {
   return [FIRAppAssociationRegistration registeredObjectWithHost:app
                                                              key:NSStringFromClass(self)
                                                    creationBlock:^FIRAuth *_Nullable() {
@@ -281,7 +285,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }];
 }
 
-- (nullable instancetype)initWithApp:(FIRApp *)app {
+- (instancetype)initWithApp:(FIRApp *)app {
   [FIRAuth setKeychainServiceNameForApp:app];
   self = [self initWithAPIKey:app.options.APIKey appName:app.name];
   if (self) {
@@ -332,8 +336,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         }];
       });
     };
-
-    // TODO: Add unit tests for the getUID implementation. See b/36897163.
     app.getUIDImplementation = ^NSString *_Nullable() {
       __block NSString *uid;
       dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -345,7 +347,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return self;
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey appName:(NSString *)appName {
+- (instancetype)initWithAPIKey:(NSString *)APIKey appName:(NSString *)appName {
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];
@@ -501,9 +503,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credential
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
-    [self phoneNumberSignInWithVerificationID:phoneCredential.verificationID
-                             verificationCode:phoneCredential.verificationCode
-                                     callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+    [self signInWithPhoneCredential:phoneCredential callback:^(FIRUser *_Nullable user,
+                                                               NSError *_Nullable error) {
       if (callback) {
         FIRAuthDataResult *result = user ?
             [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
@@ -823,29 +824,47 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 #pragma mark - Internal Methods
 
-/** @fn phoneNumberSignInWithVerificationID:pasverificationCodesword:callback:
-    @brief Signs in using an verification ID and verification code.
-    @param verificationID The verification ID obtained from the backend response to @c
-        sendVerificationCode.
-    @param verificationCode The verification code sent to the user via SMS.
+/** @fn signInWithPhoneCredential:callback:
+    @brief Signs in using a phone credential.
+    @param credential The Phone Auth credential used to sign in.
     @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
         asynchronously on the global auth work queue in the future.
  */
-- (void)phoneNumberSignInWithVerificationID:(NSString *)verificationID
-                           verificationCode:(NSString *)verificationCode
-                                   callback:(FIRAuthResultCallback)callback {
-  if (!verificationID.length) {
+- (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
+                         callback:(FIRAuthResultCallback)callback {
+  if (credential.temporaryProof.length && credential.phoneNumber.length) {
+    FIRVerifyPhoneNumberRequest *request =
+      [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:credential.temporaryProof
+                                                      phoneNumber:credential.phoneNumber
+                                                           APIKey:_APIKey];
+    [self phoneNumberSignInWithRequest:request callback:callback];
+    return;
+  }
+
+  if (!credential.verificationID.length) {
     callback(nil, [FIRAuthErrorUtils missingVerificationIDErrorWithMessage:nil]);
     return;
   }
-  if (!verificationCode.length) {
+  if (!credential.verificationCode.length) {
     callback(nil, [FIRAuthErrorUtils missingVerificationCodeErrorWithMessage:nil]);
     return;
   }
   FIRVerifyPhoneNumberRequest *request =
-      [[FIRVerifyPhoneNumberRequest alloc]initWithVerificationID:verificationID
-                                                verificationCode:verificationCode
+      [[FIRVerifyPhoneNumberRequest alloc]initWithVerificationID:credential.verificationID
+                                                verificationCode:credential.verificationCode
                                                           APIKey:_APIKey];
+  [self phoneNumberSignInWithRequest:request callback:callback];
+}
+
+
+/** @fn phoneNumberSignInWithVerificationID:pasverificationCodesword:callback:
+    @brief Signs in using a FIRVerifyPhoneNumberRequest object.
+    @param request THe FIRVerifyPhoneNumberRequest request object.
+    @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+        asynchronously on the global auth work queue in the future.
+ */
+- (void)phoneNumberSignInWithRequest:(FIRVerifyPhoneNumberRequest *)request
+                            callback:(FIRAuthResultCallback)callback {
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                       NSError *_Nullable error) {
@@ -1185,6 +1204,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return YES;
 }
 
+/** @fn getUID
+    @brief Gets the identifier of the current user, if any.
+    @return The identifier of the current user, or nil if there is no current user.
+ */
 - (nullable NSString *)getUID {
   return _currentUser.uid;
 }

@@ -601,37 +601,55 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
+/** @fn internalUpdatePhoneNumberCredential:completion:
+    @brief Updates the phone number for the user. On success, the cached user profile data is
+        updated.
+
+    @param phoneNumberCredential The new phone number credential corresponding to the phone number
+        to be added to the firebaes account, if a phone number is already linked to the account this
+        new phone number will replace it.
+    @param completion Optionally; the block invoked when the user profile change has finished.
+        Invoked asynchronously on the global work queue in the future.
+ */
+- (void)internalUpdatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneAuthCredential
+                                 completion:(FIRUserProfileChangeCallback)completion {
+  [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
+                                       NSError *_Nullable error) {
+    if (error) {
+      completion(error);
+      return;
+    }
+    FIRVerifyPhoneNumberRequest *request = [[FIRVerifyPhoneNumberRequest alloc]
+        initWithVerificationID:phoneAuthCredential.verificationID
+              verificationCode:phoneAuthCredential.verificationCode
+                        APIKey:_APIKey];
+    request.accessToken = accessToken;
+    [FIRAuthBackend verifyPhoneNumber:request
+                             callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
+                                        NSError *_Nullable error) {
+      if (error) {
+        completion(error);;
+        return;
+      }
+      // Get account info to update cached user info.
+      [self getAccountInfoRefreshingCache:^(FIRGetAccountInfoResponseUser *_Nullable user,
+                                            NSError *_Nullable error) {
+        if (![self updateKeychain:&error]) {
+          completion(error);
+          return;
+        }
+        completion(nil);
+      }];
+    }];
+  }];
+}
+
 - (void)updatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneAuthCredential
                          completion:(nullable FIRUserProfileChangeCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
-                                         NSError *_Nullable error) {
-      if (error) {
-        callInMainThreadWithError(completion, error);
-        return;
-      }
-      FIRVerifyPhoneNumberRequest *request = [[FIRVerifyPhoneNumberRequest alloc]
-          initWithVerificationID:phoneAuthCredential.verificationID
-                verificationCode:phoneAuthCredential.verificationCode
-                          APIKey:_APIKey];
-      request.accessToken = accessToken;
-      [FIRAuthBackend verifyPhoneNumber:request
-                               callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
-                                          NSError *_Nullable error) {
-        if (error) {
-          callInMainThreadWithError(completion, error);
-          return;
-        }
-        // Get account info to update cached user info.
-        [self getAccountInfoRefreshingCache:^(FIRGetAccountInfoResponseUser *_Nullable user,
-                                              NSError *_Nullable error) {
-          if (![self updateKeychain:&error]) {
-            callInMainThreadWithError(completion, error);
-            return;
-          }
-          callInMainThreadWithError(completion, nil);
-        }];
-      }];
+    [self internalUpdatePhoneNumberCredential:phoneAuthCredential
+                                   completion:^(NSError *_Nullable error) {
+       callInMainThreadWithError(completion, error);
     }];
   });
 }
@@ -779,7 +797,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   [self linkAndRetrieveDataWithCredential:credential completion:callback];
 }
 
-- (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
+- (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     if (_providerData[credential.provider]) {
@@ -810,6 +828,20 @@ static void callInMainThreadWithAuthDataResultAndError(
       }];
       return;
     }
+
+    if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
+      FIRPhoneAuthCredential *phoneAuthCredential = (FIRPhoneAuthCredential *)credential;
+      [self internalUpdatePhoneNumberCredential:phoneAuthCredential
+                                     completion:^(NSError *_Nullable error) {
+        if (error){
+          callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+        } else {
+          callInMainThreadWithAuthDataResultAndError(completion, result, nil);
+        }
+      }];
+      return;
+    }
+
     [_taskQueue enqueueTask:^(FIRAuthSerialTaskCompletionBlock _Nonnull complete) {
       CallbackWithAuthDataResultAndError completeWithError =
           ^(FIRAuthDataResult *result, NSError *error) {

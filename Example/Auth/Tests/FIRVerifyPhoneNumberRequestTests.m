@@ -36,6 +36,16 @@ static NSString *const kVerificationCode = @"12345678";
  */
 static NSString *const kVerificationID = @"55432";
 
+/** @var kPhoneNumber
+    @brief The fake user phone number.
+ */
+static NSString *const kPhoneNumber = @"12345658";
+
+/** @var kTemporaryProof
+    @brief The fake temporary proof.
+ */
+static NSString *const kTemporaryProof = @"12345658";
+
 /** @var kVerificationCodeKey
     @brief The key for the verification code" value in the request.
  */
@@ -55,6 +65,16 @@ static NSString *const kIDTokenKey = @"idToken";
     @bried Fake acess token for testing.
  */
  static NSString *const kTestAccessToken = @"accessToken";
+
+ /** @var kTemporaryProofKey
+    @brief The key for the temporary proof value in the request.
+ */
+static NSString *const kTemporaryProofKey = @"temporaryProof";
+
+/** @var kPhoneNumberKey
+    @brief The key for the phone number value in the request.
+ */
+static NSString *const kPhoneNumberKey = @"phoneNumber";
 
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.
@@ -110,5 +130,25 @@ static NSString *const kExpectedAPIURL =
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kTestAccessToken);
 }
 
+/** @fn testVerifyPhoneNumberRequestWithTemporaryProof
+    @brief Tests the verifyPhoneNumber request when created using a temporary proof.
+ */
+- (void)testVerifyPhoneNumberRequestWithTemporaryProof {
+  FIRVerifyPhoneNumberRequest *request =
+      [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:kTemporaryProof
+                                                      phoneNumber:kPhoneNumber
+                                                           APIKey:kTestAPIKey];
+  request.accessToken = kTestAccessToken;
+  [FIRAuthBackend verifyPhoneNumber:request
+                           callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+  }];
+
+  XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
+  XCTAssertNotNil(_RPCIssuer.decodedRequest);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kTemporaryProofKey], kTemporaryProof);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPhoneNumberKey], kPhoneNumber);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kTestAccessToken);
+}
 
 @end

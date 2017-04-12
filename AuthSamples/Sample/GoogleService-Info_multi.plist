@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
+	<string>ca-app-pub-3940256099942544/2934735716</string>
+	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
+	<string>ca-app-pub-3940256099942544/4411468910</string>
+	<key>CLIENT_ID</key>
+	<string>248598894135-nsf72p7vhjcjuom003rka06opfnmp37r.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.248598894135-nsf72p7vhjcjuom003rka06opfnmp37r</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDXMy-0wnI3qsO-fAe38omq0cAPt2PI3XI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>248598894135</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.google.FirebearSample</string>
+	<key>PROJECT_ID</key>
+	<string>fb-sa-multi-upgraded</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fb-sa-multi-upgraded.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:248598894135:ios:f790a919483d5bdf</string>
+	<key>DATABASE_URL</key>
+	<string>https://fb-sa-multi-upgraded.firebaseio.com</string>
+</dict>
+</plist>

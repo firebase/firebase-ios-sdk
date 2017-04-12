@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Phone/FIRPhoneAuthProvider.h"
-#import "Phone/FIRPhoneAuthCredential.h"
+#import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Phone/NSString+FIRAuth.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthCredential_Internal.h"
@@ -59,13 +59,13 @@ static NSString *const kAPIKey = @"FAKE_API_KEY";
  */
 static const NSTimeInterval kExpectationTimeout = 1;
 
-/** @class FIRPhoneAuhtProviderTests
-    @brief Tests for @c FIRPhoneAuhtProvider
+/** @class FIRPhoneAuthProviderTests
+    @brief Tests for @c FIRPhoneAuthProvider
  */
-@interface FIRPhoneAuhtProviderTests : XCTestCase
+@interface FIRPhoneAuthProviderTests : XCTestCase
 @end
 
-@implementation FIRPhoneAuhtProviderTests {
+@implementation FIRPhoneAuthProviderTests {
   /** @var _mockBackend
       @brief The mock @c FIRAuthBackendImplementation .
    */
@@ -88,12 +88,13 @@ static const NSTimeInterval kExpectationTimeout = 1;
         FIRAuthCredential instance.
  */
 - (void)testCredentialWithVerificationID {
-  // TODO: update this test whenVerifyPhoneNumberRequest is added.
-  FIRAuthCredential *credential =
+  FIRPhoneAuthCredential *credential =
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kTestVerificationID
                                                    verificationCode:kTestVerificationCode];
-  XCTAssertNotNil(credential);
-  XCTAssert([credential isKindOfClass:[FIRPhoneAuthCredential class]]);
+  XCTAssertEqualObjects(credential.verificationID, kTestVerificationID);
+  XCTAssertEqualObjects(credential.verificationCode, kTestVerificationCode);
+  XCTAssertNil(credential.temporaryProof);
+  XCTAssertNil(credential.phoneNumber);
 }
 
 /** @fn testVerifyEmptyPhoneNumber

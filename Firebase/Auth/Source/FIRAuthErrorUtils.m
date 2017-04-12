@@ -16,6 +16,7 @@
 
 #import "Private/FIRAuthErrorUtils.h"
 
+#import "FIRAuthCredential.h"
 #import "Private/FIRAuthInternalErrors.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,6 +33,8 @@ NSString *const FIRAuthErrorUserInfoDataKey = @"FIRAuthErrorUserInfoDataKey";
 NSString *const FIRAuthErrorUserInfoEmailKey = @"FIRAuthErrorUserInfoEmailKey";
 
 NSString *const FIRAuthErrorNameKey = @"error_name";
+
+NSString *const FIRAuthUpdatedCredentialKey = @"FIRAuthUpdatedCredentialKey";
 
 /** @var kServerErrorDetailMarker
     @brief This marker indicates that the server error message contains a detail error message which
@@ -647,7 +650,12 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeUserMismatch];
 }
 
-+ (NSError *)credentialAlreadyInUseErrorWithMessage:(nullable NSString *)message {
++ (NSError *)credentialAlreadyInUseErrorWithMessage:(nullable NSString *)message
+                                         credential:(nullable FIRPhoneAuthCredential *)credential {
+  if (credential) {
+    return [self errorWithCode:FIRAuthInternalErrorCodeCredentialAlreadyInUse
+                    userInfo:@{ FIRAuthUpdatedCredentialKey : credential }];
+  }
   return [self errorWithCode:FIRAuthInternalErrorCodeCredentialAlreadyInUse message:message];
 }
 

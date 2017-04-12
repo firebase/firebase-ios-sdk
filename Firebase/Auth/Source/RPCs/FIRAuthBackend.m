@@ -16,6 +16,8 @@
 
 #import "FIRAuthBackend.h"
 
+#import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "../AuthProviders/Phone/FIRPhoneAuthProvider.h"
 #import "../Private/FIRAuthErrorUtils.h"
 #import "../Private/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
@@ -574,9 +576,21 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [self postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
-    } else {
-      callback(response, nil);
+      return;
     }
+    // Check whether or not the successful response is actually the special case phone auth flow
+    // that returns a temporary proof and phone number.
+    if (response.phoneNumber.length && response.temporaryProof.length) {
+      FIRPhoneAuthCredential *credential =
+          [[FIRPhoneAuthCredential alloc] initWithTemporaryProof:response.temporaryProof
+                                                     phoneNumber:response.phoneNumber
+                                                      providerID:FIRPhoneAuthProviderID];
+      callback(nil,
+               [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:nil
+                                                              credential:credential]);
+      return;
+    }
+    callback(response, nil);
   }];
 }
 
@@ -714,7 +728,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     // validation of the "kind" property of the response.
     NSString *expectedKind = [response expectedKind];
     // TODO: remove kKind from the backend response and all sites of this validation
-    // (including unit tests).
+    // (including unit tests), tracked in b/37169084 .
     if (expectedKind && ![expectedKind isEqual:dictionary[kKindKey]]) {
       NSError *unexpectedResponse =
           [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:dictionary];
@@ -841,7 +855,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kFederatedUserIDAlreadyLinkedMessage]) {
-    return [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:serverDetailErrorMessage];
+    return [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:serverDetailErrorMessage
+                                                          credential:nil];
   }
 
   if ([shortErrorMessage isEqualToString:kWeakPasswordErrorMessagePrefix]) {
