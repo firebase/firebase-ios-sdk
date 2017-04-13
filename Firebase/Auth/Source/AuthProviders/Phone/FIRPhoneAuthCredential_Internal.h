@@ -49,9 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** @var initWithTemporaryProof:phoneNumber:
     @brief Designated Initializer.
     @param providerID The provider ID associated with the phone auth credential being created.
-    @param verificationID The verification ID associated witht Phone Auth credential being created.
-    @param verificationCode The verification code associated witht Phone Auth credential being
-        created.
  */
 - (instancetype)initWithTemporaryProof:(NSString *)temporaryProof
                            phoneNumber:(NSString *)phoneNumber

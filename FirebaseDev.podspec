@@ -51,6 +51,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'Firebase/Auth/Source/AuthProviders/GitHub/FIRGitHubAuthProvider.h',
       'Firebase/Auth/Source/AuthProviders/Google/FIRGoogleAuthProvider.h',
       'Firebase/Auth/Source/AuthProviders/OAuth/FIROAuthProvider.h',
+      'Firebase/Auth/Source/AuthProviders/Phone/FIRPhoneAuthCredential.h',
       'Firebase/Auth/Source/AuthProviders/Phone/FIRPhoneAuthProvider.h',
       'Firebase/Auth/Source/AuthProviders/Twitter/FIRTwitterAuthProvider.h',
       'Firebase/Auth/Source/FIRUser.h',

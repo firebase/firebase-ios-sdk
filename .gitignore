@@ -35,4 +35,4 @@ Carthage
 #
 Pods/
 Podfile.lock
-Firebase.xcworkspace
+*.xcworkspace

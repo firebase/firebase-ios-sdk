@@ -267,7 +267,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @fn weakPasswordErrorWithServerResponseReason:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeWeakPassword code.
-    @param reason A more detailed explanation string from server response.
+    @param serverResponseReason A more detailed explanation string from server response.
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)weakPasswordErrorWithServerResponseReason:(NSString *)serverResponseReason;
