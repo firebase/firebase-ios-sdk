@@ -18,10 +18,12 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "googlemac/iPhone/Firebase/Source/FIRApp.h"
-#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FirebaseAuth.h"
-#import "googlemac/iPhone/Shared/Testing/EarlGrey/Contribs/Matchers/GREYMatchers+MatcherContribs.h"
-#import "googlemac/iPhone/Shared/ioReplayer/IORTestCase.h"
+#import "FIRApp.h"
+#import "FirebaseAuth.h"
+
+#ifdef NO_NETWORK
+#import "ioReplayer/IORTestCase.h"
+#endif
 
 /** The url for obtaining a valid custom token string used to test BYOAuth. */
 static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
@@ -36,8 +38,17 @@ static CGFloat const kShortScrollDistance = 100;
 
 static NSTimeInterval const kWaitForElementTimeOut = 5;
 
+#ifdef NO_NETWORK
 @interface BasicUITest : IORTestCase
+#else
+@interface BasicUITest :XCTestCase
+#endif
 @end
+
+/** Convenience function for EarlGrey tests. */
+id<GREYMatcher> grey_scrollView(void) {
+  return [GREYMatchers matcherForKindOfClass:[UIScrollView class]];
+}
 
 @implementation BasicUITest
 

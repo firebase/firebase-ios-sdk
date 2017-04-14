@@ -1,4 +1,3 @@
-
 use_frameworks!
 platform :ios, '8.0'
 
@@ -11,8 +10,31 @@ target 'Sample' do
   pod 'FirebaseInstanceID', '1.0.9'
 end
 
-target 'SwiftSample' do
+target 'SwiftBear' do
   pod 'FirebaseDev/Auth', :path => '../'
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID', '1.0.9'
+end
+
+target 'ApiTests' do
+  pod 'FirebaseDev/Auth', :path => '../'
+  pod 'GoogleSignIn'
+  pod 'FirebaseInstanceID', '1.0.9'
+  pod 'GTMSessionFetcher'
+end
+
+target 'EarlGreyTests' do
+  pod 'FirebaseDev/Auth', :path => '../'
+  pod 'GoogleSignIn'
+  pod 'FirebaseInstanceID', '1.0.9'
+  pod 'EarlGrey'
+end
+
+target 'TestApp' do
+  pod 'FirebaseDev/Auth', :path => '../'
+end
+
+target 'FirebaseAuthUnitTests' do
+  pod 'FirebaseDev/Auth', :path => '../'
+  pod 'OCMock'
 end

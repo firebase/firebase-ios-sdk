@@ -6,9 +6,28 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		DE5C700E1EA17F6900A965D2 /* AllTests */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = DE5C700F1EA17F6900A965D2 /* Build configuration list for PBXAggregateTarget "AllTests" */;
+			buildPhases = (
+			);
+			dependencies = (
+				DE5C70131EA17F7200A965D2 /* PBXTargetDependency */,
+				DE5C70151EA17F7200A965D2 /* PBXTargetDependency */,
+				DE5C70171EA17F7200A965D2 /* PBXTargetDependency */,
+			);
+			name = AllTests;
+			productName = AllTests;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
-		4572599FFB6346B22002A89B /* Pods_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */; };
+		569C3F4E18627674CABE02AE /* Pods_EarlGreyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */; };
 		67AFFB52FF0FC4668D92F2E4 /* Pods_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */; };
+		A7609DCAD8A247411F27EA14 /* Pods_TestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */; };
+		AB62D09AF8C1196E07F37D3B /* Pods_SwiftBear.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F689EE8E0E6F83D82429F0 /* Pods_SwiftBear.framework */; };
+		BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */; };
 		DECE04E21E9FEAE600164CA4 /* Application.plist in Resources */ = {isa = PBXBuildFile; fileRef = DECE049B1E9FEAE600164CA4 /* Application.plist */; };
 		DECE04E31E9FEAE600164CA4 /* ApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE049D1E9FEAE600164CA4 /* ApplicationDelegate.m */; };
 		DECE04E41E9FEAE600164CA4 /* AuthProviders.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE049F1E9FEAE600164CA4 /* AuthProviders.m */; };
@@ -35,12 +54,132 @@
 		DEE13A161E9FFD1F00D1BABA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A141E9FFD1F00D1BABA /* LaunchScreen.storyboard */; };
 		DEE13A171E9FFD1F00D1BABA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A151E9FFD1F00D1BABA /* Main.storyboard */; };
 		DEE13A1A1E9FFD2E00D1BABA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A191E9FFD2E00D1BABA /* GoogleService-Info.plist */; };
+		DEE13A2B1EA125CD00D1BABA /* FirebearApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A2A1EA125CD00D1BABA /* FirebearApiTests.m */; };
+		DEE13A3D1EA164E100D1BABA /* FirebearEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A3C1EA164E100D1BABA /* FirebearEarlGreyTests.m */; };
+		DEE13A781EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A4C1EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m */; };
+		DEE13A791EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A4E1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m */; };
+		DEE13A7A1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A4F1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m */; };
+		DEE13A7B1EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A501EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m */; };
+		DEE13A7C1EA16F1D00D1BABA /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A511EA16F1D00D1BABA /* FIRAuthDispatcherTests.m */; };
+		DEE13A7D1EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A521EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m */; };
+		DEE13A7E1EA16F1D00D1BABA /* FIRAuthKeychainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A531EA16F1D00D1BABA /* FIRAuthKeychainTests.m */; };
+		DEE13A7F1EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A541EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m */; };
+		DEE13A801EA16F1D00D1BABA /* FIRAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A551EA16F1D00D1BABA /* FIRAuthTests.m */; };
+		DEE13A811EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A561EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m */; };
+		DEE13A821EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A571EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m */; };
+		DEE13A831EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A581EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m */; };
+		DEE13A841EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A591EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m */; };
+		DEE13A851EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5A1EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m */; };
+		DEE13A861EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5C1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m */; };
+		DEE13A871EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5D1EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m */; };
+		DEE13A881EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5E1EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m */; };
+		DEE13A891EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5F1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m */; };
+		DEE13A8A1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A601EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m */; };
+		DEE13A8B1EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A611EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m */; };
+		DEE13A8C1EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A621EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m */; };
+		DEE13A8D1EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A631EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m */; };
+		DEE13A8E1EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A641EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m */; };
+		DEE13A8F1EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A651EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m */; };
+		DEE13A901EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A661EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m */; };
+		DEE13A911EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A671EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m */; };
+		DEE13A921EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A681EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m */; };
+		DEE13A931EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A691EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m */; };
+		DEE13A941EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6A1EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m */; };
+		DEE13A951EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6B1EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m */; };
+		DEE13A961EA16F1D00D1BABA /* FIRUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6C1EA16F1D00D1BABA /* FIRUserTests.m */; };
+		DEE13A971EA16F1E00D1BABA /* FIRVerifyAssertionRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6D1EA16F1D00D1BABA /* FIRVerifyAssertionRequestTests.m */; };
+		DEE13A981EA16F1E00D1BABA /* FIRVerifyAssertionResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6E1EA16F1D00D1BABA /* FIRVerifyAssertionResponseTests.m */; };
+		DEE13A991EA16F1E00D1BABA /* FIRVerifyCustomTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6F1EA16F1D00D1BABA /* FIRVerifyCustomTokenRequestTests.m */; };
+		DEE13A9A1EA16F1E00D1BABA /* FIRVerifyCustomTokenResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A701EA16F1D00D1BABA /* FIRVerifyCustomTokenResponseTests.m */; };
+		DEE13A9B1EA16F1E00D1BABA /* FIRVerifyPasswordRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A711EA16F1D00D1BABA /* FIRVerifyPasswordRequestTest.m */; };
+		DEE13A9C1EA16F1E00D1BABA /* FIRVerifyPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A721EA16F1D00D1BABA /* FIRVerifyPasswordResponseTests.m */; };
+		DEE13A9D1EA16F1E00D1BABA /* FIRVerifyPhoneNumberRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A731EA16F1D00D1BABA /* FIRVerifyPhoneNumberRequestTests.m */; };
+		DEE13A9E1EA16F1E00D1BABA /* FIRVerifyPhoneNumberResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A741EA16F1D00D1BABA /* FIRVerifyPhoneNumberResponseTests.m */; };
+		DEE13A9F1EA16F1E00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A761EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m */; };
+		DEE13AA01EA16F1E00D1BABA /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A771EA16F1D00D1BABA /* Tests-Info.plist */; };
+		DEE13AA21EA1724300D1BABA /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEE13A2C1EA12B8D00D1BABA /* FirebaseDev.framework */; };
+		DEE13ACB1EA1764B00D1BABA /* Auth-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */; };
+		DEE13ACC1EA1764B00D1BABA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13AC01EA1764B00D1BABA /* LaunchScreen.storyboard */; };
+		DEE13ACD1EA1764B00D1BABA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13AC21EA1764B00D1BABA /* Main.storyboard */; };
+		DEE13ACE1EA1764B00D1BABA /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13AC51EA1764B00D1BABA /* FIRAppDelegate.m */; };
+		DEE13ACF1EA1764B00D1BABA /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13AC71EA1764B00D1BABA /* FIRViewController.m */; };
+		DEE13AD01EA1764B00D1BABA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13AC81EA1764B00D1BABA /* GoogleService-Info.plist */; };
+		DEE13AD11EA1764B00D1BABA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEE13AC91EA1764B00D1BABA /* Images.xcassets */; };
+		DEE13AD21EA1764B00D1BABA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13ACA1EA1764B00D1BABA /* main.m */; };
+		E7989F47679257E9190C787F /* Pods_ApiTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		DE5C70121EA17F7200A965D2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DECE045E1E9FEA1000164CA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEE13A1F1EA1252D00D1BABA;
+			remoteInfo = ApiTests;
+		};
+		DE5C70141EA17F7200A965D2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DECE045E1E9FEA1000164CA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEE13A311EA1642A00D1BABA;
+			remoteInfo = EarlGreyTests;
+		};
+		DE5C70161EA17F7200A965D2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DECE045E1E9FEA1000164CA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEE13A411EA16EE400D1BABA;
+			remoteInfo = FirebaseAuthUnitTests;
+		};
+		DEA41FF51EA17A030072DA74 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DECE045E1E9FEA1000164CA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEE13AA61EA1761B00D1BABA;
+			remoteInfo = TestApp;
+		};
+		DEE13A251EA1252D00D1BABA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DECE045E1E9FEA1000164CA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DECE04831E9FEA7500164CA4;
+			remoteInfo = Sample;
+		};
+		DEE13A371EA1642A00D1BABA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DECE045E1E9FEA1000164CA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DECE04831E9FEA7500164CA4;
+			remoteInfo = Sample;
+		};
+		DEE13A471EA16EE400D1BABA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DECE045E1E9FEA1000164CA4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DECE04831E9FEA7500164CA4;
+			remoteInfo = Sample;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		113C36392871524143A53B07 /* Pods-ApiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.debug.xcconfig"; sourceTree = "<group>"; };
+		151B5A61F0B0D152CD55DF81 /* Pods-SwiftBear.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBear.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBear/Pods-SwiftBear.release.xcconfig"; sourceTree = "<group>"; };
+		178AA1A3F0690CDEC44E2BF1 /* Pods-FirebaseAuthUnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.release.xcconfig"; sourceTree = "<group>"; };
+		1B16EC50B5315C8E9E2D21CE /* Pods-EarlGreyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EarlGreyTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests.debug.xcconfig"; sourceTree = "<group>"; };
+		36794820176319C88B4F11E5 /* Pods-SwiftBear.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBear.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBear/Pods-SwiftBear.debug.xcconfig"; sourceTree = "<group>"; };
 		495F22BEDDFD4DFE3FB2D522 /* Pods-SwiftSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.debug.xcconfig"; sourceTree = "<group>"; };
+		4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FirebaseAuthUnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		57150555A6B03949ECB58AD9 /* Pods-TestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TestApp/Pods-TestApp.debug.xcconfig"; sourceTree = "<group>"; };
+		6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.release.xcconfig"; sourceTree = "<group>"; };
+		920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.debug.xcconfig"; sourceTree = "<group>"; };
+		94E3B3EB70D34E55CFF2E45D /* Pods-EarlGreyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EarlGreyTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests.release.xcconfig"; sourceTree = "<group>"; };
+		A1F689EE8E0E6F83D82429F0 /* Pods_SwiftBear.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftBear.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A75CAF1D0796E27A3E899DE4 /* Pods-Sample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sample.release.xcconfig"; path = "Pods/Target Support Files/Pods-Sample/Pods-Sample.release.xcconfig"; sourceTree = "<group>"; };
+		AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EarlGreyTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B78FD2B21A8D72D5E38E3E79 /* Pods-TestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-TestApp/Pods-TestApp.release.xcconfig"; sourceTree = "<group>"; };
 		BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EE09E5B9A6C092236222A9 /* Pods-Sample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sample/Pods-Sample.debug.xcconfig"; sourceTree = "<group>"; };
 		D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.release.xcconfig"; sourceTree = "<group>"; };
@@ -118,6 +257,69 @@
 		DEE13A141E9FFD1F00D1BABA /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DEE13A151E9FFD1F00D1BABA /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		DEE13A191E9FFD2E00D1BABA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DEE13A201EA1252D00D1BABA /* ApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE13A241EA1252D00D1BABA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEE13A2A1EA125CD00D1BABA /* FirebearApiTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebearApiTests.m; sourceTree = "<group>"; };
+		DEE13A2C1EA12B8D00D1BABA /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Samples-dzyyktlzbrpvmobgpcqwaobjmibu/Build/Products/Debug-iphonesimulator/FirebaseDev/FirebaseDev.framework"; sourceTree = "<group>"; };
+		DEE13A321EA1642A00D1BABA /* EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE13A361EA1642A00D1BABA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEE13A3C1EA164E100D1BABA /* FirebearEarlGreyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebearEarlGreyTests.m; sourceTree = "<group>"; };
+		DEE13A421EA16EE400D1BABA /* FirebaseAuthUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FirebaseAuthUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE13A4C1EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAdditionalUserInfoTests.m; path = ../../Example/Auth/Tests/FIRAdditionalUserInfoTests.m; sourceTree = "<group>"; };
+		DEE13A4D1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "FIRApp+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
+		DEE13A4E1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "FIRApp+FIRAuthUnitTests.m"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.m"; sourceTree = "<group>"; };
+		DEE13A4F1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthBackendCreateAuthURITests.m; path = ../../Example/Auth/Tests/FIRAuthBackendCreateAuthURITests.m; sourceTree = "<group>"; };
+		DEE13A501EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthBackendRPCImplementationTests.m; path = ../../Example/Auth/Tests/FIRAuthBackendRPCImplementationTests.m; sourceTree = "<group>"; };
+		DEE13A511EA16F1D00D1BABA /* FIRAuthDispatcherTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthDispatcherTests.m; path = ../../Example/Auth/Tests/FIRAuthDispatcherTests.m; sourceTree = "<group>"; };
+		DEE13A521EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthGlobalWorkQueueTests.m; path = ../../Example/Auth/Tests/FIRAuthGlobalWorkQueueTests.m; sourceTree = "<group>"; };
+		DEE13A531EA16F1D00D1BABA /* FIRAuthKeychainTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthKeychainTests.m; path = ../../Example/Auth/Tests/FIRAuthKeychainTests.m; sourceTree = "<group>"; };
+		DEE13A541EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthSerialTaskQueueTests.m; path = ../../Example/Auth/Tests/FIRAuthSerialTaskQueueTests.m; sourceTree = "<group>"; };
+		DEE13A551EA16F1D00D1BABA /* FIRAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthTests.m; path = ../../Example/Auth/Tests/FIRAuthTests.m; sourceTree = "<group>"; };
+		DEE13A561EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthUserDefaultsStorageTests.m; path = ../../Example/Auth/Tests/FIRAuthUserDefaultsStorageTests.m; sourceTree = "<group>"; };
+		DEE13A571EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRCreateAuthURIRequestTests.m; path = ../../Example/Auth/Tests/FIRCreateAuthURIRequestTests.m; sourceTree = "<group>"; };
+		DEE13A581EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRCreateAuthURIResponseTests.m; path = ../../Example/Auth/Tests/FIRCreateAuthURIResponseTests.m; sourceTree = "<group>"; };
+		DEE13A591EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDeleteAccountRequestTests.m; path = ../../Example/Auth/Tests/FIRDeleteAccountRequestTests.m; sourceTree = "<group>"; };
+		DEE13A5A1EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDeleteAccountResponseTests.m; path = ../../Example/Auth/Tests/FIRDeleteAccountResponseTests.m; sourceTree = "<group>"; };
+		DEE13A5B1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRFakeBackendRPCIssuer.h; path = ../../Example/Auth/Tests/FIRFakeBackendRPCIssuer.h; sourceTree = "<group>"; };
+		DEE13A5C1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRFakeBackendRPCIssuer.m; path = ../../Example/Auth/Tests/FIRFakeBackendRPCIssuer.m; sourceTree = "<group>"; };
+		DEE13A5D1EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetAccountInfoRequestTests.m; path = ../../Example/Auth/Tests/FIRGetAccountInfoRequestTests.m; sourceTree = "<group>"; };
+		DEE13A5E1EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetAccountInfoResponseTests.m; path = ../../Example/Auth/Tests/FIRGetAccountInfoResponseTests.m; sourceTree = "<group>"; };
+		DEE13A5F1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetOOBConfirmationCodeRequestTests.m; path = ../../Example/Auth/Tests/FIRGetOOBConfirmationCodeRequestTests.m; sourceTree = "<group>"; };
+		DEE13A601EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetOOBConfirmationCodeResponseTests.m; path = ../../Example/Auth/Tests/FIRGetOOBConfirmationCodeResponseTests.m; sourceTree = "<group>"; };
+		DEE13A611EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGitHubAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRGitHubAuthProviderTests.m; sourceTree = "<group>"; };
+		DEE13A621EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRPhoneAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRPhoneAuthProviderTests.m; sourceTree = "<group>"; };
+		DEE13A631EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRResetPasswordRequestTests.m; path = ../../Example/Auth/Tests/FIRResetPasswordRequestTests.m; sourceTree = "<group>"; };
+		DEE13A641EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRResetPasswordResponseTests.m; path = ../../Example/Auth/Tests/FIRResetPasswordResponseTests.m; sourceTree = "<group>"; };
+		DEE13A651EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSendVerificationCodeRequestTests.m; path = ../../Example/Auth/Tests/FIRSendVerificationCodeRequestTests.m; sourceTree = "<group>"; };
+		DEE13A661EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSendVerificationCodeResponseTests.m; path = ../../Example/Auth/Tests/FIRSendVerificationCodeResponseTests.m; sourceTree = "<group>"; };
+		DEE13A671EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSetAccountInfoRequestTests.m; path = ../../Example/Auth/Tests/FIRSetAccountInfoRequestTests.m; sourceTree = "<group>"; };
+		DEE13A681EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSetAccountInfoResponseTests.m; path = ../../Example/Auth/Tests/FIRSetAccountInfoResponseTests.m; sourceTree = "<group>"; };
+		DEE13A691EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSignUpNewUserRequestTests.m; path = ../../Example/Auth/Tests/FIRSignUpNewUserRequestTests.m; sourceTree = "<group>"; };
+		DEE13A6A1EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSignUpNewUserResponseTests.m; path = ../../Example/Auth/Tests/FIRSignUpNewUserResponseTests.m; sourceTree = "<group>"; };
+		DEE13A6B1EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRTwitterAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRTwitterAuthProviderTests.m; sourceTree = "<group>"; };
+		DEE13A6C1EA16F1D00D1BABA /* FIRUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRUserTests.m; path = ../../Example/Auth/Tests/FIRUserTests.m; sourceTree = "<group>"; };
+		DEE13A6D1EA16F1D00D1BABA /* FIRVerifyAssertionRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyAssertionRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyAssertionRequestTests.m; sourceTree = "<group>"; };
+		DEE13A6E1EA16F1D00D1BABA /* FIRVerifyAssertionResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyAssertionResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyAssertionResponseTests.m; sourceTree = "<group>"; };
+		DEE13A6F1EA16F1D00D1BABA /* FIRVerifyCustomTokenRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyCustomTokenRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyCustomTokenRequestTests.m; sourceTree = "<group>"; };
+		DEE13A701EA16F1D00D1BABA /* FIRVerifyCustomTokenResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyCustomTokenResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyCustomTokenResponseTests.m; sourceTree = "<group>"; };
+		DEE13A711EA16F1D00D1BABA /* FIRVerifyPasswordRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPasswordRequestTest.m; path = ../../Example/Auth/Tests/FIRVerifyPasswordRequestTest.m; sourceTree = "<group>"; };
+		DEE13A721EA16F1D00D1BABA /* FIRVerifyPasswordResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPasswordResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyPasswordResponseTests.m; sourceTree = "<group>"; };
+		DEE13A731EA16F1D00D1BABA /* FIRVerifyPhoneNumberRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPhoneNumberRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyPhoneNumberRequestTests.m; sourceTree = "<group>"; };
+		DEE13A741EA16F1D00D1BABA /* FIRVerifyPhoneNumberResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPhoneNumberResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyPhoneNumberResponseTests.m; sourceTree = "<group>"; };
+		DEE13A751EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "OCMStubRecorder+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/OCMStubRecorder+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
+		DEE13A761EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "OCMStubRecorder+FIRAuthUnitTests.m"; path = "../../Example/Auth/Tests/OCMStubRecorder+FIRAuthUnitTests.m"; sourceTree = "<group>"; };
+		DEE13A771EA16F1D00D1BABA /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Example/Auth/Tests/Tests-Info.plist"; sourceTree = "<group>"; };
+		DEE13AA71EA1761B00D1BABA /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Auth-Info.plist"; path = "../../Example/Auth/App/Auth-Info.plist"; sourceTree = "<group>"; };
+		DEE13AC11EA1764B00D1BABA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DEE13AC31EA1764B00D1BABA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
+		DEE13AC41EA1764B00D1BABA /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAppDelegate.h; path = ../../Example/Auth/App/FIRAppDelegate.h; sourceTree = "<group>"; };
+		DEE13AC51EA1764B00D1BABA /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAppDelegate.m; path = ../../Example/Auth/App/FIRAppDelegate.m; sourceTree = "<group>"; };
+		DEE13AC61EA1764B00D1BABA /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRViewController.h; path = ../../Example/Auth/App/FIRViewController.h; sourceTree = "<group>"; };
+		DEE13AC71EA1764B00D1BABA /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRViewController.m; path = ../../Example/Auth/App/FIRViewController.m; sourceTree = "<group>"; };
+		DEE13AC81EA1764B00D1BABA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Example/Auth/App/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DEE13AC91EA1764B00D1BABA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../../Example/Auth/App/Images.xcassets; sourceTree = "<group>"; };
+		DEE13ACA1EA1764B00D1BABA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../../Example/Auth/App/main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,7 +335,40 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4572599FFB6346B22002A89B /* Pods_SwiftSample.framework in Frameworks */,
+				AB62D09AF8C1196E07F37D3B /* Pods_SwiftBear.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13A1D1EA1252D00D1BABA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E7989F47679257E9190C787F /* Pods_ApiTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13A2F1EA1642A00D1BABA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				569C3F4E18627674CABE02AE /* Pods_EarlGreyTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13A3F1EA16EE400D1BABA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE13AA21EA1724300D1BABA /* FirebaseDev.framework in Frameworks */,
+				BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13AA41EA1761B00D1BABA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7609DCAD8A247411F27EA14 /* Pods_TestApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,6 +382,16 @@
 				A75CAF1D0796E27A3E899DE4 /* Pods-Sample.release.xcconfig */,
 				495F22BEDDFD4DFE3FB2D522 /* Pods-SwiftSample.debug.xcconfig */,
 				D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */,
+				113C36392871524143A53B07 /* Pods-ApiTests.debug.xcconfig */,
+				81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */,
+				36794820176319C88B4F11E5 /* Pods-SwiftBear.debug.xcconfig */,
+				151B5A61F0B0D152CD55DF81 /* Pods-SwiftBear.release.xcconfig */,
+				1B16EC50B5315C8E9E2D21CE /* Pods-EarlGreyTests.debug.xcconfig */,
+				94E3B3EB70D34E55CFF2E45D /* Pods-EarlGreyTests.release.xcconfig */,
+				920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */,
+				178AA1A3F0690CDEC44E2BF1 /* Pods-FirebaseAuthUnitTests.release.xcconfig */,
+				57150555A6B03949ECB58AD9 /* Pods-TestApp.debug.xcconfig */,
+				B78FD2B21A8D72D5E38E3E79 /* Pods-TestApp.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -156,6 +401,10 @@
 			children = (
 				DECE04851E9FEA7500164CA4 /* Sample */,
 				DEE13A031E9FFC9500D1BABA /* SwiftSample */,
+				DEE13A211EA1252D00D1BABA /* ApiTests */,
+				DEE13A331EA1642A00D1BABA /* EarlGreyTests */,
+				DEE13A431EA16EE400D1BABA /* FirebaseAuthUnitTests */,
+				DEE13AA81EA1761B00D1BABA /* TestApp */,
 				DECE04671E9FEA1000164CA4 /* Products */,
 				2BC00404B97D81ACA2DF9DE8 /* Pods */,
 				FC34A5565C2ACFA8C5AA3B1E /* Frameworks */,
@@ -167,6 +416,10 @@
 			children = (
 				DECE04841E9FEA7500164CA4 /* Sample.app */,
 				DEE13A021E9FFC9500D1BABA /* SwiftBear.app */,
+				DEE13A201EA1252D00D1BABA /* ApiTests.xctest */,
+				DEE13A321EA1642A00D1BABA /* EarlGreyTests.xctest */,
+				DEE13A421EA16EE400D1BABA /* FirebaseAuthUnitTests.xctest */,
+				DEE13AA71EA1761B00D1BABA /* TestApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -247,11 +500,112 @@
 			path = Base.lproj;
 			sourceTree = "<group>";
 		};
+		DEE13A211EA1252D00D1BABA /* ApiTests */ = {
+			isa = PBXGroup;
+			children = (
+				DEE13A2A1EA125CD00D1BABA /* FirebearApiTests.m */,
+				DEE13A241EA1252D00D1BABA /* Info.plist */,
+			);
+			path = ApiTests;
+			sourceTree = "<group>";
+		};
+		DEE13A331EA1642A00D1BABA /* EarlGreyTests */ = {
+			isa = PBXGroup;
+			children = (
+				DEE13A3C1EA164E100D1BABA /* FirebearEarlGreyTests.m */,
+				DEE13A361EA1642A00D1BABA /* Info.plist */,
+			);
+			path = EarlGreyTests;
+			sourceTree = "<group>";
+		};
+		DEE13A431EA16EE400D1BABA /* FirebaseAuthUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				DEE13A4C1EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m */,
+				DEE13A4D1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.h */,
+				DEE13A4E1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m */,
+				DEE13A4F1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m */,
+				DEE13A501EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m */,
+				DEE13A511EA16F1D00D1BABA /* FIRAuthDispatcherTests.m */,
+				DEE13A521EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m */,
+				DEE13A531EA16F1D00D1BABA /* FIRAuthKeychainTests.m */,
+				DEE13A541EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m */,
+				DEE13A551EA16F1D00D1BABA /* FIRAuthTests.m */,
+				DEE13A561EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m */,
+				DEE13A571EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m */,
+				DEE13A581EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m */,
+				DEE13A591EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m */,
+				DEE13A5A1EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m */,
+				DEE13A5B1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.h */,
+				DEE13A5C1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m */,
+				DEE13A5D1EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m */,
+				DEE13A5E1EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m */,
+				DEE13A5F1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m */,
+				DEE13A601EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m */,
+				DEE13A611EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m */,
+				DEE13A621EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m */,
+				DEE13A631EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m */,
+				DEE13A641EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m */,
+				DEE13A651EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m */,
+				DEE13A661EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m */,
+				DEE13A671EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m */,
+				DEE13A681EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m */,
+				DEE13A691EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m */,
+				DEE13A6A1EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m */,
+				DEE13A6B1EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m */,
+				DEE13A6C1EA16F1D00D1BABA /* FIRUserTests.m */,
+				DEE13A6D1EA16F1D00D1BABA /* FIRVerifyAssertionRequestTests.m */,
+				DEE13A6E1EA16F1D00D1BABA /* FIRVerifyAssertionResponseTests.m */,
+				DEE13A6F1EA16F1D00D1BABA /* FIRVerifyCustomTokenRequestTests.m */,
+				DEE13A701EA16F1D00D1BABA /* FIRVerifyCustomTokenResponseTests.m */,
+				DEE13A711EA16F1D00D1BABA /* FIRVerifyPasswordRequestTest.m */,
+				DEE13A721EA16F1D00D1BABA /* FIRVerifyPasswordResponseTests.m */,
+				DEE13A731EA16F1D00D1BABA /* FIRVerifyPhoneNumberRequestTests.m */,
+				DEE13A741EA16F1D00D1BABA /* FIRVerifyPhoneNumberResponseTests.m */,
+				DEE13A751EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.h */,
+				DEE13A761EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m */,
+				DEE13A771EA16F1D00D1BABA /* Tests-Info.plist */,
+			);
+			path = FirebaseAuthUnitTests;
+			sourceTree = "<group>";
+		};
+		DEE13AA81EA1761B00D1BABA /* TestApp */ = {
+			isa = PBXGroup;
+			children = (
+				DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */,
+				DEE13ABF1EA1764B00D1BABA /* Base.lproj */,
+				DEE13AC41EA1764B00D1BABA /* FIRAppDelegate.h */,
+				DEE13AC51EA1764B00D1BABA /* FIRAppDelegate.m */,
+				DEE13AC61EA1764B00D1BABA /* FIRViewController.h */,
+				DEE13AC71EA1764B00D1BABA /* FIRViewController.m */,
+				DEE13AC81EA1764B00D1BABA /* GoogleService-Info.plist */,
+				DEE13AC91EA1764B00D1BABA /* Images.xcassets */,
+				DEE13ACA1EA1764B00D1BABA /* main.m */,
+			);
+			path = TestApp;
+			sourceTree = "<group>";
+		};
+		DEE13ABF1EA1764B00D1BABA /* Base.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				DEE13AC01EA1764B00D1BABA /* LaunchScreen.storyboard */,
+				DEE13AC21EA1764B00D1BABA /* Main.storyboard */,
+			);
+			name = Base.lproj;
+			path = ../../Example/Auth/App/Base.lproj;
+			sourceTree = "<group>";
+		};
 		FC34A5565C2ACFA8C5AA3B1E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DEE13A2C1EA12B8D00D1BABA /* FirebaseDev.framework */,
 				D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */,
 				BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */,
+				6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */,
+				A1F689EE8E0E6F83D82429F0 /* Pods_SwiftBear.framework */,
+				AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */,
+				4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */,
+				CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -299,6 +653,90 @@
 			productReference = DEE13A021E9FFC9500D1BABA /* SwiftBear.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DEE13A1F1EA1252D00D1BABA /* ApiTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEE13A291EA1252D00D1BABA /* Build configuration list for PBXNativeTarget "ApiTests" */;
+			buildPhases = (
+				DECFE0EC98C60CEE719E03CA /* [CP] Check Pods Manifest.lock */,
+				DEE13A1C1EA1252D00D1BABA /* Sources */,
+				DEE13A1D1EA1252D00D1BABA /* Frameworks */,
+				DEE13A1E1EA1252D00D1BABA /* Resources */,
+				C3FCDC32190B715603C4E5EA /* [CP] Embed Pods Frameworks */,
+				D625EF1F1CC955CEFC768099 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEE13A261EA1252D00D1BABA /* PBXTargetDependency */,
+			);
+			name = ApiTests;
+			productName = ApiTests;
+			productReference = DEE13A201EA1252D00D1BABA /* ApiTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DEE13A311EA1642A00D1BABA /* EarlGreyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEE13A391EA1642B00D1BABA /* Build configuration list for PBXNativeTarget "EarlGreyTests" */;
+			buildPhases = (
+				31C9CD5738CD8A86F3E29FD4 /* [CP] Check Pods Manifest.lock */,
+				DEE13A2E1EA1642A00D1BABA /* Sources */,
+				DEE13A2F1EA1642A00D1BABA /* Frameworks */,
+				DEE13A301EA1642A00D1BABA /* Resources */,
+				45E0A7D32BD529EA299F169F /* [CP] Embed Pods Frameworks */,
+				C5EB2DFC39A4D32D63305071 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEE13A381EA1642A00D1BABA /* PBXTargetDependency */,
+			);
+			name = EarlGreyTests;
+			productName = EarlGreyTests;
+			productReference = DEE13A321EA1642A00D1BABA /* EarlGreyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DEE13A411EA16EE400D1BABA /* FirebaseAuthUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEE13A4B1EA16EE400D1BABA /* Build configuration list for PBXNativeTarget "FirebaseAuthUnitTests" */;
+			buildPhases = (
+				19197348303E74218FE9F86A /* [CP] Check Pods Manifest.lock */,
+				DEE13A3E1EA16EE400D1BABA /* Sources */,
+				DEE13A3F1EA16EE400D1BABA /* Frameworks */,
+				DEE13A401EA16EE400D1BABA /* Resources */,
+				F2982E8E37D71A5B31C19526 /* [CP] Embed Pods Frameworks */,
+				A7955AE6B74F92A6A1A61539 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEE13A481EA16EE400D1BABA /* PBXTargetDependency */,
+				DEA41FF61EA17A030072DA74 /* PBXTargetDependency */,
+			);
+			name = FirebaseAuthUnitTests;
+			productName = FirebaseAuthUnitTests;
+			productReference = DEE13A421EA16EE400D1BABA /* FirebaseAuthUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DEE13AA61EA1761B00D1BABA /* TestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEE13ABD1EA1761C00D1BABA /* Build configuration list for PBXNativeTarget "TestApp" */;
+			buildPhases = (
+				0C85A097DBA90CB3BA988388 /* [CP] Check Pods Manifest.lock */,
+				DEE13AA31EA1761B00D1BABA /* Sources */,
+				DEE13AA41EA1761B00D1BABA /* Frameworks */,
+				DEE13AA51EA1761B00D1BABA /* Resources */,
+				90FD4EF0F0A764C0793CAA62 /* [CP] Embed Pods Frameworks */,
+				91A5B60E1FF1F6B7A1979A7E /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TestApp;
+			productName = TestApp;
+			productReference = DEE13AA71EA1761B00D1BABA /* TestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -309,12 +747,40 @@
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = paulbeusterien;
 				TargetAttributes = {
+					DE5C700E1EA17F6900A965D2 = {
+						CreatedOnToolsVersion = 8.3;
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+					};
 					DECE04831E9FEA7500164CA4 = {
 						CreatedOnToolsVersion = 8.3;
 						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
 					};
 					DEE13A011E9FFC9500D1BABA = {
+						CreatedOnToolsVersion = 8.3;
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+					};
+					DEE13A1F1EA1252D00D1BABA = {
+						CreatedOnToolsVersion = 8.3;
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DECE04831E9FEA7500164CA4;
+					};
+					DEE13A311EA1642A00D1BABA = {
+						CreatedOnToolsVersion = 8.3;
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DECE04831E9FEA7500164CA4;
+					};
+					DEE13A411EA16EE400D1BABA = {
+						CreatedOnToolsVersion = 8.3;
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DEE13AA61EA1761B00D1BABA;
+					};
+					DEE13AA61EA1761B00D1BABA = {
 						CreatedOnToolsVersion = 8.3;
 						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
@@ -371,6 +837,11 @@
 			targets = (
 				DECE04831E9FEA7500164CA4 /* Sample */,
 				DEE13A011E9FFC9500D1BABA /* SwiftBear */,
+				DEE13A1F1EA1252D00D1BABA /* ApiTests */,
+				DEE13A311EA1642A00D1BABA /* EarlGreyTests */,
+				DEE13A411EA16EE400D1BABA /* FirebaseAuthUnitTests */,
+				DEE13AA61EA1761B00D1BABA /* TestApp */,
+				DE5C700E1EA17F6900A965D2 /* AllTests */,
 			);
 		};
 /* End PBXProject section */
@@ -402,9 +873,58 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEE13A1E1EA1252D00D1BABA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13A301EA1642A00D1BABA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13A401EA16EE400D1BABA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE13AA01EA16F1E00D1BABA /* Tests-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13AA51EA1761B00D1BABA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE13ACD1EA1764B00D1BABA /* Main.storyboard in Resources */,
+				DEE13AD11EA1764B00D1BABA /* Images.xcassets in Resources */,
+				DEE13AD01EA1764B00D1BABA /* GoogleService-Info.plist in Resources */,
+				DEE13ACB1EA1764B00D1BABA /* Auth-Info.plist in Resources */,
+				DEE13ACC1EA1764B00D1BABA /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0C85A097DBA90CB3BA988388 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
 		14D1078EE81275B0906224AE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -418,6 +938,51 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Sample/Pods-Sample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		19197348303E74218FE9F86A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		31C9CD5738CD8A86F3E29FD4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		45E0A7D32BD529EA299F169F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		785E0AFEF965753D65D704A3 /* [CP] Copy Pods Resources */ = {
@@ -450,6 +1015,51 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
+		90FD4EF0F0A764C0793CAA62 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-TestApp/Pods-TestApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		91A5B60E1FF1F6B7A1979A7E /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-TestApp/Pods-TestApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A7955AE6B74F92A6A1A61539 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		B241AC8AA926740AE9FBD0DD /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -462,7 +1072,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftBear/Pods-SwiftBear-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C341173EBB67728BFF59F1A6 /* [CP] Copy Pods Resources */ = {
@@ -477,7 +1087,52 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftBear/Pods-SwiftBear-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C3FCDC32190B715603C4E5EA /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C5EB2DFC39A4D32D63305071 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D625EF1F1CC955CEFC768099 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		DD7BB43E0B7B486BDBF34616 /* [CP] Check Pods Manifest.lock */ = {
@@ -493,6 +1148,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		DECFE0EC98C60CEE719E03CA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		F2982E8E37D71A5B31C19526 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -526,7 +1211,118 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEE13A1C1EA1252D00D1BABA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE13A2B1EA125CD00D1BABA /* FirebearApiTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13A2E1EA1642A00D1BABA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE13A3D1EA164E100D1BABA /* FirebearEarlGreyTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13A3E1EA16EE400D1BABA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE13A8A1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
+				DEE13A871EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m in Sources */,
+				DEE13A941EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m in Sources */,
+				DEE13A891EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */,
+				DEE13A781EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m in Sources */,
+				DEE13A9C1EA16F1E00D1BABA /* FIRVerifyPasswordResponseTests.m in Sources */,
+				DEE13A8C1EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m in Sources */,
+				DEE13A9A1EA16F1E00D1BABA /* FIRVerifyCustomTokenResponseTests.m in Sources */,
+				DEE13A7C1EA16F1D00D1BABA /* FIRAuthDispatcherTests.m in Sources */,
+				DEE13A811EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m in Sources */,
+				DEE13A951EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m in Sources */,
+				DEE13A851EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m in Sources */,
+				DEE13A971EA16F1E00D1BABA /* FIRVerifyAssertionRequestTests.m in Sources */,
+				DEE13A991EA16F1E00D1BABA /* FIRVerifyCustomTokenRequestTests.m in Sources */,
+				DEE13A9D1EA16F1E00D1BABA /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
+				DEE13A8B1EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m in Sources */,
+				DEE13A861EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m in Sources */,
+				DEE13A901EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m in Sources */,
+				DEE13A8D1EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m in Sources */,
+				DEE13A8E1EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m in Sources */,
+				DEE13A7A1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m in Sources */,
+				DEE13A8F1EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m in Sources */,
+				DEE13A821EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m in Sources */,
+				DEE13A7E1EA16F1D00D1BABA /* FIRAuthKeychainTests.m in Sources */,
+				DEE13A7D1EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m in Sources */,
+				DEE13A9B1EA16F1E00D1BABA /* FIRVerifyPasswordRequestTest.m in Sources */,
+				DEE13A841EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m in Sources */,
+				DEE13A831EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m in Sources */,
+				DEE13A9E1EA16F1E00D1BABA /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
+				DEE13A9F1EA16F1E00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
+				DEE13A7B1EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m in Sources */,
+				DEE13A981EA16F1E00D1BABA /* FIRVerifyAssertionResponseTests.m in Sources */,
+				DEE13A931EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m in Sources */,
+				DEE13A881EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m in Sources */,
+				DEE13A911EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m in Sources */,
+				DEE13A7F1EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m in Sources */,
+				DEE13A791EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m in Sources */,
+				DEE13A921EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m in Sources */,
+				DEE13A801EA16F1D00D1BABA /* FIRAuthTests.m in Sources */,
+				DEE13A961EA16F1D00D1BABA /* FIRUserTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE13AA31EA1761B00D1BABA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE13ACF1EA1764B00D1BABA /* FIRViewController.m in Sources */,
+				DEE13AD21EA1764B00D1BABA /* main.m in Sources */,
+				DEE13ACE1EA1764B00D1BABA /* FIRAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DE5C70131EA17F7200A965D2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEE13A1F1EA1252D00D1BABA /* ApiTests */;
+			targetProxy = DE5C70121EA17F7200A965D2 /* PBXContainerItemProxy */;
+		};
+		DE5C70151EA17F7200A965D2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEE13A311EA1642A00D1BABA /* EarlGreyTests */;
+			targetProxy = DE5C70141EA17F7200A965D2 /* PBXContainerItemProxy */;
+		};
+		DE5C70171EA17F7200A965D2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEE13A411EA16EE400D1BABA /* FirebaseAuthUnitTests */;
+			targetProxy = DE5C70161EA17F7200A965D2 /* PBXContainerItemProxy */;
+		};
+		DEA41FF61EA17A030072DA74 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEE13AA61EA1761B00D1BABA /* TestApp */;
+			targetProxy = DEA41FF51EA17A030072DA74 /* PBXContainerItemProxy */;
+		};
+		DEE13A261EA1252D00D1BABA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DECE04831E9FEA7500164CA4 /* Sample */;
+			targetProxy = DEE13A251EA1252D00D1BABA /* PBXContainerItemProxy */;
+		};
+		DEE13A381EA1642A00D1BABA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DECE04831E9FEA7500164CA4 /* Sample */;
+			targetProxy = DEE13A371EA1642A00D1BABA /* PBXContainerItemProxy */;
+		};
+		DEE13A481EA16EE400D1BABA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DECE04831E9FEA7500164CA4 /* Sample */;
+			targetProxy = DEE13A471EA16EE400D1BABA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		DECE04B51E9FEAE600164CA4 /* FirebearSample.strings */ = {
@@ -579,9 +1375,41 @@
 			name = FirebaseAuthUI.strings;
 			sourceTree = "<group>";
 		};
+		DEE13AC01EA1764B00D1BABA /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DEE13AC11EA1764B00D1BABA /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		DEE13AC21EA1764B00D1BABA /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DEE13AC31EA1764B00D1BABA /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		DE5C70101EA17F6900A965D2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DE5C70111EA17F6900A965D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		DECE047B1E9FEA1000164CA4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -702,7 +1530,7 @@
 		};
 		DEE13A121E9FFC9500D1BABA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 495F22BEDDFD4DFE3FB2D522 /* Pods-SwiftSample.debug.xcconfig */;
+			baseConfigurationReference = 36794820176319C88B4F11E5 /* Pods-SwiftBear.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
@@ -718,7 +1546,7 @@
 		};
 		DEE13A131E9FFC9500D1BABA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */;
+			baseConfigurationReference = 151B5A61F0B0D152CD55DF81 /* Pods-SwiftBear.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
@@ -731,9 +1559,141 @@
 			};
 			name = Release;
 		};
+		DEE13A271EA1252D00D1BABA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 113C36392871524143A53B07 /* Pods-ApiTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = ApiTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.ApiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
+			};
+			name = Debug;
+		};
+		DEE13A281EA1252D00D1BABA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = ApiTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.ApiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
+			};
+			name = Release;
+		};
+		DEE13A3A1EA1642B00D1BABA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1B16EC50B5315C8E9E2D21CE /* Pods-EarlGreyTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = EarlGreyTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.EarlGreyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
+			};
+			name = Debug;
+		};
+		DEE13A3B1EA1642B00D1BABA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 94E3B3EB70D34E55CFF2E45D /* Pods-EarlGreyTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = EarlGreyTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.EarlGreyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
+			};
+			name = Release;
+		};
+		DEE13A491EA16EE400D1BABA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
+					"\"$(SRCROOT)/../Firebase/Auth/Source/Private\"",
+					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
+					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseAuthUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestApp.app/TestApp";
+			};
+			name = Debug;
+		};
+		DEE13A4A1EA16EE400D1BABA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 178AA1A3F0690CDEC44E2BF1 /* Pods-FirebaseAuthUnitTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
+					"\"$(SRCROOT)/../Firebase/Auth/Source/Private\"",
+					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
+					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseAuthUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestApp.app/TestApp";
+			};
+			name = Release;
+		};
+		DEE13ABB1EA1761C00D1BABA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57150555A6B03949ECB58AD9 /* Pods-TestApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/Auth-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.TestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DEE13ABC1EA1761C00D1BABA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B78FD2B21A8D72D5E38E3E79 /* Pods-TestApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/Auth-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.TestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		DE5C700F1EA17F6900A965D2 /* Build configuration list for PBXAggregateTarget "AllTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE5C70101EA17F6900A965D2 /* Debug */,
+				DE5C70111EA17F6900A965D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		DECE04611E9FEA1000164CA4 /* Build configuration list for PBXProject "Samples" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -757,6 +1717,42 @@
 			buildConfigurations = (
 				DEE13A121E9FFC9500D1BABA /* Debug */,
 				DEE13A131E9FFC9500D1BABA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEE13A291EA1252D00D1BABA /* Build configuration list for PBXNativeTarget "ApiTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEE13A271EA1252D00D1BABA /* Debug */,
+				DEE13A281EA1252D00D1BABA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEE13A391EA1642B00D1BABA /* Build configuration list for PBXNativeTarget "EarlGreyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEE13A3A1EA1642B00D1BABA /* Debug */,
+				DEE13A3B1EA1642B00D1BABA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEE13A4B1EA16EE400D1BABA /* Build configuration list for PBXNativeTarget "FirebaseAuthUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEE13A491EA16EE400D1BABA /* Debug */,
+				DEE13A4A1EA16EE400D1BABA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEE13ABD1EA1761C00D1BABA /* Build configuration list for PBXNativeTarget "TestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEE13ABB1EA1761C00D1BABA /* Debug */,
+				DEE13ABC1EA1761C00D1BABA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

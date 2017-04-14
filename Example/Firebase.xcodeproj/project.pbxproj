@@ -35,7 +35,6 @@
 		DE4E711B1E953ABC00070092 /* FirebaseDev.podspec in Resources */ = {isa = PBXBuildFile; fileRef = DE4E711A1E953ABC00070092 /* FirebaseDev.podspec */; };
 		DE6F01AF1E95674B004AEE01 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01AE1E95674B004AEE01 /* FirebaseDev.framework */; };
 		DE6F01B01E95675E004AEE01 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01AC1E95673C004AEE01 /* FirebaseDev.framework */; };
-		DE6F01B21E9567BF004AEE01 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01B11E9567BF004AEE01 /* FirebaseDev.framework */; };
 		DE6F01B41E9567F1004AEE01 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01B31E9567F1004AEE01 /* FirebaseDev.framework */; };
 		DE6F01B61E956819004AEE01 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01B51E956819004AEE01 /* FirebaseDev.framework */; };
 		DE7B8D971E8EF203009EB6DF /* FArraySortedDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D3A1E8EF202009EB6DF /* FArraySortedDictionaryTest.m */; };
@@ -173,6 +172,7 @@
 		DEB61ECA1E7C5DBB00C04B96 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC21E7C5DBB00C04B96 /* Images.xcassets */; };
 		DEB61ECB1E7C5DBB00C04B96 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EC31E7C5DBB00C04B96 /* main.m */; };
 		DECE039B1E9ED01600164CA4 /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */; };
+		DEE13AA11EA170D500D1BABA /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01B11E9567BF004AEE01 /* FirebaseDev.framework */; };
 		DEE14D7E1E844677006FA992 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D681E844677006FA992 /* LaunchScreen.storyboard */; };
 		DEE14D7F1E844677006FA992 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D6A1E844677006FA992 /* Main.storyboard */; };
 		DEE14D811E844677006FA992 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D6E1E844677006FA992 /* FIRAppDelegate.m */; };
@@ -564,7 +564,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE6F01B21E9567BF004AEE01 /* FirebaseDev.framework in Frameworks */,
+				DEE13AA11EA170D500D1BABA /* FirebaseDev.framework in Frameworks */,
 				EFFCE0D781E6054C149849B2 /* Pods_Auth_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

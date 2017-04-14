@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DECE04831E9FEA7500164CA4"
-               BuildableName = "Sample.app"
-               BlueprintName = "Sample"
+               BlueprintIdentifier = "DE5C700E1EA17F6900A965D2"
+               BuildableName = "AllTests"
+               BlueprintName = "AllTests"
                ReferencedContainer = "container:Samples.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -48,13 +48,23 @@
                ReferencedContainer = "container:Samples.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DEE13A411EA16EE400D1BABA"
+               BuildableName = "FirebaseAuthUnitTests.xctest"
+               BlueprintName = "FirebaseAuthUnitTests"
+               ReferencedContainer = "container:Samples.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DECE04831E9FEA7500164CA4"
-            BuildableName = "Sample.app"
-            BlueprintName = "Sample"
+            BlueprintIdentifier = "DE5C700E1EA17F6900A965D2"
+            BuildableName = "AllTests"
+            BlueprintName = "AllTests"
             ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -71,16 +81,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DECE04831E9FEA7500164CA4"
-            BuildableName = "Sample.app"
-            BlueprintName = "Sample"
+            BlueprintIdentifier = "DE5C700E1EA17F6900A965D2"
+            BuildableName = "AllTests"
+            BlueprintName = "AllTests"
             ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -90,16 +99,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DECE04831E9FEA7500164CA4"
-            BuildableName = "Sample.app"
-            BlueprintName = "Sample"
+            BlueprintIdentifier = "DE5C700E1EA17F6900A965D2"
+            BuildableName = "AllTests"
+            BlueprintName = "AllTests"
             ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

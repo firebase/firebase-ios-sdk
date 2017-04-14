@@ -16,14 +16,18 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
+#import <XCTest/XCTestExpectation.h>
 
-#import "googlemac/iPhone/Firebase/Source/FIRApp.h"
-#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FirebaseAuth.h"
-#import "googlemac/iPhone/Shared/ioReplayer/IORManager.h"
-#import "googlemac/iPhone/Shared/ioReplayer/IORTestCase.h"
+#import "FIRApp.h"
+#import "FirebaseAuth.h"
 
-#import "third_party/objective_c/gtm_session_fetcher/Source/GTMSessionFetcher.h"
-#import "third_party/objective_c/gtm_session_fetcher/Source/GTMSessionFetcherService.h"
+#ifdef NO_NETWORK
+#import "ioReplayer/IORManager.h"
+#import "ioReplayer/IORTestCase.h"
+#endif
+
+#import <GTMSessionFetcher/GTMSessionFetcher.h>
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 /** Facebook app access token that will be used for Facebook Graph API, which is different from
  * account access token.
@@ -74,7 +78,11 @@ NSString *kGoogleTestAccountRefreshToken = @"1/JflfOhyO4ldLlddTnoMdSKkTqxaLpd3-a
 
 static NSTimeInterval const kExpectationsTimeout = 10;
 
+#ifdef NO_NETWORK
 @interface ApiTests : IORTestCase
+#else
+@interface ApiTests : XCTestCase
+#endif
 @end
 
 @implementation ApiTests

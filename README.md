@@ -18,3 +18,9 @@ $ pod update
 $ open Firebase.xcworkspace
 ```
 Then select a scheme and press Command-u to build a component and run its unit tests.
+
+## Firebase Auth
+
+If you're doing specific Firebase Auth development, see
+[AuthSamples/README.md](AuthSamples/README.md) for instructions about
+building and running the FirebaseAuth pod along with various samples and tests.

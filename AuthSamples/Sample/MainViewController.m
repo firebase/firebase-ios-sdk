@@ -2394,7 +2394,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)authStateChangedForAuth:(NSNotification *)notification {
   [self updateUserInfo];
   if (notification) {
-    [self log:@"recieved FIRAuthStateDidchange Notification."];
+    [self log:@"received FIRAuthStateDidchange Notification."];
   }
 }
 
