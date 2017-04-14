@@ -182,7 +182,7 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)
     @brief Simple static class with methods representing the backend RPCs.
     @remarks All callback blocks passed as method parameters are invoked asynchronously on the
         global work queue in the future. See
-        https://g3doc.corp.google.com/googlemac/iPhone/Identity/Firebear/g3doc/threading.md
+        https://github.com/firebase/firebase-ios-sdk/tree/master/Firebase/Auth/Docs/threading.ml
  */
 @interface FIRAuthBackend : NSObject
 
