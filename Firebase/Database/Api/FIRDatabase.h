@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  * within this Firebase Database.  To create a FIRDatabaseReference to a different database,
  * create a FIRApp} with a FIROptions object configured with the appropriate database URL.
  *
- * @param url A URL to a path within your database.
+ * @param databaseUrl A URL to a path within your database.
  * @return A FIRDatabaseReference for the provided URL.
 */
 - (FIRDatabaseReference *) referenceFromURL:(NSString *)databaseUrl;

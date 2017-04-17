@@ -106,7 +106,7 @@ static FIRApp *sDefaultApp;
 + (void)configureDefaultAppWithOptions:(FIROptions *)options
                   sendingNotifications:(BOOL)sendNotifications {
   if (sDefaultApp) {
-    // The Google pod uses FIRApp to set up Scion and do plist validation, but does not cause it
+    // FIRApp sets up FirebaseAnalytics and does plist validation, but does not cause it
     // to fire notifications. So, if the default app already exists, but has not sent out
     // configuration notifications, then continue re-initializing it.
     if (!sendNotifications || sDefaultApp.alreadySentConfigureNotification) {

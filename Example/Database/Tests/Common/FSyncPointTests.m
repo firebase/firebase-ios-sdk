@@ -151,7 +151,7 @@ typedef NSDictionary* (^fbt_nsdictionary_void)(void);
     NSUInteger idx1 = [eventOrdering indexOfObject:[NSNumber numberWithInteger:e1]];
     NSUInteger idx2 = [eventOrdering indexOfObject:[NSNumber numberWithInteger:e2]];
     if (idx1 > idx2) {
-        XCTFail(@"Received %d after %d", e2, e1);
+        XCTFail(@"Received %d after %d", (int)e2, (int)e1);
     }
 }
 

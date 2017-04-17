@@ -461,7 +461,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
 * If eventRegistration is null, we'll remove all callbacks for the specified query/queries.
 *
 * @param eventRegistration if nil, all callbacks are removed
-* @param canceleError If provided, approproiate cancel events will be returned
+* @param cancelError If provided, appropriate cancel events will be returned
 * @return NSArray of FEvent to raise.
 */
 - (NSArray *) removeEventRegistration:(id <FEventRegistration>)eventRegistration

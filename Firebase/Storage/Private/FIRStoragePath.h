@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a new path based off of the current path and a string appended to it.
  * Note that all slashes are compressed to a single slash, and leading and trailing slashes
  * are removed.
- * @param string String to append to the current path.
+ * @param pathtring to append to the current path.
  * @return Returns a new instance of FIRStoragePath with the new path appended.
  */
 - (FIRStoragePath *)child:(NSString *)path;

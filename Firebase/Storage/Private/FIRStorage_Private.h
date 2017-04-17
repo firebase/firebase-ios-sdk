@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Enables/disables GTMSessionFetcher HTTP logging
- * @param enabled Boolean passed through to enable/disable GTMSessionFetcher logging
+ * @param isLoggingEnabled Boolean passed through to enable/disable GTMSessionFetcher logging
  */
 + (void)setGTMSessionFetcherLoggingEnabled:(BOOL)isLoggingEnabled;
 

@@ -66,7 +66,7 @@
     XCTAssertTrue([data.value isEqualToDictionary:expected], @"Updates the parent");
 
     int count = 0;
-    for (FIRDataSnapshot * child in data.children) {
+    for (FIRDataSnapshot * __unused child in data.children) {
         count++;
         if (count == 1) {
             [data childDataByAppendingPath:@"c"].value = @4;

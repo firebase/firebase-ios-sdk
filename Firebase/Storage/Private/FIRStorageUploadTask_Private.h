@@ -41,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, atomic) GTMSessionUploadFetcher *uploadFetcher;
 
 /**
- * Initializes an upload task with a base NSURLRequest and GTMSessionFetcherService.
- * @param request The base NSURLRequest which fetchers use for configuration.
+ * Initializes an upload task with a base FIRStorageReference and GTMSessionFetcherService.
+ * @param reference The base FIRStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
  * @param uploadData The NSData object to be uploaded.
  * @return Returns an instance of FIRStorageUploadTask.
@@ -53,8 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
                          metadata:(FIRStorageMetadata *)metadata;
 
 /**
- * Initializes an upload task with a base NSURLRequest and GTMSessionFetcherService.
- * @param request The base NSURLRequest which fetchers use for configuration.
+ * Initializes an upload task with a base FIRStorageReference and GTMSessionFetcherService.
+ * @param reference The base FIRStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
  * @param fileURL The system file URL to upload from.
  * @return Returns an instance of FIRStorageUploadTask.

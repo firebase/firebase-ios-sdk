@@ -20,7 +20,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     sp.public_header_files = 'Firebase/Firebase/Firebase.h'
     sp.preserve_paths = 'Firebase/Firebase/module.modulemap'
     sp.user_target_xcconfig = { 'HEADER_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}/Firebase/Firebase/Firebase"' }
-    sp.dependency 'FirebaseDev/Core'
   end
 
   s.subspec 'Core' do |sp|
@@ -34,6 +33,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseCore/Core/FIRLoggerLevel.h',
       'FirebaseCore/Core/FIROptions.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
+    sp.dependency 'FirebaseDev/Root'
   end
 
   s.subspec 'Auth' do |sp|
@@ -63,7 +63,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       ' -DFIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
     }
     sp.framework = 'Security'
-    sp.dependency 'FirebaseDev/Root'
+    sp.dependency 'FirebaseDev/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
     sp.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
   end
@@ -88,7 +88,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     sp.framework = 'Security'
     sp.framework = 'SystemConfiguration'
     sp.dependency 'leveldb-library'
-    sp.dependency 'FirebaseDev/Root'
+    sp.dependency 'FirebaseDev/Core'
   end
 
   s.subspec 'Messaging' do |sp|
@@ -106,7 +106,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     }
     sp.framework = 'AddressBook'
     sp.framework = 'SystemConfiguration'
-    sp.dependency 'FirebaseDev/Root'
+    sp.dependency 'FirebaseDev/Core'
     sp.dependency 'GoogleToolboxForMac/Logger', '~> 2.1'
     sp.dependency 'Protobuf', '~> 3.1'
   end
@@ -125,7 +125,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'Firebase/Storage/FIRStorageTaskSnapshot.h',
       'Firebase/Storage/FIRStorageUploadTask.h'
     sp.framework = 'MobileCoreServices'
-    sp.dependency 'FirebaseDev/Root'
+    sp.dependency 'FirebaseDev/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   end
 

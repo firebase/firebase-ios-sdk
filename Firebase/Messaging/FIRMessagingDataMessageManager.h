@@ -43,7 +43,7 @@
 /**
  *  Notify the app that FIRMessaging will soon be sending the upstream message requested by the app.
  *
- *  @param messageId The messageId passed in by the app to track this particular message.
+ *  @param messageID The messageId passed in by the app to track this particular message.
  *  @param error     The error in case FIRMessaging cannot send the message upstream.
  */
 - (void)willSendDataMessageWithID:(nonnull NSString *)messageID error:(nullable NSError *)error;
