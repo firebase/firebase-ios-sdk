@@ -159,7 +159,7 @@ static void callInMainThreadWithUserAndError(_Nullable CallbackWithUserAndError 
 /** @fn callInMainThreadWithUserAndError
     @brief Calls a callback in main thread with user and error.
     @param callback The callback to be called in main thread.
-    @param user The user to pass to callback if there is no error.
+    @param result The result to pass to callback if there is no error.
     @param error The error to pass to callback.
  */
 static void callInMainThreadWithAuthDataResultAndError(

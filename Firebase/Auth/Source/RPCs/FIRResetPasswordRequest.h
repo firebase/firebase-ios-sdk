@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Designated initializer.
     @param APIKey The client's API Key.
     @param oobCode The OOB Code.
-    @param currentPassword The new password.
+    @param newPassword The new password.
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 oobCode:(NSString *)oobCode

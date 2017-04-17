@@ -16,7 +16,7 @@
 
 #import "FIRAppInternal.h"
 
-/** @class FIRAuthTests
+/** @category FIRApp (FIRAuthUnitTests)
     @brief Tests for @c FIRAuth.
  */
 @interface FIRApp (FIRAuthUnitTests)

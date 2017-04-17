@@ -21,7 +21,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class FIRPhoneAuthCredential
+/** @extension FIRPhoneAuthCredential
     @brief Internal implementation of FIRAuthCredential for Phone Auth credentials.
  */
 @interface FIRPhoneAuthCredential ()

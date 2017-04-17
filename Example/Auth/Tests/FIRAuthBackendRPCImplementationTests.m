@@ -124,7 +124,7 @@ static NSString *const kTestValue = @"TestValue";
 
 @end
 
-/** @class FIRAuthBackend
+/** @extension FIRAuthBackend
     @brief This class extension exposes the otherwise private @c implementation method. We use this
         here to directly call the @c postWithRequest:response:callback: method of
         @c FIRAuthBackendRPCImplementation in some of the tests.

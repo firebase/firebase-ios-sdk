@@ -1553,7 +1553,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
     @brief Expects a GetAccountInfo request on the mock backend and calls back with provided
         fake account data.
     @param mockUserInfoResponse A mock @c FIRGetAccountInfoResponseUser object containing user info.
-    @param count The number of times that this invocations should be expected.
  */
 - (void)expectGetAccountInfoWithMockUserInfoResponse:(id)mockUserInfoResponse {
   OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
