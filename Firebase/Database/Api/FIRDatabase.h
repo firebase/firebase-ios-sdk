@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * [FIRDatabase database]. To access a location in the database and read or write data,
  * use [FIRDatabase reference].
  */
+NS_SWIFT_NAME(Database)
 @interface FIRDatabase : NSObject
 
 /**
@@ -103,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
  * application.
  *
  */
-@property (nonatomic) BOOL persistenceEnabled;
+@property (nonatomic) BOOL persistenceEnabled NS_SWIFT_NAME(isPersistenceEnabled);
 
 /**
  * By default the Firebase Database client will use up to 10MB of disk space to cache data. If the cache grows beyond

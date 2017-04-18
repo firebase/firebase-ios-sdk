@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Used for runTransactionBlock:. An FIRTransactionResult instance is a container for the results of the transaction.
  */
+NS_SWIFT_NAME(TransactionResult)
 @interface FIRTransactionResult : NSObject
 
 /**

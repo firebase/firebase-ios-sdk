@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  * are returned by observeEventType: and and can later be passed to removeObserverWithHandle: to
  * stop receiving updates.
  */
-typedef NSUInteger FIRDatabaseHandle;
+typedef NSUInteger FIRDatabaseHandle NS_SWIFT_NAME(DatabaseHandle);
 
 /**
  * A FIRDatabaseQuery instance represents a query over the data at a particular location.
@@ -34,6 +34,7 @@ typedef NSUInteger FIRDatabaseHandle;
  * on a FIRDatabaseReference. The query methods can be chained to further specify the data you are interested in
  * observing
  */
+NS_SWIFT_NAME(DatabaseQuery)
 @interface FIRDatabaseQuery : NSObject
 
 

@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * to read data (ie. observeEventType:withBlock:), write data (ie. setValue:), and to
  * create new FIRDatabaseReferences (ie. child:).
  */
+NS_SWIFT_NAME(DatabaseReference)
 @interface FIRDatabaseReference : FIRDatabaseQuery
 
 
