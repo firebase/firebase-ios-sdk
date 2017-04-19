@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
 #import <dlfcn.h>
 #import "FRepo.h"
 #import "FSnapshotUtilities.h"
@@ -53,6 +49,10 @@
 #import "FIRDataSnapshot_Private.h"
 #import "FValueEventRegistration.h"
 #import "FEmptyNode.h"
+
+#ifdef TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 
 @interface FRepo()
 

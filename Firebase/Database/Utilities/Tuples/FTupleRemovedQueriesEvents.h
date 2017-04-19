@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 @interface FTupleRemovedQueriesEvents : NSObject
 /**
 * `FIRDatabaseQuery`s removed with [SyncPoint removeEventRegistration:]

@@ -17,6 +17,8 @@
 #ifndef __FTYPEDEFS_PRIVATE__
 #define __FTYPEDEFS_PRIVATE__
 
+#import <Foundation/Foundation.h>
+
 typedef NS_ENUM(NSInteger, FTransactionStatus) {
     FTransactionInitializing,       // 0
     FTransactionRun,                // 1

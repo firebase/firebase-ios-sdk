@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 @protocol FOperation;
 @class FWriteTreeRef;
 @protocol FNode;

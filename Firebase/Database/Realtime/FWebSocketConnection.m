@@ -15,9 +15,6 @@
  */
 
 // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
 
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
@@ -25,6 +22,10 @@
 #import "FIRDatabaseReference.h"
 #import "FStringUtilities.h"
 #import "FIRDatabase_Private.h"
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 
 @interface FWebSocketConnection () {
     NSMutableString* frame;

@@ -17,6 +17,8 @@
 #ifndef Firebase_FConstants_h
 #define Firebase_FConstants_h
 
+#import <Foundation/Foundation.h>
+
 #pragma mark -
 #pragma mark Wire Protocol Envelope Constants
 

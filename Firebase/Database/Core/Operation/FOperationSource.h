@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 @class FQueryParams;
 
 @interface FOperationSource : NSObject
