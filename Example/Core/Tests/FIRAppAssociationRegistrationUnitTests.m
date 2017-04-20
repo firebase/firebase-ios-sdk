@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @file FIRAppAssociationRegistrationTests.m
-    @brief Firebase SDK
-    @copyright Copyright 2015 Google Inc.
-    @remarks Use of this SDK is subject to the Google APIs Terms of Service:
-        https://developers.google.com/terms/
- */
-
 #import <XCTest/XCTest.h>
 
 #import "FIRAppAssociationRegistration.h"
