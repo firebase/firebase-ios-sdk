@@ -241,7 +241,7 @@ static NSString *const kTestValue = @"TestValue";
 
 /** @class FIRFakeResponse
     @brief Allows us to inspect the dictionaries received by @c FIRAuthRPCResponse classes, and
-        provide deterministic responses to the @c expectedKind and @c setWithDictionary:error:
+        provide deterministic responses to the @c setWithDictionary:error:
         methods.
  */
 @interface FIRFakeResponse : NSObject <FIRAuthRPCResponse>
@@ -261,34 +261,17 @@ static NSString *const kTestValue = @"TestValue";
  */
 + (nullable instancetype)fakeResponseWithDecodingError;
 
-/** @fn fakeResponseWithSpecificKind
-    @brief A response which specifies a specific value for the "kind" property of a response.
- */
-+ (nullable instancetype)fakeResponseWithSpecificKind;
-
 /** @fn init
-    @brief Please use initWithExpectedKind:decodingError:
+    @brief Please use initWithDecodingError:
  */
 - (nullable instancetype)init NS_UNAVAILABLE;
 
-/** @fn initWithExpectedKind:decodingError:
-    @brief Designated initializer.
-    @param expectedKind The value to return when the @c expectedKind method is invoked.
-    @param decodingError The value to return for an error when the @c setWithDictionary:error:
-        method is invoked.
- */
-- (nullable instancetype)initWithExpectedKind:(nullable NSString *)expectedKind
-                                decodingError:(nullable NSError *)decodingError
-    NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithDecodingError:(nullable NSError *)decodingError
+     NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FIRFakeResponse {
-  /** @var _expectedKind
-      @brief The value to return when the @c expectedKind method is invoked.
-   */
-  NSString *_Nullable _expectedKind;
-
   /** @var _responseDecodingError
       @brief The value to return for an error when the @c setWithDictionary:error: method is
           invoked.
@@ -297,30 +280,20 @@ static NSString *const kTestValue = @"TestValue";
 }
 
 + (nullable instancetype)fakeResponse {
-  return [[self alloc] initWithExpectedKind:nil decodingError:nil];
+  return [[self alloc] initWithDecodingError:nil];
 }
 
 + (nullable instancetype)fakeResponseWithDecodingError {
   NSError *decodingError = [FIRAuthErrorUtils unexpectedErrorResponseWithDeserializedResponse:self];
-  return [[self alloc] initWithExpectedKind:nil decodingError:decodingError];
+  return [[self alloc] initWithDecodingError:decodingError];
 }
 
-+ (nullable instancetype)fakeResponseWithSpecificKind {
-  return [[self alloc] initWithExpectedKind:@"specificKind" decodingError:nil];
-}
-
-- (nullable instancetype)initWithExpectedKind:(nullable NSString *)expectedKind
-                                decodingError:(nullable NSError *)decodingError {
+- (nullable instancetype)initWithDecodingError:(nullable NSError *)decodingError {
   self = [super init];
   if (self) {
-    _expectedKind = expectedKind;
     _responseDecodingError = decodingError;
   }
   return self;
-}
-
-- (NSString *)expectedKind {
-  return _expectedKind;
 }
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
@@ -920,40 +893,6 @@ static NSString *const kTestValue = @"TestValue";
 
   id dataResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDataKey];
   XCTAssertNil(dataResponse);
-}
-
-/** @fn testWrongKindResponse
-    @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
-        no error was indicated, but the response contained the wrong value for the "kind" property.
-        We are expecting an @c NSError with the code @c FIRAuthErrorCodeUnexpectedServerResponse
-        with the decoded response message in the @c NSError.userInfo dictionary associated with the
-        key @c FIRAuthErrorUserInfoDecodedResponseKey.
- */
-- (void)testWrongKindResponse {
-  FIRFakeRequest *request = [FIRFakeRequest fakeRequest];
-  FIRFakeResponse *response = [FIRFakeResponse fakeResponseWithSpecificKind];
-
-  __block NSError *callbackError;
-  __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request response:response callback:^(NSError *error) {
-    callbackInvoked = YES;
-    callbackError = error;
-  }];
-
-  [_RPCIssuer respondWithJSON:@{ }];
-
-  XCTAssert(callbackInvoked);
-
-  XCTAssertNotNil(callbackError);
-  XCTAssertEqualObjects(callbackError.domain, FIRAuthErrorDomain);
-  XCTAssertEqual(callbackError.code, FIRAuthErrorCodeInternalError);
-
-  NSError *underlyingError = callbackError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNotNil(underlyingError);
-  XCTAssertEqualObjects(underlyingError.domain, FIRAuthInternalErrorDomain);
-  XCTAssertEqual(underlyingError.code, FIRAuthInternalErrorCodeUnexpectedResponse);
-  id deserializedResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDeserializedResponseKey];
-  XCTAssertNotNil(deserializedResponse);
 }
 
 /** @fn testClientErrorResponse

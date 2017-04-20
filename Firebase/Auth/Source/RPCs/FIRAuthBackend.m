@@ -43,6 +43,8 @@
 #import "FIRSignUpNewUserResponse.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
+#import "FIRVerifyClientRequest.h"
+#import "FIRVerifyClientResponse.h"
 #import "FIRVerifyCustomTokenRequest.h"
 #import "FIRVerifyCustomTokenResponse.h"
 #import "FIRVerifyPasswordRequest.h"
@@ -61,11 +63,6 @@ static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
     @brief The value of the HTTP content-type header for JSON payloads.
  */
 static NSString *const kJSONContentType = @"application/json";
-
-/** @var kKindKey
-    @brief The key for the "kind" value in JSON responses from the server.
- */
-static NSString *const kKindKey = @"kind";
 
 /** @var kErrorDataKey
     @brief Key for error data in NSError returned by @c GTMSessionFetcher.
@@ -102,11 +99,6 @@ static NSString *const kAppNotAuthorizedReasonValue = @"ipRefererBlocked";
     @brief The key for an error's "message" value in JSON responses from the server.
  */
 static NSString *const kErrorMessageKey = @"message";
-
-/** @var kInvalidKindMessage
-    @brief The error message when the "kind" value is unexpected.
- */
-static NSString *const kInvalidKindMessage = @"kind";
 
 /** @var kUserNotFoundErrorMessage
     @brief This is the error message returned when the user is not found, which means the user
@@ -278,13 +270,37 @@ static NSString *const kInvalidPhoneNumberErrorMessage = @"INVALID_PHONE_NUMBER"
     @brief This is the error message the server will respond with if an invalid verification code is
         provided.
  */
-static NSString *const kInvalidVerificationCodeErrorMessage = @"INVALID_VERIFICATION_CODE";
+static NSString *const kInvalidVerificationCodeErrorMessage = @"INVALID_CODE";
 
-/** @var kInvalidVerificationIDErrorMessage
-    @brief This is the error message the server will respond with if an invalid verification ID is
-        provided.
+/** @var kInvalidSessionInfoErrorMessage
+    @brief This is the error message the server will respond with if an invalid session info
+        (verification ID) is provided.
  */
-static NSString *const kInvalidVerificationIDErrorMessage = @"INVALID_VERIFICATION_ID";
+static NSString *const kInvalidSessionInfoErrorMessage = @"INVALID_SESSION_INFO";
+
+/** @var kSessionExpiredErrorMessage
+    @brief This is the error message the server will respond with if the SMS code has expired before
+        it is used.
+ */
+static NSString *const kSessionExpiredErrorMessage = @"SESSION_EXPIRED";
+
+/** @var kMissingAppCredentialErrorMessage
+    @brief This is the error message the server will respond with if the APNS token is missing in a
+        verifyClient request.
+ */
+static NSString *const kMissingAppCredentialErrorMessage = @"MISSING_APP_CREDENTIAL";
+
+/** @var kMissingAppCredentialErrorMessage
+    @brief This is the error message the server will respond with if the APNS token in a
+        verifyClient request is invalid.
+ */
+static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENTIAL";
+
+/** @var kQuoutaExceededErrorMessage
+    @brief This is the error message the server will respond with if the quota for SMS text messages
+        has been exceeded for the project.
+ */
+static NSString *const kQuoutaExceededErrorMessage = @"QUOTA_EXCEEDED";
 
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
@@ -384,6 +400,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 + (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   [[self implementation] verifyPhoneNumber:request callback:callback];
+}
+
++ (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
+  [[self implementation] verifyClient:request callback:callback];
 }
 
 + (void)resetPassword:(FIRResetPasswordRequest *)request
@@ -594,6 +614,17 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }];
 }
 
+- (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
+  FIRVerifyClientResponse *response = [[FIRVerifyClientResponse alloc] init];
+  [self postWithRequest:request response:response callback:^(NSError *error) {
+    if (error) {
+      callback(nil, error);
+      return;
+    }
+    callback(response, nil);
+  }];
+}
+
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {
   FIRResetPasswordResponse *response = [[FIRResetPasswordResponse alloc] init];
@@ -721,18 +752,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
       }
       // No error message at all, return the decoded response.
       callback([FIRAuthErrorUtils unexpectedErrorResponseWithDeserializedResponse:dictionary]);
-      return;
-    }
-
-    // If the response type returns a non-nil value for the "expectedKind" message, we perform
-    // validation of the "kind" property of the response.
-    NSString *expectedKind = [response expectedKind];
-    // TODO: remove kKind from the backend response and all sites of this validation
-    // (including unit tests), tracked in b/37169084 .
-    if (expectedKind && ![expectedKind isEqual:dictionary[kKindKey]]) {
-      NSError *unexpectedResponse =
-          [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:dictionary];
-      callback(unexpectedResponse);
       return;
     }
 
@@ -903,12 +922,28 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return [FIRAuthErrorUtils invalidPhoneNumberErrorWithMessage:serverDetailErrorMessage];
   }
 
-  if ([shortErrorMessage isEqualToString:kInvalidVerificationIDErrorMessage]) {
+  if ([shortErrorMessage isEqualToString:kInvalidSessionInfoErrorMessage]) {
     return [FIRAuthErrorUtils invalidVerificationIDErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidVerificationCodeErrorMessage]) {
     return [FIRAuthErrorUtils invalidVerificationCodeErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kSessionExpiredErrorMessage]) {
+    return [FIRAuthErrorUtils sessionExpiredErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingAppCredentialErrorMessage]) {
+    return [FIRAuthErrorUtils missingAppCredentialWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kInvalidAppCredentialErrorMessage]) {
+    return [FIRAuthErrorUtils invalidAppCredentialWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kQuoutaExceededErrorMessage]) {
+    return [FIRAuthErrorUtils quotaExceededErrorWithMessage:serverErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

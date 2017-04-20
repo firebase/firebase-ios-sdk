@@ -27,22 +27,12 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kKindKey
-    @brief The name of the required "kind" property in the request.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#CreateAuthUriResponse";
-
 /** @var kAuthUriKey
     @brief The name of the "authURI" property in the json response.
  */
 static NSString *const kAuthUriKey = @"authUri";
 
-/** @var kExpectedKind
+/** @var kTestAuthUri
     @brief The test value of the "authURI" property in the json response.
  */
 static NSString *const kTestAuthUri = @"AuthURI";
@@ -203,7 +193,6 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kAuthUriKey : kTestAuthUri
   }];
 

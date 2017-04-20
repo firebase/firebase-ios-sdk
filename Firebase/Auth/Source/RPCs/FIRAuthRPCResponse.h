@@ -23,11 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol FIRAuthRPCResponse <NSObject>
 
-/** @fn expectedKind
-    @brief Gets the expected JSON response "kind" for the request, if any.
- */
-- (nullable NSString *)expectedKind;
-
 /** @fn setFieldsWithDictionary:error:
     @brief Sets the response instance from the decoded JSON response.
     @param dictionary The dictionary decoded from HTTP JSON response.

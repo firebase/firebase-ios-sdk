@@ -82,7 +82,7 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
     return nil;
   }
   NSData *data = [self itemWithQuery:[self genericPasswordQueryWithKey:key] error:error];
-  if (*error) {
+  if (error && *error) {
     return nil;
   }
   if (data) {
@@ -93,7 +93,7 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
     return nil;
   }
   data = [self itemWithQuery:[self legacyGenericPasswordQueryWithKey:key] error:error];
-  if (*error) {
+  if (error && *error) {
     return nil;
   }
   if (!data) {

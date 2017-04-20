@@ -61,13 +61,19 @@ static NSString *const kTestExpiresIn = @"12345";
     @brief This is the error message the server will respond with if an invalid verification code
         provided.
  */
-static NSString *const kInvalidVerificationCodeErrorMessage = @"INVALID_VERIFICATION_CODE";
+static NSString *const kInvalidVerificationCodeErrorMessage = @"INVALID_CODE";
 
-/** @var kInvalidVerificationIDErrorMessage
+/** @var kInvalidSessionInfoErrorMessage
     @brief This is the error message the server will respond with if an invalid verification ID
         provided.
  */
-static NSString *const kInvalidVerificationIDErrorMessage = @"INVALID_VERIFICATION_ID";
+static NSString *const kInvalidSessionInfoErrorMessage = @"INVALID_SESSION_INFO";
+
+/** @var kSessionExpiredErrorMessage
+    @brief This is the error message the server will respond with if the SMS code has expired before
+        it is used.
+ */
+static NSString *const kSessionExpiredErrorMessage = @"SESSION_EXPIRED";
 
 /** @var kFakePhoneNumber
     @brief The fake user phone number.
@@ -159,11 +165,38 @@ static const double kEpsilon = 1e-3;
     callbackInvoked = YES;
   }];
 
-  [_RPCIssuer respondWithServerErrorMessage:kInvalidVerificationIDErrorMessage];
+  [_RPCIssuer respondWithServerErrorMessage:kInvalidSessionInfoErrorMessage];
 
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInvalidVerificationID);
+}
+
+/** @fn testSessionExpiredError
+    @brief Tests session expired error code.
+ */
+- (void)testSessionExpiredError {
+  FIRVerifyPhoneNumberRequest *request =
+      [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
+                                                 verificationCode:kVerificationCode
+                                                           APIKey:kTestAPIKey];
+  __block BOOL callbackInvoked;
+  __block FIRVerifyPhoneNumberResponse *RPCResponse;
+  __block NSError *RPCError;
+
+  [FIRAuthBackend verifyPhoneNumber:request
+                           callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+    RPCResponse = response;
+    RPCError = error;
+    callbackInvoked = YES;
+  }];
+
+  [_RPCIssuer respondWithServerErrorMessage:kSessionExpiredErrorMessage];
+
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeSessionExpired);
 }
 
 /** @fn testSuccessfulVerifyPhoneNumberResponse

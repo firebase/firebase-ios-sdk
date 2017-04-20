@@ -1175,6 +1175,11 @@ static const NSTimeInterval kWaitInterval = .5;
   shouldHaveUser = YES;
   [self waitForSignIn];
 
+  // Listener should not fire for signing in again.
+  shouldHaveUser = YES;
+  [self waitForSignIn];
+  [self waitForTimeIntervel:kWaitInterval];  // make sure listener is not called
+
   // Listener should fire for signing out.
   expectation = [self expectationWithDescription:@"sign-out"];
   shouldHaveUser = NO;
@@ -1184,6 +1189,59 @@ static const NSTimeInterval kWaitInterval = .5;
   // Listener should no longer fire once detached.
   expectation = nil;
   [[FIRAuth auth] removeAuthStateDidChangeListener:handle];
+  [self waitForSignIn];
+  [self waitForTimeIntervel:kWaitInterval];  // make sure listener is no longer called
+}
+
+/** @fn testIDTokenChanges
+    @brief Tests @c addIDTokenDidChangeListener: and @c removeIDTokenDidChangeListener: methods.
+ */
+- (void)testIDTokenChanges {
+  // Set up listener.
+  __block XCTestExpectation *expectation;
+  __block BOOL shouldHaveUser;
+  FIRIDTokenDidChangeListenerBlock listener = ^(FIRAuth *auth, FIRUser *_Nullable user) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqual(auth, [FIRAuth auth]);
+    XCTAssertEqual(user, [FIRAuth auth].currentUser);
+    if (shouldHaveUser) {
+      XCTAssertNotNil(user);
+    } else {
+      XCTAssertNil(user);
+    }
+    // `expectation` being nil means the listener is not expected to be fired at this moment.
+    XCTAssertNotNil(expectation);
+    [expectation fulfill];
+  };
+  [[FIRAuth auth] signOut:NULL];
+  [self waitForTimeIntervel:kWaitInterval];  // Wait until dust settled from previous tests.
+
+  // Listener should fire immediately when attached.
+  expectation = [self expectationWithDescription:@"initial"];
+  shouldHaveUser = NO;
+  FIRIDTokenDidChangeListenerHandle handle =
+      [[FIRAuth auth] addIDTokenDidChangeListener:listener];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+
+  // Listener should fire for signing in.
+  expectation = [self expectationWithDescription:@"sign-in"];
+  shouldHaveUser = YES;
+  [self waitForSignIn];
+
+  // Listener should fire for signing in again as the same user.
+  expectation = [self expectationWithDescription:@"sign-in again"];
+  shouldHaveUser = YES;
+  [self waitForSignIn];
+
+  // Listener should fire for signing out.
+  expectation = [self expectationWithDescription:@"sign-out"];
+  shouldHaveUser = NO;
+  [[FIRAuth auth] signOut:NULL];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+
+  // Listener should no longer fire once detached.
+  expectation = nil;
+  [[FIRAuth auth] removeIDTokenDidChangeListener:handle];
   [self waitForSignIn];
   [self waitForTimeIntervel:kWaitInterval];  // make sure listener is no longer called
 }

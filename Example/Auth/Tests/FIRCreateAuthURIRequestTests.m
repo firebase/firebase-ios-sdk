@@ -27,7 +27,7 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kExpectedKind
+/** @var kTestAuthUri
     @brief The test value of the "authURI" property in the json response.
  */
 static NSString *const kTestAuthUri = @"AuthURI";
@@ -46,16 +46,6 @@ static NSString *const kContinueURITestKey = @"continueUri";
     @brief Fake Continue URI key used for testing.
  */
 static NSString *const kTestContinueURI = @"ContinueUri";
-
-/** @var kKindKey
-    @brief The name of the required "kind" property in the request.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#CreateAuthUriResponse";
 
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.

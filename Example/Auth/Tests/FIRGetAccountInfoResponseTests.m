@@ -29,25 +29,10 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kKindKey
-    @brief the name of the "kind" property in the response.
- */
-static NSString *const kKindKey = @"kind";
-
 /** @var kUsersKey
     @brief the name of the "users" property in the response.
  */
 static NSString *const kUsersKey = @"users";
-
-/** @var kTestExpectedKind
-    @brief The testing expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kTestExpectedKind = @"identitytoolkit#GetAccountInfoResponse";
-
-/** @var kTestUnExpectedKind
-    @brief The testing unexpected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kTestUnExpectedKind = @"incorrect#GetAccountInfoResponse";
 
 /** @var kVerifiedProviderKey
     @brief The name of the "VerifiedProvider" property in the response.
@@ -160,36 +145,6 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
   [super tearDown];
 }
 
-
-/** @fn testGetAccountInfoWrongResponseKind
-    @brief This test simulates a wrong response kind returned from server in @c GetAccountInfo flow.
- */
-- (void)testGetAccountInfoWrongResponseKind {
-  FIRGetAccountInfoRequest *request =
-      [[FIRGetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey accessToken:kTestAccessToken];
-
-  __block BOOL callbackInvoked;
-  __block FIRGetAccountInfoResponse *RPCResponse;
-  __block NSError *RPCError;
-  [FIRAuthBackend getAccountInfo:request
-                        callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
-
-  [_RPCIssuer respondWithJSON:@{
-    kKindKey : kTestUnExpectedKind,
-  }];
-
-  XCTAssert(callbackInvoked);
-  XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
-  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInternalError);
-  XCTAssertNil(RPCResponse);
-}
-
 /** @fn testGetAccountInfoUnexpectedResponseError
     @brief This test simulates an unexpected response returned from server in @c GetAccountInfo
         flow.
@@ -211,7 +166,6 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
 
   NSArray *erroneousUserData = @[@"user1Data", @"user2Data"];
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kTestExpectedKind,
     kUsersKey : erroneousUserData
   }];
 
@@ -265,7 +219,6 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
   ];
   [_RPCIssuer respondWithJSON:@{
     @"users" : users,
-    kKindKey : kTestExpectedKind,
   }];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);

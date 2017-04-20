@@ -22,7 +22,7 @@
 #import "MainViewController.h"
 
 #if INTERNAL_GOOGLE3_BUILD
-#import "FIRLogger.h"
+#import "googlemac/iPhone/Firebase/Source/FIRLogger.h"
 #import "googlemac/iPhone/Identity/Firebear/InternalUtils/FIRSessionFetcherLogging.h"
 #endif
 

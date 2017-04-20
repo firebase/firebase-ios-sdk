@@ -390,6 +390,34 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)invalidVerificationIDErrorWithMessage:(nullable NSString *)message;
 
+/** @fn sessionExpiredErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeSessionExpired code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)sessionExpiredErrorWithMessage:(nullable NSString *)message;
+
+/** @fn missingAppCredentialWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorMissingCredential code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingAppCredentialWithMessage:(nullable NSString *)message;
+
+/** @fn invalidAppCredentialWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorInvalidCredential code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)invalidAppCredentialWithMessage:(nullable NSString *)message;
+
+/** @fn quotaExceededErrorWithMessage
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeQuotaExceeded code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)quotaExceededErrorWithMessage:(nullable NSString *)message;
+
 /** @fn keychainErrorWithFunction:status:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeKeychainError code.
     @param keychainFunction The keychain function which was invoked and yielded an unexpected

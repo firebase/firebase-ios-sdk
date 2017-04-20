@@ -113,11 +113,6 @@ static NSString *const kPhotoUrlKey = @"photoUrl";
  */
 static NSString *const kTestPhotoUrl = @"www.example.com";
 
-/** @var kKindKey
-    @brief the name of the "kind" property in the response.
- */
-static NSString *const kKindKey = @"kind";
-
 /** @var kUserDisabledErrorMessage
     @brief This is the error message the server will respond with if the user's account has been
         disabled.
@@ -163,11 +158,6 @@ static NSString *const kAppNotAuthorizedReasonValue = @"ipRefererBlocked";
         to sign in too many times.
  */
 static NSString *const kTooManyAttemptsErrorMessage = @"TOO_MANY_ATTEMPTS_TRY_LATER:";
-
-/** @var kTestExpectedKind
-    @brief The testing expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kTestExpectedKind = @"identitytoolkit#VerifyPasswordResponse";
 
 /** @var kEpsilon
     @brief Allowed difference when comparing floating point numbers.
@@ -440,7 +430,6 @@ static const double kEpsilon = 1e-3;
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kTestExpectedKind,
     kLocalIDKey : kTestLocalID,
     kEmailKey : kTestEmail,
     kDisplayNameKey : kTestDisplayName,

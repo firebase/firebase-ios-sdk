@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-#import "FIRDeleteAccountResponse.h"
+#import <Foundation/Foundation.h>
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthRPCResponse.h"
 
-@implementation FIRDeleteAccountResponse
+NS_ASSUME_NONNULL_BEGIN
 
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                   error:(NSError *_Nullable *_Nullable)error {
-  return YES;
-}
+@interface FIRVerifyClientResponse : NSObject <FIRAuthRPCResponse>
+
+/** @property receipt
+    @brief Receipt that the APNS token was successfully validated with APNS.
+ */
+@property(nonatomic, copy, readonly, nullable) NSString *receipt;
+
+/** @property suggestedTimeOut
+    @brief The date after which delivery of the silent push notification is considered to have
+        failed.
+ */
+@property(nonatomic, copy, readonly, nullable) NSDate *suggestedTimeOutDate;
 
 @end
+
+NS_ASSUME_NONNULL_END

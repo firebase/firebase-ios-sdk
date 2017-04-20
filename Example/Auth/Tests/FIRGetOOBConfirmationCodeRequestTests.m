@@ -34,16 +34,6 @@ static NSString *const kTestAPIKey = @"APIKey";
 static NSString *const kExpectedAPIURL =
     @"https://www.googleapis.com/identitytoolkit/v3/relyingparty/getOobConfirmationCode?key=APIKey";
 
-/** @var kKindKey
-    @brief The name of the required "kind" property in the request.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kExpectedKind
-    @brief The expected value for the required "kind" property in the request.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#relyingparty";
-
 /** @var kRequestTypeKey
     @brief The name of the required "requestType" property in the request.
  */
@@ -190,7 +180,6 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kKindKey], kExpectedKind);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kPasswordResetRequestTypeValue);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
@@ -230,7 +219,6 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kKindKey], kExpectedKind);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAccessTokenKey], kTestAccessToken);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kVerifyEmailRequestTypeValue);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);

@@ -793,6 +793,25 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (FIRAuthStateDidChangeListenerHandle)addAuthStateDidChangeListener:
     (FIRAuthStateDidChangeListenerBlock)listener {
+  __block BOOL firstInvocation = YES;
+  __block NSString *previousUserID;
+  return [self addIDTokenDidChangeListener:^(FIRAuth *_Nonnull auth, FIRUser *_Nullable user) {
+    BOOL shouldCallListener = firstInvocation ||
+         !(previousUserID == user.uid || [previousUserID isEqualToString:user.uid]);
+    firstInvocation = NO;
+    previousUserID = [user.uid copy];
+    if (shouldCallListener) {
+      listener(auth, user);
+    }
+  }];
+}
+
+- (void)removeAuthStateDidChangeListener:(FIRAuthStateDidChangeListenerHandle)listenerHandle {
+  [self removeIDTokenDidChangeListener:listenerHandle];
+}
+
+- (FIRIDTokenDidChangeListenerHandle)addIDTokenDidChangeListener:
+    (FIRIDTokenDidChangeListenerBlock)listener {
   if (!listener) {
     [NSException raise:NSInvalidArgumentException format:@"listener must not be nil."];
     return nil;
@@ -815,12 +834,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return handle;
 }
 
-- (void)removeAuthStateDidChangeListener:(FIRAuthStateDidChangeListenerHandle)listener {
-  [[NSNotificationCenter defaultCenter] removeObserver:listener];
+- (void)removeIDTokenDidChangeListener:(FIRIDTokenDidChangeListenerHandle)listenerHandle {
+  [[NSNotificationCenter defaultCenter] removeObserver:listenerHandle];
   @synchronized (self) {
-    [_listenerHandles removeObject:listener];
+    [_listenerHandles removeObject:listenerHandle];
   }
 }
+
 
 #pragma mark - Internal Methods
 

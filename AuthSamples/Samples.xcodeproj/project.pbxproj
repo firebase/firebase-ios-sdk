@@ -28,6 +28,51 @@
 		A7609DCAD8A247411F27EA14 /* Pods_TestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */; };
 		AB62D09AF8C1196E07F37D3B /* Pods_SwiftBear.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F689EE8E0E6F83D82429F0 /* Pods_SwiftBear.framework */; };
 		BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */; };
+		DE5371B31EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */; };
+		DE5371B41EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371851EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m */; };
+		DE5371B51EA7E89D000DA57F /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371861EA7E89D000DA57F /* FIRAuthAppCredentialTests.m */; };
+		DE5371B61EA7E89D000DA57F /* FIRAuthAppDelegateProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371871EA7E89D000DA57F /* FIRAuthAppDelegateProxyTests.m */; };
+		DE5371B71EA7E89D000DA57F /* FIRAuthBackendCreateAuthURITests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371881EA7E89D000DA57F /* FIRAuthBackendCreateAuthURITests.m */; };
+		DE5371B81EA7E89D000DA57F /* FIRAuthBackendRPCImplementationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371891EA7E89D000DA57F /* FIRAuthBackendRPCImplementationTests.m */; };
+		DE5371B91EA7E89D000DA57F /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53718A1EA7E89D000DA57F /* FIRAuthDispatcherTests.m */; };
+		DE5371BA1EA7E89D000DA57F /* FIRAuthGlobalWorkQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53718B1EA7E89D000DA57F /* FIRAuthGlobalWorkQueueTests.m */; };
+		DE5371BB1EA7E89D000DA57F /* FIRAuthKeychainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53718C1EA7E89D000DA57F /* FIRAuthKeychainTests.m */; };
+		DE5371BC1EA7E89D000DA57F /* FIRAuthSerialTaskQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53718D1EA7E89D000DA57F /* FIRAuthSerialTaskQueueTests.m */; };
+		DE5371BD1EA7E89D000DA57F /* FIRAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53718E1EA7E89D000DA57F /* FIRAuthTests.m */; };
+		DE5371BE1EA7E89D000DA57F /* FIRAuthUserDefaultsStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53718F1EA7E89D000DA57F /* FIRAuthUserDefaultsStorageTests.m */; };
+		DE5371BF1EA7E89D000DA57F /* FIRCreateAuthURIRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371901EA7E89D000DA57F /* FIRCreateAuthURIRequestTests.m */; };
+		DE5371C01EA7E89D000DA57F /* FIRCreateAuthURIResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371911EA7E89D000DA57F /* FIRCreateAuthURIResponseTests.m */; };
+		DE5371C11EA7E89D000DA57F /* FIRDeleteAccountRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371921EA7E89D000DA57F /* FIRDeleteAccountRequestTests.m */; };
+		DE5371C21EA7E89D000DA57F /* FIRDeleteAccountResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371931EA7E89D000DA57F /* FIRDeleteAccountResponseTests.m */; };
+		DE5371C31EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371951EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.m */; };
+		DE5371C41EA7E89D000DA57F /* FIRGetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371961EA7E89D000DA57F /* FIRGetAccountInfoRequestTests.m */; };
+		DE5371C51EA7E89D000DA57F /* FIRGetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371971EA7E89D000DA57F /* FIRGetAccountInfoResponseTests.m */; };
+		DE5371C61EA7E89D000DA57F /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371981EA7E89D000DA57F /* FIRGetOOBConfirmationCodeRequestTests.m */; };
+		DE5371C71EA7E89D000DA57F /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371991EA7E89D000DA57F /* FIRGetOOBConfirmationCodeResponseTests.m */; };
+		DE5371C81EA7E89D000DA57F /* FIRGitHubAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53719A1EA7E89D000DA57F /* FIRGitHubAuthProviderTests.m */; };
+		DE5371C91EA7E89D000DA57F /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53719B1EA7E89D000DA57F /* FIRPhoneAuthProviderTests.m */; };
+		DE5371CA1EA7E89D000DA57F /* FIRResetPasswordRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53719C1EA7E89D000DA57F /* FIRResetPasswordRequestTests.m */; };
+		DE5371CB1EA7E89D000DA57F /* FIRResetPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53719D1EA7E89D000DA57F /* FIRResetPasswordResponseTests.m */; };
+		DE5371CC1EA7E89D000DA57F /* FIRSendVerificationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53719E1EA7E89D000DA57F /* FIRSendVerificationCodeRequestTests.m */; };
+		DE5371CD1EA7E89D000DA57F /* FIRSendVerificationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53719F1EA7E89D000DA57F /* FIRSendVerificationCodeResponseTests.m */; };
+		DE5371CE1EA7E89D000DA57F /* FIRSetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A01EA7E89D000DA57F /* FIRSetAccountInfoRequestTests.m */; };
+		DE5371CF1EA7E89D000DA57F /* FIRSetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A11EA7E89D000DA57F /* FIRSetAccountInfoResponseTests.m */; };
+		DE5371D01EA7E89D000DA57F /* FIRSignUpNewUserRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A21EA7E89D000DA57F /* FIRSignUpNewUserRequestTests.m */; };
+		DE5371D11EA7E89D000DA57F /* FIRSignUpNewUserResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A31EA7E89D000DA57F /* FIRSignUpNewUserResponseTests.m */; };
+		DE5371D21EA7E89D000DA57F /* FIRTwitterAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A41EA7E89D000DA57F /* FIRTwitterAuthProviderTests.m */; };
+		DE5371D31EA7E89D000DA57F /* FIRUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A51EA7E89D000DA57F /* FIRUserTests.m */; };
+		DE5371D41EA7E89D000DA57F /* FIRVerifyAssertionRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A61EA7E89D000DA57F /* FIRVerifyAssertionRequestTests.m */; };
+		DE5371D51EA7E89D000DA57F /* FIRVerifyAssertionResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A71EA7E89D000DA57F /* FIRVerifyAssertionResponseTests.m */; };
+		DE5371D61EA7E89D000DA57F /* FIRVerifyClientRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A81EA7E89D000DA57F /* FIRVerifyClientRequestTest.m */; };
+		DE5371D71EA7E89D000DA57F /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371A91EA7E89D000DA57F /* FIRVerifyClientResponseTests.m */; };
+		DE5371D81EA7E89D000DA57F /* FIRVerifyCustomTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371AA1EA7E89D000DA57F /* FIRVerifyCustomTokenRequestTests.m */; };
+		DE5371D91EA7E89D000DA57F /* FIRVerifyCustomTokenResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371AB1EA7E89D000DA57F /* FIRVerifyCustomTokenResponseTests.m */; };
+		DE5371DA1EA7E89D000DA57F /* FIRVerifyPasswordRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371AC1EA7E89D000DA57F /* FIRVerifyPasswordRequestTest.m */; };
+		DE5371DB1EA7E89D000DA57F /* FIRVerifyPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371AD1EA7E89D000DA57F /* FIRVerifyPasswordResponseTests.m */; };
+		DE5371DC1EA7E89D000DA57F /* FIRVerifyPhoneNumberRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371AE1EA7E89D000DA57F /* FIRVerifyPhoneNumberRequestTests.m */; };
+		DE5371DD1EA7E89D000DA57F /* FIRVerifyPhoneNumberResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371AF1EA7E89D000DA57F /* FIRVerifyPhoneNumberResponseTests.m */; };
+		DE5371DE1EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371B11EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m */; };
+		DE5371DF1EA7E89D000DA57F /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE5371B21EA7E89D000DA57F /* Tests-Info.plist */; };
 		DECE04E21E9FEAE600164CA4 /* Application.plist in Resources */ = {isa = PBXBuildFile; fileRef = DECE049B1E9FEAE600164CA4 /* Application.plist */; };
 		DECE04E31E9FEAE600164CA4 /* ApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE049D1E9FEAE600164CA4 /* ApplicationDelegate.m */; };
 		DECE04E41E9FEAE600164CA4 /* AuthProviders.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE049F1E9FEAE600164CA4 /* AuthProviders.m */; };
@@ -56,47 +101,6 @@
 		DEE13A1A1E9FFD2E00D1BABA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A191E9FFD2E00D1BABA /* GoogleService-Info.plist */; };
 		DEE13A2B1EA125CD00D1BABA /* FirebearApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A2A1EA125CD00D1BABA /* FirebearApiTests.m */; };
 		DEE13A3D1EA164E100D1BABA /* FirebearEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A3C1EA164E100D1BABA /* FirebearEarlGreyTests.m */; };
-		DEE13A781EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A4C1EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m */; };
-		DEE13A791EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A4E1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m */; };
-		DEE13A7A1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A4F1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m */; };
-		DEE13A7B1EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A501EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m */; };
-		DEE13A7C1EA16F1D00D1BABA /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A511EA16F1D00D1BABA /* FIRAuthDispatcherTests.m */; };
-		DEE13A7D1EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A521EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m */; };
-		DEE13A7E1EA16F1D00D1BABA /* FIRAuthKeychainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A531EA16F1D00D1BABA /* FIRAuthKeychainTests.m */; };
-		DEE13A7F1EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A541EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m */; };
-		DEE13A801EA16F1D00D1BABA /* FIRAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A551EA16F1D00D1BABA /* FIRAuthTests.m */; };
-		DEE13A811EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A561EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m */; };
-		DEE13A821EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A571EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m */; };
-		DEE13A831EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A581EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m */; };
-		DEE13A841EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A591EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m */; };
-		DEE13A851EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5A1EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m */; };
-		DEE13A861EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5C1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m */; };
-		DEE13A871EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5D1EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m */; };
-		DEE13A881EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5E1EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m */; };
-		DEE13A891EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A5F1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m */; };
-		DEE13A8A1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A601EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m */; };
-		DEE13A8B1EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A611EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m */; };
-		DEE13A8C1EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A621EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m */; };
-		DEE13A8D1EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A631EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m */; };
-		DEE13A8E1EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A641EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m */; };
-		DEE13A8F1EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A651EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m */; };
-		DEE13A901EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A661EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m */; };
-		DEE13A911EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A671EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m */; };
-		DEE13A921EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A681EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m */; };
-		DEE13A931EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A691EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m */; };
-		DEE13A941EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6A1EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m */; };
-		DEE13A951EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6B1EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m */; };
-		DEE13A961EA16F1D00D1BABA /* FIRUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6C1EA16F1D00D1BABA /* FIRUserTests.m */; };
-		DEE13A971EA16F1E00D1BABA /* FIRVerifyAssertionRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6D1EA16F1D00D1BABA /* FIRVerifyAssertionRequestTests.m */; };
-		DEE13A981EA16F1E00D1BABA /* FIRVerifyAssertionResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6E1EA16F1D00D1BABA /* FIRVerifyAssertionResponseTests.m */; };
-		DEE13A991EA16F1E00D1BABA /* FIRVerifyCustomTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A6F1EA16F1D00D1BABA /* FIRVerifyCustomTokenRequestTests.m */; };
-		DEE13A9A1EA16F1E00D1BABA /* FIRVerifyCustomTokenResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A701EA16F1D00D1BABA /* FIRVerifyCustomTokenResponseTests.m */; };
-		DEE13A9B1EA16F1E00D1BABA /* FIRVerifyPasswordRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A711EA16F1D00D1BABA /* FIRVerifyPasswordRequestTest.m */; };
-		DEE13A9C1EA16F1E00D1BABA /* FIRVerifyPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A721EA16F1D00D1BABA /* FIRVerifyPasswordResponseTests.m */; };
-		DEE13A9D1EA16F1E00D1BABA /* FIRVerifyPhoneNumberRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A731EA16F1D00D1BABA /* FIRVerifyPhoneNumberRequestTests.m */; };
-		DEE13A9E1EA16F1E00D1BABA /* FIRVerifyPhoneNumberResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A741EA16F1D00D1BABA /* FIRVerifyPhoneNumberResponseTests.m */; };
-		DEE13A9F1EA16F1E00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A761EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m */; };
-		DEE13AA01EA16F1E00D1BABA /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A771EA16F1D00D1BABA /* Tests-Info.plist */; };
 		DEE13AA21EA1724300D1BABA /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEE13A2C1EA12B8D00D1BABA /* FirebaseDev.framework */; };
 		DEE13ACB1EA1764B00D1BABA /* Auth-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */; };
 		DEE13ACC1EA1764B00D1BABA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13AC01EA1764B00D1BABA /* LaunchScreen.storyboard */; };
@@ -183,6 +187,54 @@
 		D1EE09E5B9A6C092236222A9 /* Pods-Sample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sample/Pods-Sample.debug.xcconfig"; sourceTree = "<group>"; };
 		D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.release.xcconfig"; sourceTree = "<group>"; };
+		DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAdditionalUserInfoTests.m; path = ../../Example/Auth/Tests/FIRAdditionalUserInfoTests.m; sourceTree = "<group>"; };
+		DE5371841EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "FIRApp+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
+		DE5371851EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "FIRApp+FIRAuthUnitTests.m"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.m"; sourceTree = "<group>"; };
+		DE5371861EA7E89D000DA57F /* FIRAuthAppCredentialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAppCredentialTests.m; path = ../../Example/Auth/Tests/FIRAuthAppCredentialTests.m; sourceTree = "<group>"; };
+		DE5371871EA7E89D000DA57F /* FIRAuthAppDelegateProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAppDelegateProxyTests.m; path = ../../Example/Auth/Tests/FIRAuthAppDelegateProxyTests.m; sourceTree = "<group>"; };
+		DE5371881EA7E89D000DA57F /* FIRAuthBackendCreateAuthURITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthBackendCreateAuthURITests.m; path = ../../Example/Auth/Tests/FIRAuthBackendCreateAuthURITests.m; sourceTree = "<group>"; };
+		DE5371891EA7E89D000DA57F /* FIRAuthBackendRPCImplementationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthBackendRPCImplementationTests.m; path = ../../Example/Auth/Tests/FIRAuthBackendRPCImplementationTests.m; sourceTree = "<group>"; };
+		DE53718A1EA7E89D000DA57F /* FIRAuthDispatcherTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthDispatcherTests.m; path = ../../Example/Auth/Tests/FIRAuthDispatcherTests.m; sourceTree = "<group>"; };
+		DE53718B1EA7E89D000DA57F /* FIRAuthGlobalWorkQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthGlobalWorkQueueTests.m; path = ../../Example/Auth/Tests/FIRAuthGlobalWorkQueueTests.m; sourceTree = "<group>"; };
+		DE53718C1EA7E89D000DA57F /* FIRAuthKeychainTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthKeychainTests.m; path = ../../Example/Auth/Tests/FIRAuthKeychainTests.m; sourceTree = "<group>"; };
+		DE53718D1EA7E89D000DA57F /* FIRAuthSerialTaskQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthSerialTaskQueueTests.m; path = ../../Example/Auth/Tests/FIRAuthSerialTaskQueueTests.m; sourceTree = "<group>"; };
+		DE53718E1EA7E89D000DA57F /* FIRAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthTests.m; path = ../../Example/Auth/Tests/FIRAuthTests.m; sourceTree = "<group>"; };
+		DE53718F1EA7E89D000DA57F /* FIRAuthUserDefaultsStorageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthUserDefaultsStorageTests.m; path = ../../Example/Auth/Tests/FIRAuthUserDefaultsStorageTests.m; sourceTree = "<group>"; };
+		DE5371901EA7E89D000DA57F /* FIRCreateAuthURIRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRCreateAuthURIRequestTests.m; path = ../../Example/Auth/Tests/FIRCreateAuthURIRequestTests.m; sourceTree = "<group>"; };
+		DE5371911EA7E89D000DA57F /* FIRCreateAuthURIResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRCreateAuthURIResponseTests.m; path = ../../Example/Auth/Tests/FIRCreateAuthURIResponseTests.m; sourceTree = "<group>"; };
+		DE5371921EA7E89D000DA57F /* FIRDeleteAccountRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDeleteAccountRequestTests.m; path = ../../Example/Auth/Tests/FIRDeleteAccountRequestTests.m; sourceTree = "<group>"; };
+		DE5371931EA7E89D000DA57F /* FIRDeleteAccountResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDeleteAccountResponseTests.m; path = ../../Example/Auth/Tests/FIRDeleteAccountResponseTests.m; sourceTree = "<group>"; };
+		DE5371941EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRFakeBackendRPCIssuer.h; path = ../../Example/Auth/Tests/FIRFakeBackendRPCIssuer.h; sourceTree = "<group>"; };
+		DE5371951EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRFakeBackendRPCIssuer.m; path = ../../Example/Auth/Tests/FIRFakeBackendRPCIssuer.m; sourceTree = "<group>"; };
+		DE5371961EA7E89D000DA57F /* FIRGetAccountInfoRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetAccountInfoRequestTests.m; path = ../../Example/Auth/Tests/FIRGetAccountInfoRequestTests.m; sourceTree = "<group>"; };
+		DE5371971EA7E89D000DA57F /* FIRGetAccountInfoResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetAccountInfoResponseTests.m; path = ../../Example/Auth/Tests/FIRGetAccountInfoResponseTests.m; sourceTree = "<group>"; };
+		DE5371981EA7E89D000DA57F /* FIRGetOOBConfirmationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetOOBConfirmationCodeRequestTests.m; path = ../../Example/Auth/Tests/FIRGetOOBConfirmationCodeRequestTests.m; sourceTree = "<group>"; };
+		DE5371991EA7E89D000DA57F /* FIRGetOOBConfirmationCodeResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetOOBConfirmationCodeResponseTests.m; path = ../../Example/Auth/Tests/FIRGetOOBConfirmationCodeResponseTests.m; sourceTree = "<group>"; };
+		DE53719A1EA7E89D000DA57F /* FIRGitHubAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGitHubAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRGitHubAuthProviderTests.m; sourceTree = "<group>"; };
+		DE53719B1EA7E89D000DA57F /* FIRPhoneAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRPhoneAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRPhoneAuthProviderTests.m; sourceTree = "<group>"; };
+		DE53719C1EA7E89D000DA57F /* FIRResetPasswordRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRResetPasswordRequestTests.m; path = ../../Example/Auth/Tests/FIRResetPasswordRequestTests.m; sourceTree = "<group>"; };
+		DE53719D1EA7E89D000DA57F /* FIRResetPasswordResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRResetPasswordResponseTests.m; path = ../../Example/Auth/Tests/FIRResetPasswordResponseTests.m; sourceTree = "<group>"; };
+		DE53719E1EA7E89D000DA57F /* FIRSendVerificationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSendVerificationCodeRequestTests.m; path = ../../Example/Auth/Tests/FIRSendVerificationCodeRequestTests.m; sourceTree = "<group>"; };
+		DE53719F1EA7E89D000DA57F /* FIRSendVerificationCodeResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSendVerificationCodeResponseTests.m; path = ../../Example/Auth/Tests/FIRSendVerificationCodeResponseTests.m; sourceTree = "<group>"; };
+		DE5371A01EA7E89D000DA57F /* FIRSetAccountInfoRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSetAccountInfoRequestTests.m; path = ../../Example/Auth/Tests/FIRSetAccountInfoRequestTests.m; sourceTree = "<group>"; };
+		DE5371A11EA7E89D000DA57F /* FIRSetAccountInfoResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSetAccountInfoResponseTests.m; path = ../../Example/Auth/Tests/FIRSetAccountInfoResponseTests.m; sourceTree = "<group>"; };
+		DE5371A21EA7E89D000DA57F /* FIRSignUpNewUserRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSignUpNewUserRequestTests.m; path = ../../Example/Auth/Tests/FIRSignUpNewUserRequestTests.m; sourceTree = "<group>"; };
+		DE5371A31EA7E89D000DA57F /* FIRSignUpNewUserResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSignUpNewUserResponseTests.m; path = ../../Example/Auth/Tests/FIRSignUpNewUserResponseTests.m; sourceTree = "<group>"; };
+		DE5371A41EA7E89D000DA57F /* FIRTwitterAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRTwitterAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRTwitterAuthProviderTests.m; sourceTree = "<group>"; };
+		DE5371A51EA7E89D000DA57F /* FIRUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRUserTests.m; path = ../../Example/Auth/Tests/FIRUserTests.m; sourceTree = "<group>"; };
+		DE5371A61EA7E89D000DA57F /* FIRVerifyAssertionRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyAssertionRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyAssertionRequestTests.m; sourceTree = "<group>"; };
+		DE5371A71EA7E89D000DA57F /* FIRVerifyAssertionResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyAssertionResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyAssertionResponseTests.m; sourceTree = "<group>"; };
+		DE5371A81EA7E89D000DA57F /* FIRVerifyClientRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyClientRequestTest.m; path = ../../Example/Auth/Tests/FIRVerifyClientRequestTest.m; sourceTree = "<group>"; };
+		DE5371A91EA7E89D000DA57F /* FIRVerifyClientResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyClientResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyClientResponseTests.m; sourceTree = "<group>"; };
+		DE5371AA1EA7E89D000DA57F /* FIRVerifyCustomTokenRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyCustomTokenRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyCustomTokenRequestTests.m; sourceTree = "<group>"; };
+		DE5371AB1EA7E89D000DA57F /* FIRVerifyCustomTokenResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyCustomTokenResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyCustomTokenResponseTests.m; sourceTree = "<group>"; };
+		DE5371AC1EA7E89D000DA57F /* FIRVerifyPasswordRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPasswordRequestTest.m; path = ../../Example/Auth/Tests/FIRVerifyPasswordRequestTest.m; sourceTree = "<group>"; };
+		DE5371AD1EA7E89D000DA57F /* FIRVerifyPasswordResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPasswordResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyPasswordResponseTests.m; sourceTree = "<group>"; };
+		DE5371AE1EA7E89D000DA57F /* FIRVerifyPhoneNumberRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPhoneNumberRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyPhoneNumberRequestTests.m; sourceTree = "<group>"; };
+		DE5371AF1EA7E89D000DA57F /* FIRVerifyPhoneNumberResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPhoneNumberResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyPhoneNumberResponseTests.m; sourceTree = "<group>"; };
+		DE5371B01EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "OCMStubRecorder+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/OCMStubRecorder+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
+		DE5371B11EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "OCMStubRecorder+FIRAuthUnitTests.m"; path = "../../Example/Auth/Tests/OCMStubRecorder+FIRAuthUnitTests.m"; sourceTree = "<group>"; };
+		DE5371B21EA7E89D000DA57F /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Example/Auth/Tests/Tests-Info.plist"; sourceTree = "<group>"; };
 		DECE04841E9FEA7500164CA4 /* Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DECE049B1E9FEAE600164CA4 /* Application.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Application.plist; sourceTree = "<group>"; };
 		DECE049C1E9FEAE600164CA4 /* ApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationDelegate.h; sourceTree = "<group>"; };
@@ -265,50 +317,6 @@
 		DEE13A361EA1642A00D1BABA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEE13A3C1EA164E100D1BABA /* FirebearEarlGreyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebearEarlGreyTests.m; sourceTree = "<group>"; };
 		DEE13A421EA16EE400D1BABA /* FirebaseAuthUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FirebaseAuthUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEE13A4C1EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAdditionalUserInfoTests.m; path = ../../Example/Auth/Tests/FIRAdditionalUserInfoTests.m; sourceTree = "<group>"; };
-		DEE13A4D1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "FIRApp+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
-		DEE13A4E1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "FIRApp+FIRAuthUnitTests.m"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.m"; sourceTree = "<group>"; };
-		DEE13A4F1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthBackendCreateAuthURITests.m; path = ../../Example/Auth/Tests/FIRAuthBackendCreateAuthURITests.m; sourceTree = "<group>"; };
-		DEE13A501EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthBackendRPCImplementationTests.m; path = ../../Example/Auth/Tests/FIRAuthBackendRPCImplementationTests.m; sourceTree = "<group>"; };
-		DEE13A511EA16F1D00D1BABA /* FIRAuthDispatcherTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthDispatcherTests.m; path = ../../Example/Auth/Tests/FIRAuthDispatcherTests.m; sourceTree = "<group>"; };
-		DEE13A521EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthGlobalWorkQueueTests.m; path = ../../Example/Auth/Tests/FIRAuthGlobalWorkQueueTests.m; sourceTree = "<group>"; };
-		DEE13A531EA16F1D00D1BABA /* FIRAuthKeychainTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthKeychainTests.m; path = ../../Example/Auth/Tests/FIRAuthKeychainTests.m; sourceTree = "<group>"; };
-		DEE13A541EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthSerialTaskQueueTests.m; path = ../../Example/Auth/Tests/FIRAuthSerialTaskQueueTests.m; sourceTree = "<group>"; };
-		DEE13A551EA16F1D00D1BABA /* FIRAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthTests.m; path = ../../Example/Auth/Tests/FIRAuthTests.m; sourceTree = "<group>"; };
-		DEE13A561EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthUserDefaultsStorageTests.m; path = ../../Example/Auth/Tests/FIRAuthUserDefaultsStorageTests.m; sourceTree = "<group>"; };
-		DEE13A571EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRCreateAuthURIRequestTests.m; path = ../../Example/Auth/Tests/FIRCreateAuthURIRequestTests.m; sourceTree = "<group>"; };
-		DEE13A581EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRCreateAuthURIResponseTests.m; path = ../../Example/Auth/Tests/FIRCreateAuthURIResponseTests.m; sourceTree = "<group>"; };
-		DEE13A591EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDeleteAccountRequestTests.m; path = ../../Example/Auth/Tests/FIRDeleteAccountRequestTests.m; sourceTree = "<group>"; };
-		DEE13A5A1EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDeleteAccountResponseTests.m; path = ../../Example/Auth/Tests/FIRDeleteAccountResponseTests.m; sourceTree = "<group>"; };
-		DEE13A5B1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRFakeBackendRPCIssuer.h; path = ../../Example/Auth/Tests/FIRFakeBackendRPCIssuer.h; sourceTree = "<group>"; };
-		DEE13A5C1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRFakeBackendRPCIssuer.m; path = ../../Example/Auth/Tests/FIRFakeBackendRPCIssuer.m; sourceTree = "<group>"; };
-		DEE13A5D1EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetAccountInfoRequestTests.m; path = ../../Example/Auth/Tests/FIRGetAccountInfoRequestTests.m; sourceTree = "<group>"; };
-		DEE13A5E1EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetAccountInfoResponseTests.m; path = ../../Example/Auth/Tests/FIRGetAccountInfoResponseTests.m; sourceTree = "<group>"; };
-		DEE13A5F1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetOOBConfirmationCodeRequestTests.m; path = ../../Example/Auth/Tests/FIRGetOOBConfirmationCodeRequestTests.m; sourceTree = "<group>"; };
-		DEE13A601EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetOOBConfirmationCodeResponseTests.m; path = ../../Example/Auth/Tests/FIRGetOOBConfirmationCodeResponseTests.m; sourceTree = "<group>"; };
-		DEE13A611EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGitHubAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRGitHubAuthProviderTests.m; sourceTree = "<group>"; };
-		DEE13A621EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRPhoneAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRPhoneAuthProviderTests.m; sourceTree = "<group>"; };
-		DEE13A631EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRResetPasswordRequestTests.m; path = ../../Example/Auth/Tests/FIRResetPasswordRequestTests.m; sourceTree = "<group>"; };
-		DEE13A641EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRResetPasswordResponseTests.m; path = ../../Example/Auth/Tests/FIRResetPasswordResponseTests.m; sourceTree = "<group>"; };
-		DEE13A651EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSendVerificationCodeRequestTests.m; path = ../../Example/Auth/Tests/FIRSendVerificationCodeRequestTests.m; sourceTree = "<group>"; };
-		DEE13A661EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSendVerificationCodeResponseTests.m; path = ../../Example/Auth/Tests/FIRSendVerificationCodeResponseTests.m; sourceTree = "<group>"; };
-		DEE13A671EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSetAccountInfoRequestTests.m; path = ../../Example/Auth/Tests/FIRSetAccountInfoRequestTests.m; sourceTree = "<group>"; };
-		DEE13A681EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSetAccountInfoResponseTests.m; path = ../../Example/Auth/Tests/FIRSetAccountInfoResponseTests.m; sourceTree = "<group>"; };
-		DEE13A691EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSignUpNewUserRequestTests.m; path = ../../Example/Auth/Tests/FIRSignUpNewUserRequestTests.m; sourceTree = "<group>"; };
-		DEE13A6A1EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSignUpNewUserResponseTests.m; path = ../../Example/Auth/Tests/FIRSignUpNewUserResponseTests.m; sourceTree = "<group>"; };
-		DEE13A6B1EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRTwitterAuthProviderTests.m; path = ../../Example/Auth/Tests/FIRTwitterAuthProviderTests.m; sourceTree = "<group>"; };
-		DEE13A6C1EA16F1D00D1BABA /* FIRUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRUserTests.m; path = ../../Example/Auth/Tests/FIRUserTests.m; sourceTree = "<group>"; };
-		DEE13A6D1EA16F1D00D1BABA /* FIRVerifyAssertionRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyAssertionRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyAssertionRequestTests.m; sourceTree = "<group>"; };
-		DEE13A6E1EA16F1D00D1BABA /* FIRVerifyAssertionResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyAssertionResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyAssertionResponseTests.m; sourceTree = "<group>"; };
-		DEE13A6F1EA16F1D00D1BABA /* FIRVerifyCustomTokenRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyCustomTokenRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyCustomTokenRequestTests.m; sourceTree = "<group>"; };
-		DEE13A701EA16F1D00D1BABA /* FIRVerifyCustomTokenResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyCustomTokenResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyCustomTokenResponseTests.m; sourceTree = "<group>"; };
-		DEE13A711EA16F1D00D1BABA /* FIRVerifyPasswordRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPasswordRequestTest.m; path = ../../Example/Auth/Tests/FIRVerifyPasswordRequestTest.m; sourceTree = "<group>"; };
-		DEE13A721EA16F1D00D1BABA /* FIRVerifyPasswordResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPasswordResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyPasswordResponseTests.m; sourceTree = "<group>"; };
-		DEE13A731EA16F1D00D1BABA /* FIRVerifyPhoneNumberRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPhoneNumberRequestTests.m; path = ../../Example/Auth/Tests/FIRVerifyPhoneNumberRequestTests.m; sourceTree = "<group>"; };
-		DEE13A741EA16F1D00D1BABA /* FIRVerifyPhoneNumberResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRVerifyPhoneNumberResponseTests.m; path = ../../Example/Auth/Tests/FIRVerifyPhoneNumberResponseTests.m; sourceTree = "<group>"; };
-		DEE13A751EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "OCMStubRecorder+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/OCMStubRecorder+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
-		DEE13A761EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "OCMStubRecorder+FIRAuthUnitTests.m"; path = "../../Example/Auth/Tests/OCMStubRecorder+FIRAuthUnitTests.m"; sourceTree = "<group>"; };
-		DEE13A771EA16F1D00D1BABA /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Example/Auth/Tests/Tests-Info.plist"; sourceTree = "<group>"; };
 		DEE13AA71EA1761B00D1BABA /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Auth-Info.plist"; path = "../../Example/Auth/App/Auth-Info.plist"; sourceTree = "<group>"; };
 		DEE13AC11EA1764B00D1BABA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -521,50 +529,54 @@
 		DEE13A431EA16EE400D1BABA /* FirebaseAuthUnitTests */ = {
 			isa = PBXGroup;
 			children = (
-				DEE13A4C1EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m */,
-				DEE13A4D1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.h */,
-				DEE13A4E1EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m */,
-				DEE13A4F1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m */,
-				DEE13A501EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m */,
-				DEE13A511EA16F1D00D1BABA /* FIRAuthDispatcherTests.m */,
-				DEE13A521EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m */,
-				DEE13A531EA16F1D00D1BABA /* FIRAuthKeychainTests.m */,
-				DEE13A541EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m */,
-				DEE13A551EA16F1D00D1BABA /* FIRAuthTests.m */,
-				DEE13A561EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m */,
-				DEE13A571EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m */,
-				DEE13A581EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m */,
-				DEE13A591EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m */,
-				DEE13A5A1EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m */,
-				DEE13A5B1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.h */,
-				DEE13A5C1EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m */,
-				DEE13A5D1EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m */,
-				DEE13A5E1EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m */,
-				DEE13A5F1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m */,
-				DEE13A601EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m */,
-				DEE13A611EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m */,
-				DEE13A621EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m */,
-				DEE13A631EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m */,
-				DEE13A641EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m */,
-				DEE13A651EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m */,
-				DEE13A661EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m */,
-				DEE13A671EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m */,
-				DEE13A681EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m */,
-				DEE13A691EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m */,
-				DEE13A6A1EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m */,
-				DEE13A6B1EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m */,
-				DEE13A6C1EA16F1D00D1BABA /* FIRUserTests.m */,
-				DEE13A6D1EA16F1D00D1BABA /* FIRVerifyAssertionRequestTests.m */,
-				DEE13A6E1EA16F1D00D1BABA /* FIRVerifyAssertionResponseTests.m */,
-				DEE13A6F1EA16F1D00D1BABA /* FIRVerifyCustomTokenRequestTests.m */,
-				DEE13A701EA16F1D00D1BABA /* FIRVerifyCustomTokenResponseTests.m */,
-				DEE13A711EA16F1D00D1BABA /* FIRVerifyPasswordRequestTest.m */,
-				DEE13A721EA16F1D00D1BABA /* FIRVerifyPasswordResponseTests.m */,
-				DEE13A731EA16F1D00D1BABA /* FIRVerifyPhoneNumberRequestTests.m */,
-				DEE13A741EA16F1D00D1BABA /* FIRVerifyPhoneNumberResponseTests.m */,
-				DEE13A751EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.h */,
-				DEE13A761EA16F1D00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m */,
-				DEE13A771EA16F1D00D1BABA /* Tests-Info.plist */,
+				DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */,
+				DE5371841EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.h */,
+				DE5371851EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m */,
+				DE5371861EA7E89D000DA57F /* FIRAuthAppCredentialTests.m */,
+				DE5371871EA7E89D000DA57F /* FIRAuthAppDelegateProxyTests.m */,
+				DE5371881EA7E89D000DA57F /* FIRAuthBackendCreateAuthURITests.m */,
+				DE5371891EA7E89D000DA57F /* FIRAuthBackendRPCImplementationTests.m */,
+				DE53718A1EA7E89D000DA57F /* FIRAuthDispatcherTests.m */,
+				DE53718B1EA7E89D000DA57F /* FIRAuthGlobalWorkQueueTests.m */,
+				DE53718C1EA7E89D000DA57F /* FIRAuthKeychainTests.m */,
+				DE53718D1EA7E89D000DA57F /* FIRAuthSerialTaskQueueTests.m */,
+				DE53718E1EA7E89D000DA57F /* FIRAuthTests.m */,
+				DE53718F1EA7E89D000DA57F /* FIRAuthUserDefaultsStorageTests.m */,
+				DE5371901EA7E89D000DA57F /* FIRCreateAuthURIRequestTests.m */,
+				DE5371911EA7E89D000DA57F /* FIRCreateAuthURIResponseTests.m */,
+				DE5371921EA7E89D000DA57F /* FIRDeleteAccountRequestTests.m */,
+				DE5371931EA7E89D000DA57F /* FIRDeleteAccountResponseTests.m */,
+				DE5371941EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.h */,
+				DE5371951EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.m */,
+				DE5371961EA7E89D000DA57F /* FIRGetAccountInfoRequestTests.m */,
+				DE5371971EA7E89D000DA57F /* FIRGetAccountInfoResponseTests.m */,
+				DE5371981EA7E89D000DA57F /* FIRGetOOBConfirmationCodeRequestTests.m */,
+				DE5371991EA7E89D000DA57F /* FIRGetOOBConfirmationCodeResponseTests.m */,
+				DE53719A1EA7E89D000DA57F /* FIRGitHubAuthProviderTests.m */,
+				DE53719B1EA7E89D000DA57F /* FIRPhoneAuthProviderTests.m */,
+				DE53719C1EA7E89D000DA57F /* FIRResetPasswordRequestTests.m */,
+				DE53719D1EA7E89D000DA57F /* FIRResetPasswordResponseTests.m */,
+				DE53719E1EA7E89D000DA57F /* FIRSendVerificationCodeRequestTests.m */,
+				DE53719F1EA7E89D000DA57F /* FIRSendVerificationCodeResponseTests.m */,
+				DE5371A01EA7E89D000DA57F /* FIRSetAccountInfoRequestTests.m */,
+				DE5371A11EA7E89D000DA57F /* FIRSetAccountInfoResponseTests.m */,
+				DE5371A21EA7E89D000DA57F /* FIRSignUpNewUserRequestTests.m */,
+				DE5371A31EA7E89D000DA57F /* FIRSignUpNewUserResponseTests.m */,
+				DE5371A41EA7E89D000DA57F /* FIRTwitterAuthProviderTests.m */,
+				DE5371A51EA7E89D000DA57F /* FIRUserTests.m */,
+				DE5371A61EA7E89D000DA57F /* FIRVerifyAssertionRequestTests.m */,
+				DE5371A71EA7E89D000DA57F /* FIRVerifyAssertionResponseTests.m */,
+				DE5371A81EA7E89D000DA57F /* FIRVerifyClientRequestTest.m */,
+				DE5371A91EA7E89D000DA57F /* FIRVerifyClientResponseTests.m */,
+				DE5371AA1EA7E89D000DA57F /* FIRVerifyCustomTokenRequestTests.m */,
+				DE5371AB1EA7E89D000DA57F /* FIRVerifyCustomTokenResponseTests.m */,
+				DE5371AC1EA7E89D000DA57F /* FIRVerifyPasswordRequestTest.m */,
+				DE5371AD1EA7E89D000DA57F /* FIRVerifyPasswordResponseTests.m */,
+				DE5371AE1EA7E89D000DA57F /* FIRVerifyPhoneNumberRequestTests.m */,
+				DE5371AF1EA7E89D000DA57F /* FIRVerifyPhoneNumberResponseTests.m */,
+				DE5371B01EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.h */,
+				DE5371B11EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m */,
+				DE5371B21EA7E89D000DA57F /* Tests-Info.plist */,
 			);
 			path = FirebaseAuthUnitTests;
 			sourceTree = "<group>";
@@ -891,7 +903,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE13AA01EA16F1E00D1BABA /* Tests-Info.plist in Resources */,
+				DE5371DF1EA7E89D000DA57F /* Tests-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1231,46 +1243,50 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE13A8A1EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
-				DEE13A871EA16F1D00D1BABA /* FIRGetAccountInfoRequestTests.m in Sources */,
-				DEE13A941EA16F1D00D1BABA /* FIRSignUpNewUserResponseTests.m in Sources */,
-				DEE13A891EA16F1D00D1BABA /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */,
-				DEE13A781EA16F1D00D1BABA /* FIRAdditionalUserInfoTests.m in Sources */,
-				DEE13A9C1EA16F1E00D1BABA /* FIRVerifyPasswordResponseTests.m in Sources */,
-				DEE13A8C1EA16F1D00D1BABA /* FIRPhoneAuthProviderTests.m in Sources */,
-				DEE13A9A1EA16F1E00D1BABA /* FIRVerifyCustomTokenResponseTests.m in Sources */,
-				DEE13A7C1EA16F1D00D1BABA /* FIRAuthDispatcherTests.m in Sources */,
-				DEE13A811EA16F1D00D1BABA /* FIRAuthUserDefaultsStorageTests.m in Sources */,
-				DEE13A951EA16F1D00D1BABA /* FIRTwitterAuthProviderTests.m in Sources */,
-				DEE13A851EA16F1D00D1BABA /* FIRDeleteAccountResponseTests.m in Sources */,
-				DEE13A971EA16F1E00D1BABA /* FIRVerifyAssertionRequestTests.m in Sources */,
-				DEE13A991EA16F1E00D1BABA /* FIRVerifyCustomTokenRequestTests.m in Sources */,
-				DEE13A9D1EA16F1E00D1BABA /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
-				DEE13A8B1EA16F1D00D1BABA /* FIRGitHubAuthProviderTests.m in Sources */,
-				DEE13A861EA16F1D00D1BABA /* FIRFakeBackendRPCIssuer.m in Sources */,
-				DEE13A901EA16F1D00D1BABA /* FIRSendVerificationCodeResponseTests.m in Sources */,
-				DEE13A8D1EA16F1D00D1BABA /* FIRResetPasswordRequestTests.m in Sources */,
-				DEE13A8E1EA16F1D00D1BABA /* FIRResetPasswordResponseTests.m in Sources */,
-				DEE13A7A1EA16F1D00D1BABA /* FIRAuthBackendCreateAuthURITests.m in Sources */,
-				DEE13A8F1EA16F1D00D1BABA /* FIRSendVerificationCodeRequestTests.m in Sources */,
-				DEE13A821EA16F1D00D1BABA /* FIRCreateAuthURIRequestTests.m in Sources */,
-				DEE13A7E1EA16F1D00D1BABA /* FIRAuthKeychainTests.m in Sources */,
-				DEE13A7D1EA16F1D00D1BABA /* FIRAuthGlobalWorkQueueTests.m in Sources */,
-				DEE13A9B1EA16F1E00D1BABA /* FIRVerifyPasswordRequestTest.m in Sources */,
-				DEE13A841EA16F1D00D1BABA /* FIRDeleteAccountRequestTests.m in Sources */,
-				DEE13A831EA16F1D00D1BABA /* FIRCreateAuthURIResponseTests.m in Sources */,
-				DEE13A9E1EA16F1E00D1BABA /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
-				DEE13A9F1EA16F1E00D1BABA /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
-				DEE13A7B1EA16F1D00D1BABA /* FIRAuthBackendRPCImplementationTests.m in Sources */,
-				DEE13A981EA16F1E00D1BABA /* FIRVerifyAssertionResponseTests.m in Sources */,
-				DEE13A931EA16F1D00D1BABA /* FIRSignUpNewUserRequestTests.m in Sources */,
-				DEE13A881EA16F1D00D1BABA /* FIRGetAccountInfoResponseTests.m in Sources */,
-				DEE13A911EA16F1D00D1BABA /* FIRSetAccountInfoRequestTests.m in Sources */,
-				DEE13A7F1EA16F1D00D1BABA /* FIRAuthSerialTaskQueueTests.m in Sources */,
-				DEE13A791EA16F1D00D1BABA /* FIRApp+FIRAuthUnitTests.m in Sources */,
-				DEE13A921EA16F1D00D1BABA /* FIRSetAccountInfoResponseTests.m in Sources */,
-				DEE13A801EA16F1D00D1BABA /* FIRAuthTests.m in Sources */,
-				DEE13A961EA16F1D00D1BABA /* FIRUserTests.m in Sources */,
+				DE5371B31EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m in Sources */,
+				DE5371B61EA7E89D000DA57F /* FIRAuthAppDelegateProxyTests.m in Sources */,
+				DE5371DD1EA7E89D000DA57F /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
+				DE5371D31EA7E89D000DA57F /* FIRUserTests.m in Sources */,
+				DE5371BC1EA7E89D000DA57F /* FIRAuthSerialTaskQueueTests.m in Sources */,
+				DE5371DE1EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
+				DE5371DC1EA7E89D000DA57F /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
+				DE5371B51EA7E89D000DA57F /* FIRAuthAppCredentialTests.m in Sources */,
+				DE5371CE1EA7E89D000DA57F /* FIRSetAccountInfoRequestTests.m in Sources */,
+				DE5371D41EA7E89D000DA57F /* FIRVerifyAssertionRequestTests.m in Sources */,
+				DE5371D91EA7E89D000DA57F /* FIRVerifyCustomTokenResponseTests.m in Sources */,
+				DE5371D81EA7E89D000DA57F /* FIRVerifyCustomTokenRequestTests.m in Sources */,
+				DE5371BD1EA7E89D000DA57F /* FIRAuthTests.m in Sources */,
+				DE5371C01EA7E89D000DA57F /* FIRCreateAuthURIResponseTests.m in Sources */,
+				DE5371B91EA7E89D000DA57F /* FIRAuthDispatcherTests.m in Sources */,
+				DE5371CF1EA7E89D000DA57F /* FIRSetAccountInfoResponseTests.m in Sources */,
+				DE5371C81EA7E89D000DA57F /* FIRGitHubAuthProviderTests.m in Sources */,
+				DE5371BB1EA7E89D000DA57F /* FIRAuthKeychainTests.m in Sources */,
+				DE5371B71EA7E89D000DA57F /* FIRAuthBackendCreateAuthURITests.m in Sources */,
+				DE5371C51EA7E89D000DA57F /* FIRGetAccountInfoResponseTests.m in Sources */,
+				DE5371B81EA7E89D000DA57F /* FIRAuthBackendRPCImplementationTests.m in Sources */,
+				DE5371DB1EA7E89D000DA57F /* FIRVerifyPasswordResponseTests.m in Sources */,
+				DE5371D71EA7E89D000DA57F /* FIRVerifyClientResponseTests.m in Sources */,
+				DE5371DA1EA7E89D000DA57F /* FIRVerifyPasswordRequestTest.m in Sources */,
+				DE5371CA1EA7E89D000DA57F /* FIRResetPasswordRequestTests.m in Sources */,
+				DE5371D51EA7E89D000DA57F /* FIRVerifyAssertionResponseTests.m in Sources */,
+				DE5371D01EA7E89D000DA57F /* FIRSignUpNewUserRequestTests.m in Sources */,
+				DE5371C41EA7E89D000DA57F /* FIRGetAccountInfoRequestTests.m in Sources */,
+				DE5371B41EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m in Sources */,
+				DE5371D61EA7E89D000DA57F /* FIRVerifyClientRequestTest.m in Sources */,
+				DE5371BE1EA7E89D000DA57F /* FIRAuthUserDefaultsStorageTests.m in Sources */,
+				DE5371C91EA7E89D000DA57F /* FIRPhoneAuthProviderTests.m in Sources */,
+				DE5371D11EA7E89D000DA57F /* FIRSignUpNewUserResponseTests.m in Sources */,
+				DE5371C31EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.m in Sources */,
+				DE5371BF1EA7E89D000DA57F /* FIRCreateAuthURIRequestTests.m in Sources */,
+				DE5371CC1EA7E89D000DA57F /* FIRSendVerificationCodeRequestTests.m in Sources */,
+				DE5371CD1EA7E89D000DA57F /* FIRSendVerificationCodeResponseTests.m in Sources */,
+				DE5371C71EA7E89D000DA57F /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
+				DE5371C21EA7E89D000DA57F /* FIRDeleteAccountResponseTests.m in Sources */,
+				DE5371CB1EA7E89D000DA57F /* FIRResetPasswordResponseTests.m in Sources */,
+				DE5371D21EA7E89D000DA57F /* FIRTwitterAuthProviderTests.m in Sources */,
+				DE5371C11EA7E89D000DA57F /* FIRDeleteAccountRequestTests.m in Sources */,
+				DE5371BA1EA7E89D000DA57F /* FIRAuthGlobalWorkQueueTests.m in Sources */,
+				DE5371C61EA7E89D000DA57F /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1693,6 +1709,7 @@
 				DE5C70111EA17F6900A965D2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		DECE04611E9FEA1000164CA4 /* Build configuration list for PBXProject "Samples" */ = {
 			isa = XCConfigurationList;

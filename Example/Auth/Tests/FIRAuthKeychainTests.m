@@ -217,6 +217,16 @@ static NSError *fakeError() {
   XCTAssertNil([self passwordWithAccount:kKey service:nil]);
 }
 
+/** @fn testNullErrorParameter
+    @brief Tests that 'NULL' can be safely passed in.
+ */
+- (void)testNullErrorParameter {
+  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  [keychain dataForKey:kKey error:NULL];
+  [keychain setData:dataFromString(kData) forKey:kKey error:NULL];
+  [keychain removeDataForKey:kKey error:NULL];
+}
+
 #pragma mark - Helpers
 
 /** @fn passwordWithAccount:service:

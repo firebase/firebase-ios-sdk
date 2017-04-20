@@ -27,16 +27,6 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kKindKey
-    @brief The name of the required "kind" property in the request.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#DeleteAccountResponse";
-
 /** @var kLocalID
     @brief Fake LocalID used for testing.
  */
@@ -173,9 +163,7 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
     RPCError = error;
   }];
 
-  [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind
-  }];
+  [_RPCIssuer respondWithJSON:@{}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);

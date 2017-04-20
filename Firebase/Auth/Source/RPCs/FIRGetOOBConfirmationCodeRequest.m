@@ -20,20 +20,10 @@
 #import "../Private/FIRAuthErrorUtils.h"
 #import "../Private/FIRAuth_Internal.h"
 
-/** @var kKind
-    @brief The value for the required "kind" property in the request.
- */
-static NSString *const kKind = @"identitytoolkit#relyingparty";
-
 /** @var kEndpoint
     @brief The getOobConfirmationCode endpoint name.
  */
 static NSString *const kEndpoint = @"getOobConfirmationCode";
-
-/** @var kKindKey
-    @brief The name of the required "kind" property in the request.
- */
-static NSString *const kKindKey = @"kind";
 
 /** @var kRequestTypeKey
     @brief The name of the required "requestType" property in the request.
@@ -179,7 +169,6 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   NSMutableDictionary *body = [@{
-    kKindKey : kKind,
     kRequestTypeKey : [[self class] requestTypeStringValueForRequestType:_requestType]
   } mutableCopy];
 

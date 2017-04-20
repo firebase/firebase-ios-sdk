@@ -33,11 +33,6 @@ static NSString *const kTestAPIKey = @"APIKey";
  */
 static NSString *const kProviderIDKey = @"providerId";
 
-/** @var kKindKey
-    @brief the name of the "kind" property in the response.
- */
-static NSString *const kKindKey = @"kind";
-
 /** @var kIDTokenKey
     @brief The name of the "IDToken" property in the response.
  */
@@ -72,11 +67,6 @@ static NSString *const kUsernameKey = @"username";
     @brief The name of the "isNewUser" property in the response.
  */
 static NSString *const kIsNewUserKey = @"isNewUser";
-
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#VerifyAssertionResponse";
 
 /** @var kTestProviderID
     @brief Fake provider ID used for testing.
@@ -352,7 +342,6 @@ static const double kEpsilon = 1e-3;
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kProviderIDKey : kTestProviderID,
     kIDTokenKey : kTestIDToken,
     kExpiresInKey : kTestExpiresIn,
@@ -401,7 +390,6 @@ static const double kEpsilon = 1e-3;
 
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kProviderIDKey : kTestProviderID,
     kIDTokenKey : kTestIDToken,
     kExpiresInKey : kTestExpiresIn,

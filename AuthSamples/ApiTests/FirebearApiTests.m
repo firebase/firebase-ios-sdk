@@ -76,7 +76,7 @@ NSString *kGoogleCliendId =
  * http://g3doc/company/teams/user-testing/identity/firebear/faq. */
 NSString *kGoogleTestAccountRefreshToken = @"1/JflfOhyO4ldLlddTnoMdSKkTqxaLpd3-aBkyDhH5_wU";
 
-static NSTimeInterval const kExpectationsTimeout = 10;
+static NSTimeInterval const kExpectationsTimeout = 30;
 
 #ifdef NO_NETWORK
 @interface ApiTests : IORTestCase

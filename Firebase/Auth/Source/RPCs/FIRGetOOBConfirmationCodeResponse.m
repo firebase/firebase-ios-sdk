@@ -20,11 +20,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#GetOobConfirmationCodeResponse";
-
 /** @var kMissingContinueURIErrorMessage
     @brief The error returned by the server if continue URL is invalid.
  */
@@ -36,10 +31,6 @@ static NSString *const kMissingContinueURIErrorMessage = @"MISSING_CONTINUE_URI"
 static NSString *const kOOBCodeKey = @"oobCode";
 
 @implementation FIRGetOOBConfirmationCodeResponse
-
-- (nullable NSString *)expectedKind {
-  return kExpectedKind;
-}
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
                     error:(NSError *_Nullable *_Nullable)error {

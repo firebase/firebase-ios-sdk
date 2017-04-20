@@ -65,16 +65,6 @@ static NSString *const kTestOOBCode = @"OOBCode";
  */
 static NSString *const kTestNewPassword = @"newPassword";
 
-/** @var kKindKey
-    @brief The name of the required "kind" property in the request.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#ResetPasswordResponse";
-
 /** @var kEmailKey
     @brief The key for the email returned in the response.
  */
@@ -255,7 +245,6 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
     callbackInvoked = YES;
   }];
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kEmailKey : kTestEmail,
     kRequestTypeKey : kExpectedResetPasswordRequestType
   }];

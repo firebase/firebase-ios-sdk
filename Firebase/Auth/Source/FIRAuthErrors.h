@@ -227,6 +227,25 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeInvalidVerificationID = 17046,
 
+    /** Indicates that the APNS device token is missing in the verifyClient request.
+     */
+    FIRAuthErrorCodeMissingAppCredential = 17047,
+
+    /** Indicates that an invalid APNS device token was used in the verifyClient request.
+     */
+    FIRAuthErrorCodeInvalidAppCredential = 17048,
+
+    // The enum values between 17048 and 17051 are reserved and should NOT be used for new error
+    // codes.
+
+    /** Indicates that the SMS code has expired.
+     */
+    FIRAuthErrorCodeSessionExpired = 17051,
+
+    /** Indicates that the quota of SMS messages for a given project has been exceeded.
+     */
+    FIRAuthErrorCodeQuotaExceeded = 17052,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,

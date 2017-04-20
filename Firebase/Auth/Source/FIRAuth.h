@@ -41,6 +41,19 @@ typedef id<NSObject> FIRAuthStateDidChangeListenerHandle;
  */
 typedef void(^FIRAuthStateDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user);
 
+/** @typedef FIRIDTokenDidChangeListenerHandle
+    @brief The type of handle returned by @c FIRAuth.addIDTokenDidChangeListener:.
+ */
+typedef id<NSObject> FIRIDTokenDidChangeListenerHandle;
+
+/** @typedef FIRIDTokenDidChangeListenerBlock
+    @brief The type of block which can be registered as a listener for ID token did change events.
+
+    @param auth The FIRAuth object on which ID token changes occurred.
+    @param user Optionally; the current signed in user, if any.
+ */
+typedef void(^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user);
+
 /** @typedef FIRAuthDataResultCallback
     @brief The type of block invoked when sign-in related events complete.
 
@@ -527,8 +540,8 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
     @brief Registers a block as an "auth state did change" listener. To be invoked when:
 
       + The block is registered as a listener,
-      + The current user changes, or,
-      + The current user's access token changes.
+      + A user with a different UID from the current user has signed in, or
+      + The current user has signed out.
 
     @param listener The block to be invoked. The block is always invoked asynchronously on the main
         thread, even for it's initial invocation after having been added as a listener.
@@ -550,6 +563,35 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
     @param listenerHandle The handle for the listener.
  */
 - (void)removeAuthStateDidChangeListener:(FIRAuthStateDidChangeListenerHandle)listenerHandle;
+
+/** @fn addIDTokenDidChangeListener:
+    @brief Registers a block as an "ID token did change" listener. To be invoked when:
+
+      + The block is registered as a listener,
+      + A user with a different UID from the current user has signed in,
+      + The ID token of the current user has been refreshed, or
+      + The current user has signed out.
+
+    @param listener The block to be invoked. The block is always invoked asynchronously on the main
+        thread, even for it's initial invocation after having been added as a listener.
+
+    @remarks The block is invoked immediately after adding it according to it's standard invocation
+        semantics, asynchronously on the main thread. Users should pay special attention to
+        making sure the block does not inadvertently retain objects which should not be retained by
+        the long-lived block. The block itself will be retained by @c FIRAuth until it is
+        unregistered or until the @c FIRAuth instance is otherwise deallocated.
+
+    @return A handle useful for manually unregistering the block as a listener.
+ */
+- (FIRIDTokenDidChangeListenerHandle)addIDTokenDidChangeListener:
+    (FIRIDTokenDidChangeListenerBlock)listener;
+
+/** @fn removeIDTokenDidChangeListener:
+    @brief Unregisters a block as an "ID token did change" listener.
+
+    @param listenerHandle The handle for the listener.
+ */
+- (void)removeIDTokenDidChangeListener:(FIRIDTokenDidChangeListenerHandle)listenerHandle;
 
 @end
 

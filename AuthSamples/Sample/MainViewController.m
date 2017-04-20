@@ -324,19 +324,31 @@ static NSString *const kSectionTitleUserDetails = @"SIGNED-IN USER DETAILS";
 /** @var kSectionTitleListeners
     @brief The title for the table view section dedicated to auth state did change listeners.
  */
-static NSString *const kSectionTitleListeners = @"Auth State Change Listeners";
+static NSString *const kSectionTitleListeners = @"Listeners";
 
-/** @var kAddListenerTitle
-    @brief The title for the tabke view row which adds a block to the auth state did change
+/** @var kAddAuthStateListenerTitle
+    @brief The title for the table view row which adds a block to the auth state did change
         listeners.
  */
-static NSString *const kAddListenerTitle = @"Add";
+static NSString *const kAddAuthStateListenerTitle = @"Add Auth State Change Listener";
 
-/** @var kRemoveListenerTitle
-    @brief The title for the tabke view row which removes a block to the auth state did change
+/** @var kRemoveAuthStateListenerTitle
+    @brief The title for the table view row which removes a block to the auth state did change
         listeners.
  */
-static NSString *const kRemoveListenerTitle = @"Remove Last";
+static NSString *const kRemoveAuthStateListenerTitle = @"Remove Last Auth State Change Listener";
+
+/** @var kAddIDTokenListenerTitle
+    @brief The title for the table view row which adds a block to the ID token did change
+        listeners.
+ */
+static NSString *const kAddIDTokenListenerTitle = @"Add ID Token Change Listener";
+
+/** @var kRemoveIDTokenListenerTitle
+    @brief The title for the table view row which removes a block to the ID token did change
+        listeners.
+ */
+static NSString *const kRemoveIDTokenListenerTitle = @"Remove Last ID Token Change Listener";
 
 /** @var kSectionTitleApp
     @brief The text for the title of the "App" section.
@@ -492,6 +504,11 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
    */
   NSMutableArray<FIRAuthStateDidChangeListenerHandle> *_authStateDidChangeListeners;
 
+  /** @var _IDTokenDidChangeListeners
+      @brief An array of handles created during calls to @c FIRAuth.addIDTokenDidChangeListener:
+   */
+  NSMutableArray<FIRAuthStateDidChangeListenerHandle> *_IDTokenDidChangeListeners;
+
   /** @var _userInMemory
       @brief Acts like the "memory" function of a calculator. An operation allows sample app users
           to assign this value based on @c FIRAuth.currentUser or clear this value.
@@ -515,6 +532,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
     _authStateDidChangeListeners = [NSMutableArray array];
+    _IDTokenDidChangeListeners = [NSMutableArray array];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(authStateChangedForAuth:)
                                                  name:FIRAuthStateDidChangeNotification
@@ -673,10 +691,14 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                            action:^{ [weakSelf getAppTokenWithForce:YES]; }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleListeners cells:@[
-        [StaticContentTableViewCell cellWithTitle:kAddListenerTitle
-                                           action:^{ [weakSelf addListener]; }],
-        [StaticContentTableViewCell cellWithTitle:kRemoveListenerTitle
-                                           action:^{ [weakSelf removeListener]; }],
+        [StaticContentTableViewCell cellWithTitle:kAddAuthStateListenerTitle
+                                           action:^{ [weakSelf addAuthStateListener]; }],
+        [StaticContentTableViewCell cellWithTitle:kRemoveAuthStateListenerTitle
+                                           action:^{ [weakSelf removeAuthStateListener]; }],
+        [StaticContentTableViewCell cellWithTitle:kAddIDTokenListenerTitle
+                                           action:^{ [weakSelf addIDTokenListener]; }],
+        [StaticContentTableViewCell cellWithTitle:kRemoveIDTokenListenerTitle
+                                           action:^{ [weakSelf removeIDTokenListener]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleManualTests cells:@[
         [StaticContentTableViewCell cellWithTitle:kAutoBYOAuthTitle
@@ -1179,37 +1201,74 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   }];
 }
 
-/** @fn addListener
+/** @fn addAuthStateListener
     @brief Adds an auth state did change listener (block).
  */
-- (void)addListener {
+- (void)addAuthStateListener {
   __weak typeof(self) weakSelf = self;
   NSUInteger index = _authStateDidChangeListeners.count;
-  NSString *addedLogString =
-      [NSString stringWithFormat:@"Auth State Did Change Listener with index #%lu was added.",
-                                 (unsigned long)index];
-  [self log:addedLogString];
-  NSString *logString =
-      [NSString stringWithFormat:@"Auth State Did Change Listener with index #%lu was invoked.",
-                                 (unsigned long)index];
+  [self log:[NSString stringWithFormat:@"Auth State Did Change Listener #%lu was added.",
+                                       (unsigned long)index]];
   FIRAuthStateDidChangeListenerHandle handle =
       [[FIRAuth auth] addAuthStateDidChangeListener:^(FIRAuth *_Nonnull auth,
                                                       FIRUser *_Nullable user) {
-        [weakSelf log:logString];
+        [weakSelf log:[NSString stringWithFormat:
+            @"Auth State Did Change Listener #%lu was invoked on user '%@'.",
+            (unsigned long)index, user.uid]];
       }];
   [_authStateDidChangeListeners addObject:handle];
 }
 
-/** @fn removeListener
+/** @fn removeAuthStateListener
     @brief Removes an auth state did change listener (block).
  */
-- (void)removeListener {
+- (void)removeAuthStateListener {
+  if (!_authStateDidChangeListeners.count) {
+    [self log:@"No remaining Auth State Did Change Listeners."];
+    return;
+  }
   NSUInteger index = _authStateDidChangeListeners.count - 1;
   FIRAuthStateDidChangeListenerHandle handle = _authStateDidChangeListeners.lastObject;
   [[FIRAuth auth] removeAuthStateDidChangeListener:handle];
   [_authStateDidChangeListeners removeObject:handle];
   NSString *logString =
-      [NSString stringWithFormat:@"Auth State Did Change Listener with index #%lu was removed.",
+      [NSString stringWithFormat:@"Auth State Did Change Listener #%lu was removed.",
+                                 (unsigned long)index];
+  [self log:logString];
+}
+
+/** @fn addIDTokenListener
+    @brief Adds an ID token did change listener (block).
+ */
+- (void)addIDTokenListener {
+  __weak typeof(self) weakSelf = self;
+  NSUInteger index = _IDTokenDidChangeListeners.count;
+  [self log:[NSString stringWithFormat:@"ID Token Did Change Listener #%lu was added.",
+                                       (unsigned long)index]];
+  FIRIDTokenDidChangeListenerHandle handle =
+      [[FIRAuth auth] addIDTokenDidChangeListener:^(FIRAuth *_Nonnull auth,
+                                                    FIRUser *_Nullable user) {
+        [weakSelf log:[NSString stringWithFormat:
+            @"ID Token Did Change Listener #%lu was invoked on user '%@'.",
+            (unsigned long)index, user.uid]];
+      }];
+  [_IDTokenDidChangeListeners addObject:handle];
+}
+
+/** @fn removeIDTokenListener
+    @brief Removes an ID token did change listener (block).
+ */
+- (void)removeIDTokenListener {
+  if (!_IDTokenDidChangeListeners.count) {
+    [self log:@"No remaining ID Token Did Change Listeners."];
+    return;
+  }
+  NSUInteger index = _IDTokenDidChangeListeners.count - 1;
+  FIRIDTokenDidChangeListenerHandle handle = _IDTokenDidChangeListeners.lastObject;
+  [[FIRAuth auth] removeIDTokenDidChangeListener:handle];
+  [_IDTokenDidChangeListeners removeObject:handle];
+  NSString *logString =
+      [NSString stringWithFormat:@"ID Token Did Change Listener #%lu was removed.",
                                  (unsigned long)index];
   [self log:logString];
 }
@@ -2394,7 +2453,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)authStateChangedForAuth:(NSNotification *)notification {
   [self updateUserInfo];
   if (notification) {
-    [self log:@"received FIRAuthStateDidchange Notification."];
+    [self log:[NSString stringWithFormat:
+       @"received FIRAuthStateDidChange notification on user '%@'.",
+       ((FIRAuth *)notification.object).currentUser.uid]];
   }
 }
 

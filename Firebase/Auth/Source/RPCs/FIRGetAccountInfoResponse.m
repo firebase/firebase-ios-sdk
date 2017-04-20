@@ -23,11 +23,6 @@
  */
 static NSString *const kErrorKey = @"error";
 
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#GetAccountInfoResponse";
-
 @implementation FIRGetAccountInfoResponseProviderUserInfo
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
@@ -80,10 +75,6 @@ static NSString *const kExpectedKind = @"identitytoolkit#GetAccountInfoResponse"
 @end
 
 @implementation FIRGetAccountInfoResponse
-
-- (nullable NSString *)expectedKind {
-  return kExpectedKind;
-}
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
                     error:(NSError *_Nullable *_Nullable)error {

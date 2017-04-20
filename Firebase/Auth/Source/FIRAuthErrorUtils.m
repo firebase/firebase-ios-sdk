@@ -283,6 +283,31 @@ static NSString *const kFIRAuthErrorMessageMissingVerificationID =
 static NSString *const kFIRAuthErrorMessageInvalidVerificationID =
     @"The verification ID used to create the phone auth credential is invalid. ";
 
+/** @var kFIRAuthErrorMessageSessionExpired
+    @brief Message for @c FIRAuthErrorCodeSessionExpired error code.
+ */
+static NSString *const kFIRAuthErrorMessageSessionExpired = @"The SMS code has expired. Please "
+    @"re-send the verification code to try again.";
+
+/** @var kFIRAuthErrorMessageMissingAppCredential
+    @brief Message for @c FIRAuthErrorCodeMissingAppCredential error code.
+ */
+static NSString *const kFIRAuthErrorMessageMissingAppCredential = @"An APNS device token must be "
+    "provided.";
+
+/** @var kFIRAuthErrorMessageInvalidAppCredential
+    @brief Message for @c FIRAuthErrorCodeInvalidAppCredential error code.
+ */
+static NSString *const kFIRAuthErrorMessageInvalidAppCredential = @"The APNS device token "
+    "provided may be incorrect or does not match the private certificate uploaded to the "
+    "Firebase Console.";
+
+/** @var kFIRAuthErrorMessageQuotaExceeded
+    @brief Message for @c FIRAuthErrorCodeQuotaExceeded error code.
+ */
+static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The SMS quota for this project has "
+    "been exceeded.";
+
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
@@ -375,6 +400,14 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageMissingVerificationID;
     case FIRAuthErrorCodeInvalidVerificationID:
       return kFIRAuthErrorMessageInvalidVerificationID;
+    case FIRAuthErrorCodeSessionExpired:
+      return kFIRAuthErrorMessageSessionExpired;
+    case FIRAuthErrorCodeMissingAppCredential:
+      return kFIRAuthErrorMessageMissingAppCredential;
+    case FIRAuthErrorCodeInvalidAppCredential:
+      return kFIRAuthErrorMessageInvalidAppCredential;
+    case FIRAuthErrorCodeQuotaExceeded:
+      return kFIRAuthErrorMessageQuotaExceeded;
   }
 }
 
@@ -464,6 +497,14 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_MISSING_VERIFICATION_ID";
     case FIRAuthErrorCodeInvalidVerificationID:
       return @"ERROR_INVALID_VERIFICATION_ID";
+    case FIRAuthErrorCodeSessionExpired:
+      return @"ERROR_SESSION_EXPIRED";
+    case FIRAuthErrorCodeMissingAppCredential:
+      return @"MISSING_APP_CREDENTIAL";
+    case FIRAuthErrorCodeInvalidAppCredential:
+      return @"INVALID_APP_CREDENTIAL";
+    case FIRAuthErrorCodeQuotaExceeded:
+      return @"ERROR_QUOTA_EXCEEDED";
   }
 }
 
@@ -735,6 +776,22 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)invalidVerificationIDErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidVerificationID message:message];
+}
+
++ (NSError *)sessionExpiredErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeSessionExpired message:message];
+}
+
++ (NSError *)missingAppCredentialWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAppCredential message:message];
+}
+
++ (NSError *)invalidAppCredentialWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeInvalidAppCredential message:message];
+}
+
++ (NSError *)quotaExceededErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeQuotaExceeded message:message];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

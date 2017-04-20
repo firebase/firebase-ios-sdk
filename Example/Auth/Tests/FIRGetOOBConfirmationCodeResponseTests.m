@@ -48,21 +48,6 @@ static NSString *const kOOBCodeKey = @"oobCode";
  */
 static NSString *const kTestOOBCode = @"OOBCode";
 
-/** @var kKindKey
-    @brief The name of the required "kind" property in the request.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#GetOobConfirmationCodeResponse";
-
-/** @var kUnexpectedKind
-    @brief The UNexpected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kUnexpectedKind = @"identitytoolkit#Junk";
-
 /** @var kEmailNotFoundMessage
     @brief The value of the "message" field returned for an "email not found" error.
  */
@@ -178,7 +163,6 @@ static NSString *const kAppStoreID = @"appStoreID";
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kOOBCodeKey : kTestOOBCode
   }];
 
@@ -209,49 +193,12 @@ static NSString *const kAppStoreID = @"appStoreID";
     RPCError = error;
   }];
 
-  [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind
-  }];
+  [_RPCIssuer respondWithJSON:@{}];
 
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);
   XCTAssertNotNil(RPCResponse);
   XCTAssertNil(RPCResponse.OOBCode);
-}
-
-/** @fn testPasswordResetResponseWithWrongResponseKind
-    @brief This test simulates receiving an response with an unexpected "kind". It should fail with
-        an internal error. We rely on the tests in @c FIRAuthBackendRPCImplementationTests to make
-        sure these types of errors contain the correct sub-values (underlying error, etc.) but we
-        do want to make sure, here, that we are using the correct "kind" value in
-        @c FIRGetOOBConfirmationCodeResponse, and that it is getting enforced.
- */
-- (void)testPasswordResetResponseWithWrongResponseKind {
-  FIRGetOOBConfirmationCodeRequest *request =
-      [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
-                                                   actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
-
-  __block BOOL callbackInvoked;
-  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
-  __block NSError *RPCError;
-  [FIRAuthBackend getOOBConfirmationCode:request
-                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
-
-  [_RPCIssuer respondWithJSON:@{
-    kKindKey : kUnexpectedKind
-  }];
-
-  XCTAssert(callbackInvoked);
-  XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
-  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInternalError);
-  XCTAssertNil(RPCResponse);
 }
 
 /** @fn testEmailNotFoundError
@@ -533,7 +480,6 @@ static NSString *const kAppStoreID = @"appStoreID";
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kOOBCodeKey : kTestOOBCode
   }];
 

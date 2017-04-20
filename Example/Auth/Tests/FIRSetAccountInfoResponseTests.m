@@ -27,21 +27,6 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kKindKey
-    @brief the name of the "kind" property in the response.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kTestExpectedKind
-    @brief The testing expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kTestExpectedKind = @"identitytoolkit#SetAccountInfoResponse";
-
-/** @var kTestUnExpectedKind
-    @brief The testing unexpected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kTestUnExpectedKind = @"incorrect#SetAccountInfoResponse";
-
 /** @var kEmailExistsErrorMessage
     @brief This is the error message the server will respond with if the user entered an invalid
         email address.
@@ -438,37 +423,6 @@ static const double kEpsilon = 1e-3;
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeExpiredActionCode);
 }
 
-/** @fn testSetAccountInfoWrongResponseKind
-    @brief This test simulates a wrong response kind returned from server in @c SetAccountInfo flow.
- */
-- (void)testSetAccountInfoWrongResponseKind {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
-
-  __block BOOL callbackInvoked;
-  __block FIRSetAccountInfoResponse *RPCResponse;
-  __block NSError *RPCError;
-  [FIRAuthBackend setAccountInfo:request
-                        callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    callbackInvoked = YES;
-    RPCResponse = response;
-    RPCError = error;
-  }];
-
-  [_RPCIssuer respondWithJSON:@{
-    kKindKey : kTestUnExpectedKind,
-    kProviderUserInfoKey:@[
-      @{ kPhotoUrlKey : kTestPhotoURL }
-    ]
-  }];
-
-  XCTAssert(callbackInvoked);
-  XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
-  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInternalError);
-  XCTAssertNil(RPCResponse);
-}
-
 /** @fn testInvalidMessagePayloadError
     @brief Tests for @c FIRAuthErrorCodeInvalidMessagePayload.
  */
@@ -553,7 +507,6 @@ static const double kEpsilon = 1e-3;
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kTestExpectedKind,
     kProviderUserInfoKey:@[
       @{ kPhotoUrlKey : kTestPhotoURL }
     ],

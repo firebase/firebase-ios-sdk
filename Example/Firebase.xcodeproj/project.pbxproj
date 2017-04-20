@@ -34,6 +34,10 @@
 		8CE9133C8720B1C600F7C731 /* Pods_Core_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D52CEDD0146DF63640A4C3A5 /* Pods_Core_Tests.framework */; };
 		9BDE3E5E67A620B4DC231125 /* Pods_Messaging_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8A6D15690286B6BB4CB8023 /* Pods_Messaging_Example.framework */; };
 		BDE625D72CA3B8918088E0F5 /* Pods_Storage_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA7879CD6EE51EE4E20937C8 /* Pods_Storage_Example.framework */; };
+		DE0E5BBB1EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */; };
+		DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */; };
+		DE0E5BBD1EA7D93100FAA825 /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */; };
+		DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */; };
 		DE24422F1E8C5E0800B0F262 /* Messaging-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE24422E1E8C5E0800B0F262 /* Messaging-Info.plist */; };
 		DE4E711B1E953ABC00070092 /* FirebaseDev.podspec in Resources */ = {isa = PBXBuildFile; fileRef = DE4E711A1E953ABC00070092 /* FirebaseDev.podspec */; };
 		DE6F01B01E95675E004AEE01 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01AC1E95673C004AEE01 /* FirebaseDev.framework */; };
@@ -296,6 +300,10 @@
 		D52CEDD0146DF63640A4C3A5 /* Pods_Core_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Core_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D58064F9C4DE303997B89D2E /* Pods-Storage_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests/Pods-Storage_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		DA7879CD6EE51EE4E20937C8 /* Pods_Storage_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Storage_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppCredentialTests.m; sourceTree = "<group>"; };
+		DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppDelegateProxyTests.m; sourceTree = "<group>"; };
+		DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientRequestTest.m; sourceTree = "<group>"; };
+		DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientResponseTests.m; sourceTree = "<group>"; };
 		DE24422E1E8C5E0800B0F262 /* Messaging-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Messaging-Info.plist"; sourceTree = "<group>"; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		DE4E711A1E953ABC00070092 /* FirebaseDev.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = FirebaseDev.podspec; path = ../FirebaseDev.podspec; sourceTree = "<group>"; };
@@ -837,6 +845,10 @@
 		DE9314F91E86C6FF0083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */,
+				DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */,
+				DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */,
+				DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */,
 				DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */,
 				DE9314FB1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.h */,
 				DE9315091E86C6FF0083EDBF /* FIRFakeBackendRPCIssuer.h */,
@@ -1960,6 +1972,7 @@
 				DE93157C1E86C71C0083EDBF /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
 				DE9315651E86C71C0083EDBF /* FIRFakeBackendRPCIssuer.m in Sources */,
 				DE9315591E86C71C0083EDBF /* FIRAuthBackendCreateAuthURITests.m in Sources */,
+				DE0E5BBB1EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m in Sources */,
 				DE93156F1E86C71C0083EDBF /* FIRSendVerificationCodeResponseTests.m in Sources */,
 				DE93156C1E86C71C0083EDBF /* FIRResetPasswordRequestTests.m in Sources */,
 				DE93156D1E86C71C0083EDBF /* FIRResetPasswordResponseTests.m in Sources */,
@@ -1978,10 +1991,13 @@
 				DE9315721E86C71C0083EDBF /* FIRSignUpNewUserRequestTests.m in Sources */,
 				DE9315671E86C71C0083EDBF /* FIRGetAccountInfoResponseTests.m in Sources */,
 				DE9315701E86C71C0083EDBF /* FIRSetAccountInfoRequestTests.m in Sources */,
+				DE0E5BBD1EA7D93100FAA825 /* FIRAuthAppCredentialTests.m in Sources */,
 				DE93155E1E86C71C0083EDBF /* FIRAuthSerialTaskQueueTests.m in Sources */,
 				DE9315581E86C71C0083EDBF /* FIRApp+FIRAuthUnitTests.m in Sources */,
 				DE9315711E86C71C0083EDBF /* FIRSetAccountInfoResponseTests.m in Sources */,
 				DE93155F1E86C71C0083EDBF /* FIRAuthTests.m in Sources */,
+				DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */,
+				DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */,
 				DE9315751E86C71C0083EDBF /* FIRUserTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

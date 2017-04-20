@@ -297,10 +297,33 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeMissingVerificationID =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingVerificationID,
 
+   /** Indicates that the APNS device token is missing in the verifyClient request.
+    */
+  FIRAuthInternalErrorCodeMissingAppCredential =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingAppCredential,
+
+  /** Indicates that an invalid APNS device token was used in the verifyClient request.
+   */
+  FIRAuthInternalErrorCodeInvalidAppCredential =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidAppCredential,
+
   /** Indicates that an invalid verification ID was used in the verifyPhoneNumber request.
    */
   FIRAuthInternalErrorCodeInvalidVerificationID =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidVerificationID,
+
+  /** Indicates that the quota of SMS messages for a given project has been exceeded.
+   */
+  FIRAuthInternalErrorCodeQuotaExceeded =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeQuotaExceeded,
+
+  // The enum values between 17046 and 17051 are reserved and should NOT be used for new error
+  // codes.
+
+  /** Indicates that the SMS code has expired
+   */
+  FIRAuthInternalErrorCodeSessionExpired =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSessionExpired,
 
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.

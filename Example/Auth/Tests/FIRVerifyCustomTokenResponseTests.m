@@ -32,11 +32,6 @@ static NSString *const kTestToken = @"test token";
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kKindKey
-    @brief the name of the "kind" property in the response.
- */
-static NSString *const kKindKey = @"kind";
-
 /** @var kIDTokenKey
     @brief The name of the "IDToken" property in the response.
  */
@@ -66,11 +61,6 @@ static NSString *const kTestExpiresIn = @"12345";
     @brief Fake refresh token.
  */
 static NSString *const kTestRefreshToken = @"REFRESH_TOKEN";
-
-/** @var kExpectedKind
-    @brief The expected kind.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#VerifyCustomTokenResponse";
 
 /** @var kMissingTokenCustomErrorMessage
     @brief This is the error message the server will respond with if token field is missing in
@@ -268,7 +258,6 @@ static const double kEpsilon = 1e-3;
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kIDTokenKey : kTestIDToken,
     kExpiresInKey : kTestExpiresIn,
     kRefreshTokenKey : kTestRefreshToken,

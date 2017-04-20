@@ -72,16 +72,6 @@ static NSString *const kTestDisplayName = @"DisplayName";
  */
 static NSString *const kTestPassword = @"Password";
 
-/** @var kKindKey
-    @brief the name of the "kind" property in the response.
- */
-static NSString *const kKindKey = @"kind";
-
-/** @var kExpectedKind
-    @brief Testing expected kind.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#SignupNewUserResponse";
-
 /** @var kEmailAlreadyInUseErrorMessage
     @brief This is the error message the server will respond with if the user entered an invalid
         email address.
@@ -168,7 +158,6 @@ static const double kEpsilon = 1e-3;
   }];
 
   [_RPCIssuer respondWithJSON:@{
-    kKindKey : kExpectedKind,
     kIDTokenKey : kTestIDToken,
     kExpiresInKey : kTestExpiresIn,
     kRefreshTokenKey : kTestRefreshToken

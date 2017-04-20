@@ -18,16 +18,7 @@
 
 #import "../Private/FIRAuthErrorUtils.h"
 
-/** @var kExpectedKind
-    @brief The expected value for the "kind" field in the JSON response from the server.
- */
-static NSString *const kExpectedKind = @"identitytoolkit#VerifyAssertionResponse";
-
 @implementation FIRVerifyAssertionResponse
-
-- (nullable NSString *)expectedKind {
-  return kExpectedKind;
-}
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
                     error:(NSError *_Nullable *_Nullable)error {

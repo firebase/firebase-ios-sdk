@@ -54,6 +54,12 @@ static NSString *const kFakeVerificationID = @"testVerificationID";
  */
 static NSString *const kInvalidPhoneNumberErrorMessage = @"INVALID_PHONE_NUMBER";
 
+/** @var kQuotaExceededErrorMessage
+    @brief This is the error message the server will respond with if the quota for SMS text messages
+        has been exceeded for the project.
+ */
+static NSString *const kQuotaExceededErrorMessage = @"QUOTA_EXCEEDED";
+
 /** @class FIRSendVerificationCodeResponseTests
     @brief Tests for @c FIRSendVerificationCodeResponseTests.
  */
@@ -81,7 +87,7 @@ static NSString *const kInvalidPhoneNumberErrorMessage = @"INVALID_PHONE_NUMBER"
 }
 
 /** @fn testSendVerificationCodeResponseInvalidPhoneNumber
-    @brief Tests a failed attempt to send a verification code withan invalid phone number.
+    @brief Tests a failed attempt to send a verification code with an invalid phone number.
  */
 - (void)testSendVerificationCodeResponseInvalidPhoneNumber {
   FIRSendVerificationCodeRequest *request =
@@ -103,6 +109,31 @@ static NSString *const kInvalidPhoneNumberErrorMessage = @"INVALID_PHONE_NUMBER"
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInvalidPhoneNumber);
+}
+
+/** @fn testSendVerificationCodeResponseQuotaExceededError
+    @brief Tests a failed attempt to send a verification code due to SMS quota having been exceeded.
+ */
+- (void)testSendVerificationCodeResponseQuotaExceededError {
+  FIRSendVerificationCodeRequest *request =
+      [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestInvalidPhoneNumber
+                                                           APIKey:kTestAPIKey];
+  __block BOOL callbackInvoked;
+  __block FIRSendVerificationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend sendVerificationCode:request
+                              callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                         NSError *_Nullable error) {
+    RPCResponse = response;
+    RPCError = error;
+    callbackInvoked = YES;
+  }];
+
+  [_RPCIssuer respondWithServerErrorMessage:kQuotaExceededErrorMessage];
+
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeQuotaExceeded);
 }
 
 /** @fn testSuccessfulSendVerificationCodeResponse
