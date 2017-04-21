@@ -20,7 +20,7 @@ extern NSString *const kLastTimestampFileName;
 extern NSString *const kUniqueInstallFileName;
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
-NSString *const kFIRTestAppName2 = @"test_app_name_2";
+NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 @interface FIRApp (TestInternal)
 

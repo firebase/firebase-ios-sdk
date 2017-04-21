@@ -141,9 +141,10 @@ static FIRApp *sDefaultApp;
     char character = [lowerCaseName characterAtIndex:charIndex];
      if (!((character >= 'a' && character <= 'z')
            || (character >= '0' && character <= '9')
-           || character == '_'))  {
+           || character == '_'
+           || character == '-'))  {
        [NSException raise:kFirebaseCoreErrorDomain format:@"App name should only contain Letters, "
-                                                      @"Numbers and Underscore."];
+                                                      @"Numbers, Underscores, and Dashes."];
      }
   }
 
