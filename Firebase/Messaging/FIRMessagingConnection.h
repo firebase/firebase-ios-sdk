@@ -40,9 +40,9 @@ typedef NS_ENUM(NSUInteger, FIRMessagingConnectionCloseReason) {
 
 @protocol FIRMessagingConnectionDelegate<NSObject>
 
-- (void)connection:(FIRMessagingConnection *)gcmConnection
- didCloseForReason:(FIRMessagingConnectionCloseReason)reason;
-- (void)didLoginWithConnection:(FIRMessagingConnection *)gcmConnection;
+- (void)connection:(FIRMessagingConnection *)fcmConnection
+    didCloseForReason:(FIRMessagingConnectionCloseReason)reason;
+- (void)didLoginWithConnection:(FIRMessagingConnection *)fcmConnection;
 - (void)connectionDidRecieveMessage:(GtalkDataMessageStanza *)message;
 /**
  * Called when a stream ACK or a selective ACK are received - this indicates the
@@ -79,7 +79,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingConnectionCloseReason) {
                           port:(NSUInteger)port
                        runLoop:(NSRunLoop *)runLoop
                    rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
-                    gcmManager:(FIRMessagingDataMessageManager *)dataMessageManager;
+                    fcmManager:(FIRMessagingDataMessageManager *)dataMessageManager;
 
 - (void)signIn; // connect
 - (void)signOut; // disconnect

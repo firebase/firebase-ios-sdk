@@ -20,7 +20,7 @@
 @class FIRMessagingPubSubCache;
 
 /**
- *  GcmPubSub provides a publish-subscribe model for sending FIRMessaging topic messages.
+ *  FIRMessagingPubSub provides a publish-subscribe model for sending FIRMessaging topic messages.
  *
  *  An app can subscribe to different topics defined by the
  *  developer. The app server can then send messages to the subscribed devices

@@ -19,66 +19,114 @@
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
-// TODO Internal InstanceID
-//#import "googlemac/iPhone/InstanceID/Firebase/Lib/Source/FIRInstanceID+Private.h"
-//#import "googlemac/iPhone/InstanceID/Firebase/Lib/Source/FIRInstanceIDCheckinPreferences.h"
-
-NSString *const kFIRMessagingDeviceAuthIdKey = @"GMSInstanceIDDeviceAuthIdKey";
-NSString *const kFIRMessagingSecretTokenKey = @"GMSInstanceIDSecretTokenKey";
-
-NSString *const kFIRMessagingLastCheckinTimeKey = @"GMSInstanceIDLastCheckinTimestampKey";
-NSString *const kFIRMessagingDigestStringKey = @"GMSInstanceIDDigestKey";
-NSString *const kFIRMessagingVersionInfoStringKey = @"GMSInstanceIDVersionInfo";
-NSString *const kFIRMessagingGServicesDictionaryKey = @"GMSInstanceIDGServicesData";
-
 @interface FIRMessagingCheckinService ()
 
-//@property(nonatomic, readwrite, strong) FIRInstanceIDCheckinPreferences *checkinPreferences;
+// This property is of type FIRInstanceIDCheckinPreferences, if InstanceID was directly linkable
+@property(nonatomic, readwrite, strong) id checkinPreferences;
 
 @end
 
 @implementation FIRMessagingCheckinService;
 
+#pragma mark - Reflection-Based Getter Functions
+
+// Encapsulates the -hasValidCheckinInfo method of FIRInstanceIDCheckinPreferences
+BOOL FIRMessagingCheckinService_hasValidCheckinInfo(id checkinPreferences) {
+  SEL hasValidCheckinInfoSelector = NSSelectorFromString(@"hasValidCheckinInfo");
+  if (![checkinPreferences respondsToSelector:hasValidCheckinInfoSelector]) {
+    // Can't check hasValidCheckinInfo
+    return NO;
+  }
+
+  // Since hasValidCheckinInfo returns a BOOL, use NSInvocation
+  NSMethodSignature *methodSignature =
+      [[checkinPreferences class] instanceMethodSignatureForSelector:hasValidCheckinInfoSelector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+  invocation.selector = hasValidCheckinInfoSelector;
+  invocation.target = checkinPreferences;
+  [invocation invoke];
+  BOOL returnValue;
+  [invocation getReturnValue:&returnValue];
+  return returnValue;
+}
+
+// Returns a non-scalar (id) object based on the property name
+id FIRMessagingCheckinService_propertyNamed(id checkinPreferences, NSString *propertyName) {
+  SEL propertyGetterSelector = NSSelectorFromString(propertyName);
+  if ([checkinPreferences respondsToSelector:propertyGetterSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    return [checkinPreferences performSelector:propertyGetterSelector];
+#pragma clang diagnostic pop
+  }
+  return nil;
+}
+
+#pragma mark - Methods
+
 - (BOOL)tryToLoadPrefetchedCheckinPreferences {
-//  FIRInstanceIDCheckinPreferences *checkinPreferences =
-//      [[FIRInstanceID instanceID] cachedCheckinPreferences];
-//  if ([checkinPreferences hasValidCheckinInfo]) {
-//    self.checkinPreferences = checkinPreferences;
-//  }
-//  return [self.checkinPreferences hasValidCheckinInfo];
-  return NO;
+  Class instanceIDClass = NSClassFromString(@"FIRInstanceID");
+  if (!instanceIDClass) {
+    // InstanceID is not linked
+    return NO;
+  }
+
+  // [FIRInstanceID instanceID]
+  SEL instanceIDSelector = NSSelectorFromString(@"instanceID");
+  if (![instanceIDClass respondsToSelector:instanceIDSelector]) {
+    return NO;
+  }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+  id instanceID = [instanceIDClass performSelector:instanceIDSelector];
+#pragma clang diagnostic pop
+  if (!instanceID) {
+    // Instance ID singleton not available
+    return NO;
+  }
+
+  // [[FIRInstanceID instanceID] cachedCheckinPreferences]
+  SEL cachedCheckinPrefsSelector = NSSelectorFromString(@"cachedCheckinPreferences");
+  if (![instanceID respondsToSelector:cachedCheckinPrefsSelector]) {
+    // cachedCheckinPreferences is not accessible
+    return NO;
+  }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+  id checkinPreferences = [instanceID performSelector:cachedCheckinPrefsSelector];
+#pragma clang diagnostic pop
+  if (!checkinPreferences) {
+    // No cached checkin prefs
+    return NO;
+  }
+
+  BOOL hasValidInfo = FIRMessagingCheckinService_hasValidCheckinInfo(checkinPreferences);
+  if (hasValidInfo) {
+    self.checkinPreferences = checkinPreferences;
+  }
+  return hasValidInfo;
 }
 
 #pragma mark - API
 
 - (NSString *)deviceAuthID {
-//  return self.checkinPreferences.deviceID;
-  return @"TODO";
+  return FIRMessagingCheckinService_propertyNamed(self.checkinPreferences, @"deviceID");
 }
 
 - (NSString *)secretToken {
-//  return self.checkinPreferences.secretToken;
-    return @"TODO";
+  return FIRMessagingCheckinService_propertyNamed(self.checkinPreferences, @"secretToken");
 }
 
 - (NSString *)versionInfo {
-  return @"TODO";
-//  return self.checkinPreferences.versionInfo;
-}
-
-- (int64_t)lastCheckinTimestampMillis {
- // return self.checkinPreferences.lastCheckinTimestampMillis;
-    return 0; //TODO
+  return FIRMessagingCheckinService_propertyNamed(self.checkinPreferences, @"versionInfo");
 }
 
 - (NSString *)digest {
-//  return self.checkinPreferences.digest;
-    return @"TODO";
+  return FIRMessagingCheckinService_propertyNamed(self.checkinPreferences, @"digest");
 }
 
 - (BOOL)hasValidCheckinInfo {
-//  return self.checkinPreferences.hasValidCheckinInfo;
-  return NO; //@"TODO";
+  return FIRMessagingCheckinService_hasValidCheckinInfo(self.checkinPreferences);
 }
 
 @end

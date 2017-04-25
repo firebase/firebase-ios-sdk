@@ -70,7 +70,7 @@
  *  Context Manager message with future start date should be successfully scheduled.
  */
 - (void)testMessageWithFutureStartTime {
-  NSString *messageIdentifier = @"gcm-cm-test1";
+  NSString *messageIdentifier = @"fcm-cm-test1";
   NSString *startTimeString = @"2020-01-12 12:00:00";  // way into the future
   NSDictionary *message = @{
     kFIRMessagingContextManagerLocalTimeStart: startTimeString,
@@ -91,7 +91,7 @@
  *  Context Manager message with past end date should not be scheduled.
  */
 - (void)testMessageWithPastEndTime {
-  NSString *messageIdentifier = @"gcm-cm-test1";
+  NSString *messageIdentifier = @"fcm-cm-test1";
   NSString *startTimeString = @"2010-01-12 12:00:00";  // way into the past
   NSString *endTimeString = @"2011-01-12 12:00:00";  // way into the past
   NSDictionary *message = @{
@@ -111,7 +111,7 @@
  *  scheduled.
  */
 - (void)testMessageWithPastStartAndFutureEndTime {
-  NSString *messageIdentifier = @"gcm-cm-test1";
+  NSString *messageIdentifier = @"fcm-cm-test1";
   NSDate *startDate = [NSDate dateWithTimeIntervalSinceNow:-1000];  // past
   NSDate *endDate = [NSDate dateWithTimeIntervalSinceNow:1000];  // future
   NSString *startTimeString = [self.dateFormatter stringFromDate:startDate];
@@ -140,7 +140,7 @@
  */
 - (void)testTimedNotificationsUserInfo {
   NSString *messageIdentifierKey = @"message.id";
-  NSString *messageIdentifier = @"gcm-cm-test1";
+  NSString *messageIdentifier = @"fcm-cm-test1";
   NSString *startTimeString = @"2020-01-12 12:00:00";  // way into the future
 
   NSString *customDataKey = @"hello";

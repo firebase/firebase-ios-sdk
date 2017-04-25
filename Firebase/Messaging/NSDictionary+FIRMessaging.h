@@ -25,14 +25,14 @@
  *  @return A string representation of all keys and values in the dictionary.
  *          The returned string is not pretty-printed.
  */
-- (NSString *)gcm_string;
+- (NSString *)fcm_string;
 
 /**
  *  Check if the dictionary has any non-string keys or values.
  *
  *  @return YES if the dictionary has any non-string keys or values else NO.
  */
-- (BOOL)gcm_hasNonStringKeysOrValues;
+- (BOOL)fcm_hasNonStringKeysOrValues;
 
 /**
  *  Trims all (key, value) pair in a dictionary that are not strings.
@@ -40,6 +40,6 @@
  *  @return A new copied dictionary with all the non-string keys or values
  *          removed from the original dictionary.
  */
-- (NSDictionary *)gcm_trimNonStringValues;
+- (NSDictionary *)fcm_trimNonStringValues;
 
 @end

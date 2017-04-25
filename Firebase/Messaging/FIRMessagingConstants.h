@@ -42,8 +42,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncViaMCSKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncMessageTTLKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageLinkKey;
 
-FOUNDATION_EXPORT NSString *const kFIRMessagingMessageABTExperimentPayloadKey;
-
 FOUNDATION_EXPORT NSString *const kFIRMessagingLibraryVersion;
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey;
@@ -53,6 +51,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingApplicationSupportSubDirectory;
 // Notifications
 FOUNDATION_EXPORT NSString *const kFIRMessagingAPNSTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingFCMTokenNotification;
+FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDTokenRefreshNotification;
 
 FOUNDATION_EXPORT const int kFIRMessagingSendTtlDefault; // 24 hours
 

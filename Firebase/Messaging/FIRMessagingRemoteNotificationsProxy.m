@@ -142,6 +142,14 @@ static NSString *kUserNotificationWillPresentSelectorString =
   // For data message from MCS.
   SEL receiveDataMessageSelector = NSSelectorFromString(@"applicationReceivedRemoteMessage:");
 
+  // For recording when APNS tokens are registered (or fail to register)
+  SEL registerForAPNSFailSelector =
+      @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
+
+  SEL registerForAPNSSuccessSelector =
+      @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:);
+
+
   // Receive Remote Notifications.
   BOOL selectorWithFetchHandlerImplemented = NO;
   if ([appDelegate respondsToSelector:remoteNotificationWithFetchHandlerSelector]) {
@@ -169,6 +177,17 @@ static NSString *kUserNotificationWillPresentSelectorString =
                inProtocol:@protocol(UIApplicationDelegate)];
     didSwizzleAppDelegate = YES;
   }
+
+  // Receive APNS token
+  [self swizzleSelector:registerForAPNSSuccessSelector
+                inClass:appDelegateClass
+     withImplementation:(IMP)FCM_swizzle_appDidRegisterForRemoteNotifications
+             inProtocol:@protocol(UIApplicationDelegate)];
+
+  [self swizzleSelector:registerForAPNSFailSelector
+                inClass:appDelegateClass
+     withImplementation:(IMP)FCM_swizzle_appDidFailToRegisterForRemoteNotifications
+             inProtocol:@protocol(UIApplicationDelegate)];
 
   self.didSwizzleAppDelegateMethods = didSwizzleAppDelegate;
 }
@@ -561,5 +580,34 @@ void FCM_swizzle_applicationReceivedRemoteMessage(
   }
 }
 
+void FCM_swizzle_appDidFailToRegisterForRemoteNotifications(id self,
+                                                            SEL _cmd,
+                                                            UIApplication *app,
+                                                            NSError *error) {
+  // Log the fact that we failed to register for remote notifications
+  FIRMessagingLoggerError(kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed,
+                          @"Error in "
+                          @"application:didFailToRegisterForRemoteNotificationsWithError: %@",
+                          error.localizedDescription);
+  IMP original_imp =
+      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
+  if (original_imp) {
+    ((void (*)(id, SEL, UIApplication *, NSError *))original_imp)(self, _cmd, app, error);
+  }
+}
+
+void FCM_swizzle_appDidRegisterForRemoteNotifications(id self,
+                                                      SEL _cmd,
+                                                      UIApplication *app,
+                                                      NSData *deviceToken) {
+  // Pass the APNSToken along to FIRMessaging (and auto-detect the token type)
+  [FIRMessaging messaging].APNSToken = deviceToken;
+
+  IMP original_imp =
+      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
+  if (original_imp) {
+    ((void (*)(id, SEL, UIApplication *, NSData *))original_imp)(self, _cmd, app, deviceToken);
+  }
+}
 
 @end

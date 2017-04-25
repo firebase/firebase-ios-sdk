@@ -36,7 +36,7 @@
 @implementation FIRMessaging (FIRApp)
 
 + (void)load {
-  // FIRInstanceID by default removes itself from observing any notifications.
+  // FIRMessaging by default removes itself from observing any notifications.
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didReceiveConfigureSDKNotification:)
                                                name:kFIRAppReadyToConfigureSDKNotification

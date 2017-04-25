@@ -60,7 +60,7 @@ static const int kPort = 6234;
   [[[socketMock stub]
       andDo:^(NSInvocation *invocation) {
         if (self.shouldFakeSuccessLogin) {
-          [self willFakeSuccessfulLoginToGcm];
+          [self willFakeSuccessfulLoginToFCM];
         }
         self.socket.state = kFIRMessagingSecureSocketOpen;
         [self.socket.delegate secureSocketDidConnect:self.socket];
@@ -100,7 +100,7 @@ static const int kPort = 6234;
   return 6234;
 }
 
-- (void)willFakeSuccessfulLoginToGcm {
+- (void)willFakeSuccessfulLoginToFCM {
   id mockSocket = self.socket;
   [[[mockSocket stub]
       andDo:^(NSInvocation *invocation) {
@@ -135,7 +135,7 @@ static const int kPort = 6234;
           // since we will always fail once we would disconnect the socket before
           // we ever try again thus mock the disconnect to change the state and
           // prevent any assertions
-          [self willFakeSuccessfulLoginToGcm];
+          [self willFakeSuccessfulLoginToFCM];
           self.socket.state = kFIRMessagingSecureSocketOpen;
           [self.socket.delegate secureSocketDidConnect:self.socket];
         }

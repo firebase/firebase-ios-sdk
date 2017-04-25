@@ -18,7 +18,7 @@
 
 @implementation NSDictionary (FIRMessaging)
 
-- (NSString *)gcm_string {
+- (NSString *)fcm_string {
   NSMutableString *dictAsString = [NSMutableString string];
   NSString *separator = @"|";
   for (id key in self) {
@@ -34,7 +34,7 @@
   return [dictAsString copy];
 }
 
-- (BOOL)gcm_hasNonStringKeysOrValues {
+- (BOOL)fcm_hasNonStringKeysOrValues {
   for (id key in self) {
     id value = self[key];
     if (![key isKindOfClass:[NSString class]] || ![value isKindOfClass:[NSString class]]) {
@@ -44,7 +44,7 @@
   return NO;
 }
 
-- (NSDictionary *)gcm_trimNonStringValues {
+- (NSDictionary *)fcm_trimNonStringValues {
   NSMutableDictionary *trimDictionary =
       [NSMutableDictionary dictionaryWithCapacity:self.count];
   for (id key in self) {

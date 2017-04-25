@@ -17,6 +17,15 @@
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessaging.h"
 
+@class FIRMessagingReceiver;
+@protocol FIRMessagingReceiverDelegate <NSObject>
+
+- (void)receiver:(nonnull FIRMessagingReceiver *)receiver
+      receivedRemoteMessage:(nonnull FIRMessagingRemoteMessage *)remoteMessage;
+
+@end
+
+
 @interface FIRMessagingReceiver : NSObject <FIRMessagingDataMessageManagerDelegate>
-@property(nonatomic, weak) id<FIRMessagingDelegate> remoteMessagingDelegate;
+@property(nonatomic, weak, nullable) id<FIRMessagingReceiverDelegate> delegate;
 @end

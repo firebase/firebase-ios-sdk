@@ -32,53 +32,41 @@ static const NSTimeInterval kReconnectDelayInSeconds = 2 * 60; // 2 minutes
 
 static const NSUInteger kMaxRetryExponent = 10;  // 2^10 = 1024 seconds ~= 17 minutes
 
+static NSString *const kFIRMessagingMCSServerHost = @"mtalk.google.com";
+static NSUInteger const kFIRMessagingMCSServerPort = 5228;
+
 // register device with checkin
 typedef void(^FIRMessagingRegisterDeviceHandler)(NSError *error);
 
-typedef enum  {
-  kFIRMessagingServerTypeBeta,
-  kFIRMessagingServerTypeProd,
-  kFIRMessagingServerTypeCount
-} FIRMessagingServerType;
-
-static NSString *FIRMessagingServerHostForMCS(FIRMessagingServerType serverType) {
-  switch (serverType) {
-    case kFIRMessagingServerTypeBeta:
-      return @"mtalk-staging.google.com";
-    case kFIRMessagingServerTypeProd:
-      return @"mtalk.google.com";
-    case kFIRMessagingServerTypeCount:
-      FIRMessaging_FAIL(@"Invalid debug mcs server type");
-      return nil;
-  }
-}
-
-static NSUInteger FIRMessagingServerPortForMCS(FIRMessagingServerType serverType) {
-  switch (serverType) {
-    case kFIRMessagingServerTypeBeta:
-      return 5229;
-    case kFIRMessagingServerTypeProd:
-      return 5228;
-    case kFIRMessagingServerTypeCount:
-      FIRMessaging_FAIL(@"Invalid debug mcs server type");
-      return 0;
-  }
-}
-
 static NSString *FIRMessagingServerHost() {
-#if FIRMessaging_PROD_SERVER == 1
-  return FIRMessagingServerHostForMCS(kFIRMessagingServerTypeProd);
-#else
-  return FIRMessagingServerHostForMCS(kFIRMessagingServerTypeBeta);
-#endif
+  static NSString *serverHost = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSDictionary *environment = [[NSProcessInfo processInfo] environment];
+    NSString *customServerHostAndPort = environment[@"FCM_MCS_HOST"];
+    NSString *host = [customServerHostAndPort componentsSeparatedByString:@":"].firstObject;
+    if (host) {
+      serverHost = host;
+    } else {
+      serverHost = kFIRMessagingMCSServerHost;
+    }
+  });
+  return serverHost;
 }
 
 static NSUInteger FIRMessagingServerPort() {
-#if FIRMessaging_PROD_SERVER == 1
-  return FIRMessagingServerPortForMCS(kFIRMessagingServerTypeProd);
-#else
-  return FIRMessagingServerPortForMCS(kFIRMessagingServerTypeBeta);
-#endif
+  static NSUInteger serverPort = kFIRMessagingMCSServerPort;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSDictionary *environment = [[NSProcessInfo processInfo] environment];
+    NSString *customServerHostAndPort = environment[@"FCM_MCS_HOST"];
+    NSArray<NSString *> *components = [customServerHostAndPort componentsSeparatedByString:@":"];
+    NSUInteger port = (NSUInteger)[components.lastObject integerValue];
+    if (port != 0) {
+      serverPort = port;
+    }
+  });
+  return serverPort;
 }
 
 @interface FIRMessagingClient () <FIRMessagingConnectionDelegate>
@@ -259,7 +247,7 @@ static NSUInteger FIRMessagingServerPort() {
 
 - (void)connectWithHandler:(FIRMessagingConnectCompletionHandler)handler {
   if (self.isConnected) {
-    NSError *error = [NSError gcm_errorWithCode:kFIRMessagingErrorCodeAlreadyConnected
+    NSError *error = [NSError fcm_errorWithCode:kFIRMessagingErrorCodeAlreadyConnected
                                        userInfo:@{
         NSLocalizedFailureReasonErrorKey: @"FIRMessaging is already connected",
         }];
@@ -286,7 +274,7 @@ static NSUInteger FIRMessagingServerPort() {
   if (!isRegistrationComplete) {
     if (![self.registrar tryToLoadValidCheckinInfo]) {
       if (self.connectHandler) {
-        NSError *error = [NSError errorWithGcmErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
+        NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
         self.connectHandler(error);
       }
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient009,
@@ -341,7 +329,7 @@ static NSUInteger FIRMessagingServerPort() {
 
 #pragma mark - FIRMessagingConnectionDelegate
 
-- (void)connection:(FIRMessagingConnection *)gcmConnection
+- (void)connection:(FIRMessagingConnection *)fcmConnection
     didCloseForReason:(FIRMessagingConnectionCloseReason)reason {
 
   self.lastDisconnectedTimestamp = FIRMessagingCurrentTimestampInMilliseconds();
@@ -358,7 +346,7 @@ static NSUInteger FIRMessagingServerPort() {
   }
 }
 
-- (void)didLoginWithConnection:(FIRMessagingConnection *)gcmConnection {
+- (void)didLoginWithConnection:(FIRMessagingConnection *)fcmConnection {
   // Cancel the not-yet-triggered timeout task.
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(didConnectTimeout)
@@ -403,14 +391,6 @@ static NSUInteger FIRMessagingServerPort() {
 
 #pragma mark - Private
 
-- (void)clearAllHandlers {
-  self.connectHandler = nil;
-}
-
-- (BOOL)isClientRegistered {
-  return [self.registrar.deviceAuthID length] && [self.registrar.secretToken length];
-}
-
 - (void)setupConnectionAndConnect {
   [self setupConnection];
   [self tryToConnect];
@@ -432,7 +412,7 @@ static NSUInteger FIRMessagingServerPort() {
                                                      port:port
                                                   runLoop:[NSRunLoop mainRunLoop]
                                               rmq2Manager:self.rmq2Manager
-                                               gcmManager:self.dataMessageManager];
+                                               fcmManager:self.dataMessageManager];
   self.connection.delegate = self;
 }
 

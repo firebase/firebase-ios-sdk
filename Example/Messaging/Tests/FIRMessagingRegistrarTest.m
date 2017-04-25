@@ -31,7 +31,6 @@ static NSString *const kFIRMessagingUserDefaultsSuite =
 static NSString *const kDeviceAuthId = @"12345";
 static NSString *const kSecretToken = @"45657809";
 static NSString *const kVersionInfo = @"1.0";
-static NSString *const kAppName = @"com.google.gcmtest";
 static NSString *const kTopicToSubscribeTo = @"/topics/xyz/hello-world";
 static NSString *const kFIRMessagingAppIDToken = @"abcdefgh1234lmno";
 static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
@@ -127,13 +126,8 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
 #pragma mark - Private Helpers
 
 - (void)stubCheckinService {
-  [self stubCheckinServiceWithLastCheckinTimestamp:FIRMessagingCurrentTimestampInMilliseconds()];
-}
-
-- (void)stubCheckinServiceWithLastCheckinTimestamp:(int64_t)lastCheckinTimestamp {
   [[[self.mockCheckin stub] andReturn:kDeviceAuthId] deviceAuthID];
   [[[self.mockCheckin stub] andReturn:kSecretToken] secretToken];
-  [[[self.mockCheckin stub] andReturn:@(lastCheckinTimestamp)] lastCheckinTimestampMillis];
   [[[self.mockCheckin stub] andReturnValue:@YES] hasValidCheckinInfo];
 }
 

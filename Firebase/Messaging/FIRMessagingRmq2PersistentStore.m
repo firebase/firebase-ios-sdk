@@ -41,7 +41,7 @@ typedef enum : NSUInteger {
   FIRMessagingRmqDirectoryApplicationSupport,
 } FIRMessagingRmqDirectory;
 
-static NSString *const kGcmRmqStoreTag = @"FIRMessagingRmqStore:";
+static NSString *const kFCMRmqStoreTag = @"FIRMessagingRmqStore:";
 
 // table names
 NSString *const kTableOutgoingRmqMessages = @"outgoingRmqMessages";
@@ -100,7 +100,7 @@ static NSString *const kSyncMessageAPNSReceivedColumn = @"apns_recv";
 static NSString *const kSyncMessageMCSReceivedColumn = @"mcs_recv";
 
 // table data handlers
-typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSData *data);
+typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSData *data);
 
 @interface FIRMessagingRmq2PersistentStore () {
   sqlite3 *_database;
@@ -257,7 +257,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
   if (![fileManager fileExistsAtPath:path]) {
     // We've to separate between different versions here because of backwards compatbility issues.
     if (sqlite3_open([path UTF8String], &_database) != SQLITE_OK) {
-      FIRMessaging_FAIL(@"%@ Could not open rmq database: %@", kGcmRmqStoreTag, path);
+      FIRMessaging_FAIL(@"%@ Could not open rmq database: %@", kFCMRmqStoreTag, path);
       didOpenDatabase = NO;
       return;
     }
@@ -268,7 +268,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
     [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
   } else {
     if (sqlite3_open([path UTF8String], &_database) != SQLITE_OK) {
-      FIRMessaging_FAIL(@"%@ Could not open rmq database: %@", kGcmRmqStoreTag, path);
+      FIRMessaging_FAIL(@"%@ Could not open rmq database: %@", kFCMRmqStoreTag, path);
       didOpenDatabase = NO;
     } else {
       [self updateDbWithStringRmqID];
@@ -352,7 +352,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
                 [tableName isEqualToString:kTableLastRmqId] ||
                 [tableName isEqualToString:kTableS2DRmqIds] ||
                 [tableName isEqualToString:kTableSyncMessages],
-                @"%@: Invalid Table Name %@", kGcmRmqStoreTag, tableName);
+                @"%@: Invalid Table Name %@", kFCMRmqStoreTag, tableName);
 
   BOOL isRmqIDString = NO;
   // RmqID is a string only for outgoing messages
@@ -432,7 +432,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
   // if we are here all of our sqlite queries should have succeeded
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore004,
                           @"%@ Trying to delete %d s2D ID's, successfully deleted %d",
-                          kGcmRmqStoreTag, toDelete, deleteCount);
+                          kFCMRmqStoreTag, toDelete, deleteCount);
   return deleteCount;
 }
 
@@ -509,7 +509,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
   sqlite3_stmt *statement;
   if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore005,
-                            @"%@: Could not find s2d ids", kGcmRmqStoreTag);
+                            @"%@: Could not find s2d ids", kFCMRmqStoreTag);
     _FIRMessagingRmqLogAndExit(statement, @[]);
   }
   NSMutableArray *rmqIDArray = [NSMutableArray array];
@@ -523,7 +523,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 
 #pragma mark - Scan
 
-- (void)scanOutgoingRmqMessagesWithHandler:(GcmOutgoingRmqMessagesTableHandler)handler {
+- (void)scanOutgoingRmqMessagesWithHandler:(FCMOutgoingRmqMessagesTableHandler)handler {
   static NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ != 0 ORDER BY %@ ASC";
   NSString *query = [NSString stringWithFormat:queryFormat,
                      kOutgoingRmqMessagesColumns, // select (rmq_id, type, data)
@@ -545,7 +545,9 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
     int8_t type = sqlite3_column_int(statement, typeColumnNumber);
     const void *bytes = sqlite3_column_blob(statement, dataColumnNumber);
     int length = sqlite3_column_bytes(statement, dataColumnNumber);
-    _FIRMessagingDevAssert(bytes != NULL, @"%@ Message with no data being stored in Rmq", kGcmRmqStoreTag);
+    _FIRMessagingDevAssert(bytes != NULL,
+                           @"%@ Message with no data being stored in Rmq",
+                           kFCMRmqStoreTag);
     NSData *data = [NSData dataWithBytes:bytes length:length];
     handler(rmqId, type, data);
   }
@@ -601,7 +603,6 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 }
 
 - (BOOL)deleteSyncMessageWithRmqID:(NSString *)rmqID {
-  // TODO: Move this method
   _FIRMessagingDevAssert([rmqID length], @"Invalid rmqID key %@ to delete in SYNC_RMQ", rmqID);
   return [self deleteMessagesFromTable:kTableSyncMessages withRmqIds:@[rmqID]] > 0;
 }
@@ -623,7 +624,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
   sqlite3_stmt *stmt;
   if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
     if (error) {
-      *error = [NSError gcm_errorWithCode:sqlite3_errcode(_database)
+      *error = [NSError fcm_errorWithCode:sqlite3_errcode(_database)
                                  userInfo:@{ @"error" : errorReason }];
     }
     _FIRMessagingRmqLogAndExit(stmt, 0);
@@ -631,7 +632,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 
   if (sqlite3_step(stmt) != SQLITE_DONE) {
     if (error) {
-      *error = [NSError gcm_errorWithCode:sqlite3_errcode(_database)
+      *error = [NSError fcm_errorWithCode:sqlite3_errcode(_database)
                                  userInfo:@{ @"error" : errorReason }];
     }
     _FIRMessagingRmqLogAndExit(stmt, 0);
@@ -661,7 +662,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 
   if (sqlite3_prepare_v2(_database, [insertSQL UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
     if (error) {
-      *error = [NSError gcm_errorWithCode:sqlite3_errcode(_database)
+      *error = [NSError fcm_errorWithCode:sqlite3_errcode(_database)
                                  userInfo:@{ @"error" : @"Failed to save sync message to store." }];
     }
     _FIRMessagingRmqLogAndExit(stmt, NO);
@@ -726,7 +727,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 
   if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
     if (error) {
-      *error = [NSError gcm_errorWithCode:sqlite3_errcode(_database)
+      *error = [NSError fcm_errorWithCode:sqlite3_errcode(_database)
                                  userInfo:@{ @"error" : @"Failed to update sync message"}];
     }
     _FIRMessagingRmqLogAndExit(stmt, NO);
@@ -757,7 +758,7 @@ typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 
 - (void)logError {
   FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStore006,
-                          @"%@ error: code (%d) message: %@", kGcmRmqStoreTag, [self lastErrorCode],
+                          @"%@ error: code (%d) message: %@", kFCMRmqStoreTag, [self lastErrorCode],
                           [self lastErrorMessage]);
 }
 

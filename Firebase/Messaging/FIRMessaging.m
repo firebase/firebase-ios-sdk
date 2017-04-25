@@ -23,13 +23,13 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FIRMessagingAnalytics.h"
 #import "FIRMessagingClient.h"
 #import "FIRMessagingConfig.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingContextManagerService.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
+#import "FIRMessagingInstanceIDProxy.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingReceiver.h"
@@ -40,19 +40,36 @@
 
 #import "FIRReachabilityChecker.h"
 
-static const NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
-static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
-static NSString *const kClassNameExperimentController = @"FIRExperimentController";
-static NSString *const kClassNameLifecycleEvent = @"FIRLifecycleEvents";
-static NSString *const kMethodNameSetExperiment =
-    @"setExperimentWithServiceOrigin:events:policy:payload:";
+#import "NSError+FIRMessaging.h"
 
+static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
+static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
+static NSString *const kFIRMessagingDefaultTokenScope = @"*";
+static NSString *const kFIRMessagingFCMTokenFetchAPNSOption = @"apns_token";
+
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+const NSNotificationName FIRMessagingSendSuccessNotification =
+    @"com.firebase.messaging.notif.send-success";
+const NSNotificationName FIRMessagingSendErrorNotification =
+    @"com.firebase.messaging.notif.send-error";
+const NSNotificationName FIRMessagingMessagesDeletedNotification =
+    @"com.firebase.messaging.notif.messages-deleted";
+const NSNotificationName FIRMessagingConnectionStateChangedNotification =
+    @"com.firebase.messaging.notif.connection-state-changed";
+const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification =
+    @"com.firebase.messaging.notif.fcm-token-refreshed";
+#else
 NSString *const FIRMessagingSendSuccessNotification =
     @"com.firebase.messaging.notif.send-success";
 NSString *const FIRMessagingSendErrorNotification =
     @"com.firebase.messaging.notif.send-error";
 NSString * const FIRMessagingMessagesDeletedNotification =
     @"com.firebase.messaging.notif.messages-deleted";
+NSString * const FIRMessagingConnectionStateChangedNotification =
+    @"com.firebase.messaging.notif.connection-state-changed";
+NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
+    @"com.firebase.messaging.notif.fcm-token-refreshed";
+#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 // Copied from Apple's header in case it is missing in some cases (e.g. pre-Xcode 8 builds).
 #ifndef NSFoundationVersionNumber_iOS_8_x_Max
@@ -104,13 +121,17 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 
 @end
 
-@interface FIRMessaging () <FIRMessagingClientDelegate, FIRReachabilityDelegate>
+@interface FIRMessaging ()
+    <FIRMessagingClientDelegate, FIRMessagingReceiverDelegate, FIRReachabilityDelegate>
 
 // FIRApp properties
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
-@property(nonatomic, readwrite, strong) NSString *apnsToken;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
+
+// This object is used as a proxy for reflection-based calls to FIRInstanceID.
+// Due to our packaging requirements, we can't directly depend on FIRInstanceID currently.
+@property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
 
 @property(nonatomic, readwrite, strong) FIRMessagingConfig *config;
 @property(nonatomic, readwrite, assign) BOOL isClientSetup;
@@ -149,6 +170,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   if (self) {
     _config = config;
     _loggedMessageIDs = [NSMutableSet set];
+    _instanceIDProxy = [[FIRMessagingInstanceIDProxy alloc] init];
   }
   return self;
 }
@@ -160,13 +182,11 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 }
 
 - (void)setRemoteMessageDelegate:(id<FIRMessagingDelegate>)delegate {
-  if (self.receiver && delegate) {
-    self.receiver.remoteMessagingDelegate = delegate;
-  }
+  _delegate = delegate;
 }
 
 - (id<FIRMessagingDelegate>)remoteMessageDelegate {
-  return self.receiver.remoteMessagingDelegate;
+  return self.delegate;
 }
 
 #pragma mark - Config
@@ -205,17 +225,30 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 
 - (void)setupNotificationListeners {
   // To prevent multiple notifications remove self as observer for all events.
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center removeObserver:self];
 
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(didReceiveDefaultFCMToken:)
-                                               name:kFIRMessagingFCMTokenNotification
-                                             object:nil];
+  [center addObserver:self
+             selector:@selector(didReceiveDefaultInstanceIDToken:)
+                 name:kFIRMessagingFCMTokenNotification
+               object:nil];
+  [center addObserver:self
+             selector:@selector(defaultInstanceIDTokenWasRefreshed:)
+                 name:kFIRMessagingInstanceIDTokenRefreshNotification
+               object:nil];
+  [center addObserver:self
+             selector:@selector(didReceiveAPNSToken:)
+                 name:kFIRMessagingAPNSTokenNotification
+               object:nil];
 
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(didReceiveAPNSToken:)
-                                               name:kFIRMessagingAPNSTokenNotification
-                                             object:nil];
+  [center addObserver:self
+             selector:@selector(applicationStateChanged)
+                 name:UIApplicationDidBecomeActiveNotification
+               object:nil];
+  [center addObserver:self
+             selector:@selector(applicationStateChanged)
+                 name:UIApplicationDidEnterBackgroundNotification
+               object:nil];
 }
 
 - (void)saveLibraryVersion {
@@ -239,6 +272,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 
 - (void)setupReceiverWithConfig:(FIRMessagingConfig *)config {
   self.receiver = [[FIRMessagingReceiver alloc] init];
+  self.receiver.delegate = self;
 }
 
 - (void)setupClient {
@@ -325,122 +359,20 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   }
 
   if (!isOldMessage) {
-    [self updateExperimentsIfNeededFromMessage:message];
-    [self logAnalyticsForMessage:message];
+    Class firMessagingLogClass = NSClassFromString(@"FIRMessagingLog");
+    SEL logMessageSelector = NSSelectorFromString(@"logMessage:");
+
+    if ([firMessagingLogClass respondsToSelector:logMessageSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+      [firMessagingLogClass performSelector:logMessageSelector
+                                 withObject:message];
+    }
+#pragma clang diagnostic pop
     [self handleContextManagerMessage:message];
     [self handleIncomingLinkIfNeededFromMessage:message];
   }
   return [[FIRMessagingMessageInfo alloc] initWithStatus:FIRMessagingMessageStatusNew];
-}
-
-- (void)updateExperimentsIfNeededFromMessage:(NSDictionary *)message {
-  Class experimentClass = NSClassFromString(kClassNameExperimentController);
-  if (!experimentClass) {
-    return;
-  }
-  SEL sharedInstanceSelector = NSSelectorFromString(@"sharedInstance");
-  if (![experimentClass respondsToSelector:sharedInstanceSelector]) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging002,
-                            @"[%@ sharedInstance] does not exist in this version of Firebase.",
-                            kClassNameExperimentController);
-    return;
-  }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-  id sharedInstance = [experimentClass performSelector:sharedInstanceSelector];
-#pragma clang diagnostic pop
-
-  SEL experimentSelector = NSSelectorFromString(kMethodNameSetExperiment);
-  if (![sharedInstance respondsToSelector:experimentSelector]) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging003, @"Method %@ does not exist.",
-                            kMethodNameSetExperiment);
-    return;
-  }
-  NSMethodSignature *signature = [sharedInstance methodSignatureForSelector:experimentSelector];
-  if (!signature) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging004, @"No signature for %@ selector.",
-                            kClassNameExperimentController);
-    return;
-  }
-  NSInvocation *inv = [NSInvocation invocationWithMethodSignature:signature];
-  if (!inv) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging005,
-                            @"No invocation for %@ signature.", kClassNameExperimentController);
-    return;
-  }
-
-  NSString *originArgument = @"TODO kFIREventOriginFCM";
-  Class lifecycleEventClass = NSClassFromString(kClassNameLifecycleEvent);
-  id lifecycleEvent = [[lifecycleEventClass alloc] init];
-  // Discard oldest experiments policy = 1
-  // The full list of policy can be found at
-  // //depot/google3/developers/mobile/abt/proto/experiment_payload.proto
-  int defaultPolicy = 1;
-  [inv setSelector:experimentSelector];
-  [inv setTarget:sharedInstance];
-  [inv setArgument:&originArgument atIndex:2];
-  [inv setArgument:&lifecycleEvent atIndex:3];
-  [inv setArgument:&defaultPolicy atIndex:4];
-
-  NSData *payload = [self abtExperimentPayloadFromMessage:message];
-  if (!payload) {
-    return;
-  }
-  [inv setArgument:&payload atIndex:5];
-
-  [inv invoke];
-}
-
-
-- (NSData *)abtExperimentPayloadFromMessage:(NSDictionary *)message {
-  NSString *encodedPayloadString = message[kFIRMessagingMessageABTExperimentPayloadKey];
-  if (!encodedPayloadString) {
-    // nil
-    return nil;
-  }
-  if (![encodedPayloadString isKindOfClass:[NSString class]]) {
-    FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging006,
-                           @"FIRMessaging could not parse experiment payload.");
-    return nil;
-  }
-  if (encodedPayloadString.length == 0) {
-    // zero-length
-    FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging007,
-                           @"FIRMessaging received an empty experiment payload.");
-    return nil;
-  }
-  NSData *payload = [[NSData alloc] initWithBase64EncodedString:encodedPayloadString options:0];
-  if (!payload) {
-    FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging008,
-                           @"FIRMessaging could not parse experiment payload.");
-    return nil;
-  }
-  return payload;
-}
-
-- (void)logAnalyticsForMessage:(NSDictionary *)message {
-  if (![FIRMessagingAnalytics canLogNotification:message]) {
-    return;
-  }
-  UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
-  switch (applicationState) {
-    case UIApplicationStateInactive:
-      // App was either in background(suspended) or inactive and user tapped on a display
-      // notification.
-      [FIRMessagingAnalytics logOpenNotification:message];
-      break;
-
-    case UIApplicationStateActive:
-      // App was in foreground when it received the notification.
-      [FIRMessagingAnalytics logForegroundNotification:message];
-      break;
-
-    default:
-      // Only a silent notification (i.e. 'content-available' is true) can be received while the app
-      // is in the background. These messages aren't loggable anyway.
-      break;
-  }
 }
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message {
@@ -518,13 +450,148 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   return url;
 }
 
+#pragma mark - APNS
+
+- (NSData *)APNSToken {
+  return self.apnsTokenData;
+}
+
+- (void)setAPNSToken:(NSData *)APNSToken {
+  [self setAPNSToken:APNSToken type:FIRMessagingAPNSTokenTypeUnknown];
+}
+
+- (void)setAPNSToken:(NSData *)apnsToken type:(FIRMessagingAPNSTokenType)type {
+  if ([apnsToken isEqual:self.apnsTokenData]) {
+    return;
+  }
+  self.apnsTokenData = apnsToken;
+  [self.instanceIDProxy setAPNSToken:apnsToken type:(FIRMessagingInstanceIDProxyAPNSTokenType)type];
+}
+
+#pragma mark - FCM
+
+- (NSString *)FCMToken {
+  return self.defaultFcmToken;
+}
+
+- (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
+                         completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
+  if (!senderID.length) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch,
+                            @"Sender ID not supplied. It is required for a token fetch, "
+                            @"to identify the sender.");
+    if (completion) {
+      NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
+                              @"Sender ID is required to fetch an FCM token";
+      NSError *error = [NSError fcm_errorWithCode:FIRMessagingErrorInvalidRequest
+                                         userInfo:@{NSLocalizedDescriptionKey : description}];
+      completion(nil, error);
+    }
+    return;
+  }
+  NSDictionary *options = nil;
+  if (self.APNSToken) {
+    options = @{kFIRMessagingFCMTokenFetchAPNSOption : self.APNSToken};
+  } else {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeAPNSTokenNotAvailableDuringTokenFetch,
+                           @"APNS device token not set before retrieving FCM Token for Sender ID "
+                           @"'%@'. Notifications to this FCM Token will not be delivered over APNS."
+                           @"Be sure to re-retrieve the FCM token once the APNS device token is "
+                           @"set.", senderID);
+  }
+  [self.instanceIDProxy tokenWithAuthorizedEntity:senderID
+                                            scope:kFIRMessagingDefaultTokenScope
+                                          options:options
+                                          handler:completion];
+}
+
+- (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
+                       completion:(nonnull FIRMessagingDeleteFCMTokenCompletion)completion {
+  if (!senderID.length) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete,
+                            @"Sender ID not supplied. It is required to delete an FCM token.");
+    if (completion) {
+      NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
+                              @"valid Sender ID is required to delete an FCM token";
+      NSError *error = [NSError fcm_errorWithCode:FIRMessagingErrorInvalidRequest
+                                         userInfo:@{NSLocalizedDescriptionKey : description}];
+      completion(error);
+    }
+    return;
+  }
+  [self.instanceIDProxy deleteTokenWithAuthorizedEntity:senderID
+                                                  scope:kFIRMessagingDefaultTokenScope
+                                                handler:completion];
+}
+
+#pragma mark - Application State Changes
+
+- (void)applicationStateChanged {
+  if (self.shouldEstablishDirectChannel) {
+    [self updateAutomaticClientConnection];
+  }
+}
+
+#pragma mark - Direct Channel
+
+- (void)setShouldEstablishDirectChannel:(BOOL)shouldEstablishDirectChannel {
+  if (_shouldEstablishDirectChannel == shouldEstablishDirectChannel) {
+    return;
+  }
+  _shouldEstablishDirectChannel = shouldEstablishDirectChannel;
+  [self updateAutomaticClientConnection];
+}
+
+- (BOOL)isDirectChannelEstablished {
+  return self.client.isConnectionActive;
+}
+
+- (BOOL)shouldBeConnectedAutomatically {
+  // We require a token from Instance ID
+  NSString *token = self.defaultFcmToken;
+  // Only on foreground connections
+  UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
+  BOOL shouldBeConnected = _shouldEstablishDirectChannel &&
+                           (token.length > 0) &&
+                           applicationState == UIApplicationStateActive;
+  return shouldBeConnected;
+}
+
+- (void)updateAutomaticClientConnection {
+  BOOL shouldBeConnected = [self shouldBeConnectedAutomatically];
+  if (shouldBeConnected && !self.client.isConnected) {
+    [self.client connectWithHandler:^(NSError *error) {
+      if (!error) {
+        // It means we connected. Fire connection change notification
+        [self notifyOfDirectChannelConnectionChange];
+      }
+    }];
+  } else if (!shouldBeConnected && self.client.isConnected) {
+    [self.client disconnect];
+    [self notifyOfDirectChannelConnectionChange];
+  }
+}
+
+- (void)notifyOfDirectChannelConnectionChange {
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:FIRMessagingConnectionStateChangedNotification object:self];
+}
+
 #pragma mark - Connect
 
 - (void)connectWithCompletion:(FIRMessagingConnectCompletion)handler {
   _FIRMessagingDevAssert([NSThread isMainThread],
                          @"FIRMessaging connect should be called from main thread only.");
   _FIRMessagingDevAssert(self.isClientSetup, @"FIRMessaging client not setup.");
-  [self.client connectWithHandler:handler];
+  [self.client connectWithHandler:^(NSError *error) {
+    if (handler) {
+      handler(error);
+    }
+    if (!error) {
+      // It means we connected. Fire connection change notification
+      [self notifyOfDirectChannelConnectionChange];
+    }
+  }];
 
 }
 
@@ -533,6 +600,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
                          @"FIRMessaging should be called from main thread only.");
   if ([self.client isConnected]) {
     [self.client disconnect];
+    [self notifyOfDirectChannelConnectionChange];
   }
 }
 
@@ -588,14 +656,14 @@ NSString * const FIRMessagingMessagesDeletedNotification =
          timeToLive:(int64_t)ttl {
   _FIRMessagingDevAssert([to length] != 0, @"Invalid receiver id for FIRMessaging-message");
 
-  NSMutableDictionary *gcmMessage = [[self class] createFIRMessagingMessageWithMessage:message
+  NSMutableDictionary *fcmMessage = [[self class] createFIRMessagingMessageWithMessage:message
                                                                            to:to
                                                                        withID:messageID
                                                                    timeToLive:ttl
                                                                         delay:0];
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@",
                          message, messageID);
-  [self.dataMessageManager sendDataMessageStanza:gcmMessage];
+  [self.dataMessageManager sendDataMessageStanza:fcmMessage];
 }
 
 + (NSMutableDictionary *)createFIRMessagingMessageWithMessage:(NSDictionary *)message
@@ -603,14 +671,14 @@ NSString * const FIRMessagingMessagesDeletedNotification =
                                               withID:(NSString *)msgID
                                           timeToLive:(int64_t)ttl
                                                delay:(int)delay {
-  NSMutableDictionary *gcmMessage = [NSMutableDictionary dictionary];
-  gcmMessage[kFIRMessagingSendTo] = [to copy];
-  gcmMessage[kFIRMessagingSendMessageID] = msgID ? [msgID copy] : @"";
-  gcmMessage[kFIRMessagingSendTTL] = @(ttl);
-  gcmMessage[kFIRMessagingSendDelay] = @(delay);
-  gcmMessage[KFIRMessagingSendMessageAppData] =
+  NSMutableDictionary *fcmMessage = [NSMutableDictionary dictionary];
+  fcmMessage[kFIRMessagingSendTo] = [to copy];
+  fcmMessage[kFIRMessagingSendMessageID] = msgID ? [msgID copy] : @"";
+  fcmMessage[kFIRMessagingSendTTL] = @(ttl);
+  fcmMessage[kFIRMessagingSendDelay] = @(delay);
+  fcmMessage[KFIRMessagingSendMessageAppData] =
       [NSMutableDictionary dictionaryWithDictionary:message];
-  return gcmMessage;
+  return fcmMessage;
 }
 
 #pragma mark - IID dependencies
@@ -619,19 +687,36 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 + (NSString *)FIRMessagingSDKVersion {
   NSString *semanticVersion = FIRMessagingCurrentLibraryVersion();
   // Use prefix fcm for all FCM libs. This allows us to differentiate b/w
-  // the new and old GCM registrations.
+  // the new and old FCM registrations.
   return [NSString stringWithFormat:@"fcm-%@", semanticVersion];
 }
 
 + (NSString *)FIRMessagingSDKCurrentLocale {
-  // GIPLocale doesn't support all the locales AppManager supports. Hence we need to roll out
-  // our version of all the locales.
   return [self currentLocale];
 }
 
 - (void)setAPNSToken:(NSData *)apnsToken error:(NSError *)error {
   if (apnsToken) {
     self.apnsTokenData = [apnsToken copy];
+  }
+}
+
+#pragma mark - FIRMessagingReceiverDelegate
+
+- (void)receiver:(FIRMessagingReceiver *)receiver
+      receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
+  if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
+    [self.delegate messaging:self didReceiveMessage:remoteMessage];
+  } else if ([self.delegate respondsToSelector:@selector(applicationReceivedRemoteMessage:)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [self.delegate applicationReceivedRemoteMessage:remoteMessage];
+#pragma clang diagnostic pop
+  } else {
+    // Delegate methods weren't implemented, so messages are being dropped, log a warning
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented,
+                           @"FIRMessaging received data-message, but FIRMessagingDelegate's"
+                           @"-messaging:didReceiveMessage: not implemented");
   }
 }
 
@@ -660,6 +745,8 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   }
 }
 
+#pragma mark - Notifications
+
 - (void)onNetworkStatusChanged {
   if (![self.client isConnected] && [self isNetworkAvailable]) {
     if (self.client.shouldStayConnected) {
@@ -673,7 +760,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 
 #pragma mark - Notifications
 
-- (void)didReceiveDefaultFCMToken:(NSNotification *)notification {
+- (void)didReceiveDefaultInstanceIDToken:(NSNotification *)notification {
   if (![notification.object isKindOfClass:[NSString class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
                             @"Invalid default FCM token type %@",
@@ -682,15 +769,34 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   }
   self.defaultFcmToken = [(NSString *)notification.object copy];
   [self.pubsub scheduleSync:YES];
+  if (self.shouldEstablishDirectChannel) {
+    [self updateAutomaticClientConnection];
+  }
+}
+
+- (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
+  // Retrieve the Instance ID default token, and if it is non-nil, post it
+  NSString *token = [self.instanceIDProxy token];
+  // Sometimes Instance ID doesn't yet have a token, so wait until the default
+  // token is fetched, and then notify. This ensures that this token should not
+  // be nil when the developer accesses it.
+  if (token != nil) {
+    self.defaultFcmToken = [token copy];
+    [self.delegate messaging:self didRefreshRegistrationToken:token];
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+  }
 }
 
 - (void)didReceiveAPNSToken:(NSNotification *)notification {
-  if (![notification.object isKindOfClass:[NSData class]]) {
+  NSData *apnsToken = notification.object;
+  if (![apnsToken isKindOfClass:[NSData class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging016, @"Invalid APNS token type %@",
                             NSStringFromClass([notification.object class]));
     return;
   }
-  [self setAPNSToken:notification.object error:nil];
+  // Set this value directly, and since this came from InstanceID, don't set it back to InstanceID
+  self.apnsTokenData = [apnsToken copy];
 }
 
 #pragma mark - Application Support Directory
@@ -744,7 +850,7 @@ NSString * const FIRMessagingMessagesDeletedNotification =
 #pragma mark - Locales
 
 + (NSString *)currentLocale {
-  NSArray *locales = [self appManagerLocales];
+  NSArray *locales = [self firebaseLocales];
   NSArray *preferredLocalizations =
     [NSBundle preferredLocalizationsFromArray:locales
                                forPreferences:[NSLocale preferredLanguages]];
@@ -753,16 +859,16 @@ NSString * const FIRMessagingMessagesDeletedNotification =
   return legalDocsLanguage ? legalDocsLanguage : @"en";
 }
 
-+ (NSArray *)appManagerLocales {
++ (NSArray *)firebaseLocales {
   NSMutableArray *locales = [NSMutableArray array];
-  NSDictionary *localesMap = [self appManagerlocalesMap];
+  NSDictionary *localesMap = [self firebaselocalesMap];
   for (NSString *key in localesMap) {
     [locales addObjectsFromArray:localesMap[key]];
   }
   return locales;
 }
 
-+ (NSDictionary *)appManagerlocalesMap {
++ (NSDictionary *)firebaselocalesMap {
   return @{
     // Albanian
     @"sq" : @[ @"sq_AL" ],

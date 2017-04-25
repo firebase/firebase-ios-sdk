@@ -50,7 +50,7 @@ typedef NS_ENUM(int8_t, FIRMessagingNetworkStatus) {
 - (BOOL)isNetworkAvailable;
 - (FIRMessagingNetworkStatus)networkType;
 
-// Set the APNS token for GCM.
+// Set the APNS token for FCM.
 - (void)setAPNSToken:(NSData *)apnsToken error:(NSError *)error;
 
 @end

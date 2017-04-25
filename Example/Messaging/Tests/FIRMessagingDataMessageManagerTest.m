@@ -32,7 +32,6 @@
 #import "FIRMessaging_Private.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
-//#import "googlemac/iPhone/Shared/Testing/GIPBlockSwizzler.h"
 #import "NSError+FIRMessaging.h"
 
 static NSString *const kFIRMessagingUserDefaultsSuite = @"FIRMessagingClientTestUserDefaultsSuite";
@@ -48,10 +47,6 @@ static NSString *const kAppDataItemValue = @"world";
 static NSString *const kAppDataItemInvalidKey = @"google.hello";
 
 static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
-
-static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
-  return @"gcm-dmm-test";
-};
 
 @interface FIRMessagingDataMessageManager()
 
@@ -86,6 +81,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
              rmq2Manager:_mockRmqManager
       syncMessageManager:_mockSyncMessageManager];
   [_dataMessageManager refreshDelayedMessages];
+  _mockDataMessageManager = OCMPartialMock(_dataMessageManager);
 }
 
 
@@ -251,7 +247,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
   OCMVerifyAll(self.mockClient);
 }
 
-// TODO:failed on simulator 7.1 & 8.2, take this out temporarily
+// TODO: This is failing on simulator 7.1 & 8.2, take this out temporarily
 - (void)XXX_testSendValidMessage_withTTL0AndNoFIRMessagingConnection {
   // simulate a invalid connection
   [[[self.mockClient stub] andReturnValue:@NO] isConnectionActive];
@@ -287,8 +283,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
   OCMVerifyAll(self.mockClient);
 }
 
-// TODO: Investigate why is this test flaky on TAP. It works perfectly
-// fine on my local system.
+// TODO: Investigate why this test is flaky
 - (void)xxx_testSendValidMessage_withTTL0AndNoNetwork {
   // simulate a invalid connection
   [[[self.mockClient stub] andReturnValue:@NO] isConnectionActive];
@@ -314,7 +309,7 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
   OCMVerifyAll(self.mockReceiver);
 }
 
-// TODO:failed on simulator 7.1 & 8.2, take this out temporarily
+// TODO: This failed on simulator 7.1 & 8.2, take this out temporarily
 - (void)XXX_testDelayedMessagesBeingResentOnReconnect {
   static BOOL isConnectionActive = NO;
   OCMStub([self.mockClient isConnectionActive]).andDo(^(NSInvocation *invocation) {
@@ -492,65 +487,56 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
     [invocation setReturnValue:&isClientConnected];
   }] isConnectionActive];
 
-  // Test configuration doesn't define a BundleIdentifier, set a valid bundle identifier
-  // via swizzling
-//  GIPBlockSwizzler *categoryForUpstreamMessagesSwizzler =
-//      [GIPBlockSwizzler swizzlerWithBlock:categoryForUpstreamMessagesBlock
-//                        replacingSelector:@selector(categoryForUpstreamMessages)
-//                       inInstancesOfClass:[FIRMessagingDataMessageManager class]];
-//
-//  [categoryForUpstreamMessagesSwizzler swizzle];
-//
-//  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
-//  FIRMessagingRmqManager *newRmqManager =
-//      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-//  [newRmqManager loadRmqId];
-//  // have a real RMQ store
-//  [self.dataMessageManager setRmq2Manager:newRmqManager];
-//
-//  [self addFakeFIRMessagingRegistrationToken];
-//  [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
-//
-//  // send a couple of message with no connection should be saved to RMQ
-//  [self.dataMessageManager sendDataMessageStanza:
-//      [self upstreamMessageWithID:@"1" ttl:20000 delay:0]];
-//  [self.dataMessageManager sendDataMessageStanza:
-//      [self upstreamMessageWithID:@"2" ttl:20000 delay:0]];
-//
-//  [NSThread sleepForTimeInterval:1.0];
-//  isClientConnected = YES;
-//  // after the usual version, login assertion we would receive a SelectiveAck
-//  // assuming we we weren't able to send any messages we won't delete anything
-//  // from the RMQ but try to resend whatever is there
-//  __block int didRecieveMessages = 0;
-//  id mockConnection = OCMClassMock([FIRMessagingConnection class]);
-//
-//  BOOL (^resendMessageBlock)(id obj) = ^BOOL(id obj) {
-//    if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
-//      GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
-//      NSLog(@"hello resending %@, %d", message.id_p, didRecieveMessages);
-//      if ([@"1" isEqualToString:message.id_p]) {
-//        didRecieveMessages |= 1; // right most bit for 1st message
-//        return YES;
-//      } else if ([@"2" isEqualToString:message.id_p]) {
-//        didRecieveMessages |= (1<<1); // second from RMB for 2nd message
-//        return YES;
-//      }
-//    }
-//    return NO;
-//  };
-//  [[[mockConnection stub] andDo:^(NSInvocation *invocation) {
-//    // pass
-//  }] sendProto:[OCMArg checkWithBlock:resendMessageBlock]];
-//
-//  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
-//
-//  // should send both messages
-//  XCTAssert(didRecieveMessages == 3);
-//  OCMVerifyAll(mockConnection);
-//
-//  // swizzle back
-//  [categoryForUpstreamMessagesSwizzler unswizzle];
+  // Set a fake, valid bundle identifier
+  [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
+
+  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
+  FIRMessagingRmqManager *newRmqManager =
+      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
+  [newRmqManager loadRmqId];
+  // have a real RMQ store
+  [self.dataMessageManager setRmq2Manager:newRmqManager];
+
+  [self addFakeFIRMessagingRegistrationToken];
+  [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
+
+  // send a couple of message with no connection should be saved to RMQ
+  [self.dataMessageManager sendDataMessageStanza:
+      [self upstreamMessageWithID:@"1" ttl:20000 delay:0]];
+  [self.dataMessageManager sendDataMessageStanza:
+      [self upstreamMessageWithID:@"2" ttl:20000 delay:0]];
+
+  [NSThread sleepForTimeInterval:1.0];
+  isClientConnected = YES;
+  // after the usual version, login assertion we would receive a SelectiveAck
+  // assuming we we weren't able to send any messages we won't delete anything
+  // from the RMQ but try to resend whatever is there
+  __block int didRecieveMessages = 0;
+  id mockConnection = OCMClassMock([FIRMessagingConnection class]);
+
+  BOOL (^resendMessageBlock)(id obj) = ^BOOL(id obj) {
+    if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
+      GtalkDataMessageStanza *message = (GtalkDataMessageStanza *)obj;
+      NSLog(@"hello resending %@, %d", message.id_p, didRecieveMessages);
+      if ([@"1" isEqualToString:message.id_p]) {
+        didRecieveMessages |= 1; // right most bit for 1st message
+        return YES;
+      } else if ([@"2" isEqualToString:message.id_p]) {
+        didRecieveMessages |= (1<<1); // second from RMB for 2nd message
+        return YES;
+      }
+    }
+    return NO;
+  };
+  [[[mockConnection stub] andDo:^(NSInvocation *invocation) {
+    // pass
+  }] sendProto:[OCMArg checkWithBlock:resendMessageBlock]];
+
+  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
+
+  // should send both messages
+  XCTAssert(didRecieveMessages == 3);
+  OCMVerifyAll(mockConnection);
 }
 
 - (void)testResendingExpiredMessagesFails {
@@ -560,49 +546,40 @@ static NSString *(^categoryForUpstreamMessagesBlock)() = ^() {
     [invocation setReturnValue:&isClientConnected];
   }] isConnectionActive];
 
-  // Test configuration doesn't define a BundleIdentifier, set a valid bundle identifier
-  // via swizzling
-//  GIPBlockSwizzler *categoryForUpstreamMessagesSwizzler =
-//      [GIPBlockSwizzler swizzlerWithBlock:categoryForUpstreamMessagesBlock
-//                        replacingSelector:@selector(categoryForUpstreamMessages)
-//                       inInstancesOfClass:[FIRMessagingDataMessageManager class]];
-//
-//  [categoryForUpstreamMessagesSwizzler swizzle];
-//
-//  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
-//  FIRMessagingRmqManager *newRmqManager =
-//      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-//  [newRmqManager loadRmqId];
-//  // have a real RMQ store
-//  [self.dataMessageManager setRmq2Manager:newRmqManager];
-//
-//  [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
-//  // send a message that expires in 1 sec
-//  [self.dataMessageManager sendDataMessageStanza:
-//      [self upstreamMessageWithID:@"1" ttl:1 delay:0]];
-//
-//  // wait for 2 seconds (let the above message expire)
-//  [NSThread sleepForTimeInterval:2.0];
-//  isClientConnected = YES;
-//
-//  id mockConnection = OCMClassMock([FIRMessagingConnection class]);
-//
-//  [[mockConnection reject] sendProto:[OCMArg any]];
-//  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
-//
-//  // rmq should not have any pending messages
-//  [newRmqManager scanWithRmqMessageHandler:^(int64_t rmqId, int8_t tag, NSData *data) {
-//    XCTFail(@"RMQ should not have any message");
-//  }
-//                        dataMessageHandler:nil];
-//  // swizzle back
-//  [categoryForUpstreamMessagesSwizzler unswizzle];
+  // Set a fake, valid bundle identifier
+  [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
+
+  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
+  FIRMessagingRmqManager *newRmqManager =
+      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
+  [newRmqManager loadRmqId];
+  // have a real RMQ store
+  [self.dataMessageManager setRmq2Manager:newRmqManager];
+
+  [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
+  // send a message that expires in 1 sec
+  [self.dataMessageManager sendDataMessageStanza:
+      [self upstreamMessageWithID:@"1" ttl:1 delay:0]];
+
+  // wait for 2 seconds (let the above message expire)
+  [NSThread sleepForTimeInterval:2.0];
+  isClientConnected = YES;
+
+  id mockConnection = OCMClassMock([FIRMessagingConnection class]);
+
+  [[mockConnection reject] sendProto:[OCMArg any]];
+  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
+
+  // rmq should not have any pending messages
+  [newRmqManager scanWithRmqMessageHandler:^(int64_t rmqId, int8_t tag, NSData *data) {
+    XCTFail(@"RMQ should not have any message");
+  }
+                        dataMessageHandler:nil];
 }
 
 #pragma mark - Private
 
 - (void)addFakeFIRMessagingRegistrationToken {
-  // TODO: Fix this ??
   // [[FIRMessagingDefaultsManager sharedInstance] saveAppIDToken:kFIRMessagingAppIDToken];
 }
 

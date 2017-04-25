@@ -18,19 +18,22 @@
 
 #import <OCMock/OCMock.h>
 
-//#import "googlemac/iPhone/Firebase/ABTesting/Public/FIRExperimentController.h"
 #import "FIRMessaging.h"
 #import "FIRMessagingConfig.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingTestNotificationUtilities.h"
+#import "FIRMessagingInstanceIDProxy.h"
 
-extern NSString * const kFIRMessagingABTExperimentPayloadKey;
+extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @interface FIRMessaging ()
 
+@property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
+@property(nonatomic, readwrite, strong) NSData *apnsTokenData;
+@property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
+
 - (instancetype)initWithConfig:(FIRMessagingConfig *)config;
-- (void)updateExperimentsIfNeededFromMessage:(NSDictionary *)message;
-- (NSData *)abtExperimentPayloadFromMessage:(NSDictionary *)message;
+// Direct Channel Methods
+- (void)updateAutomaticClientConnection;
+- (BOOL)shouldBeConnectedAutomatically;
 
 @end
 
@@ -38,9 +41,7 @@ extern NSString * const kFIRMessagingABTExperimentPayloadKey;
 
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 @property(nonatomic, readwrite, strong) id mockMessaging;
-@property(nonatomic, readwrite, strong) id mockExperimentsControllerClass;
-//@property(nonatomic, readonly, strong) FIRExperimentController *localExperimentController;
-@property(nonatomic, readonly, strong) id mockLocalExperimentController;
+@property(nonatomic, readwrite, strong) id mockInstanceIDProxy;
 
 @end
 
@@ -51,118 +52,163 @@ extern NSString * const kFIRMessagingABTExperimentPayloadKey;
   FIRMessagingConfig *config = [FIRMessagingConfig defaultConfig];
   _messaging = [[FIRMessaging alloc] initWithConfig:config];
   _mockMessaging = OCMPartialMock(self.messaging);
-
-//  _localExperimentController = [[FIRExperimentController alloc] init];
-//  // Create a partial mock for a single instance of FIRExperimentController
-//  _mockLocalExperimentController = OCMPartialMock(_localExperimentController);
-//
-//  _mockExperimentsControllerClass = OCMClassMock([FIRExperimentController class]);
-//  // Update sharedInstance to always return our partial mock of FIRExperimentController
-//  OCMStub([_mockExperimentsControllerClass sharedInstance]).
-//      andReturn(_mockLocalExperimentController);
+  _mockInstanceIDProxy = OCMPartialMock(self.messaging.instanceIDProxy);
+  self.messaging.instanceIDProxy = _mockInstanceIDProxy;
 }
 
 - (void)tearDown {
   _messaging = nil;
   _mockMessaging = nil;
-  // Always call stopMocking on class mocks to
-  // remove stubbing class methods
-  // See: https://medium.com/@jasperkuperus/ocmock-tips-tricks-77b65c8f06d8
-  [_mockExperimentsControllerClass stopMocking];
-  _mockExperimentsControllerClass = nil;
-  [_mockLocalExperimentController stopMocking];
-  _mockLocalExperimentController = nil;
-//  _localExperimentController = nil;
   [super tearDown];
 }
 
-#pragma mark - ABT Experiment Testing
+#pragma mark - Direct Channel Establishment Testing
 
-// Tests whether we always check for ABT experiment payloads
-- (void)testInspectionForABTExperimentsPayload {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  [self.mockMessaging appDidReceiveMessage:notification];
-  OCMVerify([self.mockMessaging updateExperimentsIfNeededFromMessage:notification]);
+// Should connect with valid token and application in foreground
+- (void)testDoesAutomaticallyConnectIfTokenAvailableAndForegrounded {
+  // Disable actually attempting a connection
+  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation) {
+    // Doing nothing on purpose, when -updateAutomaticClientConnection is called
+  }] updateAutomaticClientConnection];
+  // Set direct channel to be established after disabling connection attempt
+  self.messaging.shouldEstablishDirectChannel = YES;
+  // Set a "valid" token (i.e. not nil or empty)
+  self.messaging.defaultFcmToken = @"1234567";
+  // Swizzle application state to return UIApplicationStateActive
+  UIApplication *app = [UIApplication sharedApplication];
+  id mockApp = OCMPartialMock(app);
+  [[[mockApp stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
+  BOOL shouldBeConnected = [_mockMessaging shouldBeConnectedAutomatically];
+  XCTAssertTrue(shouldBeConnected);
 }
 
-- (void)testParsingNonExistentABTExperimentPayload {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  NSData *payload = [self.messaging abtExperimentPayloadFromMessage:notification];
-  XCTAssertNil(payload);
+// Should not connect if application is active, but token is empty
+- (void)testDoesNotAutomaticallyConnectIfTokenIsEmpty {
+  // Disable actually attempting a connection
+  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation) {
+    // Doing nothing on purpose, when -updateAutomaticClientConnection is called
+  }] updateAutomaticClientConnection];
+  // Set direct channel to be established after disabling connection attempt
+  self.messaging.shouldEstablishDirectChannel = YES;
+  // By default, there should be no fcmToken
+  // Swizzle application state to return UIApplicationStateActive
+  UIApplication *app = [UIApplication sharedApplication];
+  id mockApp = OCMPartialMock(app);
+  [[[mockApp stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
+  BOOL shouldBeConnected = [_mockMessaging shouldBeConnectedAutomatically];
+  XCTAssertFalse(shouldBeConnected);
 }
 
-- (void)testParsingEmptyStringABTExperimentPayload {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  notification[kFIRMessagingMessageABTExperimentPayloadKey] = @"";
-  NSData *payload = [self.messaging abtExperimentPayloadFromMessage:notification];
-  XCTAssertNil(payload);
+// Should not connect if token valid but application isn't active
+- (void)testDoesNotAutomaticallyConnectIfApplicationNotActive {
+  // Disable actually attempting a connection
+  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation) {
+    // Doing nothing on purpose, when -updateAutomaticClientConnection is called
+  }] updateAutomaticClientConnection];
+  // Set direct channel to be established after disabling connection attempt
+  self.messaging.shouldEstablishDirectChannel = YES;
+  // Set a "valid" token (i.e. not nil or empty)
+  self.messaging.defaultFcmToken = @"abcd1234";
+  // Swizzle application state to return UIApplicationStateActive
+  UIApplication *app = [UIApplication sharedApplication];
+  id mockApp = OCMPartialMock(app);
+  [[[mockApp stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
+  BOOL shouldBeConnected = [_mockMessaging shouldBeConnectedAutomatically];
+  XCTAssertFalse(shouldBeConnected);
 }
 
-- (void)testParsingNonStringABTExperimentPayload {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  notification[kFIRMessagingMessageABTExperimentPayloadKey] = @(5);
-  NSData *payload = [self.messaging abtExperimentPayloadFromMessage:notification];
-  XCTAssertNil(payload);
+#pragma mark - FCM Token Fetching and Deleting
+
+#ifdef NEED_WORKAROUND_FOR_PRIVATE_OCMOCK_getArgumentAtIndexAsObject
+- (void)testAPNSTokenIncludedInOptionsIfAvailableDuringTokenFetch {
+  self.messaging.apnsTokenData =
+      [@"PRETENDING_TO_BE_A_DEVICE_TOKEN" dataUsingEncoding:NSUTF8StringEncoding];
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Included APNS Token data in options dict."];
+  // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
+  [[[self.mockInstanceIDProxy stub] andDo:^(NSInvocation *invocation) {
+    // Calling getArgument:atIndex: directly leads to an EXC_BAD_ACCESS; use OCMock's wrapper.
+    NSDictionary *options = [invocation getArgumentAtIndexAsObject:4];
+    if (options[@"apns_token"] != nil) {
+      [expectation fulfill];
+    }
+  }] tokenWithAuthorizedEntity:OCMOCK_ANY scope:OCMOCK_ANY options:OCMOCK_ANY handler:OCMOCK_ANY];
+  [self.messaging retrieveFCMTokenForSenderID:@"123456"
+                                   completion:^(NSString * _Nullable FCMToken,
+                                                NSError * _Nullable error) {}];
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
-- (void)testParsingNonBase64StringABTExperimentPayload {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  NSString *nonBase64String = @"This is not Base64-encoded";
-  notification[kFIRMessagingMessageABTExperimentPayloadKey] = nonBase64String;
-  NSData *payload = [self.messaging abtExperimentPayloadFromMessage:notification];
-  XCTAssertNil(payload);
-}
-
-- (void)testParsingBase64EncodedStringABTExperimentPayload {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  NSString *base64EncodedString = [self createValidBase64EncodedString];
-  notification[kFIRMessagingMessageABTExperimentPayloadKey] = base64EncodedString;
-
-  NSData *payload = [self.messaging abtExperimentPayloadFromMessage:notification];
-  XCTAssertNotNil(payload);
-}
-
-#ifdef DISABLE_AB
-
-- (void)testInvokingABTExperimentControllerIfABTExperimentPayloadExists {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  NSString *base64EncodedString = [self createValidBase64EncodedString];
-  notification[kFIRMessagingMessageABTExperimentPayloadKey] = base64EncodedString;
-
-  XCTestExpectation *abtExperimentControllerWasInvoked =
-      [self expectationWithDescription:@"ABT Experiment Controller was invoked"];
-
-  void (^fulfillBlock)(NSInvocation *) = ^(NSInvocation *invocation) {
-    [abtExperimentControllerWasInvoked fulfill];
-  };
-
-  // In order to handle both reference and value-based params, declare the stub this way
-  // See: http://www.catehuston.com/blog/2016/01/06/ocmock-and-values/
-//  [[[[_mockLocalExperimentController stub] andDo:fulfillBlock] ignoringNonObjectArgs]
-//      setExperimentWithServiceOrigin:[OCMArg any]
-//                              events:[OCMArg any]
-//                              policy:0
-//                             payload:[OCMArg any]];
-//
-//  [self.mockMessaging appDidReceiveMessage:notification];
-//  [self waitForExpectationsWithTimeout:4.0 handler:nil];
+- (void)testAPNSTokenNotIncludedIfUnavailableDuringTokenFetch {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Included APNS Token data not included in options dict."];
+  // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
+  [[[self.mockInstanceIDProxy stub] andDo:^(NSInvocation *invocation) {
+    // Calling getArgument:atIndex: directly leads to an EXC_BAD_ACCESS; use OCMock's wrapper.
+    NSDictionary *options = [invocation getArgumentAtIndexAsObject:4];
+    if (options[@"apns_token"] == nil) {
+      [expectation fulfill];
+    }
+  }] tokenWithAuthorizedEntity:OCMOCK_ANY scope:OCMOCK_ANY options:OCMOCK_ANY handler:OCMOCK_ANY];
+  [self.messaging retrieveFCMTokenForSenderID:@"123456"
+                                   completion:^(NSString * _Nullable FCMToken,
+                                                NSError * _Nullable error) {}];
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 #endif
 
-#pragma mark - Helpers
+- (void)testReturnsErrorWhenFetchingTokenWithoutSenderID {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Returned an error fetching token without Sender ID"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [self.messaging retrieveFCMTokenForSenderID:nil
+                                  completion:
+      ^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+    if (error != nil) {
+      [expectation fulfill];
+    }
+  }];
+#pragma clang diagnostic pop
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
 
-- (NSString *)createValidBase64EncodedString {
-  NSString *plainString = @"This is Base64-encoded data";
-  NSData *plainData = [plainString dataUsingEncoding:NSUTF8StringEncoding];
-  NSString *base64EncodedString = [plainData base64EncodedStringWithOptions:0];
-  return base64EncodedString;
+- (void)testReturnsErrorWhenFetchingTokenWithEmptySenderID {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Returned an error fetching token with empty Sender ID"];
+  [self.messaging retrieveFCMTokenForSenderID:@""
+                                  completion:
+      ^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+    if (error != nil) {
+      [expectation fulfill];
+    }
+  }];
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testReturnsErrorWhenDeletingTokenWithoutSenderID {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Returned an error deleting token without Sender ID"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [self.messaging deleteFCMTokenForSenderID:nil completion:^(NSError * _Nullable error) {
+    if (error != nil) {
+      [expectation fulfill];
+    }
+  }];
+#pragma clang diagnostic pop
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testReturnsErrorWhenDeletingTokenWithEmptySenderID {
+  XCTestExpectation *expectation =
+  [self expectationWithDescription:@"Returned an error deleting token with empty Sender ID"];
+  [self.messaging deleteFCMTokenForSenderID:@"" completion:^(NSError * _Nullable error) {
+    if (error != nil) {
+      [expectation fulfill];
+    }
+  }];
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
 @end

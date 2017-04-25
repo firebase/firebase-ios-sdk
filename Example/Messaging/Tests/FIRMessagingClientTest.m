@@ -289,7 +289,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
                                              port:[FIRMessagingFakeConnection fakePort]
                                           runLoop:[NSRunLoop mainRunLoop]
                                       rmq2Manager:self.mockRmqManager
-                                       gcmManager:self.mockDataMessageManager];
+                                       fcmManager:self.mockDataMessageManager];
       self.client.connection.delegate = self.client;
       handler(self.client.connection);
   }] setupConnection];

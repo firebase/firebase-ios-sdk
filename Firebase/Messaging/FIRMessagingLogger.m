@@ -233,8 +233,24 @@ static NSString *const kFIRMessagingLogPrefix = @"FIRMessaging";
   va_end(args);
 #if FIRMessaging_PROBER
   va_start(args, fmt);
-  // Treat FIRLoggerLevelNotice as "info" locally
+  // Treat FIRLoggerLevelNotice as "info" locally, since we don't have an equivalent
   [self logInternalFunc:func format:fmt valist:args level:kFIRMessagingLogLevelInfo];
+  va_end(args);
+#endif
+}
+
+- (void)logFuncWarning:(const char *)func
+           messageCode:(FIRMessagingMessageCode)messageCode
+                   msg:(NSString *)fmt, ... {
+  va_list args;
+  va_start(args, fmt);
+  FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerMessaging,
+              [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
+  va_end(args);
+#if FIRMessaging_PROBER
+  va_start(args, fmt);
+  // Treat FIRLoggerLevelWarning as "error" locally, since we don't have an equivalent
+  [self logInternalFunc:func format:fmt valist:args level:kFIRMessagingLogLevelError];
   va_end(args);
 #endif
 }

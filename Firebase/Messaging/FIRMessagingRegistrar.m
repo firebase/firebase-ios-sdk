@@ -82,7 +82,7 @@
   } else {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRegistrar000,
                             @"Device check in error, no auth credentials found");
-    NSError *error = [NSError errorWithGcmErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
+    NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
     handler(FIRMessagingTopicOperationResultError, error);
   }
 }

@@ -61,7 +61,7 @@ static NSString *const kPendingSubscriptionsListKey =
   _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
   if (!self.client) {
     handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithGcmErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
+            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
   }
 
@@ -76,7 +76,7 @@ static NSString *const kPendingSubscriptionsListKey =
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub000,
                             @"Invalid FIRMessaging Pubsub topic %@", topic);
     handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithGcmErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
     return;
   }
 
@@ -87,7 +87,7 @@ static NSString *const kPendingSubscriptionsListKey =
                              "values.");
   }
   // copy the dictionary would trim non-string keys or values if any.
-  options = [options gcm_trimNonStringValues];
+  options = [options fcm_trimNonStringValues];
 
   [self.client updateSubscriptionWithToken:token
                                      topic:topic
@@ -109,7 +109,7 @@ static NSString *const kPendingSubscriptionsListKey =
 
   if (!self.client) {
     handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithGcmErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
+            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
   }
 
@@ -123,7 +123,7 @@ static NSString *const kPendingSubscriptionsListKey =
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub002,
                             @"Invalid FIRMessaging Pubsub topic %@", topic);
     handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithGcmErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
     return;
   }
   if (![self verifyPubSubOptions:options]) {
@@ -133,7 +133,7 @@ static NSString *const kPendingSubscriptionsListKey =
         @"Invalid options passed to FIRMessagingPubSub with non-string keys or values.");
   }
   // copy the dictionary would trim non-string keys or values if any.
-  options = [options gcm_trimNonStringValues];
+  options = [options fcm_trimNonStringValues];
 
   [self.client updateSubscriptionWithToken:token
                                      topic:topic
@@ -221,7 +221,7 @@ static NSString *const kPendingSubscriptionsListKey =
 #pragma mark - Private Helpers
 
 - (BOOL)verifyPubSubOptions:(NSDictionary *)options {
-  return ![options gcm_hasNonStringKeysOrValues];
+  return ![options fcm_hasNonStringKeysOrValues];
 }
 
 #pragma mark - Topic Name Helpers

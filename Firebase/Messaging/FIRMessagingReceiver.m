@@ -42,10 +42,10 @@ static int downstreamMessageID = 0;
   }
 
   if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_9_x_Max) {
-    // Use iOS10 new API
+    // Use delegate method for iOS 10
     [self scheduleIos10NotificationForMessage:message withIdentifier:messageID];
   } else {
-    // Post notification direclty to AppDelegate handlers. This is valid pre-iOS 10.
+    // Post notification directly to AppDelegate handlers. This is valid pre-iOS 10.
     [self scheduleNotificationForMessage:message];
   }
 }
@@ -100,8 +100,8 @@ static int downstreamMessageID = 0;
 - (void)scheduleIos10NotificationForMessage:(NSDictionary *)message
                              withIdentifier:(NSString *)messageID {
   SEL dataMessageHandlerSelector = NSSelectorFromString(@"applicationReceivedRemoteMessage:");
-  if (!self.remoteMessagingDelegate
-      || ![self.remoteMessagingDelegate respondsToSelector:dataMessageHandlerSelector]) {
+  if (!self.delegate
+      || ![self.delegate respondsToSelector:dataMessageHandlerSelector]) {
     FIRMessagingLoggerDebug(
         kFIRMessagingMessageCodeReceiver004, @"Delegate hasn't implemented protocol [%@ %@]",
         @"FIRMessagingDelegate", @"applicationReceivedRemoteMessage:remoteMessage:");
@@ -111,7 +111,7 @@ static int downstreamMessageID = 0;
   FIRMessagingRemoteMessage *wrappedMessage = [[FIRMessagingRemoteMessage alloc] init];
   // TODO: wrap title, body, badge and other fields
   wrappedMessage.appData = [message copy];
-  [self.remoteMessagingDelegate applicationReceivedRemoteMessage:wrappedMessage];
+  [self.delegate receiver:self receivedRemoteMessage:wrappedMessage];
 }
 
 - (void)scheduleNotificationForMessage:(NSDictionary *)message {

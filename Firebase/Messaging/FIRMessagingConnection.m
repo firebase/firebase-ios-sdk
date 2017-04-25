@@ -35,7 +35,6 @@ static int const kInvalidStreamId = -1;
 // Threshold for number of messages removed that we will ack, for short lived connections
 static int const kMessageRemoveAckThresholdCount = 5;
 
-// TODO: adjust to desired heartbeat interval
 static NSTimeInterval const kHeartbeatInterval = 30.0;
 static NSTimeInterval const kConnectionTimeout = 20.0;
 static int32_t const kAckingInterval = 10;
@@ -116,7 +115,7 @@ static NSString *const kRemoteFromAddress = @"from";
                           port:(NSUInteger)port
                        runLoop:(NSRunLoop *)runLoop
                    rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
-                    gcmManager:(FIRMessagingDataMessageManager *)dataMessageManager {
+                    fcmManager:(FIRMessagingDataMessageManager *)dataMessageManager {
   self = [super init];
   if (self) {
     _authId = [authId copy];
@@ -333,22 +332,22 @@ static NSString *const kRemoteFromAddress = @"from";
 
 + (int32_t)currentNetworkType {
   // http://developer.android.com/reference/android/net/ConnectivityManager.html
-  int32_t gcmNetworkType;
+  int32_t fcmNetworkType;
   FIRMessagingNetworkStatus type = [[FIRMessaging messaging] networkType];
   switch (type) {
     case kFIRMessagingReachabilityReachableViaWiFi:
-      gcmNetworkType = 1;
+      fcmNetworkType = 1;
       break;
 
     case kFIRMessagingReachabilityReachableViaWWAN:
-      gcmNetworkType = 0;
+      fcmNetworkType = 0;
       break;
 
     default:
-      gcmNetworkType = -1;
+      fcmNetworkType = -1;
       break;
   }
-  return gcmNetworkType;
+  return fcmNetworkType;
 }
 
 - (void)sendLoginRequest:(NSString *)authId

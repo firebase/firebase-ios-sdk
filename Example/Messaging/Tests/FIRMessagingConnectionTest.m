@@ -117,7 +117,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
                                                          port:[FIRMessagingFakeConnection fakePort]
                                                       runLoop:[NSRunLoop currentRunLoop]
                                                   rmq2Manager:_mockRmq
-                                                   gcmManager:_mockDataMessageManager];
+                                                   fcmManager:_mockDataMessageManager];
 
   _mockClient = OCMClassMock([FIRMessagingClient class]);
   _fakeConnection.delegate = _mockClient;
@@ -265,7 +265,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
   // should disconnect since we wait for more time
   XCTestExpectation *disconnectExpectation =
       [self expectationWithDescription:
-          @"Gcm connection should timeout without receiving "
+          @"FCM connection should timeout without receiving "
           @"any data for a timeout interval"];
   [[[socketMock stub]
       andDo:^(NSInvocation *invocation) {

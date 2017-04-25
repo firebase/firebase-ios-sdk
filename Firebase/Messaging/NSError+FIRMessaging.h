@@ -22,7 +22,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
   // Unknown error.
   kFIRMessagingErrorCodeUnknown = 0,
 
-  // Http related errors.
+  // HTTP related errors.
   kFIRMessagingErrorCodeAuthentication = 1,
   kFIRMessagingErrorCodeNoAccess = 2,
   kFIRMessagingErrorCodeTimeout = 3,
@@ -60,9 +60,9 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
 
 @interface NSError (FIRMessaging)
 
-@property(nonatomic, readonly) FIRMessagingInternalErrorCode gcmErrorCode;
+@property(nonatomic, readonly) FIRMessagingInternalErrorCode fcmErrorCode;
 
-+ (NSError *)errorWithGcmErrorCode:(FIRMessagingInternalErrorCode)gcmErrorCode;
-+ (NSError *)gcm_errorWithCode:(NSInteger)code userInfo:(NSDictionary *)userInfo;
++ (NSError *)errorWithFCMErrorCode:(FIRMessagingInternalErrorCode)fcmErrorCode;
++ (NSError *)fcm_errorWithCode:(NSInteger)code userInfo:(NSDictionary *)userInfo;
 
 @end

@@ -28,6 +28,8 @@
     [FIRMessagingSharedLogger() logFuncInfo:__func__ messageCode:code msg:__VA_ARGS__]
 #define FIRMessagingLoggerNotice(code, ...)   \
     [FIRMessagingSharedLogger() logFuncNotice:__func__ messageCode:code msg:__VA_ARGS__]
+#define FIRMessagingLoggerWarn(code, ...)   \
+    [FIRMessagingSharedLogger() logFuncWarning:__func__ messageCode:code msg:__VA_ARGS__]
 #define FIRMessagingLoggerError(code, ...)  \
     [FIRMessagingSharedLogger() logFuncError:__func__ messageCode:code msg:__VA_ARGS__]
 
@@ -75,6 +77,10 @@
 - (void)logFuncNotice:(const char *)func
           messageCode:(FIRMessagingMessageCode)messageCode
                   msg:(NSString *)fmt, ... NS_FORMAT_FUNCTION(3, 4);
+
+- (void)logFuncWarning:(const char *)func
+           messageCode:(FIRMessagingMessageCode)messageCode
+                   msg:(NSString *)fmt, ... NS_FORMAT_FUNCTION(3, 4);
 
 - (void)logFuncError:(const char *)func
          messageCode:(FIRMessagingMessageCode)messageCode

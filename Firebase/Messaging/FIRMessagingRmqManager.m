@@ -32,7 +32,7 @@ do {                              \
 } while(0)
 #endif
 
-static NSString *const kGcmRmqTag = @"FIRMessagingRmq:";
+static NSString *const kFCMRmqTag = @"FIRMessagingRmq:";
 
 @interface FIRMessagingRmqManager ()
 
@@ -67,7 +67,7 @@ static NSString *const kGcmRmqTag = @"FIRMessagingRmq:";
   [self loadInitialOutgoingPersistentId];
   if (self.outstandingMessages.count) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmqManager000,
-                            @"%@: outstanding categories %ld", kGcmRmqTag,
+                            @"%@: outstanding categories %ld", kFCMRmqTag,
                             _FIRMessaging_UL(self.outstandingMessages.count));
   }
 }
@@ -181,7 +181,7 @@ static NSString *const kGcmRmqTag = @"FIRMessagingRmq:";
 #pragma mark - Remove
 
 - (void)ackReceivedForRmqId:(NSString *)rmqId {
-  // TODO: can do custom stuff, maybe bookkeeping.
+  // TODO: Optional book-keeping
 }
 
 - (int)removeRmqMessagesWithRmqId:(NSString *)rmqId {
@@ -216,7 +216,7 @@ static NSString *const kGcmRmqTag = @"FIRMessagingRmq:";
 #pragma mark - Sync Messages
 
 // TODO: RMQManager should also have a cache for all the sync messages
-// received uptil then so we don't hit the DB each time.
+// so we don't hit the DB each time.
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
   return [self.rmq2Store querySyncMessageWithRmqID:rmqID];
 }

@@ -24,32 +24,22 @@
 
 #define DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS 0
 
-typedef NS_ENUM(int8_t, FIRMessagingSubscribeServerType) {
-  kFIRMessagingSubscribeServerBeta,
-  kFIRMessagingSubscribeServerProd,
-};
-
-NSString *FIRMessagingSubscriptionsServerHost(FIRMessagingSubscribeServerType serverType) {
-  switch (serverType) {
-    case kFIRMessagingSubscribeServerBeta:
-      return @"https://jmt17.google.com/gcm/register4";
-
-    case kFIRMessagingSubscribeServerProd:
-      return @"https://iid.googleapis.com/iid/register";
-
-    default:
-      FIRMessaging_FAIL(@"Invalid subscribe server type");
-      return @"https://iid.googleapis.com/iid/register";
-      break;
-  }
-}
+static NSString *const kFIRMessagingSubscribeServerHost =
+    @"https://iid.googleapis.com/iid/register";
 
 NSString *FIRMessagingSubscriptionsServer() {
-#if FIRMessaging_PROD_SERVER == 1
-  return FIRMessagingSubscriptionsServerHost(kFIRMessagingSubscribeServerProd);
-#else
-  return FIRMessagingSubscriptionsServerHost(kFIRMessagingSubscribeServerBeta);
-#endif
+  static NSString *serverHost = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSDictionary *environment = [[NSProcessInfo processInfo] environment];
+    NSString *customServerHost = environment[@"FCM_SERVER_ENDPOINT"];
+    if (customServerHost.length) {
+      serverHost = customServerHost;
+    } else {
+      serverHost = kFIRMessagingSubscribeServerHost;
+    }
+  });
+  return serverHost;
 }
 
 @interface FIRMessagingTopicOperation () {
@@ -167,18 +157,20 @@ NSString *FIRMessagingSubscriptionsServer() {
 
   NSURL *url = [NSURL URLWithString:FIRMessagingSubscriptionsServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-  NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@",
-                          self.checkinService.deviceAuthID, self.checkinService.secretToken];
+  NSString *appIdentifier = FIRMessagingAppIdentifier();
+  NSString *deviceAuthID = self.checkinService.deviceAuthID;
+  NSString *secretToken = self.checkinService.secretToken;
+  NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", deviceAuthID, secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
-  [request setValue:FIRMessagingAppIdentifier() forHTTPHeaderField:@"app"];
+  [request setValue:appIdentifier forHTTPHeaderField:@"app"];
   [request setValue:self.checkinService.versionInfo forHTTPHeaderField:@"info"];
 
   NSMutableString *content = [NSMutableString stringWithFormat:
                               @"sender=%@&app=%@&device=%@&"
                               @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
                               self.token,
-                              FIRMessagingAppIdentifier(),
-                              self.checkinService.deviceAuthID,
+                              appIdentifier,
+                              deviceAuthID,
                               FIRMessagingCurrentAppVersion(),
                               self.topic,
                               self.topic];
@@ -218,7 +210,7 @@ NSString *FIRMessagingSubscriptionsServer() {
     NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     if (response.length == 0) {
       [self finishWithResult:FIRMessagingTopicOperationResultError
-                       error:[NSError errorWithGcmErrorCode:kFIRMessagingErrorCodeUnknown]];
+                       error:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
       return;
     }
     NSArray *parts = [response componentsSeparatedByString:@"="];
@@ -227,7 +219,7 @@ NSString *FIRMessagingSubscriptionsServer() {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
                               @"Invalid registration request, response");
       [self finishWithResult:FIRMessagingTopicOperationResultError
-                       error:[NSError errorWithGcmErrorCode:kFIRMessagingErrorCodeUnknown]];
+                       error:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
       return;
     }
 #if DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS

@@ -20,13 +20,13 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   // FIRMessaging.m
   kFIRMessagingMessageCodeMessaging000 = 2000,  // I-FCM002000
   kFIRMessagingMessageCodeMessaging001 = 2001,  // I-FCM002001
-  kFIRMessagingMessageCodeMessaging002 = 2002,  // I-FCM002002
+  kFIRMessagingMessageCodeMessaging002 = 2002,  // I-FCM002002 - no longer used
   kFIRMessagingMessageCodeMessaging003 = 2003,  // I-FCM002003
   kFIRMessagingMessageCodeMessaging004 = 2004,  // I-FCM002004
   kFIRMessagingMessageCodeMessaging005 = 2005,  // I-FCM002005
-  kFIRMessagingMessageCodeMessaging006 = 2006,  // I-FCM002006
-  kFIRMessagingMessageCodeMessaging007 = 2007,  // I-FCM002007
-  kFIRMessagingMessageCodeMessaging008 = 2008,  // I-FCM002008
+  kFIRMessagingMessageCodeMessaging006 = 2006,  // I-FCM002006 - no longer used
+  kFIRMessagingMessageCodeMessaging007 = 2007,  // I-FCM002007 - no longer used
+  kFIRMessagingMessageCodeMessaging008 = 2008,  // I-FCM002008 - no longer used
   kFIRMessagingMessageCodeMessaging009 = 2009,  // I-FCM002009
   kFIRMessagingMessageCodeMessaging010 = 2010,  // I-FCM002010
   kFIRMessagingMessageCodeMessaging011 = 2011,  // I-FCM002011
@@ -37,16 +37,10 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeMessaging016 = 2016,  // I-FCM002016
   kFIRMessagingMessageCodeMessaging017 = 2017,  // I-FCM002017
   kFIRMessagingMessageCodeMessaging018 = 2018,  // I-FCM002018
-  // FIRMessagingAnalytics.m
-  kFIRMessagingMessageCodeAnalytics000 = 3000,  // I-FCM003000
-  kFIRMessagingMessageCodeAnalytics001 = 3001,  // I-FCM003001
-  kFIRMessagingMessageCodeAnalytics002 = 3002,  // I-FCM003002
-  kFIRMessagingMessageCodeAnalytics003 = 3003,  // I-FCM003003
-  kFIRMessagingMessageCodeAnalytics004 = 3004,  // I-FCM003004
-  kFIRMessagingMessageCodeAnalytics005 = 3005,  // I-FCM003005
-  kFIRMessagingMessageCodeAnalytics006 = 3006,  // I-FCM003006 - no longer used
-  kFIRMessagingMessageCodeAnalytics007 = 3007,  // I-FCM003007
-  kFIRMessagingMessageCodeAnalytics008 = 3008,  // I-FCM003008
+  kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented = 2019, // I-FCM002019
+  kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch = 2020, // I-FCM002020
+  kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete = 2021, // I-FCM002021
+  kFIRMessagingMessageCodeAPNSTokenNotAvailableDuringTokenFetch = 2022, // I-FCM002022
   // FIRMessagingClient.m
   kFIRMessagingMessageCodeClient000 = 4000,  // I-FCM004000
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004001
@@ -125,6 +119,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   // FIRMessagingRemoteNotificationsProxy.m
   kFIRMessagingMessageCodeRemoteNotificationsProxy000 = 12000,  // I-FCM012000
   kFIRMessagingMessageCodeRemoteNotificationsProxy001 = 12001,  // I-FCM012001
+  kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed = 12002,  // I-FCM012002
   // FIRMessagingRmq2PersistentStore.m
   kFIRMessagingMessageCodeRmq2PersistentStore000 = 13000,  // I-FCM013000
   kFIRMessagingMessageCodeRmq2PersistentStore001 = 13001,  // I-FCM013001

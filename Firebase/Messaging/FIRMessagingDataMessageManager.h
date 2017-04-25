@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)sendDataMessageStanza:(NSMutableDictionary *)dataMessage;
 - (void)didSendDataMessageStanza:(GtalkDataMessageStanza *)message;
 
-- (void)resendMessagesWithConnection:(FIRMessagingConnection *)gcmConnection;
+- (void)resendMessagesWithConnection:(FIRMessagingConnection *)connection;
 
 NS_ASSUME_NONNULL_END
 

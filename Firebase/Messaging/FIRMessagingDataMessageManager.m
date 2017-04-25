@@ -42,13 +42,13 @@ static NSString *const kFromForInstanceIDMessages = @"google.com/iid";
 static NSString *const kFromForFIRMessagingMessages = @"mcs.android.com";
 static NSString *const kGSFMessageCategory = @"com.google.android.gsf.gtalkservice";
 // TODO: Update Gcm to FIRMessaging in the constants below
-static NSString *const kGcmMessageCategory = @"com.google.gcm";
+static NSString *const kFCMMessageCategory = @"com.google.gcm";
 static NSString *const kMessageReservedPrefix = @"google.";
 
-static NSString *const kGcmMessageSpecialMessage = @"message_type";
+static NSString *const kFCMMessageSpecialMessage = @"message_type";
 
 // special messages sent by the server
-static NSString *const kGcmMessageTypeDeletedMessages = @"deleted_messages";
+static NSString *const kFCMMessageTypeDeletedMessages = @"deleted_messages";
 
 static NSString *const kMCSNotificationPrefix = @"gcm.notification.";
 static NSString *const kDataMessageNotificationKey = @"notification";
@@ -119,7 +119,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 - (NSDictionary *)processPacket:(GtalkDataMessageStanza *)dataMessage {
   NSString *category = dataMessage.category;
   NSString *from = dataMessage.from;
-  if ([kGcmMessageCategory isEqualToString:category] ||
+  if ([kFCMMessageCategory isEqualToString:category] ||
       [kGSFMessageCategory isEqualToString:category]) {
     [self handleMCSDataMessage:dataMessage];
     return nil;
@@ -218,12 +218,11 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 }
 
 - (void)didReceiveParsedMessage:(NSDictionary *)message {
-  // cs/google3/java/com/google/buzz/mobile/KansasRmq2Manager.java&q=collapseAndSendDirtyPing&l=884
-  if ([message[kGcmMessageSpecialMessage] length]) {
-    NSString *messageType = message[kGcmMessageSpecialMessage];
-    if ([kGcmMessageTypeDeletedMessages isEqualToString:messageType]) {
+  if ([message[kFCMMessageSpecialMessage] length]) {
+    NSString *messageType = message[kFCMMessageSpecialMessage];
+    if ([kFCMMessageTypeDeletedMessages isEqualToString:messageType]) {
       // TODO: Maybe trim down message to remove some unnecessary fields.
-      // tell the gcm receiver of deleted messages
+      // tell the FCM receiver of deleted messages
       [self.delegate didDeleteMessagesOnServer];
       return;
     }
@@ -431,7 +430,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager011,
                           @"Send message fail: %@ error: %lu", messageId, (unsigned long)errorCode);
 
-  NSError *error = [NSError errorWithGcmErrorCode:errorCode];
+  NSError *error = [NSError errorWithFCMErrorCode:errorCode];
   if ([self.delegate respondsToSelector:@selector(willSendDataMessageWithID:error:)]) {
     [self.delegate willSendDataMessageWithID:messageId error:error];
   }

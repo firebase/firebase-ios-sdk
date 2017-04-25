@@ -26,9 +26,7 @@
  *  @param tag   The message tag.
  *  @param data  The data stored in the message.
  */
-typedef void(^GcmOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSData *data);
-
-// TODO: These constants should be prefixed by FIRMessaging
+typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSData *data);
 
 /// Outgoing messages RMQ table
 extern NSString *const kTableOutgoingRmqMessages;
@@ -108,7 +106,7 @@ extern NSString *const kTableS2DRmqIds;
  *
  *  @param handler The handler invoked with each message in the outgoing RMQ table.
  */
-- (void)scanOutgoingRmqMessagesWithHandler:(GcmOutgoingRmqMessagesTableHandler)handler;
+- (void)scanOutgoingRmqMessagesWithHandler:(FCMOutgoingRmqMessagesTableHandler)handler;
 
 #pragma mark - Delete
 

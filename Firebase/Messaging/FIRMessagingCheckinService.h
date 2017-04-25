@@ -16,14 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-// public for testing
-FOUNDATION_EXPORT NSString *const kFIRMessagingDeviceAuthIdKey;
-FOUNDATION_EXPORT NSString *const kFIRMessagingSecretTokenKey;
-FOUNDATION_EXPORT NSString *const kFIRMessagingLastCheckinTimeKey;
-FOUNDATION_EXPORT NSString *const kFIRMessagingDigestStringKey;
-FOUNDATION_EXPORT NSString *const kFIRMessagingVersionInfoStringKey;
-FOUNDATION_EXPORT NSString *const kFIRMessagingGServicesDictionaryKey;
-
 /**
  * Register the device with Checkin Service and get back the `authID`, `secret token` etc. for the
  * client. Checkin results are cached in the `FIRMessagingDefaultsManager` and periodically refreshed to
@@ -36,7 +28,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingGServicesDictionaryKey;
 @property(nonatomic, readonly, strong) NSString *secretToken;
 @property(nonatomic, readonly, strong) NSString *versionInfo;
 @property(nonatomic, readonly, assign) BOOL hasValidCheckinInfo;
-@property(nonatomic, readonly, assign) int64_t lastCheckinTimestampMillis;
 
 /**
  *  Verify if valid checkin preferences have been loaded in memory.
