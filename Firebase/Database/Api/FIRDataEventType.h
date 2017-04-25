@@ -17,6 +17,8 @@
 #ifndef Firebase_FIRDataEventType_h
 #define Firebase_FIRDataEventType_h
 
+#import <Foundation/Foundation.h>
+
 /**
  * This enum is the set of events that you can observe at a Firebase Database location.
  */
