@@ -16,9 +16,6 @@
 #import "FIROptionsInternal.h"
 #import "FIRTestCase.h"
 
-extern NSString *const kLastTimestampFileName;
-extern NSString *const kUniqueInstallFileName;
-
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
@@ -46,6 +43,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 @end
 
+
 @interface FIRAppTest : FIRTestCase
 
 @property(nonatomic) id appClassMock;
@@ -67,9 +65,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)tearDown {
-  // Trigger removeFIRAppFromNotificationCenter: to remove the observer
-  [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillTerminateNotification
-                                                      object:nil];
   [_appClassMock stopMocking];
   [_optionsInstanceMock stopMocking];
   [_notificationCenterMock stopMocking];
@@ -323,147 +318,96 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                  "'getTokenImplementation' block correctly.");
 }
 
-- (void)testLogAppInfo {
-  // Manually send notification since the observer can't be tested on a simulator
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:UIApplicationDidBecomeActiveNotification
-                    object:nil];
-  OCMVerify([FIRApp logAppInfo:[OCMArg any]]);
+- (void)testModifyingOptionsThrows {
+  [FIRApp configure];
+  FIROptions *options = [[FIRApp defaultApp] options];
+  XCTAssertTrue(options.isEditingLocked);
 
-  NSURL *filePathURL = [FIRApp filePathURLWithName:kLastTimestampFileName];
-  XCTAssertTrue([filePathURL.path
-      hasSuffix:@"Library/Application Support/Google/FIRApp/FIREBASE_LAST_TIMESTAMP"]);
+  // Modification to every property should result in an exception.
+  XCTAssertThrows(options.androidClientID = @"should_throw");
+  XCTAssertThrows(options.APIKey = @"should_throw");
+  XCTAssertThrows(options.bundleID = @"should_throw");
+  XCTAssertThrows(options.clientID = @"should_throw");
+  XCTAssertThrows(options.databaseURL = @"should_throw");
+  XCTAssertThrows(options.deepLinkURLScheme = @"should_throw");
+  XCTAssertThrows(options.GCMSenderID = @"should_throw");
+  XCTAssertThrows(options.googleAppID = @"should_throw");
+  XCTAssertThrows(options.projectID = @"should_throw");
+  XCTAssertThrows(options.storageBucket = @"should_throw");
+  XCTAssertThrows(options.trackingID = @"should_throw");
 }
 
-- (void)testWritingStringToFile {
-  NSString *uniqueString = [FIRApp installString];
-  XCTAssertNotNil(uniqueString);
+- (void)testOptionsLocking {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  options.projectID = kProjectID;
+  options.databaseURL = kDatabaseURL;
 
-  NSURL *filePathURL = [FIRApp filePathURLWithName:kUniqueInstallFileName];
-  XCTAssertTrue([filePathURL.path
-      hasSuffix:@"Library/Application Support/Google/FIRApp/FIREBASE_UNIQUE_INSTALL"]);
-  NSDictionary *values = [filePathURL resourceValuesForKeys:@[NSURLIsExcludedFromBackupKey]
-                                                      error:NULL];
-  XCTAssertEqualObjects(values[NSURLIsExcludedFromBackupKey], @YES);
+  // Options should not be locked before they are used to configure a `FIRApp`.
+  XCTAssertFalse(options.isEditingLocked);
 
-  NSString *content = [FIRApp stringAtURL:filePathURL];
-  XCTAssertTrue([uniqueString isEqualToString:content]);
-  // Check whether the saved unique string follows the correct format.
-  // A sample UUID: 5A870F63-078E-4D92-9145-EC2EF97E6681
-  NSString *pattern = @"^[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}$";
-  NSRegularExpression *regex =
-      [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
-  NSUInteger matchNumber = [regex numberOfMatchesInString:content
-                                                  options:0
-                                                    range:NSMakeRange(0, [content length])];
-  XCTAssertTrue(matchNumber == 1);
-
-  // Writing the same string to the same file again should still succeed.
-  XCTAssertTrue([FIRApp writeString:content toURL:filePathURL]);
+  // The options returned should be locked after configuring `FIRApp`.
+  [FIRApp configureWithOptions:options];
+  FIROptions *optionsCopy = [[FIRApp defaultApp] options];
+  XCTAssertTrue(optionsCopy.isEditingLocked);
 }
 
 #pragma mark - App ID v1
 
-- (void)testAppIDV1BadFormat {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
+- (void)testAppIDV1 {
   // Missing separator between platform:fingerprint.
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"1:1337:iosdeadbeef");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
+  XCTAssertFalse([FIRApp validateAppID:@"1:1337:iosdeadbeef"]);
 
-  XCTAssertFalse([self.app isAppIDValid]);
-}
-
-- (void)testAppIDV1BadPlatform {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
   // Wrong platform "android".
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"1:1337:android:deadbeef");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
+  XCTAssertFalse([FIRApp validateAppID:@"1:1337:android:deadbeef"]);
 
-  XCTAssertFalse([self.app isAppIDValid]);
-}
-
-- (void)testAppIDV1BadFingerprintCharacters {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
   // The fingerprint, aka 4th field, should only contain hex characters.
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"1:1337:ios:123abcxyz");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
+  XCTAssertFalse([FIRApp validateAppID:@"1:1337:ios:123abcxyz"]);
 
-  XCTAssertFalse([self.app isAppIDValid]);
-}
-
-- (void)testAppIDV1BadFingerprint {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
   // The fingerprint, aka 4th field, is not tested in V1, so a bad value shouldn't cause a failure.
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"1:1337:ios:deadbeef");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
-
-  XCTAssertTrue([self.app isAppIDValid]);
+  XCTAssertTrue([FIRApp validateAppID:@"1:1337:ios:deadbeef"]);
 }
 
 #pragma mark - App ID v2
 
-- (void)testAppIDV2UnknownFormat {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
+- (void)testAppIDV2 {
   // Missing separator between platform:fingerprint.
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"2:1337:ios5e18052ab54fbfec");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
+  XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios5e18052ab54fbfec"]);
 
-  XCTAssertTrue([self.app isAppIDValid]);
-}
-
-- (void)testAppIDV2MaybeOKFingerprintCharacters {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
   // Unknown versions may contain anything.
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"2:1337:ios:123abcxyz");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
+  XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:123abcxyz"]);
+  XCTAssertTrue([FIRApp validateAppID:@"2:thisdoesn'teven_m:a:t:t:e:r_"]);
 
-  XCTAssertTrue ([self.app isAppIDValid]);
-}
+  // Known good fingerprint.
+  XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:5e18052ab54fbfec"]);
 
-- (void)testAppIDV2GoodFingerprint {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"2:1337:ios:5e18052ab54fbfec");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
-
-  XCTAssertTrue([self.app isAppIDValid]);
-}
-
-- (void)testAppIDV2UnknownFingerprint {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"2:1337:ios:deadbeef");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
-
-  XCTAssertTrue([self.app isAppIDValid]);
+  // Unknown fingerprint, not tested so shouldn't cause a failure.
+  XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:deadbeef"]);
 }
 
 #pragma mark - App ID other
 
 - (void)testAppIDV3 {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
   // Currently there is no specification for v3, so we would not expect it to fail.
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"3:1337:ios:deadbeef");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
-
-  XCTAssertTrue([self.app isAppIDValid]);
+  XCTAssertTrue([FIRApp validateAppID:@"3:1337:ios:deadbeef"]);
 }
 
 - (void)testAppIDEmpty {
-  OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
-  // An empty app id should not pass.
-  OCMStub([self.optionsInstanceMock googleAppID]).andReturn(@"");
-  self.app = [[FIRApp alloc] initInstanceWithName:kFIRTestAppName1
-                                          options:self.optionsInstanceMock];
+  XCTAssertFalse([FIRApp validateAppID:@""]);
+}
 
-  XCTAssertFalse([self.app isAppIDValid]);
+- (void)testAppIDValidationTrue {
+  // Ensure that isAppIDValid matches validateAppID.
+  [FIRApp configure];
+  OCMStub([self.appClassMock validateAppID:[OCMArg any]]).andReturn(YES);
+  XCTAssertTrue([[FIRApp defaultApp] isAppIDValid]);
+}
+
+- (void)testAppIDValidationFalse {
+  // Ensure that isAppIDValid matches validateAppID.
+  [FIRApp configure];
+  OCMStub([self.appClassMock validateAppID:[OCMArg any]]).andReturn(NO);
+  XCTAssertFalse([[FIRApp defaultApp] isAppIDValid]);
 }
 
 - (void)testAppIDPrefix {

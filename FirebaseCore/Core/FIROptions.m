@@ -49,12 +49,17 @@ NSString *const kServiceInfoFileName = @"GoogleService-Info";
 // Plist file type.
 NSString *const kServiceInfoFileType = @"plist";
 
+// Exception raised from attempting to modify a FIROptions after it's been copied to a FIRApp.
+NSString *const kFIRExceptionBadModification =
+    @"Attempted to modify options after it's set on FIRApp. Please modify all properties before "
+    @"initializing FIRApp.";
+
 @interface FIROptions ()
 
 /**
  * This property maintains the actual configuration key-value pairs.
  */
-@property(nonatomic, readwrite) NSDictionary *optionsDictionary;
+@property(nonatomic, readwrite) NSMutableDictionary *optionsDictionary;
 
 /**
  * Combination of analytics options from both the main plist and the GoogleService-info.plist.
@@ -132,7 +137,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 - (instancetype)initInternalWithOptionsDictionary:(NSDictionary *)optionsDictionary {
   self = [super init];
   if (self) {
-    _optionsDictionary = optionsDictionary;
+    _optionsDictionary = [optionsDictionary mutableCopy];
     _usingOptionsFromDefaultPlist = YES;
   }
   return self;
@@ -143,6 +148,8 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   if (newOptions) {
     newOptions.optionsDictionary = self.optionsDictionary;
     newOptions.deepLinkURLScheme = self.deepLinkURLScheme;
+    newOptions.editingLocked = self.isEditingLocked;
+    newOptions.usingOptionsFromDefaultPlist = self.usingOptionsFromDefaultPlist;
   }
   return newOptions;
 }
@@ -167,6 +174,11 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
       [NSException raise:kFirebaseCoreErrorDomain format:@"Please specify a valid GCM Sender ID."];
     }
 
+    // `bundleID` is a required property, default to the main `bundleIdentifier` if it's `nil`.
+    if (!bundleID) {
+      bundleID = [[NSBundle mainBundle] bundleIdentifier];
+    }
+
     NSMutableDictionary *mutableOptionsDict = [NSMutableDictionary dictionary];
     [mutableOptionsDict setValue:googleAppID forKey:kFIRGoogleAppID];
     [mutableOptionsDict setValue:bundleID forKey:kFIRBundleID];
@@ -177,7 +189,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [mutableOptionsDict setValue:androidClientID forKey:kFIRAndroidClientID];
     [mutableOptionsDict setValue:databaseURL forKey:kFIRDatabaseURL];
     [mutableOptionsDict setValue:storageBucket forKey:kFIRStorageBucket];
-    self.optionsDictionary = [NSDictionary dictionaryWithDictionary:mutableOptionsDict];
+    self.optionsDictionary = mutableOptionsDict;
     self.deepLinkURLScheme = deepLinkURLScheme;
   }
   return self;
@@ -190,12 +202,27 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
       FIRLogError(kFIRLoggerCore, @"I-COR000013", @"The plist file path is nil.");
       return nil;
     }
-    _optionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistPath];
+    _optionsDictionary = [[NSDictionary dictionaryWithContentsOfFile:plistPath] mutableCopy];
     if (_optionsDictionary == nil) {
       FIRLogError(kFIRLoggerCore, @"I-COR000014", @"The configuration file at %@ does not exist or "
                   @"is not a well-formed plist file.", plistPath);
       return nil;
     }
+    // TODO(wilsonryan): Do we want to validate the dictionary here? It says we do that already in
+    // the public header.
+  }
+  return self;
+}
+
+- (instancetype)initWithGoogleAppID:(NSString *)googleAppID
+                        GCMSenderID:(NSString *)GCMSenderID {
+  self = [super init];
+  if (self) {
+    NSMutableDictionary *mutableOptionsDict = [NSMutableDictionary dictionary];
+    [mutableOptionsDict setValue:googleAppID forKey:kFIRGoogleAppID];
+    [mutableOptionsDict setValue:GCMSenderID forKey:kFIRGCMSenderID];
+    [mutableOptionsDict setValue:[[NSBundle mainBundle] bundleIdentifier] forKey:kFIRBundleID];
+    self.optionsDictionary = mutableOptionsDict;
   }
   return self;
 }
@@ -204,41 +231,143 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   return self.optionsDictionary[kFIRAPIKey];
 }
 
+- (void)setAPIKey:(NSString *)APIKey {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRAPIKey] = APIKey;
+}
+
 - (NSString *)clientID {
   return self.optionsDictionary[kFIRClientID];
+}
+
+- (void)setClientID:(NSString *)clientID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRClientID] = clientID;
 }
 
 - (NSString *)trackingID {
   return self.optionsDictionary[kFIRTrackingID];
 }
 
+- (void)setTrackingID:(NSString *)trackingID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRTrackingID] = trackingID;
+}
+
 - (NSString *)GCMSenderID {
   return self.optionsDictionary[kFIRGCMSenderID];
+}
+
+- (void)setGCMSenderID:(NSString *)GCMSenderID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRGCMSenderID] = GCMSenderID;
 }
 
 - (NSString *)projectID {
   return self.optionsDictionary[kFIRProjectID];
 }
 
+- (void)setProjectID:(NSString *)projectID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRProjectID] = projectID;
+}
+
 - (NSString *)androidClientID {
   return self.optionsDictionary[kFIRAndroidClientID];
+}
+
+- (void)setAndroidClientID:(NSString *)androidClientID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRAndroidClientID] = androidClientID;
 }
 
 - (NSString *)googleAppID {
   return self.optionsDictionary[kFIRGoogleAppID];
 }
 
+- (void)setGoogleAppID:(NSString *)googleAppID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRGoogleAppID] = googleAppID;
+}
+
 - (NSString *)libraryVersionID {
   return kFIRLibraryVersionID;
+}
+
+- (void)setLibraryVersionID:(NSString *)libraryVersionID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRLibraryVersionID] = libraryVersionID;
 }
 
 - (NSString *)databaseURL {
   return self.optionsDictionary[kFIRDatabaseURL];
 }
 
+- (void)setDatabaseURL:(NSString *)databaseURL {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRDatabaseURL] = databaseURL;
+}
+
 - (NSString *)storageBucket {
   return self.optionsDictionary[kFIRStorageBucket];
 }
+
+- (void)setStorageBucket:(NSString *)storageBucket {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRStorageBucket] = storageBucket;
+}
+
+- (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _deepLinkURLScheme = deepLinkURLScheme;
+}
+
+- (NSString *)bundleID {
+  return self.optionsDictionary[kFIRBundleID];
+}
+
+- (void)setBundleID:(NSString *)bundleID {
+  if (self.isEditingLocked) {
+    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
+  }
+
+  _optionsDictionary[kFIRBundleID] = bundleID;
+}
+
+#pragma mark - Internal instance methods
 
 - (NSDictionary *)analyticsOptionsDictionary {
   dispatch_once(&_createAnalyticsOptionsDictionaryOnce, ^{
@@ -257,10 +386,6 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     _analyticsOptionsDictionary = tempAnalyticsOptions;
   });
   return _analyticsOptionsDictionary;
-}
-
-- (NSString *)bundleID {
-  return self.optionsDictionary[kFIRBundleID];
 }
 
 /**

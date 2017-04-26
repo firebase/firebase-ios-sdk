@@ -44,4 +44,12 @@ typedef NS_ENUM(NSInteger, FIRErrorCode) {
   FIRErrorCodeAuthFailed = -120,
   FIRErrorCodeInstanceIDFailed = -121,
   FIRErrorCodeStorageFailed = -123,
+
+  /**
+   * Error codes returned by Dynamic Links
+   */
+  FIRErrorCodeDynamicLinksStrongMatchNotAvailable = -124,
+  FIRErrorCodeDynamicLinksManualRetrievalNotEnabled = -125,
+  FIRErrorCodeDynamicLinksPendingLinkOnlyAvailableAtFirstLaunch = -126,
+  FIRErrorCodeDynamicLinksPendingLinkRetrievalAlreadyRunning = -127,
 };

@@ -62,11 +62,6 @@ extern NSString *const kServiceInfoFileType;
 + (NSDictionary *)defaultOptionsDictionary;
 
 /**
- * The bundle identifier.
- */
-@property(nonatomic, readonly) NSString *bundleID;
-
-/**
  * Whether or not Analytics Collection was enabled. Analytics Collection is enabled unless
  * explicitly disabled in GoogleService-Info.plist.
  */
@@ -104,5 +99,10 @@ extern NSString *const kServiceInfoFileType;
  * Whether or not SignIn was enabled in the developer console.
  */
 @property(nonatomic, readonly) BOOL isSignInEnabled;
+
+/**
+ * Whether or not editing is locked. This should occur after FIROptions has been set on a FIRApp.
+ */
+@property(nonatomic, getter=isEditingLocked) BOOL editingLocked;
 
 @end

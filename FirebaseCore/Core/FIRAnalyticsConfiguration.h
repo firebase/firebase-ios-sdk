@@ -16,15 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * This class provides configuration fields for Firebase Analytics.
  */
+NS_SWIFT_NAME(AnalyticsConfiguration)
 @interface FIRAnalyticsConfiguration : NSObject
 
 /**
  * Returns the shared instance of FIRAnalyticsConfiguration.
  */
-+ (FIRAnalyticsConfiguration *)sharedInstance;
++ (FIRAnalyticsConfiguration *)sharedInstance NS_SWIFT_NAME(shared());
 
 /**
  * Sets the minimum engagement time in seconds required to start a new session. The default value
@@ -52,3 +55,5 @@
     DEPRECATED_MSG_ATTRIBUTE("Use setAnalyticsCollectionEnabled: instead.");
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -26,6 +26,11 @@
  */
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, FIRConfigType) {
+  FIRConfigTypeCore = 1,
+  FIRConfigTypeSDK = 2,
+};
+
 /**
  * Names of services provided by Firebase.
  */

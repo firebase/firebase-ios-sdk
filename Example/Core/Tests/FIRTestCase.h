@@ -17,6 +17,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 extern NSString *const kAPIKey;
 extern NSString *const kCustomizedAPIKey;
 extern NSString *const kClientID;
@@ -39,3 +41,5 @@ extern NSString *const kProjectID;
 @interface FIRTestCase : XCTestCase
 
 @end
+
+NS_ASSUME_NONNULL_END

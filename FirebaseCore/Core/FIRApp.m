@@ -14,6 +14,7 @@
 
 #include <sys/utsname.h>
 
+#import "FIRApp.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "FIRConfiguration.h"
@@ -31,7 +32,6 @@ NSString *const kFIRServiceMessaging = @"Messaging";
 NSString *const kFIRServiceMeasurement = @"Measurement";
 NSString *const kFIRServiceRemoteConfig = @"RemoteConfig";
 NSString *const kFIRServiceStorage = @"Storage";
-
 NSString *const kGGLServiceAnalytics = @"Analytics";
 NSString *const kGGLServiceSignIn = @"SignIn";
 
@@ -42,26 +42,18 @@ NSString *const kFIRAppIsDefaultAppKey = @"FIRAppIsDefaultAppKey";
 NSString *const kFIRAppNameKey = @"FIRAppNameKey";
 NSString *const kFIRGoogleAppIDKey = @"FIRGoogleAppIDKey";
 
-/**
- * The file name to keep the last logging date.
- */
-NSString *const kLastTimestampFileName = @"FIREBASE_LAST_TIMESTAMP";
-/**
- * The file name to keep the unique install string.
- */
-NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
-/**
- * The key for the minimum OS version.
- */
-NSString *const kMinimumOSVersion = @"MinimumOSVersion";
+NSString *const kFIRAppDiagnosticsNotification = @"FIRAppDiagnosticsNotification";
+
+NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"ConfigType";
+NSString *const kFIRAppDiagnosticsErrorKey = @"Error";
+NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRApp";
+NSString *const kFIRAppDiagnosticsSDKNameKey = @"SDKName";
+NSString *const kFIRAppDiagnosticsSDKVersionKey = @"SDKVersion";
+
 /**
  * The URL to download plist files.
  */
 static NSString *const kPlistURL = @"https://console.firebase.google.com/";
-/**
- * Number of total seconds in one day.
- */
-static const NSTimeInterval sSecondsInOneDay = 60*60*24;
 
 @interface FIRApp ()
 
@@ -73,15 +65,26 @@ static const NSTimeInterval sSecondsInOneDay = 60*60*24;
 
 @implementation FIRApp
 
+// This is necessary since our custom getter prevents `_options` from being created.
+@synthesize options = _options;
+
 static NSMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
 
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:kFIRAppDiagnosticsNotification
+                      object:nil
+                    userInfo:@{
+                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                      kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
+                    }];
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"[FIRApp configure] could not find a valid GoogleService-Info.plist in "
-                       @"your project. Please download one from %@.", kPlistURL];
+                       @"your project. Please download one from %@.",
+                       kPlistURL];
   }
   [FIRApp configureDefaultAppWithOptions:options sendingNotifications:YES];
 }
@@ -97,6 +100,13 @@ static FIRApp *sDefaultApp;
 + (void)configureWithoutSendingNotification {
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:kFIRAppDiagnosticsNotification
+                      object:nil
+                    userInfo:@{
+                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                      kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
+                    }];
     [NSException raise:kFirebaseCoreErrorDomain format:@"Please check there is a valid "
                                                        @"GoogleService-Info.plist in the project."];
   }
@@ -115,7 +125,6 @@ static FIRApp *sDefaultApp;
     }
   }
   @synchronized(self) {
-    [FIRApp registerForNotifications];
     FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configuring the default app.");
     sDefaultApp = [[FIRApp alloc] initInstanceWithName:kFIRDefaultAppName options:options];
     [FIRApp addAppToAppDictionary:sDefaultApp];
@@ -154,7 +163,6 @@ static FIRApp *sDefaultApp;
   }
 
   @synchronized(self) {
-    [FIRApp registerForNotifications];
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
     [FIRApp addAppToAppDictionary:app];
@@ -236,6 +244,13 @@ static FIRApp *sDefaultApp;
   }
   if ([app configureCore]) {
     sAllApps[app.name] = app;
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:kFIRAppDiagnosticsNotification
+                      object:nil
+                    userInfo:@{
+                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                      kFIRAppDiagnosticsFIRAppKey : app
+                    }];
   } else {
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"Configuration fails. It may be caused by an invalid GOOGLE_APP_ID in "
@@ -247,7 +262,8 @@ static FIRApp *sDefaultApp;
   self = [super init];
   if (self) {
     _name = [name copy];
-    _options = options;
+    _options = [options copy];
+    _options.editingLocked = YES;
 
     FIRApp *app = sAllApps[name];
     _alreadySentConfigureNotification = app.alreadySentConfigureNotification;
@@ -268,6 +284,15 @@ static FIRApp *sDefaultApp;
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
+    if (_options.usingOptionsFromDefaultPlist) {
+      [[NSNotificationCenter defaultCenter]
+          postNotificationName:kFIRAppDiagnosticsNotification
+                        object:nil
+                      userInfo:@{
+                        kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                        kFIRAppDiagnosticsErrorKey : [FIRApp errorForInvalidAppID],
+                      }];
+    }
     return NO;
   }
 
@@ -293,12 +318,16 @@ static FIRApp *sDefaultApp;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [firAnalyticsClass performSelector:startWithConfigurationSelector
                                 withObject:[FIRConfiguration sharedInstance].analyticsConfiguration
-                                withObject:self.options];
+                                withObject:_options];
 #pragma clang diagnostic pop
       }
     }
   }
   return YES;
+}
+
+- (FIROptions *)options {
+  return [_options copy];
 }
 
 #pragma mark - private
@@ -384,7 +413,7 @@ static FIRApp *sDefaultApp;
  * @return YES if the app ID fulfills the expected format and fingerprint, NO otherwise.
  */
 - (BOOL)isAppIDValid {
-  NSString *appID = self.options.googleAppID;
+  NSString *appID = _options.googleAppID;
   BOOL isValid = [FIRApp validateAppID:appID];
   if (!isValid){
     NSString *expectedBundleID = [self expectedBundleID];
@@ -540,7 +569,7 @@ static FIRApp *sDefaultApp;
 }
 
 - (NSString *)expectedBundleID {
-  return self.options.bundleID;
+  return _options.bundleID;
 }
 
 // end App ID validation
@@ -548,120 +577,20 @@ static FIRApp *sDefaultApp;
 
 - (void)sendLogsWithServiceName:(NSString *)serviceName
                         version:(NSString *)version
-                          error:(NSError *)error {
-}
-
-// Returns the model of iOS device. Sample platform strings are @"iPhone7,1" for iPhone 6 Plus,
-// @"iPhone7,2" for iPhone 6, etc. Refer to the Hardware strings at
-// https://en.wikipedia.org/wiki/List_of_iOS_devices
-+ (NSString *)deviceModel {
-  static NSString *deviceModel = nil;
-  if (deviceModel == nil) {
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    deviceModel = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+                          error:(NSError *)error{
+  NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@{
+    kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeSDK),
+    kFIRAppDiagnosticsSDKNameKey : serviceName,
+    kFIRAppDiagnosticsSDKVersionKey : version,
+    kFIRAppDiagnosticsFIRAppKey : self
+  }];
+  if (error) {
+    userInfo[kFIRAppDiagnosticsErrorKey] = error;
   }
-  return deviceModel;
-}
-
-// Generates a random string which is unique for each install. Returns the existing one if it
-// already exists.
-+ (NSString *)installString {
-  @synchronized(self) {
-    NSURL *filePathURL = [FIRApp filePathURLWithName:kUniqueInstallFileName];
-    // Return nil if failing creating the folder.
-    if (!filePathURL.absoluteString.length) {
-      return nil;
-    }
-    NSString *uniqueString = [FIRApp stringAtURL:filePathURL];
-    if (uniqueString.length > 0) {
-      return uniqueString;
-    }
-    uniqueString = [[NSUUID UUID] UUIDString];
-    if ([FIRApp writeString:uniqueString toURL:filePathURL]) {
-      return uniqueString;
-    }
-    return nil;
-  }
-}
-
-// Returns the URL path of the file with name fileName under the Application Support folder for
-// local logging. Creates the Application Support folder if the folder doesn't exist.
-+ (NSURL *)filePathURLWithName:(NSString *)fileName {
-  @synchronized (self) {
-    NSArray *paths =
-        NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSArray *components = @[ paths.lastObject, @"Google/FIRApp" ];
-    NSString *directoryString = [NSString pathWithComponents:components];
-    NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:directoryString]) {
-      // If fail creating the Application Support directory, return nil.
-      if (![[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
-                                    withIntermediateDirectories:YES
-                                                     attributes:nil
-                                                          error:NULL]) {
-        return nil;
-      }
-    }
-    return [directoryURL URLByAppendingPathComponent:fileName];
-  }
-}
-
-// Returns the string in the file.
-+ (NSString *)stringAtURL:(NSURL *)filePathURL {
-    NSString *content =
-        [NSString stringWithContentsOfURL:filePathURL encoding:NSUTF8StringEncoding error:NULL];
-    return content;
-}
-
-// Writes a string to the given url file path.
-+ (BOOL)writeString:(NSString *)string toURL:(NSURL *)filePathURL {
-  @synchronized(self) {
-    if ([string writeToURL:filePathURL
-                atomically:YES
-                  encoding:NSUTF8StringEncoding
-                     error:NULL]) {
-      // Exclude from backing up to iCloud.
-      [filePathURL setResourceValue:@YES
-                             forKey:NSURLIsExcludedFromBackupKey
-                              error:NULL];
-      return YES;
-    }
-    return NO;
-  }
-}
-
-// Initialization regarding the logging for the most popular apps.
-+ (void)registerForNotifications {
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(logAppInfo:)
-                                               name:UIApplicationDidBecomeActiveNotification
-                                             object:nil];
   [[NSNotificationCenter defaultCenter]
-      addObserver:self
-         selector:@selector(removeFIRAppFromNotificationCenter:)
-             name:UIApplicationWillTerminateNotification
-           object:nil];
-}
-
-+ (void)logAppInfo:(NSNotification *)notification {
-  @synchronized(self) {
-    NSURL *filePathURL = [FIRApp filePathURLWithName:kLastTimestampFileName];
-    double lastTimestamp = 0.0;
-    if (filePathURL) {
-      NSString *timeString = [FIRApp stringAtURL:filePathURL];
-      lastTimestamp = [timeString doubleValue];
-    }
-    NSTimeInterval timestampNow = [NSDate date].timeIntervalSince1970;
-    if (fabs(timestampNow - lastTimestamp) > sSecondsInOneDay) {
-      NSString *timeString = [NSString stringWithFormat:@"%f", timestampNow];
-      [FIRApp writeString:timeString toURL:filePathURL];
-    }
-  }
-}
-
-+ (void)removeFIRAppFromNotificationCenter:(NSNotification *)notification {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
+      postNotificationName:kFIRAppDiagnosticsNotification
+                    object:nil
+                  userInfo:userInfo];
 }
 
 @end

@@ -22,7 +22,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** A block that takes a BOOL and has no return value. */
-typedef void (^FIRAppVoidBoolCallback)(BOOL success);
+typedef void (^FIRAppVoidBoolCallback)(BOOL success) NS_SWIFT_NAME(FirebaseAppVoidBoolCallback);
 
 /**
  * The entry point of Firebase SDKs.
@@ -42,6 +42,7 @@ typedef void (^FIRAppVoidBoolCallback)(BOOL success);
  * It is also possible to change the default logging level in code by calling setLoggerLevel: on
  * the FIRConfiguration interface.
  */
+NS_SWIFT_NAME(FirebaseApp)
 @interface FIRApp : NSObject
 
 /**
@@ -58,7 +59,7 @@ typedef void (^FIRAppVoidBoolCallback)(BOOL success);
  *
  * @param options The Firebase application options used to configure the service.
  */
-+ (void)configureWithOptions:(FIROptions *)options;
++ (void)configureWithOptions:(FIROptions *)options NS_SWIFT_NAME(configure(options:));
 
 /**
  * Configures a Firebase app with the given name and options. Raises an exception if any
@@ -68,24 +69,33 @@ typedef void (^FIRAppVoidBoolCallback)(BOOL success);
                Letters, Numbers and Underscore.
  * @param options The Firebase application options used to configure the services.
  */
-+ (void)configureWithName:(NSString *)name options:(FIROptions *)options;
++ (void)configureWithName:(NSString *)name options:(FIROptions *)options
+    NS_SWIFT_NAME(configure(name:options:));
 
 /**
  * Returns the default app, or nil if the default app does not exist.
  */
-+ (nullable FIRApp *)defaultApp NS_SWIFT_NAME(defaultApp());
++ (nullable FIRApp *)defaultApp NS_SWIFT_NAME(app());
 
 /**
  * Returns a previously created FIRApp instance with the given name, or nil if no such app exists.
  * This method is thread safe.
  */
-+ (nullable FIRApp *)appNamed:(NSString *)name;
++ (nullable FIRApp *)appNamed:(NSString *)name NS_SWIFT_NAME(app(name:));
 
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /**
  * Returns the set of all extant FIRApp instances, or nil if there are no FIRApp instances. This
  * method is thread safe.
  */
-+ (nullable NSDictionary *)allApps;
+@property(class, readonly, nullable) NSDictionary <NSString *, FIRApp *> *allApps;
+#else
+/**
+ * Returns the set of all extant FIRApp instances, or nil if there are no FIRApp instances. This
+ * method is thread safe.
+ */
++ (nullable NSDictionary <NSString *, FIRApp *> *)allApps NS_SWIFT_NAME(allApps());
+#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /**
  * Cleans up the current FIRApp, freeing associated data and returning its name to the pool for
@@ -105,9 +115,9 @@ typedef void (^FIRAppVoidBoolCallback)(BOOL success);
 @property(nonatomic, copy, readonly) NSString *name;
 
 /**
- * Gets the options for this app.
+ * Gets a copy of the options for this app. These are non-modifiable.
  */
-@property(nonatomic, readonly) FIROptions *options;
+@property(nonatomic, copy, readonly) FIROptions *options;
 
 @end
 

@@ -95,6 +95,21 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
+  FIROptions *options2 = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                     GCMSenderID:kGCMSenderID];
+  options2.androidClientID = kAndroidClientID;
+  options2.APIKey = kAPIKey;
+  options2.bundleID = kBundleID;
+  options2.clientID = kClientID;
+  options2.databaseURL = kDatabaseURL;
+  options2.deepLinkURLScheme = kDeepLinkURLScheme;
+  options2.projectID = kProjectID;
+  options2.storageBucket = kStorageBucket;
+  options2.trackingID = kTrackingID;
+  [self assertOptionsMatchDefaults:options2 andProjectID:YES];
+  XCTAssertEqualObjects(options2.deepLinkURLScheme, kDeepLinkURLScheme);
+  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
+
   // nil GoogleAppID should throw an exception
   XCTAssertThrows([[FIROptions alloc] initWithGoogleAppID:nil
                                            bundleID:kBundleID
@@ -135,7 +150,8 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.storageBucket, kStorageBucket);
   XCTAssertEqualObjects(options.bundleID, kBundleID);
 
-  // TODO: Add projectID to the FIROptions constructor for I/O (b/35308705).
+  // Custom `matchProjectID` parameter to be removed once the deprecated `FIROptions` constructor is
+  // removed.
   if (matchProjectID) {
     XCTAssertEqualObjects(options.projectID, kProjectID);
   }

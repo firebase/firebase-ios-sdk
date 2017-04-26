@@ -38,14 +38,23 @@ typedef NS_ENUM(NSInteger, FIRLogLevel) {
 } DEPRECATED_MSG_ATTRIBUTE(
     "Use -FIRDebugEnabled and -FIRDebugDisabled or setLoggerLevel. See FIRApp.h for more details.");
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * This interface provides global level properties that the developer can tweak, and the singleton
  * of the Firebase Analytics configuration class.
  */
+NS_SWIFT_NAME(FirebaseConfiguration)
 @interface FIRConfiguration : NSObject
 
+
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /** Returns the shared configuration object. */
-+ (FIRConfiguration *)sharedInstance;
+@property(class, nonatomic, readonly) FIRConfiguration *sharedInstance NS_SWIFT_NAME(shared);
+#else
+/** Returns the shared configuration object. */
++ (FIRConfiguration *)sharedInstance NS_SWIFT_NAME(shared());
+#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /** The configuration class for Firebase Analytics. */
 @property(nonatomic, readwrite) FIRAnalyticsConfiguration *analyticsConfiguration;
@@ -66,3 +75,5 @@ typedef NS_ENUM(NSInteger, FIRLogLevel) {
 - (void)setLoggerLevel:(FIRLoggerLevel)loggerLevel;
 
 @end
+
+NS_ASSUME_NONNULL_END
