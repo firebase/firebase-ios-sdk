@@ -199,34 +199,35 @@ static BOOL isSafeToDisconnectSocket = NO;
   [self waitForExpectationsWithTimeout:3.0 handler:nil];
 }
 
-#ifdef FLAKY
 - (void)testSendingDataWithImproperTag {
   [self createAndConnectSocketWithBufferSize:124];
   [self writeVersionToOutStream];
   const char dataString[] = { 0x02, 0x02, 0x11, 0x11, 0x11, 0x11 }; // tag 10, random data
-  NSData *data = [NSData dataWithBytes:dataString length:6];
+  NSData *randomData = [NSData dataWithBytes:dataString length:6];
 
-  // Just some random method this should never be invoked.
+  // Create an expectation for a method which should not be invoked during this test.
   // This is required to allow us to wait for the socket stream to be read and
   // processed by FIRMessagingSecureSocket
   OCMExpect([self.mockSocket disconnect]);
 
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)),
+  NSTimeInterval sendDelay = 2.0;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(sendDelay * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), ^{
-                   [self.socket sendData:data withTag:10 rmqId:@"some-random-rmq-id"];
+                   [self.socket sendData:randomData withTag:10 rmqId:@"some-random-rmq-id"];
                  });
 
   @try {
-    OCMVerifyAllWithDelay(self.mockSocket, 2.0f);
-    XCTFail(@"Invalid data being read should throw exception");
+    // While waiting to verify this call, an exception should be thrown
+    // trying to parse the random data in our delegate.
+    // Wait slightly longer than the sendDelay, to allow for the parsing
+    OCMVerifyAllWithDelay(self.mockSocket, sendDelay+0.25);
+    XCTFail(@"Invalid data being read should have thrown an exception.");
   }
   @catch (NSException *exception) {
     XCTAssertNotNil(exception);
   }
   @finally { }
-
 }
-#endif
 
 - (void)testDisconnect {
   [self createAndConnectSocketWithBufferSize:1];
