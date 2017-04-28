@@ -471,7 +471,12 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 #pragma mark - FCM
 
 - (NSString *)FCMToken {
-  return self.defaultFcmToken;
+  NSString *token = self.defaultFcmToken;
+  if (!token) {
+    // We may not have received it from Instance ID yet (via NSNotification), so extract it directly
+    token = [self.instanceIDProxy token];
+  }
+  return token;
 }
 
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
