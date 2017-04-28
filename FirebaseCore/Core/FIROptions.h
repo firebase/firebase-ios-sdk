@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRSwiftNameSupport.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**

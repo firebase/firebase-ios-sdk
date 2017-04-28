@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 #import "FIRDataEventType.h"
 #import "FIRDataSnapshot.h"
+#import "FIRSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

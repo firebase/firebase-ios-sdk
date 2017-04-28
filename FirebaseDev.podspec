@@ -31,7 +31,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseCore/Core/FIRApp.h',
       'FirebaseCore/Core/FIRConfiguration.h',
       'FirebaseCore/Core/FIRLoggerLevel.h',
-      'FirebaseCore/Core/FIROptions.h'
+      'FirebaseCore/Core/FIROptions.h',
+      'FirebaseCore/Core/FIRSwiftNameSupport.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
     sp.dependency 'FirebaseDev/Root'
   end

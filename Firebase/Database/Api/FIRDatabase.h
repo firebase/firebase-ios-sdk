@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "FIRDatabaseReference.h"
+#import "FIRSwiftNameSupport.h"
 
 @class FIRApp;
 

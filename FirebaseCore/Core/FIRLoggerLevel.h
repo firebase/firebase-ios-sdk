@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import "FIRSwiftNameSupport.h"
+
 /**
  * The log levels used by internal logging.
  */

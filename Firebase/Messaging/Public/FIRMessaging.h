@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRSwiftNameSupport.h"
+
 /**
  *  @related FIRMessaging
  *

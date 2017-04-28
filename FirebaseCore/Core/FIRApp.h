@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+#import "FIRSwiftNameSupport.h"
+
 @class FIROptions;
 
 NS_ASSUME_NONNULL_BEGIN

@@ -18,6 +18,7 @@
 #define Firebase_FIRDataEventType_h
 
 #import <Foundation/Foundation.h>
+#import "FIRSwiftNameSupport.h"
 
 /**
  * This enum is the set of events that you can observe at a Firebase Database location.
