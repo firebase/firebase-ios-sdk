@@ -16,7 +16,7 @@
 
 #import "FIREmailPasswordAuthCredential.h"
 
-#import "FIREmailPasswordAuthProvider.h"
+#import "FIREmailAuthProvider.h"
 #import "FIRAuthExceptionUtils.h"
 #import "FIRVerifyAssertionRequest.h"
 
@@ -35,7 +35,7 @@
 }
 
 - (nullable instancetype)initWithEmail:(NSString *)email password:(NSString *)password {
-  self = [super initWithProvider:FIREmailPasswordAuthProviderID];
+  self = [super initWithProvider:FIREmailAuthProviderID];
   if (self) {
     _email = [email copy];
     _password = [password copy];

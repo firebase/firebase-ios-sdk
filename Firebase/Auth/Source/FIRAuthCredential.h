@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthCredential
     @brief Represents a credential.
  */
+NS_SWIFT_NAME(AuthCredential)
 @interface FIRAuthCredential : NSObject
 
 /** @property provider

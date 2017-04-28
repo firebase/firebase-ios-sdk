@@ -17,7 +17,7 @@
 #import "Private/FIRUser_Internal.h"
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
-#import "AuthProviders/EmailPassword/FIREmailPasswordAuthProvider.h"
+#import "AuthProviders/EmailPassword/FIREmailAuthProvider.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Private/FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
@@ -738,14 +738,18 @@ static void callInMainThreadWithAuthDataResultAndError(
   return result;
 }
 
-- (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion {
+- (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion {
   // |getTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
   // global work queue here.
-  [self getTokenForcingRefresh:NO completion:completion];
+  [self getIDTokenForcingRefresh:NO completion:completion];
 }
 
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh
-                    completion:(nullable FIRAuthTokenCallback)completion {
+- (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion {
+  [self getIDTokenWithCompletion:completion];
+}
+
+- (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
+                      completion:(nullable FIRAuthTokenCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self internalGetTokenForcingRefresh:forceRefresh
                                 callback:^(NSString *_Nullable token, NSError *_Nullable error) {
@@ -756,6 +760,11 @@ static void callInMainThreadWithAuthDataResultAndError(
       }
     }];
   });
+}
+
+- (void)getTokenForcingRefresh:(BOOL)forceRefresh
+                    completion:(nullable FIRAuthTokenCallback)completion {
+  [self getIDTokenForcingRefresh:forceRefresh completion:completion];
 }
 
 /** @fn internalGetTokenForcingRefresh:callback:
@@ -920,7 +929,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       FIRSetAccountInfoRequest *setAccountInfoRequest =
           [[FIRSetAccountInfoRequest alloc] initWithAPIKey:_APIKey];
       setAccountInfoRequest.accessToken = accessToken;
-      BOOL isEmailPasswordProvider = [provider isEqualToString:FIREmailPasswordAuthProviderID];
+      BOOL isEmailPasswordProvider = [provider isEqualToString:FIREmailAuthProviderID];
       if (isEmailPasswordProvider) {
         if (!_hasEmailPasswordCredential) {
           completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
@@ -972,27 +981,6 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (void)sendEmailVerificationWithCompletion:(nullable FIRSendEmailVerificationCallback)completion {
-  [self sendEmailVerificationWithNullableActionCodeSettings:nil completion:completion];
-}
-
-- (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                                         completion:(nullable FIRSendEmailVerificationCallback)
-                                                    completion {
-  [self sendEmailVerificationWithNullableActionCodeSettings:actionCodeSettings
-                                                 completion:completion];
-}
-
-/** @fn sendEmailVerificationWithNullableActionCodeSettings:completion:
-    @brief Initiates email verification for the user.
-
-    @param actionCodeSettings Optionally, a @c FIRActionCodeSettings object containing settings
-        related to the handling action codes.
- */
-- (void)sendEmailVerificationWithNullableActionCodeSettings:(nullable FIRActionCodeSettings *)
-                                                            actionCodeSettings
-                                                 completion:
-                                                         (nullable FIRSendEmailVerificationCallback)
-                                                            completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                          NSError *_Nullable error) {
@@ -1002,7 +990,6 @@ static void callInMainThreadWithAuthDataResultAndError(
       }
       FIRGetOOBConfirmationCodeRequest *request =
           [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:accessToken
-                                                           actionCodeSettings:actionCodeSettings
                                                                        APIKey:_APIKey];
       [FIRAuthBackend getOOBConfirmationCode:request
                                     callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable

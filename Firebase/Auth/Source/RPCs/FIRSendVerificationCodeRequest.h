@@ -19,6 +19,8 @@
 #import "FIRAuthRPCRequest.h"
 #import "FIRIdentityToolkitRequest.h"
 
+@class FIRAuthAppCredential;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRSendVerificationCodeRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
@@ -32,9 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn initWithPhoneNumber:APIKey:
     @brief Designated initializer.
     @param phoneNumber The phone number to which the verification code is to be sent.
+    @param appCredential The credential that proves the identity of the app.
     @param APIKey The client's API Key.
  */
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
+                               appCredential:(FIRAuthAppCredential *)appCredential
                                       APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
 @end
 

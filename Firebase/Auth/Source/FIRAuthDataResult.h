@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Helper object that contains the result of a successful sign-in, link and reauthenticate.
         It contains a reference to a @c FIRUser and @c FIRAdditionalUserInfo.
  */
+NS_SWIFT_NAME(AuthDataResult)
 @interface FIRAuthDataResult : NSObject
 
 /** @fn init

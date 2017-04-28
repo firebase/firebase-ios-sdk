@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.google.FirebearSample</string>
+	<string>${PRODUCT_BUNDLE_IDENTIFIER}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -26,20 +26,40 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.googleusercontent.apps.1085102361755-pboq9vt0lrg5g7d28v4n4c88c051fqmv</string>
+			<string>com.googleusercontent.apps.1085102361755-psbqaqq6d9c9hujvrt0m5o120etafhke</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.1085102361755-pboq9vt0lrg5g7d28v4n4c88c051fqmv</string>
+				<string>com.googleusercontent.apps.1085102361755-psbqaqq6d9c9hujvrt0m5o120etafhke</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.googleusercontent.apps.248598894135-nsf72p7vhjcjuom003rka06opfnmp37r</string>
+			<string>com.googleusercontent.apps.1085102361755-q6u4ctmr59bi4teae525i0gpb9v8orqj</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.248598894135-nsf72p7vhjcjuom003rka06opfnmp37r</string>
+				<string>com.googleusercontent.apps.1085102361755-q6u4ctmr59bi4teae525i0gpb9v8orqj</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.248598894135-bg6i24p6lit8oosm1l4q7grs03cf79ja</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.248598894135-bg6i24p6lit8oosm1l4q7grs03cf79ja</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.248598894135-t88fb8vp5cjt1unop2b40mmchhsvcll7</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.248598894135-t88fb8vp5cjt1unop2b40mmchhsvcll7</string>
 			</array>
 		</dict>
 		<dict>
@@ -57,6 +77,10 @@
 	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAppInternal.h"
-#import "EmailPassword/FIREmailPasswordAuthProvider.h"
+#import "EmailPassword/FIREmailAuthProvider.h"
 #import "Google/FIRGoogleAuthProvider.h"
 #import "Phone/FIRPhoneAuthCredential.h"
 #import "Phone/FIRPhoneAuthProvider.h"
@@ -324,6 +324,39 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Tests the flow of a successful @c fetchProvidersForEmail:completion: call.
  */
 - (void)testFetchProvidersForEmailSuccess {
+  NSArray<NSString *> *allProviders =
+      @[ FIRGoogleAuthProviderID, FIREmailAuthProviderID ];
+  OCMExpect([_mockBackend createAuthURI:[OCMArg any]
+                               callback:[OCMArg any]])
+      .andCallBlock2(^(FIRCreateAuthURIRequest *_Nullable request,
+                       FIRCreateAuthURIResponseCallback callback) {
+    XCTAssertEqualObjects(request.identifier, kEmail);
+    XCTAssertNotNil(request.endpoint);
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockCreateAuthURIResponse = OCMClassMock([FIRCreateAuthURIResponse class]);
+      OCMStub([mockCreateAuthURIResponse allProviders]).andReturn(allProviders);
+      callback(mockCreateAuthURIResponse, nil);
+    });
+  });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] fetchProvidersForEmail:kEmail
+                              completion:^(NSArray<NSString *> *_Nullable providers,
+                                           NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqualObjects(providers, allProviders);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testFetchProvidersForEmailSuccessDeprecatedProviderID
+    @brief Tests the flow of a successful @c fetchProvidersForEmail:completion: call using the
+        deprecated FIREmailPasswordAuthProviderID.
+ */
+- (void)testFetchProvidersForEmailSuccessDeprecatedProviderID {
   NSArray<NSString *> *allProviders =
       @[ FIRGoogleAuthProviderID, FIREmailPasswordAuthProviderID ];
   OCMExpect([_mockBackend createAuthURI:[OCMArg any]
@@ -740,6 +773,41 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
+      [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
+  [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
+                                                                    NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    [self assertUser:user];
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUser:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInWithEmailCredentialSuccess
+    @brief Tests the flow of a successfully @c signInWithCredential:completion: call with an
+        email-password credential using the deprecated FIREmailPasswordAuthProvider.
+ */
+- (void)testSignInWithEmailCredentialSuccessWithDepricatedProvider {
+  OCMExpect([_mockBackend verifyPassword:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyPasswordRequest *_Nullable request,
+                       FIRVerifyPasswordResponseCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertEqualObjects(request.email, kEmail);
+    XCTAssertEqualObjects(request.password, kPassword);
+    XCTAssertTrue(request.returnSecureToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockVeriyPasswordResponse = OCMClassMock([FIRVerifyPasswordResponse class]);
+      [self stubTokensWithMockResponse:mockVeriyPasswordResponse];
+      callback(mockVeriyPasswordResponse, nil);
+    });
+  });
+  [self expectGetAccountInfo];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *emailCredential =
       [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
   [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
                                                                     NSError *_Nullable error) {
@@ -763,7 +831,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
-      [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
+      [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
   [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
                                                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
@@ -788,7 +856,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
-      [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:emptyString];
+      [FIREmailAuthProvider credentialWithEmail:kEmail password:emptyString];
   [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
                                                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
@@ -796,6 +864,43 @@ static const NSTimeInterval kWaitInterval = .5;
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+}
+
+/** @fn testSignInWithGoogleAccountExistsError
+    @brief Tests the flow of a failed @c signInWithCredential:completion: with a Google credential
+        where the backend returns a needs @needConfirmation equal to true. An
+        FIRAuthErrorCodeAccountExistsWithDifferentCredential error should be thrown.
+ */
+- (void)testSignInWithGoogleAccountExistsError {
+  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
+                       FIRVerifyAssertionResponseCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+    XCTAssertEqualObjects(request.providerIDToken, kGoogleIDToken);
+    XCTAssertEqualObjects(request.providerAccessToken, kGoogleAccessToken);
+    XCTAssertTrue(request.returnSecureToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockVeriyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+      OCMStub([mockVeriyAssertionResponse needConfirmation]).andReturn(YES);
+      OCMStub([mockVeriyAssertionResponse email]).andReturn(kEmail);
+      [self stubTokensWithMockResponse:mockVeriyAssertionResponse];
+      callback(mockVeriyAssertionResponse, nil);
+    });
+  });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *googleCredential =
+      [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
+  [[FIRAuth auth] signInWithCredential:googleCredential completion:^(FIRUser *_Nullable user,
+                                                                     NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeAccountExistsWithDifferentCredential);
+    XCTAssertEqualObjects(error.userInfo[FIRAuthErrorUserInfoEmailKey], kEmail);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
 }
 
 /** @fn testSignInWithGoogleCredentialSuccess

@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAdditionalUserInfo
     @brief Represents additional user data returned from an identity provider.
  */
+NS_SWIFT_NAME(AdditionalUserInfo)
 @interface FIRAdditionalUserInfo : NSObject
 
 /** @fn init

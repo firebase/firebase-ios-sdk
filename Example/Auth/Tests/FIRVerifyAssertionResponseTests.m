@@ -367,7 +367,6 @@ static const double kEpsilon = 1e-3;
   XCTAssertTrue(RPCResponse.isNewUser);
 }
 
-
 /** @fn testSuccessfulVerifyAssertionResponseWithTextData
     @brief This test simulates a successful verify assertion flow when response collection
         fields are sent as text values.

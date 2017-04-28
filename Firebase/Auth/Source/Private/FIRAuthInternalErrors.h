@@ -47,12 +47,6 @@ extern NSString *const FIRAuthErrorUserInfoDeserializedResponseKey;
  */
 extern NSString *const FIRAuthErrorUserInfoDataKey;
 
-/** @var FIRAuthErrorUserInfoEmailKey
-    @brief Errors with the code @c FIRAuthInternalErrorCodeEmailExists may contains an
-        @c NSError.userInfo dictinary which contains this key. The value associated with this key is
-        an NSString of the email address that already exists.
- */
-extern NSString *const FIRAuthErrorUserInfoEmailKey;
 
 /** @var FIRAuthInternalErrorCode
     @brief Error codes used internally by Firebase Auth.
@@ -244,33 +238,6 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeInvalidRecipientEmail =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidRecipientEmail,
 
-  /** Indicates that the iOS bundle ID is missing when a iOS App Store ID is provided.
-   */
-  FIRAuthinternalErrorCodeMissingIosBundleID =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingIosBundleID,
-
-  /** Indicates that the android package name is missing when the @c androidInstallApp flag is set
-        to true.
-   */
-  FIRAuthInternalErrorCodeMissingAndroidPackageName =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingAndroidPackageName,
-
-  /** Indicates that the domain specified in the continue URL is not whitelisted in the Firebase
-        console.
-   */
-  FIRAuthInternalErrorCodeUnauthorizedDomain =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnauthorizedDomain,
-
-  /** Indicates that the domain specified in the continue URI is not valid.
-   */
-  FIRAuthInternalErrorCodeInvalidContinueURI =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidContinueURI,
-
-  /** Indicates that a continue URL was not provided in a request that requires it.
-   */
-  FIRAuthInternalErrorCodeMissingContinueURI =
-      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingContinueURI,
-
   /** Indicates that a phone number was not provided in a call to @c verifyPhoneNumber:completion:.
    */
   FIRAuthInternalErrorCodeMissingPhoneNumber =
@@ -324,6 +291,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
    */
   FIRAuthInternalErrorCodeSessionExpired =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeSessionExpired,
+
+  FIRAuthInternalErrorCodeMissingAppToken =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingAppToken,
+
+  FIRAuthInternalErrorCodeNotificationNotForwarded =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNotificationNotForwarded,
 
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.
@@ -386,4 +359,4 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
           The deserialized representation of the response will be associated with this key.
    */
   FIRAuthInternalErrorCodeRPCResponseDecodingError = 5,
-};
+} NS_SWIFT_NAME(AuthInternalErrorCode);

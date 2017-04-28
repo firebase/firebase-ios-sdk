@@ -16,6 +16,8 @@
 
 #import "FIRSendVerificationCodeRequest.h"
 
+#import "../Private/FIRAuthAppCredential.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kSendVerificationCodeEndPoint
@@ -28,17 +30,41 @@ static NSString *const kSendVerificationCodeEndPoint = @"sendVerificationCode";
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
 
+/** @var kReceiptKey
+    @brief The key for the receipt parameter in the request.
+ */
+static NSString *const kReceiptKey = @"iosReceipt";
+
+/** @var kSecretKey
+    @brief The key for the Secret parameter in the request.
+ */
+static NSString *const kSecretKey = @"iosSecret";
+
 @implementation FIRSendVerificationCodeRequest {
  /** @var _phoneNumber
      @brief The phone number to which the verification code should be sent.
   */
   NSString *_phoneNumber;
+
+  /** @var _secret
+     @brief The secret delivered via push notification.
+  */
+  NSString *_secret;
+
+  /** @var _receipt
+     @brief Receipt of successful app token validation with APNS.
+  */
+  NSString *_receipt;
 }
 
-- (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber APIKey:(NSString *)APIKey {
+- (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
+                               appCredential:(FIRAuthAppCredential *)appCredential
+                                      APIKey:(NSString *)APIKey {
   self = [super initWithEndpoint:kSendVerificationCodeEndPoint APIKey:APIKey];
   if (self) {
     _phoneNumber = [phoneNumber copy];
+    _secret = [appCredential.secret copy];
+    _receipt = [appCredential.receipt copy];
   }
   return self;
 }
@@ -47,6 +73,12 @@ static NSString *const kPhoneNumberKey = @"phoneNumber";
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_phoneNumber) {
     postBody[kPhoneNumberKey] = _phoneNumber;
+  }
+  if (_secret) {
+    postBody[kSecretKey] = _secret;
+  }
+  if (_receipt) {
+    postBody[kReceiptKey] = _receipt;
   }
   return postBody;
 }

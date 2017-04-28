@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRPhoneAuthCredential
     @brief Implementation of FIRAuthCredential for Phone Auth credentials.
  */
+NS_SWIFT_NAME(PhoneAuthCredential)
 @interface FIRPhoneAuthCredential : FIRAuthCredential
 
 /** @fn init

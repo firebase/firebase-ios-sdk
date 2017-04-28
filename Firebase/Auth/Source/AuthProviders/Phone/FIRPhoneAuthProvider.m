@@ -16,16 +16,33 @@
 
 #import "FIRPhoneAuthProvider.h"
 
+#import "FIRLogger.h"
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "NSString+FIRAuth.h"
+#import "../../Private/FIRAuthAPNSToken.h"
+#import "../../Private/FIRAuthAPNSTokenManager.h"
+#import "../../Private/FIRAuthAppCredential.h"
+#import "../../Private/FIRAuthAppCredentialManager.h"
 #import "../../Private/FIRAuthGlobalWorkQueue.h"
 #import "../../Private/FIRAuth_Internal.h"
+#import "../../Private/FIRAuthNotificationManager.h"
 #import "../../Private/FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
+#import "FIRVerifyClientRequest.h"
+#import "FIRVerifyClientResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** @typedef FIRVerifyClientCallback
+    @brief The callback invoked at the end of a client verification flow.
+    @param appCredential credential that proves the identity of the app during a phone
+        authentication flow.
+    @param error The error that occured while verifying the app, if any.
+ */
+typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCredential,
+                                        NSError *_Nullable error);
 
 @implementation FIRPhoneAuthProvider {
 
@@ -51,30 +68,48 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                completion:(nullable FIRVerificationResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    if (!phoneNumber.length) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        completion(nil, [FIRAuthErrorUtils missingPhoneNumberErrorWithMessage:nil]);
-      });
-      return;
-    }
-    FIRSendVerificationCodeRequest *request =
-      [[FIRSendVerificationCodeRequest alloc]initWithPhoneNumber:phoneNumber APIKey:_auth.APIKey];
-    [FIRAuthBackend sendVerificationCode:request
-                                callback:^(FIRSendVerificationCodeResponse *_Nullable response,
-                                           NSError *_Nullable error) {
+    FIRVerificationResultCallback callBackOnMainThread = ^(NSString *_Nullable verificationID,
+                                                           NSError *_Nullable error) {
       if (completion) {
-        if (error) {
-          dispatch_async(dispatch_get_main_queue(), ^{
-            completion(nil, error);
-          });
-          return;
-        }
         dispatch_async(dispatch_get_main_queue(), ^{
-          // Associate the phone number with the verification ID.
-          response.verificationID.fir_authPhoneNumber = phoneNumber;
-          completion(response.verificationID, nil);
+          completion(verificationID, error);
         });
       }
+    };
+
+    if (!phoneNumber.length) {
+      callBackOnMainThread(nil,
+                           [FIRAuthErrorUtils missingPhoneNumberErrorWithMessage:nil]);
+      return;
+    }
+    [_auth.notificationManager checkNotificationForwardingWithCallback:
+        ^(BOOL isNotificationBeingForwarded) {
+      if (!isNotificationBeingForwarded) {
+        callBackOnMainThread(nil, [FIRAuthErrorUtils notificationNotForwardedError]);
+        return;
+      }
+      [self verifyClientWithCompletion:^(FIRAuthAppCredential *_Nullable appCredential,
+                                         NSError *_Nullable error) {
+        if (error) {
+          callBackOnMainThread(nil, error);
+          return;
+        }
+        FIRSendVerificationCodeRequest *request =
+            [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
+                                                          appCredential:appCredential
+                                                                 APIKey:_auth.APIKey];
+        [FIRAuthBackend sendVerificationCode:request
+                                    callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                               NSError *_Nullable error) {
+          if (error) {
+            callBackOnMainThread(nil, error);
+            return;
+          }
+          // Associate the phone number with the verification ID.
+          response.verificationID.fir_authPhoneNumber = phoneNumber;
+          callBackOnMainThread(response.verificationID, nil);
+        }];
+      }];
     }];
   });
 }
@@ -92,6 +127,57 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)providerWithAuth:(FIRAuth *)auth {
   return [[self alloc]initWithAuth:auth];
+}
+
+#pragma mark - Internal Methods
+
+/** @fn verifyClientWithCompletion:completion:
+    @brief Starts the flow to verify the client via silent push notification.
+    @param completion The callback to be invoked when the client verification flow is finished.
+ */
+- (void)verifyClientWithCompletion:(FIRVerifyClientCallback)completion {
+  if (_auth.appCredentialManager.credential) {
+    completion(_auth.appCredentialManager.credential, nil);
+    return;
+  }
+  [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken * _Nullable token) {
+    if (!token) {
+      completion(nil, [FIRAuthErrorUtils missingAppTokenError]);
+      return;
+    }
+
+    // Convert token data to hex string.
+    NSUInteger capacity = token.data.length * 2;
+    NSMutableString *tokenString = [NSMutableString stringWithCapacity:capacity];
+    const unsigned char *tokenData = token.data.bytes;
+    for (int idx = 0; idx < token.data.length; ++idx) {
+      [tokenString appendFormat:@"%02X", (int)tokenData[idx]];
+    }
+
+    FIRVerifyClientRequest *request =
+        [[FIRVerifyClientRequest alloc] initWithAppToken:tokenString
+                                               isSandbox:token.type == FIRAuthAPNSTokenTypeProd
+                                                  APIKey:_auth.APIKey];
+    [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
+                                                    NSError *_Nullable error) {
+      if (error) {
+        completion(nil, error);
+        return;
+      }
+      NSTimeInterval timeout = [response.suggestedTimeOutDate timeIntervalSinceNow];
+      [_auth.appCredentialManager
+          didStartVerificationWithReceipt:response.receipt
+                                  timeout:timeout
+                                 callback:^(FIRAuthAppCredential *credential) {
+        if (!credential.secret) {
+          FIRLogError(kFIRLoggerAuth, @"I-AUT000014",
+                      @"Failed to receive remote notification to verify app identity within "
+                      @"%.0f second(s)", timeout);
+        }
+        completion(credential, nil);
+      }];
+    }];
+  }];
 }
 
 @end

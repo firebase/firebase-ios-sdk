@@ -217,30 +217,6 @@ static NSString *const kFIRAuthErrorMessageInvalidSender = @"The email template 
 static NSString *const kFIRAuthErrorMessageInvalidRecipientEmail = @"The action code is invalid. "
    "This can happen if the code is malformed, expired, or has already been used.";
 
-/** @var kFIRAuthErrorMessageMissingIosBundleID
-    @brief Message for @c FIRAuthErrorCodeMissingIosbundleID error code.
- */
-static NSString *const kFIRAuthErrorMessageMissingIosBundleID =
-    @"An iOS Bundle ID must be provided if an App Store ID is provided.";
-
-/** @var kFIRAuthErrorMessageMissingAndroidPackageName
-    @brief Message for @c FIRAuthErrorCodeMissingAndroidPackageName error code.
- */
-static NSString *const kFIRAuthErrorMessageMissingAndroidPackageName =
-    @"An Android Package Name must be provided if the Android App is required to be installed.";
-
-/** @var kFIRAuthErrorMessageUnauthorizedDomain
-    @brief Message for @c FIRAuthErrorCodeUnauthorizedDomain error code.
- */
-static NSString *const kFIRAuthErrorMessageUnauthorizedDomain = @"The domain of the continue URL "
-    "is not whitelisted. Please whitelist the domain in the Firebase console.";
-
-/** @var kFIRAuthErrorMessageInvalidContinueURI
-    @brief Message for @c FIRAuthErrorCodeInvalidContinueURI error code.
- */
-static NSString *const kFIRAuthErrorMessageInvalidContinueURI =
-    @"The continue URL provided in the request is invalid.";
-
 /** @var kFIRAuthErrorMessageMissingContinueURI
     @brief Message for @c FIRAuthErrorCodeMissingContinueURI error code.
  */
@@ -251,37 +227,39 @@ static NSString *const kFIRAuthErrorMessageMissingContinueURI =
     @brief Message for @c FIRAuthErrorCodeMissingPhoneNumber error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingPhoneNumber =
-    @"A phone number must be provided in order to send the verification code.";
+    @"To send verification codes, provide a phone number for the recipient.";
 
 /** @var kFIRAuthErrorMessageInvalidPhoneNumber
     @brief Message for @c FIRAuthErrorCodeMissingPhoneNumber error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidPhoneNumber =
-    @"The format of the phone number provided is incorrect.";
+    @"The format of the phone number provided is incorrect. Please enter the phone number in a "
+    "format that can be parsed into E.164 format.";
 
 /** @var kFIRAuthErrorMessageMissingVerificationCode
     @brief Message for @c FIRAuthErrorCodeMissingVerificationCode error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingVerificationCode =
-    @"The Phone Auth Credential was created with an empty verification Code.";
+    @"The Phone Auth Credential was created with an empty SMS verification Code.";
 
 /** @var kFIRAuthErrorMessageInvalidVerificationCode
     @brief Message for @c FIRAuthErrorCodeInvalidVerificationCode error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidVerificationCode =
-    @"The verification code used to create the phone auth credential is invalid.";
+    @"The SMS verification code used to create the phone auth credential is invalid. Please resend "
+    "the verification code sms and be sure use the verification code provided by the user.";
 
 /** @var kFIRAuthErrorMessageMissingVerificationID
     @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingVerificationID =
-    @"The Phone Auth Credential was created with an empty verification ID";
+    @"The Phone Auth Credential was created with an empty verification ID.";
 
 /** @var kFIRAuthErrorMessageInvalidVerificationID
     @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidVerificationID =
-    @"The verification ID used to create the phone auth credential is invalid. ";
+    @"The verification ID used to create the phone auth credential is invalid.";
 
 /** @var kFIRAuthErrorMessageSessionExpired
     @brief Message for @c FIRAuthErrorCodeSessionExpired error code.
@@ -292,21 +270,37 @@ static NSString *const kFIRAuthErrorMessageSessionExpired = @"The SMS code has e
 /** @var kFIRAuthErrorMessageMissingAppCredential
     @brief Message for @c FIRAuthErrorCodeMissingAppCredential error code.
  */
-static NSString *const kFIRAuthErrorMessageMissingAppCredential = @"An APNS device token must be "
-    "provided.";
+static NSString *const kFIRAuthErrorMessageMissingAppCredential = @"The phone verification request "
+    "is missing an APNs Device token. Firebase Auth automatically detects APNs Device Tokens, "
+    "however, if method swizzling is disabled, the APNs token must be set via the APNSToken "
+    "property on FIRAuth or by calling setAPNSToken:type on FIRAuth.";
 
 /** @var kFIRAuthErrorMessageInvalidAppCredential
     @brief Message for @c FIRAuthErrorCodeInvalidAppCredential error code.
  */
-static NSString *const kFIRAuthErrorMessageInvalidAppCredential = @"The APNS device token "
-    "provided may be incorrect or does not match the private certificate uploaded to the "
-    "Firebase Console.";
+static NSString *const kFIRAuthErrorMessageInvalidAppCredential = @"The APNs device token provided "
+    "may be incorrect or does not match the private certificate uploaded to the Firebase Console.";
 
 /** @var kFIRAuthErrorMessageQuotaExceeded
     @brief Message for @c FIRAuthErrorCodeQuotaExceeded error code.
  */
 static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The SMS quota for this project has "
     "been exceeded.";
+
+/** @var kFIRAuthErrorMessageMissingAppToken
+    @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
+ */
+static NSString *const kFIRAuthErrorMessageMissingAppToken = @"Remote notification and background "
+    "fetching need to be set up for the app. If app delegate swizzling is disabled, the APNs "
+    "device token received by UIApplicationDelegate needs to be forwarded to FIRAuth's APNSToken "
+    "property.";
+
+/** @var kFIRAuthErrorMessageMissingAppToken
+    @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
+ */
+static NSString *const kFIRAuthErrorMessageNotificationNotForwarded = @"If app delegate swizzling "
+    "is disabled, remote notifications received by UIApplicationDelegate need to be forwarded to "
+    "FIRAuth's canHandleNotificaton: method.";
 
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
@@ -378,16 +372,6 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidMessagePayload;
     case FIRAuthErrorCodeInvalidRecipientEmail:
       return kFIRAuthErrorMessageInvalidRecipientEmail;
-    case FIRAuthErrorCodeMissingIosBundleID:
-      return kFIRAuthErrorMessageMissingIosBundleID;
-    case FIRAuthErrorCodeMissingAndroidPackageName:
-      return kFIRAuthErrorMessageMissingAndroidPackageName;
-    case FIRAuthErrorCodeUnauthorizedDomain:
-      return kFIRAuthErrorMessageUnauthorizedDomain;
-    case FIRAuthErrorCodeInvalidContinueURI:
-      return kFIRAuthErrorMessageInvalidContinueURI;
-    case FIRAuthErrorCodeMissingContinueURI:
-      return kFIRAuthErrorMessageMissingContinueURI;
     case FIRAuthErrorCodeMissingPhoneNumber:
       return kFIRAuthErrorMessageMissingPhoneNumber;
     case FIRAuthErrorCodeInvalidPhoneNumber:
@@ -408,6 +392,10 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidAppCredential;
     case FIRAuthErrorCodeQuotaExceeded:
       return kFIRAuthErrorMessageQuotaExceeded;
+    case FIRAuthErrorCodeMissingAppToken:
+      return kFIRAuthErrorMessageMissingAppToken;
+    case FIRAuthErrorCodeNotificationNotForwarded:
+      return kFIRAuthErrorMessageNotificationNotForwarded;
   }
 }
 
@@ -475,16 +463,6 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_SENDER";
     case FIRAuthErrorCodeInvalidRecipientEmail:
       return @"ERROR_INVALID_RECIPIENT_EMAIL";
-    case FIRAuthErrorCodeMissingIosBundleID:
-      return @"ERROR_MISSING_IOS_BUNDLE_ID";
-    case FIRAuthErrorCodeMissingAndroidPackageName:
-      return @"ERROR_MISSING_ANDROID_PKG_NAME";
-    case FIRAuthErrorCodeUnauthorizedDomain:
-      return @"ERROR_UNAUTHORIZED_DOMAIN";
-    case FIRAuthErrorCodeInvalidContinueURI:
-      return @"ERROR_INVALID_CONTINUE_URI";
-    case FIRAuthErrorCodeMissingContinueURI:
-      return @"ERROR_MISSING_CONTINUE_URI";
     case FIRAuthErrorCodeMissingPhoneNumber:
       return @"ERROR_MISSING_PHONE_NUMBER";
     case FIRAuthErrorCodeInvalidPhoneNumber:
@@ -505,6 +483,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"INVALID_APP_CREDENTIAL";
     case FIRAuthErrorCodeQuotaExceeded:
       return @"ERROR_QUOTA_EXCEEDED";
+    case FIRAuthErrorCodeMissingAppToken:
+      return @"ERROR_MISSING_APP_TOKEN";
+    case FIRAuthErrorCodeNotificationNotForwarded:
+      return @"ERROR_NOTIFICATION_NOT_FORWARDED";
   }
 }
 
@@ -662,9 +644,9 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidEmail message:message];
 }
 
-+ (NSError *)accountExistsWithDifferentCredentialErrorWithMessage:(nullable NSString *)message {
++ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email {
   return [self errorWithCode:FIRAuthInternalErrorCodeAccountExistsWithDifferentCredential
-                     message:message];
+                    userInfo:@{ FIRAuthErrorUserInfoEmailKey : email }];
 }
 
 + (NSError *)providerAlreadyLinkedError {
@@ -734,26 +716,6 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidRecipientEmail message:message];
 }
 
-+ (NSError *)missingIosBundleIDErrorWithMessage:(nullable NSString *)message {
-  return [self errorWithCode:FIRAuthinternalErrorCodeMissingIosBundleID message:message];
-}
-
-+ (NSError *)missingAndroidPackageNameErrorWithMessage:(nullable NSString *)message {
-  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAndroidPackageName message:message];
-}
-
-+ (NSError *)unauthorizedDomainErrorWithMessage:(nullable NSString *)message {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnauthorizedDomain message:message];
-}
-
-+ (NSError *)invalidContinueURIErrorWithMessage:(nullable NSString *)message {
-  return [self errorWithCode:FIRAuthInternalErrorCodeInvalidContinueURI message:message];
-}
-
-+ (NSError *)missingContinueURIErrorWithMessage:(nullable NSString *)message {
-  return [self errorWithCode:FIRAuthInternalErrorCodeMissingContinueURI message:message];
-}
-
 + (NSError *)missingPhoneNumberErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeMissingPhoneNumber message:message];
 }
@@ -792,6 +754,14 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)quotaExceededErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeQuotaExceeded message:message];
+}
+
++ (NSError *)missingAppTokenError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAppToken];
+}
+
++ (NSError *)notificationNotForwardedError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeNotificationNotForwarded];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

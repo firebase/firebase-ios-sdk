@@ -22,7 +22,10 @@ NSString *const FIRGoogleAuthProviderID = @"google.com";
 // Declared 'extern' in FIRFacebookAuthProvider.h
 NSString *const FIRFacebookAuthProviderID = @"facebook.com";
 
-// Declared 'extern' in FIREmailPasswordAuthProvider.h
+// Declared 'extern' in FIREmailAuthProvider.h
+NSString *const FIREmailAuthProviderID = @"password";
+
+// Declared 'extern' in FIREmailAuthProvider.h
 NSString *const FIREmailPasswordAuthProviderID = @"password";
 
 // Declared 'extern' in FIRTwitterAuthProvider.h

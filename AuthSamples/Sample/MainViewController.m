@@ -679,7 +679,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromEmailPassword
                                            action:^{
-          [weakSelf unlinkFromProvider:FIREmailPasswordAuthProviderID];
+          [weakSelf unlinkFromProvider:FIREmailAuthProviderID];
         }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleApp cells:@[
@@ -1024,9 +1024,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           return;
         }
         [self logSuccess:@"sign-in with custom token succeeded."];
-        [auth.currentUser getTokenForcingRefresh:NO
-                                       completion:^(NSString *_Nullable token,
-                                                    NSError *_Nullable error) {
+        [auth.currentUser getIDTokenForcingRefresh:NO
+                                        completion:^(NSString *_Nullable token,
+                                                     NSError *_Nullable error) {
           if (error) {
             [self logFailure:@"refresh token failed" error:error];
             [self logFailedTest:@"Refresh token should be available."];
@@ -1147,7 +1147,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       #warning TODO(zsika) Test should check for sign out errors.
       [auth signOut:NULL];
       FIRAuthCredential *credential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kFakeEmail password:kFakePassword];
+        [FIREmailAuthProvider credentialWithEmail:kFakeEmail password:kFakePassword];
       [auth signInWithCredential:credential
                        completion:^(FIRUser *_Nullable user,
                                     NSError *_Nullable error) {
@@ -1395,7 +1395,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         return;
       }
       FIRAuthCredential *credential =
-          [FIREmailPasswordAuthProvider credentialWithEmail:email
+          [FIREmailAuthProvider credentialWithEmail:email
                                                    password:password];
       [self showSpinner:^{
         [[FIRAuth auth] signInWithCredential:credential
@@ -1636,7 +1636,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @param force Whether the refresh is forced or not.
  */
 - (void)getUserTokenWithForce:(BOOL)force {
-  [[self user] getTokenForcingRefresh:force completion:[self tokenCallback]];
+  [[self user] getIDTokenForcingRefresh:force completion:[self tokenCallback]];
 }
 
 /** @fn getAppTokenWithForce:
@@ -1831,8 +1831,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       if (!userPressedOK || !password.length) {
         return;
       }
-      FIRAuthCredential *credential = [FIREmailPasswordAuthProvider credentialWithEmail:email
-                                                                               password:password];
+
+      FIRAuthCredential *credential = [FIREmailAuthProvider credentialWithEmail:email
+                                                                       password:password];
       completion(credential);
     }];
   }];
@@ -2391,6 +2392,10 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                    error.domain,
                                                    (long)error.code,
                                                    error.localizedDescription];
+    if (error.code == FIRAuthErrorCodeAccountExistsWithDifferentCredential) {
+      NSString *errorEmail = error.userInfo[FIRAuthErrorUserInfoEmailKey];
+      resultsTitle = [NSString stringWithFormat:@"Existing email : %@", errorEmail];
+    }
     [self showMessagePromptWithTitle:resultsTitle
                              message:message
                     showCancelButton:NO

@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRAuthAppCredential.h"
 #import "FIRAuthBackend.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
@@ -31,10 +32,30 @@ static NSString *const kTestAPIKey = @"APIKey";
  */
 static NSString *const kTestPhoneNumber = @"12345678";
 
+/** @var kTestSecret
+    @brief Fake secret used for testing.
+ */
+static NSString *const kTestSecret = @"secret";
+
+/** @var kTestReceipt
+    @brief Fake receipt used for testing.
+ */
+static NSString *const kTestReceipt = @"receipt";
+
 /** @var kPhoneNumberKey
     @brief The key for the "phone number" value in the request.
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
+
+/** @var kReceiptKey
+    @brief The key for the receipt parameter in the request.
+ */
+static NSString *const kReceiptKey = @"iosReceipt";
+
+/** @var kSecretKey
+    @brief The key for the Secret parameter in the request.
+ */
+static NSString *const kSecretKey = @"iosSecret";
 
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.
@@ -73,8 +94,11 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the sendVerificationCode request.
  */
 - (void)testSendVerificationCodeRequest {
+  FIRAuthAppCredential *credential =
+      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
+                                                    appCredential:credential
                                                            APIKey:kTestAPIKey];
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
@@ -83,6 +107,9 @@ static NSString *const kExpectedAPIURL =
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPhoneNumberKey], kTestPhoneNumber);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPhoneNumberKey], kTestPhoneNumber);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kReceiptKey], kTestReceipt);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kSecretKey], kTestSecret);
 }
 
 @end

@@ -77,7 +77,7 @@ final class ViewController: UIViewController {
   fileprivate var credentialType = CredentialType(rawValue: 0)!
 
   /// The current Firebase user.
-  fileprivate var user: FIRUser? = nil {
+  fileprivate var user: User? = nil {
     didSet {
       if user?.uid != oldValue?.uid {
         actionTypePicker.reloadAllComponents()
@@ -91,10 +91,10 @@ final class ViewController: UIViewController {
 
   override func viewDidLoad() {
     GIDSignIn.sharedInstance().uiDelegate = self
-    updateUserInfo(FIRAuth.auth())
-    NotificationCenter.default.addObserver(forName: NSNotification.Name.FIRAuthStateDidChange,
-                                           object: FIRAuth.auth(), queue: nil) { notification in
-      self.updateUserInfo(notification.object as? FIRAuth)
+    updateUserInfo(Auth.auth())
+    NotificationCenter.default.addObserver(forName: .AuthStateDidChange,
+                                           object: Auth.auth(), queue: nil) { notification in
+      self.updateUserInfo(notification.object as? Auth)
     }
   }
 
@@ -104,46 +104,46 @@ final class ViewController: UIViewController {
     case .auth:
       switch authAction {
       case .fetchProviderForEmail:
-        FIRAuth.auth().fetchProviders(forEmail: emailField.text!) { providers, error in
+        Auth.auth().fetchProviders(forEmail: emailField.text!) { providers, error in
           self.ifNoError(error) {
             self.showAlert(title: "Providers", message: providers?.joined(separator: ", "))
           }
         }
       case .signInAnonymously:
-        FIRAuth.auth().signInAnonymously() { user, error in
+        Auth.auth().signInAnonymously() { user, error in
           self.ifNoError(error) {
             self.showAlert(title: "Signed In Anonymously")
           }
         }
       case .signInWithCredential:
         getCredential() { credential in
-          FIRAuth.auth().signIn(with: credential) { user, error in
+          Auth.auth().signIn(with: credential) { user, error in
             self.ifNoError(error) {
               self.showAlert(title: "Signed In With Credential", message: user?.textDescription)
             }
           }
         }
       case .createUser:
-        FIRAuth.auth().createUser(withEmail: emailField.text!, password: passwordField.text!) {
+        Auth.auth().createUser(withEmail: emailField.text!, password: passwordField.text!) {
             user, error in
           self.ifNoError(error) {
             self.showAlert(title: "Signed In With Credential", message: user?.textDescription)
           }
         }
       case .signOut:
-        try! FIRAuth.auth().signOut()
+        try! Auth.auth().signOut()
         GIDSignIn.sharedInstance().signOut()
       }
     case .user:
       switch userAction {
       case .updateEmail:
-        user!.updateEmail(emailField.text!) { error in
+        user!.updateEmail(to: emailField.text!) { error in
           self.ifNoError(error) {
             self.showAlert(title: "Updated Email", message: self.user?.email)
           }
         }
       case .updatePassword:
-        user!.updatePassword(passwordField.text!) { error in
+        user!.updatePassword(to: passwordField.text!) { error in
           self.ifNoError(error) {
             self.showAlert(title: "Updated Password")
           }
@@ -163,9 +163,9 @@ final class ViewController: UIViewController {
           }
         }
       case .getToken:
-        user!.getTokenWithCompletion() { token, error in
+        user!.getIDToken() { token, error in
           self.ifNoError(error) {
-            self.showAlert(title: "Got Token", message: token)
+            self.showAlert(title: "Got ID Token", message: token)
           }
         }
       case .linkWithCredential:
@@ -186,26 +186,26 @@ final class ViewController: UIViewController {
     }
   }
 
-  /// Gets a FIRAuthCredential potentially asynchronously.
-  private func getCredential(completion: @escaping (FIRAuthCredential) -> Void) {
+  /// Gets an AuthCredential potentially asynchronously.
+  private func getCredential(completion: @escaping (AuthCredential) -> Void) {
     switch credentialType {
     case .google:
       GIDSignIn.sharedInstance().delegate = GoogleSignInDelegate(completion: { user, error in
         self.ifNoError(error) {
-          completion(FIRGoogleAuthProvider.credential(
+          completion(GoogleAuthProvider.credential(
               withIDToken: user!.authentication.idToken,
               accessToken: user!.authentication.accessToken))
         }
       })
       GIDSignIn.sharedInstance().signIn()
     case .password:
-      completion(FIREmailPasswordAuthProvider.credential(withEmail: emailField.text!,
+      completion(EmailAuthProvider.credential(withEmail: emailField.text!,
                                                          password: passwordField.text!))
     }
   }
 
   /// Updates user's profile image and info text.
-  private func updateUserInfo(_ auth: FIRAuth?) {
+  private func updateUserInfo(_ auth: Auth?) {
     user = auth?.currentUser
     displayNameLabel.text = user?.displayName
     emailLabel.text = user?.email
@@ -284,7 +284,7 @@ extension ViewController : UIPickerViewDataSource {
   func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
     switch pickerView {
     case actionTypePicker:
-      if FIRAuth.auth().currentUser != nil {
+      if Auth.auth().currentUser != nil {
         return ActionType.countWithUser
       } else {
         return ActionType.countWithoutUser
@@ -514,7 +514,7 @@ fileprivate enum CredentialType: Int {
   }
 }
 
-fileprivate extension FIRUser {
+fileprivate extension User {
   var textDescription: String {
     return self.displayName ?? self.email ?? self.uid
   }

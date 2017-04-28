@@ -16,6 +16,10 @@
 
 #import "FIRAuth.h"
 
+@class FIRAuthAPNSTokenManager;
+@class FIRAuthAppCredentialManager;
+@class FIRAuthNotificationManager;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var FIRAuthStateDidChangeInternalNotification
@@ -41,6 +45,21 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
     @remarks Needed for calls to identity toolkit and secure token service.
  */
 @property(nonatomic, copy, readonly) NSString *APIKey;
+
+/** @property tokenManager
+    @brief The manager for APNs tokens used by phone number auth.
+ */
+@property(nonatomic, strong, readonly) FIRAuthAPNSTokenManager *tokenManager;
+
+/** @property appCredentailManager
+    @brief The manager for app credentials used by phone number auth.
+ */
+@property(nonatomic, strong, readonly) FIRAuthAppCredentialManager *appCredentialManager;
+
+/** @property notificationManager
+    @brief The manager for remote notifications used by phone number auth.
+ */
+@property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
 
 /** @fn initWithAPIKey:appName:
     @brief Designated initializer.

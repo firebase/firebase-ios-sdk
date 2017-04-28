@@ -27,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRAuthTokenCallback
     @brief The type of block called when a token is ready for use.
-    @see FIRUser.getTokenWithCompletion:
-    @see FIRUser.getTokenForcingRefresh:withCompletion:
+    @see FIRUser.getIDTokenWithCompletion:
+    @see FIRUser.getIDTokenForcingRefresh:withCompletion:
 
     @param token Optionally; an access token if the request was successful.
     @param error Optionally; the error which occurred - or nil if the request was successful.
@@ -55,6 +55,7 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
     @brief Represents a user.
     @remarks This class is thread-safe.
  */
+NS_SWIFT_NAME(User)
 @interface FIRUser : NSObject <FIRUserInfo>
 
 /** @property anonymous
@@ -121,7 +122,8 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
 
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all FIRUser methods.
  */
-- (void)updateEmail:(NSString *)email completion:(nullable FIRUserProfileChangeCallback)completion;
+- (void)updateEmail:(NSString *)email completion:(nullable FIRUserProfileChangeCallback)completion
+    NS_SWIFT_NAME(updateEmail(to:completion:));
 
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.
@@ -149,7 +151,8 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all FIRUser methods.
  */
 - (void)updatePassword:(NSString *)password
-            completion:(nullable FIRUserProfileChangeCallback)completion;
+            completion:(nullable FIRUserProfileChangeCallback)completion
+    NS_SWIFT_NAME(updatePassword(to:completion:));
 
 /** @fn updatePhoneNumberCredential:completion:
     @brief Updates the phone number for the user. On success, the cached user profile data is
@@ -183,7 +186,7 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
 
     @return An object which may be used to change the user's profile data atomically.
  */
-- (FIRUserProfileChangeRequest *)profileChangeRequest;
+- (FIRUserProfileChangeRequest *)profileChangeRequest NS_SWIFT_NAME(createProfileChangeRequest());
 
 /** @fn reloadWithCompletion:
     @brief Reloads the user's profile data from the server.
@@ -251,7 +254,7 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
 - (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
                                          completion:(nullable FIRAuthDataResultCallback) completion;
 
-/** @fn getTokenWithCompletion:
+/** @fn getIDTokenWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
     @param completion Optionally; the block invoked when the token is available. Invoked
@@ -259,9 +262,21 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
 
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
  */
-- (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion;
+- (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
+    NS_SWIFT_NAME(getIDToken(completion:));
 
-/** @fn getTokenForcingRefresh:completion:
+/** @fn getTokenWithCompletion:
+    @brief Please use @c getIDTokenWithCompletion: instead.
+
+    @param completion Optionally; the block invoked when the token is available. Invoked
+        asynchronously on the main thread in the future.
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+ */
+- (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
+    NS_SWIFT_NAME(getToken(completion:)) __attribute__((deprecated));
+
+/** @fn getIDTokenForcingRefresh:completion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
     @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
@@ -274,8 +289,25 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
 
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
  */
+- (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
+                      completion:(nullable FIRAuthTokenCallback)completion;
+
+/** @fn getTokenForcingRefresh:completion:
+    @brief Please use getIDTokenForcingRefresh:completion instead.
+
+    @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+        other than an expiration.
+    @param completion Optionally; the block invoked when the token is available. Invoked
+        asynchronously on the main thread in the future.
+
+    @remarks The authentication token will be refreshed (by making a network request) if it has
+        expired, or if @c forceRefresh is YES.
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+ */
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh
-                    completion:(nullable FIRAuthTokenCallback)completion;
+                    completion:(nullable FIRAuthTokenCallback)completion
+                        __attribute__((deprecated));
 
 /** @fn linkWithCredential:completion:
     @brief Convenience method for @c linkAndRetrieveDataWithCredential:completion: This method
@@ -363,42 +395,6 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
  */
 - (void)sendEmailVerificationWithCompletion:(nullable FIRSendEmailVerificationCallback)completion;
 
-/** @fn sendEmailVerificationWithActionCodeSettings:completion:
-    @brief Initiates email verification for the user.
-
-    @param actionCodeSettings An @c FIRActionCodeSettings object containing settings related to the
-        handling action codes.
-
-    @remarks Possible error codes:
-    <ul>
-        <li>@c FIRAuthErrorCodeInvalidRecipientEmail - Indicates an invalid recipient email was
-            sent in the request.
-        </li>
-        <li>@c FIRAuthErrorCodeInvalidSender - Indicates an invalid sender email is set in
-            the console for this action.
-        </li>
-        <li>@c FIRAuthErrorCodeInvalidMessagePayload - Indicates an invalid email template for
-            sending update email.
-        </li>
-        <li>@c FIRAuthErrorCodeUserNotFound - Indicates the user account was not found.</li>
-        <li>@c FIRAuthErrorCodeMissingIosBundleID - Indicates that the iOS bundle ID is missing when
-            a iOS App Store ID is provided.
-        </li>
-        <li>@c FIRAuthErrorCodeMissingAndroidPackageName - Indicates that the android package name
-            is missing when the @c androidInstallApp flag is set to true.
-        </li>
-        <li>@c FIRAuthErrorCodeUnauthorizedDomain - Indicates that the domain specified in the
-            continue URL is not whitelisted in the Firebase console.
-        </li>
-        <li>@c FIRAuthErrorCodeInvalidContinueURI - Indicates that the domain specified in the
-            continue URI is not valid.
-        </li>
-    </ul>
- */
-- (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                                         completion:(nullable FIRSendEmailVerificationCallback)
-                                                    completion;
-
 /** @fn deleteWithCompletion:
     @brief Deletes the user account (also signs out the user, if this was the current user).
 
@@ -426,6 +422,7 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error);
     @remarks Properties are marked as being part of a profile update when they are set. Setting a
         property value to nil is not the same as leaving the property unassigned.
  */
+NS_SWIFT_NAME(UserProfileChangeRequest)
 @interface FIRUserProfileChangeRequest : NSObject
 
 /** @fn init

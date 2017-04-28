@@ -36,6 +36,7 @@ typedef void(^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
 /** @class FIRSecureTokenService
     @brief Provides services for token exchanges and refreshes.
  */
+NS_SWIFT_NAME(SecureTokenService)
 @interface FIRSecureTokenService : NSObject <NSSecureCoding>
 
 /** @property rawAccessToken

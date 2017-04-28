@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIROAuthProvider
     @brief A concrete implementation of @c FIRAuthProvider for generic OAuth Providers.
  */
+NS_SWIFT_NAME(OAuthProvider)
 @interface FIROAuthProvider : NSObject
 
 /** @fn credentialWithProviderID:IDToken:accessToken:

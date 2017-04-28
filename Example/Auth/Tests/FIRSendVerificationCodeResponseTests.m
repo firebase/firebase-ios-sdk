@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRAuthAppCredential.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
@@ -47,6 +48,16 @@ static NSString *const kVerificationIDKey = @"sessionInfo";
     @brief Fake verification ID for testing.
  */
 static NSString *const kFakeVerificationID = @"testVerificationID";
+
+/** @var kTestSecret
+    @brief Fake secret used for testing.
+ */
+static NSString *const kTestSecret = @"secret";
+
+/** @var kTestReceipt
+    @brief Fake receipt used for testing.
+ */
+static NSString *const kTestReceipt = @"receipt";
 
 /** @var kInvalidPhoneNumberErrorMessage
     @brief This is the error message the server will respond with if an incorrectly formatted phone
@@ -90,8 +101,11 @@ static NSString *const kQuotaExceededErrorMessage = @"QUOTA_EXCEEDED";
     @brief Tests a failed attempt to send a verification code with an invalid phone number.
  */
 - (void)testSendVerificationCodeResponseInvalidPhoneNumber {
+  FIRAuthAppCredential *credential =
+      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestInvalidPhoneNumber
+                                                    appCredential:credential
                                                            APIKey:kTestAPIKey];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
@@ -115,8 +129,11 @@ static NSString *const kQuotaExceededErrorMessage = @"QUOTA_EXCEEDED";
     @brief Tests a failed attempt to send a verification code due to SMS quota having been exceeded.
  */
 - (void)testSendVerificationCodeResponseQuotaExceededError {
+  FIRAuthAppCredential *credential =
+      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
-      [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestInvalidPhoneNumber
+      [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
+                                                    appCredential:credential
                                                            APIKey:kTestAPIKey];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
@@ -140,8 +157,11 @@ static NSString *const kQuotaExceededErrorMessage = @"QUOTA_EXCEEDED";
     @brief Tests a succesful to send a verification code.
  */
 - (void)testSuccessfulSendVerificationCodeResponse {
+   FIRAuthAppCredential *credential =
+      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
+                                                    appCredential:credential
                                                            APIKey:kTestAPIKey];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;

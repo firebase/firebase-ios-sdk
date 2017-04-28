@@ -22,8 +22,8 @@
 #import "MainViewController.h"
 
 #if INTERNAL_GOOGLE3_BUILD
-#import "googlemac/iPhone/Firebase/Source/FIRLogger.h"
 #import "googlemac/iPhone/Identity/Firebear/InternalUtils/FIRSessionFetcherLogging.h"
+#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRLogger.h"
 #endif
 
 /** @var gOpenURLDelegate

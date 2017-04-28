@@ -23,11 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
     @brief A string constant identifying the Facebook identity provider.
  */
-extern NSString *const FIRFacebookAuthProviderID;
+extern NSString *const FIRFacebookAuthProviderID NS_SWIFT_NAME(FacebookAuthProviderID);
 
 /** @class FIRFacebookAuthProvider
     @brief Utility class for constructing Facebook credentials.
  */
+NS_SWIFT_NAME(FacebookAuthProvider)
 @interface FIRFacebookAuthProvider : NSObject
 
 /** @fn credentialWithAccessToken:

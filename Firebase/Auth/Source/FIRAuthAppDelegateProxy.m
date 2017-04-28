@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthAppDelegateProxy.h"
+#import "Private/FIRAuthAppDelegateProxy.h"
 
 #import <objc/runtime.h>
 

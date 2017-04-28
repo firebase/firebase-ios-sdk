@@ -22,8 +22,14 @@
 #import "FIROptions.h"
 #import "FirebaseAuth.h"
 #import "StaticContentTableViewManager.h"
+#import "UIViewController+Alerts.h"
 
 #if INTERNAL_GOOGLE3_BUILD
+#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuth_Internal.h"
+#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAPNSToken.h"
+#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAPNSTokenManager.h"
+#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAppCredential.h"
+#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAppCredentialManager.h"
 #import "googlemac/iPhone/InstanceID/Firebase/Lib/Source/FIRInstanceID+Internal.h"
 #else
 @interface FIRInstanceID : NSObject
@@ -118,6 +124,36 @@ static NSString *APIHost(NSString *requestClassName) {
   return [(id<RequestClass>)NSClassFromString(requestClassName) host];
 }
 
+/** @fn truncatedString
+    @brief Truncates a string under a maximum length.
+    @param string The original string to be truncated.
+    @param length The maximum length of the truncated string.
+    @return The truncated string, which is not longer than @c length.
+ */
+static NSString *truncatedString(NSString *string, NSUInteger length) {
+  if (string.length <= length) {
+    return string;
+  }
+  NSUInteger half = (length - 3) / 2;
+  return [NSString stringWithFormat:@"%@...%@",
+                                    [string substringToIndex:half],
+                                    [string substringFromIndex:string.length - half]];
+}
+
+/** @fn hexString
+    @brief Converts a piece of data into a hexadecimal string.
+    @param data The raw data.
+    @return The hexadecimal string representation of the data.
+ */
+static NSString *hexString(NSData *data) {
+  NSMutableString *string = [NSMutableString stringWithCapacity:data.length * 2];
+  const unsigned char *bytes = data.bytes;
+  for (int idx = 0; idx < data.length; ++idx) {
+    [string appendFormat:@"%02X", (int)bytes[idx]];
+  }
+  return string;
+}
+
 @implementation SettingsViewController
 
 - (void)viewDidLoad {
@@ -202,6 +238,20 @@ static NSString *APIHost(NSString *requestClassName) {
         [weakSelf toggleAPIHostWithRequestClassName:kSecureTokenRequestClassName];
       }],
     ]],
+#if INTERNAL_GOOGLE3_BUILD
+    [StaticContentTableViewSection sectionWithTitle:@"Phone Auth" cells:@[
+      [StaticContentTableViewCell cellWithTitle:@"APNs Token"
+                                          value:[self APNSTokenString]
+                                         action:^{
+        [weakSelf clearAPNSToken];
+      }],
+      [StaticContentTableViewCell cellWithTitle:@"App Credential"
+                                          value:[self appCredentialString]
+                                         action:^{
+        [weakSelf clearAppCredential];
+      }],
+    ]],
+#endif  // INTERNAL_GOOGLE3_BUILD
   ]];
 }
 
@@ -254,5 +304,78 @@ static NSString *APIHost(NSString *requestClassName) {
     }
   }
 }
+
+#if INTERNAL_GOOGLE3_BUILD
+
+/** @fn APNSTokenString
+    @brief Returns a string representing APNS token.
+ */
+- (NSString *)APNSTokenString {
+  FIRAuthAPNSToken *token = [FIRAuth auth].tokenManager.token;
+  if (!token) {
+    return @"";
+  }
+  return [NSString stringWithFormat:@"%@(%@)",
+                                    truncatedString(hexString(token.data), 19),
+                                    token.type == FIRAuthAPNSTokenTypeProd ? @"P" : @"S"];
+}
+
+/** @fn clearAPNSToken
+    @brief Clears the saved app credential.
+ */
+- (void)clearAPNSToken {
+  FIRAuthAPNSToken *token = [FIRAuth auth].tokenManager.token;
+  if (!token) {
+    return;
+  }
+  NSString *tokenType = token.type == FIRAuthAPNSTokenTypeProd ? @"Production" : @"Sandbox";
+  NSString *message = [NSString stringWithFormat:@"token: %@\ntype: %@",
+                                                 hexString(token.data), tokenType];
+  [self showMessagePromptWithTitle:@"Clear APNs Token?"
+                           message:message
+                  showCancelButton:YES
+                        completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+    if (userPressedOK) {
+      [FIRAuth auth].tokenManager.token = nil;
+      [self loadTableView];
+    }
+  }];
+}
+
+/** @fn appCredentialString
+    @brief Returns a string representing app credential.
+ */
+- (NSString *)appCredentialString {
+  FIRAuthAppCredential *credential = [FIRAuth auth].appCredentialManager.credential;
+  if (!credential) {
+    return @"";
+  }
+  return [NSString stringWithFormat:@"%@/%@",
+                                    truncatedString(credential.receipt, 13),
+                                    truncatedString(credential.secret, 13)];
+}
+
+/** @fn clearAppCredential
+    @brief Clears the saved app credential.
+ */
+- (void)clearAppCredential {
+  FIRAuthAppCredential *credential = [FIRAuth auth].appCredentialManager.credential;
+  if (!credential) {
+    return;
+  }
+  NSString *message = [NSString stringWithFormat:@"receipt: %@\nsecret: %@",
+                                                 credential.receipt, credential.secret];
+  [self showMessagePromptWithTitle:@"Clear App Credential?"
+                           message:message
+                  showCancelButton:YES
+                        completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+    if (userPressedOK) {
+      [[FIRAuth auth].appCredentialManager clearCredential];
+      [self loadTableView];
+    }
+  }];
+}
+
+#endif  // INTERNAL_GOOGLE3_BUILD
 
 @end

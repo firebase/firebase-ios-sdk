@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "EmailPassword/FIREmailPasswordAuthProvider.h"
+#import "EmailPassword/FIREmailAuthProvider.h"
 #import "Facebook/FIRFacebookAuthProvider.h"
 #import "Google/FIRGoogleAuthProvider.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
@@ -36,9 +36,9 @@
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyPasswordRequest.h"
 #import "FIRVerifyPasswordResponse.h"
-#import "FIRApp+FIRAuthUnitTests.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
+#import "FIRApp+FIRAuthUnitTests.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 #import <OCMock/OCMock.h>
 
@@ -258,7 +258,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
 - (void)testUserProperties {
   // Mock auth provider user info for email/password for GetAccountInfo.
   id mockPasswordUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
-  OCMStub([mockPasswordUserInfo providerID]).andReturn(FIREmailPasswordAuthProviderID);
+  OCMStub([mockPasswordUserInfo providerID]).andReturn(FIREmailAuthProviderID);
   OCMStub([mockPasswordUserInfo federatedID]).andReturn(kEmail);
   OCMStub([mockPasswordUserInfo email]).andReturn(kEmail);
 
@@ -315,7 +315,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
         [self dictionaryWithUserInfoArray:user.providerData];
 
     // Verify FIRUserInfo properties from email/password.
-    id<FIRUserInfo> passwordUserInfo = providerMap[FIREmailPasswordAuthProviderID];
+    id<FIRUserInfo> passwordUserInfo = providerMap[FIREmailAuthProviderID];
     XCTAssertNotNil(passwordUserInfo);
     XCTAssertEqualObjects(passwordUserInfo.uid, kEmail);
     XCTAssertNil(passwordUserInfo.displayName);
@@ -737,7 +737,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
       });
     });
     FIRAuthCredential *emailCredential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
     [user reauthenticateWithCredential:emailCredential completion:^(NSError *_Nullable error) {
       XCTAssertNil(error);
       // Verify that the current user is unchanged.
@@ -851,7 +851,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
       });
     });
     FIRAuthCredential *emailCredential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
     [user reauthenticateWithCredential:emailCredential completion:^(NSError *_Nullable error) {
       // Verify user mismatch error.
       XCTAssertEqual(error.code, FIRAuthErrorCodeUserMismatch);
@@ -1097,7 +1097,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
 
     FIRAuthCredential *linkEmailCredential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
     [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
                                             completion:^(FIRAuthDataResult *_Nullable
                                                              linkAuthResult,
@@ -1164,7 +1164,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
 
     FIRAuthCredential *linkEmailCredential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
     [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
                                             completion:^(FIRAuthDataResult *_Nullable
                                                              linkAuthResult,
@@ -1226,7 +1226,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
 
     FIRAuthCredential *linkEmailCredential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
     [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
                                             completion:^(FIRAuthDataResult *_Nullable
                                                             linkAuthResult,

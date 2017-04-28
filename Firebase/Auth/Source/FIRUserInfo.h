@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
     @brief Represents user data returned from an identity provider.
  */
+NS_SWIFT_NAME(UserInfo)
 @protocol FIRUserInfo <NSObject>
 
 /** @property providerID

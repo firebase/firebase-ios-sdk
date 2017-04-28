@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIREmailPasswordAuthProvider.h"
+#import "FIREmailAuthProvider.h"
 #import "FIRFacebookAuthProvider.h"
 #import "FIRGitHubAuthProvider.h"
 #import "FIRGoogleAuthProvider.h"

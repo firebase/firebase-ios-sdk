@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import <XCTest/XCTestExpectation.h>
 
 #import "FIRApp.h"
 #import "FirebaseAuth.h"
@@ -79,6 +78,16 @@ NSString *kGoogleTestAccountRefreshToken = @"1/JflfOhyO4ldLlddTnoMdSKkTqxaLpd3-a
 static NSTimeInterval const kExpectationsTimeout = 30;
 
 #ifdef NO_NETWORK
+#define SKIP_IF_ON_MOBILE_HARNESS                                                                  \
+  if ([ITUIOSTestUtil isOnMobileHarness]) {                                                        \
+    NSLog(@"Skipping '%@' on mobile harness", NSStringFromSelector(_cmd));                         \
+    return;                                                                                        \
+  }
+#else
+#define SKIP_IF_ON_MOBILE_HARNESS
+#endif
+
+#ifdef NO_NETWORK
 @interface ApiTests : IORTestCase
 #else
 @interface ApiTests : XCTestCase
@@ -106,6 +115,7 @@ static NSTimeInterval const kExpectationsTimeout = 30;
  * --networkReplayMode=(replay|record|disabled|observe)
  */
 - (void)testCreateAccountWithEmailAndPassword {
+  SKIP_IF_ON_MOBILE_HARNESS
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");

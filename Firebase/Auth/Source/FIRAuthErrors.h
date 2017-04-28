@@ -34,23 +34,31 @@
         <li>@c FIRAuthErrorCodeUserDisabled</li>
     </ul>
  */
+NS_SWIFT_NAME(AuthErrors)
 @interface FIRAuthErrors
 
 /**
     @brief The Firebase Auth error domain.
  */
-extern NSString *const FIRAuthErrorDomain;
+extern NSString *const FIRAuthErrorDomain NS_SWIFT_NAME(AuthErrorDomain);
 
 /**
     @brief The key used to read the updated credential from the userinfo dictionary of the NSError
         object returned in the case that the credential being linked in already in use.
  */
-extern NSString *const FIRAuthUpdatedCredentialKey;
+extern NSString *const FIRAuthUpdatedCredentialKey NS_SWIFT_NAME(AuthUpdatedCredentialKey);
 
 /**
     @brief The name of the key for the "error_name" string in the NSError userinfo dictionary.
  */
-extern NSString *const FIRAuthErrorNameKey;
+extern NSString *const FIRAuthErrorNameKey NS_SWIFT_NAME(AuthErrorNameKey);
+
+/** @var FIRAuthErrorUserInfoEmailKey
+    @brief Errors with the code @c FIRAuthInternalErrorCodeEmailExists may contains an
+        @c NSError.userInfo dictinary which contains this key. The value associated with this key is
+        an NSString of the email address that already exists.
+ */
+extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserInfoEmailKey);
 
 /**
     @brief Error codes used by Firebase Auth.
@@ -99,11 +107,6 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates account linking is required.
      */
     FIRAuthErrorCodeAccountExistsWithDifferentCredential = 17012,
-
-    /** Same enum as @c FIRAuthErrorCodeAccountExistsWithDifferentCredential ,
-        but with incorrect spelling. Only exists for backwards compatiblity.
-     */
-    FIRAuthErrrorCodeAccountExistsWithDifferentCredential = 17012,
 
     /** Indicates the user has attemped to change email or password more than 5 minutes after
         signing in.
@@ -179,27 +182,8 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeInvalidRecipientEmail = 17033,
 
-    /** Indicates that the iOS bundle ID is missing when a iOS App Store ID is provided.
-     */
-    FIRAuthErrorCodeMissingIosBundleID = 17036,
-
-    /** Indicates that the android package name is missing when the @c androidInstallApp flag is set
-        to true.
-     */
-    FIRAuthErrorCodeMissingAndroidPackageName = 17037,
-
-    /** Indicates that the domain specified in the continue URL is not whitelisted in the Firebase
-        console.
-     */
-    FIRAuthErrorCodeUnauthorizedDomain = 17038,
-
-    /** Indicates that the domain specified in the continue URI is not valid.
-     */
-    FIRAuthErrorCodeInvalidContinueURI = 17039,
-
-    /** Indicates that a valid continue URL was not provided in a server request that requires it.
-     */
-    FIRAuthErrorCodeMissingContinueURI = 17040,
+    // The enum values between 17033 and 17041 are reserved and should NOT be used for new error
+    // codes.
 
     /** Indicates that a phone number was not provided in a call to @c
         verifyPhoneNumber:completion:.
@@ -246,6 +230,16 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeQuotaExceeded = 17052,
 
+    /** Indicates that the APNs device token could not be obtained. The app may not have set up
+        remote notification correctly, or may fail to forward the APNs device token to FIRAuth
+        if app delegate swizzling is disabled.
+     */
+    FIRAuthErrorCodeMissingAppToken = 17053,
+
+    /** Indicates that the app fails to forward remote notification to FIRAuth.
+     */
+    FIRAuthErrorCodeNotificationNotForwarded = 17054,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,
@@ -253,6 +247,6 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates an internal error occurred.
      */
     FIRAuthErrorCodeInternalError = 17999,
-};
+} NS_SWIFT_NAME(AuthErrorCode);
 
 @end

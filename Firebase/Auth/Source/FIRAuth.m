@@ -23,6 +23,10 @@
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Private/FIRAdditionalUserInfo_Internal.h"
+#import "Private/FIRAuthAPNSToken.h"
+#import "Private/FIRAuthAPNSTokenManager.h"
+#import "Private/FIRAuthAppCredentialManager.h"
+#import "Private/FIRAuthAppDelegateProxy.h"
 #import "Private/FIRAuthCredential_Internal.h"
 #import "Private/FIRAuthDataResult_Internal.h"
 #import "Private/FIRAuthDispatcher.h"
@@ -30,6 +34,7 @@
 #import "FIRAuthExceptionUtils.h"
 #import "Private/FIRAuthGlobalWorkQueue.h"
 #import "Private/FIRAuthKeychain.h"
+#import "Private/FIRAuthNotificationManager.h"
 #import "Private/FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -60,7 +65,12 @@ NSString *const FIRAuthStateDidChangeInternalNotification =
     @"FIRAuthStateDidChangeInternalNotification";
 NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey =
     @"FIRAuthStateDidChangeInternalNotificationTokenKey";
+
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
+#else
 NSString *const FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
+#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /** @var kMaxWaitTimeForBackoff
     @brief The maximum wait time before attempting to retry auto refreshing tokens after a failed
@@ -163,7 +173,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 #pragma mark - FIRAuth
 
-@interface FIRAuth ()
+@interface FIRAuth () <FIRAuthAppDelegateHandler>
 
 /** @property firebaseAppId
     @brief The Firebase app ID.
@@ -357,7 +367,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (keychainServiceName) {
       _keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
     }
-
+    // Load current user from keychain.
     FIRUser *user;
     NSError *error;
     if ([self getUser:&user error:&error]) {
@@ -366,6 +376,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                   @"Error loading saved user when starting up: %@", error);
     }
+    // Initialize for phone number auth.
+    _tokenManager =
+        [[FIRAuthAPNSTokenManager alloc] initWithApplication:[UIApplication sharedApplication]];
+    _appCredentialManager = [[FIRAuthAppCredentialManager alloc] initWithKeychain:_keychain];
+    _notificationManager =
+        [[FIRAuthNotificationManager alloc] initWithApplication:[UIApplication sharedApplication]
+                                           appCredentialManager:_appCredentialManager];
+    [[FIRAuthAppDelegateProxy sharedInstance] addHandler:self];
   }
   return self;
 }
@@ -529,7 +547,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
     if (response.needConfirmation) {
       if (callback) {
-        callback(nil, [FIRAuthErrorUtils emailAlreadyInUseErrorWithEmail:response.email]);
+        NSString *email = response.email;
+        callback(nil, [FIRAuthErrorUtils accountExistsWithDifferentCredentialErrorWithEmail:email]);
       }
       return;
     }
@@ -728,39 +747,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)sendPasswordResetWithEmail:(NSString *)email
                         completion:(nullable FIRSendPasswordResetCallback)completion {
-  [self sendPasswordResetWithNullableActionCodeSettings:nil email:email completion:completion];
-}
-
-- (void)sendPasswordResetWithEmail:(NSString *)email
-                actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                        completion:(nullable FIRSendPasswordResetCallback)completion {
-  [self sendPasswordResetWithNullableActionCodeSettings:actionCodeSettings
-                                                  email:email
-                                             completion:completion];
-}
-
-/** @fn sendPasswordResetWithNullableActionCodeSettings:actionCodeSetting:email:completion:
-    @brief Initiates a password reset for the given email address and @FIRActionCodeSettings object.
-
-    @param actionCodeSettings Optionally, An @c FIRActionCodeSettings object containing settings
-        related to the handling action codes.
-    @param email The email address of the user.
-    @param completion Optionally; a block which is invoked when the request finishes. Invoked
-        asynchronously on the main thread in the future.
- */
-- (void)sendPasswordResetWithNullableActionCodeSettings:(nullable FIRActionCodeSettings *)
-                                                        actionCodeSettings
-                                                  email:(NSString *)email
-                                             completion:(nullable FIRSendPasswordResetCallback)
-                                                        completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     if (!email) {
       [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:kEmailInvalidParameterReason];
     }
     FIRGetOOBConfirmationCodeRequest *request =
-        [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:email
-                                                     actionCodeSettings:actionCodeSettings
-                                                                 APIKey:_APIKey];
+        [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:email APIKey:_APIKey];
     [FIRAuthBackend getOOBConfirmationCode:request
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
@@ -841,6 +833,31 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
 }
 
+- (NSData *)APNStoken {
+  __block NSData *result = nil;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    result = _tokenManager.token.data;
+  });
+  return result;
+}
+
+- (void)setAPNSToken:(NSData *)APNSToken {
+  [self setAPNSToken:APNSToken type:FIRAuthAPNSTokenTypeUnknown];
+}
+
+- (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type {
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    _tokenManager.token = [[FIRAuthAPNSToken alloc] initWithData:token type:type];
+  });
+}
+
+- (BOOL)canHandleNotification:(NSDictionary *)userInfo {
+  __block BOOL result = NO;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    result = [_notificationManager canHandleNotification:userInfo];
+  });
+  return result;
+}
 
 #pragma mark - Internal Methods
 

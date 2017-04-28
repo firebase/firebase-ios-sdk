@@ -46,6 +46,10 @@
 		DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */; };
 		DE4E711B1E953ABC00070092 /* FirebaseDev.podspec in Resources */ = {isa = PBXBuildFile; fileRef = DE4E711A1E953ABC00070092 /* FirebaseDev.podspec */; };
 		DE6F01B01E95675E004AEE01 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01AC1E95673C004AEE01 /* FirebaseDev.framework */; };
+		DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */; };
+		DE750DBE1EB3DD6800A75E47 /* FIRAuthAPNSTokenManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */; };
+		DE750DBF1EB3DD6C00A75E47 /* FIRAuthAppCredentialManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */; };
+		DE750DC01EB3DD6F00A75E47 /* FIRAuthNotificationManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */; };
 		DE7B8D971E8EF203009EB6DF /* FArraySortedDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D3A1E8EF202009EB6DF /* FArraySortedDictionaryTest.m */; };
 		DE7B8D981E8EF203009EB6DF /* FCompoundHashTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D3B1E8EF202009EB6DF /* FCompoundHashTest.m */; };
 		DE7B8D9F1E8EF203009EB6DF /* FIRMutableDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D471E8EF202009EB6DF /* FIRMutableDataTests.m */; };
@@ -317,6 +321,10 @@
 		DE6F01AC1E95673C004AEE01 /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Firebase-chgkzndqfwnawrfmbrhkugiybjre/Build/Products/Debug-iphonesimulator/FirebaseDev-Core-Root-Storage/FirebaseDev.framework"; sourceTree = "<group>"; };
 		DE6F01B11E9567BF004AEE01 /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Firebase-chgkzndqfwnawrfmbrhkugiybjre/Build/Products/Debug-iphonesimulator/FirebaseDev-Auth-Core-Root/FirebaseDev.framework"; sourceTree = "<group>"; };
 		DE6F01B31E9567F1004AEE01 /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Firebase-chgkzndqfwnawrfmbrhkugiybjre/Build/Products/Debug-iphonesimulator/FirebaseDev-Core/FirebaseDev.framework"; sourceTree = "<group>"; };
+		DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAPNSTokenManagerTests.m; sourceTree = "<group>"; };
+		DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAPNSTokenTests.m; sourceTree = "<group>"; };
+		DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppCredentialManagerTests.m; sourceTree = "<group>"; };
+		DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthNotificationManagerTests.m; sourceTree = "<group>"; };
 		DE7B8D051E8EF077009EB6DF /* Database_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Database_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE7B8D1D1E8EF078009EB6DF /* Database_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE7B8D2D1E8EF202009EB6DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -857,6 +865,10 @@
 		DE9314F91E86C6FF0083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */,
+				DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */,
+				DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */,
+				DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */,
 				DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */,
 				DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */,
 				DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */,
@@ -1974,12 +1986,14 @@
 				DE9315731E86C71C0083EDBF /* FIRSignUpNewUserResponseTests.m in Sources */,
 				DE9315681E86C71C0083EDBF /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */,
 				DE9315571E86C71C0083EDBF /* FIRAdditionalUserInfoTests.m in Sources */,
+				DE750DBF1EB3DD6C00A75E47 /* FIRAuthAppCredentialManagerTests.m in Sources */,
 				DE93157B1E86C71C0083EDBF /* FIRVerifyPasswordResponseTests.m in Sources */,
 				DE93155B1E86C71C0083EDBF /* FIRAuthDispatcherTests.m in Sources */,
 				DE9315791E86C71C0083EDBF /* FIRVerifyCustomTokenResponseTests.m in Sources */,
 				DE9315601E86C71C0083EDBF /* FIRAuthUserDefaultsStorageTests.m in Sources */,
 				DE9315641E86C71C0083EDBF /* FIRDeleteAccountResponseTests.m in Sources */,
 				DE9315741E86C71C0083EDBF /* FIRTwitterAuthProviderTests.m in Sources */,
+				DE750DC01EB3DD6F00A75E47 /* FIRAuthNotificationManagerTests.m in Sources */,
 				DE93156A1E86C71C0083EDBF /* FIRGitHubAuthProviderTests.m in Sources */,
 				DE9315761E86C71C0083EDBF /* FIRVerifyAssertionRequestTests.m in Sources */,
 				DE9315781E86C71C0083EDBF /* FIRVerifyCustomTokenRequestTests.m in Sources */,
@@ -1996,6 +2010,7 @@
 				DE93155C1E86C71C0083EDBF /* FIRAuthGlobalWorkQueueTests.m in Sources */,
 				DE9315631E86C71C0083EDBF /* FIRDeleteAccountRequestTests.m in Sources */,
 				DECE039B1E9ED01600164CA4 /* FIRPhoneAuthProviderTests.m in Sources */,
+				DE750DBE1EB3DD6800A75E47 /* FIRAuthAPNSTokenManagerTests.m in Sources */,
 				DE93157A1E86C71C0083EDBF /* FIRVerifyPasswordRequestTest.m in Sources */,
 				DE9315621E86C71C0083EDBF /* FIRCreateAuthURIResponseTests.m in Sources */,
 				DE93155A1E86C71C0083EDBF /* FIRAuthBackendRPCImplementationTests.m in Sources */,
@@ -2010,6 +2025,7 @@
 				DE9315581E86C71C0083EDBF /* FIRApp+FIRAuthUnitTests.m in Sources */,
 				DE9315711E86C71C0083EDBF /* FIRSetAccountInfoResponseTests.m in Sources */,
 				DE93155F1E86C71C0083EDBF /* FIRAuthTests.m in Sources */,
+				DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */,
 				DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */,
 				DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */,
 				DE9315751E86C71C0083EDBF /* FIRUserTests.m in Sources */,

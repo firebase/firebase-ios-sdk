@@ -20,11 +20,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @var kMissingContinueURIErrorMessage
-    @brief The error returned by the server if continue URL is invalid.
- */
-static NSString *const kMissingContinueURIErrorMessage = @"MISSING_CONTINUE_URI";
-
 /** @var kOOBCodeKey
     @brief The name of the field in the response JSON for the OOB code.
  */
@@ -36,14 +31,6 @@ static NSString *const kOOBCodeKey = @"oobCode";
                     error:(NSError *_Nullable *_Nullable)error {
   _OOBCode = [dictionary[kOOBCodeKey] copy];
   return YES;
-}
-
-- (nullable NSError *)clientErrorWithShortErrorMessage:(NSString *)shortErrorMessage
-                                    detailErrorMessage:(NSString *)detailErrorMessage {
-  if ([shortErrorMessage isEqualToString:kMissingContinueURIErrorMessage]) {
-    return [FIRAuthErrorUtils missingContinueURIErrorWithMessage:detailErrorMessage];
-  }
-  return nil;
 }
 
 @end

@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIROAuthCredential
     @brief Internal implementation of FIRAuthCredential for generic credentials.
  */
+NS_SWIFT_NAME(OAuthCredential)
 @interface FIROAuthCredential : FIRAuthCredential
 
 /** @property providerID

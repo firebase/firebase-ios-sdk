@@ -23,11 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
     @brief A string constant identifying the GitHub identity provider.
  */
-extern NSString *const FIRGitHubAuthProviderID;
+extern NSString *const FIRGitHubAuthProviderID NS_SWIFT_NAME(GitHubAuthProviderID);
 
 /** @class FIRGitHubAuthProvider
     @brief Utility class for constructing GitHub credentials.
  */
+NS_SWIFT_NAME(GitHubAuthProvider)
 @interface FIRGitHubAuthProvider : NSObject
 
 /** @fn credentialWithToken:
