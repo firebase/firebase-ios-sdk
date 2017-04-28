@@ -2,29 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>API_KEY</key>
-	<string>correct_api_key</string>
-	<key>TRACKING_ID</key>
-	<string>correct_tracking_id</string>
 	<key>CLIENT_ID</key>
-	<string>correct_client_id</string>
+	<string>35006771263-6m38k8i84bn4b353vmbrasu4m0dvfokr.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>correct_reversed_client_id</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>correct_android_client_id</string>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:123:ios:123abc</string>
+	<string>com.googleusercontent.apps.35006771263-6m38k8i84bn4b353vmbrasu4m0dvfokr</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC6fzzEdQfgFhOzhFUGE-zVyFuJ2oYAhzY</string>
 	<key>GCM_SENDER_ID</key>
-	<string>correct_gcm_sender_id</string>
+	<string>35006771263</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.google.FirebaseSDKTests</string>
+	<string>com.google.GCMTestApp.dev</string>
 	<key>PROJECT_ID</key>
-	<string>abc-xyz-123</string>
-	<key>DATABASE_URL</key>
-	<string>https://abc-xyz-123.firebaseio.com</string>
+	<string>android-gcm-test-519bd</string>
 	<key>STORAGE_BUCKET</key>
-	<string>project-id-123.storage.firebase.com</string>
+	<string>android-gcm-test-519bd.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<false/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:35006771263:ios:c1b0e62e127ea326</string>
+	<key>DATABASE_URL</key>
+	<string>https://android-gcm-test-519bd.firebaseio.com</string>
 </dict>
 </plist>

@@ -31,6 +31,9 @@ end
 
 target 'Messaging_Example' do
   pod 'FirebaseDev/Messaging', :path => '../'
+  # Lock to the 1.0.9 version of InstanceID since 1.0.10 added a dependency
+  # to FirebaseCore
+  pod 'FirebaseInstanceID', '1.0.9'
 
   target 'Messaging_Tests' do
     inherit! :search_paths
