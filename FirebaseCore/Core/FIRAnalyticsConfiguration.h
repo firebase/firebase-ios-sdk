@@ -47,13 +47,6 @@ NS_SWIFT_NAME(AnalyticsConfiguration)
  */
 - (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled;
 
-/**
- * Deprecated. Sets whether measurement and reporting are enabled for this app on this device. By
- * default they are enabled.
- */
-- (void)setIsEnabled:(BOOL)isEnabled
-    DEPRECATED_MSG_ATTRIBUTE("Use setAnalyticsCollectionEnabled: instead.");
-
 @end
 
 NS_ASSUME_NONNULL_END

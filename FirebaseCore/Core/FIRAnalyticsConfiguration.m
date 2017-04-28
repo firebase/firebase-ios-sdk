@@ -58,9 +58,4 @@
                        value:@(analyticsCollectionEnabled)];
 }
 
-/// TODO(b/27323818): Deprecated with release 1.0. Remove after 3 releases.
-- (void)setIsEnabled:(BOOL)isEnabled {
-  [self setAnalyticsCollectionEnabled:isEnabled];
-}
-
 @end
