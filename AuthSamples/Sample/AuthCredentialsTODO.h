@@ -1,8 +1,8 @@
 /*
 Some of the Auth Credentials needs to be populated for the Sample build to work.
 
-Please follow the following steps inorder to populate the valid AuthCredentials
-and generate AuthCredentials.h file
+Please follow the following steps to populate the valid AuthCredentials
+and copy it to AuthCredentials.h file
 
 TODO fill the steps
 */

@@ -1389,6 +1389,10 @@ static const NSTimeInterval kExpectationTimeout = 1;
     OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
     OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
     if (phoneNumber.length) {
+      NSDictionary *userInfoDictionary = @{ @"providerId" : FIRPhoneAuthProviderID };
+      FIRGetAccountInfoResponseProviderUserInfo *userInfo =
+          [[FIRGetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:userInfoDictionary];
+      OCMStub([mockGetAccountInfoResponseUser providerUserInfo]).andReturn(@[ userInfo ]);
       OCMStub([mockGetAccountInfoResponseUser phoneNumber]).andReturn(phoneNumber);
     }
     return mockGetAccountInfoResponseUser;
@@ -1410,8 +1414,81 @@ static const NSTimeInterval kExpectationTimeout = 1;
                                               linkAuthResult,
                                               NSError *_Nullable error) {
       XCTAssertNil(error);
+      XCTAssertEqualObjects([FIRAuth auth].currentUser.providerData.firstObject.providerID,
+                            FIRPhoneAuthProviderID);
       XCTAssertEqualObjects([FIRAuth auth].currentUser.phoneNumber, kPhoneNumber);
       [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testUnlinkPhoneAuthCredentialSuccess
+    @brief Tests the flow of a successful @c unlinkFromProvider:completion: call using a
+        @c FIRPhoneAuthProvider.
+ */
+- (void)testUnlinkPhoneAuthCredentialSuccess {
+  id (^mockUserInfoWithPhoneNumber)(NSString *) = ^(NSString *phoneNumber) {
+    id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+    OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+    OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+    OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+    if (phoneNumber.length) {
+      NSDictionary *userInfoDictionary = @{ @"providerId" : FIRPhoneAuthProviderID };
+      FIRGetAccountInfoResponseProviderUserInfo *userInfo =
+          [[FIRGetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:userInfoDictionary];
+      OCMStub([mockGetAccountInfoResponseUser providerUserInfo]).andReturn(@[ userInfo ]);
+      OCMStub([mockGetAccountInfoResponseUser phoneNumber]).andReturn(phoneNumber);
+    }
+    return mockGetAccountInfoResponseUser;
+  };
+
+  OCMExpect([_mockBackend setAccountInfo:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRSetAccountInfoRequest *_Nullable request,
+                         FIRSetAccountInfoResponseCallback callback) {
+      XCTAssertEqualObjects(request.APIKey, kAPIKey);
+      XCTAssertEqualObjects(request.accessToken, kAccessToken);
+      XCTAssertNotNil(request.deleteProviders);
+      XCTAssertNil(request.email);
+      XCTAssertNil(request.localID);
+      XCTAssertNil(request.displayName);
+      XCTAssertNil(request.photoURL);
+      XCTAssertNil(request.password);
+      XCTAssertNil(request.providers);
+      XCTAssertNil(request.deleteAttributes);
+      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+        id mockSetAccountInfoResponse = OCMClassMock([FIRSetAccountInfoResponse class]);
+        callback(mockSetAccountInfoResponse, nil);
+      });
+  });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
+  [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
+                                             completion:^(FIRUser *user) {
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber error:nil];
+    id userInfoResponseUpdate = mockUserInfoWithPhoneNumber(kPhoneNumber);
+    [self expectGetAccountInfoWithMockUserInfoResponse:userInfoResponseUpdate];
+
+    FIRPhoneAuthCredential *credential =
+        [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
+                                                     verificationCode:kVerificationCode];
+    // Link phone credential.
+    [user linkAndRetrieveDataWithCredential:credential
+                                 completion:^(FIRAuthDataResult *_Nullable
+                                              linkAuthResult,
+                                              NSError *_Nullable error) {
+      XCTAssertNil(error);
+      XCTAssertEqualObjects([FIRAuth auth].currentUser.providerData.firstObject.providerID,
+                            FIRPhoneAuthProviderID);
+      XCTAssertEqualObjects([FIRAuth auth].currentUser.phoneNumber, kPhoneNumber);
+      // Immediately unlink the phone auth provider.
+      [user unlinkFromProvider:FIRPhoneAuthProviderID
+                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNil([FIRAuth auth].currentUser.phoneNumber);
+        [expectation fulfill];
+      }];
     }];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];

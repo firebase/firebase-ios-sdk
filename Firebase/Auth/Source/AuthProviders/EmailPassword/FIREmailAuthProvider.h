@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRSwiftNameSupport.h"
+
 @class FIRAuthCredential;
 
 NS_ASSUME_NONNULL_BEGIN

@@ -71,6 +71,12 @@ static NSString *const kInvalidPhoneNumberErrorMessage = @"INVALID_PHONE_NUMBER"
  */
 static NSString *const kQuotaExceededErrorMessage = @"QUOTA_EXCEEDED";
 
+/** @var kAppNotVerifiedErrorMessage
+    @brief This is the error message the server will respond with if Firebase could not verify the
+        app during a phone authentication flow.
+ */
+static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
+
 /** @class FIRSendVerificationCodeResponseTests
     @brief Tests for @c FIRSendVerificationCodeResponseTests.
  */
@@ -151,6 +157,35 @@ static NSString *const kQuotaExceededErrorMessage = @"QUOTA_EXCEEDED";
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeQuotaExceeded);
+}
+
+/** @fn testSendVerificationCodeResponseAppNotVerifiedError
+    @brief Tests a failed attempt to send a verification code due to Firebase not being able to
+        verify the app.
+ */
+- (void)testSendVerificationCodeResponseAppNotVerifiedError {
+  FIRAuthAppCredential *credential =
+      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRSendVerificationCodeRequest *request =
+      [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
+                                                    appCredential:credential
+                                                           APIKey:kTestAPIKey];
+  __block BOOL callbackInvoked;
+  __block FIRSendVerificationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend sendVerificationCode:request
+                              callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                         NSError *_Nullable error) {
+    RPCResponse = response;
+    RPCError = error;
+    callbackInvoked = YES;
+  }];
+
+  [_RPCIssuer respondWithServerErrorMessage:kAppNotVerifiedErrorMessage];
+
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeAppNotVerified);
 }
 
 /** @fn testSuccessfulSendVerificationCodeResponse

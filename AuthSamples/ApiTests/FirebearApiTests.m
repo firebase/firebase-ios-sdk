@@ -40,10 +40,7 @@ static NSString *const kBYOAuthTestingAccountUserName = @"John GoogleSpeed";
 /** The url for obtaining a valid custom token string used to test BYOAuth. */
 static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
 
-/** Facebook app ID that will be used for Facebook Graph API.
- * https://valentine.corp.google.com/#/show/1460636635365941?tab=metadata has the username and
- * password of the shared gmail account which creates this Facebook app.
- */
+/** Facebook app ID that will be used for Facebook Graph API. */
 static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
 
 static NSString *const kFacebookGraphApiAuthority = @"graph.facebook.com";

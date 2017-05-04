@@ -100,6 +100,10 @@ static NSString *const kExpectedAPIURL =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
                                                            APIKey:kTestAPIKey];
+  XCTAssertEqualObjects(request.phoneNumber, kTestPhoneNumber);
+  XCTAssertEqualObjects(request.appCredential.receipt, kTestReceipt);
+  XCTAssertEqualObjects(request.appCredential.secret, kTestSecret);
+
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                          NSError *_Nullable error) {

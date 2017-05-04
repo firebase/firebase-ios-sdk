@@ -278,6 +278,12 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
  */
 static NSString *const kQuoutaExceededErrorMessage = @"QUOTA_EXCEEDED";
 
+/** @var kAppNotVerifiedErrorMessage
+    @brief This is the error message the server will respond with if Firebase could not verify the
+        app during a phone authentication flow.
+ */
+static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
+
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
  */
@@ -904,6 +910,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kQuoutaExceededErrorMessage]) {
     return [FIRAuthErrorUtils quotaExceededErrorWithMessage:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage]) {
+    return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:serverErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

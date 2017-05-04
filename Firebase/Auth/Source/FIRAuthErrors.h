@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRSwiftNameSupport.h"
+
 /** @class FIRAuthErrors
     @remarks Error Codes common to all API Methods:
     <ul>
@@ -239,6 +241,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates that the app fails to forward remote notification to FIRAuth.
      */
     FIRAuthErrorCodeNotificationNotForwarded = 17054,
+
+    /** Indicates that the app could not be verified by Firebase during phone number authentication.
+     */
+    FIRAuthErrorCodeAppNotVerified = 17055,
 
     /** Indicates an error occurred while attempting to access the keychain.
      */

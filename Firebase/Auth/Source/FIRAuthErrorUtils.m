@@ -302,6 +302,13 @@ static NSString *const kFIRAuthErrorMessageNotificationNotForwarded = @"If app d
     "is disabled, remote notifications received by UIApplicationDelegate need to be forwarded to "
     "FIRAuth's canHandleNotificaton: method.";
 
+/** @var kFIRAuthErrorMessageAppNotVerified
+    @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
+ */
+static NSString *const kFIRAuthErrorMessageAppNotVerified = @"Firebase could not retrieve the "
+    "silent push notification and therefore could not verify your app. Ensure that you configured "
+    "your app correctly to recieve push notifications.";
+
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
@@ -396,6 +403,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageMissingAppToken;
     case FIRAuthErrorCodeNotificationNotForwarded:
       return kFIRAuthErrorMessageNotificationNotForwarded;
+    case FIRAuthErrorCodeAppNotVerified:
+      return kFIRAuthErrorMessageAppNotVerified;
   }
 }
 
@@ -487,6 +496,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_MISSING_APP_TOKEN";
     case FIRAuthErrorCodeNotificationNotForwarded:
       return @"ERROR_NOTIFICATION_NOT_FORWARDED";
+    case FIRAuthErrorCodeAppNotVerified:
+      return @"ERROR_APP_NOT_VERIFIED";
   }
 }
 
@@ -584,12 +595,14 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   }];
 }
 
-+ (NSError *)unexpectedResponseWithDeserializedResponse:(id)deserializedResponse
++ (NSError *)unexpectedResponseWithDeserializedResponse:(nullable id)deserializedResponse
                                         underlyingError:(NSError *)underlyingError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:@{
-    FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse,
-    NSUnderlyingErrorKey : underlyingError
-  }];
+  NSMutableDictionary *userInfo =
+      [NSMutableDictionary dictionaryWithDictionary:@{ NSUnderlyingErrorKey : underlyingError }];
+  if (deserializedResponse) {
+    userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse;
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:userInfo];
 }
 
 + (NSError *)RPCResponseDecodingErrorWithDeserializedResponse:(id)deserializedResponse
@@ -762,6 +775,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)notificationNotForwardedError {
   return [self errorWithCode:FIRAuthInternalErrorCodeNotificationNotForwarded];
+}
+
++ (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeAppNotVerified message:message];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

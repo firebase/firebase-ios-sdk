@@ -25,6 +25,7 @@
 #import "FIRPhoneAuthProvider.h"
 #import "FirebaseAuth.h"
 #import "CustomTokenDataEntryViewController.h"
+#import "FacebookAuthProvider.h"
 #import "GoogleAuthProvider.h"
 #import "SettingsViewController.h"
 #import "StaticContentTableViewManager.h"
@@ -539,7 +540,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                object:nil];
     self.useStatusBarSpinner = YES;
 #if INTERNAL_GOOGLE3_BUILD
-    // TODO:(zsika) Remove and add option to include database or not.
+    // Trigger automatic token refresh.
     [[FIRDatabase database] reference];
 #endif
   }
@@ -779,12 +780,10 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       [self logFailedTest:@"Could not obtain auth object."];
       return;
     }
-    #warning TODO(zsika) Test should check for sign out errors.
     [auth signOut:NULL];
     [self log:@"INITIATING AUTOMATED MANUAL TEST FOR GOOGLE SIGN IN:"];
     [self signInWithProvider:[AuthProviders google] callback:^{
       [self logSuccess:@"sign-in with Google provider succeeded."];
-      #warning TODO(zsika) Test should check for sign out errors.
       [auth signOut:NULL];
       [self signInWithProvider:[AuthProviders google] callback:^{
         [self logSuccess:@"sign-in with Google provider succeeded."];
@@ -822,12 +821,10 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       [self logFailedTest:@"Could not obtain auth object."];
       return;
     }
-    #warning TODO(zsika) Test should check for sign out errors.
     [auth signOut:NULL];
     [self log:@"INITIATING AUTOMATED MANUAL TEST FOR FACEBOOK SIGN IN:"];
     [self signInWithProvider:[AuthProviders facebook] callback:^{
       [self logSuccess:@"sign-in with Facebook provider succeeded."];
-      #warning TODO(zsika) Test should check for sign out errors.
       [auth signOut:NULL];
       [self signInWithProvider:[AuthProviders facebook] callback:^{
         [self logSuccess:@"sign-in with Facebook provider succeeded."];
@@ -855,7 +852,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       [self logFailedTest: @" Email/Password Account account creation failed"];
       return;
     }
-    #warning TODO(zsika) Test should check for sign out errors.
     [auth signOut:NULL];
     FIRAuthCredential *credential =
         [FIREmailPasswordAuthProvider credentialWithEmail:kFakeEmail
@@ -893,7 +889,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     [self logFailedTest:@"Could not obtain auth object."];
     return;
   }
-  #warning TODO(zsika) Test should check for sign out errors.
   [auth signOut:NULL];
   [self signInAnonymouslyWithCallback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
     if (user) {
@@ -906,7 +901,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self log:@"FINISHED AUTOMATED MANUAL TEST FOR ANONYMOUS SIGN IN."];
       }];
     }
-    #warning TODO(zsika) What should happen in the "else" for "if (user) { ... }" ?
   }];
 }
 
@@ -944,7 +938,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     [self logFailedTest:@"Could not obtain auth object."];
     return;
   }
-  #warning TODO(zsika) Test should check for sign out errors.
   [auth signOut:NULL];
   [self signInAnonymouslyWithCallback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
     if (user) {
@@ -1033,7 +1026,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
             return;
           }
           [self logSuccess:@"refresh token succeeded."];
-          #warning TODO(zsika) Test should check for sign out errors.
           [auth signOut:NULL];
           [auth signInWithCustomToken:expiredCustomToken
                            completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
@@ -1144,7 +1136,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         return;
       }
       [self logSuccess:@"update password succeeded."];
-      #warning TODO(zsika) Test should check for sign out errors.
       [auth signOut:NULL];
       FIRAuthCredential *credential =
         [FIREmailAuthProvider credentialWithEmail:kFakeEmail password:kFakePassword];
@@ -1512,6 +1503,13 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @brief Asks the user to reauthenticate with email/password.
  */
 - (void)reauthenticateEmailPassword {
+  FIRUser *user = [self user];
+  if (!user) {
+    NSString *title = @"Missing User";
+    NSString *message = @"There is no signed-in email/password user.";
+    [self showMessagePromptWithTitle:title message:message showCancelButton:NO completion:nil];
+    return;
+  }
   [self showEmailPasswordDialogWithCompletion:^(FIRAuthCredential *credential) {
     [self showSpinner:^{
       [[self user] reauthenticateWithCredential:credential
@@ -1537,7 +1535,16 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)reauthenticate:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData {
   FIRUser *user = [self user];
   if (!user) {
-    #warning TODO(zsika) Handle case.
+    NSString *provider = @"Firebase";
+    if ([authProvider isKindOfClass:[GoogleAuthProvider class]]) {
+      provider = @"Google";
+    } else if ([authProvider isKindOfClass:[FacebookAuthProvider class]]) {
+      provider = @"Facebook";
+    }
+    NSString *title = @"Missing User";
+    NSString *message =
+        [NSString stringWithFormat:@"There is no signed-in %@ user.", provider];
+    [self showMessagePromptWithTitle:title message:message showCancelButton:NO completion:nil];
     return;
   }
   [authProvider getAuthCredentialWithPresentingViewController:self
@@ -1577,7 +1584,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)signinWithProvider:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
-    #warning TODO(zsika) Handle case.
     return;
   }
   [authProvider getAuthCredentialWithPresentingViewController:self
@@ -2339,14 +2345,13 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         token to create a GitHub (generic) credential for signing in.
  */
 - (void)signInWithGitHub {
-  // TODO:(zsika) Change this in favor of an AppAuth flow.
   [self showTextInputPromptWithMessage:@"GitHub Access Token:"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable accessToekn) {
-    if (!userPressedOK || !accessToekn.length) {
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable accessToken) {
+    if (!userPressedOK || !accessToken.length) {
       return;
     }
     FIRAuthCredential *credential =
-        [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProviderID accessToken:accessToekn];
+        [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProviderID accessToken:accessToken];
     if (credential) {
         [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
                                                                      NSError *_Nullable error) {

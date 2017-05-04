@@ -25,6 +25,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRSendVerificationCodeRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
+/** @property phoneNumber
+    @brief The phone number to which the verification code should be sent.
+ */
+@property(nonatomic, strong, readonly) NSString *phoneNumber;
+
+/** @property appCredential
+    @brief The credential to prove the identity of the app in order to send the verification code.
+ */
+@property(nonatomic, strong, readonly) FIRAuthAppCredential *appCredential;
+
 /** @fn initWithEndpoint:APIKey:
     @brief Please use initWithPhoneNumber:APIKey:
  */
@@ -40,6 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
                                appCredential:(FIRAuthAppCredential *)appCredential
                                       APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+
 @end
 
 NS_ASSUME_NONNULL_END

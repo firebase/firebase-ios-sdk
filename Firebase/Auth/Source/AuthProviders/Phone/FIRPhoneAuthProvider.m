@@ -88,28 +88,9 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
         callBackOnMainThread(nil, [FIRAuthErrorUtils notificationNotForwardedError]);
         return;
       }
-      [self verifyClientWithCompletion:^(FIRAuthAppCredential *_Nullable appCredential,
-                                         NSError *_Nullable error) {
-        if (error) {
-          callBackOnMainThread(nil, error);
-          return;
-        }
-        FIRSendVerificationCodeRequest *request =
-            [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
-                                                          appCredential:appCredential
-                                                                 APIKey:_auth.APIKey];
-        [FIRAuthBackend sendVerificationCode:request
-                                    callback:^(FIRSendVerificationCodeResponse *_Nullable response,
-                                               NSError *_Nullable error) {
-          if (error) {
-            callBackOnMainThread(nil, error);
-            return;
-          }
-          // Associate the phone number with the verification ID.
-          response.verificationID.fir_authPhoneNumber = phoneNumber;
-          callBackOnMainThread(response.verificationID, nil);
-        }];
-      }];
+      [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
+                                 retryOnInvalidAppCredential:YES
+                                                    callback:callBackOnMainThread];
     }];
   });
 }
@@ -131,8 +112,55 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
 
 #pragma mark - Internal Methods
 
-/** @fn verifyClientWithCompletion:completion:
+/** @fn verifyClientAndSendVerificationCodeToPhoneNumber:retryOnInvalidAppCredential:callback:
     @brief Starts the flow to verify the client via silent push notification.
+    @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
+        FIRAuthErrorCodeInvalidAppCredential error is returned from the backend.
+    @param phoneNumber The phone number to be verified.
+    @param callback The callback to be invoked on the global work queue when the flow is
+        finished.
+ */
+- (void)verifyClientAndSendVerificationCodeToPhoneNumber:(NSString *)phoneNumber
+                             retryOnInvalidAppCredential:(BOOL)retryOnInvalidAppCredential
+                                                callback:(FIRVerificationResultCallback)callback {
+  [self verifyClientWithCompletion:^(FIRAuthAppCredential *_Nullable appCredential,
+                                     NSError *_Nullable error) {
+    if (error) {
+      callback(nil, error);
+      return;
+    }
+    FIRSendVerificationCodeRequest *request =
+        [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
+                                                      appCredential:appCredential
+                                                             APIKey:_auth.APIKey];
+    [FIRAuthBackend sendVerificationCode:request
+                                callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+      if (error) {
+        if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
+          if (retryOnInvalidAppCredential) {
+            [_auth.appCredentialManager clearCredential];
+            [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
+                                       retryOnInvalidAppCredential:NO
+                                                          callback:callback];
+            return;
+          }
+          callback(nil, [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:nil
+                                                                      underlyingError:error]);
+          return;
+        }
+        callback(nil, error);
+        return;
+      }
+      // Associate the phone number with the verification ID.
+      response.verificationID.fir_authPhoneNumber = phoneNumber;
+      callback(response.verificationID, nil);
+    }];
+  }];
+}
+
+/** @fn verifyClientWithCompletion:completion:
+    @brief Continues the flow to verify the client via silent push notification.
     @param completion The callback to be invoked when the client verification flow is finished.
  */
 - (void)verifyClientWithCompletion:(FIRVerifyClientCallback)completion {
@@ -156,7 +184,7 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
 
     FIRVerifyClientRequest *request =
         [[FIRVerifyClientRequest alloc] initWithAppToken:tokenString
-                                               isSandbox:token.type == FIRAuthAPNSTokenTypeProd
+                                               isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
                                                   APIKey:_auth.APIKey];
     [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
                                                     NSError *_Nullable error) {

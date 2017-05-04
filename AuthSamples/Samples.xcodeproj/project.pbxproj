@@ -79,7 +79,6 @@
 		DECE04E51E9FEAE600164CA4 /* CustomTokenDataEntryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE04A21E9FEAE600164CA4 /* CustomTokenDataEntryViewController.m */; };
 		DECE04E61E9FEAE600164CA4 /* FacebookAuthProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE04A41E9FEAE600164CA4 /* FacebookAuthProvider.m */; };
 		DECE04E71E9FEAE600164CA4 /* GoogleAuthProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE04A61E9FEAE600164CA4 /* GoogleAuthProvider.m */; };
-		DECE04E81E9FEAE600164CA4 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = DECE04A71E9FEAE600164CA4 /* GoogleService-Info_multi.plist */; };
 		DECE04E91E9FEAE600164CA4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DECE04A81E9FEAE600164CA4 /* GoogleService-Info.plist */; };
 		DECE04EA1E9FEAE600164CA4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DECE04A91E9FEAE600164CA4 /* Images.xcassets */; };
 		DECE04EB1E9FEAE600164CA4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE04AA1E9FEAE600164CA4 /* main.m */; };
@@ -94,6 +93,10 @@
 		DECE04F51E9FEAE600164CA4 /* UserInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE04DE1E9FEAE600164CA4 /* UserInfoViewController.m */; };
 		DECE04F61E9FEAE600164CA4 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DECE04DF1E9FEAE600164CA4 /* UserInfoViewController.xib */; };
 		DECE04F71E9FEAE600164CA4 /* UserTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE04E11E9FEAE600164CA4 /* UserTableViewCell.m */; };
+		DECEA56C1EBBED1200273585 /* FIRAuthAPNSTokenManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECEA5681EBBED1200273585 /* FIRAuthAPNSTokenManagerTests.m */; };
+		DECEA56D1EBBED1200273585 /* FIRAuthAPNSTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECEA5691EBBED1200273585 /* FIRAuthAPNSTokenTests.m */; };
+		DECEA56E1EBBED1200273585 /* FIRAuthAppCredentialManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECEA56A1EBBED1200273585 /* FIRAuthAppCredentialManagerTests.m */; };
+		DECEA56F1EBBED1200273585 /* FIRAuthNotificationManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECEA56B1EBBED1200273585 /* FIRAuthNotificationManagerTests.m */; };
 		DEE13A051E9FFC9500D1BABA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A041E9FFC9500D1BABA /* AppDelegate.swift */; };
 		DEE13A071E9FFC9500D1BABA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE13A061E9FFC9500D1BABA /* ViewController.swift */; };
 		DEE13A161E9FFD1F00D1BABA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A141E9FFD1F00D1BABA /* LaunchScreen.storyboard */; };
@@ -247,7 +250,6 @@
 		DECE04A41E9FEAE600164CA4 /* FacebookAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthProvider.m; sourceTree = "<group>"; };
 		DECE04A51E9FEAE600164CA4 /* GoogleAuthProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAuthProvider.h; sourceTree = "<group>"; };
 		DECE04A61E9FEAE600164CA4 /* GoogleAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthProvider.m; sourceTree = "<group>"; };
-		DECE04A71E9FEAE600164CA4 /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info_multi.plist"; sourceTree = "<group>"; };
 		DECE04A81E9FEAE600164CA4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DECE04A91E9FEAE600164CA4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		DECE04AA1E9FEAE600164CA4 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -302,6 +304,12 @@
 		DECE04DF1E9FEAE600164CA4 /* UserInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserInfoViewController.xib; sourceTree = "<group>"; };
 		DECE04E01E9FEAE600164CA4 /* UserTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserTableViewCell.h; sourceTree = "<group>"; };
 		DECE04E11E9FEAE600164CA4 /* UserTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserTableViewCell.m; sourceTree = "<group>"; };
+		DECEA5661EBBDFB400273585 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
+		DECEA5671EBBDFB400273585 /* AuthCredentialsTODO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentialsTODO.h; sourceTree = "<group>"; };
+		DECEA5681EBBED1200273585 /* FIRAuthAPNSTokenManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAPNSTokenManagerTests.m; path = ../../Example/Auth/Tests/FIRAuthAPNSTokenManagerTests.m; sourceTree = "<group>"; };
+		DECEA5691EBBED1200273585 /* FIRAuthAPNSTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAPNSTokenTests.m; path = ../../Example/Auth/Tests/FIRAuthAPNSTokenTests.m; sourceTree = "<group>"; };
+		DECEA56A1EBBED1200273585 /* FIRAuthAppCredentialManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAppCredentialManagerTests.m; path = ../../Example/Auth/Tests/FIRAuthAppCredentialManagerTests.m; sourceTree = "<group>"; };
+		DECEA56B1EBBED1200273585 /* FIRAuthNotificationManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthNotificationManagerTests.m; path = ../../Example/Auth/Tests/FIRAuthNotificationManagerTests.m; sourceTree = "<group>"; };
 		DEE13A021E9FFC9500D1BABA /* SwiftBear.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftBear.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE13A041E9FFC9500D1BABA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DEE13A061E9FFC9500D1BABA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -435,6 +443,8 @@
 		DECE04851E9FEA7500164CA4 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
+				DECEA5661EBBDFB400273585 /* AuthCredentials.h */,
+				DECEA5671EBBDFB400273585 /* AuthCredentialsTODO.h */,
 				DECE049B1E9FEAE600164CA4 /* Application.plist */,
 				DECE049C1E9FEAE600164CA4 /* ApplicationDelegate.h */,
 				DECE049D1E9FEAE600164CA4 /* ApplicationDelegate.m */,
@@ -447,7 +457,6 @@
 				DECE04A41E9FEAE600164CA4 /* FacebookAuthProvider.m */,
 				DECE04A51E9FEAE600164CA4 /* GoogleAuthProvider.h */,
 				DECE04A61E9FEAE600164CA4 /* GoogleAuthProvider.m */,
-				DECE04A71E9FEAE600164CA4 /* GoogleService-Info_multi.plist */,
 				DECE04A81E9FEAE600164CA4 /* GoogleService-Info.plist */,
 				DECE04A91E9FEAE600164CA4 /* Images.xcassets */,
 				DECE04AA1E9FEAE600164CA4 /* main.m */,
@@ -529,6 +538,10 @@
 		DEE13A431EA16EE400D1BABA /* FirebaseAuthUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				DECEA5681EBBED1200273585 /* FIRAuthAPNSTokenManagerTests.m */,
+				DECEA5691EBBED1200273585 /* FIRAuthAPNSTokenTests.m */,
+				DECEA56A1EBBED1200273585 /* FIRAuthAppCredentialManagerTests.m */,
+				DECEA56B1EBBED1200273585 /* FIRAuthNotificationManagerTests.m */,
 				DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */,
 				DE5371841EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.h */,
 				DE5371851EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m */,
@@ -868,7 +881,6 @@
 				DECE04EA1E9FEAE600164CA4 /* Images.xcassets in Resources */,
 				DECE04ED1E9FEAE600164CA4 /* MainViewController.xib in Resources */,
 				DECE04F31E9FEAE600164CA4 /* FirebaseAuthUI.strings in Resources */,
-				DECE04E81E9FEAE600164CA4 /* GoogleService-Info_multi.plist in Resources */,
 				DECE04F61E9FEAE600164CA4 /* UserInfoViewController.xib in Resources */,
 				DECE04F01E9FEAE600164CA4 /* SettingsViewController.xib in Resources */,
 				DECE04E91E9FEAE600164CA4 /* GoogleService-Info.plist in Resources */,
@@ -1248,12 +1260,15 @@
 				DE5371DD1EA7E89D000DA57F /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
 				DE5371D31EA7E89D000DA57F /* FIRUserTests.m in Sources */,
 				DE5371BC1EA7E89D000DA57F /* FIRAuthSerialTaskQueueTests.m in Sources */,
+				DECEA56E1EBBED1200273585 /* FIRAuthAppCredentialManagerTests.m in Sources */,
 				DE5371DE1EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
 				DE5371DC1EA7E89D000DA57F /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
 				DE5371B51EA7E89D000DA57F /* FIRAuthAppCredentialTests.m in Sources */,
 				DE5371CE1EA7E89D000DA57F /* FIRSetAccountInfoRequestTests.m in Sources */,
 				DE5371D41EA7E89D000DA57F /* FIRVerifyAssertionRequestTests.m in Sources */,
 				DE5371D91EA7E89D000DA57F /* FIRVerifyCustomTokenResponseTests.m in Sources */,
+				DECEA56F1EBBED1200273585 /* FIRAuthNotificationManagerTests.m in Sources */,
+				DECEA56D1EBBED1200273585 /* FIRAuthAPNSTokenTests.m in Sources */,
 				DE5371D81EA7E89D000DA57F /* FIRVerifyCustomTokenRequestTests.m in Sources */,
 				DE5371BD1EA7E89D000DA57F /* FIRAuthTests.m in Sources */,
 				DE5371C01EA7E89D000DA57F /* FIRCreateAuthURIResponseTests.m in Sources */,
@@ -1279,6 +1294,7 @@
 				DE5371C31EA7E89D000DA57F /* FIRFakeBackendRPCIssuer.m in Sources */,
 				DE5371BF1EA7E89D000DA57F /* FIRCreateAuthURIRequestTests.m in Sources */,
 				DE5371CC1EA7E89D000DA57F /* FIRSendVerificationCodeRequestTests.m in Sources */,
+				DECEA56C1EBBED1200273585 /* FIRAuthAPNSTokenManagerTests.m in Sources */,
 				DE5371CD1EA7E89D000DA57F /* FIRSendVerificationCodeResponseTests.m in Sources */,
 				DE5371C71EA7E89D000DA57F /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
 				DE5371C21EA7E89D000DA57F /* FIRDeleteAccountResponseTests.m in Sources */,

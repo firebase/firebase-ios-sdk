@@ -16,9 +16,7 @@
 
 #import "googlemac/iPhone/Identity/Firebear/Testing/Source/FIRAuthFakeBackendEmailValidator.h"
 
-// Stolen from:
-// https://cs.corp.google.com/codesearch/f/piper///depot/google3/googlemac/iPhone/Bigtop/ShareExtension/EmailValidation.m?cl=104323113
-// Implementation is based on google3/javascript/closure/format/internationalizedemailaddress.js
+// Implementation is based on internationalizedemailaddress.js in the Closure Library.
 
 static NSString *const kLocalMatcher =
     @"[+a-zA-Z0-9_.!#$%%&\'*\\/=?^`{|}~\\u0080-\uFFFFFF-]+";

@@ -34,7 +34,27 @@ static id argumentOf(NSInvocation *invocation, int position) {
   return argument;
 }
 
+/** @fn doubleArgumentOf
+    @brief Retrieves a specific argument of type 'double' from a method invocation.
+    @param invocation The Objective-C method invocation.
+    @param position The position of the argument to retrieve, starting from 0.
+    @return The argument at the given position that the method has been invoked with.
+    @remarks The argument type must be @c double .
+ */
+static double doubleArgumentOf(NSInvocation *invocation, int position) {
+  double argument;
+  // Indices 0 and 1 indicate the hidden arguments self and _cmd. Actual arguments starts from 2.
+  [invocation getArgument:&argument atIndex:position + 2];
+  return argument;
+}
+
 @implementation OCMStubRecorder (FIRAuthUnitTests)
+
+- (id)andCallBlock1:(FIRAuthGeneralBlock1)block1 {
+  return [self andDo:^(NSInvocation *invocation) {
+    block1(argumentOf(invocation, 0));
+  }];
+}
 
 - (id)andCallBlock2:(FIRAuthGeneralBlock2)block2 {
   return [self andDo:^(NSInvocation *invocation) {
@@ -50,6 +70,18 @@ static id argumentOf(NSInvocation *invocation, int position) {
   }];
 }
 
+- (id)andCallIdDoubleIdBlock:(FIRAuthIdDoubleIdBlock)block {
+  return [self andDo:^(NSInvocation *invocation) {
+    block(argumentOf(invocation, 0), doubleArgumentOf(invocation, 2), argumentOf(invocation, 2));
+  }];
+}
+
+- (OCMStubRecorder *(^)(FIRAuthGeneralBlock1))_andCallBlock1 {
+  return ^(FIRAuthGeneralBlock1 block1) {
+    return [self andCallBlock1:block1];
+  };
+}
+
 - (OCMStubRecorder *(^)(FIRAuthGeneralBlock2))_andCallBlock2 {
   return ^(FIRAuthGeneralBlock2 block2) {
     return [self andCallBlock2:block2];
@@ -59,6 +91,12 @@ static id argumentOf(NSInvocation *invocation, int position) {
 - (OCMStubRecorder *(^)(NSError *))_andDispatchError2 {
   return ^(NSError *error) {
     return [self andDispatchError2:error];
+  };
+}
+
+- (OCMStubRecorder *(^)(FIRAuthIdDoubleIdBlock))_andCallIdDoubleIdBlock {
+  return ^(FIRAuthIdDoubleIdBlock block) {
+    return [self andCallIdDoubleIdBlock:block];
   };
 }
 

@@ -18,6 +18,7 @@
 
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthErrors.h"
+#import "FIRSwiftNameSupport.h"
 
 @class FIRApp;
 @class FIRAuth;
@@ -591,7 +592,8 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn canHandleNotification:
     @brief Whether the specific remote notification is handled by @c FIRAuth .
-    @param userInfo The notification in question.
+    @param userInfo A dictionary that contains information related to the
+        notification in question.
     @return Whether or the notification is handled. @c YES means the notification is for @c FIRAuth
         so the caller should ignore the notification from further processing, and @c NO means the
         the notification is for the app (or another libaray) so the caller should continue handling

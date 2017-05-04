@@ -19,6 +19,7 @@
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "AuthProviders/EmailPassword/FIREmailAuthProvider.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "AuthProviders/Phone/FIRPhoneAuthProvider.h"
 #import "Private/FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
 #import "Private/FIRAuthCredential_Internal.h"
@@ -958,6 +959,12 @@ static void callInMainThreadWithAuthDataResultAndError(
           NSMutableDictionary *mutableProviderData = [_providerData mutableCopy];
           [mutableProviderData removeObjectForKey:provider];
           _providerData = [mutableProviderData copy];
+
+          // After successfully unlinking a phone auth provider, remove the phone number from the
+          // cached user info.
+          if ([provider isEqualToString:FIRPhoneAuthProviderID]) {
+            _phoneNumber = nil;
+          }
         }
         if (response.IDToken && response.refreshToken) {
           FIRSecureTokenService *tokenService =

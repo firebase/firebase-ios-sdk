@@ -119,7 +119,7 @@ NS_SWIFT_NAME(AuthErrorUtils)
     @remarks This error is used when a network request was apparently successful, the body data was
         successfully deserialized as JSON, but the data type of the response was unexpected.
  */
-+ (NSError *)unexpectedResponseWithDeserializedResponse:(id)deserializedResponse
++ (NSError *)unexpectedResponseWithDeserializedResponse:(nullable id)deserializedResponse
                                         underlyingError:(NSError *)underlyingError;
 
 /** @fn RPCResponseDecodingErrorWithDeserializedResponse:underlyingError:
@@ -395,6 +395,13 @@ NS_SWIFT_NAME(AuthErrorUtils)
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)notificationNotForwardedError;
+
+/** @fn appNotVerifiedErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeAppNotVerified code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message;
 
 /** @fn keychainErrorWithFunction:status:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeKeychainError code.

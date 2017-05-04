@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuth.h"
+#import "FIRSwiftNameSupport.h"
 
 @class FIRPhoneAuthCredential;
 

@@ -36,3 +36,5 @@ Carthage
 Pods/
 Podfile.lock
 *.xcworkspace
+
+AuthSamples/Sample/AuthCredential.h

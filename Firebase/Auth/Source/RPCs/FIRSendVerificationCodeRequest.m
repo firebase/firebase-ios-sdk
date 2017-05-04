@@ -41,20 +41,6 @@ static NSString *const kReceiptKey = @"iosReceipt";
 static NSString *const kSecretKey = @"iosSecret";
 
 @implementation FIRSendVerificationCodeRequest {
- /** @var _phoneNumber
-     @brief The phone number to which the verification code should be sent.
-  */
-  NSString *_phoneNumber;
-
-  /** @var _secret
-     @brief The secret delivered via push notification.
-  */
-  NSString *_secret;
-
-  /** @var _receipt
-     @brief Receipt of successful app token validation with APNS.
-  */
-  NSString *_receipt;
 }
 
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
@@ -63,8 +49,7 @@ static NSString *const kSecretKey = @"iosSecret";
   self = [super initWithEndpoint:kSendVerificationCodeEndPoint APIKey:APIKey];
   if (self) {
     _phoneNumber = [phoneNumber copy];
-    _secret = [appCredential.secret copy];
-    _receipt = [appCredential.receipt copy];
+    _appCredential = appCredential;
   }
   return self;
 }
@@ -74,11 +59,11 @@ static NSString *const kSecretKey = @"iosSecret";
   if (_phoneNumber) {
     postBody[kPhoneNumberKey] = _phoneNumber;
   }
-  if (_secret) {
-    postBody[kSecretKey] = _secret;
+  if (_appCredential.receipt) {
+    postBody[kReceiptKey] = _appCredential.receipt;
   }
-  if (_receipt) {
-    postBody[kReceiptKey] = _receipt;
+  if (_appCredential.secret) {
+    postBody[kSecretKey] = _appCredential.secret;
   }
   return postBody;
 }
