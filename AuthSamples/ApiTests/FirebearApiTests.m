@@ -19,6 +19,7 @@
 
 #import "FIRApp.h"
 #import "FirebaseAuth.h"
+#import "../Sample/AuthCredentials.h"
 
 #ifdef NO_NETWORK
 #import "ioReplayer/IORManager.h"
@@ -31,7 +32,7 @@
 /** Facebook app access token that will be used for Facebook Graph API, which is different from
  * account access token.
  */
-static NSString *const kAppAccessToken = @"452491954956225|gzz29mUXjbqq-vZWrDQ5U-c2t2s";
+static NSString *const kAppAccessToken = KAPP_ACCESS_TOKEN;
 
 /** The user name string for BYOAuth testing account. */
 static NSString *const kBYOAuthTestingAccountUserName = @"John GoogleSpeed";
@@ -43,7 +44,7 @@ static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token"
  * https://valentine.corp.google.com/#/show/1460636635365941?tab=metadata has the username and
  * password of the shared gmail account which creates this Facebook app.
  */
-static NSString *const kFacebookAppID = @"452491954956225";
+static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
 
 static NSString *const kFacebookGraphApiAuthority = @"graph.facebook.com";
 
@@ -66,14 +67,13 @@ NSString *kInvalidTokenErrorMessage =
 
 /** Cliend Id for Google sign in project "fb-sa-upgraded". Please be sync with the CLIENT_ID in
  * Firebear/Sample/GoogleService-Info.plist. */
-NSString *kGoogleCliendId =
-    @"1085102361755-pboq9vt0lrg5g7d28v4n4c88c051fqmv.apps.googleusercontent.com";
+NSString *kGoogleCliendId = KGOOGLE_CLIENT_ID;
 
 /** Refresh token of Google test account to exchange for access token. Refresh token never expires
  * unless user revokes it. If this refresh token expires, tests in record mode will fail and this
  * token needs to be updated. More details at
  * http://g3doc/company/teams/user-testing/identity/firebear/faq. */
-NSString *kGoogleTestAccountRefreshToken = @"1/JflfOhyO4ldLlddTnoMdSKkTqxaLpd3-aBkyDhH5_wU";
+NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
 
 static NSTimeInterval const kExpectationsTimeout = 30;
 

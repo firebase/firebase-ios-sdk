@@ -18,13 +18,14 @@
 
 #import "FIRFacebookAuthProvider.h"
 #import "ApplicationDelegate.h"
+#import "AuthCredentials.h"
 #import "FBSDKCoreKit.h"
 #import "FBSDKLoginKit.h"
 
 /** @var kFacebookAppId
     @brief The App ID for the Facebook SDK.
  */
-static NSString *const kFacebookAppID = @"452491954956225";
+static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
 
 @interface FacebookAuthProvider () <OpenURLDelegate>
 @end
