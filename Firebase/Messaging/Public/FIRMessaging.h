@@ -16,7 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRSwiftNameSupport.h"
+
+// NS_SWIFT_NAME can only translate factory methods in the iOS 9.2 SDK and below,
+// undefine it if the iOS 9.3 SDK isn't available.
+#ifndef __IPHONE_9_3
+#ifdef NS_SWIFT_NAME
+#undef NS_SWIFT_NAME
+#endif  // #ifdef NS_SWIFT_NAME
+#define NS_SWIFT_NAME(_)  // Intentionally blank.
+#endif  // #ifndef __IPHONE_9_3
 
 /**
  *  @related FIRMessaging
