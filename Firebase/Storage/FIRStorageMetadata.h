@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Objects#resource docs.
  * @see https://cloud.google.com/storage/docs/json_api/v1/objects#resource
  */
+NS_SWIFT_NAME(StorageMetadata)
 @interface FIRStorageMetadata : NSObject<NSCopying>
 
 /**
@@ -115,13 +116,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an instanece of FIRStorageMetadata from the contents of a dictionary.
  * @return An instance of FIRStorageMetadata that represents the contents of a dictionary.
  */
-- (nullable instancetype)initWithDictionary:(NSDictionary *)dictionary NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithDictionary:(NSDictionary <NSString *, id>*)dictionary
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates an NSDictionary from the contents of the metadata.
  * @return An NSDictionary that represents the contents of the metadata.
  */
-- (NSDictionary *)dictionaryRepresentation;
+- (NSDictionary <NSString *, id>*)dictionaryRepresentation;
 
 /**
  * Determines if the current metadata represents a "file".

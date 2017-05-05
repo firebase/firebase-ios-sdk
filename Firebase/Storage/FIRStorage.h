@@ -37,6 +37,7 @@ FOUNDATION_EXPORT const unsigned char *const FIRStorageVersionString;
  * If you call [FIRStorage storageForApp:] and provide a custom instance of FIRApp,
  * the storage location will be specified via the FIROptions#storageBucket property.
  */
+NS_SWIFT_NAME(Storage)
 @interface FIRStorage : NSObject
 
 /**

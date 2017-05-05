@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A Snapshot contains a task, storage reference, metadata (if it exists),
  * progress, and an error (if one occurred).
  */
+NS_SWIFT_NAME(StorageTaskSnapshot)
 @interface FIRStorageTaskSnapshot : NSObject
 
 /**

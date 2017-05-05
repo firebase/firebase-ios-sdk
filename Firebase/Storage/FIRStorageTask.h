@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * If no queue is specified by the developer, it defaults to the main queue.
  * Currently not thread safe, so only call methods on the main thread.
  */
+NS_SWIFT_NAME(StorageTask)
 @interface FIRStorageTask : NSObject
 
 /**
@@ -44,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * implement pause, resume, and cancel, which operate on the task to pause, resume, and cancel
  * operations.
  */
+NS_SWIFT_NAME(StorageTaskManagement)
 @protocol FIRStorageTaskManagement<NSObject>
 
 @required

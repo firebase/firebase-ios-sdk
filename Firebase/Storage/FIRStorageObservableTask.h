@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  * observers at a later date.
  * This class is currently not thread safe and can only be called on the main thread.
  */
+NS_SWIFT_NAME(StorageObservableTask)
 @interface FIRStorageObservableTask : FIRStorageTask
 
 /**
