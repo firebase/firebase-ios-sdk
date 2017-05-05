@@ -208,7 +208,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
                   @"is not a well-formed plist file.", plistPath);
       return nil;
     }
-    // TODO(wilsonryan): Do we want to validate the dictionary here? It says we do that already in
+    // TODO: Do we want to validate the dictionary here? It says we do that already in
     // the public header.
   }
   return self;
