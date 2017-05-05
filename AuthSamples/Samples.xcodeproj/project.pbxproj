@@ -186,6 +186,7 @@
 		AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EarlGreyTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B78FD2B21A8D72D5E38E3E79 /* Pods-TestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-TestApp/Pods-TestApp.release.xcconfig"; sourceTree = "<group>"; };
 		BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BED403DD1EBC057E00885C2C /* AuthCredentialsTemplate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AuthCredentialsTemplate.h; sourceTree = "<group>"; };
 		CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EE09E5B9A6C092236222A9 /* Pods-Sample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sample/Pods-Sample.debug.xcconfig"; sourceTree = "<group>"; };
 		D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -305,7 +306,6 @@
 		DECE04E01E9FEAE600164CA4 /* UserTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserTableViewCell.h; sourceTree = "<group>"; };
 		DECE04E11E9FEAE600164CA4 /* UserTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserTableViewCell.m; sourceTree = "<group>"; };
 		DECEA5661EBBDFB400273585 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
-		DECEA5671EBBDFB400273585 /* AuthCredentialsTODO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentialsTODO.h; sourceTree = "<group>"; };
 		DECEA5681EBBED1200273585 /* FIRAuthAPNSTokenManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAPNSTokenManagerTests.m; path = ../../Example/Auth/Tests/FIRAuthAPNSTokenManagerTests.m; sourceTree = "<group>"; };
 		DECEA5691EBBED1200273585 /* FIRAuthAPNSTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAPNSTokenTests.m; path = ../../Example/Auth/Tests/FIRAuthAPNSTokenTests.m; sourceTree = "<group>"; };
 		DECEA56A1EBBED1200273585 /* FIRAuthAppCredentialManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthAppCredentialManagerTests.m; path = ../../Example/Auth/Tests/FIRAuthAppCredentialManagerTests.m; sourceTree = "<group>"; };
@@ -444,9 +444,9 @@
 			isa = PBXGroup;
 			children = (
 				DECEA5661EBBDFB400273585 /* AuthCredentials.h */,
-				DECEA5671EBBDFB400273585 /* AuthCredentialsTODO.h */,
 				DECE049B1E9FEAE600164CA4 /* Application.plist */,
 				DECE049C1E9FEAE600164CA4 /* ApplicationDelegate.h */,
+				BED403DD1EBC057E00885C2C /* AuthCredentialsTemplate.h */,
 				DECE049D1E9FEAE600164CA4 /* ApplicationDelegate.m */,
 				DECE049E1E9FEAE600164CA4 /* AuthProviders.h */,
 				DECE049F1E9FEAE600164CA4 /* AuthProviders.m */,
