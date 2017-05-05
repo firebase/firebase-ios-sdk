@@ -395,4 +395,14 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqual(mainSizeCount[3], 8);
 }
 
+- (void)testVersionFormat {
+  NSRegularExpression *sLibraryVersionRegex =
+      [NSRegularExpression regularExpressionWithPattern:@"^[0-9]{8,}$" options:0 error:NULL];
+  NSUInteger numberOfMatches =
+      [sLibraryVersionRegex numberOfMatchesInString:kFIRLibraryVersionID
+                                            options:0
+                                              range:NSMakeRange(0, kFIRLibraryVersionID.length)];
+  XCTAssertEqual(numberOfMatches, 1, @"Incorrect library version format.");
+}
+
 @end

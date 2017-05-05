@@ -38,10 +38,10 @@ NSString *const kFIRIsAnalyticsCollectionDeactivated = @"FIREBASE_ANALYTICS_COLL
 NSString *const kFIRIsAnalyticsEnabled = @"IS_ANALYTICS_ENABLED";
 NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 
-// Library version ID. Fix b/28753358 (>1 digit minor version number support)
+// Library version ID.
 NSString *const kFIRLibraryVersionID =
     @"4"     // Major version (one or more digits)
-    @"0"     // Minor version (exactly 1 digit)
+    @"00"    // Minor version (exactly 2 digits)
     @"00"    // Build number (exactly 2 digits)
     @"000";  // Fixed "000"
 // Plist file name.
