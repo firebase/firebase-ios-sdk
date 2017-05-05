@@ -88,7 +88,7 @@ id<GREYMatcher> grey_scrollView(void) {
       grey_allOf(grey_kindOfClass([UILabel class]), grey_accessibilityLabel(@"OK"), nil);
 
   [[EarlGrey selectElementWithMatcher:
-      #warning TODO(leiduan) Add accessibilityIdentifiers for the elements.
+      #warning TODO Add accessibilityIdentifiers for the elements.
       grey_kindOfClass(NSClassFromString(@"_UIAlertControllerView"))]
       performAction:grey_typeText(email)];
 

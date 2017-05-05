@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   private let kGoogleClientID =
       "1085102361755-f46rhqgjkr313n5kqnsoh6l4vlu9nd4k.apps.googleusercontent.com"
 
-  // TODO(xiangtian): add Facebook login support as well.
+  // TODO: add Facebook login support as well.
 
   /** @var kFacebookAppID
       @brief The Facebook app ID.
