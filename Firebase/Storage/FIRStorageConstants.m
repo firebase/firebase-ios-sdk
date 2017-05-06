@@ -74,5 +74,10 @@ NSString *const kFIRStorageTaskStatusFailureNotification =
     @"kFIRStorageTaskStatusResumeNotification";
 
 NSString *const kFIRStorageBundleIdentifier = @"com.google.firebase.storage";
-// This is replaced when running Tools/update_version -v x.y.z
-const unsigned char *const FIRStorageVersionString = (const unsigned char *const)"1.0.5";
+
+// The STR and STR_EXPAND macro allow a numeric version passed to he compiler driver
+// with a -D to be treated as a string instead of an invalid floating point value.
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+const unsigned char *const FIRStorageVersionString =
+    (const unsigned char *const) STR(FIRStorage_VERSION);

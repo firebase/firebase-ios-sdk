@@ -129,6 +129,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     sp.framework = 'MobileCoreServices'
     sp.dependency 'FirebaseDev/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
+    sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRStorage_VERSION=' + s.version.to_s }
   end
 
 end
