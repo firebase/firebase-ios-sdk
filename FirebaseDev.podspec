@@ -73,8 +73,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Database' do |sp|
     sp.source_files = 'Firebase/Database/**/*.[mh]',
-      'Firebase/Database/Wrap-leveldb/APLevelDB.mm',
-      'Firebase/Database/Libraries/SocketRocket/fbase64.c'
+      'Firebase/Database/third_party/Wrap-leveldb/APLevelDB.mm',
+      'Firebase/Database/third_party/SocketRocket/fbase64.c'
     sp.public_header_files =
       'Firebase/Database/Api/FirebaseDatabase.h',
       'Firebase/Database/Api/FIRDataEventType.h',
