@@ -33,12 +33,15 @@
 		7EA36B802D84DD89CE6203A0 /* Pods_Storage_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16E92590A6B517109A2B219F /* Pods_Storage_Tests.framework */; };
 		83C9C772827554752364B400 /* Pods_Messaging_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8A6D15690286B6BB4CB8023 /* Pods_Messaging_Example.framework */; };
 		8CE9133C8720B1C600F7C731 /* Pods_Core_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D52CEDD0146DF63640A4C3A5 /* Pods_Core_Tests.framework */; };
+		AFC8BA9D1EBD230E00B8EEAE /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */; };
+		AFC8BA9F1EBD51A700B8EEAE /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */; };
 		AFD5630C1EB1400900EA2233 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AFD563081EB1400900EA2233 /* LaunchScreen.storyboard */; };
 		AFD5630D1EB1400900EA2233 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AFD5630A1EB1400900EA2233 /* Main.storyboard */; };
 		AFD5630E1EB1402300EA2233 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */; };
-		AFD5630F1EB1402300EA2233 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563011EB13DF200EA2233 /* ViewController.swift */; };
+		AFD5630F1EB1402300EA2233 /* MessagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563011EB13DF200EA2233 /* MessagingViewController.swift */; };
 		AFD563101EB1402F00EA2233 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFD562F91EB13DF200EA2233 /* Assets.xcassets */; };
 		AFD563151EB29EDE00EA2233 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AFD563131EB1466100EA2233 /* GoogleService-Info.plist */; };
+		AFD563171EBBEF7B00EA2233 /* Data+MessagingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */; };
 		BDE625D72CA3B8918088E0F5 /* Pods_Storage_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA7879CD6EE51EE4E20937C8 /* Pods_Storage_Example.framework */; };
 		DE0E5BBB1EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */; };
 		DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */; };
@@ -297,16 +300,18 @@
 		8E32E359BE29C3100CF51FC4 /* Pods-Core_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests/Pods-Core_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		8F77C04C2E764FBB0F6C05C6 /* Pods-Core_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example/Pods-Core_Example.release.xcconfig"; sourceTree = "<group>"; };
 		A6903B88963F6FD1857889E6 /* Pods-Messaging_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messaging_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Messaging_Example/Pods-Messaging_Example.release.xcconfig"; sourceTree = "<group>"; };
+		AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NotificationsController.swift; path = App/NotificationsController.swift; sourceTree = "<group>"; };
+		AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Environment.swift; path = App/Environment.swift; sourceTree = "<group>"; };
 		AFD562E51EB13C6D00EA2233 /* Messaging_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AFD562F81EB13DF100EA2233 /* Messaging_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Messaging_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		AFD562F91EB13DF200EA2233 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = App/Assets.xcassets; sourceTree = "<group>"; };
 		AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = App/AppDelegate.swift; sourceTree = "<group>"; };
 		AFD563001EB13DF200EA2233 /* Messaging-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Messaging-Info.plist"; path = "App/Messaging-Info.plist"; sourceTree = "<group>"; };
-		AFD563011EB13DF200EA2233 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = App/ViewController.swift; sourceTree = "<group>"; };
+		AFD563011EB13DF200EA2233 /* MessagingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessagingViewController.swift; path = App/MessagingViewController.swift; sourceTree = "<group>"; };
 		AFD563091EB1400900EA2233 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = App/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AFD5630B1EB1400900EA2233 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = App/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		AFD563131EB1466100EA2233 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "App/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AFD563141EB29B8C00EA2233 /* Messaging_Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Messaging_Example.entitlements; path = App/Messaging_Example.entitlements; sourceTree = "<group>"; };
+		AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Data+MessagingExtensions.swift"; path = "App/Data+MessagingExtensions.swift"; sourceTree = "<group>"; };
 		C45949C3AB12F54D27702387 /* Pods-Auth_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Example/Pods-Auth_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		C8A6D15690286B6BB4CB8023 /* Pods_Messaging_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Messaging_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D52CEDD0146DF63640A4C3A5 /* Pods_Core_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Core_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -695,7 +700,10 @@
 				AFD563001EB13DF200EA2233 /* Messaging-Info.plist */,
 				AFD563141EB29B8C00EA2233 /* Messaging_Example.entitlements */,
 				AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */,
-				AFD563011EB13DF200EA2233 /* ViewController.swift */,
+				AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */,
+				AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */,
+				AFD563011EB13DF200EA2233 /* MessagingViewController.swift */,
+				AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */,
 				AFD563081EB1400900EA2233 /* LaunchScreen.storyboard */,
 				AFD5630A1EB1400900EA2233 /* Main.storyboard */,
 				AFD562F91EB13DF200EA2233 /* Assets.xcassets */,
@@ -924,7 +932,6 @@
 		DE9315B41E8738B70083EDBF /* Messaging */ = {
 			isa = PBXGroup;
 			children = (
-				AFD562F81EB13DF100EA2233 /* Messaging_Example-Bridging-Header.h */,
 				AFD562F71EB13CC700EA2233 /* App */,
 				DE9315C21E8738B70083EDBF /* Tests */,
 			);
@@ -1916,8 +1923,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AFD563171EBBEF7B00EA2233 /* Data+MessagingExtensions.swift in Sources */,
 				AFD5630E1EB1402300EA2233 /* AppDelegate.swift in Sources */,
-				AFD5630F1EB1402300EA2233 /* ViewController.swift in Sources */,
+				AFC8BA9D1EBD230E00B8EEAE /* NotificationsController.swift in Sources */,
+				AFD5630F1EB1402300EA2233 /* MessagingViewController.swift in Sources */,
+				AFC8BA9F1EBD51A700B8EEAE /* Environment.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2359,7 +2369,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OBJC_BRIDGING_HEADER = "Messaging/Messaging_Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -2382,7 +2391,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Messaging/Messaging_Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0;
 			};

@@ -23,42 +23,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
 
+  static let isWithinUnitTest: Bool = {
+    if let testClass = NSClassFromString("XCTestCase") {
+      return true
+    } else {
+      return false
+    }
+  }()
+
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    guard !AppDelegate.isWithinUnitTest else {
+      // During unit tests, we don't want to initialize Firebase, since by default we want to able
+      // to run unit tests without requiring a non-dummy GoogleService-Info.plist file
+      return true
+    }
+
     FirebaseApp.configure()
     Messaging.messaging().delegate = self
 
-    // Always register for user-facing notifications, for now.
-    // TODO: Make this a separate action, that the user can initiate, to highlight the difference
-    // between registering for remote notifications and user notifications.
-    registerForUserFacingNotificationsFor(application)
+    NotificationsController.configure()
 
     if #available(iOS 8.0, *) {
       // Always register for remote notifications. This will not show a prompt to the user, as by
       // default it will provision silent notifications. We can use UNUserNotificationCenter to
       // request authorization for user-facing notifications.
       application.registerForRemoteNotifications()
+    } else {
+      // iOS 7 didn't differentiate between user-facing and other notifications, so we should just
+      // register for remote notifications
+      NotificationsController.shared.registerForUserFacingNotificationsFor(application)
     }
 
     printFCMToken()
     return true
-  }
-
-  func registerForUserFacingNotificationsFor(_ application: UIApplication) {
-    if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current()
-        .requestAuthorization(options: [.alert, .badge, .sound],
-                              completionHandler: { (granted, error) in
-
-        })
-      UNUserNotificationCenter.current().delegate = self
-    } else if #available(iOS 8.0, *) {
-      let userNotificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound],
-                                                                categories: [])
-      application.registerUserNotificationSettings(userNotificationSettings)
-
-    } else {
-      application.registerForRemoteNotifications(matching: [.alert, .badge, .sound])
-    }
   }
 
   func printFCMToken() {
@@ -71,28 +68,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication,
                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    // Print APNS token as a string of bytes in hex
-    // See: http://stackoverflow.com/a/40031342/9849
-    let apnsTokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-    print("APNS Token: \(apnsTokenString)")
+    print("APNS Token: \(deviceToken.hexByteString)")
+    NotificationCenter.default.post(name: APNSTokenReceivedNotification, object: nil)
+    if #available(iOS 8.0, *) {
+    } else {
+      // On iOS 7, receiving a device token also means our user notifications were granted, so fire
+      // the notification to update our user notifications UI
+      NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
+    }
+  }
+
+  func application(_ application: UIApplication,
+                   didRegister notificationSettings: UIUserNotificationSettings) {
+    NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
   }
 }
 
 extension AppDelegate: MessagingDelegate {
   func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String) {
     printFCMToken()
-  }
-}
-
-@available(iOS 10.0, *)
-extension AppDelegate: UNUserNotificationCenterDelegate {
-
-  func userNotificationCenter(_ center: UNUserNotificationCenter,
-                              willPresent notification: UNNotification,
-                              withCompletionHandler completionHandler:
-    @escaping (UNNotificationPresentationOptions) -> Void) {
-    // Always show the incoming notification, even if the app is in foreground
-    completionHandler([.alert, .badge, .sound])
   }
 }
 
