@@ -18,7 +18,6 @@
 
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
-#import "FGitHash.h"
 #import "FIRDatabaseReference.h"
 #import "FStringUtilities.h"
 #import "FIRDatabase_Private.h"

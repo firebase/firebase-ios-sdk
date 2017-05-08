@@ -21,7 +21,6 @@
 #import "FRepoManager.h"
 #import "FValidation.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FGitHash.h"
 #import "FRepoInfo.h"
 #import "FIRDatabaseConfig.h"
 #import "FIRDatabaseReference_Private.h"
@@ -53,7 +52,11 @@ extern NSString *const kFIRDefaultAppName;
 
 @implementation FIRDatabase
 
-static NSString *const FIREBASE_SEMVER = @"XXX_TAG_VERSION_XXX";
+// The STR and STR_EXPAND macro allow a numeric version passed to he compiler driver
+// with a -D to be treated as a string instead of an invalid floating point value.
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 
 /**
  * A static NSMutableDictionary of FirebaseApp names to FirebaseDatabase instance. To ensure thread-
@@ -123,7 +126,8 @@ static NSString *const FIREBASE_SEMVER = @"XXX_TAG_VERSION_XXX";
 }
 
 + (NSString *) buildVersion {
-    return [NSString stringWithFormat:@"%@_%@_%@", FIREBASE_SEMVER, kFirebaseBuildDate, kFirebaseGitHash];
+    // TODO: Restore git hash when build moves back to git
+    return [NSString stringWithFormat:@"%s_%s", FIREBASE_SEMVER, __DATE__];
 }
 
 + (FIRDatabase *)createDatabaseForTests:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config {
@@ -134,7 +138,7 @@ static NSString *const FIREBASE_SEMVER = @"XXX_TAG_VERSION_XXX";
 
 
 + (NSString *) sdkVersion {
-    return FIREBASE_SEMVER;
+    return [NSString stringWithUTF8String:FIREBASE_SEMVER];
 }
 
 + (void) setLoggingEnabled:(BOOL)enabled {

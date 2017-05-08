@@ -93,6 +93,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     sp.framework = 'SystemConfiguration'
     sp.dependency 'leveldb-library'
     sp.dependency 'FirebaseDev/Core'
+    sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRDatabase_VERSION=' + s.version.to_s }
   end
 
   s.subspec 'Messaging' do |sp|
