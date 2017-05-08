@@ -16,18 +16,20 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRCoreSwiftNameSupport.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This class provides configuration fields for Firebase Analytics.
  */
-NS_SWIFT_NAME(AnalyticsConfiguration)
+FIR_SWIFT_NAME(AnalyticsConfiguration)
 @interface FIRAnalyticsConfiguration : NSObject
 
 /**
  * Returns the shared instance of FIRAnalyticsConfiguration.
  */
-+ (FIRAnalyticsConfiguration *)sharedInstance NS_SWIFT_NAME(shared());
++ (FIRAnalyticsConfiguration *)sharedInstance FIR_SWIFT_NAME(shared());
 
 /**
  * Sets the minimum engagement time in seconds required to start a new session. The default value

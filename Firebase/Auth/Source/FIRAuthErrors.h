@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRSwiftNameSupport.h"
+#import "FIRAuthSwiftNameSupport.h"
 
 /** @class FIRAuthErrors
     @remarks Error Codes common to all API Methods:
@@ -36,31 +36,31 @@
         <li>@c FIRAuthErrorCodeUserDisabled</li>
     </ul>
  */
-NS_SWIFT_NAME(AuthErrors)
+FIR_SWIFT_NAME(AuthErrors)
 @interface FIRAuthErrors
 
 /**
     @brief The Firebase Auth error domain.
  */
-extern NSString *const FIRAuthErrorDomain NS_SWIFT_NAME(AuthErrorDomain);
+extern NSString *const FIRAuthErrorDomain FIR_SWIFT_NAME(AuthErrorDomain);
 
 /**
     @brief The key used to read the updated credential from the userinfo dictionary of the NSError
         object returned in the case that the credential being linked in already in use.
  */
-extern NSString *const FIRAuthUpdatedCredentialKey NS_SWIFT_NAME(AuthUpdatedCredentialKey);
+extern NSString *const FIRAuthUpdatedCredentialKey FIR_SWIFT_NAME(AuthUpdatedCredentialKey);
 
 /**
     @brief The name of the key for the "error_name" string in the NSError userinfo dictionary.
  */
-extern NSString *const FIRAuthErrorNameKey NS_SWIFT_NAME(AuthErrorNameKey);
+extern NSString *const FIRAuthErrorNameKey FIR_SWIFT_NAME(AuthErrorNameKey);
 
 /** @var FIRAuthErrorUserInfoEmailKey
-    @brief Errors with the code @c FIRAuthInternalErrorCodeEmailExists may contains an
+    @brief Errors with the code @c FIRAuthErrorCodeEmailAlreadyInUse may contains an
         @c NSError.userInfo dictinary which contains this key. The value associated with this key is
         an NSString of the email address that already exists.
  */
-extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserInfoEmailKey);
+extern NSString *const FIRAuthErrorUserInfoEmailKey FIR_SWIFT_NAME(AuthErrorUserInfoEmailKey);
 
 /**
     @brief Error codes used by Firebase Auth.
@@ -253,6 +253,6 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates an internal error occurred.
      */
     FIRAuthErrorCodeInternalError = 17999,
-} NS_SWIFT_NAME(AuthErrorCode);
+} FIR_SWIFT_NAME(AuthErrorCode);
 
 @end

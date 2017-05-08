@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRSwiftNameSupport.h"
+#import "FIRAuthSwiftNameSupport.h"
 
 @class FIRAuthCredential;
 
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
     @brief A string constant identifying the email & password identity provider.
  */
-extern NSString *const FIREmailAuthProviderID NS_SWIFT_NAME(EmailAuthProviderID);
+extern NSString *const FIREmailAuthProviderID FIR_SWIFT_NAME(EmailAuthProviderID);
 
 /**
     @brief please use @c FIREmailAuthProviderID instead.
@@ -35,7 +35,7 @@ extern NSString *const FIREmailPasswordAuthProviderID __attribute__((deprecated)
 /** @class FIREmailAuthProvider
     @brief A concrete implementation of @c FIRAuthProvider for Email & Password Sign In.
  */
-NS_SWIFT_NAME(EmailAuthProvider)
+FIR_SWIFT_NAME(EmailAuthProvider)
 @interface FIREmailAuthProvider : NSObject
 
 /** @typedef FIREmailPasswordAuthProvider

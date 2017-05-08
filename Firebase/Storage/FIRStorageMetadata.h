@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRStorageSwiftNameSupport.h"
+
 @class FIRStorageReference;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Objects#resource docs.
  * @see https://cloud.google.com/storage/docs/json_api/v1/objects#resource
  */
-NS_SWIFT_NAME(StorageMetadata)
+FIR_SWIFT_NAME(StorageMetadata)
 @interface FIRStorageMetadata : NSObject<NSCopying>
 
 /**

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRSwiftNameSupport.h"
+#import "FIRAuthSwiftNameSupport.h"
 
 @class FIRAuthCredential;
 
@@ -25,12 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
     @brief A string constant identifying the Twitter identity provider.
  */
-extern NSString *const FIRTwitterAuthProviderID NS_SWIFT_NAME(TwitterAuthProviderID);
+extern NSString *const FIRTwitterAuthProviderID FIR_SWIFT_NAME(TwitterAuthProviderID);
 
 /** @class FIRTwitterAuthProvider
     @brief Utility class for constructing Twitter credentials.
  */
-NS_SWIFT_NAME(TwitterAuthProvider)
+FIR_SWIFT_NAME(TwitterAuthProvider)
 @interface FIRTwitterAuthProvider : NSObject
 
 /** @fn credentialWithToken:secret:

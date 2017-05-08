@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FIRDatabaseSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * They can't be modified and will never change. To modify data at a location,
  * use a FIRDatabaseReference (e.g. with setValue:).
  */
-NS_SWIFT_NAME(DataSnapshot)
+FIR_SWIFT_NAME(DataSnapshot)
 @interface FIRDataSnapshot : NSObject
 
 

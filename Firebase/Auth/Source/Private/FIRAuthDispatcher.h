@@ -33,7 +33,6 @@ typedef void(^FIRAuthDispatcherImplBlock)(NSTimeInterval delay,
 /** @class FIRAuthDispatchAfter
     @brief A utility class used to facilitate scheduling tasks to be executed in the future.
  */
-NS_SWIFT_NAME(AuthDispatcher)
 @interface FIRAuthDispatcher : NSObject
 
 /** @property dispatchAfterImplementation

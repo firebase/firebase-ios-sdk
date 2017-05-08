@@ -23,7 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthErrorUtils
     @brief Utility class used to construct @c NSError instances.
  */
-NS_SWIFT_NAME(AuthErrorUtils)
 @interface FIRAuthErrorUtils : NSObject
 
 /** @fn RPCRequestEncodingErrorWithUnderlyingError

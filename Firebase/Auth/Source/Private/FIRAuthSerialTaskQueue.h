@@ -33,7 +33,6 @@ typedef void (^FIRAuthSerialTask)(FIRAuthSerialTaskCompletionBlock complete);
     @brief An easy to use serial task queue which supports a callback-based completion notification
         system for easy asyncronous call chaining.
  */
-NS_SWIFT_NAME(AuthSerialTaskQueue)
 @interface FIRAuthSerialTaskQueue : NSObject
 
 /** @fn enqueueTask:

@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRStorageConstants.h"
+#import "FIRStorageSwiftNameSupport.h"
 
 @class FIRApp;
 @class FIRStorageReference;
@@ -37,28 +38,28 @@ FOUNDATION_EXPORT const unsigned char *const FIRStorageVersionString;
  * If you call [FIRStorage storageForApp:] and provide a custom instance of FIRApp,
  * the storage location will be specified via the FIROptions#storageBucket property.
  */
-NS_SWIFT_NAME(Storage)
+FIR_SWIFT_NAME(Storage)
 @interface FIRStorage : NSObject
 
 /**
  * Creates an instance of FIRStorage, configured with the default FIRApp.
  * @return the FIRStorage instance, initialized with the default FIRApp.
  */
-+ (instancetype)storage NS_SWIFT_NAME(storage());
++ (instancetype)storage FIR_SWIFT_NAME(storage());
 
 /**
  * Creates an instance of FIRStorage, configured with the custom FIRApp @a app.
  * @param app The custom FIRApp used for initialization.
  * @return the FIRStorage instance, initialized with the custom FIRApp.
  */
-+ (instancetype)storageForApp:(FIRApp *)app NS_SWIFT_NAME(storage(app:));
++ (instancetype)storageForApp:(FIRApp *)app FIR_SWIFT_NAME(storage(app:));
 
 /**
  * Creates an instance of FIRStorage, configured with a custom storage bucket @a url.
  * @param url The gs:// url to your Firebase Storage Bucket.
  * @return the FIRStorage instance, initialized with the custom FIRApp.
  */
-+ (instancetype)storageWithURL:(NSString *)url NS_SWIFT_NAME(storage(url:));
++ (instancetype)storageWithURL:(NSString *)url FIR_SWIFT_NAME(storage(url:));
 
 /**
  * Creates an instance of FIRStorage, configured with a custom FIRApp @a app and a custom storage
@@ -68,7 +69,7 @@ NS_SWIFT_NAME(Storage)
  * @return the FIRStorage instance, initialized with the custom FIRApp.
  */
 + (instancetype)storageForApp:(FIRApp *)app
-                          URL:(NSString *)url NS_SWIFT_NAME(storage(app:url:));
+                          URL:(NSString *)url FIR_SWIFT_NAME(storage(app:url:));
 
 /**
  * The Firebase App associated with this Firebase Storage instance.

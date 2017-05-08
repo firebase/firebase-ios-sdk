@@ -362,4 +362,4 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
           The deserialized representation of the response will be associated with this key.
    */
   FIRAuthInternalErrorCodeRPCResponseDecodingError = 5,
-} NS_SWIFT_NAME(AuthInternalErrorCode);
+};

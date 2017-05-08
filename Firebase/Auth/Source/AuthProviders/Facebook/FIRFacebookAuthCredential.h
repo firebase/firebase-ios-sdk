@@ -17,13 +17,14 @@
 #import <Foundation/Foundation.h>
 
 #import "../../Private/FIRAuthCredential_Internal.h"
+#import "FIRAuthSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRFacebookAuthCredential
     @brief Internal implementation of FIRAuthCredential for the Facebook IdP.
  */
-NS_SWIFT_NAME(FacebookAuthCredential)
+FIR_SWIFT_NAME(FacebookAuthCredential)
 @interface FIRFacebookAuthCredential : FIRAuthCredential
 
 /** @fn initWithAccessToken:

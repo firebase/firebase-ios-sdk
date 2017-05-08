@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FIRDatabaseSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Note that changes made to a child FIRMutableData instance will be visible to the parent.
  */
-NS_SWIFT_NAME(MutableData)
+FIR_SWIFT_NAME(MutableData)
 @interface FIRMutableData : NSObject
 
 

@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
+#ifndef FIR_SWIFT_NAME
+
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthCredential.h"
-#import "FIRAuthSwiftNameSupport.h"
+// NS_SWIFT_NAME can only translate factory methods before the iOS 9.3 SDK.
+// // Wrap it in our own macro if it's a non-compatible SDK.
+#ifdef __IPHONE_9_3
+#define FIR_SWIFT_NAME(X) NS_SWIFT_NAME(X)
+#else
+#define FIR_SWIFT_NAME(X)  // Intentionally blank.
+#endif  // #ifdef __IPHONE_9_3
 
-NS_ASSUME_NONNULL_BEGIN
-
-/** @class FIRPhoneAuthCredential
-    @brief Implementation of FIRAuthCredential for Phone Auth credentials.
- */
-FIR_SWIFT_NAME(PhoneAuthCredential)
-@interface FIRPhoneAuthCredential : FIRAuthCredential
-
-/** @fn init
-    @brief This class is not supposed to be instantiated directly.
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
-
-NS_ASSUME_NONNULL_END
+#endif  // FIR_SWIFT_NAME

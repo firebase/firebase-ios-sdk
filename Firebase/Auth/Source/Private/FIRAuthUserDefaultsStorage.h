@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthUserDefaultsStorage
     @brief The utility class to storage data in NSUserDefaults.
  */
-NS_SWIFT_NAME(AuthUserDefaultsStorage)
 @interface FIRAuthUserDefaultsStorage : NSObject <FIRAuthStorage>
 
 /** @fn clear

@@ -18,6 +18,7 @@
 
 #import "FIRStorageConstants.h"
 #import "FIRStorageMetadata.h"
+#import "FIRStorageSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * If no queue is specified by the developer, it defaults to the main queue.
  * Currently not thread safe, so only call methods on the main thread.
  */
-NS_SWIFT_NAME(StorageTask)
+FIR_SWIFT_NAME(StorageTask)
 @interface FIRStorageTask : NSObject
 
 /**
@@ -45,7 +46,7 @@ NS_SWIFT_NAME(StorageTask)
  * implement pause, resume, and cancel, which operate on the task to pause, resume, and cancel
  * operations.
  */
-NS_SWIFT_NAME(StorageTaskManagement)
+FIR_SWIFT_NAME(StorageTaskManagement)
 @protocol FIRStorageTaskManagement<NSObject>
 
 @required

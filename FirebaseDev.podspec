@@ -32,7 +32,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseCore/Core/FIRConfiguration.h',
       'FirebaseCore/Core/FIRLoggerLevel.h',
       'FirebaseCore/Core/FIROptions.h',
-      'FirebaseCore/Core/FIRSwiftNameSupport.h'
+      'FirebaseCore/Core/FIRCoreSwiftNameSupport.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
     sp.dependency 'FirebaseDev/Root'
   end
@@ -48,6 +48,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'Firebase/Auth/Source/FIRAuthCredential.h',
       'Firebase/Auth/Source/FIRAuthDataResult.h',
       'Firebase/Auth/Source/FIRAuthErrors.h',
+      'Firebase/Auth/Source/FIRAuthSwiftNameSupport.h',
       'Firebase/Auth/Source/AuthProviders/EmailPassword/FIREmailAuthProvider.h',
       'Firebase/Auth/Source/AuthProviders/Facebook/FIRFacebookAuthProvider.h',
       'Firebase/Auth/Source/AuthProviders/GitHub/FIRGitHubAuthProvider.h',
@@ -79,6 +80,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'Firebase/Database/Api/FIRDataEventType.h',
       'Firebase/Database/Api/FIRDataSnapshot.h',
       'Firebase/Database/Api/FIRDatabaseQuery.h',
+      'Firebase/Database/Api/FIRDatabaseSwiftNameSupport.h',
       'Firebase/Database/Api/FIRMutableData.h',
       'Firebase/Database/Api/FIRServerValue.h',
       'Firebase/Database/Api/FIRTransactionResult.h',
@@ -123,6 +125,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'Firebase/Storage/FIRStorageMetadata.h',
       'Firebase/Storage/FIRStorageObservableTask.h',
       'Firebase/Storage/FIRStorageReference.h',
+      'Firebase/Storage/FIRStorageSwiftNameSupport.h',
       'Firebase/Storage/FIRStorageTask.h',
       'Firebase/Storage/FIRStorageTaskSnapshot.h',
       'Firebase/Storage/FIRStorageUploadTask.h'

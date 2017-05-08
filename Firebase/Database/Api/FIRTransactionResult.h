@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FIRDatabaseSwiftNameSupport.h"
 #import "FIRMutableData.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Used for runTransactionBlock:. An FIRTransactionResult instance is a container for the results of the transaction.
  */
-NS_SWIFT_NAME(TransactionResult)
+FIR_SWIFT_NAME(TransactionResult)
 @interface FIRTransactionResult : NSObject
 
 /**

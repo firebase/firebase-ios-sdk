@@ -18,7 +18,7 @@
 
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthErrors.h"
-#import "FIRSwiftNameSupport.h"
+#import "FIRAuthSwiftNameSupport.h"
 
 @class FIRApp;
 @class FIRAuth;
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The type of handle returned by @c FIRAuth.addAuthStateDidChangeListener:.
  */
 typedef id<NSObject> FIRAuthStateDidChangeListenerHandle
-    NS_SWIFT_NAME(AuthStateDidChangeListenerHandle);
+    FIR_SWIFT_NAME(AuthStateDidChangeListenerHandle);
 
 /** @typedef FIRAuthStateDidChangeListenerBlock
     @brief The type of block which can be registered as a listener for auth state did change events.
@@ -42,7 +42,7 @@ typedef id<NSObject> FIRAuthStateDidChangeListenerHandle
     @param user Optionally; the current signed in user, if any.
  */
 typedef void(^FIRAuthStateDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user)
-    NS_SWIFT_NAME(AuthStateDidChangeListenerBlock);
+    FIR_SWIFT_NAME(AuthStateDidChangeListenerBlock);
 
 /** @typedef FIRIDTokenDidChangeListenerHandle
     @brief The type of handle returned by @c FIRAuth.addIDTokenDidChangeListener:.
@@ -66,7 +66,7 @@ typedef void(^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullabl
  */
 typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
                                           NSError *_Nullable error)
-    NS_SWIFT_NAME(AuthDataResultCallback);
+    FIR_SWIFT_NAME(AuthDataResultCallback);
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /**
@@ -74,7 +74,7 @@ typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResul
         changes (for example, a new token has been produced, a user signs in or signs out). The
         object parameter of the notification is the sender @c FIRAuth instance.
  */
-extern const NSNotificationName FIRAuthStateDidChangeNotification NS_SWIFT_NAME(AuthStateDidChange);
+extern const NSNotificationName FIRAuthStateDidChangeNotification FIR_SWIFT_NAME(AuthStateDidChange);
 #else
 /**
     @brief The name of the @c NSNotificationCenter notification which is posted when the auth state
@@ -82,7 +82,7 @@ extern const NSNotificationName FIRAuthStateDidChangeNotification NS_SWIFT_NAME(
         object parameter of the notification is the sender @c FIRAuth instance.
  */
 extern NSString *const FIRAuthStateDidChangeNotification
-    NS_SWIFT_NAME(AuthStateDidChangeNotification);
+    FIR_SWIFT_NAME(AuthStateDidChangeNotification);
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /** @typedef FIRAuthResultCallback
@@ -93,7 +93,7 @@ extern NSString *const FIRAuthStateDidChangeNotification
         problem. Set to nil otherwise.
  */
 typedef void (^FIRAuthResultCallback)(FIRUser *_Nullable user, NSError *_Nullable error)
-    NS_SWIFT_NAME(AuthResultCallback);
+    FIR_SWIFT_NAME(AuthResultCallback);
 
 /** @typedef FIRProviderQueryCallback
     @brief The type of block invoked when a list of identity providers for a given email address is
@@ -106,7 +106,7 @@ typedef void (^FIRAuthResultCallback)(FIRUser *_Nullable user, NSError *_Nullabl
  */
 typedef void (^FIRProviderQueryCallback)(NSArray<NSString *> *_Nullable providers,
                                          NSError *_Nullable error)
-    NS_SWIFT_NAME(ProviderQueryCallback);
+    FIR_SWIFT_NAME(ProviderQueryCallback);
 
 /** @typedef FIRSendPasswordResetCallback
     @brief The type of block invoked when sending a password reset email.
@@ -115,7 +115,7 @@ typedef void (^FIRProviderQueryCallback)(NSArray<NSString *> *_Nullable provider
         problem. Set to nil otherwise.
  */
 typedef void (^FIRSendPasswordResetCallback)(NSError *_Nullable error)
-    NS_SWIFT_NAME(SendPasswordResetCallback);
+    FIR_SWIFT_NAME(SendPasswordResetCallback);
 
 /** @typedef FIRConfirmPasswordResetCallback
     @brief The type of block invoked when performing a password reset.
@@ -124,7 +124,7 @@ typedef void (^FIRSendPasswordResetCallback)(NSError *_Nullable error)
         problem. Set to nil otherwise.
  */
 typedef void (^FIRConfirmPasswordResetCallback)(NSError *_Nullable error)
-    NS_SWIFT_NAME(ConfirmPasswordResetCallback);
+    FIR_SWIFT_NAME(ConfirmPasswordResetCallback);
 
 /** @typedef FIRVerifyPasswordResetCodeCallback
     @brief The type of block invoked when verifying that an out of band code should be used to
@@ -136,7 +136,7 @@ typedef void (^FIRConfirmPasswordResetCallback)(NSError *_Nullable error)
  */
 typedef void (^FIRVerifyPasswordResetCodeCallback)(NSString *_Nullable email,
                                                    NSError *_Nullable error)
-    NS_SWIFT_NAME(VerifyPasswordResetCodeCallback);
+    FIR_SWIFT_NAME(VerifyPasswordResetCodeCallback);
 
 /** @typedef FIRApplyActionCodeCallback
     @brief The type of block invoked when applying an action code.
@@ -145,7 +145,7 @@ typedef void (^FIRVerifyPasswordResetCodeCallback)(NSString *_Nullable email,
         problem. Set to nil otherwise.
  */
 typedef void (^FIRApplyActionCodeCallback)(NSError *_Nullable error)
-    NS_SWIFT_NAME(ApplyActionCodeCallback);
+    FIR_SWIFT_NAME(ApplyActionCodeCallback);
 
 /**
     @brief Keys used to retrieve operation data from a @c FIRActionCodeInfo object by the @c
@@ -160,12 +160,12 @@ typedef NS_ENUM(NSInteger, FIRActionDataKey) {
 
   /** For FIRActionCodeOperationRecoverEmail, the current email address for the account. */
   FIRActionCodeFromEmailKey = 1
-} NS_SWIFT_NAME(ActionDataKey);
+} FIR_SWIFT_NAME(ActionDataKey);
 
 /** @class FIRActionCodeInfo
     @brief Manages information regarding action codes.
  */
-NS_SWIFT_NAME(ActionCodeInfo)
+FIR_SWIFT_NAME(ActionCodeInfo)
 @interface FIRActionCodeInfo : NSObject
 
 /**
@@ -180,7 +180,7 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
 
     /** Action code for verify email operation. */
     FIRActionCodeOperationVerifyEmail = 2
-} NS_SWIFT_NAME(ActionCodeOperation);
+} FIR_SWIFT_NAME(ActionCodeOperation);
 
 /**
     @brief The operation being performed.
@@ -217,7 +217,7 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
     @brief Manages authentication for Firebase apps.
     @remarks This class is thread-safe.
  */
-NS_SWIFT_NAME(Auth)
+FIR_SWIFT_NAME(Auth)
 @interface FIRAuth : NSObject
 
 /** @fn auth
@@ -225,7 +225,7 @@ NS_SWIFT_NAME(Auth)
     @remarks The default Firebase app must have already been configured or an exception will be
         raised.
  */
-+ (FIRAuth *)auth NS_SWIFT_NAME(auth());
++ (FIRAuth *)auth FIR_SWIFT_NAME(auth());
 
 /** @fn authWithApp:
     @brief Gets the auth object for a @c FIRApp.
@@ -233,7 +233,7 @@ NS_SWIFT_NAME(Auth)
     @param app The FIRApp for which to retrieve the associated FIRAuth instance.
     @return The FIRAuth instance associated with the given FIRApp.
  */
-+ (FIRAuth *)authWithApp:(FIRApp *)app NS_SWIFT_NAME(auth(app:));
++ (FIRAuth *)authWithApp:(FIRApp *)app FIR_SWIFT_NAME(auth(app:));
 
 /** @property app
     @brief Gets the @c FIRApp object that this auth object is connected to.

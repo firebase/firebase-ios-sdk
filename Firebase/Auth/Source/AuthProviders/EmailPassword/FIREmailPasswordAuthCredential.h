@@ -17,13 +17,14 @@
 #import <Foundation/Foundation.h>
 
 #import "../../Private/FIRAuthCredential_Internal.h"
+#import "FIRAuthSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIREmailPasswordAuthCredential
     @brief Internal implementation of FIRAuthCredential for Email/Password credentials.
  */
-NS_SWIFT_NAME(EmailPasswordAuthCredential)
+FIR_SWIFT_NAME(EmailPasswordAuthCredential)
 @interface FIREmailPasswordAuthCredential : FIRAuthCredential
 
 /** @property email
