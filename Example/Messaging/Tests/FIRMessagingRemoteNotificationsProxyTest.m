@@ -222,6 +222,10 @@ void FCM_swizzle_willPresentNotificationWithHandler(
 // Our swizzled method should still be called.
 
 - (void)testIncompleteUserNotificationCenterDelegateMethod {
+  // Early exit if running on pre iOS 10
+  if (![UNNotification class]) {
+    return;
+  }
   IncompleteUserNotificationCenterDelegate *delegate =
       [[IncompleteUserNotificationCenterDelegate alloc] init];
   [self.mockProxy swizzleUserNotificationCenterDelegate:delegate];
@@ -240,6 +244,10 @@ void FCM_swizzle_willPresentNotificationWithHandler(
 
 // Use an object that does actually implement the needed method. Both should be called.
 - (void)testSwizzledUserNotificationsCenterDelegate {
+  // Early exit if running on pre iOS 10
+  if (![UNNotification class]) {
+    return;
+  }
   FakeUserNotificationCenterDelegate *delegate = [[FakeUserNotificationCenterDelegate alloc] init];
   [self.mockProxy swizzleUserNotificationCenterDelegate:delegate];
   // Invoking delegate method should also invoke our swizzled method
