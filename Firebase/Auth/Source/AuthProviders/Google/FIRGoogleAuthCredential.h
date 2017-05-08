@@ -17,14 +17,12 @@
 #import <Foundation/Foundation.h>
 
 #import "../../Private/FIRAuthCredential_Internal.h"
-#import "FIRAuthSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRGoogleAuthCredential
     @brief Internal implementation of FIRAuthCredential for the Google IdP.
  */
-FIR_SWIFT_NAME(GoogleAuthCredential)
 @interface FIRGoogleAuthCredential : FIRAuthCredential
 
 /** @fn initWithIDToken:accessToken:

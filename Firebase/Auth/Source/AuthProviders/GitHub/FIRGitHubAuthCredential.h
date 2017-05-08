@@ -17,14 +17,12 @@
 #import <Foundation/Foundation.h>
 
 #import "../../Private/FIRAuthCredential_Internal.h"
-#import "FIRAuthSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRGitHubAuthCredential
     @brief Internal implementation of FIRAuthCredential for GitHub credentials.
  */
-FIR_SWIFT_NAME(GitHubAuthCredential)
 @interface FIRGitHubAuthCredential : FIRAuthCredential
 
 /** @property token

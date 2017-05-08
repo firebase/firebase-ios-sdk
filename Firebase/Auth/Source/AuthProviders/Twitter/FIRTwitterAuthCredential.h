@@ -17,14 +17,12 @@
 #import <Foundation/Foundation.h>
 
 #import "../../Private/FIRAuthCredential_Internal.h"
-#import "FIRAuthSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRTwitterAuthCredential
     @brief Internal implementation of FIRAuthCredential for Twitter credentials.
  */
-FIR_SWIFT_NAME(TwitterAuthCredential)
 @interface FIRTwitterAuthCredential : FIRAuthCredential
 
 /** @property token
