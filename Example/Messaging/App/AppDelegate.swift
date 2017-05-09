@@ -31,10 +31,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }()
 
+  static var hasPresentedInvalidServiceInfoPlistAlert = false
+
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
     guard !AppDelegate.isWithinUnitTest else {
       // During unit tests, we don't want to initialize Firebase, since by default we want to able
       // to run unit tests without requiring a non-dummy GoogleService-Info.plist file
+      return true
+    }
+
+    guard SampleAppUtilities.appContainsRealServiceInfoPlist() else {
+      // We can't run because the GoogleService-Info.plist file is likely the dummy file which needs
+      // to be replaced with a real one, or somehow the file has been removed from the app bundle.
+      // See: https://github.com/firebase/firebase-ios-sdk/
+      // We'll present a friendly alert when the app becomes active.
       return true
     }
 
@@ -81,6 +91,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didRegister notificationSettings: UIUserNotificationSettings) {
     NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
+  }
+
+  func applicationDidBecomeActive(_ application: UIApplication) {
+    // If the app didn't start property due to an invalid GoogleService-Info.plist file, show an
+    // alert to the developer.
+    if !SampleAppUtilities.appContainsRealServiceInfoPlist() &&
+       !AppDelegate.hasPresentedInvalidServiceInfoPlistAlert {
+      if let vc = window?.rootViewController {
+        SampleAppUtilities.presentAlertForInvalidServiceInfoPlistFrom(vc)
+        AppDelegate.hasPresentedInvalidServiceInfoPlistAlert = true
+      }
+    }
   }
 }
 

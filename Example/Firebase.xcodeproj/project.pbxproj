@@ -88,6 +88,7 @@
 		9653E6AB7DDD8B5E4814442D /* Pods_Database_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3DEB3CBB1440528DFE1E197 /* Pods_Database_IntegrationTests.framework */; };
 		AFC8BA9D1EBD230E00B8EEAE /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */; };
 		AFC8BA9F1EBD51A700B8EEAE /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */; };
+		AFC8BAA71EC257D800B8EEAE /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
 		AFD5630C1EB1400900EA2233 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AFD563081EB1400900EA2233 /* LaunchScreen.storyboard */; };
 		AFD5630D1EB1400900EA2233 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AFD5630A1EB1400900EA2233 /* Main.storyboard */; };
 		AFD5630E1EB1402300EA2233 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */; };
@@ -396,6 +397,9 @@
 		A6903B88963F6FD1857889E6 /* Pods-Messaging_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messaging_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Messaging_Example/Pods-Messaging_Example.release.xcconfig"; sourceTree = "<group>"; };
 		AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NotificationsController.swift; path = App/NotificationsController.swift; sourceTree = "<group>"; };
 		AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Environment.swift; path = App/Environment.swift; sourceTree = "<group>"; };
+		AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Messaging_Example-Bridging-Header.h"; sourceTree = "<group>"; };
+		AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRSampleAppUtilities.h; path = Shared/FIRSampleAppUtilities.h; sourceTree = "<group>"; };
+		AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSampleAppUtilities.m; path = Shared/FIRSampleAppUtilities.m; sourceTree = "<group>"; };
 		AFD562E51EB13C6D00EA2233 /* Messaging_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFD562F91EB13DF200EA2233 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = App/Assets.xcassets; sourceTree = "<group>"; };
 		AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = App/AppDelegate.swift; sourceTree = "<group>"; };
@@ -744,6 +748,7 @@
 				DEE14D661E844677006FA992 /* Core */,
 				DE7B8D2A1E8EF202009EB6DF /* Database */,
 				DE9315B41E8738B70083EDBF /* Messaging */,
+				AFC8BAA01EC24B1600B8EEAE /* Shared */,
 				DEB139B31E734D9D00AC236D /* Storage */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
@@ -806,6 +811,15 @@
 				E2C2834C90DBAB56D568189F /* LICENSE */,
 			);
 			name = "Podspec Metadata";
+			sourceTree = "<group>";
+		};
+		AFC8BAA01EC24B1600B8EEAE /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */,
+				AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */,
+			);
+			name = Shared;
 			sourceTree = "<group>";
 		};
 		AFD562F71EB13CC700EA2233 /* App */ = {
@@ -1048,6 +1062,7 @@
 		DE9315B41E8738B70083EDBF /* Messaging */ = {
 			isa = PBXGroup;
 			children = (
+				AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */,
 				AFD562F71EB13CC700EA2233 /* App */,
 				DE9315C21E8738B70083EDBF /* Tests */,
 			);
@@ -1418,6 +1433,7 @@
 					AFD562E41EB13C6D00EA2233 = {
 						CreatedOnToolsVersion = 8.3.2;
 						DevelopmentTeam = EQHXZ8M8AV;
+						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -2157,6 +2173,7 @@
 				AFD5630E1EB1402300EA2233 /* AppDelegate.swift in Sources */,
 				AFC8BA9D1EBD230E00B8EEAE /* NotificationsController.swift in Sources */,
 				AFD5630F1EB1402300EA2233 /* MessagingViewController.swift in Sources */,
+				AFC8BAA71EC257D800B8EEAE /* FIRSampleAppUtilities.m in Sources */,
 				AFC8BA9F1EBD51A700B8EEAE /* Environment.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2681,6 +2698,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "Messaging/Messaging_Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -2703,6 +2721,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Messaging/Messaging_Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0;
 			};
