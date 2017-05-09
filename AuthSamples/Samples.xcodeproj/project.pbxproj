@@ -1542,7 +1542,7 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = "$(SRCROOT)/Sample/Application.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.Sample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1555,7 +1555,7 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = "$(SRCROOT)/Sample/Application.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.Sample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

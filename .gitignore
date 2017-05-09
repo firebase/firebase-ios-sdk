@@ -1,3 +1,10 @@
+AuthSamples/Sample/GoogleService-Info_multi.plist
+AuthSamples/Sample/AuthCredentials.h
+AuthSamples/Sample/GoogleService-Info.plist
+AuthSamples/Sample/Application.plist
+AuthSamples/SwiftSample/GoogleService-Info.plist
+AuthSamples/SwiftSample/Info.plist
+
 # OS X
 .DS_Store
 
@@ -36,5 +43,3 @@ Carthage
 Pods/
 Podfile.lock
 *.xcworkspace
-
-AuthSamples/Sample/AuthCredential.h
