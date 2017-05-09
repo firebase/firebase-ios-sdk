@@ -25,15 +25,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   /** @var kGoogleClientID
       @brief The Google client ID.
    */
-  private let kGoogleClientID =
-      "1085102361755-f46rhqgjkr313n5kqnsoh6l4vlu9nd4k.apps.googleusercontent.com"
+  private let kGoogleClientID = AuthCredentials.GOOGLE_CLIENT_ID
 
   // TODO: add Facebook login support as well.
 
   /** @var kFacebookAppID
       @brief The Facebook app ID.
    */
-  private let kFacebookAppID = "452491954956225"
+  private let kFacebookAppID = AuthCredentials.FACEBOOK_APP_ID
 
   /** @var window
       @brief The main window of the app.
