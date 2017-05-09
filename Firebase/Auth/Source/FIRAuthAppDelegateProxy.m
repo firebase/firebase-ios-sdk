@@ -31,9 +31,14 @@ static NSString *const kProxyEnabledBundleKey = @"FirebaseAppDelegateProxyEnable
     @remarks This is used as the placeholder for unimplemented UApplicationDelegate methods,
         because once we added a method there is no way to remove it from the class.
  */
+#if !OBJC_OLD_DISPATCH_PROTOTYPES
+static void noop(void) {
+}
+#else
 static id noop(id object, SEL cmd, ...) {
   return nil;
 }
+#endif
 
 @implementation FIRAuthAppDelegateProxy {
   /** @var _appDelegate
