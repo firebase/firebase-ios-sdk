@@ -10,6 +10,9 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.homepage         = 'https://firebase.google.com'
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
+
+  # NOTE that the FirebaseDev pod is neither publically deployed nor yet interchangeable with the
+  # Firebase pod
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
@@ -23,16 +26,15 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Core' do |sp|
-    sp.source_files = 'FirebaseCore/Core/**/*.[mh]'
+    sp.source_files = 'Firebase/Core/**/*.[mh]'
     sp.public_header_files =
-      'FirebaseCore/Core/Firebase.h',
-      'FirebaseCore/Core/FirebaseCore.h',
-      'FirebaseCore/Core/FIRAnalyticsConfiguration.h',
-      'FirebaseCore/Core/FIRApp.h',
-      'FirebaseCore/Core/FIRConfiguration.h',
-      'FirebaseCore/Core/FIRLoggerLevel.h',
-      'FirebaseCore/Core/FIROptions.h',
-      'FirebaseCore/Core/FIRCoreSwiftNameSupport.h'
+      'Firebase/Core/FirebaseCore.h',
+      'Firebase/Core/FIRAnalyticsConfiguration.h',
+      'Firebase/Core/FIRApp.h',
+      'Firebase/Core/FIRConfiguration.h',
+      'Firebase/Core/FIRLoggerLevel.h',
+      'Firebase/Core/FIROptions.h',
+      'Firebase/Core/FIRCoreSwiftNameSupport.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
     sp.dependency 'FirebaseDev/Root'
   end
@@ -135,5 +137,4 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
     sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRStorage_VERSION=' + s.version.to_s }
   end
-
 end

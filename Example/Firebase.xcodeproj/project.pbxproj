@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		DE3373891E73773400881891 /* AllTests */ = {
+		DE3373891E73773400881891 /* AllUnitTests */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllTests" */;
+			buildConfigurationList = DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests" */;
 			buildPhases = (
 			);
 			dependencies = (
@@ -19,7 +19,7 @@
 				DEE14E0B1E844FDC006FA992 /* PBXTargetDependency */,
 				DE3373981E73776F00881891 /* PBXTargetDependency */,
 			);
-			name = AllTests;
+			name = AllUnitTests;
 			productName = AllTests;
 		};
 /* End PBXAggregateTarget section */
@@ -1522,7 +1522,7 @@
 				DE9315A61E8738460083EDBF /* Messaging_Tests */,
 				DEB139E01E73506A00AC236D /* Storage_Example */,
 				DEB13A0A1E73507E00AC236D /* Storage_Tests */,
-				DE3373891E73773400881891 /* AllTests */,
+				DE3373891E73773400881891 /* AllUnitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -2547,7 +2547,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2586,7 +2586,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2808,7 +2808,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2850,7 +2850,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2917,7 +2917,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
-					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2944,7 +2944,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
-					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2976,7 +2976,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
-					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -3008,7 +3008,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
-					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -3079,8 +3079,9 @@
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
 					"$(inherited)",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -3104,8 +3105,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
 					"$(inherited)",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -3165,7 +3167,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -3193,7 +3195,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../FirebaseCore/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -3235,7 +3237,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllTests" */ = {
+		DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DE33738B1E73773400881891 /* Debug */,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "../../../FirebaseCore/Core/Private/FIRAppInternal.h"
+#import "FIRAppInternal.h"
 
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>

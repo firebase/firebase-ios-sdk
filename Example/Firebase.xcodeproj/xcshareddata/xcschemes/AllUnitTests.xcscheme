@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE3373891E73773400881891"
-               BuildableName = "AllTests"
-               BlueprintName = "AllTests"
+               BuildableName = "AllUnitTests"
+               BlueprintName = "AllUnitTests"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -135,8 +135,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BuildableName = "AllUnitTests"
+            BlueprintName = "AllUnitTests"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -157,8 +157,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BuildableName = "AllUnitTests"
+            BlueprintName = "AllUnitTests"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -175,8 +175,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BuildableName = "AllUnitTests"
+            BlueprintName = "AllUnitTests"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
