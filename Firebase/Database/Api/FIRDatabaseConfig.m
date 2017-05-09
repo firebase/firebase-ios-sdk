@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRApp.h"
 #import "FIRDatabaseConfig.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
@@ -105,8 +106,7 @@
     });
     @synchronized(sessionConfigs) {
         if (!sessionConfigs[name]) {
-            // Tests use a no-op auth token provider.
-            id<FAuthTokenProvider> authTokenProvider = [[FIRNoopAuthTokenProvider alloc] init];
+            id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
             sessionConfigs[name] = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
                                                                       authTokenProvider:authTokenProvider];
         }

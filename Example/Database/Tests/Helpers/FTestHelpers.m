@@ -16,6 +16,8 @@
 
 #import "FTestHelpers.h"
 #import "FConstants.h"
+#import "FIRApp.h"
+#import "FIROptions.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FTestAuthTokenGenerator.h"
 
@@ -53,11 +55,13 @@
 
     NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
     
+    id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
+    
     while (num > refs.count) {
-        NSString *persistenceStr = [NSString stringWithFormat:@"%@persistence", (persistence) ? @"" : @"no-"];
-        FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:[NSString stringWithFormat:@"test-config-%@-%lu", persistenceStr, refs.count]];
+        NSString *sessionIdentifier = [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-", refs.count];
+        FIRDatabaseConfig *config = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier authTokenProvider:authTokenProvider];
         config.persistenceEnabled = persistence;
-        FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithUrl:kFirebaseTestNamespace config:config];
+        FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:config];
         [refs addObject:ref];
     }
     
@@ -112,68 +116,6 @@
     triple.three = [refs objectAtIndex:2];
     
     return triple;
-}
-
-+ (NSString *) getTestSecret {
-    static NSString *testSecret = Nil;
-    if (testSecret == Nil) {
-        NSString* urlString = [NSString stringWithFormat:@"%@/.nsadmin/.json?key=1234", kFirebaseTestNamespace];
-        NSURL* url = [NSURL URLWithString:urlString];
-        NSError* error = nil;
-    
-        NSData *responseData = [[NSData alloc] initWithContentsOfURL:url];
-        id object = [NSJSONSerialization
-                     JSONObjectWithData:responseData
-                     options:0
-                     error:&error];
-    
-        NSDictionary *results = object;
-        NSArray *secrets = [results objectForKey:@"secrets"];
-        testSecret = secrets[0];
-    }
-    return testSecret;
-}
-
-+ (NSString *) getTestSecretForRef:(FIRDatabaseReference *)ref {
-    static NSMutableDictionary *testSecrets = Nil;
-    if (testSecrets == Nil) {
-        testSecrets = [[NSMutableDictionary alloc] init];
-    }
-    NSString *key = ref.root.description;
-    if (testSecrets[key] == nil) {
-        NSString* urlString = [NSString stringWithFormat:@"%@/.nsadmin/.json?key=1234", [ref description]];
-        NSURL* url = [NSURL URLWithString:urlString];
-        NSError* error = nil;
-
-        NSData *responseData = [[NSData alloc] initWithContentsOfURL:url];
-        id object = [NSJSONSerialization
-                JSONObjectWithData:responseData
-                           options:0
-                             error:&error];
-
-        NSDictionary *results = object;
-        NSArray *secrets = [results objectForKey:@"secrets"];
-        testSecrets[key] = secrets[0];
-    }
-    return testSecrets[key];
-}
-
-+ (BOOL) uploadRules:(NSString *)rulesString forRef:(FIRDatabaseReference *)ref {
-    FIRDatabaseReference * root = ref;
-    while (root.parent) {
-        root = ref.parent;
-    }
-    NSString* urlString = [NSString stringWithFormat:@"%@/.settings/rules.json?auth=%@", [root description], [FTestHelpers getTestSecret]];
-    NSLog(@"Uploading rules to %@", urlString);
-    NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-    [req setHTTPMethod:@"PUT"];
-    NSData* putBody = [rulesString dataUsingEncoding:NSUTF8StringEncoding];
-    [req setHTTPBody:putBody];
-
-    NSHTTPURLResponse* response = nil;
-    NSError* requestError = nil;
-    [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:&requestError];
-    return response.statusCode == 200;
 }
 
 + (id<FNode>)leafNodeOfSize:(NSUInteger)size {

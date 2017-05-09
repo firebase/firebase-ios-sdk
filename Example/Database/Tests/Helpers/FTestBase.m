@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import "FIRApp.h"
+#import "FIROptions.h"
 #import "FTestBase.h"
 #import "FTestAuthTokenGenerator.h"
 #import "FIRDatabaseQuery_Private.h"
@@ -21,9 +23,20 @@
 
 @implementation FTestBase
 
++ (void)setUp
+{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^ {
+        [FIRApp configure];
+    });
+}
+     
 - (void)setUp
 {
     [super setUp];
+    
+    [FIRDatabase setLoggingEnabled:YES];
+    _databaseURL = [[FIRApp defaultApp] options].databaseURL;
 
     // Disabled normally since they slow down the tests and don't actually assert anything (they just NSLog timings).
     runPerfTests = NO;
@@ -44,21 +57,6 @@
     NSLog(@"snapWaiter:withBlock: timeTaken:%f", timeTaken);
     
     XCTAssertTrue(done, @"Properly finished.");
-}
-
-- (void) authTokenProviders:(NSArray *)refs withData:(NSDictionary *)authData options:(NSDictionary *)options {
-    NSString* token = [FTestAuthTokenGenerator tokenWithSecret:[FTestHelpers getTestSecret] authData:authData andOptions:options];
-    for (FIRTestAuthTokenProvider *provider in refs) {
-        provider.token = token;
-    }
-}
-
-- (void) authTokenProviders:(NSArray *)providers withData:(NSDictionary *)authData {
-    [self authTokenProviders:providers withData:authData options:@{}];
-}
-
-- (void) authTokenProvidersAsAdmin:(NSArray *)providers {
-    [self authTokenProviders:providers withData:@{} options:@{@"admin": @YES}];
 }
 
 - (void) waitUntilConnected:(FIRDatabaseReference *)ref {

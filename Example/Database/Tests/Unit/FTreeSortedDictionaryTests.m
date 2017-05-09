@@ -21,6 +21,11 @@
 #import "FLLRBEmptyNode.h"
 #import "FLLRBValueNode.h"
 
+@interface FLLRBValueNode (Tests)
+- (id<FLLRBNode>) rotateLeft;
+- (id<FLLRBNode>) rotateRight;
+@end
+
 @interface FTreeSortedDictionaryTests : XCTestCase
 
 @end
@@ -212,7 +217,7 @@
 - (void) testRotateLeftLeavesTreeInAValidState {
     FLLRBValueNode* node = [[FLLRBValueNode alloc] initWithKey:@4 withValue:@4 withColor:BLACK withLeft:
                             [[FLLRBValueNode alloc] initWithKey:@2 withValue:@2 withColor:BLACK withLeft:nil withRight:nil] withRight:[[FLLRBValueNode alloc]initWithKey:@7 withValue:@7 withColor:RED withLeft:[[FLLRBValueNode alloc ]initWithKey:@5 withValue:@5 withColor:BLACK withLeft:nil withRight:nil] withRight:[[FLLRBValueNode alloc] initWithKey:@8 withValue:@8 withColor:BLACK withLeft:nil withRight:nil]]];
-    
+  
     FLLRBValueNode* node2 = [node performSelector:@selector(rotateLeft)];
     
     XCTAssertTrue([node2 count] == 5, @"Make sure the count is correct");
@@ -223,6 +228,7 @@
     FLLRBValueNode* node = [[FLLRBValueNode alloc] initWithKey:@7 withValue:@7 withColor:BLACK withLeft:[[FLLRBValueNode alloc] initWithKey:@4 withValue:@4 withColor:RED withLeft:[[FLLRBValueNode alloc] initWithKey:@2 withValue:@2 withColor:BLACK withLeft:nil withRight:nil] withRight:[[FLLRBValueNode alloc] initWithKey:@5 withValue:@5 withColor:BLACK withLeft:nil withRight:nil]] withRight:[[FLLRBValueNode alloc] initWithKey:@8 withValue:@8 withColor:BLACK withLeft:nil withRight:nil]];
     
     FLLRBValueNode* node2 = [node performSelector:@selector(rotateRight)];
+    
     XCTAssertTrue([node2 count] == 5, @"Make sure the count is correct");
     XCTAssertEqualObjects(node2.key, @4, @"Check roots key");
     XCTAssertEqualObjects(node2.left.key, @2, @"Check first left child key");

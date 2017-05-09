@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#import "FIRApp.h"
 #import "FIRDatabaseReference.h"
+#import "FIROptions.h"
 #import "FUtilities.h"
 #import "FNextPushId.h"
 #import "FIRDatabaseQuery_Private.h"
@@ -36,14 +38,8 @@
 #pragma mark -
 #pragma mark Constructors
 
-- (id)initWithUrl:(NSString *)url {
-    FParsedUrl* parsedUrl = [FUtilities parseUrl:url];
-    [FValidation validateFrom:@"initWithUrl:" validURL:parsedUrl];
-    return [self initWithRepo:[FRepoManager getRepo:parsedUrl.repoInfo config:[FIRDatabaseConfig defaultConfig]] path:parsedUrl.path];
-}
-
-- (id)initWithUrl:(NSString *)url config:(FIRDatabaseConfig *)config {
-    FParsedUrl* parsedUrl = [FUtilities parseUrl:url];
+- (id) initWithConfig:(FIRDatabaseConfig *)config {
+    FParsedUrl* parsedUrl = [FUtilities parseUrl:[[FIRApp defaultApp] options].databaseURL];
     [FValidation validateFrom:@"initWithUrl:" validURL:parsedUrl];
     return [self initWithRepo:[FRepoManager getRepo:parsedUrl.repoInfo config:config] path:parsedUrl.path];
 }

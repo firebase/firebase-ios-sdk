@@ -23,16 +23,16 @@
 }
 
 - (void)snapWaiter:(FIRDatabaseReference *)path withBlock:(fbt_void_datasnapshot)fn;
-- (void) authTokenProviders:(NSArray *)refs withData:(NSDictionary *)authData;
-- (void) authTokenProvidersAsAdmin:(NSArray *)refs;
-- (void) waitUntilConnected:(FIRDatabaseReference *)ref;
-- (void) waitForQueue:(FIRDatabaseReference *)ref;
-- (void) waitForEvents:(FIRDatabaseReference *)ref;
-- (void) waitForRoundTrip:(FIRDatabaseReference *)ref;
+- (void)waitUntilConnected:(FIRDatabaseReference *)ref;
+- (void)waitForQueue:(FIRDatabaseReference *)ref;
+- (void)waitForEvents:(FIRDatabaseReference *)ref;
+- (void)waitForRoundTrip:(FIRDatabaseReference *)ref;
 - (void)waitForValueOf:(FIRDatabaseQuery *)ref toBe:(id)expected;
 - (void)waitForExportValueOf:(FIRDatabaseQuery *)ref toBe:(id)expected;
 - (void)waitForCompletionOf:(FIRDatabaseReference *)ref setValue:(id)value;
 - (void)waitForCompletionOf:(FIRDatabaseReference *)ref setValue:(id)value andPriority:(id)priority;
 - (void)waitForCompletionOf:(FIRDatabaseReference *)ref updateChildValues:(NSDictionary *)values;
+
+@property(nonatomic, readonly) NSString *databaseURL;
 
 @end

@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseReference.h"
-#import "FTypedefs_Private.h"
-#import "FIRDatabaseConfig.h"
-#import "FRepo.h"
+#import <XCTest/XCTest.h>
+#import "FTestBase.h"
 
-@interface FIRDatabaseReference ()
+@interface FRealtime : FTestBase
 
-- (id)initWithConfig:(FIRDatabaseConfig *)config;
-- (id)initWithRepo:(FRepo *)repo path:(FPath *)path;
-
-// TODO: Update tests to not use this.
-+ (FIRDatabaseConfig *)defaultConfig;
 @end

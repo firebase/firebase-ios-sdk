@@ -24,6 +24,10 @@
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
 
+@interface FWebSocketConnection (Tests)
+- (NSString*)userAgent;
+@end
+
 @interface FUtilitiesTest : XCTestCase
 
 @end

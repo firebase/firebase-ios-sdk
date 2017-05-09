@@ -15,6 +15,7 @@
  */
 
 #import "FIRDataSnapshotTests.h"
+#import "FIRDatabaseConfig_private.h"
 #import "FTestHelpers.h"
 #import "FLeafNode.h"
 #import "FChildrenNode.h"
@@ -45,7 +46,9 @@
 }
 
 - (FIRDataSnapshot *)snapshotFor:(id)jsonDict {
-    FIRDatabaseReference * dummyRef = [FTestHelpers getRandomNode];
+    FIRDatabaseConfig *config = [FIRDatabaseConfig defaultConfig];
+    FRepoInfo* repoInfo = [[FRepoInfo alloc] initWithHost:@"example.com" isSecure:NO withNamespace:@"default"];
+    FIRDatabaseReference * dummyRef = [[FIRDatabaseReference alloc] initWithRepo:[FRepoManager getRepo:repoInfo config:config] path:[FPath empty]];
     FIndexedNode *indexed = [FIndexedNode indexedNodeWithNode:[FSnapshotUtilities nodeFrom:jsonDict]];
     FIRDataSnapshot * snapshot = [[FIRDataSnapshot alloc] initWithRef:dummyRef indexedNode:indexed];
     return snapshot;

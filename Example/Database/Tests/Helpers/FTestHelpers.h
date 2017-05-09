@@ -33,10 +33,6 @@
 + (FTupleFirebase *) getRandomNodePair;
 + (FTupleFirebase *) getRandomNodePairWithoutPersistence;
 + (FTupleFirebase *) getRandomNodeTriple;
-+ (NSString *) getTestSecret;
-+ (BOOL) uploadRules:(NSString *)rulesString forRef:(FIRDatabaseReference *)ref;
-
 + (id<FNode>)leafNodeOfSize:(NSUInteger)size;
-
 
 @end

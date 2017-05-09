@@ -27,6 +27,11 @@ target 'Database_Example' do
     inherit! :search_paths
     pod 'OCMock'
   end
+  
+  target 'Database_IntegrationTests' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
 end
 
 target 'Messaging_Example' do

@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef Firebase_FTestContants_h
-#define Firebase_FTestContants_h
+#import <Foundation/Foundation.h>
+#import "FTestBase.h"
 
-#define kFirebaseTestNamespace @"http://tests.fblocal.com:9000"
-#define kFirebaseTestAltNamespace @"http://tests2.fblocal.com:9000"
-#define kFirebaseTestNamespaceWrongHost @"http://tests.fblocal-demo.com"
+@interface FPersist : FTestBase
 
-#define kFirebaseTestTimeout 7
-#define kFirebaseTestWaitUntilTimeout 5
-
-#endif
+@end

@@ -178,6 +178,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
         [NSException raise:@"InvalidDatabaseURL" format:@"Invalid nil url passed to referenceFromURL:"];
     }
     FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl];
+    [FValidation validateFrom:@"referenceFromURL:" validURL:parsedUrl];
     if (![parsedUrl.repoInfo.host isEqualToString:_repoInfo.host]) {
         [NSException raise:@"InvalidDatabaseURL" format:@"Invalid URL (%@) passed to getReference(). URL was expected "
             "to match configured Database URL: %@", databaseUrl, [self reference].URL];

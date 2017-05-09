@@ -122,7 +122,7 @@ static NSUInteger deviceId = 0;
 
 - (void)do:(void (^)(FIRDatabaseReference *))action {
     @autoreleasepool {
-        FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithUrl:url config:self->config];
+        FIRDatabaseReference *ref = [[[[FIRDatabaseReference alloc] initWithConfig:self->config] database] referenceFromURL:self->url];
         if (!isOnline) {
             [FRepoManager interrupt:config];
         }

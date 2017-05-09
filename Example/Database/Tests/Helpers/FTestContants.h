@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseReference.h"
-#import "FTypedefs_Private.h"
-#import "FIRDatabaseConfig.h"
-#import "FRepo.h"
+#ifndef Firebase_FTestContants_h
+#define Firebase_FTestContants_h
 
-@interface FIRDatabaseReference ()
+#define kFirebaseTestTimeout 7
+#define kFirebaseTestWaitUntilTimeout 5
 
-- (id)initWithConfig:(FIRDatabaseConfig *)config;
-- (id)initWithRepo:(FRepo *)repo path:(FPath *)path;
-
-// TODO: Update tests to not use this.
-+ (FIRDatabaseConfig *)defaultConfig;
-@end
+#endif

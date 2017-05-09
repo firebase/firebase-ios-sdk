@@ -19,6 +19,9 @@ $ open Firebase.xcworkspace
 ```
 Then select a scheme and press Command-u to build a component and run its unit tests.
 
+To run integration tests, replace the GoogleServices-Info.plist file in the corresponding 
+test app with a valid configuration obtained from [https://console.firebase.google.com](https://console.firebase.google.com).
+
 ## Firebase Auth
 
 If you're doing specific Firebase Auth development, see
