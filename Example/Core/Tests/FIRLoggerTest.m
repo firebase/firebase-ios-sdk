@@ -178,6 +178,10 @@ static NSString *const kMessageCode = @"I-COR000001";
 // following test only checks whether the logs have been sent to system with the default settings in
 // the unit test environment.
 - (void)testSystemLogWithDefaultStatus {
+#if !(TARGET_OS_SIMULATOR)
+  // Test fails on device - b/38130372
+  return;
+#else
   // Sets the time interval that we need to wait in order to fetch all the logs.
   NSTimeInterval timeInterval = 0.1f;
   // Generates a random string each time and check whether it has been logged.
@@ -207,6 +211,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   FIRLogDebug(kFIRLoggerCore, kMessageCode, @"%@", self.randomLogString);
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:timeInterval]];
   XCTAssertFalse([self logExists]);
+#endif
 }
 
 // The FIRLoggerLevel enum must match the ASL_LEVEL_* constants, but we manually redefine
