@@ -15,7 +15,7 @@
  */
 
 #import "FIRDataSnapshotTests.h"
-#import "FIRDatabaseConfig_private.h"
+#import "FIRDatabaseConfig_Private.h"
 #import "FTestHelpers.h"
 #import "FLeafNode.h"
 #import "FChildrenNode.h"
