@@ -6,6 +6,8 @@ AuthSamples/SwiftSample/GoogleService-Info.plist
 AuthSamples/SwiftSample/Info.plist
 AuthSamples/SwiftSample/AuthCredentials.swift
 
+Example/Database/App/GoogleService-Info.plist
+
 # OS X
 .DS_Store
 

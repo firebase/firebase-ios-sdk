@@ -22,7 +22,8 @@ $ open Firebase.xcworkspace
 Select a scheme and press Command-u to build a component and run its unit tests.
 
 ### Running Sample Apps
-In order to run the sample apps, you'll need valid `GoogleService-Info.plist` files for those samples. The Firebase Xcode project contains dummy plist files without real values, but can be replaced with real plist files. To get your own `GoogleService-Info.plist` files:
+In order to run the sample apps and integration tests, you'll need valid
+`GoogleService-Info.plist` files for those samples. The Firebase Xcode project contains dummy plist files without real values, but can be replaced with real plist files. To get your own `GoogleService-Info.plist` files:
 
 1. Go to the [Firebase Console](https://console.firebase.google.com/)
 2. Create a new Firebase project, if you don't already have one
@@ -33,14 +34,16 @@ Some sample apps like Firebase Messaging ([Example/Messaging/App](Example/Messag
 
 See the sections below for any special instructions for those SDKs.
 
-To run integration tests, replace the GoogleServices-Info.plist file in the corresponding 
-test app with a valid configuration obtained from [https://console.firebase.google.com](https://console.firebase.google.com).
-
 ## Firebase Auth
 
 If you're doing specific Firebase Auth development, see
 [AuthSamples/README.md](AuthSamples/README.md) for instructions about
 building and running the FirebaseAuth pod along with various samples and tests.
+
+## Firebase Database
+
+To run the Database Integration tests, make your database authentication rules
+[public](https://firebase.google.com/docs/database/security/quickstart).
 
 ## Firebase Messaging
 
