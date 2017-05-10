@@ -86,6 +86,11 @@
 		83C9C772827554752364B400 /* Pods_Messaging_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8A6D15690286B6BB4CB8023 /* Pods_Messaging_Example.framework */; };
 		8CE9133C8720B1C600F7C731 /* Pods_Core_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D52CEDD0146DF63640A4C3A5 /* Pods_Core_Tests.framework */; };
 		9653E6AB7DDD8B5E4814442D /* Pods_Database_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3DEB3CBB1440528DFE1E197 /* Pods_Database_IntegrationTests.framework */; };
+		AFAF36F51EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		AFAF36F61EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFC8BA9D1EBD230E00B8EEAE /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */; };
 		AFC8BA9F1EBD51A700B8EEAE /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */; };
 		AFC8BAA71EC257D800B8EEAE /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
@@ -93,7 +98,6 @@
 		AFD5630D1EB1400900EA2233 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AFD5630A1EB1400900EA2233 /* Main.storyboard */; };
 		AFD5630E1EB1402300EA2233 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */; };
 		AFD5630F1EB1402300EA2233 /* MessagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563011EB13DF200EA2233 /* MessagingViewController.swift */; };
-		AFD563101EB1402F00EA2233 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFD562F91EB13DF200EA2233 /* Assets.xcassets */; };
 		AFD563151EB29EDE00EA2233 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AFD563131EB1466100EA2233 /* GoogleService-Info.plist */; };
 		AFD563171EBBEF7B00EA2233 /* Data+MessagingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */; };
 		BDE625D72CA3B8918088E0F5 /* Pods_Storage_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA7879CD6EE51EE4E20937C8 /* Pods_Storage_Example.framework */; };
@@ -123,7 +127,6 @@
 		DE7B8DCA1E8EF23A009EB6DF /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D321E8EF202009EB6DF /* FIRAppDelegate.m */; };
 		DE7B8DCB1E8EF23A009EB6DF /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D341E8EF202009EB6DF /* FIRViewController.m */; };
 		DE7B8DCC1E8EF23A009EB6DF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D371E8EF202009EB6DF /* main.m */; };
-		DE7B8DCF1E8EF23E009EB6DF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D361E8EF202009EB6DF /* Images.xcassets */; };
 		DE7B8DD01E8EF246009EB6DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D2C1E8EF202009EB6DF /* LaunchScreen.storyboard */; };
 		DE7B8DD11E8EF24F009EB6DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D2E1E8EF202009EB6DF /* Main.storyboard */; };
 		DE7B8DD31E8F1CA7009EB6DF /* Database-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8DD21E8F1CA7009EB6DF /* Database-Info.plist */; };
@@ -132,7 +135,6 @@
 		DE9315291E86C6FF0083EDBF /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314F31E86C6FF0083EDBF /* FIRAppDelegate.m */; };
 		DE93152A1E86C6FF0083EDBF /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314F51E86C6FF0083EDBF /* FIRViewController.m */; };
 		DE93152B1E86C6FF0083EDBF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE9314F61E86C6FF0083EDBF /* GoogleService-Info.plist */; };
-		DE93152C1E86C6FF0083EDBF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE9314F71E86C6FF0083EDBF /* Images.xcassets */; };
 		DE93152D1E86C6FF0083EDBF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314F81E86C6FF0083EDBF /* main.m */; };
 		DE9315571E86C71C0083EDBF /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */; };
 		DE9315581E86C71C0083EDBF /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FC1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.m */; };
@@ -209,7 +211,6 @@
 		DEB61EC71E7C5DBB00C04B96 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EBE1E7C5DBB00C04B96 /* FIRAppDelegate.m */; };
 		DEB61EC81E7C5DBB00C04B96 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EC01E7C5DBB00C04B96 /* FIRViewController.m */; };
 		DEB61EC91E7C5DBB00C04B96 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */; };
-		DEB61ECA1E7C5DBB00C04B96 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEB61EC21E7C5DBB00C04B96 /* Images.xcassets */; };
 		DEB61ECB1E7C5DBB00C04B96 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB61EC31E7C5DBB00C04B96 /* main.m */; };
 		DEC0EE0D1EA427CC007E2177 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01B31E9567F1004AEE01 /* FirebaseDev.framework */; };
 		DEC0EE0F1EA42D5D007E2177 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEC0EE0E1EA42D5D007E2177 /* FirebaseDev.framework */; };
@@ -221,7 +222,6 @@
 		DEE14D811E844677006FA992 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D6E1E844677006FA992 /* FIRAppDelegate.m */; };
 		DEE14D821E844677006FA992 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D701E844677006FA992 /* FIRViewController.m */; };
 		DEE14D831E844677006FA992 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
-		DEE14D841E844677006FA992 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D721E844677006FA992 /* Images.xcassets */; };
 		DEE14D851E844677006FA992 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D731E844677006FA992 /* main.m */; };
 		DEE14D8E1E84468D006FA992 /* FIRAppAssociationRegistrationUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */; };
 		DEE14D8F1E84468D006FA992 /* FIRAppTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D761E844677006FA992 /* FIRAppTest.m */; };
@@ -395,13 +395,13 @@
 		8E32E359BE29C3100CF51FC4 /* Pods-Core_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests/Pods-Core_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		8F77C04C2E764FBB0F6C05C6 /* Pods-Core_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example/Pods-Core_Example.release.xcconfig"; sourceTree = "<group>"; };
 		A6903B88963F6FD1857889E6 /* Pods-Messaging_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messaging_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Messaging_Example/Pods-Messaging_Example.release.xcconfig"; sourceTree = "<group>"; };
+		AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Shared.xcassets; path = Shared/Shared.xcassets; sourceTree = "<group>"; };
 		AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NotificationsController.swift; path = App/NotificationsController.swift; sourceTree = "<group>"; };
 		AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Environment.swift; path = App/Environment.swift; sourceTree = "<group>"; };
 		AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Messaging_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRSampleAppUtilities.h; path = Shared/FIRSampleAppUtilities.h; sourceTree = "<group>"; };
 		AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSampleAppUtilities.m; path = Shared/FIRSampleAppUtilities.m; sourceTree = "<group>"; };
 		AFD562E51EB13C6D00EA2233 /* Messaging_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AFD562F91EB13DF200EA2233 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = App/Assets.xcassets; sourceTree = "<group>"; };
 		AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = App/AppDelegate.swift; sourceTree = "<group>"; };
 		AFD563001EB13DF200EA2233 /* Messaging-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Messaging-Info.plist"; path = "App/Messaging-Info.plist"; sourceTree = "<group>"; };
 		AFD563011EB13DF200EA2233 /* MessagingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessagingViewController.swift; path = App/MessagingViewController.swift; sourceTree = "<group>"; };
@@ -437,7 +437,6 @@
 		DE7B8D321E8EF202009EB6DF /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
 		DE7B8D331E8EF202009EB6DF /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
 		DE7B8D341E8EF202009EB6DF /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
-		DE7B8D361E8EF202009EB6DF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		DE7B8D371E8EF202009EB6DF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE7B8D6A1E8EF202009EB6DF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DE7B8D781E8EF202009EB6DF /* FDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDevice.h; sourceTree = "<group>"; };
@@ -473,7 +472,6 @@
 		DE9314F41E86C6FF0083EDBF /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
 		DE9314F51E86C6FF0083EDBF /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
 		DE9314F61E86C6FF0083EDBF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DE9314F71E86C6FF0083EDBF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		DE9314F81E86C6FF0083EDBF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAdditionalUserInfoTests.m; sourceTree = "<group>"; };
 		DE9314FB1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FIRApp+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
@@ -564,7 +562,6 @@
 		DEB61EBF1E7C5DBB00C04B96 /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
 		DEB61EC01E7C5DBB00C04B96 /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
 		DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DEB61EC21E7C5DBB00C04B96 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		DEB61EC31E7C5DBB00C04B96 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DEB61EC41E7C5DBB00C04B96 /* Storage-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Storage-Info.plist"; sourceTree = "<group>"; };
 		DEC0EE0E1EA42D5D007E2177 /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Firebase-chgkzndqfwnawrfmbrhkugiybjre/Build/Products/Debug-iphonesimulator/FirebaseDev-Core-Messaging-Root/FirebaseDev.framework"; sourceTree = "<group>"; };
@@ -580,7 +577,6 @@
 		DEE14D6F1E844677006FA992 /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
 		DEE14D701E844677006FA992 /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
 		DEE14D711E844677006FA992 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DEE14D721E844677006FA992 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		DEE14D731E844677006FA992 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppAssociationRegistrationUnitTests.m; sourceTree = "<group>"; };
 		DEE14D761E844677006FA992 /* FIRAppTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppTest.m; sourceTree = "<group>"; };
@@ -818,6 +814,7 @@
 			children = (
 				AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */,
 				AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */,
+				AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */,
 			);
 			name = Shared;
 			sourceTree = "<group>";
@@ -834,7 +831,6 @@
 				AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */,
 				AFD563081EB1400900EA2233 /* LaunchScreen.storyboard */,
 				AFD5630A1EB1400900EA2233 /* Main.storyboard */,
-				AFD562F91EB13DF200EA2233 /* Assets.xcassets */,
 				AFD563131EB1466100EA2233 /* GoogleService-Info.plist */,
 			);
 			name = App;
@@ -888,7 +884,6 @@
 				DE7B8D321E8EF202009EB6DF /* FIRAppDelegate.m */,
 				DE7B8D341E8EF202009EB6DF /* FIRViewController.m */,
 				DE7B8D371E8EF202009EB6DF /* main.m */,
-				DE7B8D361E8EF202009EB6DF /* Images.xcassets */,
 				DE7B8D2C1E8EF202009EB6DF /* LaunchScreen.storyboard */,
 				DE7B8D2E1E8EF202009EB6DF /* Main.storyboard */,
 			);
@@ -994,7 +989,6 @@
 				DE9314F41E86C6FF0083EDBF /* FIRViewController.h */,
 				DE9314F51E86C6FF0083EDBF /* FIRViewController.m */,
 				DE9314F61E86C6FF0083EDBF /* GoogleService-Info.plist */,
-				DE9314F71E86C6FF0083EDBF /* Images.xcassets */,
 				DE9314F81E86C6FF0083EDBF /* main.m */,
 			);
 			path = App;
@@ -1136,7 +1130,6 @@
 				DEB61EBF1E7C5DBB00C04B96 /* FIRViewController.h */,
 				DEB61EC01E7C5DBB00C04B96 /* FIRViewController.m */,
 				DEB61EC11E7C5DBB00C04B96 /* GoogleService-Info.plist */,
-				DEB61EC21E7C5DBB00C04B96 /* Images.xcassets */,
 				DEB61EC31E7C5DBB00C04B96 /* main.m */,
 				DEB61EC41E7C5DBB00C04B96 /* Storage-Info.plist */,
 			);
@@ -1163,7 +1156,6 @@
 				DEE14D6F1E844677006FA992 /* FIRViewController.h */,
 				DEE14D701E844677006FA992 /* FIRViewController.m */,
 				DEE14D711E844677006FA992 /* GoogleService-Info.plist */,
-				DEE14D721E844677006FA992 /* Images.xcassets */,
 				DEE14D731E844677006FA992 /* main.m */,
 			);
 			path = App;
@@ -1540,9 +1532,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				AFD5630D1EB1400900EA2233 /* Main.storyboard in Resources */,
+				AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */,
 				AFD563151EB29EDE00EA2233 /* GoogleService-Info.plist in Resources */,
 				AFD5630C1EB1400900EA2233 /* LaunchScreen.storyboard in Resources */,
-				AFD563101EB1402F00EA2233 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1550,7 +1542,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE7B8DCF1E8EF23E009EB6DF /* Images.xcassets in Resources */,
+				AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */,
 				0672F2F21EBBA7D900818E87 /* GoogleService-Info.plist in Resources */,
 				DE7B8DD11E8EF24F009EB6DF /* Main.storyboard in Resources */,
 				DE7B8DD01E8EF246009EB6DF /* LaunchScreen.storyboard in Resources */,
@@ -1571,8 +1563,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE93152C1E86C6FF0083EDBF /* Images.xcassets in Resources */,
 				DE93152B1E86C6FF0083EDBF /* GoogleService-Info.plist in Resources */,
+				AFAF36F51EC28C25004BDEE5 /* Shared.xcassets in Resources */,
 				DE9315261E86C6FF0083EDBF /* LaunchScreen.storyboard in Resources */,
 				DE9315271E86C6FF0083EDBF /* Main.storyboard in Resources */,
 				DE4E711B1E953ABC00070092 /* FirebaseDev.podspec in Resources */,
@@ -1600,7 +1592,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEB61EC51E7C5DBB00C04B96 /* LaunchScreen.storyboard in Resources */,
-				DEB61ECA1E7C5DBB00C04B96 /* Images.xcassets in Resources */,
+				AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */,
 				DEB61EC61E7C5DBB00C04B96 /* Main.storyboard in Resources */,
 				DEB61EC91E7C5DBB00C04B96 /* GoogleService-Info.plist in Resources */,
 			);
@@ -1617,7 +1609,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE14D841E844677006FA992 /* Images.xcassets in Resources */,
+				AFAF36F61EC28C25004BDEE5 /* Shared.xcassets in Resources */,
 				DEE14D831E844677006FA992 /* GoogleService-Info.plist in Resources */,
 				DEE14D7E1E844677006FA992 /* LaunchScreen.storyboard in Resources */,
 				DEE14D7F1E844677006FA992 /* Main.storyboard in Resources */,
