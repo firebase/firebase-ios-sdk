@@ -53,4 +53,9 @@ target 'Storage_Example' do
     inherit! :search_paths
     pod 'OCMock'
   end
+  
+  target 'Storage_IntegrationTests' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
 end

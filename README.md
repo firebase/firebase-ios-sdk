@@ -45,6 +45,11 @@ building and running the FirebaseAuth pod along with various samples and tests.
 To run the Database Integration tests, make your database authentication rules
 [public](https://firebase.google.com/docs/database/security/quickstart).
 
+## Firebase Storage
+
+To run the Storage Integration tests, follow the instructions in
+[FIRStorageIntegrationTests.m](Example/Storage/Tests/Integration/FIRStorageIntegrationTests.m).
+
 ## Firebase Messaging
 
 ### Push Notifications
