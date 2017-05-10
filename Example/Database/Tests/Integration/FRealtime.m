@@ -24,13 +24,10 @@
 @implementation FRealtime
 
 - (void) testUrlParsing {
-    FParsedUrl* parsed = [FUtilities parseUrl:@"http://www.example.com:80"];
+    FParsedUrl* parsed = [FUtilities parseUrl:@"http://www.example.com:9000"];
     XCTAssertTrue([[parsed.path description] isEqualToString:@"/"], @"Got correct path");
-#ifdef FLAKY
-    // The ":80" is not stripped - b/38198089
-    XCTAssertTrue([parsed.repoInfo.host isEqualToString:@"www.example.com"], @"Got correct host");
-    XCTAssertTrue([parsed.repoInfo.internalHost isEqualToString:@"www.example.com"], @"Got correct host");
-#endif
+    XCTAssertTrue([parsed.repoInfo.host isEqualToString:@"www.example.com:9000"], @"Got correct host");
+    XCTAssertTrue([parsed.repoInfo.internalHost isEqualToString:@"www.example.com:9000"], @"Got correct host");
     XCTAssertFalse(parsed.repoInfo.secure, @"Should not be secure, there's a port");
 
     parsed = [FUtilities parseUrl:@"http://www.firebaseio.com/foo/bar"];
