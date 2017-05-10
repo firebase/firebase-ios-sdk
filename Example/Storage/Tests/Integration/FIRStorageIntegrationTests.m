@@ -31,13 +31,18 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
  *
  * A sample configuration may look like:
  * 
- * match /ios {
- *      match /public/{allPaths=**} {
- *          allow read, write;
- *      }
- *      match /private/{allPaths=**} {
- *          allow none;
- *      }
+ * service firebase.storage {
+ *   match /b/{YOUR_PROJECT_ID}.appspot.com/o {
+ *     ...
+ *     match /ios {
+ *       match /public/{allPaths=**} {
+ *         allow read, write;
+ *       }
+ *       match /private/{allPaths=**} {
+ *         allow none;
+ *       }
+ *     }
+ *   }
  * }
  *
  * You can define these access rights in the Firebase Console of your project.
@@ -68,11 +73,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
         
         FIRStorageReference *ref = [[FIRStorage storage].reference child:@"ios/public/1mb"];
         NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"1mb" ofType:@"dat"]];
+        XCTAssertNotNil(data, "Could not load bundled file");
         [ref putData:data metadata:nil completion:^(FIRStorageMetadata *metadata, NSError *error) {
-            NSLog(@"thread1 %@", [NSThread currentThread]);
-            if (error != nil) {
-                NSLog(@"Error during setup: %@", [error localizedDescription]);
-            }
+            XCTAssertNil(error);
             [expectation fulfill];
         }];
         

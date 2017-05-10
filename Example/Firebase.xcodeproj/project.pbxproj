@@ -25,8 +25,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		06121ECB1EC39A0B0008D70E /* FIRStorageIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */; };
-		06121ECE1EC39A2A0008D70E /* 1mb.dat in Resources */ = {isa = PBXBuildFile; fileRef = 06121ECC1EC39A1F0008D70E /* 1mb.dat */; };
 		0624F3EB1EC0ED0800E5940D /* FConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB46F1EBA7AEF00038A59 /* FConnectionTest.m */; };
 		0624F3EC1EC0ED1B00E5940D /* FData.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB4711EBA7AEF00038A59 /* FData.m */; };
 		0624F3ED1EC0ED2300E5940D /* FDotInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB4731EBA7AEF00038A59 /* FDotInfo.m */; };
@@ -78,6 +76,7 @@
 		063CB4DB1EBAA89E00038A59 /* FSyncPointTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB4581EBA7AE200038A59 /* FSyncPointTests.m */; };
 		0672F2F21EBBA7D900818E87 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
 		0672F2F31EBBA7D900818E87 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
+		069428831EC3B38C00F7BC69 /* 1mb.dat in Resources */ = {isa = PBXBuildFile; fileRef = 069428801EC3B35A00F7BC69 /* 1mb.dat */; };
 		0697B1221EC13D8A00542174 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 0697B1211EC13D8A00542174 /* Base64.m */; };
 		06B47E8C1EC39ADF00170C02 /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06B47E8B1EC39ADF00170C02 /* FirebaseDev.framework */; };
 		06C24A061EC39BCB005208CA /* FIRStorageIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */; };
@@ -328,7 +327,6 @@
 /* Begin PBXFileReference section */
 		06121EBC1EC399C50008D70E /* Storage_IntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_IntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageIntegrationTests.m; sourceTree = "<group>"; };
-		06121ECC1EC39A1F0008D70E /* 1mb.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1mb.dat; sourceTree = "<group>"; };
 		0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_IntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0637BA641EC0F99700CAEFD4 /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Firebase-dajssrvxpeovebatpcchwkfhwcjh/Build/Products/Debug-iphonesimulator/FirebaseDev-Core-Database-Root/FirebaseDev.framework"; sourceTree = "<group>"; };
 		063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FArraySortedDictionaryTest.m; path = Database/Tests/Unit/FArraySortedDictionaryTest.m; sourceTree = SOURCE_ROOT; };
@@ -384,6 +382,7 @@
 		063CB48F1EBA7AEF00038A59 /* FTransactionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FTransactionTest.m; path = Integration/FTransactionTest.m; sourceTree = "<group>"; };
 		063CB4901EBA7AEF00038A59 /* FTreeSortedDictionaryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FTreeSortedDictionaryTests.m; sourceTree = "<group>"; };
 		0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		069428801EC3B35A00F7BC69 /* 1mb.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1mb.dat; sourceTree = "<group>"; };
 		0697B1201EC13D8A00542174 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
 		0697B1211EC13D8A00542174 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		06B47E8B1EC39ADF00170C02 /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Firebase-dajssrvxpeovebatpcchwkfhwcjh/Build/Products/Debug-iphonesimulator/FirebaseDev-Core-Root-Storage/FirebaseDev.framework"; sourceTree = "<group>"; };
@@ -1173,7 +1172,7 @@
 		DEB61EB81E7C5DBB00C04B96 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				06121ECC1EC39A1F0008D70E /* 1mb.dat */,
+				069428801EC3B35A00F7BC69 /* 1mb.dat */,
 				DEB61EB91E7C5DBB00C04B96 /* LaunchScreen.storyboard */,
 				DEB61EBB1E7C5DBB00C04B96 /* Main.storyboard */,
 				DEB61EBD1E7C5DBB00C04B96 /* FIRAppDelegate.h */,
@@ -1602,7 +1601,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				06121ECE1EC39A2A0008D70E /* 1mb.dat in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1677,6 +1675,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				069428831EC3B38C00F7BC69 /* 1mb.dat in Resources */,
 				DEB61EC51E7C5DBB00C04B96 /* LaunchScreen.storyboard in Resources */,
 				AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */,
 				DEB61EC61E7C5DBB00C04B96 /* Main.storyboard in Resources */,
@@ -2362,7 +2361,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				06121ECB1EC39A0B0008D70E /* FIRStorageIntegrationTests.m in Sources */,
 				0697B1221EC13D8A00542174 /* Base64.m in Sources */,
 				DE93152A1E86C6FF0083EDBF /* FIRViewController.m in Sources */,
 				DE93152D1E86C6FF0083EDBF /* main.m in Sources */,
