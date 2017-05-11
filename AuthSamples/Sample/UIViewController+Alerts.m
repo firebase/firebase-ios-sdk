@@ -129,6 +129,14 @@ static NSString *const kCancel = @"Cancel";
 
 - (void)showTextInputPromptWithMessage:(NSString *)message
                        completionBlock:(AlertPromptCompletionBlock)completion {
+  [self showTextInputPromptWithMessage:message
+                          keyboardType:UIKeyboardTypeDefault
+                       completionBlock:completion];
+}
+
+- (void)showTextInputPromptWithMessage:(NSString *)message
+                          keyboardType:(UIKeyboardType)keyboardType
+                       completionBlock:(nonnull AlertPromptCompletionBlock)completion {
   if ([self supportsAlertController]) {
       UIAlertController *prompt =
           [UIAlertController alertControllerWithTitle:nil
@@ -147,7 +155,9 @@ static NSString *const kCancel = @"Cancel";
             UIAlertController *strongPrompt = weakPrompt;
             completion(YES, strongPrompt.textFields[0].text);
       }];
-      [prompt addTextFieldWithConfigurationHandler:nil];
+      [prompt addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
+        textField.keyboardType = keyboardType;
+      }];
       [prompt addAction:cancelAction];
       [prompt addAction:okAction];
       [self presentViewController:prompt animated:YES completion:nil];

@@ -47,7 +47,8 @@ typedef void(^FIRAuthStateDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nulla
 /** @typedef FIRIDTokenDidChangeListenerHandle
     @brief The type of handle returned by @c FIRAuth.addIDTokenDidChangeListener:.
  */
-typedef id<NSObject> FIRIDTokenDidChangeListenerHandle;
+typedef id<NSObject> FIRIDTokenDidChangeListenerHandle
+    FIR_SWIFT_NAME(IDTokenDidChangeListenerHandle);
 
 /** @typedef FIRIDTokenDidChangeListenerBlock
     @brief The type of block which can be registered as a listener for ID token did change events.
@@ -55,7 +56,8 @@ typedef id<NSObject> FIRIDTokenDidChangeListenerHandle;
     @param auth The FIRAuth object on which ID token changes occurred.
     @param user Optionally; the current signed in user, if any.
  */
-typedef void(^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user);
+typedef void(^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullable user)
+    FIR_SWIFT_NAME(IDTokenDidChangeListenerBlock);
 
 /** @typedef FIRAuthDataResultCallback
     @brief The type of block invoked when sign-in related events complete.
@@ -74,7 +76,8 @@ typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResul
         changes (for example, a new token has been produced, a user signs in or signs out). The
         object parameter of the notification is the sender @c FIRAuth instance.
  */
-extern const NSNotificationName FIRAuthStateDidChangeNotification FIR_SWIFT_NAME(AuthStateDidChange);
+extern const NSNotificationName FIRAuthStateDidChangeNotification
+    FIR_SWIFT_NAME(AuthStateDidChange);
 #else
 /**
     @brief The name of the @c NSNotificationCenter notification which is posted when the auth state
@@ -211,7 +214,8 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
         problem. Set to nil otherwise.
  */
 typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
-                                           NSError *_Nullable error);
+                                           NSError *_Nullable error)
+    FIR_SWIFT_NAME(CheckActionCodeCallback);
 
 /** @class FIRAuth
     @brief Manages authentication for Firebase apps.

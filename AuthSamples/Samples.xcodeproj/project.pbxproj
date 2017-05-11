@@ -1668,7 +1668,7 @@
 					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/Private\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
-					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1689,7 +1689,7 @@
 					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/Private\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
-					"\"$(SRCROOT)/../FirebaseCore/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1703,7 +1703,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57150555A6B03949ECB58AD9 /* Pods-TestApp.debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1716,7 +1716,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B78FD2B21A8D72D5E38E3E79 /* Pods-TestApp.release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

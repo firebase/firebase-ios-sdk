@@ -136,6 +136,10 @@ static const NSTimeInterval kProbingTimeout = 1;
     return NO;
   }
   if (data[kNotificationProberKey]) {
+    if (!_pendingCallbacks) {
+      // The prober notification probably comes from another instance, so pass it along.
+      return NO;
+    }
     _isNotificationBeingForwarded = YES;
     [self callBack];
     return YES;

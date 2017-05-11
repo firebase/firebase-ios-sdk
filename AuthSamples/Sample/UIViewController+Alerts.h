@@ -56,6 +56,16 @@ typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullab
                   showCancelButton:(BOOL)showCancelButton
                         completion:(nullable AlertPromptCompletionBlock)completion;
 
+/*! @fn showTextInputPromptWithMessage:keyboardType:completionBlock:
+    @brief Shows a prompt with a text field and 'OK'/'Cancel' buttons.
+    @param message The message to display.
+    @param keyboardType The type of keyboard to display for the UITextView in the prompt.
+    @param completion A block to call when the user taps 'OK' or 'Cancel'.
+ */
+- (void)showTextInputPromptWithMessage:(NSString *)message
+                          keyboardType:(UIKeyboardType)keyboardType
+                       completionBlock:(AlertPromptCompletionBlock)completion;
+
 /*! @fn showTextInputPromptWithMessage:completionBlock:
     @brief Shows a prompt with a text field and 'OK'/'Cancel' buttons.
     @param message The message to display.

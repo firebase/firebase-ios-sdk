@@ -357,8 +357,11 @@ static const NSTimeInterval kWaitInterval = .5;
         deprecated FIREmailPasswordAuthProviderID.
  */
 - (void)testFetchProvidersForEmailSuccessDeprecatedProviderID {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSArray<NSString *> *allProviders =
       @[ FIRGoogleAuthProviderID, FIREmailPasswordAuthProviderID ];
+#pragma clang diagnostic pop
   OCMExpect([_mockBackend createAuthURI:[OCMArg any]
                                callback:[OCMArg any]])
       .andCallBlock2(^(FIRCreateAuthURIRequest *_Nullable request,
@@ -807,8 +810,11 @@ static const NSTimeInterval kWaitInterval = .5;
   [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRAuthCredential *emailCredential =
       [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kPassword];
+#pragma clang diagnostic pop
   [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
                                                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);

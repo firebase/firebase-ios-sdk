@@ -278,6 +278,12 @@ static NSString *const kSecret = @"FAKE_SECRET";
       @"secret" : kSecret
     }
   }]);
+  XCTAssertFalse([_notificationManager canHandleNotification:@{
+    @"com.google.firebase.auth" : @{
+      // probing notification does not belong to this instance
+      @"warning" : @"asdf"
+    }
+  }]);
 }
 
 @end

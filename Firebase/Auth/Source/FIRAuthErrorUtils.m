@@ -234,7 +234,8 @@ static NSString *const kFIRAuthErrorMessageMissingPhoneNumber =
  */
 static NSString *const kFIRAuthErrorMessageInvalidPhoneNumber =
     @"The format of the phone number provided is incorrect. Please enter the phone number in a "
-    "format that can be parsed into E.164 format.";
+    "format that can be parsed into E.164 format. E.164 phone numbers are written in the format "
+    "[+][country code][subscriber number including area code].";
 
 /** @var kFIRAuthErrorMessageMissingVerificationCode
     @brief Message for @c FIRAuthErrorCodeMissingVerificationCode error code.

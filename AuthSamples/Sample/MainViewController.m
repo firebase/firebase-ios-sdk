@@ -1376,6 +1376,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)signInEmailPassword {
   [self showTextInputPromptWithMessage:@"Email Address:"
+                          keyboardType:UIKeyboardTypeEmailAddress
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
     if (!userPressedOK || !email.length) {
       return;
@@ -2131,6 +2132,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)createUser {
   [self showTextInputPromptWithMessage:@"Email:"
+                          keyboardType:UIKeyboardTypeEmailAddress
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
     if (!userPressedOK || !email.length) {
       return;
@@ -2165,6 +2167,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)signInWithPhoneNumber {
   [self showTextInputPromptWithMessage:@"Phone #:"
+                          keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
     if (!userPressedOK || !phoneNumber.length) {
       return;
@@ -2180,6 +2183,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self logSuccess:@"Code sent"];
 
         [self showTextInputPromptWithMessage:@"Verification code:"
+                                keyboardType:UIKeyboardTypeNumberPad
                              completionBlock:^(BOOL userPressedOK,
                                                NSString *_Nullable verificationCode) {
           if (!userPressedOK || !verificationCode.length) {
@@ -2212,6 +2216,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)updatePhoneNumber {
   [self showTextInputPromptWithMessage:@"Phone #:"
+                          keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
     if (!userPressedOK || !phoneNumber.length) {
       return;
@@ -2227,6 +2232,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self logSuccess:@"Code sent"];
 
         [self showTextInputPromptWithMessage:@"Verification code:"
+                                keyboardType:UIKeyboardTypeNumberPad
                              completionBlock:^(BOOL userPressedOK,
                                                NSString *_Nullable verificationCode) {
           if (!userPressedOK || !verificationCode.length) {
@@ -2259,6 +2265,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)linkPhoneNumber {
   [self showTextInputPromptWithMessage:@"Phone #:"
+                          keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
     if (!userPressedOK || !phoneNumber.length) {
       return;
@@ -2274,6 +2281,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self logSuccess:@"Code sent"];
 
         [self showTextInputPromptWithMessage:@"Verification code:"
+                                keyboardType:UIKeyboardTypeNumberPad
                              completionBlock:^(BOOL userPressedOK,
                                                NSString *_Nullable verificationCode) {
           if (!userPressedOK || !verificationCode.length) {
