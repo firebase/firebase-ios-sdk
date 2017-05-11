@@ -21,7 +21,16 @@
  Please follow the following steps to populate the valid AuthCredentials
  and copy it to AuthCredentials.swift file
 
- TODO fill the steps
+ You will need to replace the following values:
+ $KGOOGLE_CLIENT_ID
+ Get the value of the CLIENT_ID key in the GoogleService-Info.plist file.
+
+ $KFACEBOOK_APP_ID
+ FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the 
+ 'Signing in with Facebook' feature of Firebase Auth. Follow the instructions 
+ on the Facebook developer site: https://developers.facebook.com/docs/apps/register 
+ to obtain the id
+
  */
 
 import Foundation
