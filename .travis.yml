@@ -12,5 +12,6 @@ before_install:
   - gem install xcpretty
   - pod install --project-directory=Example --repo-update
 
-script: ./test.sh
-
+script: 
+  - ./test.sh
+  - pod lib lint FirebaseDev.podspec
