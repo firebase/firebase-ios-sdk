@@ -1,3 +1,8 @@
+<!--
+	For this to be a valid plist file replace the following
+	$REVERSE_CLIENT_ID: 
+		Value of REVERSED_CLIENT_ID key in the GoogleService-Info.plist file.
+-->
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -34,10 +39,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>TODOFILL</string>
+			<string>$REVERSE_CLIENT_ID</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>TODOFILL</string>
+				<string>$REVERSE_CLIENT_ID</string>
 			</array>
 		</dict>
 	</array>

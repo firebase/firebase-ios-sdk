@@ -26,6 +26,10 @@ This feature is for advanced testing.
 1. The developer would need to get a GoogleService-Info.plist from a different iOS client (which can be in a different Firebase project)
 2. Save this plist file as GoogleService-Info_multi.plist in [Sample/GoogleService-Info_multi.plist](Sample/GoogleService-Info_multi.plist). This enables testing that FirebaseAuth continues to work after switching the Firebase App in the runtime.
 
+#### Application.plist file
+
+Please follow the instructions in [Sample/ApplicationTemplate.plist](Sample/ApplicationTemplate.plist) to generate the right Application.plist file
+
 #### Getting your own Credential files
 
 Please follow the instructions in [Sample/AuthCredentialsTemplate.h](Sample/AuthCredentialsTemplate.h) to generate the AuthCredentials.h file.
@@ -42,6 +46,10 @@ You'll need valid `GoogleService-Info.plist` files for those samples. To get you
 2. Create a new Firebase project, if you don't already have one
 3. For each sample app you want to test, create a new Firebase app with the sample app's bundle identifier (e.g. `com.google.SwiftBear`)
 4. Download the resulting `GoogleService-Info.plist` and place it in [SwiftSample/GoogleService-Info.plist](SwiftSample/GoogleService-Info.plist)
+
+#### Info.plist file
+
+Please follow the instructions in [SwiftSample/InfoTemplate.plist](SwiftSample/InfoTemplate.plist) to generate the right Info.plist file
 
 #### Getting your own Credential files
 
