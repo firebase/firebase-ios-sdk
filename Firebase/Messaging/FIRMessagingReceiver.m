@@ -99,15 +99,6 @@ static int downstreamMessageID = 0;
 // running iOS 9 or below are not affected.
 - (void)scheduleIos10NotificationForMessage:(NSDictionary *)message
                              withIdentifier:(NSString *)messageID {
-  SEL dataMessageHandlerSelector = NSSelectorFromString(@"applicationReceivedRemoteMessage:");
-  if (!self.delegate
-      || ![self.delegate respondsToSelector:dataMessageHandlerSelector]) {
-    FIRMessagingLoggerDebug(
-        kFIRMessagingMessageCodeReceiver004, @"Delegate hasn't implemented protocol [%@ %@]",
-        @"FIRMessagingDelegate", @"applicationReceivedRemoteMessage:remoteMessage:");
-    return;
-  }
-
   FIRMessagingRemoteMessage *wrappedMessage = [[FIRMessagingRemoteMessage alloc] init];
   // TODO: wrap title, body, badge and other fields
   wrappedMessage.appData = [message copy];
