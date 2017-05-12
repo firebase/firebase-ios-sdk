@@ -157,6 +157,66 @@ extern NSString *const kFIRLibraryVersionID;
   }
 }
 
+- (void)testCopyingProperties {
+  NSMutableString *mutableString;
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.APIKey = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.APIKey, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.bundleID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.bundleID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.clientID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.clientID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.trackingID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.trackingID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.GCMSenderID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.GCMSenderID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.projectID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.projectID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.androidClientID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.androidClientID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.googleAppID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.googleAppID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.databaseURL = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.databaseURL, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.deepLinkURLScheme = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.deepLinkURLScheme, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.storageBucket = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.storageBucket, @"1");
+}
+
 - (void)testCopyWithZone {
   // default options
   FIROptions *options = [FIROptions defaultOptions];

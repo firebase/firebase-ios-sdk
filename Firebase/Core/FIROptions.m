@@ -236,7 +236,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRAPIKey] = APIKey;
+  _optionsDictionary[kFIRAPIKey] = [APIKey copy];
 }
 
 - (NSString *)clientID {
@@ -248,7 +248,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRClientID] = clientID;
+  _optionsDictionary[kFIRClientID] = [clientID copy];
 }
 
 - (NSString *)trackingID {
@@ -260,7 +260,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRTrackingID] = trackingID;
+  _optionsDictionary[kFIRTrackingID] = [trackingID copy];
 }
 
 - (NSString *)GCMSenderID {
@@ -272,7 +272,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRGCMSenderID] = GCMSenderID;
+  _optionsDictionary[kFIRGCMSenderID] = [GCMSenderID copy];
 }
 
 - (NSString *)projectID {
@@ -284,7 +284,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRProjectID] = projectID;
+  _optionsDictionary[kFIRProjectID] = [projectID copy];
 }
 
 - (NSString *)androidClientID {
@@ -296,7 +296,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRAndroidClientID] = androidClientID;
+  _optionsDictionary[kFIRAndroidClientID] = [androidClientID copy];
 }
 
 - (NSString *)googleAppID {
@@ -308,7 +308,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRGoogleAppID] = googleAppID;
+  _optionsDictionary[kFIRGoogleAppID] = [googleAppID copy];
 }
 
 - (NSString *)libraryVersionID {
@@ -316,11 +316,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setLibraryVersionID:(NSString *)libraryVersionID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
-  _optionsDictionary[kFIRLibraryVersionID] = libraryVersionID;
+  _optionsDictionary[kFIRLibraryVersionID] = [libraryVersionID copy];
 }
 
 - (NSString *)databaseURL {
@@ -332,7 +328,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRDatabaseURL] = databaseURL;
+  _optionsDictionary[kFIRDatabaseURL] = [databaseURL copy];
 }
 
 - (NSString *)storageBucket {
@@ -344,7 +340,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRStorageBucket] = storageBucket;
+  _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
 }
 
 - (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
@@ -352,7 +348,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _deepLinkURLScheme = deepLinkURLScheme;
+  _deepLinkURLScheme = [deepLinkURLScheme copy];
 }
 
 - (NSString *)bundleID {
@@ -364,7 +360,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
 
-  _optionsDictionary[kFIRBundleID] = bundleID;
+  _optionsDictionary[kFIRBundleID] = [bundleID copy];
 }
 
 #pragma mark - Internal instance methods
