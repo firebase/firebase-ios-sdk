@@ -1,0 +1,12 @@
+platform :ios, '7.0'
+
+project 'FrameworkMaker.xcodeproj'
+
+target 'FrameworkMaker' do
+  pod 'FirebaseAuth', :path => '../Firebase/Auth'
+  pod 'FirebaseCore', :path => '../Firebase/Core'
+  pod 'FirebaseDatabase', :path => '../Firebase/Database'
+  pod 'FirebaseMessaging', :path => '../Firebase/Messaging'
+  pod 'FirebaseStorage', :path => '../Firebase/Storage'
+end
+

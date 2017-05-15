@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SettingsViewController">
+            <connections>
+                <outlet property="tableViewManager" destination="U72-zk-rRG" id="KxN-ZQ-cAa"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rRb-jS-QTO">
+                    <rect key="frame" x="8" y="16" width="46" height="30"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="6TV-T6-63H"/>
+                        <constraint firstAttribute="width" constant="46" id="kVF-SE-Qzn"/>
+                    </constraints>
+                    <state key="normal" title="Done"/>
+                    <connections>
+                        <action selector="done:" destination="-1" eventType="touchUpInside" id="O91-6u-80J"/>
+                    </connections>
+                </button>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="4BU-Kb-3Zx">
+                    <rect key="frame" x="0.0" y="54" width="600" height="546"/>
+                    <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                    <connections>
+                        <outlet property="dataSource" destination="U72-zk-rRG" id="GFT-r0-uBK"/>
+                        <outlet property="delegate" destination="U72-zk-rRG" id="uzl-Rm-2qd"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="rRb-jS-QTO" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="1PF-3b-y4w"/>
+                <constraint firstItem="4BU-Kb-3Zx" firstAttribute="width" secondItem="i5M-Pr-FkT" secondAttribute="width" id="5Tz-J0-2Dq"/>
+                <constraint firstItem="rRb-jS-QTO" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="16" id="K7t-0g-JBo"/>
+                <constraint firstItem="4BU-Kb-3Zx" firstAttribute="top" secondItem="rRb-jS-QTO" secondAttribute="bottom" constant="8" id="MyI-Bl-nGS"/>
+                <constraint firstAttribute="bottom" secondItem="4BU-Kb-3Zx" secondAttribute="bottom" id="QMm-Wv-q60"/>
+                <constraint firstItem="4BU-Kb-3Zx" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="deo-wi-Nmq"/>
+            </constraints>
+        </view>
+        <customObject id="U72-zk-rRG" customClass="StaticContentTableViewManager">
+            <connections>
+                <outlet property="tableView" destination="4BU-Kb-3Zx" id="0OK-KI-QdH"/>
+            </connections>
+        </customObject>
+    </objects>
+</document>
