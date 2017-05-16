@@ -4,10 +4,9 @@ This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseMessaging, and
 FirebaseStorage.
 
-The code here is only for those interested in the SDK internals or those
-interested in contributing to Firebase.
-
-General Firebase information can be found at [https://firebase.google.com](https://firebase.google.com).
+Firebase is an app develpment platform with tools to help you build, grow and
+monetize your app. More information about Firebase can be found at
+[https://firebase.google.com](https://firebase.google.com).
 
 ## Context
 
@@ -27,7 +26,7 @@ the zip distribution for development.
 ## Usage
 
 ```
-$ git clone git@github.com:FirebasePrivate/firebase-ios-sdk.git
+$ git clone git@github.com:firebase/firebase-ios-sdk.git
 $ cd firebase-ios-sdk/Example
 $ pod update
 $ open Firebase.xcworkspace
@@ -82,7 +81,7 @@ The iOS Simulator cannot register for remote notifications, and will not receive
 ## Contributing
 
 See [Contributing](CONTRIBUTING.md) for more information on contributing to the Firebase
-JavaScript SDK.
+iOS SDK.
 
 ## License
 
