@@ -1,0 +1,320 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C8F75C1E8772455450E51C69 /* libPods-FrameworkMaker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D25AC01A0F56F8BC5375DD2 /* libPods-FrameworkMaker.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		01F29B956E7F6E45EF34DE72 /* Pods-FrameworkMaker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FrameworkMaker.release.xcconfig"; path = "Pods/Target Support Files/Pods-FrameworkMaker/Pods-FrameworkMaker.release.xcconfig"; sourceTree = "<group>"; };
+		05A46BD71CC9B2BE007BDB33 /* FrameworkMaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameworkMaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D25AC01A0F56F8BC5375DD2 /* libPods-FrameworkMaker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FrameworkMaker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8DA4EE8A169B227B0576C02 /* Pods-FrameworkMaker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FrameworkMaker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FrameworkMaker/Pods-FrameworkMaker.debug.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		05A46BD41CC9B2BE007BDB33 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C8F75C1E8772455450E51C69 /* libPods-FrameworkMaker.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		05A46BCE1CC9B2BE007BDB33 = {
+			isa = PBXGroup;
+			children = (
+				05A46BD81CC9B2BE007BDB33 /* Products */,
+				AA03828B8B59297B5A3389B0 /* Pods */,
+				D3884AD1918E82D7FD21433D /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		05A46BD81CC9B2BE007BDB33 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				05A46BD71CC9B2BE007BDB33 /* FrameworkMaker.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA03828B8B59297B5A3389B0 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C8DA4EE8A169B227B0576C02 /* Pods-FrameworkMaker.debug.xcconfig */,
+				01F29B956E7F6E45EF34DE72 /* Pods-FrameworkMaker.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		D3884AD1918E82D7FD21433D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1D25AC01A0F56F8BC5375DD2 /* libPods-FrameworkMaker.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		05A46BD61CC9B2BE007BDB33 /* FrameworkMaker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 05A46BEE1CC9B2BE007BDB33 /* Build configuration list for PBXNativeTarget "FrameworkMaker" */;
+			buildPhases = (
+				AC1C2B143A86214CE77C9932 /* [CP] Check Pods Manifest.lock */,
+				05A46BD31CC9B2BE007BDB33 /* Sources */,
+				05A46BD41CC9B2BE007BDB33 /* Frameworks */,
+				05A46BD51CC9B2BE007BDB33 /* Resources */,
+				11182BBE1E5DB1C0F58623BB /* [CP] Embed Pods Frameworks */,
+				5040608D1004852F08A22A14 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FrameworkMaker;
+			productName = FrameworkMaker;
+			productReference = 05A46BD71CC9B2BE007BDB33 /* FrameworkMaker.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		05A46BCF1CC9B2BE007BDB33 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Google, Inc.";
+				TargetAttributes = {
+					05A46BD61CC9B2BE007BDB33 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = 05A46BD21CC9B2BE007BDB33 /* Build configuration list for PBXProject "FrameworkMaker" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 05A46BCE1CC9B2BE007BDB33;
+			productRefGroup = 05A46BD81CC9B2BE007BDB33 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				05A46BD61CC9B2BE007BDB33 /* FrameworkMaker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		05A46BD51CC9B2BE007BDB33 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		11182BBE1E5DB1C0F58623BB /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FrameworkMaker/Pods-FrameworkMaker-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5040608D1004852F08A22A14 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FrameworkMaker/Pods-FrameworkMaker-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AC1C2B143A86214CE77C9932 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		05A46BD31CC9B2BE007BDB33 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		05A46BEC1CC9B2BE007BDB33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		05A46BED1CC9B2BE007BDB33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		05A46BEF1CC9B2BE007BDB33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C8DA4EE8A169B227B0576C02 /* Pods-FrameworkMaker.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = FrameworkMaker/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = google.FrameworkMaker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		05A46BF01CC9B2BE007BDB33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 01F29B956E7F6E45EF34DE72 /* Pods-FrameworkMaker.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = FrameworkMaker/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = google.FrameworkMaker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		05A46BD21CC9B2BE007BDB33 /* Build configuration list for PBXProject "FrameworkMaker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05A46BEC1CC9B2BE007BDB33 /* Debug */,
+				05A46BED1CC9B2BE007BDB33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		05A46BEE1CC9B2BE007BDB33 /* Build configuration list for PBXNativeTarget "FrameworkMaker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05A46BEF1CC9B2BE007BDB33 /* Debug */,
+				05A46BF01CC9B2BE007BDB33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 05A46BCF1CC9B2BE007BDB33 /* Project object */;
+}

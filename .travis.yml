@@ -1,0 +1,17 @@
+osx_image: xcode8.1
+language: objective-c
+# cache: cocoapods
+podfile: Example/Podfile
+xcode_workspace: Example/Firebase.xcworkspace
+xcode_scheme: AllTests
+
+rvm: 2.3.1
+before_install:
+  - gem uninstall cocoapods -a
+  - gem install cocoapods -v 1.2.0 # Since Travis is not always on latest version
+  - gem install xcpretty
+  - pod install --project-directory=Example --repo-update
+
+script: 
+  - ./test.sh
+  - pod lib lint FirebaseDev.podspec

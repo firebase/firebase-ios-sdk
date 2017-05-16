@@ -1,0 +1,100 @@
+/*
+ * Copyright 2017 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import <Foundation/Foundation.h>
+
+#import "FIRAuthRPCRequest.h"
+#import "FIRIdentityToolkitRequest.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+/** @class FIRVerifyAssertionRequest
+    @brief Represents the parameters for the verifyAssertion endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
+ */
+@interface FIRVerifyAssertionRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
+
+/** @property requestURI
+    @brief The URI to which the IDP redirects the user back. It may contain federated login result
+        params added by the IDP.
+ */
+@property(nonatomic, copy, nullable) NSString *requestURI;
+
+/** @property pendingIDToken
+    @brief The Firebase ID Token for the non-trusted IDP pending to be confirmed by the user.
+ */
+@property(nonatomic, copy, nullable) NSString *pendingIDToken;
+
+/** @property accessToken
+    @brief The STS Access Token for the authenticated user, only needed for linking the user.
+ */
+@property(nonatomic, copy, nullable) NSString *accessToken;
+
+/** @property returnSecureToken
+    @brief Whether the response should return access token and refresh token directly.
+    @remarks The default value is @c YES .
+ */
+@property(nonatomic, assign) BOOL returnSecureToken;
+
+#pragma mark - Components of "postBody"
+
+/** @property providerID
+    @brief The ID of the IDP whose credentials are being presented to the endpoint.
+ */
+@property(nonatomic, copy, readonly) NSString *providerID;
+
+/** @property providerAccessToken
+    @brief An access token from the IDP.
+ */
+@property(nonatomic, copy, nullable) NSString *providerAccessToken;
+
+/** @property providerIDToken
+    @brief An ID Token from the IDP.
+ */
+@property(nonatomic, copy, nullable) NSString *providerIDToken;
+
+/** @property providerOAuthTokenSecret
+    @brief An OAuth client secret from the IDP.
+ */
+@property(nonatomic, copy, nullable) NSString *providerOAuthTokenSecret;
+
+/** @property inputEmail
+    @brief The originally entered email in the UI.
+ */
+@property(nonatomic, copy, nullable) NSString *inputEmail;
+
+/** @property autoCreate
+    @brief A flag that indicates whether or not the user should be automatically created.
+ */
+@property(nonatomic, assign) BOOL autoCreate;
+
+/** @fn initWithEndpoint:APIKey:
+    @brief Please use initWithAPIKey:
+ */
+- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
+                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+
+/** @fn initWithAPIKey:
+    @brief Designated initializer.
+    @param APIKey The client's API Key.
+    @param providerID The auth provider's ID.
+ */
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
+                             providerID:(NSString *)providerID NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END
