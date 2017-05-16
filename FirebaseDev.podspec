@@ -13,7 +13,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   # NOTE that the FirebaseDev pod is neither publicly deployed nor yet interchangeable with the
   # Firebase pod
-  s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
+  s.source           = { :git => 'git@github.com:firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
   s.default_subspec  = 'Root'
