@@ -9,6 +9,21 @@ interested in contributing to Firebase.
 
 General Firebase information can be found at [https://firebase.google.com](https://firebase.google.com).
 
+## Context
+
+This repo contains a fully functional development environment for FirebaseCore,
+FirebaseAuth, FirebaseDatabase, FirebaseMessaging, and FirebaseStorage. By
+following the usage instructions below, they can be developed and debugged with
+unit tests, integration tests, and reference samples.
+
+Note, however, that the resulting FirebaseDev pod is NOT interoperable with the
+official Firebase release pods because of different pod dependency definitions.
+
+Instructions and a script to build replaceable static library
+frameworks at [BuildFrameworks](BuildFrameworks). The
+resulting frameworks can be used to replace frameworks delivered by CocoaPods or
+the zip distribution for development.
+
 ## Usage
 
 ```
@@ -63,3 +78,16 @@ Push notifications can only be delivered to specially provisioned App IDs in the
 ### iOS Simulator
 
 The iOS Simulator cannot register for remote notifications, and will not receive push notifications. In order to receive push notifications, you'll have to follow the steps above and run the app on a physical device.
+
+## Contributing
+
+See [Contributing](CONTRIBUTING.md) for more information on contributing to the Firebase
+JavaScript SDK.
+
+## License
+
+The contents of this repository is licensed under the
+[Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+Your use of Firebase is governed by the
+[Terms of Service for Firebase Services](https://firebase.google.com/terms/).
