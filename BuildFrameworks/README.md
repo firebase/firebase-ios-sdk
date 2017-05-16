@@ -4,8 +4,8 @@
 one or more of FirebaseAuth, FirebaseCore, FirebaseDatabase, FirebaseMessaging,
 and FirebaseStorage.
 
-Frameworks built with this script can be used alongside the official Firebase
-CocoaPods and
+Frameworks built with this script can be used alongside the official [Firebase
+CocoaPods](https://cocoapods.org/pods/Firebase) and
 [zip](https://firebase.google.com/docs/ios/setup#frameworks) distributions.
 
 
