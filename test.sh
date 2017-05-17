@@ -17,7 +17,7 @@ EXIT_STATUS=0
 
 (xcodebuild \
   -workspace Example/Firebase.xcworkspace \
-  -scheme AllTests \
+  -scheme AllUnitTests \
   -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 7' \
   build \
