@@ -26,15 +26,15 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Core' do |sp|
-    sp.source_files = 'Firebase/Core/**/*.[mh]'
+    sp.source_files = 'Firebase/Core/Source/**/*.[mh]'
     sp.public_header_files =
-      'Firebase/Core/FirebaseCore.h',
-      'Firebase/Core/FIRAnalyticsConfiguration.h',
-      'Firebase/Core/FIRApp.h',
-      'Firebase/Core/FIRConfiguration.h',
-      'Firebase/Core/FIRLoggerLevel.h',
-      'Firebase/Core/FIROptions.h',
-      'Firebase/Core/FIRCoreSwiftNameSupport.h'
+      'Firebase/Core/Source/FirebaseCore.h',
+      'Firebase/Core/Source/FIRAnalyticsConfiguration.h',
+      'Firebase/Core/Source/FIRApp.h',
+      'Firebase/Core/Source/FIRConfiguration.h',
+      'Firebase/Core/Source/FIRLoggerLevel.h',
+      'Firebase/Core/Source/FIROptions.h',
+      'Firebase/Core/Source/FIRCoreSwiftNameSupport.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
     sp.dependency 'FirebaseDev/Root'
   end
