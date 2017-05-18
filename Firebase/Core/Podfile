@@ -1,0 +1,31 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'FirebaseCore'
+
+use_frameworks!
+
+def shared_pods
+  pod 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
+end
+
+target :FirebaseCore_iOS do
+  project 'FirebaseCore.xcodeproj'
+  platform :ios, '8.0'
+
+  shared_pods
+end
+
+target :FirebaseCore_macOS do
+  project 'FirebaseCore.xcodeproj'
+  platform :osx, '10.10'
+
+  shared_pods
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['CONFIGURATION_BUILD_DIR'] = '$PODS_CONFIGURATION_BUILD_DIR'
+    end
+  end
+end
