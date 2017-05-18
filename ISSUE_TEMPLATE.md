@@ -13,7 +13,7 @@
 
 ### [REQUIRED] Step 2: Describe your environment
 
-  * XCode version: _____
+  * Xcode version: _____
   * Firebase SDK version: _____
   * Library version: _____
   * Firebase Product: _____ (auth, database, storage, core, messaging, etc)

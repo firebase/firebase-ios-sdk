@@ -4,7 +4,7 @@ This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseMessaging, and
 FirebaseStorage.
 
-Firebase is an app develpment platform with tools to help you build, grow and
+Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
 [https://firebase.google.com](https://firebase.google.com).
 
