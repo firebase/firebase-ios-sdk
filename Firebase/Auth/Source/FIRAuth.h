@@ -62,8 +62,8 @@ typedef void(^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullabl
 /** @typedef FIRAuthDataResultCallback
     @brief The type of block invoked when sign-in related events complete.
 
-    @param authResult Optionally; Result of sign-in request containing @c FIRUser and
-       @c FIRAdditionalUserInfo.
+    @param authResult Optionally; Result of sign-in request containing both the user and
+       the additional user info.
     @param error Optionally; the error which occurred - or nil if the request was successful.
  */
 typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
@@ -151,8 +151,8 @@ typedef void (^FIRApplyActionCodeCallback)(NSError *_Nullable error)
     FIR_SWIFT_NAME(ApplyActionCodeCallback);
 
 /**
-    @brief Keys used to retrieve operation data from a @c FIRActionCodeInfo object by the @c
-        dataForKey method.
+    @brief Keys used to retrieve operation data from a @c FIRActionCodeInfo object by the
+        @c dataForKey method.
   */
 typedef NS_ENUM(NSInteger, FIRActionDataKey) {
   /**
@@ -598,8 +598,8 @@ FIR_SWIFT_NAME(Auth)
     @brief Whether the specific remote notification is handled by @c FIRAuth .
     @param userInfo A dictionary that contains information related to the
         notification in question.
-    @return Whether or the notification is handled. @c YES means the notification is for @c FIRAuth
-        so the caller should ignore the notification from further processing, and @c NO means the
+    @return Whether or the notification is handled. YES means the notification is for Firebase Auth
+        so the caller should ignore the notification from further processing, and NO means the
         the notification is for the app (or another libaray) so the caller should continue handling
         this notification as usual.
     @remarks If swizzling is disabled, related remote notifications must be forwarded to this method
