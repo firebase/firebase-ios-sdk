@@ -241,20 +241,20 @@ static NSString *const kFIRAuthErrorMessageInvalidPhoneNumber =
     @brief Message for @c FIRAuthErrorCodeMissingVerificationCode error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingVerificationCode =
-    @"The Phone Auth Credential was created with an empty SMS verification Code.";
+    @"The phone auth credential was created with an empty SMS verification Code.";
 
 /** @var kFIRAuthErrorMessageInvalidVerificationCode
     @brief Message for @c FIRAuthErrorCodeInvalidVerificationCode error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidVerificationCode =
     @"The SMS verification code used to create the phone auth credential is invalid. Please resend "
-    "the verification code sms and be sure use the verification code provided by the user.";
+    "the verification code SMS and be sure to use the verification code provided by the user.";
 
 /** @var kFIRAuthErrorMessageMissingVerificationID
     @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingVerificationID =
-    @"The Phone Auth Credential was created with an empty verification ID.";
+    @"The phone auth credential was created with an empty verification ID.";
 
 /** @var kFIRAuthErrorMessageInvalidVerificationID
     @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
@@ -280,13 +280,14 @@ static NSString *const kFIRAuthErrorMessageMissingAppCredential = @"The phone ve
     @brief Message for @c FIRAuthErrorCodeInvalidAppCredential error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidAppCredential = @"The APNs device token provided "
-    "may be incorrect or does not match the private certificate uploaded to the Firebase Console.";
+    "is either incorrect or does not match the private certificate uploaded to the Firebase "
+    "Console.";
 
 /** @var kFIRAuthErrorMessageQuotaExceeded
     @brief Message for @c FIRAuthErrorCodeQuotaExceeded error code.
  */
-static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The SMS quota for this project has "
-    "been exceeded.";
+static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The phone verification quota for this "
+    "project has been exceeded.";
 
 /** @var kFIRAuthErrorMessageMissingAppToken
     @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.

@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
 #import "FIRAuthSwiftNameSupport.h"
 
+@class FIRAuth;
 @class FIRPhoneAuthCredential;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,8 +38,8 @@ typedef void (^FIRVerificationResultCallback)(NSString *_Nullable verificationID
                                               NSError *_Nullable error)
     FIR_SWIFT_NAME(VerificationResultCallback);
 
-/** @class FIRPhoneNumberProvider
-    @brief A concrete implementation of @c FIRAuthProvider for Phone Auth Providers.
+/** @class FIRPhoneAuthProvider
+    @brief A concrete implementation of @c FIRAuthProvider for phone auth providers.
  */
 FIR_SWIFT_NAME(PhoneAuthProvider)
 @interface FIRPhoneAuthProvider : NSObject
@@ -52,7 +52,7 @@ FIR_SWIFT_NAME(PhoneAuthProvider)
 /** @fn providerWithAuth:
     @brief Returns an instance of @c FIRPhoneAuthProvider for the provided @c FIRAuth object.
 
-    @param auth The auth object to associate with the @c PhoneauthProvider instance.
+    @param auth The auth object to associate with the phone auth provider instance.
  */
 + (instancetype)providerWithAuth:(FIRAuth *)auth FIR_SWIFT_NAME(provider(auth:));
 
@@ -70,18 +70,18 @@ FIR_SWIFT_NAME(PhoneAuthProvider)
     @brief Creates an @c FIRAuthCredential for the phone number provider identified by the
         verification ID and verification code.
 
-    @param verificationID The verification ID obtained from invoking @c
+    @param verificationID The verification ID obtained from invoking
         verifyPhoneNumber:completion:
     @param verificationCode The verification code obtained from the user.
-    @return The corresponding @c FIRAuthCredential for the verification ID and verification code
+    @return The corresponding phone auth credential for the verification ID and verification code
         provided.
  */
 - (FIRPhoneAuthCredential *)credentialWithVerificationID:(NSString *)verificationID
                                         verificationCode:(NSString *)verificationCode;
 
 /** @fn init
-    @brief Please use the @c provider or @providerWithAuth: methods to obtain an instance of @c
-        FIRPhoneAuthProvider.
+    @brief Please use the @c provider or @c providerWithAuth: methods to obtain an instance of
+        @c FIRPhoneAuthProvider.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

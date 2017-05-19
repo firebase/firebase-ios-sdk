@@ -19,7 +19,7 @@ import UIKit
 import FirebaseDev // FirebaseAuth
 import GoogleSignIn // GoogleSignIn
 
-final class ViewController: UIViewController {
+final class ViewController: UIViewController, UITextFieldDelegate {
   /// The profile image for the currently signed-in user.
   @IBOutlet weak var profileImage: UIImageView!
 
@@ -56,6 +56,15 @@ final class ViewController: UIViewController {
   /// The "password" text field.
   @IBOutlet weak var passwordField: UITextField!
 
+  /// The "phone" text field.
+  @IBOutlet weak var phoneField: UITextField!
+
+  /// The scroll view holding all content.
+  @IBOutlet weak var scrollView: UIScrollView!
+
+  // The active keyboard input field.
+  var activeField: UITextField?
+
   /// The currently selected action type.
   fileprivate var actionType = ActionType(rawValue: 0)! {
     didSet {
@@ -86,6 +95,67 @@ final class ViewController: UIViewController {
     }
   }
 
+  func registerForKeyboardNotifications() {
+    NotificationCenter.default.addObserver(self,
+                                           selector:
+                                           #selector(keyboardWillBeShown(notification:)),
+                                           name: NSNotification.Name.UIKeyboardWillShow,
+                                           object: nil)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(keyboardWillBeHidden(notification:)),
+                                           name: NSNotification.Name.UIKeyboardWillHide,
+                                           object: nil)
+  }
+
+  func deregisterFromKeyboardNotifications() {
+    NotificationCenter.default.removeObserver(self,
+                                              name: NSNotification.Name.UIKeyboardWillShow,
+                                              object: nil)
+    NotificationCenter.default.removeObserver(self,
+                                              name: NSNotification.Name.UIKeyboardWillHide,
+                                              object: nil)
+  }
+
+  func keyboardWillBeShown(notification: NSNotification) {
+    scrollView.isScrollEnabled = true
+    let info = notification.userInfo!
+    let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+    let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize!.height, 0.0)
+
+    scrollView.contentInset = contentInsets
+    scrollView.scrollIndicatorInsets = contentInsets
+
+    var aRect = self.view.frame
+    aRect.size.height -= keyboardSize!.height
+    if let activeField = activeField {
+      if (!aRect.contains(activeField.frame.origin)) {
+        scrollView.scrollRectToVisible(activeField.frame, animated: true)
+      }
+    }
+  }
+
+  func keyboardWillBeHidden(notification: NSNotification){
+    let info = notification.userInfo!
+    let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+    let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -keyboardSize!.height, 0.0)
+    scrollView.contentInset = contentInsets
+    scrollView.scrollIndicatorInsets = contentInsets
+    self.view.endEditing(true)
+    scrollView.isScrollEnabled = false
+  }
+
+  func textFieldDidBeginEditing(_ textField: UITextField) {
+      activeField = textField
+  }
+
+  func textFieldDidEndEditing(_ textField: UITextField) {
+      activeField = nil
+  }
+
+  func dismissKeyboard() {
+      view.endEditing(true)
+  }
+
   /// The user's photo URL used by the last network request for its contents.
   fileprivate var lastPhotoURL: URL? = nil
 
@@ -96,6 +166,15 @@ final class ViewController: UIViewController {
                                            object: Auth.auth(), queue: nil) { notification in
       self.updateUserInfo(notification.object as? Auth)
     }
+    phoneField.delegate = self
+    registerForKeyboardNotifications()
+
+    let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+    scrollView.addGestureRecognizer(tap)
+  }
+
+  override func viewWillDisappear(_ animated: Bool) {
+    deregisterFromKeyboardNotifications()
   }
 
   /// Executes the action designated by the operator on the UI.
@@ -200,7 +279,34 @@ final class ViewController: UIViewController {
       GIDSignIn.sharedInstance().signIn()
     case .password:
       completion(EmailAuthProvider.credential(withEmail: emailField.text!,
-                                                         password: passwordField.text!))
+                                              password: passwordField.text!))
+    case .phone:
+      if #available(iOS 8.0, *) {
+        let phoneNumber = phoneField.text
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber!) { verificationID, error in
+          guard error == nil else {
+            self.showAlert(title: "Error", message: error!.localizedDescription)
+            return
+          }
+
+          let codeAlertController =
+              UIAlertController(title: "Enter Code", message: nil, preferredStyle: .alert)
+          codeAlertController.addTextField { (textfield) in
+              textfield.placeholder = "SMS Codde"
+              textfield.keyboardType = UIKeyboardType.numberPad
+          }
+          codeAlertController.addAction(UIAlertAction(title: "OK",
+                                                      style: .default,
+                                                      handler: { (UIAlertAction) in
+            let code = codeAlertController.textFields!.first!.text!
+            let phoneCredential =
+              PhoneAuthProvider.provider().credential(withVerificationID: verificationID ?? "",
+                                                      verificationCode: code)
+            completion(phoneCredential)
+          }))
+          self.present(codeAlertController, animated: true, completion: nil)
+        }
+      }
     }
   }
 
@@ -250,6 +356,7 @@ final class ViewController: UIViewController {
         action.requiresPassword
     passwordInputLabel.alpha = isPasswordEnabled ? 1.0 : 0.6
     passwordField.isEnabled = isPasswordEnabled
+    phoneField.isEnabled = credentialType.requiresPhone
   }
 
   fileprivate func showAlert(title: String, message: String? = "") {
@@ -486,11 +593,11 @@ fileprivate enum UserAction: Int, Action {
 /// The list of all possible credential types the operator can use to sign in or link.
 fileprivate enum CredentialType: Int {
 
-  case google, password
+  case google, password, phone
 
   /// Total number of enum values.
   static var count: Int {
-    return CredentialType.password.rawValue + 1
+    return CredentialType.phone.rawValue + 1
   }
 
   /// The text description for a particular enum value.
@@ -500,6 +607,12 @@ fileprivate enum CredentialType: Int {
       return "Google"
     case .password:
       return "Password ➡️️"
+    case .phone:
+      if #available(iOS 8.0, *) {
+        return "Phone ➡️️"
+      } else {
+        return "-"
+      }
     }
   }
 
@@ -511,6 +624,11 @@ fileprivate enum CredentialType: Int {
   /// Whether or not the credential requires password.
   var requiresPassword : Bool {
     return self == .password
+  }
+
+  /// Whether or not the credential requires phone.
+  var requiresPhone : Bool {
+    return self == .phone
   }
 }
 
