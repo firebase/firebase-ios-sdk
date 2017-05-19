@@ -128,8 +128,8 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     FIRAuthErrorCodeInvalidUserToken = 17017,
 
     /** Indicates a network error occurred (such as a timeout, interrupted connection, or
-        unreachable host). These types of errors are often recoverable with a retry. The @c
-        NSUnderlyingError field in the @c NSError.userInfo dictionary will contain the error
+        unreachable host). These types of errors are often recoverable with a retry. The
+        @c NSUnderlyingError field in the @c NSError.userInfo dictionary will contain the error
         encountered.
      */
     FIRAuthErrorCodeNetworkError = 17020,
@@ -187,13 +187,13 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     // The enum values between 17033 and 17041 are reserved and should NOT be used for new error
     // codes.
 
-    /** Indicates that a phone number was not provided in a call to @c
-        verifyPhoneNumber:completion:.
+    /** Indicates that a phone number was not provided in a call to
+        @c verifyPhoneNumber:completion:.
      */
     FIRAuthErrorCodeMissingPhoneNumber = 17041,
 
-    /** Indicates that an invalid phone number was provided in a call to @c
-        verifyPhoneNumber:completion:.
+    /** Indicates that an invalid phone number was provided in a call to
+        @c verifyPhoneNumber:completion:.
      */
     FIRAuthErrorCodeInvalidPhoneNumber = 17042,
 
