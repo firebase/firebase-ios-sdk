@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '4.0.0'
+  s.version          = '4.1.0'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -21,7 +21,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
 
-  s.source_files =  '**/*.[mh]',
+  s.source_files =  'Source/**/*.[mh]',
     'third_party/Wrap-leveldb/APLevelDB.mm',
     'third_party/SocketRocket/fbase64.c'
   s.public_header_files =

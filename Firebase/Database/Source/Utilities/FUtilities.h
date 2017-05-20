@@ -15,7 +15,13 @@
  */
 
 #import <Foundation/Foundation.h>
+
+#if defined(__has_include) && __has_include(<FirebaseCore/FIRLogger.h>)
+#import <FirebaseCore/FIRLogger.h>
+#else
 #import "FIRLogger.h"
+#endif
+
 #import "FParsedUrl.h"
 
 @interface FUtilities : NSObject

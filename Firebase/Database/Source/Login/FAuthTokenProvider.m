@@ -48,7 +48,7 @@ static NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey = @"FIR
  * This is a hack that copies the definitions of Firebear error codes. If the error codes change in the original code, this
  * will break at runtime due to undefined behavior!
  */
-typedef NS_ENUM(NSUInteger, FIRErrorCode) {
+typedef NS_ENUM(NSInteger, FIRErrorCode) {
     /*! @var FIRErrorCodeNoAuth
      @brief Represents the case where an auth-related message was sent to a @c FIRFirebaseApp
      instance which has no associated @c FIRAuth instance.

@@ -74,20 +74,20 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Database' do |sp|
-    sp.source_files = 'Firebase/Database/**/*.[mh]',
-      'Firebase/Database/third_party/Wrap-leveldb/APLevelDB.mm',
-      'Firebase/Database/third_party/SocketRocket/fbase64.c'
+    sp.source_files = 'Firebase/Database/Source/**/*.[mh]',
+      'Firebase/Database/Source/third_party/Wrap-leveldb/APLevelDB.mm',
+      'Firebase/Database/Source/third_party/SocketRocket/fbase64.c'
     sp.public_header_files =
-      'Firebase/Database/Api/FirebaseDatabase.h',
-      'Firebase/Database/Api/FIRDataEventType.h',
-      'Firebase/Database/Api/FIRDataSnapshot.h',
-      'Firebase/Database/Api/FIRDatabaseQuery.h',
-      'Firebase/Database/Api/FIRDatabaseSwiftNameSupport.h',
-      'Firebase/Database/Api/FIRMutableData.h',
-      'Firebase/Database/Api/FIRServerValue.h',
-      'Firebase/Database/Api/FIRTransactionResult.h',
-      'Firebase/Database/Api/FIRDatabase.h',
-      'Firebase/Database/FIRDatabaseReference.h'
+      'Firebase/Database/Source/Api/FirebaseDatabase.h',
+      'Firebase/Database/Source/Api/FIRDataEventType.h',
+      'Firebase/Database/Source/Api/FIRDataSnapshot.h',
+      'Firebase/Database/Source/Api/FIRDatabaseQuery.h',
+      'Firebase/Database/Source/Api/FIRDatabaseSwiftNameSupport.h',
+      'Firebase/Database/Source/Api/FIRMutableData.h',
+      'Firebase/Database/Source/Api/FIRServerValue.h',
+      'Firebase/Database/Source/Api/FIRTransactionResult.h',
+      'Firebase/Database/Source/Api/FIRDatabase.h',
+      'Firebase/Database/Source/FIRDatabaseReference.h'
     sp.library = 'c++'
     sp.library = 'icucore'
     sp.framework = 'CFNetwork'

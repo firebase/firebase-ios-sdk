@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRApp.h"
+#import "FirebaseDatabase_Private.h"
+#import FirebaseCore(FIRApp.h)
 #import "FIRDatabaseConfig.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
