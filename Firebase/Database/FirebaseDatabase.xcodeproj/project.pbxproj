@@ -15,38 +15,38 @@
 		D05042281ED0AE56001766AC /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05042271ED0AE56001766AC /* Security.framework */; };
 		D050422A1ED0AE60001766AC /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05042291ED0AE60001766AC /* CFNetwork.framework */; };
 		D050422C1ED0AE67001766AC /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D050422B1ED0AE67001766AC /* SystemConfiguration.framework */; };
-		D05043411ED0AE7E001766AC /* FIRDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042301ED0AE7E001766AC /* FIRDatabase.h */; };
-		D05043421ED0AE7E001766AC /* FIRDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042301ED0AE7E001766AC /* FIRDatabase.h */; };
+		D05043411ED0AE7E001766AC /* FIRDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042301ED0AE7E001766AC /* FIRDatabase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043421ED0AE7E001766AC /* FIRDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042301ED0AE7E001766AC /* FIRDatabase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043431ED0AE7E001766AC /* FIRDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042311ED0AE7E001766AC /* FIRDatabase.m */; };
 		D05043441ED0AE7E001766AC /* FIRDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042311ED0AE7E001766AC /* FIRDatabase.m */; };
-		D05043451ED0AE7E001766AC /* FIRDatabaseConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042321ED0AE7E001766AC /* FIRDatabaseConfig.h */; };
-		D05043461ED0AE7E001766AC /* FIRDatabaseConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042321ED0AE7E001766AC /* FIRDatabaseConfig.h */; };
+		D05043451ED0AE7E001766AC /* FIRDatabaseConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042321ED0AE7E001766AC /* FIRDatabaseConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043461ED0AE7E001766AC /* FIRDatabaseConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042321ED0AE7E001766AC /* FIRDatabaseConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043471ED0AE7E001766AC /* FIRDatabaseConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042331ED0AE7E001766AC /* FIRDatabaseConfig.m */; };
 		D05043481ED0AE7E001766AC /* FIRDatabaseConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042331ED0AE7E001766AC /* FIRDatabaseConfig.m */; };
-		D05043491ED0AE7E001766AC /* FIRDatabaseQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042341ED0AE7E001766AC /* FIRDatabaseQuery.h */; };
-		D050434A1ED0AE7E001766AC /* FIRDatabaseQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042341ED0AE7E001766AC /* FIRDatabaseQuery.h */; };
+		D05043491ED0AE7E001766AC /* FIRDatabaseQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042341ED0AE7E001766AC /* FIRDatabaseQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050434A1ED0AE7E001766AC /* FIRDatabaseQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042341ED0AE7E001766AC /* FIRDatabaseQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050434B1ED0AE7E001766AC /* FIRDatabaseQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042351ED0AE7E001766AC /* FIRDatabaseQuery.m */; };
 		D050434C1ED0AE7E001766AC /* FIRDatabaseQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042351ED0AE7E001766AC /* FIRDatabaseQuery.m */; };
-		D050434D1ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042361ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h */; };
-		D050434E1ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042361ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h */; };
-		D050434F1ED0AE7E001766AC /* FIRDataEventType.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042371ED0AE7E001766AC /* FIRDataEventType.h */; };
-		D05043501ED0AE7E001766AC /* FIRDataEventType.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042371ED0AE7E001766AC /* FIRDataEventType.h */; };
-		D05043511ED0AE7E001766AC /* FIRDataSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042381ED0AE7E001766AC /* FIRDataSnapshot.h */; };
-		D05043521ED0AE7E001766AC /* FIRDataSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042381ED0AE7E001766AC /* FIRDataSnapshot.h */; };
+		D050434D1ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042361ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050434E1ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042361ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050434F1ED0AE7E001766AC /* FIRDataEventType.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042371ED0AE7E001766AC /* FIRDataEventType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043501ED0AE7E001766AC /* FIRDataEventType.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042371ED0AE7E001766AC /* FIRDataEventType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043511ED0AE7E001766AC /* FIRDataSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042381ED0AE7E001766AC /* FIRDataSnapshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043521ED0AE7E001766AC /* FIRDataSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042381ED0AE7E001766AC /* FIRDataSnapshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043531ED0AE7E001766AC /* FIRDataSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042391ED0AE7E001766AC /* FIRDataSnapshot.m */; };
 		D05043541ED0AE7E001766AC /* FIRDataSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042391ED0AE7E001766AC /* FIRDataSnapshot.m */; };
-		D05043551ED0AE7E001766AC /* FirebaseDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423A1ED0AE7E001766AC /* FirebaseDatabase.h */; };
-		D05043561ED0AE7E001766AC /* FirebaseDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423A1ED0AE7E001766AC /* FirebaseDatabase.h */; };
-		D05043571ED0AE7E001766AC /* FIRMutableData.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423B1ED0AE7E001766AC /* FIRMutableData.h */; };
-		D05043581ED0AE7E001766AC /* FIRMutableData.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423B1ED0AE7E001766AC /* FIRMutableData.h */; };
+		D05043551ED0AE7E001766AC /* FirebaseDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423A1ED0AE7E001766AC /* FirebaseDatabase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043561ED0AE7E001766AC /* FirebaseDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423A1ED0AE7E001766AC /* FirebaseDatabase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043571ED0AE7E001766AC /* FIRMutableData.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423B1ED0AE7E001766AC /* FIRMutableData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043581ED0AE7E001766AC /* FIRMutableData.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423B1ED0AE7E001766AC /* FIRMutableData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043591ED0AE7E001766AC /* FIRMutableData.m in Sources */ = {isa = PBXBuildFile; fileRef = D050423C1ED0AE7E001766AC /* FIRMutableData.m */; };
 		D050435A1ED0AE7E001766AC /* FIRMutableData.m in Sources */ = {isa = PBXBuildFile; fileRef = D050423C1ED0AE7E001766AC /* FIRMutableData.m */; };
-		D050435B1ED0AE7E001766AC /* FIRServerValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423D1ED0AE7E001766AC /* FIRServerValue.h */; };
-		D050435C1ED0AE7E001766AC /* FIRServerValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423D1ED0AE7E001766AC /* FIRServerValue.h */; };
+		D050435B1ED0AE7E001766AC /* FIRServerValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423D1ED0AE7E001766AC /* FIRServerValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050435C1ED0AE7E001766AC /* FIRServerValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423D1ED0AE7E001766AC /* FIRServerValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050435D1ED0AE7E001766AC /* FIRServerValue.m in Sources */ = {isa = PBXBuildFile; fileRef = D050423E1ED0AE7E001766AC /* FIRServerValue.m */; };
 		D050435E1ED0AE7E001766AC /* FIRServerValue.m in Sources */ = {isa = PBXBuildFile; fileRef = D050423E1ED0AE7E001766AC /* FIRServerValue.m */; };
-		D050435F1ED0AE7E001766AC /* FIRTransactionResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423F1ED0AE7E001766AC /* FIRTransactionResult.h */; };
-		D05043601ED0AE7E001766AC /* FIRTransactionResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423F1ED0AE7E001766AC /* FIRTransactionResult.h */; };
+		D050435F1ED0AE7E001766AC /* FIRTransactionResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423F1ED0AE7E001766AC /* FIRTransactionResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043601ED0AE7E001766AC /* FIRTransactionResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D050423F1ED0AE7E001766AC /* FIRTransactionResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043611ED0AE7E001766AC /* FIRTransactionResult.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042401ED0AE7E001766AC /* FIRTransactionResult.m */; };
 		D05043621ED0AE7E001766AC /* FIRTransactionResult.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042401ED0AE7E001766AC /* FIRTransactionResult.m */; };
 		D05043631ED0AE7E001766AC /* FIRDatabase_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042421ED0AE7E001766AC /* FIRDatabase_Private.h */; };
@@ -63,452 +63,452 @@
 		D050436E1ED0AE7E001766AC /* FIRTransactionResult_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042471ED0AE7E001766AC /* FIRTransactionResult_Private.h */; };
 		D050436F1ED0AE7E001766AC /* FTypedefs_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042481ED0AE7E001766AC /* FTypedefs_Private.h */; };
 		D05043701ED0AE7E001766AC /* FTypedefs_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042481ED0AE7E001766AC /* FTypedefs_Private.h */; };
-		D05043711ED0AE7E001766AC /* FConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424A1ED0AE7E001766AC /* FConstants.h */; };
-		D05043721ED0AE7E001766AC /* FConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424A1ED0AE7E001766AC /* FConstants.h */; };
+		D05043711ED0AE7E001766AC /* FConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424A1ED0AE7E001766AC /* FConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043721ED0AE7E001766AC /* FConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424A1ED0AE7E001766AC /* FConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043731ED0AE7E001766AC /* FConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D050424B1ED0AE7E001766AC /* FConstants.m */; };
 		D05043741ED0AE7E001766AC /* FConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D050424B1ED0AE7E001766AC /* FConstants.m */; };
-		D05043751ED0AE7E001766AC /* FCompoundHash.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424D1ED0AE7E001766AC /* FCompoundHash.h */; };
-		D05043761ED0AE7E001766AC /* FCompoundHash.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424D1ED0AE7E001766AC /* FCompoundHash.h */; };
+		D05043751ED0AE7E001766AC /* FCompoundHash.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424D1ED0AE7E001766AC /* FCompoundHash.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043761ED0AE7E001766AC /* FCompoundHash.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424D1ED0AE7E001766AC /* FCompoundHash.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043771ED0AE7E001766AC /* FCompoundHash.m in Sources */ = {isa = PBXBuildFile; fileRef = D050424E1ED0AE7E001766AC /* FCompoundHash.m */; };
 		D05043781ED0AE7E001766AC /* FCompoundHash.m in Sources */ = {isa = PBXBuildFile; fileRef = D050424E1ED0AE7E001766AC /* FCompoundHash.m */; };
-		D05043791ED0AE7E001766AC /* FListenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424F1ED0AE7E001766AC /* FListenProvider.h */; };
-		D050437A1ED0AE7E001766AC /* FListenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424F1ED0AE7E001766AC /* FListenProvider.h */; };
+		D05043791ED0AE7E001766AC /* FListenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424F1ED0AE7E001766AC /* FListenProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050437A1ED0AE7E001766AC /* FListenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D050424F1ED0AE7E001766AC /* FListenProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050437B1ED0AE7E001766AC /* FListenProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042501ED0AE7E001766AC /* FListenProvider.m */; };
 		D050437C1ED0AE7E001766AC /* FListenProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042501ED0AE7E001766AC /* FListenProvider.m */; };
-		D050437D1ED0AE7E001766AC /* FPersistentConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042511ED0AE7E001766AC /* FPersistentConnection.h */; };
-		D050437E1ED0AE7E001766AC /* FPersistentConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042511ED0AE7E001766AC /* FPersistentConnection.h */; };
+		D050437D1ED0AE7E001766AC /* FPersistentConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042511ED0AE7E001766AC /* FPersistentConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050437E1ED0AE7E001766AC /* FPersistentConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042511ED0AE7E001766AC /* FPersistentConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050437F1ED0AE7E001766AC /* FPersistentConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042521ED0AE7E001766AC /* FPersistentConnection.m */; };
 		D05043801ED0AE7E001766AC /* FPersistentConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042521ED0AE7E001766AC /* FPersistentConnection.m */; };
-		D05043811ED0AE7E001766AC /* FQueryParams.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042531ED0AE7E001766AC /* FQueryParams.h */; };
-		D05043821ED0AE7E001766AC /* FQueryParams.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042531ED0AE7E001766AC /* FQueryParams.h */; };
+		D05043811ED0AE7E001766AC /* FQueryParams.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042531ED0AE7E001766AC /* FQueryParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043821ED0AE7E001766AC /* FQueryParams.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042531ED0AE7E001766AC /* FQueryParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043831ED0AE7E001766AC /* FQueryParams.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042541ED0AE7E001766AC /* FQueryParams.m */; };
 		D05043841ED0AE7E001766AC /* FQueryParams.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042541ED0AE7E001766AC /* FQueryParams.m */; };
-		D05043851ED0AE7E001766AC /* FQuerySpec.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042551ED0AE7E001766AC /* FQuerySpec.h */; };
-		D05043861ED0AE7E001766AC /* FQuerySpec.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042551ED0AE7E001766AC /* FQuerySpec.h */; };
+		D05043851ED0AE7E001766AC /* FQuerySpec.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042551ED0AE7E001766AC /* FQuerySpec.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043861ED0AE7E001766AC /* FQuerySpec.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042551ED0AE7E001766AC /* FQuerySpec.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043871ED0AE7E001766AC /* FQuerySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042561ED0AE7E001766AC /* FQuerySpec.m */; };
 		D05043881ED0AE7E001766AC /* FQuerySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042561ED0AE7E001766AC /* FQuerySpec.m */; };
-		D05043891ED0AE7E001766AC /* FRangeMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042571ED0AE7E001766AC /* FRangeMerge.h */; };
-		D050438A1ED0AE7E001766AC /* FRangeMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042571ED0AE7E001766AC /* FRangeMerge.h */; };
+		D05043891ED0AE7E001766AC /* FRangeMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042571ED0AE7E001766AC /* FRangeMerge.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050438A1ED0AE7E001766AC /* FRangeMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042571ED0AE7E001766AC /* FRangeMerge.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050438B1ED0AE7E001766AC /* FRangeMerge.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042581ED0AE7E001766AC /* FRangeMerge.m */; };
 		D050438C1ED0AE7E001766AC /* FRangeMerge.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042581ED0AE7E001766AC /* FRangeMerge.m */; };
-		D050438D1ED0AE7E001766AC /* FRepo.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042591ED0AE7E001766AC /* FRepo.h */; };
-		D050438E1ED0AE7E001766AC /* FRepo.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042591ED0AE7E001766AC /* FRepo.h */; };
+		D050438D1ED0AE7E001766AC /* FRepo.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042591ED0AE7E001766AC /* FRepo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050438E1ED0AE7E001766AC /* FRepo.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042591ED0AE7E001766AC /* FRepo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050438F1ED0AE7E001766AC /* FRepo.m in Sources */ = {isa = PBXBuildFile; fileRef = D050425A1ED0AE7E001766AC /* FRepo.m */; };
 		D05043901ED0AE7E001766AC /* FRepo.m in Sources */ = {isa = PBXBuildFile; fileRef = D050425A1ED0AE7E001766AC /* FRepo.m */; };
-		D05043911ED0AE7E001766AC /* FRepo_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425B1ED0AE7E001766AC /* FRepo_Private.h */; };
-		D05043921ED0AE7E001766AC /* FRepo_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425B1ED0AE7E001766AC /* FRepo_Private.h */; };
-		D05043931ED0AE7E001766AC /* FRepoInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425C1ED0AE7E001766AC /* FRepoInfo.h */; };
-		D05043941ED0AE7E001766AC /* FRepoInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425C1ED0AE7E001766AC /* FRepoInfo.h */; };
+		D05043911ED0AE7E001766AC /* FRepo_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425B1ED0AE7E001766AC /* FRepo_Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043921ED0AE7E001766AC /* FRepo_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425B1ED0AE7E001766AC /* FRepo_Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043931ED0AE7E001766AC /* FRepoInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425C1ED0AE7E001766AC /* FRepoInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043941ED0AE7E001766AC /* FRepoInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425C1ED0AE7E001766AC /* FRepoInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043951ED0AE7E001766AC /* FRepoInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D050425D1ED0AE7E001766AC /* FRepoInfo.m */; };
 		D05043961ED0AE7E001766AC /* FRepoInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D050425D1ED0AE7E001766AC /* FRepoInfo.m */; };
-		D05043971ED0AE7E001766AC /* FRepoManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425E1ED0AE7E001766AC /* FRepoManager.h */; };
-		D05043981ED0AE7E001766AC /* FRepoManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425E1ED0AE7E001766AC /* FRepoManager.h */; };
+		D05043971ED0AE7E001766AC /* FRepoManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425E1ED0AE7E001766AC /* FRepoManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043981ED0AE7E001766AC /* FRepoManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D050425E1ED0AE7E001766AC /* FRepoManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043991ED0AE7E001766AC /* FRepoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D050425F1ED0AE7E001766AC /* FRepoManager.m */; };
 		D050439A1ED0AE7E001766AC /* FRepoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D050425F1ED0AE7E001766AC /* FRepoManager.m */; };
-		D050439B1ED0AE7E001766AC /* FServerValues.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042601ED0AE7E001766AC /* FServerValues.h */; };
-		D050439C1ED0AE7E001766AC /* FServerValues.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042601ED0AE7E001766AC /* FServerValues.h */; };
+		D050439B1ED0AE7E001766AC /* FServerValues.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042601ED0AE7E001766AC /* FServerValues.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050439C1ED0AE7E001766AC /* FServerValues.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042601ED0AE7E001766AC /* FServerValues.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050439D1ED0AE7E001766AC /* FServerValues.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042611ED0AE7E001766AC /* FServerValues.m */; };
 		D050439E1ED0AE7E001766AC /* FServerValues.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042611ED0AE7E001766AC /* FServerValues.m */; };
-		D050439F1ED0AE7E001766AC /* FSnapshotHolder.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042621ED0AE7E001766AC /* FSnapshotHolder.h */; };
-		D05043A01ED0AE7E001766AC /* FSnapshotHolder.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042621ED0AE7E001766AC /* FSnapshotHolder.h */; };
+		D050439F1ED0AE7E001766AC /* FSnapshotHolder.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042621ED0AE7E001766AC /* FSnapshotHolder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043A01ED0AE7E001766AC /* FSnapshotHolder.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042621ED0AE7E001766AC /* FSnapshotHolder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043A11ED0AE7E001766AC /* FSnapshotHolder.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042631ED0AE7E001766AC /* FSnapshotHolder.m */; };
 		D05043A21ED0AE7E001766AC /* FSnapshotHolder.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042631ED0AE7E001766AC /* FSnapshotHolder.m */; };
-		D05043A31ED0AE7E001766AC /* FSparseSnapshotTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042641ED0AE7E001766AC /* FSparseSnapshotTree.h */; };
-		D05043A41ED0AE7E001766AC /* FSparseSnapshotTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042641ED0AE7E001766AC /* FSparseSnapshotTree.h */; };
+		D05043A31ED0AE7E001766AC /* FSparseSnapshotTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042641ED0AE7E001766AC /* FSparseSnapshotTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043A41ED0AE7E001766AC /* FSparseSnapshotTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042641ED0AE7E001766AC /* FSparseSnapshotTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043A51ED0AE7E001766AC /* FSparseSnapshotTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042651ED0AE7E001766AC /* FSparseSnapshotTree.m */; };
 		D05043A61ED0AE7E001766AC /* FSparseSnapshotTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042651ED0AE7E001766AC /* FSparseSnapshotTree.m */; };
-		D05043A71ED0AE7E001766AC /* FSyncPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042661ED0AE7E001766AC /* FSyncPoint.h */; };
-		D05043A81ED0AE7E001766AC /* FSyncPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042661ED0AE7E001766AC /* FSyncPoint.h */; };
+		D05043A71ED0AE7E001766AC /* FSyncPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042661ED0AE7E001766AC /* FSyncPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043A81ED0AE7E001766AC /* FSyncPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042661ED0AE7E001766AC /* FSyncPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043A91ED0AE7E001766AC /* FSyncPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042671ED0AE7E001766AC /* FSyncPoint.m */; };
 		D05043AA1ED0AE7E001766AC /* FSyncPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042671ED0AE7E001766AC /* FSyncPoint.m */; };
-		D05043AB1ED0AE7E001766AC /* FSyncTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042681ED0AE7E001766AC /* FSyncTree.h */; };
-		D05043AC1ED0AE7E001766AC /* FSyncTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042681ED0AE7E001766AC /* FSyncTree.h */; };
+		D05043AB1ED0AE7E001766AC /* FSyncTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042681ED0AE7E001766AC /* FSyncTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043AC1ED0AE7E001766AC /* FSyncTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042681ED0AE7E001766AC /* FSyncTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043AD1ED0AE7E001766AC /* FSyncTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042691ED0AE7E001766AC /* FSyncTree.m */; };
 		D05043AE1ED0AE7E001766AC /* FSyncTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042691ED0AE7E001766AC /* FSyncTree.m */; };
-		D05043AF1ED0AE7E001766AC /* FWriteRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426A1ED0AE7E001766AC /* FWriteRecord.h */; };
-		D05043B01ED0AE7E001766AC /* FWriteRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426A1ED0AE7E001766AC /* FWriteRecord.h */; };
+		D05043AF1ED0AE7E001766AC /* FWriteRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426A1ED0AE7E001766AC /* FWriteRecord.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043B01ED0AE7E001766AC /* FWriteRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426A1ED0AE7E001766AC /* FWriteRecord.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043B11ED0AE7E001766AC /* FWriteRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = D050426B1ED0AE7E001766AC /* FWriteRecord.m */; };
 		D05043B21ED0AE7E001766AC /* FWriteRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = D050426B1ED0AE7E001766AC /* FWriteRecord.m */; };
-		D05043B31ED0AE7E001766AC /* FWriteTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426C1ED0AE7E001766AC /* FWriteTree.h */; };
-		D05043B41ED0AE7E001766AC /* FWriteTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426C1ED0AE7E001766AC /* FWriteTree.h */; };
+		D05043B31ED0AE7E001766AC /* FWriteTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426C1ED0AE7E001766AC /* FWriteTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043B41ED0AE7E001766AC /* FWriteTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426C1ED0AE7E001766AC /* FWriteTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043B51ED0AE7E001766AC /* FWriteTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D050426D1ED0AE7E001766AC /* FWriteTree.m */; };
 		D05043B61ED0AE7E001766AC /* FWriteTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D050426D1ED0AE7E001766AC /* FWriteTree.m */; };
-		D05043B71ED0AE7E001766AC /* FWriteTreeRef.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426E1ED0AE7E001766AC /* FWriteTreeRef.h */; };
-		D05043B81ED0AE7E001766AC /* FWriteTreeRef.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426E1ED0AE7E001766AC /* FWriteTreeRef.h */; };
+		D05043B71ED0AE7E001766AC /* FWriteTreeRef.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426E1ED0AE7E001766AC /* FWriteTreeRef.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043B81ED0AE7E001766AC /* FWriteTreeRef.h in Headers */ = {isa = PBXBuildFile; fileRef = D050426E1ED0AE7E001766AC /* FWriteTreeRef.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043B91ED0AE7E001766AC /* FWriteTreeRef.m in Sources */ = {isa = PBXBuildFile; fileRef = D050426F1ED0AE7E001766AC /* FWriteTreeRef.m */; };
 		D05043BA1ED0AE7E001766AC /* FWriteTreeRef.m in Sources */ = {isa = PBXBuildFile; fileRef = D050426F1ED0AE7E001766AC /* FWriteTreeRef.m */; };
-		D05043BB1ED0AE7E001766AC /* FAckUserWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042711ED0AE7E001766AC /* FAckUserWrite.h */; };
-		D05043BC1ED0AE7E001766AC /* FAckUserWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042711ED0AE7E001766AC /* FAckUserWrite.h */; };
+		D05043BB1ED0AE7E001766AC /* FAckUserWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042711ED0AE7E001766AC /* FAckUserWrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043BC1ED0AE7E001766AC /* FAckUserWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042711ED0AE7E001766AC /* FAckUserWrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043BD1ED0AE7E001766AC /* FAckUserWrite.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042721ED0AE7E001766AC /* FAckUserWrite.m */; };
 		D05043BE1ED0AE7E001766AC /* FAckUserWrite.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042721ED0AE7E001766AC /* FAckUserWrite.m */; };
-		D05043BF1ED0AE7E001766AC /* FMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042731ED0AE7E001766AC /* FMerge.h */; };
-		D05043C01ED0AE7E001766AC /* FMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042731ED0AE7E001766AC /* FMerge.h */; };
+		D05043BF1ED0AE7E001766AC /* FMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042731ED0AE7E001766AC /* FMerge.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043C01ED0AE7E001766AC /* FMerge.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042731ED0AE7E001766AC /* FMerge.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043C11ED0AE7E001766AC /* FMerge.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042741ED0AE7E001766AC /* FMerge.m */; };
 		D05043C21ED0AE7E001766AC /* FMerge.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042741ED0AE7E001766AC /* FMerge.m */; };
-		D05043C31ED0AE7E001766AC /* FOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042751ED0AE7E001766AC /* FOperation.h */; };
-		D05043C41ED0AE7E001766AC /* FOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042751ED0AE7E001766AC /* FOperation.h */; };
-		D05043C51ED0AE7E001766AC /* FOperationSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042761ED0AE7E001766AC /* FOperationSource.h */; };
-		D05043C61ED0AE7E001766AC /* FOperationSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042761ED0AE7E001766AC /* FOperationSource.h */; };
+		D05043C31ED0AE7E001766AC /* FOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042751ED0AE7E001766AC /* FOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043C41ED0AE7E001766AC /* FOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042751ED0AE7E001766AC /* FOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043C51ED0AE7E001766AC /* FOperationSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042761ED0AE7E001766AC /* FOperationSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043C61ED0AE7E001766AC /* FOperationSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042761ED0AE7E001766AC /* FOperationSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043C71ED0AE7E001766AC /* FOperationSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042771ED0AE7E001766AC /* FOperationSource.m */; };
 		D05043C81ED0AE7E001766AC /* FOperationSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042771ED0AE7E001766AC /* FOperationSource.m */; };
-		D05043C91ED0AE7E001766AC /* FOverwrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042781ED0AE7E001766AC /* FOverwrite.h */; };
-		D05043CA1ED0AE7E001766AC /* FOverwrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042781ED0AE7E001766AC /* FOverwrite.h */; };
+		D05043C91ED0AE7E001766AC /* FOverwrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042781ED0AE7E001766AC /* FOverwrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043CA1ED0AE7E001766AC /* FOverwrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042781ED0AE7E001766AC /* FOverwrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043CB1ED0AE7E001766AC /* FOverwrite.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042791ED0AE7E001766AC /* FOverwrite.m */; };
 		D05043CC1ED0AE7E001766AC /* FOverwrite.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042791ED0AE7E001766AC /* FOverwrite.m */; };
-		D05043CD1ED0AE7E001766AC /* FImmutableTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427B1ED0AE7E001766AC /* FImmutableTree.h */; };
-		D05043CE1ED0AE7E001766AC /* FImmutableTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427B1ED0AE7E001766AC /* FImmutableTree.h */; };
+		D05043CD1ED0AE7E001766AC /* FImmutableTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427B1ED0AE7E001766AC /* FImmutableTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043CE1ED0AE7E001766AC /* FImmutableTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427B1ED0AE7E001766AC /* FImmutableTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043CF1ED0AE7E001766AC /* FImmutableTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D050427C1ED0AE7E001766AC /* FImmutableTree.m */; };
 		D05043D01ED0AE7E001766AC /* FImmutableTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D050427C1ED0AE7E001766AC /* FImmutableTree.m */; };
-		D05043D11ED0AE7E001766AC /* FIRRetryHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427D1ED0AE7E001766AC /* FIRRetryHelper.h */; };
-		D05043D21ED0AE7E001766AC /* FIRRetryHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427D1ED0AE7E001766AC /* FIRRetryHelper.h */; };
+		D05043D11ED0AE7E001766AC /* FIRRetryHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427D1ED0AE7E001766AC /* FIRRetryHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043D21ED0AE7E001766AC /* FIRRetryHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427D1ED0AE7E001766AC /* FIRRetryHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043D31ED0AE7E001766AC /* FIRRetryHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D050427E1ED0AE7E001766AC /* FIRRetryHelper.m */; };
 		D05043D41ED0AE7E001766AC /* FIRRetryHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D050427E1ED0AE7E001766AC /* FIRRetryHelper.m */; };
-		D05043D51ED0AE7E001766AC /* FPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427F1ED0AE7E001766AC /* FPath.h */; };
-		D05043D61ED0AE7E001766AC /* FPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427F1ED0AE7E001766AC /* FPath.h */; };
+		D05043D51ED0AE7E001766AC /* FPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427F1ED0AE7E001766AC /* FPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043D61ED0AE7E001766AC /* FPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050427F1ED0AE7E001766AC /* FPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043D71ED0AE7E001766AC /* FPath.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042801ED0AE7E001766AC /* FPath.m */; };
 		D05043D81ED0AE7E001766AC /* FPath.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042801ED0AE7E001766AC /* FPath.m */; };
-		D05043D91ED0AE7E001766AC /* FTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042811ED0AE7E001766AC /* FTree.h */; };
-		D05043DA1ED0AE7E001766AC /* FTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042811ED0AE7E001766AC /* FTree.h */; };
+		D05043D91ED0AE7E001766AC /* FTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042811ED0AE7E001766AC /* FTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043DA1ED0AE7E001766AC /* FTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042811ED0AE7E001766AC /* FTree.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043DB1ED0AE7E001766AC /* FTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042821ED0AE7E001766AC /* FTree.m */; };
 		D05043DC1ED0AE7E001766AC /* FTree.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042821ED0AE7E001766AC /* FTree.m */; };
-		D05043DD1ED0AE7E001766AC /* FTreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042831ED0AE7E001766AC /* FTreeNode.h */; };
-		D05043DE1ED0AE7E001766AC /* FTreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042831ED0AE7E001766AC /* FTreeNode.h */; };
+		D05043DD1ED0AE7E001766AC /* FTreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042831ED0AE7E001766AC /* FTreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043DE1ED0AE7E001766AC /* FTreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042831ED0AE7E001766AC /* FTreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043DF1ED0AE7E001766AC /* FTreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042841ED0AE7E001766AC /* FTreeNode.m */; };
 		D05043E01ED0AE7E001766AC /* FTreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042841ED0AE7E001766AC /* FTreeNode.m */; };
-		D05043E11ED0AE7E001766AC /* FCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042861ED0AE7E001766AC /* FCacheNode.h */; };
-		D05043E21ED0AE7E001766AC /* FCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042861ED0AE7E001766AC /* FCacheNode.h */; };
+		D05043E11ED0AE7E001766AC /* FCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042861ED0AE7E001766AC /* FCacheNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043E21ED0AE7E001766AC /* FCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042861ED0AE7E001766AC /* FCacheNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043E31ED0AE7E001766AC /* FCacheNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042871ED0AE7E001766AC /* FCacheNode.m */; };
 		D05043E41ED0AE7E001766AC /* FCacheNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042871ED0AE7E001766AC /* FCacheNode.m */; };
-		D05043E51ED0AE7E001766AC /* FCancelEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042881ED0AE7E001766AC /* FCancelEvent.h */; };
-		D05043E61ED0AE7E001766AC /* FCancelEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042881ED0AE7E001766AC /* FCancelEvent.h */; };
+		D05043E51ED0AE7E001766AC /* FCancelEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042881ED0AE7E001766AC /* FCancelEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043E61ED0AE7E001766AC /* FCancelEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042881ED0AE7E001766AC /* FCancelEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043E71ED0AE7E001766AC /* FCancelEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042891ED0AE7E001766AC /* FCancelEvent.m */; };
 		D05043E81ED0AE7E001766AC /* FCancelEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042891ED0AE7E001766AC /* FCancelEvent.m */; };
-		D05043E91ED0AE7E001766AC /* FChange.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428A1ED0AE7E001766AC /* FChange.h */; };
-		D05043EA1ED0AE7E001766AC /* FChange.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428A1ED0AE7E001766AC /* FChange.h */; };
+		D05043E91ED0AE7E001766AC /* FChange.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428A1ED0AE7E001766AC /* FChange.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043EA1ED0AE7E001766AC /* FChange.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428A1ED0AE7E001766AC /* FChange.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043EB1ED0AE7E001766AC /* FChange.m in Sources */ = {isa = PBXBuildFile; fileRef = D050428B1ED0AE7E001766AC /* FChange.m */; };
 		D05043EC1ED0AE7E001766AC /* FChange.m in Sources */ = {isa = PBXBuildFile; fileRef = D050428B1ED0AE7E001766AC /* FChange.m */; };
-		D05043ED1ED0AE7E001766AC /* FChildEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428C1ED0AE7E001766AC /* FChildEventRegistration.h */; };
-		D05043EE1ED0AE7E001766AC /* FChildEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428C1ED0AE7E001766AC /* FChildEventRegistration.h */; };
+		D05043ED1ED0AE7E001766AC /* FChildEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428C1ED0AE7E001766AC /* FChildEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043EE1ED0AE7E001766AC /* FChildEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428C1ED0AE7E001766AC /* FChildEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043EF1ED0AE7E001766AC /* FChildEventRegistration.m in Sources */ = {isa = PBXBuildFile; fileRef = D050428D1ED0AE7E001766AC /* FChildEventRegistration.m */; };
 		D05043F01ED0AE7E001766AC /* FChildEventRegistration.m in Sources */ = {isa = PBXBuildFile; fileRef = D050428D1ED0AE7E001766AC /* FChildEventRegistration.m */; };
-		D05043F11ED0AE7E001766AC /* FDataEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428E1ED0AE7E001766AC /* FDataEvent.h */; };
-		D05043F21ED0AE7E001766AC /* FDataEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428E1ED0AE7E001766AC /* FDataEvent.h */; };
+		D05043F11ED0AE7E001766AC /* FDataEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428E1ED0AE7E001766AC /* FDataEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043F21ED0AE7E001766AC /* FDataEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D050428E1ED0AE7E001766AC /* FDataEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043F31ED0AE7E001766AC /* FDataEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D050428F1ED0AE7E001766AC /* FDataEvent.m */; };
 		D05043F41ED0AE7E001766AC /* FDataEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D050428F1ED0AE7E001766AC /* FDataEvent.m */; };
-		D05043F51ED0AE7E001766AC /* FEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042901ED0AE7E001766AC /* FEvent.h */; };
-		D05043F61ED0AE7E001766AC /* FEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042901ED0AE7E001766AC /* FEvent.h */; };
-		D05043F71ED0AE7E001766AC /* FEventRaiser.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042911ED0AE7E001766AC /* FEventRaiser.h */; };
-		D05043F81ED0AE7E001766AC /* FEventRaiser.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042911ED0AE7E001766AC /* FEventRaiser.h */; };
+		D05043F51ED0AE7E001766AC /* FEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042901ED0AE7E001766AC /* FEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043F61ED0AE7E001766AC /* FEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042901ED0AE7E001766AC /* FEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043F71ED0AE7E001766AC /* FEventRaiser.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042911ED0AE7E001766AC /* FEventRaiser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043F81ED0AE7E001766AC /* FEventRaiser.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042911ED0AE7E001766AC /* FEventRaiser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043F91ED0AE7E001766AC /* FEventRaiser.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042921ED0AE7E001766AC /* FEventRaiser.m */; };
 		D05043FA1ED0AE7E001766AC /* FEventRaiser.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042921ED0AE7E001766AC /* FEventRaiser.m */; };
-		D05043FB1ED0AE7E001766AC /* FEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042931ED0AE7E001766AC /* FEventRegistration.h */; };
-		D05043FC1ED0AE7E001766AC /* FEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042931ED0AE7E001766AC /* FEventRegistration.h */; };
-		D05043FD1ED0AE7E001766AC /* FChildChangeAccumulator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042951ED0AE7E001766AC /* FChildChangeAccumulator.h */; };
-		D05043FE1ED0AE7E001766AC /* FChildChangeAccumulator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042951ED0AE7E001766AC /* FChildChangeAccumulator.h */; };
+		D05043FB1ED0AE7E001766AC /* FEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042931ED0AE7E001766AC /* FEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043FC1ED0AE7E001766AC /* FEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042931ED0AE7E001766AC /* FEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043FD1ED0AE7E001766AC /* FChildChangeAccumulator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042951ED0AE7E001766AC /* FChildChangeAccumulator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05043FE1ED0AE7E001766AC /* FChildChangeAccumulator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042951ED0AE7E001766AC /* FChildChangeAccumulator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05043FF1ED0AE7E001766AC /* FChildChangeAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042961ED0AE7E001766AC /* FChildChangeAccumulator.m */; };
 		D05044001ED0AE7E001766AC /* FChildChangeAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042961ED0AE7E001766AC /* FChildChangeAccumulator.m */; };
-		D05044011ED0AE7E001766AC /* FCompleteChildSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042971ED0AE7E001766AC /* FCompleteChildSource.h */; };
-		D05044021ED0AE7E001766AC /* FCompleteChildSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042971ED0AE7E001766AC /* FCompleteChildSource.h */; };
-		D05044031ED0AE7E001766AC /* FIndexedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042981ED0AE7E001766AC /* FIndexedFilter.h */; };
-		D05044041ED0AE7E001766AC /* FIndexedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042981ED0AE7E001766AC /* FIndexedFilter.h */; };
+		D05044011ED0AE7E001766AC /* FCompleteChildSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042971ED0AE7E001766AC /* FCompleteChildSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044021ED0AE7E001766AC /* FCompleteChildSource.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042971ED0AE7E001766AC /* FCompleteChildSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044031ED0AE7E001766AC /* FIndexedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042981ED0AE7E001766AC /* FIndexedFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044041ED0AE7E001766AC /* FIndexedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042981ED0AE7E001766AC /* FIndexedFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044051ED0AE7E001766AC /* FIndexedFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042991ED0AE7E001766AC /* FIndexedFilter.m */; };
 		D05044061ED0AE7E001766AC /* FIndexedFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042991ED0AE7E001766AC /* FIndexedFilter.m */; };
-		D05044071ED0AE7E001766AC /* FLimitedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429A1ED0AE7E001766AC /* FLimitedFilter.h */; };
-		D05044081ED0AE7E001766AC /* FLimitedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429A1ED0AE7E001766AC /* FLimitedFilter.h */; };
+		D05044071ED0AE7E001766AC /* FLimitedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429A1ED0AE7E001766AC /* FLimitedFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044081ED0AE7E001766AC /* FLimitedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429A1ED0AE7E001766AC /* FLimitedFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044091ED0AE7E001766AC /* FLimitedFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = D050429B1ED0AE7E001766AC /* FLimitedFilter.m */; };
 		D050440A1ED0AE7E001766AC /* FLimitedFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = D050429B1ED0AE7E001766AC /* FLimitedFilter.m */; };
-		D050440B1ED0AE7E001766AC /* FNodeFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429C1ED0AE7E001766AC /* FNodeFilter.h */; };
-		D050440C1ED0AE7E001766AC /* FNodeFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429C1ED0AE7E001766AC /* FNodeFilter.h */; };
-		D050440D1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429D1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h */; };
-		D050440E1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429D1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h */; };
+		D050440B1ED0AE7E001766AC /* FNodeFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429C1ED0AE7E001766AC /* FNodeFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050440C1ED0AE7E001766AC /* FNodeFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429C1ED0AE7E001766AC /* FNodeFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050440D1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429D1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050440E1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429D1ED0AE7E001766AC /* FKeepSyncedEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050440F1ED0AE7E001766AC /* FKeepSyncedEventRegistration.m in Sources */ = {isa = PBXBuildFile; fileRef = D050429E1ED0AE7E001766AC /* FKeepSyncedEventRegistration.m */; };
 		D05044101ED0AE7E001766AC /* FKeepSyncedEventRegistration.m in Sources */ = {isa = PBXBuildFile; fileRef = D050429E1ED0AE7E001766AC /* FKeepSyncedEventRegistration.m */; };
-		D05044111ED0AE7E001766AC /* FValueEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429F1ED0AE7E001766AC /* FValueEventRegistration.h */; };
-		D05044121ED0AE7E001766AC /* FValueEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429F1ED0AE7E001766AC /* FValueEventRegistration.h */; };
+		D05044111ED0AE7E001766AC /* FValueEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429F1ED0AE7E001766AC /* FValueEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044121ED0AE7E001766AC /* FValueEventRegistration.h in Headers */ = {isa = PBXBuildFile; fileRef = D050429F1ED0AE7E001766AC /* FValueEventRegistration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044131ED0AE7E001766AC /* FValueEventRegistration.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A01ED0AE7E001766AC /* FValueEventRegistration.m */; };
 		D05044141ED0AE7E001766AC /* FValueEventRegistration.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A01ED0AE7E001766AC /* FValueEventRegistration.m */; };
-		D05044151ED0AE7E001766AC /* FView.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A11ED0AE7E001766AC /* FView.h */; };
-		D05044161ED0AE7E001766AC /* FView.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A11ED0AE7E001766AC /* FView.h */; };
+		D05044151ED0AE7E001766AC /* FView.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A11ED0AE7E001766AC /* FView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044161ED0AE7E001766AC /* FView.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A11ED0AE7E001766AC /* FView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044171ED0AE7E001766AC /* FView.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A21ED0AE7E001766AC /* FView.m */; };
 		D05044181ED0AE7E001766AC /* FView.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A21ED0AE7E001766AC /* FView.m */; };
-		D05044191ED0AE7E001766AC /* FViewCache.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A31ED0AE7E001766AC /* FViewCache.h */; };
-		D050441A1ED0AE7E001766AC /* FViewCache.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A31ED0AE7E001766AC /* FViewCache.h */; };
+		D05044191ED0AE7E001766AC /* FViewCache.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A31ED0AE7E001766AC /* FViewCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050441A1ED0AE7E001766AC /* FViewCache.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A31ED0AE7E001766AC /* FViewCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050441B1ED0AE7E001766AC /* FViewCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A41ED0AE7E001766AC /* FViewCache.m */; };
 		D050441C1ED0AE7E001766AC /* FViewCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A41ED0AE7E001766AC /* FViewCache.m */; };
-		D050441D1ED0AE7E001766AC /* FClock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A51ED0AE7E001766AC /* FClock.h */; };
-		D050441E1ED0AE7E001766AC /* FClock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A51ED0AE7E001766AC /* FClock.h */; };
+		D050441D1ED0AE7E001766AC /* FClock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A51ED0AE7E001766AC /* FClock.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050441E1ED0AE7E001766AC /* FClock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A51ED0AE7E001766AC /* FClock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050441F1ED0AE7E001766AC /* FClock.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A61ED0AE7E001766AC /* FClock.m */; };
 		D05044201ED0AE7E001766AC /* FClock.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A61ED0AE7E001766AC /* FClock.m */; };
-		D05044211ED0AE7E001766AC /* FEventGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A71ED0AE7E001766AC /* FEventGenerator.h */; };
-		D05044221ED0AE7E001766AC /* FEventGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A71ED0AE7E001766AC /* FEventGenerator.h */; };
+		D05044211ED0AE7E001766AC /* FEventGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A71ED0AE7E001766AC /* FEventGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044221ED0AE7E001766AC /* FEventGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042A71ED0AE7E001766AC /* FEventGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044231ED0AE7E001766AC /* FEventGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A81ED0AE7E001766AC /* FEventGenerator.m */; };
 		D05044241ED0AE7E001766AC /* FEventGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042A81ED0AE7E001766AC /* FEventGenerator.m */; };
-		D05044251ED0AE7E001766AC /* FArraySortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AB1ED0AE7E001766AC /* FArraySortedDictionary.h */; };
-		D05044261ED0AE7E001766AC /* FArraySortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AB1ED0AE7E001766AC /* FArraySortedDictionary.h */; };
+		D05044251ED0AE7E001766AC /* FArraySortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AB1ED0AE7E001766AC /* FArraySortedDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044261ED0AE7E001766AC /* FArraySortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AB1ED0AE7E001766AC /* FArraySortedDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044271ED0AE7E001766AC /* FArraySortedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042AC1ED0AE7E001766AC /* FArraySortedDictionary.m */; };
 		D05044281ED0AE7E001766AC /* FArraySortedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042AC1ED0AE7E001766AC /* FArraySortedDictionary.m */; };
-		D05044291ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042AD1ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch */; };
-		D050442A1ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042AD1ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch */; };
-		D050442B1ED0AE7E001766AC /* FImmutableSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AE1ED0AE7E001766AC /* FImmutableSortedDictionary.h */; };
-		D050442C1ED0AE7E001766AC /* FImmutableSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AE1ED0AE7E001766AC /* FImmutableSortedDictionary.h */; };
+		D05044291ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042AD1ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050442A1ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042AD1ED0AE7E001766AC /* FImmutableSortedDictionary-Prefix.pch */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050442B1ED0AE7E001766AC /* FImmutableSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AE1ED0AE7E001766AC /* FImmutableSortedDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050442C1ED0AE7E001766AC /* FImmutableSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042AE1ED0AE7E001766AC /* FImmutableSortedDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050442D1ED0AE7E001766AC /* FImmutableSortedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042AF1ED0AE7E001766AC /* FImmutableSortedDictionary.m */; };
 		D050442E1ED0AE7E001766AC /* FImmutableSortedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042AF1ED0AE7E001766AC /* FImmutableSortedDictionary.m */; };
-		D050442F1ED0AE7E001766AC /* FImmutableSortedSet.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B01ED0AE7E001766AC /* FImmutableSortedSet.h */; };
-		D05044301ED0AE7E001766AC /* FImmutableSortedSet.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B01ED0AE7E001766AC /* FImmutableSortedSet.h */; };
+		D050442F1ED0AE7E001766AC /* FImmutableSortedSet.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B01ED0AE7E001766AC /* FImmutableSortedSet.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044301ED0AE7E001766AC /* FImmutableSortedSet.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B01ED0AE7E001766AC /* FImmutableSortedSet.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044311ED0AE7E001766AC /* FImmutableSortedSet.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B11ED0AE7E001766AC /* FImmutableSortedSet.m */; };
 		D05044321ED0AE7E001766AC /* FImmutableSortedSet.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B11ED0AE7E001766AC /* FImmutableSortedSet.m */; };
-		D05044331ED0AE7E001766AC /* FLLRBEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B21ED0AE7E001766AC /* FLLRBEmptyNode.h */; };
-		D05044341ED0AE7E001766AC /* FLLRBEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B21ED0AE7E001766AC /* FLLRBEmptyNode.h */; };
+		D05044331ED0AE7E001766AC /* FLLRBEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B21ED0AE7E001766AC /* FLLRBEmptyNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044341ED0AE7E001766AC /* FLLRBEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B21ED0AE7E001766AC /* FLLRBEmptyNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044351ED0AE7E001766AC /* FLLRBEmptyNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B31ED0AE7E001766AC /* FLLRBEmptyNode.m */; };
 		D05044361ED0AE7E001766AC /* FLLRBEmptyNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B31ED0AE7E001766AC /* FLLRBEmptyNode.m */; };
-		D05044371ED0AE7E001766AC /* FLLRBNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B41ED0AE7E001766AC /* FLLRBNode.h */; };
-		D05044381ED0AE7E001766AC /* FLLRBNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B41ED0AE7E001766AC /* FLLRBNode.h */; };
-		D05044391ED0AE7E001766AC /* FLLRBValueNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B51ED0AE7E001766AC /* FLLRBValueNode.h */; };
-		D050443A1ED0AE7E001766AC /* FLLRBValueNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B51ED0AE7E001766AC /* FLLRBValueNode.h */; };
+		D05044371ED0AE7E001766AC /* FLLRBNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B41ED0AE7E001766AC /* FLLRBNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044381ED0AE7E001766AC /* FLLRBNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B41ED0AE7E001766AC /* FLLRBNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044391ED0AE7E001766AC /* FLLRBValueNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B51ED0AE7E001766AC /* FLLRBValueNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050443A1ED0AE7E001766AC /* FLLRBValueNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B51ED0AE7E001766AC /* FLLRBValueNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050443B1ED0AE7E001766AC /* FLLRBValueNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B61ED0AE7E001766AC /* FLLRBValueNode.m */; };
 		D050443C1ED0AE7E001766AC /* FLLRBValueNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B61ED0AE7E001766AC /* FLLRBValueNode.m */; };
-		D050443D1ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B71ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h */; };
-		D050443E1ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B71ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h */; };
+		D050443D1ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B71ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050443E1ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042B71ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050443F1ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B81ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.m */; };
 		D05044401ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042B81ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.m */; };
-		D05044451ED0AE7E001766AC /* FIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C01ED0AE7E001766AC /* FIndex.h */; };
-		D05044461ED0AE7E001766AC /* FIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C01ED0AE7E001766AC /* FIndex.h */; };
+		D05044451ED0AE7E001766AC /* FIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C01ED0AE7E001766AC /* FIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044461ED0AE7E001766AC /* FIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C01ED0AE7E001766AC /* FIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044471ED0AE7E001766AC /* FIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C11ED0AE7E001766AC /* FIndex.m */; };
 		D05044481ED0AE7E001766AC /* FIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C11ED0AE7E001766AC /* FIndex.m */; };
-		D05044491ED0AE7E001766AC /* FIRDatabaseConfig_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C21ED0AE7E001766AC /* FIRDatabaseConfig_Private.h */; };
-		D050444A1ED0AE7E001766AC /* FIRDatabaseConfig_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C21ED0AE7E001766AC /* FIRDatabaseConfig_Private.h */; };
-		D050444B1ED0AE7E001766AC /* FIRDatabaseReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C31ED0AE7E001766AC /* FIRDatabaseReference.h */; };
-		D050444C1ED0AE7E001766AC /* FIRDatabaseReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C31ED0AE7E001766AC /* FIRDatabaseReference.h */; };
+		D05044491ED0AE7E001766AC /* FIRDatabaseConfig_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C21ED0AE7E001766AC /* FIRDatabaseConfig_Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050444A1ED0AE7E001766AC /* FIRDatabaseConfig_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C21ED0AE7E001766AC /* FIRDatabaseConfig_Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050444B1ED0AE7E001766AC /* FIRDatabaseReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C31ED0AE7E001766AC /* FIRDatabaseReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050444C1ED0AE7E001766AC /* FIRDatabaseReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C31ED0AE7E001766AC /* FIRDatabaseReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050444D1ED0AE7E001766AC /* FIRDatabaseReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C41ED0AE7E001766AC /* FIRDatabaseReference.m */; };
 		D050444E1ED0AE7E001766AC /* FIRDatabaseReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C41ED0AE7E001766AC /* FIRDatabaseReference.m */; };
-		D050444F1ED0AE7E001766AC /* Firebase-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042C51ED0AE7E001766AC /* Firebase-Prefix.pch */; };
-		D05044501ED0AE7E001766AC /* Firebase-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042C51ED0AE7E001766AC /* Firebase-Prefix.pch */; };
-		D05044511ED0AE7E001766AC /* FKeyIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C61ED0AE7E001766AC /* FKeyIndex.h */; };
-		D05044521ED0AE7E001766AC /* FKeyIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C61ED0AE7E001766AC /* FKeyIndex.h */; };
+		D050444F1ED0AE7E001766AC /* Firebase-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042C51ED0AE7E001766AC /* Firebase-Prefix.pch */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044501ED0AE7E001766AC /* Firebase-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = D05042C51ED0AE7E001766AC /* Firebase-Prefix.pch */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044511ED0AE7E001766AC /* FKeyIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C61ED0AE7E001766AC /* FKeyIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044521ED0AE7E001766AC /* FKeyIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C61ED0AE7E001766AC /* FKeyIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044531ED0AE7E001766AC /* FKeyIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C71ED0AE7E001766AC /* FKeyIndex.m */; };
 		D05044541ED0AE7E001766AC /* FKeyIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C71ED0AE7E001766AC /* FKeyIndex.m */; };
-		D05044551ED0AE7E001766AC /* FListenComplete.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C81ED0AE7E001766AC /* FListenComplete.h */; };
-		D05044561ED0AE7E001766AC /* FListenComplete.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C81ED0AE7E001766AC /* FListenComplete.h */; };
+		D05044551ED0AE7E001766AC /* FListenComplete.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C81ED0AE7E001766AC /* FListenComplete.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044561ED0AE7E001766AC /* FListenComplete.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042C81ED0AE7E001766AC /* FListenComplete.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044571ED0AE7E001766AC /* FListenComplete.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C91ED0AE7E001766AC /* FListenComplete.m */; };
 		D05044581ED0AE7E001766AC /* FListenComplete.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042C91ED0AE7E001766AC /* FListenComplete.m */; };
-		D05044591ED0AE7E001766AC /* FMaxNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CA1ED0AE7E001766AC /* FMaxNode.h */; };
-		D050445A1ED0AE7E001766AC /* FMaxNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CA1ED0AE7E001766AC /* FMaxNode.h */; };
+		D05044591ED0AE7E001766AC /* FMaxNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CA1ED0AE7E001766AC /* FMaxNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050445A1ED0AE7E001766AC /* FMaxNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CA1ED0AE7E001766AC /* FMaxNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050445B1ED0AE7E001766AC /* FMaxNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042CB1ED0AE7E001766AC /* FMaxNode.m */; };
 		D050445C1ED0AE7E001766AC /* FMaxNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042CB1ED0AE7E001766AC /* FMaxNode.m */; };
-		D050445D1ED0AE7E001766AC /* FNamedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CC1ED0AE7E001766AC /* FNamedNode.h */; };
-		D050445E1ED0AE7E001766AC /* FNamedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CC1ED0AE7E001766AC /* FNamedNode.h */; };
+		D050445D1ED0AE7E001766AC /* FNamedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CC1ED0AE7E001766AC /* FNamedNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050445E1ED0AE7E001766AC /* FNamedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CC1ED0AE7E001766AC /* FNamedNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050445F1ED0AE7E001766AC /* FNamedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042CD1ED0AE7E001766AC /* FNamedNode.m */; };
 		D05044601ED0AE7E001766AC /* FNamedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042CD1ED0AE7E001766AC /* FNamedNode.m */; };
-		D05044611ED0AE7E001766AC /* FPathIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CE1ED0AE7E001766AC /* FPathIndex.h */; };
-		D05044621ED0AE7E001766AC /* FPathIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CE1ED0AE7E001766AC /* FPathIndex.h */; };
+		D05044611ED0AE7E001766AC /* FPathIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CE1ED0AE7E001766AC /* FPathIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044621ED0AE7E001766AC /* FPathIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042CE1ED0AE7E001766AC /* FPathIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044631ED0AE7E001766AC /* FPathIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042CF1ED0AE7E001766AC /* FPathIndex.m */; };
 		D05044641ED0AE7E001766AC /* FPathIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042CF1ED0AE7E001766AC /* FPathIndex.m */; };
-		D05044651ED0AE7E001766AC /* FPriorityIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D01ED0AE7E001766AC /* FPriorityIndex.h */; };
-		D05044661ED0AE7E001766AC /* FPriorityIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D01ED0AE7E001766AC /* FPriorityIndex.h */; };
+		D05044651ED0AE7E001766AC /* FPriorityIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D01ED0AE7E001766AC /* FPriorityIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044661ED0AE7E001766AC /* FPriorityIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D01ED0AE7E001766AC /* FPriorityIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044671ED0AE7E001766AC /* FPriorityIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D11ED0AE7E001766AC /* FPriorityIndex.m */; };
 		D05044681ED0AE7E001766AC /* FPriorityIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D11ED0AE7E001766AC /* FPriorityIndex.m */; };
-		D05044691ED0AE7E001766AC /* FRangedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D21ED0AE7E001766AC /* FRangedFilter.h */; };
-		D050446A1ED0AE7E001766AC /* FRangedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D21ED0AE7E001766AC /* FRangedFilter.h */; };
+		D05044691ED0AE7E001766AC /* FRangedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D21ED0AE7E001766AC /* FRangedFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050446A1ED0AE7E001766AC /* FRangedFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D21ED0AE7E001766AC /* FRangedFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050446B1ED0AE7E001766AC /* FRangedFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D31ED0AE7E001766AC /* FRangedFilter.m */; };
 		D050446C1ED0AE7E001766AC /* FRangedFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D31ED0AE7E001766AC /* FRangedFilter.m */; };
-		D050446D1ED0AE7E001766AC /* FTransformedEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D41ED0AE7E001766AC /* FTransformedEnumerator.h */; };
-		D050446E1ED0AE7E001766AC /* FTransformedEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D41ED0AE7E001766AC /* FTransformedEnumerator.h */; };
+		D050446D1ED0AE7E001766AC /* FTransformedEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D41ED0AE7E001766AC /* FTransformedEnumerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050446E1ED0AE7E001766AC /* FTransformedEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D41ED0AE7E001766AC /* FTransformedEnumerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050446F1ED0AE7E001766AC /* FTransformedEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D51ED0AE7E001766AC /* FTransformedEnumerator.m */; };
 		D05044701ED0AE7E001766AC /* FTransformedEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D51ED0AE7E001766AC /* FTransformedEnumerator.m */; };
-		D05044711ED0AE7E001766AC /* FTreeSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D61ED0AE7E001766AC /* FTreeSortedDictionary.h */; };
-		D05044721ED0AE7E001766AC /* FTreeSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D61ED0AE7E001766AC /* FTreeSortedDictionary.h */; };
+		D05044711ED0AE7E001766AC /* FTreeSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D61ED0AE7E001766AC /* FTreeSortedDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044721ED0AE7E001766AC /* FTreeSortedDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D61ED0AE7E001766AC /* FTreeSortedDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044731ED0AE7E001766AC /* FTreeSortedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D71ED0AE7E001766AC /* FTreeSortedDictionary.m */; };
 		D05044741ED0AE7E001766AC /* FTreeSortedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D71ED0AE7E001766AC /* FTreeSortedDictionary.m */; };
-		D05044751ED0AE7E001766AC /* FValueIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D81ED0AE7E001766AC /* FValueIndex.h */; };
-		D05044761ED0AE7E001766AC /* FValueIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D81ED0AE7E001766AC /* FValueIndex.h */; };
+		D05044751ED0AE7E001766AC /* FValueIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D81ED0AE7E001766AC /* FValueIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044761ED0AE7E001766AC /* FValueIndex.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042D81ED0AE7E001766AC /* FValueIndex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044771ED0AE7E001766AC /* FValueIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D91ED0AE7E001766AC /* FValueIndex.m */; };
 		D05044781ED0AE7E001766AC /* FValueIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042D91ED0AE7E001766AC /* FValueIndex.m */; };
-		D05044791ED0AE7E001766AC /* FViewProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DA1ED0AE7E001766AC /* FViewProcessor.h */; };
-		D050447A1ED0AE7E001766AC /* FViewProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DA1ED0AE7E001766AC /* FViewProcessor.h */; };
+		D05044791ED0AE7E001766AC /* FViewProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DA1ED0AE7E001766AC /* FViewProcessor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050447A1ED0AE7E001766AC /* FViewProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DA1ED0AE7E001766AC /* FViewProcessor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050447B1ED0AE7E001766AC /* FViewProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042DB1ED0AE7E001766AC /* FViewProcessor.m */; };
 		D050447C1ED0AE7E001766AC /* FViewProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042DB1ED0AE7E001766AC /* FViewProcessor.m */; };
-		D050447D1ED0AE7E001766AC /* FViewProcessorResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DC1ED0AE7E001766AC /* FViewProcessorResult.h */; };
-		D050447E1ED0AE7E001766AC /* FViewProcessorResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DC1ED0AE7E001766AC /* FViewProcessorResult.h */; };
+		D050447D1ED0AE7E001766AC /* FViewProcessorResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DC1ED0AE7E001766AC /* FViewProcessorResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050447E1ED0AE7E001766AC /* FViewProcessorResult.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DC1ED0AE7E001766AC /* FViewProcessorResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050447F1ED0AE7E001766AC /* FViewProcessorResult.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042DD1ED0AE7E001766AC /* FViewProcessorResult.m */; };
 		D05044801ED0AE7E001766AC /* FViewProcessorResult.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042DD1ED0AE7E001766AC /* FViewProcessorResult.m */; };
-		D05044811ED0AE7E001766AC /* FAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DF1ED0AE7E001766AC /* FAuthTokenProvider.h */; };
-		D05044821ED0AE7E001766AC /* FAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DF1ED0AE7E001766AC /* FAuthTokenProvider.h */; };
+		D05044811ED0AE7E001766AC /* FAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DF1ED0AE7E001766AC /* FAuthTokenProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044821ED0AE7E001766AC /* FAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042DF1ED0AE7E001766AC /* FAuthTokenProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044831ED0AE7E001766AC /* FAuthTokenProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E01ED0AE7E001766AC /* FAuthTokenProvider.m */; };
 		D05044841ED0AE7E001766AC /* FAuthTokenProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E01ED0AE7E001766AC /* FAuthTokenProvider.m */; };
-		D05044851ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E11ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h */; };
-		D05044861ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E11ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h */; };
+		D05044851ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E11ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044861ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E11ED0AE7E001766AC /* FIRNoopAuthTokenProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044871ED0AE7E001766AC /* FIRNoopAuthTokenProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E21ED0AE7E001766AC /* FIRNoopAuthTokenProvider.m */; };
 		D05044881ED0AE7E001766AC /* FIRNoopAuthTokenProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E21ED0AE7E001766AC /* FIRNoopAuthTokenProvider.m */; };
-		D05044891ED0AE7E001766AC /* FCachePolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E41ED0AE7E001766AC /* FCachePolicy.h */; };
-		D050448A1ED0AE7E001766AC /* FCachePolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E41ED0AE7E001766AC /* FCachePolicy.h */; };
+		D05044891ED0AE7E001766AC /* FCachePolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E41ED0AE7E001766AC /* FCachePolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050448A1ED0AE7E001766AC /* FCachePolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E41ED0AE7E001766AC /* FCachePolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050448B1ED0AE7E001766AC /* FCachePolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E51ED0AE7E001766AC /* FCachePolicy.m */; };
 		D050448C1ED0AE7E001766AC /* FCachePolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E51ED0AE7E001766AC /* FCachePolicy.m */; };
-		D050448D1ED0AE7E001766AC /* FLevelDBStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E61ED0AE7E001766AC /* FLevelDBStorageEngine.h */; };
-		D050448E1ED0AE7E001766AC /* FLevelDBStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E61ED0AE7E001766AC /* FLevelDBStorageEngine.h */; };
+		D050448D1ED0AE7E001766AC /* FLevelDBStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E61ED0AE7E001766AC /* FLevelDBStorageEngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050448E1ED0AE7E001766AC /* FLevelDBStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E61ED0AE7E001766AC /* FLevelDBStorageEngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050448F1ED0AE7E001766AC /* FLevelDBStorageEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E71ED0AE7E001766AC /* FLevelDBStorageEngine.m */; };
 		D05044901ED0AE7E001766AC /* FLevelDBStorageEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E71ED0AE7E001766AC /* FLevelDBStorageEngine.m */; };
-		D05044911ED0AE7E001766AC /* FPendingPut.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E81ED0AE7E001766AC /* FPendingPut.h */; };
-		D05044921ED0AE7E001766AC /* FPendingPut.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E81ED0AE7E001766AC /* FPendingPut.h */; };
+		D05044911ED0AE7E001766AC /* FPendingPut.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E81ED0AE7E001766AC /* FPendingPut.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044921ED0AE7E001766AC /* FPendingPut.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042E81ED0AE7E001766AC /* FPendingPut.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044931ED0AE7E001766AC /* FPendingPut.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E91ED0AE7E001766AC /* FPendingPut.m */; };
 		D05044941ED0AE7E001766AC /* FPendingPut.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042E91ED0AE7E001766AC /* FPendingPut.m */; };
-		D05044951ED0AE7E001766AC /* FPersistenceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EA1ED0AE7E001766AC /* FPersistenceManager.h */; };
-		D05044961ED0AE7E001766AC /* FPersistenceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EA1ED0AE7E001766AC /* FPersistenceManager.h */; };
+		D05044951ED0AE7E001766AC /* FPersistenceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EA1ED0AE7E001766AC /* FPersistenceManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044961ED0AE7E001766AC /* FPersistenceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EA1ED0AE7E001766AC /* FPersistenceManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044971ED0AE7E001766AC /* FPersistenceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042EB1ED0AE7E001766AC /* FPersistenceManager.m */; };
 		D05044981ED0AE7E001766AC /* FPersistenceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042EB1ED0AE7E001766AC /* FPersistenceManager.m */; };
-		D05044991ED0AE7E001766AC /* FPruneForest.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EC1ED0AE7E001766AC /* FPruneForest.h */; };
-		D050449A1ED0AE7E001766AC /* FPruneForest.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EC1ED0AE7E001766AC /* FPruneForest.h */; };
+		D05044991ED0AE7E001766AC /* FPruneForest.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EC1ED0AE7E001766AC /* FPruneForest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050449A1ED0AE7E001766AC /* FPruneForest.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EC1ED0AE7E001766AC /* FPruneForest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050449B1ED0AE7E001766AC /* FPruneForest.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042ED1ED0AE7E001766AC /* FPruneForest.m */; };
 		D050449C1ED0AE7E001766AC /* FPruneForest.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042ED1ED0AE7E001766AC /* FPruneForest.m */; };
-		D050449D1ED0AE7E001766AC /* FStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EE1ED0AE7E001766AC /* FStorageEngine.h */; };
-		D050449E1ED0AE7E001766AC /* FStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EE1ED0AE7E001766AC /* FStorageEngine.h */; };
-		D050449F1ED0AE7E001766AC /* FTrackedQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EF1ED0AE7E001766AC /* FTrackedQuery.h */; };
-		D05044A01ED0AE7E001766AC /* FTrackedQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EF1ED0AE7E001766AC /* FTrackedQuery.h */; };
+		D050449D1ED0AE7E001766AC /* FStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EE1ED0AE7E001766AC /* FStorageEngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050449E1ED0AE7E001766AC /* FStorageEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EE1ED0AE7E001766AC /* FStorageEngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050449F1ED0AE7E001766AC /* FTrackedQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EF1ED0AE7E001766AC /* FTrackedQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044A01ED0AE7E001766AC /* FTrackedQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042EF1ED0AE7E001766AC /* FTrackedQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044A11ED0AE7E001766AC /* FTrackedQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F01ED0AE7E001766AC /* FTrackedQuery.m */; };
 		D05044A21ED0AE7E001766AC /* FTrackedQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F01ED0AE7E001766AC /* FTrackedQuery.m */; };
-		D05044A31ED0AE7E001766AC /* FTrackedQueryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F11ED0AE7E001766AC /* FTrackedQueryManager.h */; };
-		D05044A41ED0AE7E001766AC /* FTrackedQueryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F11ED0AE7E001766AC /* FTrackedQueryManager.h */; };
+		D05044A31ED0AE7E001766AC /* FTrackedQueryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F11ED0AE7E001766AC /* FTrackedQueryManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044A41ED0AE7E001766AC /* FTrackedQueryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F11ED0AE7E001766AC /* FTrackedQueryManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044A51ED0AE7E001766AC /* FTrackedQueryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F21ED0AE7E001766AC /* FTrackedQueryManager.m */; };
 		D05044A61ED0AE7E001766AC /* FTrackedQueryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F21ED0AE7E001766AC /* FTrackedQueryManager.m */; };
-		D05044A71ED0AE7E001766AC /* FConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F41ED0AE7E001766AC /* FConnection.h */; };
-		D05044A81ED0AE7E001766AC /* FConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F41ED0AE7E001766AC /* FConnection.h */; };
+		D05044A71ED0AE7E001766AC /* FConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F41ED0AE7E001766AC /* FConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044A81ED0AE7E001766AC /* FConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F41ED0AE7E001766AC /* FConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044A91ED0AE7E001766AC /* FConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F51ED0AE7E001766AC /* FConnection.m */; };
 		D05044AA1ED0AE7E001766AC /* FConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F51ED0AE7E001766AC /* FConnection.m */; };
-		D05044AB1ED0AE7E001766AC /* FWebSocketConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F61ED0AE7E001766AC /* FWebSocketConnection.h */; };
-		D05044AC1ED0AE7E001766AC /* FWebSocketConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F61ED0AE7E001766AC /* FWebSocketConnection.h */; };
+		D05044AB1ED0AE7E001766AC /* FWebSocketConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F61ED0AE7E001766AC /* FWebSocketConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044AC1ED0AE7E001766AC /* FWebSocketConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F61ED0AE7E001766AC /* FWebSocketConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044AD1ED0AE7E001766AC /* FWebSocketConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F71ED0AE7E001766AC /* FWebSocketConnection.m */; };
 		D05044AE1ED0AE7E001766AC /* FWebSocketConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042F71ED0AE7E001766AC /* FWebSocketConnection.m */; };
-		D05044AF1ED0AE7E001766AC /* FChildrenNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F91ED0AE7E001766AC /* FChildrenNode.h */; };
-		D05044B01ED0AE7E001766AC /* FChildrenNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F91ED0AE7E001766AC /* FChildrenNode.h */; };
+		D05044AF1ED0AE7E001766AC /* FChildrenNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F91ED0AE7E001766AC /* FChildrenNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044B01ED0AE7E001766AC /* FChildrenNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042F91ED0AE7E001766AC /* FChildrenNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044B11ED0AE7E001766AC /* FChildrenNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042FA1ED0AE7E001766AC /* FChildrenNode.m */; };
 		D05044B21ED0AE7E001766AC /* FChildrenNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042FA1ED0AE7E001766AC /* FChildrenNode.m */; };
-		D05044B31ED0AE7E001766AC /* FCompoundWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FB1ED0AE7E001766AC /* FCompoundWrite.h */; };
-		D05044B41ED0AE7E001766AC /* FCompoundWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FB1ED0AE7E001766AC /* FCompoundWrite.h */; };
+		D05044B31ED0AE7E001766AC /* FCompoundWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FB1ED0AE7E001766AC /* FCompoundWrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044B41ED0AE7E001766AC /* FCompoundWrite.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FB1ED0AE7E001766AC /* FCompoundWrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044B51ED0AE7E001766AC /* FCompoundWrite.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042FC1ED0AE7E001766AC /* FCompoundWrite.m */; };
 		D05044B61ED0AE7E001766AC /* FCompoundWrite.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042FC1ED0AE7E001766AC /* FCompoundWrite.m */; };
-		D05044B71ED0AE7E001766AC /* FEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FD1ED0AE7E001766AC /* FEmptyNode.h */; };
-		D05044B81ED0AE7E001766AC /* FEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FD1ED0AE7E001766AC /* FEmptyNode.h */; };
+		D05044B71ED0AE7E001766AC /* FEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FD1ED0AE7E001766AC /* FEmptyNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044B81ED0AE7E001766AC /* FEmptyNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FD1ED0AE7E001766AC /* FEmptyNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044B91ED0AE7E001766AC /* FEmptyNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042FE1ED0AE7E001766AC /* FEmptyNode.m */; };
 		D05044BA1ED0AE7E001766AC /* FEmptyNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05042FE1ED0AE7E001766AC /* FEmptyNode.m */; };
-		D05044BB1ED0AE7E001766AC /* FIndexedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FF1ED0AE7E001766AC /* FIndexedNode.h */; };
-		D05044BC1ED0AE7E001766AC /* FIndexedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FF1ED0AE7E001766AC /* FIndexedNode.h */; };
+		D05044BB1ED0AE7E001766AC /* FIndexedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FF1ED0AE7E001766AC /* FIndexedNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044BC1ED0AE7E001766AC /* FIndexedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05042FF1ED0AE7E001766AC /* FIndexedNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044BD1ED0AE7E001766AC /* FIndexedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043001ED0AE7E001766AC /* FIndexedNode.m */; };
 		D05044BE1ED0AE7E001766AC /* FIndexedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043001ED0AE7E001766AC /* FIndexedNode.m */; };
-		D05044BF1ED0AE7E001766AC /* FLeafNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043011ED0AE7E001766AC /* FLeafNode.h */; };
-		D05044C01ED0AE7E001766AC /* FLeafNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043011ED0AE7E001766AC /* FLeafNode.h */; };
+		D05044BF1ED0AE7E001766AC /* FLeafNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043011ED0AE7E001766AC /* FLeafNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044C01ED0AE7E001766AC /* FLeafNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043011ED0AE7E001766AC /* FLeafNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044C11ED0AE7E001766AC /* FLeafNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043021ED0AE7E001766AC /* FLeafNode.m */; };
 		D05044C21ED0AE7E001766AC /* FLeafNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043021ED0AE7E001766AC /* FLeafNode.m */; };
-		D05044C31ED0AE7E001766AC /* FNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043031ED0AE7E001766AC /* FNode.h */; };
-		D05044C41ED0AE7E001766AC /* FNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043031ED0AE7E001766AC /* FNode.h */; };
-		D05044C51ED0AE7F001766AC /* FSnapshotUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043041ED0AE7E001766AC /* FSnapshotUtilities.h */; };
-		D05044C61ED0AE7F001766AC /* FSnapshotUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043041ED0AE7E001766AC /* FSnapshotUtilities.h */; };
+		D05044C31ED0AE7E001766AC /* FNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043031ED0AE7E001766AC /* FNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044C41ED0AE7E001766AC /* FNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043031ED0AE7E001766AC /* FNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044C51ED0AE7F001766AC /* FSnapshotUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043041ED0AE7E001766AC /* FSnapshotUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044C61ED0AE7F001766AC /* FSnapshotUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043041ED0AE7E001766AC /* FSnapshotUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044C71ED0AE7F001766AC /* FSnapshotUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043051ED0AE7E001766AC /* FSnapshotUtilities.m */; };
 		D05044C81ED0AE7F001766AC /* FSnapshotUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043051ED0AE7E001766AC /* FSnapshotUtilities.m */; };
 		D05044C91ED0AE7F001766AC /* aa2297808c225710e267afece4439c256f6efdb3 in Resources */ = {isa = PBXBuildFile; fileRef = D05043081ED0AE7E001766AC /* aa2297808c225710e267afece4439c256f6efdb3 */; };
 		D05044CA1ED0AE7F001766AC /* aa2297808c225710e267afece4439c256f6efdb3 in Resources */ = {isa = PBXBuildFile; fileRef = D05043081ED0AE7E001766AC /* aa2297808c225710e267afece4439c256f6efdb3 */; };
 		D05044CB1ED0AE7F001766AC /* fbase64.c in Sources */ = {isa = PBXBuildFile; fileRef = D05043091ED0AE7E001766AC /* fbase64.c */; };
 		D05044CC1ED0AE7F001766AC /* fbase64.c in Sources */ = {isa = PBXBuildFile; fileRef = D05043091ED0AE7E001766AC /* fbase64.c */; };
-		D05044CD1ED0AE7F001766AC /* fbase64.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430A1ED0AE7E001766AC /* fbase64.h */; };
-		D05044CE1ED0AE7F001766AC /* fbase64.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430A1ED0AE7E001766AC /* fbase64.h */; };
-		D05044CF1ED0AE7F001766AC /* FSRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430B1ED0AE7E001766AC /* FSRWebSocket.h */; };
-		D05044D01ED0AE7F001766AC /* FSRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430B1ED0AE7E001766AC /* FSRWebSocket.h */; };
+		D05044CD1ED0AE7F001766AC /* fbase64.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430A1ED0AE7E001766AC /* fbase64.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044CE1ED0AE7F001766AC /* fbase64.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430A1ED0AE7E001766AC /* fbase64.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044CF1ED0AE7F001766AC /* FSRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430B1ED0AE7E001766AC /* FSRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044D01ED0AE7F001766AC /* FSRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430B1ED0AE7E001766AC /* FSRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044D11ED0AE7F001766AC /* FSRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D050430C1ED0AE7E001766AC /* FSRWebSocket.m */; };
 		D05044D21ED0AE7F001766AC /* FSRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D050430C1ED0AE7E001766AC /* FSRWebSocket.m */; };
-		D05044D31ED0AE7F001766AC /* NSData+SRB64Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430D1ED0AE7E001766AC /* NSData+SRB64Additions.h */; };
-		D05044D41ED0AE7F001766AC /* NSData+SRB64Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430D1ED0AE7E001766AC /* NSData+SRB64Additions.h */; };
+		D05044D31ED0AE7F001766AC /* NSData+SRB64Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430D1ED0AE7E001766AC /* NSData+SRB64Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044D41ED0AE7F001766AC /* NSData+SRB64Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = D050430D1ED0AE7E001766AC /* NSData+SRB64Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044D51ED0AE7F001766AC /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = D050430E1ED0AE7E001766AC /* NSData+SRB64Additions.m */; };
 		D05044D61ED0AE7F001766AC /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = D050430E1ED0AE7E001766AC /* NSData+SRB64Additions.m */; };
-		D05044D71ED0AE7F001766AC /* APLevelDB.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043101ED0AE7E001766AC /* APLevelDB.h */; };
-		D05044D81ED0AE7F001766AC /* APLevelDB.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043101ED0AE7E001766AC /* APLevelDB.h */; };
+		D05044D71ED0AE7F001766AC /* APLevelDB.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043101ED0AE7E001766AC /* APLevelDB.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044D81ED0AE7F001766AC /* APLevelDB.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043101ED0AE7E001766AC /* APLevelDB.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044D91ED0AE7F001766AC /* APLevelDB.mm in Sources */ = {isa = PBXBuildFile; fileRef = D05043111ED0AE7E001766AC /* APLevelDB.mm */; };
 		D05044DA1ED0AE7F001766AC /* APLevelDB.mm in Sources */ = {isa = PBXBuildFile; fileRef = D05043111ED0AE7E001766AC /* APLevelDB.mm */; };
-		D05044DB1ED0AE7F001766AC /* FAtomicNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043131ED0AE7E001766AC /* FAtomicNumber.h */; };
-		D05044DC1ED0AE7F001766AC /* FAtomicNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043131ED0AE7E001766AC /* FAtomicNumber.h */; };
+		D05044DB1ED0AE7F001766AC /* FAtomicNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043131ED0AE7E001766AC /* FAtomicNumber.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044DC1ED0AE7F001766AC /* FAtomicNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043131ED0AE7E001766AC /* FAtomicNumber.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044DD1ED0AE7F001766AC /* FAtomicNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043141ED0AE7E001766AC /* FAtomicNumber.m */; };
 		D05044DE1ED0AE7F001766AC /* FAtomicNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043141ED0AE7E001766AC /* FAtomicNumber.m */; };
-		D05044DF1ED0AE7F001766AC /* FEventEmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043151ED0AE7E001766AC /* FEventEmitter.h */; };
-		D05044E01ED0AE7F001766AC /* FEventEmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043151ED0AE7E001766AC /* FEventEmitter.h */; };
+		D05044DF1ED0AE7F001766AC /* FEventEmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043151ED0AE7E001766AC /* FEventEmitter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044E01ED0AE7F001766AC /* FEventEmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043151ED0AE7E001766AC /* FEventEmitter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044E11ED0AE7F001766AC /* FEventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043161ED0AE7E001766AC /* FEventEmitter.m */; };
 		D05044E21ED0AE7F001766AC /* FEventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043161ED0AE7E001766AC /* FEventEmitter.m */; };
-		D05044E31ED0AE7F001766AC /* FNextPushId.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043171ED0AE7E001766AC /* FNextPushId.h */; };
-		D05044E41ED0AE7F001766AC /* FNextPushId.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043171ED0AE7E001766AC /* FNextPushId.h */; };
+		D05044E31ED0AE7F001766AC /* FNextPushId.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043171ED0AE7E001766AC /* FNextPushId.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044E41ED0AE7F001766AC /* FNextPushId.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043171ED0AE7E001766AC /* FNextPushId.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044E51ED0AE7F001766AC /* FNextPushId.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043181ED0AE7E001766AC /* FNextPushId.m */; };
 		D05044E61ED0AE7F001766AC /* FNextPushId.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043181ED0AE7E001766AC /* FNextPushId.m */; };
-		D05044E71ED0AE7F001766AC /* FParsedUrl.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043191ED0AE7E001766AC /* FParsedUrl.h */; };
-		D05044E81ED0AE7F001766AC /* FParsedUrl.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043191ED0AE7E001766AC /* FParsedUrl.h */; };
+		D05044E71ED0AE7F001766AC /* FParsedUrl.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043191ED0AE7E001766AC /* FParsedUrl.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044E81ED0AE7F001766AC /* FParsedUrl.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043191ED0AE7E001766AC /* FParsedUrl.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044E91ED0AE7F001766AC /* FParsedUrl.m in Sources */ = {isa = PBXBuildFile; fileRef = D050431A1ED0AE7E001766AC /* FParsedUrl.m */; };
 		D05044EA1ED0AE7F001766AC /* FParsedUrl.m in Sources */ = {isa = PBXBuildFile; fileRef = D050431A1ED0AE7E001766AC /* FParsedUrl.m */; };
-		D05044EB1ED0AE7F001766AC /* FStringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431B1ED0AE7E001766AC /* FStringUtilities.h */; };
-		D05044EC1ED0AE7F001766AC /* FStringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431B1ED0AE7E001766AC /* FStringUtilities.h */; };
+		D05044EB1ED0AE7F001766AC /* FStringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431B1ED0AE7E001766AC /* FStringUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044EC1ED0AE7F001766AC /* FStringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431B1ED0AE7E001766AC /* FStringUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044ED1ED0AE7F001766AC /* FStringUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D050431C1ED0AE7E001766AC /* FStringUtilities.m */; };
 		D05044EE1ED0AE7F001766AC /* FStringUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D050431C1ED0AE7E001766AC /* FStringUtilities.m */; };
-		D05044EF1ED0AE7F001766AC /* FTypedefs.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431D1ED0AE7E001766AC /* FTypedefs.h */; };
-		D05044F01ED0AE7F001766AC /* FTypedefs.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431D1ED0AE7E001766AC /* FTypedefs.h */; };
-		D05044F11ED0AE7F001766AC /* FUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431E1ED0AE7E001766AC /* FUtilities.h */; };
-		D05044F21ED0AE7F001766AC /* FUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431E1ED0AE7E001766AC /* FUtilities.h */; };
+		D05044EF1ED0AE7F001766AC /* FTypedefs.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431D1ED0AE7E001766AC /* FTypedefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044F01ED0AE7F001766AC /* FTypedefs.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431D1ED0AE7E001766AC /* FTypedefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044F11ED0AE7F001766AC /* FUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431E1ED0AE7E001766AC /* FUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044F21ED0AE7F001766AC /* FUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = D050431E1ED0AE7E001766AC /* FUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044F31ED0AE7F001766AC /* FUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D050431F1ED0AE7E001766AC /* FUtilities.m */; };
 		D05044F41ED0AE7F001766AC /* FUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D050431F1ED0AE7E001766AC /* FUtilities.m */; };
-		D05044F51ED0AE7F001766AC /* FValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043201ED0AE7E001766AC /* FValidation.h */; };
-		D05044F61ED0AE7F001766AC /* FValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043201ED0AE7E001766AC /* FValidation.h */; };
+		D05044F51ED0AE7F001766AC /* FValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043201ED0AE7E001766AC /* FValidation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044F61ED0AE7F001766AC /* FValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043201ED0AE7E001766AC /* FValidation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044F71ED0AE7F001766AC /* FValidation.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043211ED0AE7E001766AC /* FValidation.m */; };
 		D05044F81ED0AE7F001766AC /* FValidation.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043211ED0AE7E001766AC /* FValidation.m */; };
-		D05044F91ED0AE7F001766AC /* NSString+FURLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043221ED0AE7E001766AC /* NSString+FURLUtils.h */; };
-		D05044FA1ED0AE7F001766AC /* NSString+FURLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043221ED0AE7E001766AC /* NSString+FURLUtils.h */; };
+		D05044F91ED0AE7F001766AC /* NSString+FURLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043221ED0AE7E001766AC /* NSString+FURLUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044FA1ED0AE7F001766AC /* NSString+FURLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043221ED0AE7E001766AC /* NSString+FURLUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044FB1ED0AE7F001766AC /* NSString+FURLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043231ED0AE7E001766AC /* NSString+FURLUtils.m */; };
 		D05044FC1ED0AE7F001766AC /* NSString+FURLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043231ED0AE7E001766AC /* NSString+FURLUtils.m */; };
-		D05044FD1ED0AE7F001766AC /* FTupleBoolBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043251ED0AE7E001766AC /* FTupleBoolBlock.h */; };
-		D05044FE1ED0AE7F001766AC /* FTupleBoolBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043251ED0AE7E001766AC /* FTupleBoolBlock.h */; };
+		D05044FD1ED0AE7F001766AC /* FTupleBoolBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043251ED0AE7E001766AC /* FTupleBoolBlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05044FE1ED0AE7F001766AC /* FTupleBoolBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043251ED0AE7E001766AC /* FTupleBoolBlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05044FF1ED0AE7F001766AC /* FTupleBoolBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043261ED0AE7E001766AC /* FTupleBoolBlock.m */; };
 		D05045001ED0AE7F001766AC /* FTupleBoolBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043261ED0AE7E001766AC /* FTupleBoolBlock.m */; };
-		D05045011ED0AE7F001766AC /* FTupleCallbackStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043271ED0AE7E001766AC /* FTupleCallbackStatus.h */; };
-		D05045021ED0AE7F001766AC /* FTupleCallbackStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043271ED0AE7E001766AC /* FTupleCallbackStatus.h */; };
+		D05045011ED0AE7F001766AC /* FTupleCallbackStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043271ED0AE7E001766AC /* FTupleCallbackStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05045021ED0AE7F001766AC /* FTupleCallbackStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043271ED0AE7E001766AC /* FTupleCallbackStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05045031ED0AE7F001766AC /* FTupleCallbackStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043281ED0AE7E001766AC /* FTupleCallbackStatus.m */; };
 		D05045041ED0AE7F001766AC /* FTupleCallbackStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043281ED0AE7E001766AC /* FTupleCallbackStatus.m */; };
-		D05045051ED0AE7F001766AC /* FTupleFirebase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043291ED0AE7E001766AC /* FTupleFirebase.h */; };
-		D05045061ED0AE7F001766AC /* FTupleFirebase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043291ED0AE7E001766AC /* FTupleFirebase.h */; };
+		D05045051ED0AE7F001766AC /* FTupleFirebase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043291ED0AE7E001766AC /* FTupleFirebase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05045061ED0AE7F001766AC /* FTupleFirebase.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043291ED0AE7E001766AC /* FTupleFirebase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05045071ED0AE7F001766AC /* FTupleFirebase.m in Sources */ = {isa = PBXBuildFile; fileRef = D050432A1ED0AE7E001766AC /* FTupleFirebase.m */; };
 		D05045081ED0AE7F001766AC /* FTupleFirebase.m in Sources */ = {isa = PBXBuildFile; fileRef = D050432A1ED0AE7E001766AC /* FTupleFirebase.m */; };
-		D05045091ED0AE7F001766AC /* FTupleNodePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432B1ED0AE7E001766AC /* FTupleNodePath.h */; };
-		D050450A1ED0AE7F001766AC /* FTupleNodePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432B1ED0AE7E001766AC /* FTupleNodePath.h */; };
+		D05045091ED0AE7F001766AC /* FTupleNodePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432B1ED0AE7E001766AC /* FTupleNodePath.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050450A1ED0AE7F001766AC /* FTupleNodePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432B1ED0AE7E001766AC /* FTupleNodePath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050450B1ED0AE7F001766AC /* FTupleNodePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D050432C1ED0AE7E001766AC /* FTupleNodePath.m */; };
 		D050450C1ED0AE7F001766AC /* FTupleNodePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D050432C1ED0AE7E001766AC /* FTupleNodePath.m */; };
-		D050450D1ED0AE7F001766AC /* FTupleObjectNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432D1ED0AE7E001766AC /* FTupleObjectNode.h */; };
-		D050450E1ED0AE7F001766AC /* FTupleObjectNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432D1ED0AE7E001766AC /* FTupleObjectNode.h */; };
+		D050450D1ED0AE7F001766AC /* FTupleObjectNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432D1ED0AE7E001766AC /* FTupleObjectNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050450E1ED0AE7F001766AC /* FTupleObjectNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432D1ED0AE7E001766AC /* FTupleObjectNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050450F1ED0AE7F001766AC /* FTupleObjectNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D050432E1ED0AE7E001766AC /* FTupleObjectNode.m */; };
 		D05045101ED0AE7F001766AC /* FTupleObjectNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D050432E1ED0AE7E001766AC /* FTupleObjectNode.m */; };
-		D05045111ED0AE7F001766AC /* FTupleObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432F1ED0AE7E001766AC /* FTupleObjects.h */; };
-		D05045121ED0AE7F001766AC /* FTupleObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432F1ED0AE7E001766AC /* FTupleObjects.h */; };
+		D05045111ED0AE7F001766AC /* FTupleObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432F1ED0AE7E001766AC /* FTupleObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05045121ED0AE7F001766AC /* FTupleObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = D050432F1ED0AE7E001766AC /* FTupleObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05045131ED0AE7F001766AC /* FTupleObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043301ED0AE7E001766AC /* FTupleObjects.m */; };
 		D05045141ED0AE7F001766AC /* FTupleObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043301ED0AE7E001766AC /* FTupleObjects.m */; };
-		D05045151ED0AE7F001766AC /* FTupleOnDisconnect.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043311ED0AE7E001766AC /* FTupleOnDisconnect.h */; };
-		D05045161ED0AE7F001766AC /* FTupleOnDisconnect.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043311ED0AE7E001766AC /* FTupleOnDisconnect.h */; };
+		D05045151ED0AE7F001766AC /* FTupleOnDisconnect.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043311ED0AE7E001766AC /* FTupleOnDisconnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05045161ED0AE7F001766AC /* FTupleOnDisconnect.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043311ED0AE7E001766AC /* FTupleOnDisconnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05045171ED0AE7F001766AC /* FTupleOnDisconnect.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043321ED0AE7E001766AC /* FTupleOnDisconnect.m */; };
 		D05045181ED0AE7F001766AC /* FTupleOnDisconnect.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043321ED0AE7E001766AC /* FTupleOnDisconnect.m */; };
-		D05045191ED0AE7F001766AC /* FTuplePathValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043331ED0AE7E001766AC /* FTuplePathValue.h */; };
-		D050451A1ED0AE7F001766AC /* FTuplePathValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043331ED0AE7E001766AC /* FTuplePathValue.h */; };
+		D05045191ED0AE7F001766AC /* FTuplePathValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043331ED0AE7E001766AC /* FTuplePathValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050451A1ED0AE7F001766AC /* FTuplePathValue.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043331ED0AE7E001766AC /* FTuplePathValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050451B1ED0AE7F001766AC /* FTuplePathValue.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043341ED0AE7E001766AC /* FTuplePathValue.m */; };
 		D050451C1ED0AE7F001766AC /* FTuplePathValue.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043341ED0AE7E001766AC /* FTuplePathValue.m */; };
-		D050451D1ED0AE7F001766AC /* FTupleRemovedQueriesEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043351ED0AE7E001766AC /* FTupleRemovedQueriesEvents.h */; };
-		D050451E1ED0AE7F001766AC /* FTupleRemovedQueriesEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043351ED0AE7E001766AC /* FTupleRemovedQueriesEvents.h */; };
+		D050451D1ED0AE7F001766AC /* FTupleRemovedQueriesEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043351ED0AE7E001766AC /* FTupleRemovedQueriesEvents.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050451E1ED0AE7F001766AC /* FTupleRemovedQueriesEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043351ED0AE7E001766AC /* FTupleRemovedQueriesEvents.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050451F1ED0AE7F001766AC /* FTupleRemovedQueriesEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043361ED0AE7E001766AC /* FTupleRemovedQueriesEvents.m */; };
 		D05045201ED0AE7F001766AC /* FTupleRemovedQueriesEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043361ED0AE7E001766AC /* FTupleRemovedQueriesEvents.m */; };
-		D05045211ED0AE7F001766AC /* FTupleSetIdPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043371ED0AE7E001766AC /* FTupleSetIdPath.h */; };
-		D05045221ED0AE7F001766AC /* FTupleSetIdPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043371ED0AE7E001766AC /* FTupleSetIdPath.h */; };
+		D05045211ED0AE7F001766AC /* FTupleSetIdPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043371ED0AE7E001766AC /* FTupleSetIdPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05045221ED0AE7F001766AC /* FTupleSetIdPath.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043371ED0AE7E001766AC /* FTupleSetIdPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05045231ED0AE7F001766AC /* FTupleSetIdPath.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043381ED0AE7E001766AC /* FTupleSetIdPath.m */; };
 		D05045241ED0AE7F001766AC /* FTupleSetIdPath.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043381ED0AE7E001766AC /* FTupleSetIdPath.m */; };
-		D05045251ED0AE7F001766AC /* FTupleStringNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043391ED0AE7E001766AC /* FTupleStringNode.h */; };
-		D05045261ED0AE7F001766AC /* FTupleStringNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043391ED0AE7E001766AC /* FTupleStringNode.h */; };
+		D05045251ED0AE7F001766AC /* FTupleStringNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043391ED0AE7E001766AC /* FTupleStringNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05045261ED0AE7F001766AC /* FTupleStringNode.h in Headers */ = {isa = PBXBuildFile; fileRef = D05043391ED0AE7E001766AC /* FTupleStringNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05045271ED0AE7F001766AC /* FTupleStringNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D050433A1ED0AE7E001766AC /* FTupleStringNode.m */; };
 		D05045281ED0AE7F001766AC /* FTupleStringNode.m in Sources */ = {isa = PBXBuildFile; fileRef = D050433A1ED0AE7E001766AC /* FTupleStringNode.m */; };
-		D05045291ED0AE7F001766AC /* FTupleTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433B1ED0AE7E001766AC /* FTupleTransaction.h */; };
-		D050452A1ED0AE7F001766AC /* FTupleTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433B1ED0AE7E001766AC /* FTupleTransaction.h */; };
+		D05045291ED0AE7F001766AC /* FTupleTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433B1ED0AE7E001766AC /* FTupleTransaction.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050452A1ED0AE7F001766AC /* FTupleTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433B1ED0AE7E001766AC /* FTupleTransaction.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050452B1ED0AE7F001766AC /* FTupleTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = D050433C1ED0AE7E001766AC /* FTupleTransaction.m */; };
 		D050452C1ED0AE7F001766AC /* FTupleTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = D050433C1ED0AE7E001766AC /* FTupleTransaction.m */; };
-		D050452D1ED0AE7F001766AC /* FTupleTSN.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433D1ED0AE7E001766AC /* FTupleTSN.h */; };
-		D050452E1ED0AE7F001766AC /* FTupleTSN.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433D1ED0AE7E001766AC /* FTupleTSN.h */; };
+		D050452D1ED0AE7F001766AC /* FTupleTSN.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433D1ED0AE7E001766AC /* FTupleTSN.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D050452E1ED0AE7F001766AC /* FTupleTSN.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433D1ED0AE7E001766AC /* FTupleTSN.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D050452F1ED0AE7F001766AC /* FTupleTSN.m in Sources */ = {isa = PBXBuildFile; fileRef = D050433E1ED0AE7E001766AC /* FTupleTSN.m */; };
 		D05045301ED0AE7F001766AC /* FTupleTSN.m in Sources */ = {isa = PBXBuildFile; fileRef = D050433E1ED0AE7E001766AC /* FTupleTSN.m */; };
-		D05045311ED0AE7F001766AC /* FTupleUserCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433F1ED0AE7E001766AC /* FTupleUserCallback.h */; };
-		D05045321ED0AE7F001766AC /* FTupleUserCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433F1ED0AE7E001766AC /* FTupleUserCallback.h */; };
+		D05045311ED0AE7F001766AC /* FTupleUserCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433F1ED0AE7E001766AC /* FTupleUserCallback.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D05045321ED0AE7F001766AC /* FTupleUserCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = D050433F1ED0AE7E001766AC /* FTupleUserCallback.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05045331ED0AE7F001766AC /* FTupleUserCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043401ED0AE7E001766AC /* FTupleUserCallback.m */; };
 		D05045341ED0AE7F001766AC /* FTupleUserCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = D05043401ED0AE7E001766AC /* FTupleUserCallback.m */; };
 		D050453D1ED0AF86001766AC /* FirebaseDatabase_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D050453C1ED0AF86001766AC /* FirebaseDatabase_Private.h */; };
@@ -1300,15 +1300,14 @@
 				D05043BB1ED0AE7E001766AC /* FAckUserWrite.h in Headers */,
 				D05044551ED0AE7E001766AC /* FListenComplete.h in Headers */,
 				D050434D1ED0AE7E001766AC /* FIRDatabaseSwiftNameSupport.h in Headers */,
-				D050452D1ED0AE7F001766AC /* FTupleTSN.h in Headers */,
 				D05044691ED0AE7E001766AC /* FRangedFilter.h in Headers */,
+				D050452D1ED0AE7F001766AC /* FTupleTSN.h in Headers */,
 				D05043551ED0AE7E001766AC /* FirebaseDatabase.h in Headers */,
 				D05045211ED0AE7F001766AC /* FTupleSetIdPath.h in Headers */,
 				D05044191ED0AE7E001766AC /* FViewCache.h in Headers */,
 				D05044A31ED0AE7E001766AC /* FTrackedQueryManager.h in Headers */,
 				D05043E11ED0AE7E001766AC /* FCacheNode.h in Headers */,
 				D05045011ED0AE7F001766AC /* FTupleCallbackStatus.h in Headers */,
-				D05043631ED0AE7E001766AC /* FIRDatabase_Private.h in Headers */,
 				D05043CD1ED0AE7E001766AC /* FImmutableTree.h in Headers */,
 				D05045251ED0AE7F001766AC /* FTupleStringNode.h in Headers */,
 				D05044011ED0AE7E001766AC /* FCompleteChildSource.h in Headers */,
@@ -1323,7 +1322,6 @@
 				D050448D1ED0AE7E001766AC /* FLevelDBStorageEngine.h in Headers */,
 				D05044DB1ED0AE7F001766AC /* FAtomicNumber.h in Headers */,
 				D05044331ED0AE7E001766AC /* FLLRBEmptyNode.h in Headers */,
-				D050436D1ED0AE7E001766AC /* FIRTransactionResult_Private.h in Headers */,
 				D05044751ED0AE7E001766AC /* FValueIndex.h in Headers */,
 				D05043C51ED0AE7E001766AC /* FOperationSource.h in Headers */,
 				D05044F11ED0AE7F001766AC /* FUtilities.h in Headers */,
@@ -1337,10 +1335,8 @@
 				D05043571ED0AE7E001766AC /* FIRMutableData.h in Headers */,
 				D050449D1ED0AE7E001766AC /* FStorageEngine.h in Headers */,
 				D05043791ED0AE7E001766AC /* FListenProvider.h in Headers */,
-				D05043651ED0AE7E001766AC /* FIRDatabaseQuery_Private.h in Headers */,
 				D05045051ED0AE7F001766AC /* FTupleFirebase.h in Headers */,
 				D050437D1ED0AE7E001766AC /* FPersistentConnection.h in Headers */,
-				D050453D1ED0AF86001766AC /* FirebaseDatabase_Private.h in Headers */,
 				D05043D91ED0AE7E001766AC /* FTree.h in Headers */,
 				D05044151ED0AE7E001766AC /* FView.h in Headers */,
 				D05044DF1ED0AE7F001766AC /* FEventEmitter.h in Headers */,
@@ -1369,7 +1365,6 @@
 				D05044111ED0AE7E001766AC /* FValueEventRegistration.h in Headers */,
 				D050443D1ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h in Headers */,
 				D05044711ED0AE7E001766AC /* FTreeSortedDictionary.h in Headers */,
-				D05043671ED0AE7E001766AC /* FIRDatabaseReference_Private.h in Headers */,
 				D05043D11ED0AE7E001766AC /* FIRRetryHelper.h in Headers */,
 				D05044D71ED0AE7F001766AC /* APLevelDB.h in Headers */,
 				D05044251ED0AE7E001766AC /* FArraySortedDictionary.h in Headers */,
@@ -1394,14 +1389,12 @@
 				D05043E51ED0AE7E001766AC /* FCancelEvent.h in Headers */,
 				D05044E71ED0AE7F001766AC /* FParsedUrl.h in Headers */,
 				D05044CD1ED0AE7F001766AC /* fbase64.h in Headers */,
-				D05043691ED0AE7E001766AC /* FIRDataSnapshot_Private.h in Headers */,
 				D05045111ED0AE7F001766AC /* FTupleObjects.h in Headers */,
 				D050446D1ED0AE7E001766AC /* FTransformedEnumerator.h in Headers */,
 				D05044951ED0AE7E001766AC /* FPersistenceManager.h in Headers */,
 				D05044AF1ED0AE7E001766AC /* FChildrenNode.h in Headers */,
 				D05045311ED0AE7F001766AC /* FTupleUserCallback.h in Headers */,
 				D05044B31ED0AE7E001766AC /* FCompoundWrite.h in Headers */,
-				D050436F1ED0AE7E001766AC /* FTypedefs_Private.h in Headers */,
 				D05043A31ED0AE7E001766AC /* FSparseSnapshotTree.h in Headers */,
 				D05044811ED0AE7E001766AC /* FAuthTokenProvider.h in Headers */,
 				D05043C91ED0AE7E001766AC /* FOverwrite.h in Headers */,
@@ -1418,7 +1411,6 @@
 				D05044891ED0AE7E001766AC /* FCachePolicy.h in Headers */,
 				D05043711ED0AE7E001766AC /* FConstants.h in Headers */,
 				D050434F1ED0AE7E001766AC /* FIRDataEventType.h in Headers */,
-				D050436B1ED0AE7E001766AC /* FIRMutableData_Private.h in Headers */,
 				D050440B1ED0AE7E001766AC /* FNodeFilter.h in Headers */,
 				D05044EF1ED0AE7F001766AC /* FTypedefs.h in Headers */,
 				D05043FB1ED0AE7E001766AC /* FEventRegistration.h in Headers */,
@@ -1428,6 +1420,14 @@
 				D05044EB1ED0AE7F001766AC /* FStringUtilities.h in Headers */,
 				D05043DD1ED0AE7E001766AC /* FTreeNode.h in Headers */,
 				D050442B1ED0AE7E001766AC /* FImmutableSortedDictionary.h in Headers */,
+				D050453D1ED0AF86001766AC /* FirebaseDatabase_Private.h in Headers */,
+				D05043631ED0AE7E001766AC /* FIRDatabase_Private.h in Headers */,
+				D05043651ED0AE7E001766AC /* FIRDatabaseQuery_Private.h in Headers */,
+				D05043671ED0AE7E001766AC /* FIRDatabaseReference_Private.h in Headers */,
+				D05043691ED0AE7E001766AC /* FIRDataSnapshot_Private.h in Headers */,
+				D050436B1ED0AE7E001766AC /* FIRMutableData_Private.h in Headers */,
+				D050436D1ED0AE7E001766AC /* FIRTransactionResult_Private.h in Headers */,
+				D050436F1ED0AE7E001766AC /* FTypedefs_Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1451,7 +1451,6 @@
 				D05044A41ED0AE7E001766AC /* FTrackedQueryManager.h in Headers */,
 				D05043E21ED0AE7E001766AC /* FCacheNode.h in Headers */,
 				D05045021ED0AE7F001766AC /* FTupleCallbackStatus.h in Headers */,
-				D05043641ED0AE7E001766AC /* FIRDatabase_Private.h in Headers */,
 				D05043CE1ED0AE7E001766AC /* FImmutableTree.h in Headers */,
 				D05045261ED0AE7F001766AC /* FTupleStringNode.h in Headers */,
 				D05044021ED0AE7E001766AC /* FCompleteChildSource.h in Headers */,
@@ -1466,7 +1465,6 @@
 				D050448E1ED0AE7E001766AC /* FLevelDBStorageEngine.h in Headers */,
 				D05044DC1ED0AE7F001766AC /* FAtomicNumber.h in Headers */,
 				D05044341ED0AE7E001766AC /* FLLRBEmptyNode.h in Headers */,
-				D050436E1ED0AE7E001766AC /* FIRTransactionResult_Private.h in Headers */,
 				D05044761ED0AE7E001766AC /* FValueIndex.h in Headers */,
 				D05043C61ED0AE7E001766AC /* FOperationSource.h in Headers */,
 				D05044F21ED0AE7F001766AC /* FUtilities.h in Headers */,
@@ -1480,10 +1478,8 @@
 				D05043581ED0AE7E001766AC /* FIRMutableData.h in Headers */,
 				D050449E1ED0AE7E001766AC /* FStorageEngine.h in Headers */,
 				D050437A1ED0AE7E001766AC /* FListenProvider.h in Headers */,
-				D05043661ED0AE7E001766AC /* FIRDatabaseQuery_Private.h in Headers */,
 				D05045061ED0AE7F001766AC /* FTupleFirebase.h in Headers */,
 				D050437E1ED0AE7E001766AC /* FPersistentConnection.h in Headers */,
-				D050453E1ED0AF86001766AC /* FirebaseDatabase_Private.h in Headers */,
 				D05043DA1ED0AE7E001766AC /* FTree.h in Headers */,
 				D05044161ED0AE7E001766AC /* FView.h in Headers */,
 				D05044E01ED0AE7F001766AC /* FEventEmitter.h in Headers */,
@@ -1512,7 +1508,6 @@
 				D05044121ED0AE7E001766AC /* FValueEventRegistration.h in Headers */,
 				D050443E1ED0AE7E001766AC /* FTreeSortedDictionaryEnumerator.h in Headers */,
 				D05044721ED0AE7E001766AC /* FTreeSortedDictionary.h in Headers */,
-				D05043681ED0AE7E001766AC /* FIRDatabaseReference_Private.h in Headers */,
 				D05043D21ED0AE7E001766AC /* FIRRetryHelper.h in Headers */,
 				D05044D81ED0AE7F001766AC /* APLevelDB.h in Headers */,
 				D05044261ED0AE7E001766AC /* FArraySortedDictionary.h in Headers */,
@@ -1537,14 +1532,12 @@
 				D05043E61ED0AE7E001766AC /* FCancelEvent.h in Headers */,
 				D05044E81ED0AE7F001766AC /* FParsedUrl.h in Headers */,
 				D05044CE1ED0AE7F001766AC /* fbase64.h in Headers */,
-				D050436A1ED0AE7E001766AC /* FIRDataSnapshot_Private.h in Headers */,
 				D05045121ED0AE7F001766AC /* FTupleObjects.h in Headers */,
 				D050446E1ED0AE7E001766AC /* FTransformedEnumerator.h in Headers */,
 				D05044961ED0AE7E001766AC /* FPersistenceManager.h in Headers */,
 				D05044B01ED0AE7E001766AC /* FChildrenNode.h in Headers */,
 				D05045321ED0AE7F001766AC /* FTupleUserCallback.h in Headers */,
 				D05044B41ED0AE7E001766AC /* FCompoundWrite.h in Headers */,
-				D05043701ED0AE7E001766AC /* FTypedefs_Private.h in Headers */,
 				D05043A41ED0AE7E001766AC /* FSparseSnapshotTree.h in Headers */,
 				D05044821ED0AE7E001766AC /* FAuthTokenProvider.h in Headers */,
 				D05043CA1ED0AE7E001766AC /* FOverwrite.h in Headers */,
@@ -1561,7 +1554,6 @@
 				D050448A1ED0AE7E001766AC /* FCachePolicy.h in Headers */,
 				D05043721ED0AE7E001766AC /* FConstants.h in Headers */,
 				D05043501ED0AE7E001766AC /* FIRDataEventType.h in Headers */,
-				D050436C1ED0AE7E001766AC /* FIRMutableData_Private.h in Headers */,
 				D050440C1ED0AE7E001766AC /* FNodeFilter.h in Headers */,
 				D05044F01ED0AE7F001766AC /* FTypedefs.h in Headers */,
 				D05043FC1ED0AE7E001766AC /* FEventRegistration.h in Headers */,
@@ -1571,6 +1563,14 @@
 				D05044EC1ED0AE7F001766AC /* FStringUtilities.h in Headers */,
 				D05043DE1ED0AE7E001766AC /* FTreeNode.h in Headers */,
 				D050442C1ED0AE7E001766AC /* FImmutableSortedDictionary.h in Headers */,
+				D050453E1ED0AF86001766AC /* FirebaseDatabase_Private.h in Headers */,
+				D05043641ED0AE7E001766AC /* FIRDatabase_Private.h in Headers */,
+				D05043661ED0AE7E001766AC /* FIRDatabaseQuery_Private.h in Headers */,
+				D05043681ED0AE7E001766AC /* FIRDatabaseReference_Private.h in Headers */,
+				D050436A1ED0AE7E001766AC /* FIRDataSnapshot_Private.h in Headers */,
+				D050436C1ED0AE7E001766AC /* FIRMutableData_Private.h in Headers */,
+				D050436E1ED0AE7E001766AC /* FIRTransactionResult_Private.h in Headers */,
+				D05043701ED0AE7E001766AC /* FTypedefs_Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
