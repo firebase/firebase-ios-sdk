@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRVerifyCustomTokenResponse.h"
-
-#import "FIRAuthErrorUtils.h"
-
-@implementation FIRVerifyCustomTokenResponse
-
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
-  _IDToken = [dictionary[@"idToken"] copy];
-  _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
-  _refreshToken = [dictionary[@"refreshToken"] copy];
-  return YES;
-}
-
-@end
+#ifndef FirebaseCore
+#if defined(__has_include) && __has_include(<FirebaseCore/FirebaseCore.h>)
+#define FirebaseCore(IMPORT) <FirebaseCore/IMPORT>
+#else
+#define FirebaseCore(IMPORT) #IMPORT
+#endif
+#endif

@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '4.0.0'
+  s.version          = '4.1.0'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -20,16 +20,17 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
+  s.osx.deployment_target = '10.10'
 
-  s.source_files = '**/*.[mh]'
+  s.source_files = 'Firebase/Core/Source/**/*.[mh]', 'Source/**/*.[mh]'
   s.public_header_files =
-    'FirebaseCore.h',
-    'FIRAnalyticsConfiguration.h',
-    'FIRApp.h',
-    'FIRConfiguration.h',
-    'FIRLoggerLevel.h',
-    'FIROptions.h',
-    'FIRCoreSwiftNameSupport.h'
+    '**FirebaseCore.h',
+    '**FIRAnalyticsConfiguration.h',
+    '**FIRApp.h',
+    '**FIRConfiguration.h',
+    '**FIRLoggerLevel.h',
+    '**FIROptions.h',
+    '**FIRCoreSwiftNameSupport.h'
 
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
 end

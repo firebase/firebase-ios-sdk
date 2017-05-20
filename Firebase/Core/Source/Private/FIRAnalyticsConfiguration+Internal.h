@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "../FIRAnalyticsConfiguration.h"
+#import "FIRAnalyticsConfiguration.h"
 
 /// Values stored in analyticsEnabledState. Never alter these constants since they must match with
 /// values persisted to disk.

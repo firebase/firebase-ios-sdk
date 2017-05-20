@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 #import "FIRAuthCredential.h"
-#import "Private/FIRAuthInternalErrors.h"
+#import "FIRAuthInternalErrors.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

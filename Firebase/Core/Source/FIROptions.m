@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRBundleUtil.h"
-#import "Private/FIRErrors.h"
-#import "Private/FIRLogger.h"
-#import "Private/FIROptionsInternal.h"
+#import "FIRBundleUtil.h"
+#import "FIRErrors.h"
+#import "FIRLogger.h"
+#import "FIROptionsInternal.h"
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRNetwork.h"
-#import "Private/FIRNetworkMessageCode.h"
+#import "FIRNetwork.h"
+#import "FIRNetworkMessageCode.h"
 
-#import "Private/FIRMutableDictionary.h"
-#import "Private/FIRNetworkConstants.h"
-#import "Private/FIRReachabilityChecker.h"
-#import "Private/FIRLogger.h"
+#import "FIRMutableDictionary.h"
+#import "FIRNetworkConstants.h"
+#import "FIRReachabilityChecker.h"
+#import "FIRLogger.h"
 
 #import <GoogleToolboxForMac/GTMNSData+zlib.h>
 

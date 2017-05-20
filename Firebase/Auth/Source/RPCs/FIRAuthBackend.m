@@ -16,10 +16,10 @@
 
 #import "FIRAuthBackend.h"
 
-#import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "../AuthProviders/Phone/FIRPhoneAuthProvider.h"
-#import "../Private/FIRAuthErrorUtils.h"
-#import "../Private/FIRAuthGlobalWorkQueue.h"
+#import "FIRPhoneAuthCredential_Internal.h"
+#import "FIRPhoneAuthProvider.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthRPCRequest.h"
 #import "FIRAuthRPCResponse.h"

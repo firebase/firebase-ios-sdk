@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthCredential_Internal.h"
+#import "FIRAuthCredential_Internal.h"
 
 @implementation FIRAuthCredential
 

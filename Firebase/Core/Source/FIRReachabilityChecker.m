@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRReachabilityChecker.h"
+#import "FIRReachabilityChecker.h"
 #import "Private/FIRReachabilityChecker+Internal.h"
 
-#import "Private/FIRNetwork.h"
-#import "Private/FIRNetworkMessageCode.h"
-#import "Private/FIRLogger.h"
+#import "FIRNetwork.h"
+#import "FIRNetworkMessageCode.h"
+#import "FIRLogger.h"
 
 static void ReachabilityCallback(SCNetworkReachabilityRef reachability,
                                  SCNetworkReachabilityFlags flags, void *info);

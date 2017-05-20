@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRActionCodeSettings.h"
+#import "FIRActionCodeSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

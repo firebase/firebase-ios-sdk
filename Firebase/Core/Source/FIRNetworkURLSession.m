@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRNetworkURLSession.h"
+#import "FIRNetworkURLSession.h"
 
-#import "Private/FIRMutableDictionary.h"
-#import "Private/FIRNetworkConstants.h"
-#import "Private/FIRNetworkMessageCode.h"
-#import "Private/FIRLogger.h"
+#import "FIRMutableDictionary.h"
+#import "FIRNetworkConstants.h"
+#import "FIRNetworkMessageCode.h"
+#import "FIRLogger.h"
 
 @implementation FIRNetworkURLSession {
   /// The handler to be called when the request completes or error has occurs.

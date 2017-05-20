@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthAppCredentialManager.h"
+#import "FIRAuthAppCredentialManager.h"
 
-#import "Private/FIRAuthAppCredential.h"
+#import "FIRAuthAppCredential.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
 

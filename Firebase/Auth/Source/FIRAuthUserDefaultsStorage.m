@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthUserDefaultsStorage.h"
+#import "FIRAuthUserDefaultsStorage.h"
 
 #if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
 

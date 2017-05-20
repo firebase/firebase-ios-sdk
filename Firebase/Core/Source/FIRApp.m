@@ -15,11 +15,11 @@
 #include <sys/utsname.h>
 
 #import "FIRApp.h"
-#import "Private/FIRAppInternal.h"
-#import "Private/FIRBundleUtil.h"
+#import "FIRAppInternal.h"
+#import "FIRBundleUtil.h"
 #import "FIRConfiguration.h"
-#import "Private/FIRLogger.h"
-#import "Private/FIROptionsInternal.h"
+#import "FIRLogger.h"
+#import "FIROptionsInternal.h"
 
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";

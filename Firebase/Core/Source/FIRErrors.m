@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRErrors.h"
+#import "FIRErrors.h"
 
 NSString *const kFirebaseErrorDomain = @"com.firebase";
 NSString *const kFirebaseAdMobErrorDomain = @"com.firebase.admob";

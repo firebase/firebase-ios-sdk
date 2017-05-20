@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRURLSchemeUtil.h"
-#import "Private/FIRLogger.h"
+#import "FIRURLSchemeUtil.h"
+#import "FIRLogger.h"
 
 /**
  * Regular expression to match the URL scheme for Google sign-in.

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRLogger.h"
+#import "FIRLogger.h"
 
 #import "FIRLoggerLevel.h"
-#import "Private/FIRAppEnvironmentUtil.h"
+#import "FIRAppEnvironmentUtil.h"
 
 #include <asl.h>
 #include <assert.h>
