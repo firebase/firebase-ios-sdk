@@ -23,6 +23,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.osx.deployment_target = '10.10'
 
   s.source_files = 'Firebase/Auth/Source/**/*.[mh]', 'Source/**/*.[mh]'
+  s.osx.exclude_files =
+    '**FIRAuthAppDelegateProxy.[mh]',
+    '**FIRAuthNotificationManager.[mh]',
+    '**FIRAuthAPNSTokenManager.[mh]',
+    '**FIRPhoneAuthProvider.[mh]',
+    '**FIRAuthAPNSTokenType.[mh]',
+    '**FIRAuthAPNSToken.[mh]'
   s.public_header_files =
     '**FirebaseAuth.h',
     '**FirebaseAuthVersion.h',

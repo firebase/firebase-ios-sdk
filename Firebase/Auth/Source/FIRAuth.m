@@ -24,10 +24,7 @@
 #import "FIREmailPasswordAuthCredential.h"
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAdditionalUserInfo_Internal.h"
-#import "FIRAuthAPNSToken.h"
-#import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthAppDelegateProxy.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthDataResult_Internal.h"
 #import "FIRAuthDispatcher.h"
@@ -35,7 +32,6 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
-#import "FIRAuthNotificationManager.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -59,6 +55,13 @@
 #import "FIRVerifyPasswordResponse.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
+
+#if TARGET_OS_IOS
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppDelegateProxy.h"
+#import "FIRAuthNotificationManager.h"
+#endif
 
 #pragma mark - Constants
 
@@ -174,7 +177,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 #pragma mark - FIRAuth
 
+#if TARGET_OS_IOS
 @interface FIRAuth () <FIRAuthAppDelegateHandler>
+#else
+@interface FIRAuth ()
+#endif
 
 /** @property firebaseAppId
     @brief The Firebase app ID.
@@ -308,6 +315,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         if (strongSelf && !strongSelf->_autoRefreshTokens) {
           FIRLogInfo(kFIRLoggerAuth, @"I-AUT000002", @"Token auto-refresh enabled.");
           strongSelf->_autoRefreshTokens = YES;
+
+          #if TARGET_OS_IOS // TODO: Is a similar mechanism needed on macOS?
           strongSelf->_applicationDidBecomeActiveObserver = [[NSNotificationCenter defaultCenter]
               addObserverForName:UIApplicationDidBecomeActiveNotification
                           object:nil
@@ -331,6 +340,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
               strongSelf->_isAppInBackground = YES;
             }
           }];
+          #endif
         }
         if (!strongSelf.currentUser) {
           dispatch_async(dispatch_get_main_queue(), ^{
@@ -377,14 +387,21 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                   @"Error loading saved user when starting up: %@", error);
     }
+
+    #if TARGET_OS_IOS
     // Initialize for phone number auth.
     _tokenManager =
         [[FIRAuthAPNSTokenManager alloc] initWithApplication:[UIApplication sharedApplication]];
+    #endif
+
     _appCredentialManager = [[FIRAuthAppCredentialManager alloc] initWithKeychain:_keychain];
+
+    #if TARGET_OS_IOS
     _notificationManager =
         [[FIRAuthNotificationManager alloc] initWithApplication:[UIApplication sharedApplication]
                                            appCredentialManager:_appCredentialManager];
     [[FIRAuthAppDelegateProxy sharedInstance] addHandler:self];
+    #endif
   }
   return self;
 }
@@ -397,12 +414,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [defaultCenter removeObserver:handleToRemove];
       [_listenerHandles removeLastObject];
     }
+
+    #if TARGET_OS_IOS
     [defaultCenter removeObserver:_applicationDidBecomeActiveObserver
                              name:UIApplicationDidBecomeActiveNotification
                            object:nil];
     [defaultCenter removeObserver:_applicationDidEnterBackgroundObserver
                              name:UIApplicationDidEnterBackgroundNotification
                            object:nil];
+    #endif
   }
 }
 
@@ -834,7 +854,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
 }
 
-- (NSData *)APNStoken {
+#if TARGET_OS_IOS
+- (NSData *)APNSToken {
   __block NSData *result = nil;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     result = _tokenManager.token.data;
@@ -859,6 +880,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
   return result;
 }
+#endif
 
 #pragma mark - Internal Methods
 
