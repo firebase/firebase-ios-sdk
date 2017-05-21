@@ -321,6 +321,7 @@ typedef void (^FIRVerifyClientResponseCallback)
 + (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback;
 
+#if TARGET_OS_IOS
 /** @fn verifyPhoneNumber:callback:
     @brief Calls the verifyPhoneNumber endpoint, which is responsible for sending the verification
         code to a phone number specified in the request parameters.
@@ -329,6 +330,7 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 + (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback;
+#endif
 
 /** @fn verifyClient:callback:
     @brief Calls the verifyClient endpoint, which is responsible for sending the silent push

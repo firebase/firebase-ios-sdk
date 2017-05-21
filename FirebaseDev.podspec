@@ -16,6 +16,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.10'
   s.default_subspec  = 'Root'
 
   s.subspec 'Root' do |sp|
@@ -41,6 +42,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |sp|
     sp.source_files = 'Firebase/Auth/Source/**/*.[mh]'
+    sp.osx.exclude_files =
+      'Firebase/Auth/Source/FIRAuthAppDelegateProxy.[mh]',
+      'Firebase/Auth/Source/FIRAuthNotificationManager.[mh]',
+      'Firebase/Auth/Source/FIRAuthAPNSTokenManager.[mh]',
+      'Firebase/Auth/Source/FIRAuthAPNSTokenType.[mh]',
+      'Firebase/Auth/Source/FIRAuthAPNSToken.[mh]',
+      'Firebase/Auth/Source/AuthProviders/Phone/FIRPhoneAuthProvider.[mh]'
     sp.public_header_files =
       'Firebase/Auth/Source/FirebaseAuth.h',
       'Firebase/Auth/Source/FirebaseAuthVersion.h',
@@ -99,6 +107,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Messaging' do |sp|
+    sp.platform = 'ios'
     sp.source_files = 'Firebase/Messaging/**/*.[mh]'
     sp.requires_arc = 'Firebase/Messaging/*.m'
 
@@ -119,6 +128,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Storage' do |sp|
+    sp.platform = 'ios'
     sp.source_files = 'Firebase/Storage/**/*.[mh]'
     sp.public_header_files =
       'Firebase/Storage/FirebaseStorage.h',

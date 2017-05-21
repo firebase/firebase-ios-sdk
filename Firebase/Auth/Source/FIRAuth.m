@@ -539,6 +539,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
 
+  #if TARGET_OS_IOS
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credential
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
@@ -552,6 +553,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }];
     return;
   }
+  #endif
 
   FIRVerifyAssertionRequest *request =
       [[FIRVerifyAssertionRequest alloc] initWithAPIKey:_APIKey providerID:credential.provider];
@@ -884,6 +886,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 #pragma mark - Internal Methods
 
+#if TARGET_OS_IOS
 /** @fn signInWithPhoneCredential:callback:
     @brief Signs in using a phone credential.
     @param credential The Phone Auth credential used to sign in.
@@ -939,6 +942,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                callback:callback];
   }];
 }
+#endif
 
 - (void)notifyListenersOfAuthStateChangeWithUser:(FIRUser *)user token:(NSString *)token {
   if (user && _autoRefreshTokens) {

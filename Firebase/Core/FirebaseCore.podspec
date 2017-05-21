@@ -22,15 +22,25 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
 
-  s.source_files = 'Firebase/Core/Source/**/*.[mh]', 'Source/**/*.[mh]'
-  s.public_header_files =
-    '**FirebaseCore.h',
-    '**FIRAnalyticsConfiguration.h',
-    '**FIRApp.h',
-    '**FIRConfiguration.h',
-    '**FIRLoggerLevel.h',
-    '**FIROptions.h',
-    '**FIRCoreSwiftNameSupport.h'
+  eitherSource = lambda { |paths|
+    Array(paths).map { |path| ['Firebase/Core/Source/' + path, 'Source/' + path] }.flatten
+  }
+
+  s.source_files = eitherSource[[
+    'FirebaseCore.h',
+    'FIRAnalyticsConfiguration.h',
+    'FIRApp.h',
+    'FIRConfiguration.h',
+    'FIRLoggerLevel.h',
+    'FIROptions.h',
+    'FIRCoreSwiftNameSupport.h'
+  ]]
+  
+  # Necessary hack to appease header visibility while as a direct OR transitive/internal dependency
+  s.subspec 'Internal' do |ss|
+    ss.source_files = eitherSource['**/*.[mh]']
+    ss.private_header_files = eitherSource['**/*.h']
+  end
 
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
 end

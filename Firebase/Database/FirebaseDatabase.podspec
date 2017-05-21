@@ -20,29 +20,29 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
+  s.osx.deployment_target = '10.10'
 
-  s.source_files =  'Source/**/*.[mh]',
-    'third_party/Wrap-leveldb/APLevelDB.mm',
-    'third_party/SocketRocket/fbase64.c'
-  s.public_header_files =
-    'Api/FirebaseDatabase.h',
-    'Api/FIRDataEventType.h',
-    'Api/FIRDataSnapshot.h',
-    'Api/FIRDatabaseQuery.h',
-    'Api/FIRDatabaseSwiftNameSupport.h',
-    'Api/FIRMutableData.h',
-    'Api/FIRServerValue.h',
-    'Api/FIRTransactionResult.h',
-    'Api/FIRDatabase.h',
-    'FIRDatabaseReference.h'
+  eitherSource = lambda { |paths|
+    Array(paths).map { |path| ['Firebase/Database/Source/' + path, 'Source/' + path] }.flatten
+  }
+
+  s.source_files = eitherSource[['Api/*.h', 'FIRDatabaseReference.h']]
+
+  # Necessary hack to appease header visibility while as a direct OR transitive/internal dependency
+  s.subspec 'Internal' do |ss|
+    ss.source_files = eitherSource['**/*.{m,h,mm,c,cpp}']
+    ss.private_header_files = eitherSource['**/*.h']
+  end
+
   s.library = 'c++'
   s.library = 'icucore'
   s.framework = 'CFNetwork'
   s.framework = 'Security'
   s.framework = 'SystemConfiguration'
   s.dependency 'leveldb-library'
-#  s.dependency 'FirebaseDev/Core'
-  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    '$(inherited) ' +
-    'FIRDatabase_VERSION=' + s.version.to_s }
+  s.dependency 'FirebaseCore', '~> 4.1.0'
+
+  s.xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) ' + 'FIRDatabase_VERSION=' + s.version.to_s
+  }
 end

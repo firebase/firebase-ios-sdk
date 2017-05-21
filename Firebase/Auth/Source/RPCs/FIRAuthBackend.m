@@ -17,7 +17,6 @@
 #import "FIRAuthBackend.h"
 
 #import "FIRPhoneAuthCredential_Internal.h"
-#import "FIRPhoneAuthProvider.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
@@ -53,6 +52,10 @@
 #import "FIRVerifyPhoneNumberResponse.h"
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+
+#if TARGET_OS_IOS
+#import "FIRPhoneAuthProvider.h"
+#endif
 
 /** @var kIosBundleIdentifierHeader
     @brief HTTP header name for iOS bundle ID.
@@ -409,7 +412,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if (self) {
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _fetcherService.userAgent = [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
-        FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+        FirebaseAuthFrameworkVersionString, GTMFetcherStandardUserAgentString(nil)];
     _fetcherService.callbackQueue = FIRAuthGlobalWorkQueue();
   }
   return self;
@@ -572,6 +575,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }];
 }
 
+#if TARGET_OS_IOS
 - (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   FIRVerifyPhoneNumberResponse *response = [[FIRVerifyPhoneNumberResponse alloc] init];
@@ -595,6 +599,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     callback(response, nil);
   }];
 }
+#endif
 
 - (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
   FIRVerifyClientResponse *response = [[FIRVerifyClientResponse alloc] init];

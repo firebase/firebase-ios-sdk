@@ -26,6 +26,8 @@
 		D0483D591ED09E8000DF1DB9 /* FIRAuthUserDefaultsStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EAAC601ED06DE200F22A8B /* FIRAuthUserDefaultsStorage.h */; };
 		D0483D5A1ED09E8000DF1DB9 /* FIRUser_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EAAC611ED06DE200F22A8B /* FIRUser_Internal.h */; };
 		D0483D5B1ED09EF200DF1DB9 /* FIRAuthRPCResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EAAC661ED06DE200F22A8B /* FIRAuthRPCResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D07A1BE51ED0EEB400820A5C /* FirebaseAuthVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EAAC461ED06DE200F22A8B /* FirebaseAuthVersion.m */; };
+		D07A1BE61ED0EEB400820A5C /* FirebaseAuthVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EAAC461ED06DE200F22A8B /* FirebaseAuthVersion.m */; };
 		D0EAACA11ED06DE200F22A8B /* FIREmailAuthProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EAAC021ED06DE100F22A8B /* FIREmailAuthProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0EAACA21ED06DE200F22A8B /* FIREmailAuthProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EAAC021ED06DE100F22A8B /* FIREmailAuthProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0EAACA31ED06DE200F22A8B /* FIREmailAuthProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EAAC031ED06DE100F22A8B /* FIREmailAuthProvider.m */; };
@@ -1157,6 +1159,7 @@
 				D0EAADC91ED06DE200F22A8B /* FIRVerifyPhoneNumberRequest.m in Sources */,
 				D0EAAD091ED06DE200F22A8B /* FIRAuthExceptionUtils.m in Sources */,
 				D0EAAD811ED06DE200F22A8B /* FIRResetPasswordRequest.m in Sources */,
+				D07A1BE51ED0EEB400820A5C /* FirebaseAuthVersion.m in Sources */,
 				D0EAADA11ED06DE200F22A8B /* FIRSignUpNewUserRequest.m in Sources */,
 				D0EAAD2B1ED06DE200F22A8B /* FIRUserInfoImpl.m in Sources */,
 				D0EAACED1ED06DE200F22A8B /* FIRAuthAPNSToken.m in Sources */,
@@ -1213,6 +1216,7 @@
 				D0EAACDA1ED06DE200F22A8B /* NSString+FIRAuth.m in Sources */,
 				D0EAACBC1ED06DE200F22A8B /* FIRGitHubAuthProvider.m in Sources */,
 				D0EAAD121ED06DE200F22A8B /* FIRAuthProvider.m in Sources */,
+				D07A1BE61ED0EEB400820A5C /* FirebaseAuthVersion.m in Sources */,
 				D0EAAD8A1ED06DE200F22A8B /* FIRSecureTokenRequest.m in Sources */,
 				D0EAAD021ED06DE200F22A8B /* FIRAuthDispatcher.m in Sources */,
 				D0EAAD141ED06DE200F22A8B /* FIRAuthSerialTaskQueue.m in Sources */,
@@ -1325,11 +1329,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4.1.0;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 4.1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1356,7 +1360,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-DFIRAuth_MINOR_VERSION=0",
+					"-DFIRAuth_MINOR_VERSION=4.1",
 					"-DFIRAuth_VERSION=4.1.0",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.$(PRODUCT_NAME:rfc1034identifier)";
@@ -1397,11 +1401,11 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4.1.0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 4.1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1426,7 +1430,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = (
-					"-DFIRAuth_MINOR_VERSION=0",
+					"-DFIRAuth_MINOR_VERSION=4.1",
 					"-DFIRAuth_VERSION=4.1.0",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.$(PRODUCT_NAME:rfc1034identifier)";

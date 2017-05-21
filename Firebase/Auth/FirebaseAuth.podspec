@@ -22,41 +22,57 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
 
-  s.source_files = 'Firebase/Auth/Source/**/*.[mh]', 'Source/**/*.[mh]'
-  s.osx.exclude_files =
-    '**FIRAuthAppDelegateProxy.[mh]',
-    '**FIRAuthNotificationManager.[mh]',
-    '**FIRAuthAPNSTokenManager.[mh]',
-    '**FIRPhoneAuthProvider.[mh]',
-    '**FIRAuthAPNSTokenType.[mh]',
-    '**FIRAuthAPNSToken.[mh]'
-  s.public_header_files =
-    '**FirebaseAuth.h',
-    '**FirebaseAuthVersion.h',
-    '**FIRAdditionalUserInfo.h',
-    '**FIRAuth.h',
-    '**FIRAuthAPNSTokenType.h',
-    '**FIRAuthCredential.h',
-    '**FIRAuthDataResult.h',
-    '**FIRAuthErrors.h',
-    '**FIRAuthSwiftNameSupport.h',
-    '**FIREmailAuthProvider.h',
-    '**FIRFacebookAuthProvider.h',
-    '**FIRGitHubAuthProvider.h',
-    '**FIRGoogleAuthProvider.h',
-    '**FIROAuthProvider.h',
-    '**FIRPhoneAuthCredential.h',
-    '**FIRPhoneAuthProvider.h',
-    '**FIRTwitterAuthProvider.h',
-    '**FIRUser.h',
-    '**FIRUserInfo.h'
-  s.preserve_paths =
-    'README.md',
-    'CHANGELOG.md'
-  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    '$(inherited) ' + 'FIRAuth_VERSION=' + s.version.to_s +
-    ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
+  eitherSource = lambda { |paths|
+    Array(paths).map { |path| ['Firebase/Auth/Source/' + path, 'Source/' + path] }.flatten
   }
+
+  s.source_files = eitherSource[[
+    'FirebaseAuth.h',
+    'FirebaseAuthVersion.h',
+    'FIRAdditionalUserInfo.h',
+    'FIRAuth.h',
+    'FIRAuthAPNSTokenType.h',
+    'FIRAuthCredential.h',
+    'FIRAuthDataResult.h',
+    'FIRAuthErrors.h',
+    'FIRAuthSwiftNameSupport.h',
+    'AuthProviders/EmailPassword/FIREmailAuthProvider.h',
+    'AuthProviders/Facebook/FIRFacebookAuthProvider.h',
+    'AuthProviders/GitHub/FIRGitHubAuthProvider.h',
+    'AuthProviders/Google/FIRGoogleAuthProvider.h',
+    'AuthProviders/OAuth/FIROAuthProvider.h',
+    'AuthProviders/Phone/FIRPhoneAuthCredential.h',
+    'AuthProviders/Phone/FIRPhoneAuthProvider.h',
+    'AuthProviders/Twitter/FIRTwitterAuthProvider.h',
+    'FIRUser.h',
+    'FIRUserInfo.h'
+  ]]
+
+  # Necessary hack to appease header visibility while as a direct OR transitive/internal dependency
+  s.subspec 'Internal' do |ss|
+    ss.source_files = eitherSource['**/*.[mh]']
+    ss.private_header_files = eitherSource['**/*.h']
+
+    ss.osx.exclude_files = eitherSource[[
+      'FIRAuthAppDelegateProxy.[mh]',
+      'FIRAuthNotificationManager.[mh]',
+      'FIRAuthAPNSTokenManager.[mh]',
+      'FIRAuthAPNSTokenType.[mh]',
+      'FIRAuthAPNSToken.[mh]',
+      'AuthProviders/Phone/FIRPhoneAuthProvider.[mh]'
+    ]]
+  end
+
+  s.preserve_paths =
+    'Firebase/Auth/README.md', 'README.md',
+    'Firebase/Auth/CHANGELOG.md', 'CHANGELOG.md'
+
+  s.xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      '$(inherited) ' + 'FIRAuth_VERSION=' + s.version.to_s +
+      ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
+  }
+
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 4.1.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
