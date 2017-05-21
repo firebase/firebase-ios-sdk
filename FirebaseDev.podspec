@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDev'
-  s.version          = '4.0.0'
+  s.version          = '4.0.1'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -16,6 +16,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.10'
   s.default_subspec  = 'Root'
 
   s.subspec 'Root' do |sp|
@@ -26,21 +27,28 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Core' do |sp|
-    sp.source_files = 'Firebase/Core/**/*.[mh]'
+    sp.source_files = 'Firebase/Core/Source/**/*.[mh]'
     sp.public_header_files =
-      'Firebase/Core/FirebaseCore.h',
-      'Firebase/Core/FIRAnalyticsConfiguration.h',
-      'Firebase/Core/FIRApp.h',
-      'Firebase/Core/FIRConfiguration.h',
-      'Firebase/Core/FIRLoggerLevel.h',
-      'Firebase/Core/FIROptions.h',
-      'Firebase/Core/FIRCoreSwiftNameSupport.h'
+      'Firebase/Core/Source/FirebaseCore.h',
+      'Firebase/Core/Source/FIRAnalyticsConfiguration.h',
+      'Firebase/Core/Source/FIRApp.h',
+      'Firebase/Core/Source/FIRConfiguration.h',
+      'Firebase/Core/Source/FIRLoggerLevel.h',
+      'Firebase/Core/Source/FIROptions.h',
+      'Firebase/Core/Source/FIRCoreSwiftNameSupport.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
     sp.dependency 'FirebaseDev/Root'
   end
 
   s.subspec 'Auth' do |sp|
     sp.source_files = 'Firebase/Auth/Source/**/*.[mh]'
+    sp.osx.exclude_files =
+      'Firebase/Auth/Source/FIRAuthAppDelegateProxy.[mh]',
+      'Firebase/Auth/Source/FIRAuthNotificationManager.[mh]',
+      'Firebase/Auth/Source/FIRAuthAPNSTokenManager.[mh]',
+      'Firebase/Auth/Source/FIRAuthAPNSTokenType.[mh]',
+      'Firebase/Auth/Source/FIRAuthAPNSToken.[mh]',
+      'Firebase/Auth/Source/AuthProviders/Phone/FIRPhoneAuthProvider.[mh]'
     sp.public_header_files =
       'Firebase/Auth/Source/FirebaseAuth.h',
       'Firebase/Auth/Source/FirebaseAuthVersion.h',
@@ -74,20 +82,20 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Database' do |sp|
-    sp.source_files = 'Firebase/Database/**/*.[mh]',
-      'Firebase/Database/third_party/Wrap-leveldb/APLevelDB.mm',
-      'Firebase/Database/third_party/SocketRocket/fbase64.c'
+    sp.source_files = 'Firebase/Database/Source/**/*.[mh]',
+      'Firebase/Database/Source/third_party/Wrap-leveldb/APLevelDB.mm',
+      'Firebase/Database/Source/third_party/SocketRocket/fbase64.c'
     sp.public_header_files =
-      'Firebase/Database/Api/FirebaseDatabase.h',
-      'Firebase/Database/Api/FIRDataEventType.h',
-      'Firebase/Database/Api/FIRDataSnapshot.h',
-      'Firebase/Database/Api/FIRDatabaseQuery.h',
-      'Firebase/Database/Api/FIRDatabaseSwiftNameSupport.h',
-      'Firebase/Database/Api/FIRMutableData.h',
-      'Firebase/Database/Api/FIRServerValue.h',
-      'Firebase/Database/Api/FIRTransactionResult.h',
-      'Firebase/Database/Api/FIRDatabase.h',
-      'Firebase/Database/FIRDatabaseReference.h'
+      'Firebase/Database/Source/Api/FirebaseDatabase.h',
+      'Firebase/Database/Source/Api/FIRDataEventType.h',
+      'Firebase/Database/Source/Api/FIRDataSnapshot.h',
+      'Firebase/Database/Source/Api/FIRDatabaseQuery.h',
+      'Firebase/Database/Source/Api/FIRDatabaseSwiftNameSupport.h',
+      'Firebase/Database/Source/Api/FIRMutableData.h',
+      'Firebase/Database/Source/Api/FIRServerValue.h',
+      'Firebase/Database/Source/Api/FIRTransactionResult.h',
+      'Firebase/Database/Source/Api/FIRDatabase.h',
+      'Firebase/Database/Source/FIRDatabaseReference.h'
     sp.library = 'c++'
     sp.library = 'icucore'
     sp.framework = 'CFNetwork'
@@ -99,12 +107,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Messaging' do |sp|
-    sp.source_files = 'Firebase/Messaging/**/*.[mh]'
-    sp.requires_arc = 'Firebase/Messaging/*.m'
+    sp.platform = 'ios'
+    sp.source_files = 'Firebase/Messaging/Source/**/*.[mh]'
+    sp.requires_arc = 'Firebase/Messaging/Source/*.m'
 
     sp.public_header_files =
-      'Firebase/Messaging/Public/FirebaseMessaging.h',
-      'Firebase/Messaging/Public/FIRMessaging.h'
+      'Firebase/Messaging/Source/Public/FirebaseMessaging.h',
+      'Firebase/Messaging/Source/Public/FIRMessaging.h'
     sp.library = 'sqlite3'
     sp.xcconfig ={ 'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
@@ -119,20 +128,21 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Storage' do |sp|
-    sp.source_files = 'Firebase/Storage/**/*.[mh]'
+    sp.source_files = 'Firebase/Storage/Source/**/*.[mh]'
     sp.public_header_files =
-      'Firebase/Storage/FirebaseStorage.h',
-      'Firebase/Storage/FIRStorage.h',
-      'Firebase/Storage/FIRStorageConstants.h',
-      'Firebase/Storage/FIRStorageDownloadTask.h',
-      'Firebase/Storage/FIRStorageMetadata.h',
-      'Firebase/Storage/FIRStorageObservableTask.h',
-      'Firebase/Storage/FIRStorageReference.h',
-      'Firebase/Storage/FIRStorageSwiftNameSupport.h',
-      'Firebase/Storage/FIRStorageTask.h',
-      'Firebase/Storage/FIRStorageTaskSnapshot.h',
-      'Firebase/Storage/FIRStorageUploadTask.h'
-    sp.framework = 'MobileCoreServices'
+      'Firebase/Storage/Source/FirebaseStorage.h',
+      'Firebase/Storage/Source/FIRStorage.h',
+      'Firebase/Storage/Source/FIRStorageConstants.h',
+      'Firebase/Storage/Source/FIRStorageDownloadTask.h',
+      'Firebase/Storage/Source/FIRStorageMetadata.h',
+      'Firebase/Storage/Source/FIRStorageObservableTask.h',
+      'Firebase/Storage/Source/FIRStorageReference.h',
+      'Firebase/Storage/Source/FIRStorageSwiftNameSupport.h',
+      'Firebase/Storage/Source/FIRStorageTask.h',
+      'Firebase/Storage/Source/FIRStorageTaskSnapshot.h',
+      'Firebase/Storage/Source/FIRStorageUploadTask.h'
+    sp.ios.framework = 'MobileCoreServices'
+    sp.osx.framework = 'CoreServices'
     sp.dependency 'FirebaseDev/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
     sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRStorage_VERSION=' + s.version.to_s }

@@ -16,7 +16,7 @@
 
 #import "FIRSecureTokenResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 /** @var kExpiresInKey
     @brief The key for the number of seconds till the access token expires.

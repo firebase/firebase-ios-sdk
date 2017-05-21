@@ -1,0 +1,34 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'FirebaseAuth'
+
+use_frameworks!
+
+def shared_pods
+  pod 'FirebaseCore', :path => '../Core'
+
+  pod 'GTMSessionFetcher/Core', '~> 1.1'
+  pod 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
+end
+
+target :FirebaseAuth_iOS do
+  project 'FirebaseAuth.xcodeproj'
+  platform :ios, '8.0'
+
+  shared_pods
+end
+
+target :FirebaseAuth_macOS do
+  project 'FirebaseAuth.xcodeproj'
+  platform :osx, '10.10'
+
+  shared_pods
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['CONFIGURATION_BUILD_DIR'] = '$PODS_CONFIGURATION_BUILD_DIR'
+    end
+  end
+end

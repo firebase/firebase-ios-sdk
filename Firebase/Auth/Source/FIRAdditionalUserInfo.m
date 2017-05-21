@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAdditionalUserInfo_Internal.h"
+#import "FIRAdditionalUserInfo_Internal.h"
 
 #import "FIRVerifyAssertionResponse.h"
 

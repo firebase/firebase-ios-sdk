@@ -158,6 +158,7 @@ FIR_SWIFT_NAME(User)
             completion:(nullable FIRUserProfileChangeCallback)completion
     FIR_SWIFT_NAME(updatePassword(to:completion:));
 
+#if TARGET_OS_IOS
 /** @fn updatePhoneNumberCredential:completion:
     @brief Updates the phone number for the user. On success, the cached user profile data is
         updated.
@@ -181,6 +182,7 @@ FIR_SWIFT_NAME(User)
  */
 - (void)updatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneNumberCredential
                          completion:(nullable FIRUserProfileChangeCallback)completion;
+#endif
 
 /** @fn profileChangeRequest
     @brief Creates an object which may be used to change the user's profile data.

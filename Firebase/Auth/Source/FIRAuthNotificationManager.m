@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthNotificationManager.h"
+#import "FIRAuthNotificationManager.h"
+#import "FirebaseAuth_Internal.h"
 
-#import "FIRLogger.h"
-#import "Private/FIRAuthAppCredential.h"
-#import "Private/FIRAuthAppCredentialManager.h"
+#import FirebaseCore(FIRLogger.h)
+#import "FIRAuthAppCredential.h"
+#import "FIRAuthAppCredentialManager.h"
 #import "FIRAuthGlobalWorkQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN

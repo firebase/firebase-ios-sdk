@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FirebaseAuth_Internal.h"
 
-#import "FIRLogger.h"
-#import "Private/FIRAuthAPNSToken.h"
+#import FirebaseCore(FIRLogger.h)
+#import "FIRAuthAPNSToken.h"
 #import "FIRAuthGlobalWorkQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN

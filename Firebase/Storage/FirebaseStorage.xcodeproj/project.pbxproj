@@ -1,0 +1,801 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6B564FBA8EAE87420C74DFED /* Pods_FirebaseStorage_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 472B2584717DBFE5AD5A3EFA /* Pods_FirebaseStorage_macOS.framework */; };
+		92742E6F00B3A7BD43DF99A6 /* Pods_FirebaseStorage_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3A5F700799ACFD78AFC438A /* Pods_FirebaseStorage_iOS.framework */; };
+		D02FEC321ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC331ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC341ED1C8C4002B3D89 /* FIRStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC351ED1C8C4002B3D89 /* FIRStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC381ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC391ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC3E1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC3F1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC461ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC471ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC4A1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC4B1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC501ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC511ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC541ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC551ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC561ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC571ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC5A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC5B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC621ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC631ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC8C1ED1C9BF002B3D89 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D02FEC8B1ED1C9BF002B3D89 /* MobileCoreServices.framework */; };
+		D02FEC8D1ED1CB7D002B3D89 /* FirebaseStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */; };
+		D02FEC8E1ED1CB7D002B3D89 /* FIRStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */; };
+		D02FEC8F1ED1CB7D002B3D89 /* FIRStorageConstants_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */; };
+		D02FEC901ED1CB7D002B3D89 /* FIRStorageDeleteTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */; };
+		D02FEC911ED1CB7D002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */; };
+		D02FEC921ED1CB7D002B3D89 /* FIRStorageErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */; };
+		D02FEC931ED1CB7D002B3D89 /* FIRStorageGetMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */; };
+		D02FEC941ED1CB7D002B3D89 /* FIRStorageMetadata_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */; };
+		D02FEC951ED1CB7D002B3D89 /* FIRStorageObservableTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */; };
+		D02FEC961ED1CB7D002B3D89 /* FIRStoragePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */; };
+		D02FEC971ED1CB7D002B3D89 /* FIRStorageReference_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */; };
+		D02FEC981ED1CB7D002B3D89 /* FIRStorageTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */; };
+		D02FEC991ED1CB7D002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */; };
+		D02FEC9A1ED1CB7D002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */; };
+		D02FEC9B1ED1CB7D002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */; };
+		D02FEC9C1ED1CB7D002B3D89 /* FIRStorageUploadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */; };
+		D02FEC9D1ED1CB7D002B3D89 /* FIRStorageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */; };
+		D02FEC9E1ED1CB82002B3D89 /* FirebaseStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */; };
+		D02FEC9F1ED1CB82002B3D89 /* FIRStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */; };
+		D02FECA01ED1CB82002B3D89 /* FIRStorageConstants_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */; };
+		D02FECA11ED1CB82002B3D89 /* FIRStorageDeleteTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */; };
+		D02FECA21ED1CB82002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */; };
+		D02FECA31ED1CB82002B3D89 /* FIRStorageErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */; };
+		D02FECA41ED1CB82002B3D89 /* FIRStorageGetMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */; };
+		D02FECA51ED1CB82002B3D89 /* FIRStorageMetadata_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */; };
+		D02FECA61ED1CB82002B3D89 /* FIRStorageObservableTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */; };
+		D02FECA71ED1CB82002B3D89 /* FIRStoragePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */; };
+		D02FECA81ED1CB82002B3D89 /* FIRStorageReference_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */; };
+		D02FECA91ED1CB82002B3D89 /* FIRStorageTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */; };
+		D02FECAA1ED1CB82002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */; };
+		D02FECAB1ED1CB82002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */; };
+		D02FECAC1ED1CB82002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */; };
+		D02FECAD1ED1CB82002B3D89 /* FIRStorageUploadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */; };
+		D02FECAE1ED1CB82002B3D89 /* FIRStorageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */; };
+		D02FECAF1ED1CB99002B3D89 /* FIRStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */; };
+		D02FECB01ED1CB99002B3D89 /* FIRStorageConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */; };
+		D02FECB11ED1CB99002B3D89 /* FIRStorageDeleteTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */; };
+		D02FECB21ED1CB99002B3D89 /* FIRStorageDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */; };
+		D02FECB31ED1CB99002B3D89 /* FIRStorageErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */; };
+		D02FECB41ED1CB99002B3D89 /* FIRStorageGetMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */; };
+		D02FECB51ED1CB99002B3D89 /* FIRStorageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */; };
+		D02FECB61ED1CB99002B3D89 /* FIRStorageObservableTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */; };
+		D02FECB71ED1CB99002B3D89 /* FIRStoragePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */; };
+		D02FECB81ED1CB99002B3D89 /* FIRStorageReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */; };
+		D02FECB91ED1CB99002B3D89 /* FIRStorageTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */; };
+		D02FECBA1ED1CB99002B3D89 /* FIRStorageTaskSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */; };
+		D02FECBB1ED1CB99002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */; };
+		D02FECBC1ED1CB99002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */; };
+		D02FECBD1ED1CB99002B3D89 /* FIRStorageUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */; };
+		D02FECBE1ED1CB99002B3D89 /* FIRStorageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */; };
+		D02FECBF1ED1CB9C002B3D89 /* FIRStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */; };
+		D02FECC01ED1CB9D002B3D89 /* FIRStorageConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */; };
+		D02FECC11ED1CB9D002B3D89 /* FIRStorageDeleteTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */; };
+		D02FECC21ED1CB9D002B3D89 /* FIRStorageDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */; };
+		D02FECC31ED1CB9D002B3D89 /* FIRStorageErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */; };
+		D02FECC41ED1CB9D002B3D89 /* FIRStorageGetMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */; };
+		D02FECC51ED1CB9D002B3D89 /* FIRStorageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */; };
+		D02FECC61ED1CB9D002B3D89 /* FIRStorageObservableTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */; };
+		D02FECC71ED1CB9D002B3D89 /* FIRStoragePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */; };
+		D02FECC81ED1CB9D002B3D89 /* FIRStorageReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */; };
+		D02FECC91ED1CB9D002B3D89 /* FIRStorageTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */; };
+		D02FECCA1ED1CB9D002B3D89 /* FIRStorageTaskSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */; };
+		D02FECCB1ED1CB9D002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */; };
+		D02FECCC1ED1CB9D002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */; };
+		D02FECCD1ED1CB9D002B3D89 /* FIRStorageUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */; };
+		D02FECCE1ED1CB9D002B3D89 /* FIRStorageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */; };
+		D02FECD01ED1CC45002B3D89 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D02FECCF1ED1CC45002B3D89 /* CoreServices.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0E2CC1F397FDBE883C13770D /* Pods-FirebaseStorage_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseStorage_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseStorage_macOS/Pods-FirebaseStorage_macOS.release.xcconfig"; sourceTree = "<group>"; };
+		472B2584717DBFE5AD5A3EFA /* Pods_FirebaseStorage_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FirebaseStorage_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		51786C770C2046C5880491ED /* Pods-FirebaseStorage_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseStorage_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseStorage_iOS/Pods-FirebaseStorage_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		6ADA2D1D08BC2EE8C1D10D2A /* Pods-FirebaseStorage_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseStorage_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseStorage_macOS/Pods-FirebaseStorage_macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		B3A5F700799ACFD78AFC438A /* Pods_FirebaseStorage_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FirebaseStorage_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2846E1125AFD73AD3CB1D91 /* Pods-FirebaseStorage_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseStorage_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseStorage_iOS/Pods-FirebaseStorage_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirebaseStorage.h; sourceTree = "<group>"; };
+		D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorage.h; sourceTree = "<group>"; };
+		D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorage.m; sourceTree = "<group>"; };
+		D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageConstants.h; sourceTree = "<group>"; };
+		D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageConstants.m; sourceTree = "<group>"; };
+		D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageDeleteTask.m; sourceTree = "<group>"; };
+		D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageDownloadTask.h; sourceTree = "<group>"; };
+		D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageDownloadTask.m; sourceTree = "<group>"; };
+		D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageErrors.m; sourceTree = "<group>"; };
+		D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageGetMetadataTask.m; sourceTree = "<group>"; };
+		D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageMetadata.h; sourceTree = "<group>"; };
+		D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageMetadata.m; sourceTree = "<group>"; };
+		D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageObservableTask.h; sourceTree = "<group>"; };
+		D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageObservableTask.m; sourceTree = "<group>"; };
+		D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStoragePath.m; sourceTree = "<group>"; };
+		D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageReference.h; sourceTree = "<group>"; };
+		D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageReference.m; sourceTree = "<group>"; };
+		D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageSwiftNameSupport.h; sourceTree = "<group>"; };
+		D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageTask.h; sourceTree = "<group>"; };
+		D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageTask.m; sourceTree = "<group>"; };
+		D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageTaskSnapshot.h; sourceTree = "<group>"; };
+		D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageTaskSnapshot.m; sourceTree = "<group>"; };
+		D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageTokenAuthorizer.m; sourceTree = "<group>"; };
+		D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageUpdateMetadataTask.m; sourceTree = "<group>"; };
+		D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageUploadTask.h; sourceTree = "<group>"; };
+		D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageUploadTask.m; sourceTree = "<group>"; };
+		D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageUtils.m; sourceTree = "<group>"; };
+		D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorage_Private.h; sourceTree = "<group>"; };
+		D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageConstants_Private.h; sourceTree = "<group>"; };
+		D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageDeleteTask.h; sourceTree = "<group>"; };
+		D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageDownloadTask_Private.h; sourceTree = "<group>"; };
+		D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageErrors.h; sourceTree = "<group>"; };
+		D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageGetMetadataTask.h; sourceTree = "<group>"; };
+		D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageMetadata_Private.h; sourceTree = "<group>"; };
+		D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageObservableTask_Private.h; sourceTree = "<group>"; };
+		D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStoragePath.h; sourceTree = "<group>"; };
+		D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageReference_Private.h; sourceTree = "<group>"; };
+		D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageTask_Private.h; sourceTree = "<group>"; };
+		D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageTaskSnapshot_Private.h; sourceTree = "<group>"; };
+		D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageTokenAuthorizer.h; sourceTree = "<group>"; };
+		D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageUpdateMetadataTask.h; sourceTree = "<group>"; };
+		D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageUploadTask_Private.h; sourceTree = "<group>"; };
+		D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageUtils.h; sourceTree = "<group>"; };
+		D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirebaseStorage_Private.h; sourceTree = "<group>"; };
+		D02FEC8B1ED1C9BF002B3D89 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
+		D02FECCF1ED1CC45002B3D89 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
+		D0E2161D1A2D63EF0048AC77 /* FirebaseStorage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FirebaseStorage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0F3B8291A2D628200284E3C /* FirebaseStorage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FirebaseStorage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D0E216191A2D63EF0048AC77 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02FEC8C1ED1C9BF002B3D89 /* MobileCoreServices.framework in Frameworks */,
+				92742E6F00B3A7BD43DF99A6 /* Pods_FirebaseStorage_iOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0F3B8251A2D628200284E3C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02FECD01ED1CC45002B3D89 /* CoreServices.framework in Frameworks */,
+				6B564FBA8EAE87420C74DFED /* Pods_FirebaseStorage_macOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		09F5F602E76F3C2E76919C38 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				51786C770C2046C5880491ED /* Pods-FirebaseStorage_iOS.debug.xcconfig */,
+				C2846E1125AFD73AD3CB1D91 /* Pods-FirebaseStorage_iOS.release.xcconfig */,
+				6ADA2D1D08BC2EE8C1D10D2A /* Pods-FirebaseStorage_macOS.debug.xcconfig */,
+				0E2CC1F397FDBE883C13770D /* Pods-FirebaseStorage_macOS.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		4DC4E7B0D06FD5809CF1020D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D0EAADD21ED06F6E00F22A8B /* macOS */,
+				D0EAADD11ED06F6000F22A8B /* iOS */,
+				B3A5F700799ACFD78AFC438A /* Pods_FirebaseStorage_iOS.framework */,
+				472B2584717DBFE5AD5A3EFA /* Pods_FirebaseStorage_macOS.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D02FEC051ED1C8C4002B3D89 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */,
+				D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */,
+				D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */,
+				D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */,
+				D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */,
+				D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */,
+				D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */,
+				D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */,
+				D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */,
+				D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */,
+				D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */,
+				D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */,
+				D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */,
+				D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */,
+				D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */,
+				D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */,
+				D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */,
+				D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */,
+				D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */,
+				D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */,
+				D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */,
+				D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */,
+				D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */,
+				D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */,
+				D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */,
+				D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */,
+				D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */,
+				D02FEC211ED1C8C4002B3D89 /* Private */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		D02FEC211ED1C8C4002B3D89 /* Private */ = {
+			isa = PBXGroup;
+			children = (
+				D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */,
+				D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */,
+				D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */,
+				D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */,
+				D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */,
+				D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */,
+				D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */,
+				D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */,
+				D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */,
+				D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */,
+				D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */,
+				D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */,
+				D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */,
+				D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */,
+				D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */,
+				D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */,
+				D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */,
+			);
+			path = Private;
+			sourceTree = "<group>";
+		};
+		D0EAADD11ED06F6000F22A8B /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				D02FEC8B1ED1C9BF002B3D89 /* MobileCoreServices.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		D0EAADD21ED06F6E00F22A8B /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				D02FECCF1ED1CC45002B3D89 /* CoreServices.framework */,
+			);
+			name = macOS;
+			sourceTree = "<group>";
+		};
+		D0F3B81D1A2D626700284E3C = {
+			isa = PBXGroup;
+			children = (
+				D02FEC051ED1C8C4002B3D89 /* Source */,
+				D0F3B82A1A2D628200284E3C /* Products */,
+				4DC4E7B0D06FD5809CF1020D /* Frameworks */,
+				09F5F602E76F3C2E76919C38 /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+		D0F3B82A1A2D628200284E3C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D0F3B8291A2D628200284E3C /* FirebaseStorage.framework */,
+				D0E2161D1A2D63EF0048AC77 /* FirebaseStorage.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D0E2161A1A2D63EF0048AC77 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02FEC321ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */,
+				D02FEC341ED1C8C4002B3D89 /* FIRStorage.h in Headers */,
+				D02FEC381ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */,
+				D02FEC3E1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */,
+				D02FEC461ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */,
+				D02FEC4A1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */,
+				D02FEC501ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */,
+				D02FEC541ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */,
+				D02FEC561ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */,
+				D02FEC5A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */,
+				D02FEC621ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */,
+				D02FEC9E1ED1CB82002B3D89 /* FirebaseStorage_Private.h in Headers */,
+				D02FEC9F1ED1CB82002B3D89 /* FIRStorage_Private.h in Headers */,
+				D02FECA01ED1CB82002B3D89 /* FIRStorageConstants_Private.h in Headers */,
+				D02FECA11ED1CB82002B3D89 /* FIRStorageDeleteTask.h in Headers */,
+				D02FECA21ED1CB82002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */,
+				D02FECA31ED1CB82002B3D89 /* FIRStorageErrors.h in Headers */,
+				D02FECA41ED1CB82002B3D89 /* FIRStorageGetMetadataTask.h in Headers */,
+				D02FECA51ED1CB82002B3D89 /* FIRStorageMetadata_Private.h in Headers */,
+				D02FECA61ED1CB82002B3D89 /* FIRStorageObservableTask_Private.h in Headers */,
+				D02FECA71ED1CB82002B3D89 /* FIRStoragePath.h in Headers */,
+				D02FECA81ED1CB82002B3D89 /* FIRStorageReference_Private.h in Headers */,
+				D02FECA91ED1CB82002B3D89 /* FIRStorageTask_Private.h in Headers */,
+				D02FECAA1ED1CB82002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */,
+				D02FECAB1ED1CB82002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */,
+				D02FECAC1ED1CB82002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */,
+				D02FECAD1ED1CB82002B3D89 /* FIRStorageUploadTask_Private.h in Headers */,
+				D02FECAE1ED1CB82002B3D89 /* FIRStorageUtils.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0F3B8261A2D628200284E3C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02FEC331ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */,
+				D02FEC351ED1C8C4002B3D89 /* FIRStorage.h in Headers */,
+				D02FEC391ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */,
+				D02FEC3F1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */,
+				D02FEC471ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */,
+				D02FEC4B1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */,
+				D02FEC511ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */,
+				D02FEC551ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */,
+				D02FEC571ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */,
+				D02FEC5B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */,
+				D02FEC631ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */,
+				D02FEC8D1ED1CB7D002B3D89 /* FirebaseStorage_Private.h in Headers */,
+				D02FEC8E1ED1CB7D002B3D89 /* FIRStorage_Private.h in Headers */,
+				D02FEC8F1ED1CB7D002B3D89 /* FIRStorageConstants_Private.h in Headers */,
+				D02FEC901ED1CB7D002B3D89 /* FIRStorageDeleteTask.h in Headers */,
+				D02FEC911ED1CB7D002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */,
+				D02FEC921ED1CB7D002B3D89 /* FIRStorageErrors.h in Headers */,
+				D02FEC931ED1CB7D002B3D89 /* FIRStorageGetMetadataTask.h in Headers */,
+				D02FEC941ED1CB7D002B3D89 /* FIRStorageMetadata_Private.h in Headers */,
+				D02FEC951ED1CB7D002B3D89 /* FIRStorageObservableTask_Private.h in Headers */,
+				D02FEC961ED1CB7D002B3D89 /* FIRStoragePath.h in Headers */,
+				D02FEC971ED1CB7D002B3D89 /* FIRStorageReference_Private.h in Headers */,
+				D02FEC981ED1CB7D002B3D89 /* FIRStorageTask_Private.h in Headers */,
+				D02FEC991ED1CB7D002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */,
+				D02FEC9A1ED1CB7D002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */,
+				D02FEC9B1ED1CB7D002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */,
+				D02FEC9C1ED1CB7D002B3D89 /* FIRStorageUploadTask_Private.h in Headers */,
+				D02FEC9D1ED1CB7D002B3D89 /* FIRStorageUtils.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D0E2161C1A2D63EF0048AC77 /* FirebaseStorage_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0E216301A2D63EF0048AC77 /* Build configuration list for PBXNativeTarget "FirebaseStorage_iOS" */;
+			buildPhases = (
+				A5CAFFEBC14CC8201B7238D5 /* [CP] Check Pods Manifest.lock */,
+				D0E216181A2D63EF0048AC77 /* Sources */,
+				D0E216191A2D63EF0048AC77 /* Frameworks */,
+				D0E2161A1A2D63EF0048AC77 /* Headers */,
+				D0E2161B1A2D63EF0048AC77 /* Resources */,
+				937B87048755DAA84B818D78 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FirebaseStorage_iOS;
+			productName = FirebaseStorage;
+			productReference = D0E2161D1A2D63EF0048AC77 /* FirebaseStorage.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		D0F3B8281A2D628200284E3C /* FirebaseStorage_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0F3B83D1A2D628200284E3C /* Build configuration list for PBXNativeTarget "FirebaseStorage_macOS" */;
+			buildPhases = (
+				82C77A73E5624FA70AFD080D /* [CP] Check Pods Manifest.lock */,
+				D0F3B8241A2D628200284E3C /* Sources */,
+				D0F3B8251A2D628200284E3C /* Frameworks */,
+				D0F3B8261A2D628200284E3C /* Headers */,
+				D0F3B8271A2D628200284E3C /* Resources */,
+				BE3451496B02C0EDBA7A311D /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FirebaseStorage_macOS;
+			productName = FirebaseStorage;
+			productReference = D0F3B8291A2D628200284E3C /* FirebaseStorage.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D0F3B81E1A2D626700284E3C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = "";
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0800;
+				TargetAttributes = {
+					D0E2161C1A2D63EF0048AC77 = {
+						CreatedOnToolsVersion = 6.1;
+						LastSwiftMigration = 0800;
+					};
+					D0F3B8281A2D628200284E3C = {
+						CreatedOnToolsVersion = 6.1;
+					};
+				};
+			};
+			buildConfigurationList = D0F3B8211A2D626700284E3C /* Build configuration list for PBXProject "FirebaseStorage" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = D0F3B81D1A2D626700284E3C;
+			productRefGroup = D0F3B82A1A2D628200284E3C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D0E2161C1A2D63EF0048AC77 /* FirebaseStorage_iOS */,
+				D0F3B8281A2D628200284E3C /* FirebaseStorage_macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D0E2161B1A2D63EF0048AC77 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0F3B8271A2D628200284E3C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		82C77A73E5624FA70AFD080D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		937B87048755DAA84B818D78 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FirebaseStorage_iOS/Pods-FirebaseStorage_iOS-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A5CAFFEBC14CC8201B7238D5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		BE3451496B02C0EDBA7A311D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FirebaseStorage_macOS/Pods-FirebaseStorage_macOS-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D0E216181A2D63EF0048AC77 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02FECAF1ED1CB99002B3D89 /* FIRStorage.m in Sources */,
+				D02FECB01ED1CB99002B3D89 /* FIRStorageConstants.m in Sources */,
+				D02FECB11ED1CB99002B3D89 /* FIRStorageDeleteTask.m in Sources */,
+				D02FECB21ED1CB99002B3D89 /* FIRStorageDownloadTask.m in Sources */,
+				D02FECB31ED1CB99002B3D89 /* FIRStorageErrors.m in Sources */,
+				D02FECB41ED1CB99002B3D89 /* FIRStorageGetMetadataTask.m in Sources */,
+				D02FECB51ED1CB99002B3D89 /* FIRStorageMetadata.m in Sources */,
+				D02FECB61ED1CB99002B3D89 /* FIRStorageObservableTask.m in Sources */,
+				D02FECB71ED1CB99002B3D89 /* FIRStoragePath.m in Sources */,
+				D02FECB81ED1CB99002B3D89 /* FIRStorageReference.m in Sources */,
+				D02FECB91ED1CB99002B3D89 /* FIRStorageTask.m in Sources */,
+				D02FECBA1ED1CB99002B3D89 /* FIRStorageTaskSnapshot.m in Sources */,
+				D02FECBB1ED1CB99002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */,
+				D02FECBC1ED1CB99002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */,
+				D02FECBD1ED1CB99002B3D89 /* FIRStorageUploadTask.m in Sources */,
+				D02FECBE1ED1CB99002B3D89 /* FIRStorageUtils.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0F3B8241A2D628200284E3C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02FECBF1ED1CB9C002B3D89 /* FIRStorage.m in Sources */,
+				D02FECC01ED1CB9D002B3D89 /* FIRStorageConstants.m in Sources */,
+				D02FECC11ED1CB9D002B3D89 /* FIRStorageDeleteTask.m in Sources */,
+				D02FECC21ED1CB9D002B3D89 /* FIRStorageDownloadTask.m in Sources */,
+				D02FECC31ED1CB9D002B3D89 /* FIRStorageErrors.m in Sources */,
+				D02FECC41ED1CB9D002B3D89 /* FIRStorageGetMetadataTask.m in Sources */,
+				D02FECC51ED1CB9D002B3D89 /* FIRStorageMetadata.m in Sources */,
+				D02FECC61ED1CB9D002B3D89 /* FIRStorageObservableTask.m in Sources */,
+				D02FECC71ED1CB9D002B3D89 /* FIRStoragePath.m in Sources */,
+				D02FECC81ED1CB9D002B3D89 /* FIRStorageReference.m in Sources */,
+				D02FECC91ED1CB9D002B3D89 /* FIRStorageTask.m in Sources */,
+				D02FECCA1ED1CB9D002B3D89 /* FIRStorageTaskSnapshot.m in Sources */,
+				D02FECCB1ED1CB9D002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */,
+				D02FECCC1ED1CB9D002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */,
+				D02FECCD1ED1CB9D002B3D89 /* FIRStorageUploadTask.m in Sources */,
+				D02FECCE1ED1CB9D002B3D89 /* FIRStorageUtils.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		D0E216311A2D63EF0048AC77 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 51786C770C2046C5880491ED /* Pods-FirebaseStorage_iOS.debug.xcconfig */;
+			buildSettings = {
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "Config/iOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D0E216321A2D63EF0048AC77 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C2846E1125AFD73AD3CB1D91 /* Pods-FirebaseStorage_iOS.release.xcconfig */;
+			buildSettings = {
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "Config/iOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D0F3B8221A2D626700284E3C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NULLABLE_TO_NONNULL_CONVERSION = NO;
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 4.0.1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 4.0;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DFIRStorage_VERSION=4.0.1";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = FirebaseStorage;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
+				TVOS_DEPLOYMENT_TARGET = 8.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				WARNING_CFLAGS = "-Wpartial-availability";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		D0F3B8231A2D626700284E3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NULLABLE_TO_NONNULL_CONVERSION = NO;
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CURRENT_PROJECT_VERSION = 4.0.1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 4.0;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "-DFIRStorage_VERSION=4.0.1";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = FirebaseStorage;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
+				TVOS_DEPLOYMENT_TARGET = 8.0;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				WARNING_CFLAGS = "-Wpartial-availability";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		D0F3B83E1A2D628200284E3C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6ADA2D1D08BC2EE8C1D10D2A /* Pods-FirebaseStorage_macOS.debug.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D0F3B83F1A2D628200284E3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0E2CC1F397FDBE883C13770D /* Pods-FirebaseStorage_macOS.release.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D0E216301A2D63EF0048AC77 /* Build configuration list for PBXNativeTarget "FirebaseStorage_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D0E216311A2D63EF0048AC77 /* Debug */,
+				D0E216321A2D63EF0048AC77 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D0F3B8211A2D626700284E3C /* Build configuration list for PBXProject "FirebaseStorage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D0F3B8221A2D626700284E3C /* Debug */,
+				D0F3B8231A2D626700284E3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D0F3B83D1A2D628200284E3C /* Build configuration list for PBXNativeTarget "FirebaseStorage_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D0F3B83E1A2D628200284E3C /* Debug */,
+				D0F3B83F1A2D628200284E3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D0F3B81E1A2D626700284E3C /* Project object */;
+}

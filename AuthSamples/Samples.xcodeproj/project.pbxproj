@@ -1668,7 +1668,7 @@
 					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/Private\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1689,7 +1689,7 @@
 					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/Private\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

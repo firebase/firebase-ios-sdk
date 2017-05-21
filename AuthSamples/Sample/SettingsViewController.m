@@ -217,7 +217,7 @@ static NSString *hexString(NSData *data) {
     [StaticContentTableViewSection sectionWithTitle:@"Versions" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"FirebaseAuth"
                                           value:versionString(
-          FirebaseAuthVersionString, FirebaseAuthVersionNumber)],
+          FirebaseAuthFrameworkVersionString, FirebaseAuthFrameworkVersionNumber)],
     ]],
     [StaticContentTableViewSection sectionWithTitle:@"Client Identity" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Project"

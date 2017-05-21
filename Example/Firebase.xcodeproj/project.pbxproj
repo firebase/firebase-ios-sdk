@@ -2666,8 +2666,8 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2690,8 +2690,8 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2713,23 +2713,23 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities/Tuples\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Realtime\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/third_party/SocketRocket\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Libraries\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Snapshot\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Login\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
-					"\"${PODS_ROOT}/../../Firebase/Database\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities/Tuples\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Realtime\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/third_party/SocketRocket\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Libraries\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Snapshot\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Login\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Constants\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Persistence\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/View\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2752,23 +2752,23 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities/Tuples\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Realtime\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/third_party/SocketRocket\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Libraries\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Snapshot\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Login\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
-					"\"${PODS_ROOT}/../../Firebase/Database\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities/Tuples\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Realtime\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/third_party/SocketRocket\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Libraries\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Snapshot\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Login\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Constants\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Persistence\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/View\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -2974,23 +2974,23 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities/Tuples\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Realtime\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/third_party/SocketRocket\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Libraries\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Snapshot\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Login\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
-					"\"${PODS_ROOT}/../../Firebase/Database\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities/Tuples\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Realtime\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/third_party/SocketRocket\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Libraries\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Snapshot\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Login\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Constants\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Persistence\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/View\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -3016,23 +3016,23 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities/Tuples\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Realtime\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/third_party/SocketRocket\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Libraries\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/Utilities\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Api\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Snapshot\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Login\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
-					"\"${PODS_ROOT}/../../Firebase/Database\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities/Tuples\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Realtime\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/third_party/SocketRocket\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Libraries\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/Utilities\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Api\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Snapshot\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Login\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Constants\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Persistence\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/Source/Core/View\"",
+					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -3099,7 +3099,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -3126,7 +3126,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -3157,8 +3157,8 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -3189,8 +3189,8 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -3211,7 +3211,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Storage/App/Storage-Info.plist";
@@ -3232,7 +3232,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Storage/App/Storage-Info.plist";
@@ -3262,8 +3262,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -3288,8 +3288,8 @@
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -3349,7 +3349,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -3377,7 +3377,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;

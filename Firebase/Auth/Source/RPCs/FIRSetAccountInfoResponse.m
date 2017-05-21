@@ -16,7 +16,7 @@
 
 #import "FIRSetAccountInfoResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 @implementation FIRSetAccountInfoResponseProviderUserInfo
 
