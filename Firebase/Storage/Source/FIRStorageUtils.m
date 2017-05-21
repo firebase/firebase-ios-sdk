@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if TARGET_OS_IOS
 #import <MobileCoreServices/MobileCoreServices.h>
+#elif TARGET_OS_OSX
+#import <CoreServices/CoreServices.h>
+#endif
 
 #import "FIRStorageUtils.h"
 

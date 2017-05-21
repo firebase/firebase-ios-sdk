@@ -9,95 +9,96 @@
 /* Begin PBXBuildFile section */
 		6B564FBA8EAE87420C74DFED /* Pods_FirebaseStorage_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 472B2584717DBFE5AD5A3EFA /* Pods_FirebaseStorage_macOS.framework */; };
 		92742E6F00B3A7BD43DF99A6 /* Pods_FirebaseStorage_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3A5F700799ACFD78AFC438A /* Pods_FirebaseStorage_iOS.framework */; };
-		D02FEC321ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */; };
-		D02FEC331ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */; };
-		D02FEC341ED1C8C4002B3D89 /* FIRStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */; };
-		D02FEC351ED1C8C4002B3D89 /* FIRStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */; };
-		D02FEC361ED1C8C4002B3D89 /* FIRStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */; };
-		D02FEC371ED1C8C4002B3D89 /* FIRStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */; };
-		D02FEC381ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */; };
-		D02FEC391ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */; };
-		D02FEC3A1ED1C8C4002B3D89 /* FIRStorageConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */; };
-		D02FEC3B1ED1C8C4002B3D89 /* FIRStorageConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */; };
-		D02FEC3C1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */; };
-		D02FEC3D1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */; };
-		D02FEC3E1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */; };
-		D02FEC3F1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */; };
-		D02FEC401ED1C8C4002B3D89 /* FIRStorageDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */; };
-		D02FEC411ED1C8C4002B3D89 /* FIRStorageDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */; };
-		D02FEC421ED1C8C4002B3D89 /* FIRStorageErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */; };
-		D02FEC431ED1C8C4002B3D89 /* FIRStorageErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */; };
-		D02FEC441ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */; };
-		D02FEC451ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */; };
-		D02FEC461ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */; };
-		D02FEC471ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */; };
-		D02FEC481ED1C8C4002B3D89 /* FIRStorageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */; };
-		D02FEC491ED1C8C4002B3D89 /* FIRStorageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */; };
-		D02FEC4A1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */; };
-		D02FEC4B1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */; };
-		D02FEC4C1ED1C8C4002B3D89 /* FIRStorageObservableTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */; };
-		D02FEC4D1ED1C8C4002B3D89 /* FIRStorageObservableTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */; };
-		D02FEC4E1ED1C8C4002B3D89 /* FIRStoragePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */; };
-		D02FEC4F1ED1C8C4002B3D89 /* FIRStoragePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */; };
-		D02FEC501ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */; };
-		D02FEC511ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */; };
-		D02FEC521ED1C8C4002B3D89 /* FIRStorageReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */; };
-		D02FEC531ED1C8C4002B3D89 /* FIRStorageReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */; };
-		D02FEC541ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */; };
-		D02FEC551ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */; };
-		D02FEC561ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */; };
-		D02FEC571ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */; };
-		D02FEC581ED1C8C4002B3D89 /* FIRStorageTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */; };
-		D02FEC591ED1C8C4002B3D89 /* FIRStorageTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */; };
-		D02FEC5A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */; };
-		D02FEC5B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */; };
-		D02FEC5C1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */; };
-		D02FEC5D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */; };
-		D02FEC5E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */; };
-		D02FEC5F1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */; };
-		D02FEC601ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */; };
-		D02FEC611ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */; };
-		D02FEC621ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */; };
-		D02FEC631ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */; };
-		D02FEC641ED1C8C4002B3D89 /* FIRStorageUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */; };
-		D02FEC651ED1C8C4002B3D89 /* FIRStorageUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */; };
-		D02FEC661ED1C8C4002B3D89 /* FIRStorageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */; };
-		D02FEC671ED1C8C4002B3D89 /* FIRStorageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */; };
-		D02FEC681ED1C8C4002B3D89 /* FIRStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */; };
-		D02FEC691ED1C8C4002B3D89 /* FIRStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */; };
-		D02FEC6A1ED1C8C4002B3D89 /* FIRStorageConstants_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */; };
-		D02FEC6B1ED1C8C4002B3D89 /* FIRStorageConstants_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */; };
-		D02FEC6C1ED1C8C4002B3D89 /* FIRStorageDeleteTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */; };
-		D02FEC6D1ED1C8C4002B3D89 /* FIRStorageDeleteTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */; };
-		D02FEC6E1ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */; };
-		D02FEC6F1ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */; };
-		D02FEC701ED1C8C4002B3D89 /* FIRStorageErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */; };
-		D02FEC711ED1C8C4002B3D89 /* FIRStorageErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */; };
-		D02FEC721ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */; };
-		D02FEC731ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */; };
-		D02FEC741ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */; };
-		D02FEC751ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */; };
-		D02FEC761ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */; };
-		D02FEC771ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */; };
-		D02FEC781ED1C8C4002B3D89 /* FIRStoragePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */; };
-		D02FEC791ED1C8C4002B3D89 /* FIRStoragePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */; };
-		D02FEC7A1ED1C8C4002B3D89 /* FIRStorageReference_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */; };
-		D02FEC7B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */; };
-		D02FEC7C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */; };
-		D02FEC7D1ED1C8C4002B3D89 /* FIRStorageTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */; };
-		D02FEC7E1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */; };
-		D02FEC7F1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */; };
-		D02FEC801ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */; };
-		D02FEC811ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */; };
-		D02FEC821ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */; };
-		D02FEC831ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */; };
-		D02FEC841ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */; };
-		D02FEC851ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */; };
-		D02FEC861ED1C8C4002B3D89 /* FIRStorageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */; };
-		D02FEC871ED1C8C4002B3D89 /* FIRStorageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */; };
-		D02FEC891ED1C8EE002B3D89 /* FirebaseStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */; };
-		D02FEC8A1ED1C8EE002B3D89 /* FirebaseStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */; };
+		D02FEC321ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC331ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC061ED1C8C4002B3D89 /* FirebaseStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC341ED1C8C4002B3D89 /* FIRStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC351ED1C8C4002B3D89 /* FIRStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC071ED1C8C4002B3D89 /* FIRStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC381ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC391ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC091ED1C8C4002B3D89 /* FIRStorageConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC3E1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC3F1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC0C1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC461ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC471ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC101ED1C8C4002B3D89 /* FIRStorageMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC4A1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC4B1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC121ED1C8C4002B3D89 /* FIRStorageObservableTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC501ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC511ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC151ED1C8C4002B3D89 /* FIRStorageReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC541ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC551ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC171ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC561ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC571ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC181ED1C8C4002B3D89 /* FIRStorageTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC5A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC5B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC621ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02FEC631ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC1E1ED1C8C4002B3D89 /* FIRStorageUploadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D02FEC8C1ED1C9BF002B3D89 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D02FEC8B1ED1C9BF002B3D89 /* MobileCoreServices.framework */; };
+		D02FEC8D1ED1CB7D002B3D89 /* FirebaseStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */; };
+		D02FEC8E1ED1CB7D002B3D89 /* FIRStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */; };
+		D02FEC8F1ED1CB7D002B3D89 /* FIRStorageConstants_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */; };
+		D02FEC901ED1CB7D002B3D89 /* FIRStorageDeleteTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */; };
+		D02FEC911ED1CB7D002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */; };
+		D02FEC921ED1CB7D002B3D89 /* FIRStorageErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */; };
+		D02FEC931ED1CB7D002B3D89 /* FIRStorageGetMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */; };
+		D02FEC941ED1CB7D002B3D89 /* FIRStorageMetadata_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */; };
+		D02FEC951ED1CB7D002B3D89 /* FIRStorageObservableTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */; };
+		D02FEC961ED1CB7D002B3D89 /* FIRStoragePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */; };
+		D02FEC971ED1CB7D002B3D89 /* FIRStorageReference_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */; };
+		D02FEC981ED1CB7D002B3D89 /* FIRStorageTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */; };
+		D02FEC991ED1CB7D002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */; };
+		D02FEC9A1ED1CB7D002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */; };
+		D02FEC9B1ED1CB7D002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */; };
+		D02FEC9C1ED1CB7D002B3D89 /* FIRStorageUploadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */; };
+		D02FEC9D1ED1CB7D002B3D89 /* FIRStorageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */; };
+		D02FEC9E1ED1CB82002B3D89 /* FirebaseStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */; };
+		D02FEC9F1ED1CB82002B3D89 /* FIRStorage_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC221ED1C8C4002B3D89 /* FIRStorage_Private.h */; };
+		D02FECA01ED1CB82002B3D89 /* FIRStorageConstants_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC231ED1C8C4002B3D89 /* FIRStorageConstants_Private.h */; };
+		D02FECA11ED1CB82002B3D89 /* FIRStorageDeleteTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC241ED1C8C4002B3D89 /* FIRStorageDeleteTask.h */; };
+		D02FECA21ED1CB82002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC251ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h */; };
+		D02FECA31ED1CB82002B3D89 /* FIRStorageErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC261ED1C8C4002B3D89 /* FIRStorageErrors.h */; };
+		D02FECA41ED1CB82002B3D89 /* FIRStorageGetMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC271ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h */; };
+		D02FECA51ED1CB82002B3D89 /* FIRStorageMetadata_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC281ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h */; };
+		D02FECA61ED1CB82002B3D89 /* FIRStorageObservableTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC291ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h */; };
+		D02FECA71ED1CB82002B3D89 /* FIRStoragePath.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2A1ED1C8C4002B3D89 /* FIRStoragePath.h */; };
+		D02FECA81ED1CB82002B3D89 /* FIRStorageReference_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h */; };
+		D02FECA91ED1CB82002B3D89 /* FIRStorageTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h */; };
+		D02FECAA1ED1CB82002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h */; };
+		D02FECAB1ED1CB82002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h */; };
+		D02FECAC1ED1CB82002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC2F1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h */; };
+		D02FECAD1ED1CB82002B3D89 /* FIRStorageUploadTask_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC301ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h */; };
+		D02FECAE1ED1CB82002B3D89 /* FIRStorageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */; };
+		D02FECAF1ED1CB99002B3D89 /* FIRStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */; };
+		D02FECB01ED1CB99002B3D89 /* FIRStorageConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */; };
+		D02FECB11ED1CB99002B3D89 /* FIRStorageDeleteTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */; };
+		D02FECB21ED1CB99002B3D89 /* FIRStorageDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */; };
+		D02FECB31ED1CB99002B3D89 /* FIRStorageErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */; };
+		D02FECB41ED1CB99002B3D89 /* FIRStorageGetMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */; };
+		D02FECB51ED1CB99002B3D89 /* FIRStorageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */; };
+		D02FECB61ED1CB99002B3D89 /* FIRStorageObservableTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */; };
+		D02FECB71ED1CB99002B3D89 /* FIRStoragePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */; };
+		D02FECB81ED1CB99002B3D89 /* FIRStorageReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */; };
+		D02FECB91ED1CB99002B3D89 /* FIRStorageTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */; };
+		D02FECBA1ED1CB99002B3D89 /* FIRStorageTaskSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */; };
+		D02FECBB1ED1CB99002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */; };
+		D02FECBC1ED1CB99002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */; };
+		D02FECBD1ED1CB99002B3D89 /* FIRStorageUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */; };
+		D02FECBE1ED1CB99002B3D89 /* FIRStorageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */; };
+		D02FECBF1ED1CB9C002B3D89 /* FIRStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC081ED1C8C4002B3D89 /* FIRStorage.m */; };
+		D02FECC01ED1CB9D002B3D89 /* FIRStorageConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0A1ED1C8C4002B3D89 /* FIRStorageConstants.m */; };
+		D02FECC11ED1CB9D002B3D89 /* FIRStorageDeleteTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0B1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m */; };
+		D02FECC21ED1CB9D002B3D89 /* FIRStorageDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0D1ED1C8C4002B3D89 /* FIRStorageDownloadTask.m */; };
+		D02FECC31ED1CB9D002B3D89 /* FIRStorageErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0E1ED1C8C4002B3D89 /* FIRStorageErrors.m */; };
+		D02FECC41ED1CB9D002B3D89 /* FIRStorageGetMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC0F1ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m */; };
+		D02FECC51ED1CB9D002B3D89 /* FIRStorageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC111ED1C8C4002B3D89 /* FIRStorageMetadata.m */; };
+		D02FECC61ED1CB9D002B3D89 /* FIRStorageObservableTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC131ED1C8C4002B3D89 /* FIRStorageObservableTask.m */; };
+		D02FECC71ED1CB9D002B3D89 /* FIRStoragePath.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC141ED1C8C4002B3D89 /* FIRStoragePath.m */; };
+		D02FECC81ED1CB9D002B3D89 /* FIRStorageReference.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC161ED1C8C4002B3D89 /* FIRStorageReference.m */; };
+		D02FECC91ED1CB9D002B3D89 /* FIRStorageTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC191ED1C8C4002B3D89 /* FIRStorageTask.m */; };
+		D02FECCA1ED1CB9D002B3D89 /* FIRStorageTaskSnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m */; };
+		D02FECCB1ED1CB9D002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1C1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m */; };
+		D02FECCC1ED1CB9D002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1D1ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m */; };
+		D02FECCD1ED1CB9D002B3D89 /* FIRStorageUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC1F1ED1C8C4002B3D89 /* FIRStorageUploadTask.m */; };
+		D02FECCE1ED1CB9D002B3D89 /* FIRStorageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = D02FEC201ED1C8C4002B3D89 /* FIRStorageUtils.m */; };
+		D02FECD01ED1CC45002B3D89 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D02FECCF1ED1CC45002B3D89 /* CoreServices.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -152,6 +153,7 @@
 		D02FEC311ED1C8C4002B3D89 /* FIRStorageUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRStorageUtils.h; sourceTree = "<group>"; };
 		D02FEC881ED1C8EE002B3D89 /* FirebaseStorage_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirebaseStorage_Private.h; sourceTree = "<group>"; };
 		D02FEC8B1ED1C9BF002B3D89 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
+		D02FECCF1ED1CC45002B3D89 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		D0E2161D1A2D63EF0048AC77 /* FirebaseStorage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FirebaseStorage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0F3B8291A2D628200284E3C /* FirebaseStorage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FirebaseStorage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -170,6 +172,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D02FECD01ED1CC45002B3D89 /* CoreServices.framework in Frameworks */,
 				6B564FBA8EAE87420C74DFED /* Pods_FirebaseStorage_macOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -269,6 +272,7 @@
 		D0EAADD21ED06F6E00F22A8B /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				D02FECCF1ED1CC45002B3D89 /* CoreServices.framework */,
 			);
 			name = macOS;
 			sourceTree = "<group>";
@@ -299,34 +303,34 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D02FEC721ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h in Headers */,
-				D02FEC781ED1C8C4002B3D89 /* FIRStoragePath.h in Headers */,
-				D02FEC341ED1C8C4002B3D89 /* FIRStorage.h in Headers */,
-				D02FEC891ED1C8EE002B3D89 /* FirebaseStorage_Private.h in Headers */,
-				D02FEC501ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */,
-				D02FEC681ED1C8C4002B3D89 /* FIRStorage_Private.h in Headers */,
-				D02FEC7A1ED1C8C4002B3D89 /* FIRStorageReference_Private.h in Headers */,
-				D02FEC7E1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */,
 				D02FEC321ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */,
-				D02FEC741ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h in Headers */,
-				D02FEC821ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */,
-				D02FEC541ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */,
-				D02FEC621ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */,
-				D02FEC841ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h in Headers */,
-				D02FEC6E1ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */,
-				D02FEC6C1ED1C8C4002B3D89 /* FIRStorageDeleteTask.h in Headers */,
-				D02FEC4A1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */,
+				D02FEC341ED1C8C4002B3D89 /* FIRStorage.h in Headers */,
 				D02FEC381ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */,
-				D02FEC461ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */,
-				D02FEC701ED1C8C4002B3D89 /* FIRStorageErrors.h in Headers */,
-				D02FEC561ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */,
 				D02FEC3E1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */,
-				D02FEC761ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h in Headers */,
-				D02FEC7C1ED1C8C4002B3D89 /* FIRStorageTask_Private.h in Headers */,
-				D02FEC801ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */,
-				D02FEC6A1ED1C8C4002B3D89 /* FIRStorageConstants_Private.h in Headers */,
+				D02FEC461ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */,
+				D02FEC4A1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */,
+				D02FEC501ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */,
+				D02FEC541ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */,
+				D02FEC561ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */,
 				D02FEC5A1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */,
-				D02FEC861ED1C8C4002B3D89 /* FIRStorageUtils.h in Headers */,
+				D02FEC621ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */,
+				D02FEC9E1ED1CB82002B3D89 /* FirebaseStorage_Private.h in Headers */,
+				D02FEC9F1ED1CB82002B3D89 /* FIRStorage_Private.h in Headers */,
+				D02FECA01ED1CB82002B3D89 /* FIRStorageConstants_Private.h in Headers */,
+				D02FECA11ED1CB82002B3D89 /* FIRStorageDeleteTask.h in Headers */,
+				D02FECA21ED1CB82002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */,
+				D02FECA31ED1CB82002B3D89 /* FIRStorageErrors.h in Headers */,
+				D02FECA41ED1CB82002B3D89 /* FIRStorageGetMetadataTask.h in Headers */,
+				D02FECA51ED1CB82002B3D89 /* FIRStorageMetadata_Private.h in Headers */,
+				D02FECA61ED1CB82002B3D89 /* FIRStorageObservableTask_Private.h in Headers */,
+				D02FECA71ED1CB82002B3D89 /* FIRStoragePath.h in Headers */,
+				D02FECA81ED1CB82002B3D89 /* FIRStorageReference_Private.h in Headers */,
+				D02FECA91ED1CB82002B3D89 /* FIRStorageTask_Private.h in Headers */,
+				D02FECAA1ED1CB82002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */,
+				D02FECAB1ED1CB82002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */,
+				D02FECAC1ED1CB82002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */,
+				D02FECAD1ED1CB82002B3D89 /* FIRStorageUploadTask_Private.h in Headers */,
+				D02FECAE1ED1CB82002B3D89 /* FIRStorageUtils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,34 +338,34 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D02FEC731ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.h in Headers */,
-				D02FEC791ED1C8C4002B3D89 /* FIRStoragePath.h in Headers */,
-				D02FEC351ED1C8C4002B3D89 /* FIRStorage.h in Headers */,
-				D02FEC8A1ED1C8EE002B3D89 /* FirebaseStorage_Private.h in Headers */,
-				D02FEC511ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */,
-				D02FEC691ED1C8C4002B3D89 /* FIRStorage_Private.h in Headers */,
-				D02FEC7B1ED1C8C4002B3D89 /* FIRStorageReference_Private.h in Headers */,
-				D02FEC7F1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */,
 				D02FEC331ED1C8C4002B3D89 /* FirebaseStorage.h in Headers */,
-				D02FEC751ED1C8C4002B3D89 /* FIRStorageMetadata_Private.h in Headers */,
-				D02FEC831ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */,
-				D02FEC551ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */,
-				D02FEC631ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */,
-				D02FEC851ED1C8C4002B3D89 /* FIRStorageUploadTask_Private.h in Headers */,
-				D02FEC6F1ED1C8C4002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */,
-				D02FEC6D1ED1C8C4002B3D89 /* FIRStorageDeleteTask.h in Headers */,
-				D02FEC4B1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */,
+				D02FEC351ED1C8C4002B3D89 /* FIRStorage.h in Headers */,
 				D02FEC391ED1C8C4002B3D89 /* FIRStorageConstants.h in Headers */,
-				D02FEC471ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */,
-				D02FEC711ED1C8C4002B3D89 /* FIRStorageErrors.h in Headers */,
-				D02FEC571ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */,
 				D02FEC3F1ED1C8C4002B3D89 /* FIRStorageDownloadTask.h in Headers */,
-				D02FEC771ED1C8C4002B3D89 /* FIRStorageObservableTask_Private.h in Headers */,
-				D02FEC7D1ED1C8C4002B3D89 /* FIRStorageTask_Private.h in Headers */,
-				D02FEC811ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */,
-				D02FEC6B1ED1C8C4002B3D89 /* FIRStorageConstants_Private.h in Headers */,
+				D02FEC471ED1C8C4002B3D89 /* FIRStorageMetadata.h in Headers */,
+				D02FEC4B1ED1C8C4002B3D89 /* FIRStorageObservableTask.h in Headers */,
+				D02FEC511ED1C8C4002B3D89 /* FIRStorageReference.h in Headers */,
+				D02FEC551ED1C8C4002B3D89 /* FIRStorageSwiftNameSupport.h in Headers */,
+				D02FEC571ED1C8C4002B3D89 /* FIRStorageTask.h in Headers */,
 				D02FEC5B1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.h in Headers */,
-				D02FEC871ED1C8C4002B3D89 /* FIRStorageUtils.h in Headers */,
+				D02FEC631ED1C8C4002B3D89 /* FIRStorageUploadTask.h in Headers */,
+				D02FEC8D1ED1CB7D002B3D89 /* FirebaseStorage_Private.h in Headers */,
+				D02FEC8E1ED1CB7D002B3D89 /* FIRStorage_Private.h in Headers */,
+				D02FEC8F1ED1CB7D002B3D89 /* FIRStorageConstants_Private.h in Headers */,
+				D02FEC901ED1CB7D002B3D89 /* FIRStorageDeleteTask.h in Headers */,
+				D02FEC911ED1CB7D002B3D89 /* FIRStorageDownloadTask_Private.h in Headers */,
+				D02FEC921ED1CB7D002B3D89 /* FIRStorageErrors.h in Headers */,
+				D02FEC931ED1CB7D002B3D89 /* FIRStorageGetMetadataTask.h in Headers */,
+				D02FEC941ED1CB7D002B3D89 /* FIRStorageMetadata_Private.h in Headers */,
+				D02FEC951ED1CB7D002B3D89 /* FIRStorageObservableTask_Private.h in Headers */,
+				D02FEC961ED1CB7D002B3D89 /* FIRStoragePath.h in Headers */,
+				D02FEC971ED1CB7D002B3D89 /* FIRStorageReference_Private.h in Headers */,
+				D02FEC981ED1CB7D002B3D89 /* FIRStorageTask_Private.h in Headers */,
+				D02FEC991ED1CB7D002B3D89 /* FIRStorageTaskSnapshot_Private.h in Headers */,
+				D02FEC9A1ED1CB7D002B3D89 /* FIRStorageTokenAuthorizer.h in Headers */,
+				D02FEC9B1ED1CB7D002B3D89 /* FIRStorageUpdateMetadataTask.h in Headers */,
+				D02FEC9C1ED1CB7D002B3D89 /* FIRStorageUploadTask_Private.h in Headers */,
+				D02FEC9D1ED1CB7D002B3D89 /* FIRStorageUtils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,22 +534,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D02FEC5E1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */,
-				D02FEC401ED1C8C4002B3D89 /* FIRStorageDownloadTask.m in Sources */,
-				D02FEC601ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */,
-				D02FEC661ED1C8C4002B3D89 /* FIRStorageUtils.m in Sources */,
-				D02FEC421ED1C8C4002B3D89 /* FIRStorageErrors.m in Sources */,
-				D02FEC481ED1C8C4002B3D89 /* FIRStorageMetadata.m in Sources */,
-				D02FEC641ED1C8C4002B3D89 /* FIRStorageUploadTask.m in Sources */,
-				D02FEC4C1ED1C8C4002B3D89 /* FIRStorageObservableTask.m in Sources */,
-				D02FEC5C1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m in Sources */,
-				D02FEC441ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m in Sources */,
-				D02FEC361ED1C8C4002B3D89 /* FIRStorage.m in Sources */,
-				D02FEC4E1ED1C8C4002B3D89 /* FIRStoragePath.m in Sources */,
-				D02FEC3C1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m in Sources */,
-				D02FEC581ED1C8C4002B3D89 /* FIRStorageTask.m in Sources */,
-				D02FEC3A1ED1C8C4002B3D89 /* FIRStorageConstants.m in Sources */,
-				D02FEC521ED1C8C4002B3D89 /* FIRStorageReference.m in Sources */,
+				D02FECAF1ED1CB99002B3D89 /* FIRStorage.m in Sources */,
+				D02FECB01ED1CB99002B3D89 /* FIRStorageConstants.m in Sources */,
+				D02FECB11ED1CB99002B3D89 /* FIRStorageDeleteTask.m in Sources */,
+				D02FECB21ED1CB99002B3D89 /* FIRStorageDownloadTask.m in Sources */,
+				D02FECB31ED1CB99002B3D89 /* FIRStorageErrors.m in Sources */,
+				D02FECB41ED1CB99002B3D89 /* FIRStorageGetMetadataTask.m in Sources */,
+				D02FECB51ED1CB99002B3D89 /* FIRStorageMetadata.m in Sources */,
+				D02FECB61ED1CB99002B3D89 /* FIRStorageObservableTask.m in Sources */,
+				D02FECB71ED1CB99002B3D89 /* FIRStoragePath.m in Sources */,
+				D02FECB81ED1CB99002B3D89 /* FIRStorageReference.m in Sources */,
+				D02FECB91ED1CB99002B3D89 /* FIRStorageTask.m in Sources */,
+				D02FECBA1ED1CB99002B3D89 /* FIRStorageTaskSnapshot.m in Sources */,
+				D02FECBB1ED1CB99002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */,
+				D02FECBC1ED1CB99002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */,
+				D02FECBD1ED1CB99002B3D89 /* FIRStorageUploadTask.m in Sources */,
+				D02FECBE1ED1CB99002B3D89 /* FIRStorageUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -553,22 +557,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D02FEC5F1ED1C8C4002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */,
-				D02FEC411ED1C8C4002B3D89 /* FIRStorageDownloadTask.m in Sources */,
-				D02FEC611ED1C8C4002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */,
-				D02FEC671ED1C8C4002B3D89 /* FIRStorageUtils.m in Sources */,
-				D02FEC431ED1C8C4002B3D89 /* FIRStorageErrors.m in Sources */,
-				D02FEC491ED1C8C4002B3D89 /* FIRStorageMetadata.m in Sources */,
-				D02FEC651ED1C8C4002B3D89 /* FIRStorageUploadTask.m in Sources */,
-				D02FEC4D1ED1C8C4002B3D89 /* FIRStorageObservableTask.m in Sources */,
-				D02FEC5D1ED1C8C4002B3D89 /* FIRStorageTaskSnapshot.m in Sources */,
-				D02FEC451ED1C8C4002B3D89 /* FIRStorageGetMetadataTask.m in Sources */,
-				D02FEC371ED1C8C4002B3D89 /* FIRStorage.m in Sources */,
-				D02FEC4F1ED1C8C4002B3D89 /* FIRStoragePath.m in Sources */,
-				D02FEC3D1ED1C8C4002B3D89 /* FIRStorageDeleteTask.m in Sources */,
-				D02FEC591ED1C8C4002B3D89 /* FIRStorageTask.m in Sources */,
-				D02FEC3B1ED1C8C4002B3D89 /* FIRStorageConstants.m in Sources */,
-				D02FEC531ED1C8C4002B3D89 /* FIRStorageReference.m in Sources */,
+				D02FECBF1ED1CB9C002B3D89 /* FIRStorage.m in Sources */,
+				D02FECC01ED1CB9D002B3D89 /* FIRStorageConstants.m in Sources */,
+				D02FECC11ED1CB9D002B3D89 /* FIRStorageDeleteTask.m in Sources */,
+				D02FECC21ED1CB9D002B3D89 /* FIRStorageDownloadTask.m in Sources */,
+				D02FECC31ED1CB9D002B3D89 /* FIRStorageErrors.m in Sources */,
+				D02FECC41ED1CB9D002B3D89 /* FIRStorageGetMetadataTask.m in Sources */,
+				D02FECC51ED1CB9D002B3D89 /* FIRStorageMetadata.m in Sources */,
+				D02FECC61ED1CB9D002B3D89 /* FIRStorageObservableTask.m in Sources */,
+				D02FECC71ED1CB9D002B3D89 /* FIRStoragePath.m in Sources */,
+				D02FECC81ED1CB9D002B3D89 /* FIRStorageReference.m in Sources */,
+				D02FECC91ED1CB9D002B3D89 /* FIRStorageTask.m in Sources */,
+				D02FECCA1ED1CB9D002B3D89 /* FIRStorageTaskSnapshot.m in Sources */,
+				D02FECCB1ED1CB9D002B3D89 /* FIRStorageTokenAuthorizer.m in Sources */,
+				D02FECCC1ED1CB9D002B3D89 /* FIRStorageUpdateMetadataTask.m in Sources */,
+				D02FECCD1ED1CB9D002B3D89 /* FIRStorageUploadTask.m in Sources */,
+				D02FECCE1ED1CB9D002B3D89 /* FIRStorageUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
