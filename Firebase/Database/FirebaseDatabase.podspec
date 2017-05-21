@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '4.1.0'
+  s.version          = '4.0.1'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -40,7 +40,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.framework = 'Security'
   s.framework = 'SystemConfiguration'
   s.dependency 'leveldb-library'
-  s.dependency 'FirebaseCore', '~> 4.1.0'
+  s.dependency 'FirebaseCore', '~> 4.0.1'
 
   s.xcconfig = { 'OTHER_CFLAGS' => '-DFIRDatabase_VERSION=' + s.version.to_s }
 end

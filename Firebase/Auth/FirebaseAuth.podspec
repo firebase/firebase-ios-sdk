@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '4.1.0'
+  s.version          = '4.0.1'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -73,7 +73,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 4.1.0'
+  s.dependency 'FirebaseCore', '~> 4.0.1'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
 end

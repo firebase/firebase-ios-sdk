@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '4.1.0'
+  s.version          = '4.0.1'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -48,7 +48,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
-  s.dependency 'FirebaseCore', '~> 4.1.0'
+  s.dependency 'FirebaseCore', '~> 4.0.1'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
   s.xcconfig = { 'OTHER_CFLAGS' => '-DFIRStorage_VERSION=' + s.version.to_s }

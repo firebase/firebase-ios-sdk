@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '4.1.0'
+  s.version          = '4.0.1'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -47,7 +47,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.framework = 'AddressBook'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 4.1.0'
+  s.dependency 'FirebaseCore', '~> 4.0.1'
   s.dependency 'GoogleToolboxForMac/Logger', '~> 2.1'
   s.dependency 'Protobuf', '~> 3.1'
 end
