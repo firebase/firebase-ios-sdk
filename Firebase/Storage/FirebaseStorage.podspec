@@ -51,5 +51,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'FirebaseCore', '~> 4.0.1'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
-  s.xcconfig = { 'OTHER_CFLAGS' => '-DFIRStorage_VERSION=' + s.version.to_s }
+  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+    '$(inherited) ' +
+    'FIRStorage_VERSION=' + s.version.to_s }
 end

@@ -42,5 +42,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'leveldb-library'
   s.dependency 'FirebaseCore', '~> 4.0.1'
 
-  s.xcconfig = { 'OTHER_CFLAGS' => '-DFIRDatabase_VERSION=' + s.version.to_s }
+  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+    '$(inherited) ' +
+    'FIRDatabase_VERSION=' + s.version.to_s }
 end
