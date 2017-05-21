@@ -27,12 +27,13 @@
 #import "FIRStorageUploadTask_Private.h"
 #import "FIRStorageUtils.h"
 #import "FIRStorage_Private.h"
+#import "FirebaseStorage_Private.h"
 
-#import "FIRApp.h"
-#import "FIROptions.h"
+#import FirebaseCore(FIRApp.h)
+#import FirebaseCore(FIROptions.h)
 
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
-#import "GTMSessionFetcherService.h"
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 @implementation FIRStorageReference
 

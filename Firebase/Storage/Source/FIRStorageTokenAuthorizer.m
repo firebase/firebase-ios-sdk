@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppInternal.h"
+#import "FirebaseStorage_Private.h"
+#import FirebaseCore(FIRAppInternal.h)
 
 #import "FIRStorageTokenAuthorizer.h"
 
@@ -22,8 +23,8 @@
 
 #import "FirebaseStorage.h"
 
-#import "FIRApp.h"
-#import "FIROptions.h"
+#import FirebaseCore(FIRApp.h)
+#import FirebaseCore(FIROptions.h)
 
 @implementation FIRStorageTokenAuthorizer {
  @private
