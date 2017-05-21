@@ -108,12 +108,12 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Messaging' do |sp|
     sp.platform = 'ios'
-    sp.source_files = 'Firebase/Messaging/**/*.[mh]'
-    sp.requires_arc = 'Firebase/Messaging/*.m'
+    sp.source_files = 'Firebase/Messaging/Source/**/*.[mh]'
+    sp.requires_arc = 'Firebase/Messaging/Source/*.m'
 
     sp.public_header_files =
-      'Firebase/Messaging/Public/FirebaseMessaging.h',
-      'Firebase/Messaging/Public/FIRMessaging.h'
+      'Firebase/Messaging/Source/Public/FirebaseMessaging.h',
+      'Firebase/Messaging/Source/Public/FIRMessaging.h'
     sp.library = 'sqlite3'
     sp.xcconfig ={ 'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +

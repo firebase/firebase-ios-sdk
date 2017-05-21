@@ -3157,7 +3157,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
@@ -3189,7 +3189,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
