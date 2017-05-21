@@ -129,19 +129,19 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Storage' do |sp|
     sp.platform = 'ios'
-    sp.source_files = 'Firebase/Storage/**/*.[mh]'
+    sp.source_files = 'Firebase/Storage/Source/**/*.[mh]'
     sp.public_header_files =
-      'Firebase/Storage/FirebaseStorage.h',
-      'Firebase/Storage/FIRStorage.h',
-      'Firebase/Storage/FIRStorageConstants.h',
-      'Firebase/Storage/FIRStorageDownloadTask.h',
-      'Firebase/Storage/FIRStorageMetadata.h',
-      'Firebase/Storage/FIRStorageObservableTask.h',
-      'Firebase/Storage/FIRStorageReference.h',
-      'Firebase/Storage/FIRStorageSwiftNameSupport.h',
-      'Firebase/Storage/FIRStorageTask.h',
-      'Firebase/Storage/FIRStorageTaskSnapshot.h',
-      'Firebase/Storage/FIRStorageUploadTask.h'
+      'Firebase/Storage/Source/FirebaseStorage.h',
+      'Firebase/Storage/Source/FIRStorage.h',
+      'Firebase/Storage/Source/FIRStorageConstants.h',
+      'Firebase/Storage/Source/FIRStorageDownloadTask.h',
+      'Firebase/Storage/Source/FIRStorageMetadata.h',
+      'Firebase/Storage/Source/FIRStorageObservableTask.h',
+      'Firebase/Storage/Source/FIRStorageReference.h',
+      'Firebase/Storage/Source/FIRStorageSwiftNameSupport.h',
+      'Firebase/Storage/Source/FIRStorageTask.h',
+      'Firebase/Storage/Source/FIRStorageTaskSnapshot.h',
+      'Firebase/Storage/Source/FIRStorageUploadTask.h'
     sp.framework = 'MobileCoreServices'
     sp.dependency 'FirebaseDev/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'

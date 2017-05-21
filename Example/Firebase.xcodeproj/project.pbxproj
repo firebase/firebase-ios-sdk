@@ -2666,7 +2666,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
@@ -2690,7 +2690,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"\"$(SRCROOT)/../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
@@ -3211,7 +3211,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Storage/App/Storage-Info.plist";
@@ -3232,7 +3232,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Storage/App/Storage-Info.plist";
@@ -3262,7 +3262,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
@@ -3288,7 +3288,7 @@
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Storage/Source/Private\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Source/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
