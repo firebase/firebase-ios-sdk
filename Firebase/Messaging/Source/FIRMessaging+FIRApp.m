@@ -16,8 +16,9 @@
 
 #import "FIRMessaging+FIRApp.h"
 
-#import "FIRAppInternal.h"
-#import "FIROptionsInternal.h"
+#import "FirebaseMessaging_Private.h"
+#import FirebaseCore(FIRAppInternal.h)
+#import FirebaseCore(FIROptionsInternal.h)
 
 #import "FIRMessagingConfig.h"
 #import "FIRMessagingConstants.h"

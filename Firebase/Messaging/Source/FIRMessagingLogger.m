@@ -16,7 +16,8 @@
 
 #import "FIRMessagingLogger.h"
 
-#import "FIRLogger.h"
+#import "FirebaseMessaging_Private.h"
+#import FirebaseCore(FIRLogger.h)
 #import "FIRMessagingFileLogger.h"
 
 /**

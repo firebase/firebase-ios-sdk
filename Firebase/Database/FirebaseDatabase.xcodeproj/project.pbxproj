@@ -822,10 +822,6 @@
 		4DC4E7B0D06FD5809CF1020D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D07A1BDF1ED0B64B00820A5C /* libc++.tbd */,
-				D07A1BDD1ED0B5E300820A5C /* libc++.tbd */,
-				D07A1BDB1ED0B5A400820A5C /* libicucore.tbd */,
-				D07A1BD91ED0B59C00820A5C /* libicucore.tbd */,
 				D050422D1ED0AE6E001766AC /* macOS */,
 				D05042261ED0AE4B001766AC /* iOS */,
 				A3810BC9E420BFB26A073D80 /* Pods_FirebaseDatabase_iOS.framework */,
@@ -848,6 +844,8 @@
 		D05042261ED0AE4B001766AC /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				D07A1BDD1ED0B5E300820A5C /* libc++.tbd */,
+				D07A1BD91ED0B59C00820A5C /* libicucore.tbd */,
 				D05042221ED0AE2C001766AC /* SystemConfiguration.framework */,
 				D05042201ED0AE24001766AC /* CFNetwork.framework */,
 				D050421E1ED0AE1D001766AC /* Security.framework */,
@@ -858,6 +856,8 @@
 		D050422D1ED0AE6E001766AC /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				D07A1BDF1ED0B64B00820A5C /* libc++.tbd */,
+				D07A1BDB1ED0B5A400820A5C /* libicucore.tbd */,
 				D050422B1ED0AE67001766AC /* SystemConfiguration.framework */,
 				D05042291ED0AE60001766AC /* CFNetwork.framework */,
 				D05042271ED0AE56001766AC /* Security.framework */,
@@ -2060,6 +2060,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DFIRDatabase_VERSION=4.1.0";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FirebaseDatabase;
 				SKIP_INSTALL = YES;
@@ -2123,6 +2124,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "-DFIRDatabase_VERSION=4.1.0";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FirebaseDatabase;
 				SKIP_INSTALL = YES;

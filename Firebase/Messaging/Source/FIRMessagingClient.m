@@ -16,6 +16,8 @@
 
 #import "FIRMessagingClient.h"
 
+#import "FirebaseMessaging_Private.h"
+
 #import "FIRMessagingConnection.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
@@ -24,7 +26,7 @@
 #import "FIRMessagingRmqManager.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "FIRMessagingUtilities.h"
-#import "FIRReachabilityChecker.h"
+#import FirebaseCore(FIRReachabilityChecker.h)
 #import "NSError+FIRMessaging.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;

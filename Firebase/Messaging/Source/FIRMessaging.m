@@ -20,6 +20,7 @@
 
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
+#import "FirebaseMessaging_Private.h"
 
 #import <UIKit/UIKit.h>
 
@@ -38,7 +39,7 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
-#import "FIRReachabilityChecker.h"
+#import FirebaseCore(FIRReachabilityChecker.h)
 
 #import "NSError+FIRMessaging.h"
 

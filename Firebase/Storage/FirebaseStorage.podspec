@@ -44,8 +44,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.subspec 'Internal' do |ss|
     ss.source_files = eitherSource['**/*.[mh]']
     ss.private_header_files = eitherSource['**/*.h']
-
-    # ss.osx.exclude_files = eitherSource[[]]
   end
 
   s.ios.framework = 'MobileCoreServices'
