@@ -192,6 +192,7 @@
 		CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EE09E5B9A6C092236222A9 /* Pods-Sample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sample/Pods-Sample.debug.xcconfig"; sourceTree = "<group>"; };
 		D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D90D8C411ED3B72B00C6BE87 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
 		D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.release.xcconfig"; sourceTree = "<group>"; };
 		DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAdditionalUserInfoTests.m; path = ../../Example/Auth/Tests/FIRAdditionalUserInfoTests.m; sourceTree = "<group>"; };
 		DE5371841EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "FIRApp+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
@@ -523,6 +524,7 @@
 		DEE13A211EA1252D00D1BABA /* ApiTests */ = {
 			isa = PBXGroup;
 			children = (
+				D90D8C411ED3B72B00C6BE87 /* AuthCredentials.h */,
 				DEE13A2A1EA125CD00D1BABA /* FirebearApiTests.m */,
 				DEE13A241EA1252D00D1BABA /* Info.plist */,
 			);
