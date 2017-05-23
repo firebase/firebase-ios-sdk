@@ -19,7 +19,7 @@
 
 #import "FIRApp.h"
 #import "FirebaseAuth.h"
-#import "../Sample/AuthCredentials.h"
+#import "AuthCredentials.h"
 
 #ifdef NO_NETWORK
 #import "ioReplayer/IORManager.h"
@@ -29,27 +29,27 @@
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
+/** The user name string for Custom Auth testing account. */
+static NSString *const kCustomAuthTestingAccountUserID = KCUSTOM_AUTH_USER_ID;
+
+/** The url for obtaining a valid custom token string used to test Custom Auth. */
+static NSString *const kCustomTokenUrl = KCUSTOM_AUTH_TOKEN_URL;
+
 /** Facebook app access token that will be used for Facebook Graph API, which is different from
  * account access token.
  */
-static NSString *const kAppAccessToken = KAPP_ACCESS_TOKEN;
-
-/** The user name string for BYOAuth testing account. */
-static NSString *const kBYOAuthTestingAccountUserName = @"John GoogleSpeed";
-
-/** The url for obtaining a valid custom token string used to test BYOAuth. */
-static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
+static NSString *const kFacebookAppAccessToken = KFACEBOOK_APP_ACCESS_TOKEN;
 
 /** Facebook app ID that will be used for Facebook Graph API. */
 static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
 
 static NSString *const kFacebookGraphApiAuthority = @"graph.facebook.com";
 
-static NSString *const kFacebookTestAccountName = @"MichaelTest";
+static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 
-static NSString *const kGoogleTestAccountName = @"John Test";
+static NSString *const kGoogleTestAccountName = KGOOGLE_USER_NAME;
 
-/** The invalid custom token string for testing BYOAuth. */
+/** The invalid custom token string for testing Custom Auth. */
 static NSString *const kInvalidCustomToken = @"invalid token.";
 
 /** The testing email address for testCreateAccountWithEmailAndPassword. */
@@ -217,7 +217,7 @@ static NSTimeInterval const kExpectationsTimeout = 30;
   XCTAssertEqualObjects(auth.currentUser.email, kExistingTestingEmailToSignIn);
 }
 
-- (void)testSignInWithValidBYOAuthToken {
+- (void)testSignInWithValidCustomAuthToken {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
@@ -233,7 +233,7 @@ static NSTimeInterval const kExpectationsTimeout = 30;
   NSLog(@"The valid token is: %@", customToken);
 
   XCTestExpectation *expectation =
-      [self expectationWithDescription:@"BYOAuthToken sign-in finished."];
+      [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
 
   [auth signInWithCustomToken:customToken
                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
@@ -246,21 +246,21 @@ static NSTimeInterval const kExpectationsTimeout = 30;
                                handler:^(NSError *error) {
                                  if (error != nil) {
                                    XCTFail(@"Failed to wait for expectations "
-                                           @"in BYOAuthToken sign in. Error: %@",
+                                           @"in CustomAuthToken sign in. Error: %@",
                                            error.localizedDescription);
                                  }
                                }];
 
-  XCTAssertEqualObjects(auth.currentUser.displayName, kBYOAuthTestingAccountUserName);
+  XCTAssertEqualObjects(auth.currentUser.uid, kCustomAuthTestingAccountUserID);
 }
 
-- (void)testSignInWithInvalidBYOAuthToken {
+- (void)testSignInWithInvalidCustomAuthToken {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
   }
   XCTestExpectation *expectation =
-      [self expectationWithDescription:@"Invalid BYOAuthToken sign-in finished."];
+      [self expectationWithDescription:@"Invalid CustomAuthToken sign-in finished."];
 
   [auth signInWithCustomToken:kInvalidCustomToken
                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
@@ -272,7 +272,7 @@ static NSTimeInterval const kExpectationsTimeout = 30;
                                handler:^(NSError *error) {
                                  if (error != nil) {
                                    XCTFail(@"Failed to wait for expectations "
-                                           @"in BYOAuthToken sign in. Error: %@",
+                                           @"in CustomAuthToken sign in. Error: %@",
                                            error.localizedDescription);
                                  }
                                }];
@@ -379,7 +379,7 @@ static NSTimeInterval const kExpectationsTimeout = 30;
   // Build the POST request.
   NSString *bodyString =
       [NSString stringWithFormat:@"installed=true&name=%@&permissions=read_stream&access_token=%@",
-                                 kFacebookTestAccountName, kAppAccessToken];
+                                 kFacebookTestAccountName, kFacebookAppAccessToken];
   NSData *postData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
   GTMSessionFetcherService *service = [[GTMSessionFetcherService alloc] init];
   GTMSessionFetcher *fetcher = [service fetcherWithURLString:urltoCreateTestUser];
@@ -470,7 +470,7 @@ static NSTimeInterval const kExpectationsTimeout = 30;
 
   // Build the POST request.
   NSString *bodyString =
-      [NSString stringWithFormat:@"method=delete&access_token=%@", kAppAccessToken];
+      [NSString stringWithFormat:@"method=delete&access_token=%@", kFacebookAppAccessToken];
   NSData *postData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
   GTMSessionFetcherService *service = [[GTMSessionFetcherService alloc] init];
   GTMSessionFetcher *fetcher = [service fetcherWithURLString:urltoDeleteTestUser];
