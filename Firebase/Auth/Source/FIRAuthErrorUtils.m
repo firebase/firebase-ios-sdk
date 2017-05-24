@@ -230,7 +230,7 @@ static NSString *const kFIRAuthErrorMessageMissingPhoneNumber =
     @"To send verification codes, provide a phone number for the recipient.";
 
 /** @var kFIRAuthErrorMessageInvalidPhoneNumber
-    @brief Message for @c FIRAuthErrorCodeMissingPhoneNumber error code.
+    @brief Message for @c FIRAuthErrorCodeInvalidPhoneNumber error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidPhoneNumber =
     @"The format of the phone number provided is incorrect. Please enter the phone number in a "
