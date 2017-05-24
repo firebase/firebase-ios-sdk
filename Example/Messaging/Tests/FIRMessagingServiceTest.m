@@ -21,7 +21,6 @@
 
 #import "FIRMessaging.h"
 #import "FIRMessagingClient.h"
-#import "FIRMessagingConfig.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "InternalHeaders/FIRMessagingInternalUtilities.h"
