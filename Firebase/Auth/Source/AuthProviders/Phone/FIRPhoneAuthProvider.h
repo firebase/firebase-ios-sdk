@@ -62,6 +62,25 @@ FIR_SWIFT_NAME(PhoneAuthProvider)
 
     @param phoneNumber The phone number to be verified.
     @param completion The callback to be invoked when the verification flow is finished.
+    
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeAppNotVerified - Indicates that Firebase could not retrieve the
+            silent push notification and therefore could not verify your app.</li>
+        <li>@c FIRAuthErrorCodeInvalidAppCredential - Indicates that The APNs device token provided
+            is either incorrect or does not match the private certificate uploaded to the Firebase
+            Console.</li>
+        <li>@c FIRAuthErrorCodeQuotaExceeded - Indicates that the phone verification quota for this
+            project has been exceeded.</li>
+        <li>@c FIRAuthErrorCodeInvalidPhoneNumber - Indicates that the phone number provided is
+            invalid.</li>
+        <li>@c FIRAuthErrorCodeMissingPhoneNumber - Indicates that a phone number was not provided.
+        </li>
+        <li>@c FIRAuthErrorCodeMissingAppToken - Indicates that the APNs device token could not be
+            obtained. The app may not have set up remote notification correctly, or may fail to
+            forward the APNs device token to FIRAuth if app delegate swizzling is disabled.
+        </li>
+    </ul>
  */
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                completion:(nullable FIRVerificationResultCallback)completion;
