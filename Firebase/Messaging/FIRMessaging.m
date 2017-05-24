@@ -195,7 +195,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   _FIRMessagingDevAssert(self.config, @"Invalid nil config in FIRMessagingService");
 
   [self saveLibraryVersion];
-  [self setupLogger:self.config.logLevel];
   [self setupReceiverWithConfig:self.config];
 
   NSString *hostname = kFIRMessagingReachabilityHostname;
@@ -257,17 +256,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
                                             forKey:kFIRMessagingLibraryVersion];
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging000, @"FIRMessaging library version %@",
                          currentLibraryVersion);
-}
-
-- (void)setupLogger:(FIRMessagingLogLevel)loggerLevel {
-#if FIRMessaging_PROBER
-  // do nothing
-#else
-  FIRMessagingLogger *logger = FIRMessagingSharedLogger();
-  FIRMessagingLogLevelFilter *filter =
-      [[FIRMessagingLogLevelFilter alloc] initWithLevel:loggerLevel];
-  [logger setFilter:filter];
-#endif
 }
 
 - (void)setupReceiverWithConfig:(FIRMessagingConfig *)config {
