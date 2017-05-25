@@ -53,7 +53,7 @@ static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
                                   handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
     [ApplicationDelegate setOpenURLDelegate:nil];
     if (!error && result.isCancelled) {
-      error = [NSError errorWithDomain:@"com.google.FirebearSample" code:-1 userInfo:nil];
+      error = [NSError errorWithDomain:@"com.google.FirebaseAuthSample" code:-1 userInfo:nil];
     }
     if (error) {
       callback(nil, error);

@@ -31,8 +31,6 @@ ID, saved for continuous tests.
 
 $KGOOGLE_USER_NAME
 The name of the test user for Google SignIn.
-Make sure the name of the test user to be "John Test" as defined by kGoogleTestAccountName
-in ApiTests/FirebearApiTests.m
 
 $KFACEBOOK_APP_ID
 FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the 

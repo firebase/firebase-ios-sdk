@@ -45,7 +45,7 @@ static NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey = @"FIR
 @end
 
 /**
- * This is a hack that copies the definitions of Firebear error codes. If the error codes change in the original code, this
+ * This is a hack that copies the definitions of Firebase Auth error codes. If the error codes change in the original code, this
  * will break at runtime due to undefined behavior!
  */
 typedef NS_ENUM(NSUInteger, FIRErrorCode) {
@@ -104,7 +104,7 @@ typedef NS_ENUM(NSUInteger, FIRErrorCode) {
 @end
 
 
-@interface FIRFirebearAuthTokenProvider : NSObject <FAuthTokenProvider>
+@interface FIRFirebaseAuthTokenProvider : NSObject <FAuthTokenProvider>
 
 @property (nonatomic, strong) id<FIRFirebaseAppLike> app;
 /** Strong references to the auth listeners as they are only weak in FIRFirebaseApp */
@@ -114,7 +114,7 @@ typedef NS_ENUM(NSUInteger, FIRErrorCode) {
 
 @end
 
-@implementation FIRFirebearAuthTokenProvider
+@implementation FIRFirebaseAuthTokenProvider
 
 - (instancetype) initWithFirebaseApp:(id<FIRFirebaseAppLike>)app {
     self = [super init];
@@ -156,7 +156,7 @@ typedef NS_ENUM(NSUInteger, FIRErrorCode) {
 @implementation FAuthTokenProvider
 
 + (id<FAuthTokenProvider>) authTokenProviderForApp:(id)app {
-    return [[FIRFirebearAuthTokenProvider alloc] initWithFirebaseApp:app];
+    return [[FIRFirebaseAuthTokenProvider alloc] initWithFirebaseApp:app];
 }
 
 @end

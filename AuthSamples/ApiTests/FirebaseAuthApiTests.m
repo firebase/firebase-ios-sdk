@@ -62,14 +62,12 @@ static NSString *const kExistingTestingEmailToSignIn = @"456@abc.com";
 NSString *kInvalidTokenErrorMessage =
     @"The custom token format is incorrect. Please check the documentation.";
 
-/** Cliend Id for Google sign in project "fb-sa-upgraded". Please be sync with the CLIENT_ID in
- * Firebear/Sample/GoogleService-Info.plist. */
 NSString *kGoogleCliendId = KGOOGLE_CLIENT_ID;
 
 /** Refresh token of Google test account to exchange for access token. Refresh token never expires
  * unless user revokes it. If this refresh token expires, tests in record mode will fail and this
- * token needs to be updated. More details at
- * http://g3doc/company/teams/user-testing/identity/firebear/faq. */
+ * token needs to be updated.
+ */
 NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
 
 static NSTimeInterval const kExpectationsTimeout = 30;
@@ -368,8 +366,7 @@ static NSTimeInterval const kExpectationsTimeout = 30;
 }
 
 /** Creates a Facebook testing account using Facebook Graph API and return a dictionary that
- * constains "id", "access_token", "login_url", "email" and "password" of the created account. More
- * details at http://g3doc/company/teams/user-testing/identity/firebear/faq.
+ * constains "id", "access_token", "login_url", "email" and "password" of the created account.
  */
 - (NSDictionary *)createFacebookTestingAccount {
   // Build the URL.
