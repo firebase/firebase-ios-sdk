@@ -19,7 +19,6 @@
 #import "FIRAppInternal.h"
 #import "FIROptionsInternal.h"
 
-#import "FIRMessagingConfig.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"

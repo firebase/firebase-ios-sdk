@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingConfig.h"
 #import "FIRMMessageCode.h"
 
 // The convenience macros are only defined if they haven't already been defined.
@@ -35,36 +34,7 @@
 
 #endif  // !defined(FIRMessagingLoggerInfo)
 
-/// Protocols
-@protocol FIRMessagingLogFormatter <NSObject>
-- (NSString *)stringForFunc:(NSString *)func
-                 withFormat:(NSString *)fmt
-                     valist:(va_list)args
-                      level:(FIRMessagingLogLevel)level NS_FORMAT_FUNCTION(2, 0);
-@end
-
-/// FIRMessagingLogWriter
-@protocol FIRMessagingLogWriter <NSObject>
-// Writes the given log message to where the log writer is configured to write.
-- (void)logMessage:(NSString *)msg level:(FIRMessagingLogLevel)level;
-@end
-
-/// FIRMessagingLogFilter
-@protocol FIRMessagingLogFilter <NSObject>
-// Returns YES if |msg| at |level| should be logged; NO otherwise.
-- (BOOL)filterAllowsMessage:(NSString *)msg level:(FIRMessagingLogLevel)level;
-@end
-
-@interface FIRMessagingLogLevelFilter : NSObject <FIRMessagingLogFilter>
-- (instancetype)initWithLevel:(FIRMessagingLogLevel)level;
-@end
-
-
 @interface FIRMessagingLogger : NSObject
-
-@property(nonatomic, readwrite, strong) id<FIRMessagingLogFilter> filter;
-@property(nonatomic, readwrite, strong) id<FIRMessagingLogWriter> writer;
-@property(nonatomic, readwrite, strong) id<FIRMessagingLogFormatter> formatter;
 
 - (void)logFuncDebug:(const char *)func
          messageCode:(FIRMessagingMessageCode)messageCode
