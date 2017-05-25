@@ -120,6 +120,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeRemoteNotificationsProxy000 = 12000,  // I-FCM012000
   kFIRMessagingMessageCodeRemoteNotificationsProxy001 = 12001,  // I-FCM012001
   kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed = 12002,  // I-FCM012002
+  kFIRMessagingMessageCodeRemoteNotificationsProxyMethodNotAdded = 12003,  // I-FCM012003
   // FIRMessagingRmq2PersistentStore.m
   kFIRMessagingMessageCodeRmq2PersistentStore000 = 13000,  // I-FCM013000
   kFIRMessagingMessageCodeRmq2PersistentStore001 = 13001,  // I-FCM013001

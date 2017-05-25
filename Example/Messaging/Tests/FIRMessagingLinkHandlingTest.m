@@ -19,13 +19,12 @@
 #import <OCMock/OCMock.h>
 
 #import "FIRMessaging.h"
-#import "FIRMessagingConfig.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"
 
 @interface FIRMessaging ()
 
-- (instancetype)initWithConfig:(FIRMessagingConfig *)config;
+- (instancetype)initPrivately;
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message;
 
 @end
@@ -41,8 +40,7 @@
 - (void)setUp {
   [super setUp];
 
-  FIRMessagingConfig *config = [FIRMessagingConfig defaultConfig];
-  _messaging = [[FIRMessaging alloc] initWithConfig:config];
+  _messaging = [[FIRMessaging alloc] initPrivately];
 }
 
 - (void)tearDown {

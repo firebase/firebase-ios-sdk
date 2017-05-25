@@ -2,7 +2,7 @@
 
 This document describes how Firebase Auth maintains thread-safety. The Firebase
 Auth library (not including Firebase Auth UI and Auth Provider UIs for now)
-must be thread-safe, meaning deveopers are free to call any method in any
+must be thread-safe, meaning developers are free to call any method in any
 thread at any time. Thus, all code that may take part in race conditions must
 be protected in some way.
 
@@ -111,7 +111,7 @@ methods:
 *   The calling code should already be in the auth global work queue.
 *   The callback, if any, is provided by our own code, so it expects to called
     in the auth global work queue as well. This is usually already the case,
-    unless the method pass the callback to some other asychronous methods
+    unless the method pass the callback to some other asynchronous methods
     outside our library, in which case we need to manually make the callback
     called in the auth global work queue.
 
