@@ -168,7 +168,7 @@ static const double kAllowedTimeDifference = 0.1;
   XCTAssertNotNil(RPCResponse);
   XCTAssertEqualObjects(RPCResponse.IDToken, kTestIDToken);
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kAllowedTimeDifference);
+  XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
   XCTAssertNil(RPCError, "There should be no error");
 }

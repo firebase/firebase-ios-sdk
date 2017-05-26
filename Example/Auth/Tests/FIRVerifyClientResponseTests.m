@@ -62,10 +62,11 @@ static NSString *const kSuggestedTimeOutKey = @"suggestedTimeout";
  */
 static NSString *const kFakeSuggestedTimeout = @"1234";
 
-/** @var kEpsilon
-    @brief Allowed difference when comparing floating point numbers.
+/** @var kAllowedTimeDifference
+    @brief Allowed difference when comparing times because of execution time and floating point
+        error.
  */
-static const double kEpsilon = 1e-3;
+static const double kAllowedTimeDifference = 0.1;
 
 /** @var kMissingAppCredentialErrorMessage
     @brief This is the error message the server will respond with if the APNS token is missing in a
@@ -172,7 +173,8 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   XCTAssertNotNil(RPCResponse);
   XCTAssertEqualObjects(RPCResponse.receipt, kFakeReceipt);
   NSTimeInterval suggestedTimeout = [RPCResponse.suggestedTimeOutDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(suggestedTimeout - [kFakeSuggestedTimeout doubleValue]), kEpsilon);
+  XCTAssertEqualWithAccuracy(suggestedTimeout, [kFakeSuggestedTimeout doubleValue],
+                             kAllowedTimeDifference);
 }
 
 @end
