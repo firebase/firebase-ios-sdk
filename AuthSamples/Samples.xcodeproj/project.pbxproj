@@ -31,6 +31,7 @@
 		BE7B447C1EC2508300FA4C1B /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7B447A1EC2507800FA4C1B /* AuthCredentials.swift */; };
 		D9AE2A641ED751C900DDAD18 /* FirebaseAuthApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AE2A631ED751C900DDAD18 /* FirebaseAuthApiTests.m */; };
 		D9AE2A661ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AE2A651ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m */; };
+		D99C31A11ED7A0ED00607534 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = D99C31A01ED7A0ED00607534 /* GoogleService-Info_multi.plist */; };
 		DE5371B31EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */; };
 		DE5371B41EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371851EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m */; };
 		DE5371B51EA7E89D000DA57F /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371861EA7E89D000DA57F /* FIRAuthAppCredentialTests.m */; };
@@ -193,6 +194,7 @@
 		D90D8C411ED3B72B00C6BE87 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
 		D9AE2A631ED751C900DDAD18 /* FirebaseAuthApiTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthApiTests.m; sourceTree = "<group>"; };
 		D9AE2A651ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthEarlGreyTests.m; sourceTree = "<group>"; };
+		D99C31A01ED7A0ED00607534 /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info_multi.plist"; sourceTree = "<group>"; };
 		D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.release.xcconfig"; sourceTree = "<group>"; };
 		DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAdditionalUserInfoTests.m; path = ../../Example/Auth/Tests/FIRAdditionalUserInfoTests.m; sourceTree = "<group>"; };
 		DE5371841EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "FIRApp+FIRAuthUnitTests.h"; path = "../../Example/Auth/Tests/FIRApp+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
@@ -423,6 +425,7 @@
 				DECE04A51E9FEAE600164CA4 /* GoogleAuthProvider.h */,
 				DECE04A61E9FEAE600164CA4 /* GoogleAuthProvider.m */,
 				DECE04A81E9FEAE600164CA4 /* GoogleService-Info.plist */,
+				D99C31A01ED7A0ED00607534 /* GoogleService-Info_multi.plist */,
 				DECE04A91E9FEAE600164CA4 /* Images.xcassets */,
 				DECE04AA1E9FEAE600164CA4 /* main.m */,
 				DECE04AB1E9FEAE600164CA4 /* MainViewController.h */,
@@ -836,6 +839,7 @@
 			files = (
 				DECE04E21E9FEAE600164CA4 /* Application.plist in Resources */,
 				DECE04EA1E9FEAE600164CA4 /* Images.xcassets in Resources */,
+				D99C31A11ED7A0ED00607534 /* GoogleService-Info_multi.plist in Resources */,
 				DECE04ED1E9FEAE600164CA4 /* MainViewController.xib in Resources */,
 				DECE04F61E9FEAE600164CA4 /* UserInfoViewController.xib in Resources */,
 				DECE04F01E9FEAE600164CA4 /* SettingsViewController.xib in Resources */,

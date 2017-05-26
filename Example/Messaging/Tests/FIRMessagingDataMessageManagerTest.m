@@ -22,7 +22,6 @@
 
 #import "FIRMessaging.h"
 #import "FIRMessagingClient.h"
-#import "FIRMessagingConfig.h"
 #import "FIRMessagingConnection.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingReceiver.h"

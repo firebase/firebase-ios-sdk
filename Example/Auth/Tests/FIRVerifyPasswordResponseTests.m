@@ -159,10 +159,11 @@ static NSString *const kAppNotAuthorizedReasonValue = @"ipRefererBlocked";
  */
 static NSString *const kTooManyAttemptsErrorMessage = @"TOO_MANY_ATTEMPTS_TRY_LATER:";
 
-/** @var kEpsilon
-    @brief Allowed difference when comparing floating point numbers.
+/** @var kAllowedTimeDifference
+    @brief Allowed difference when comparing times because of execution time and floating point
+        error.
  */
-static const double kEpsilon = 1e-3;
+static const double kAllowedTimeDifference = 0.1;
 
 /** @class FIRVerifyPasswordResponseTests
     @brief Tests for @c FIRVerifyPasswordResponse.
@@ -446,7 +447,7 @@ static const double kEpsilon = 1e-3;
   XCTAssertEqualObjects(RPCResponse.displayName, kTestDisplayName);
   XCTAssertEqualObjects(RPCResponse.IDToken, kTestIDToken);
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kEpsilon);
+  XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
   XCTAssertEqualObjects(RPCResponse.photoURL.absoluteString, kTestPhotoUrl );
 }

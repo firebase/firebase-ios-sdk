@@ -85,10 +85,11 @@ static NSString *const kFakePhoneNumber = @"12345658";
  */
 static NSString *const kFakeTemporaryProof = @"12345658";
 
-/** @var kEpsilon
-    @brief Allowed difference when comparing floating point numbers.
+/** @var kAllowedTimeDifference
+    @brief Allowed difference when comparing times because of execution time and floating point
+        error.
  */
-static const double kEpsilon = 1e-3;
+static const double kAllowedTimeDifference = 0.1;
 
 /** @class FIRVerifyPhoneNumberResponseTests
     @brief Tests for @c FIRVerifyPhoneNumberResponse.
@@ -232,7 +233,7 @@ static const double kEpsilon = 1e-3;
   XCTAssertEqualObjects(RPCResponse.IDToken, kfakeIDToken);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kfakeRefreshToken);
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kEpsilon);
+  XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertTrue(RPCResponse.isNewUser);
 }
 
