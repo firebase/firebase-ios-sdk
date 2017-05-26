@@ -369,7 +369,7 @@ static NSString *const kDeleteAppTitle = @"Delete App";
 /** @var kSectionTitleManualTests
     @brief The section title for automated manual tests.
  */
-static NSString *const kSectionTitleManualTests = @"Manual Tests";
+static NSString *const kSectionTitleManualTests = @"Automated (Manual) Tests";
 
 /** @var kAutoBYOAuthTitle
     @brief The button title for automated BYOAuth operation.
@@ -2178,6 +2178,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                            NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
+          [self showMessagePrompt:error.localizedDescription];
           return;
         }
         [self logSuccess:@"Code sent"];
@@ -2198,6 +2199,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                   NSError *_Nullable error) {
               if (error) {
                 [self logFailure:@"failed to verify phone number" error:error];
+                [self showMessagePrompt:error.localizedDescription];
                 return;
               }
             }];
@@ -2227,6 +2229,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                            NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
+          [self showMessagePrompt:error.localizedDescription];
           return;
         }
         [self logSuccess:@"Code sent"];
@@ -2246,6 +2249,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                           completion:^(NSError *_Nullable error) {
               if (error) {
                 [self logFailure:@"update phone number failed" error:error];
+                [self showMessagePrompt:error.localizedDescription];
               } else {
                 [self logSuccess:@"update phone number succeeded."];
               }
@@ -2276,6 +2280,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                            NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
+          [self showMessagePrompt:error.localizedDescription];
           return;
         }
         [self logSuccess:@"Code sent"];
@@ -2311,6 +2316,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                              NSError *_Nullable error) {
                         if (error) {
                           [self logFailure:@"failed to verify phone number" error:error];
+                          [self showMessagePrompt:error.localizedDescription];
                           return;
                         }
                       }];
@@ -2318,6 +2324,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                   }];
                 } else {
                   [self logFailure:@"link phone number failed" error:error];
+                  [self showMessagePrompt:error.localizedDescription];
                 }
                 return;
               }
