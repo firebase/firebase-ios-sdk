@@ -105,7 +105,7 @@ FIR_SWIFT_NAME(FirebaseOptions)
                         databaseURL:(NSString *)databaseURL
                       storageBucket:(NSString *)storageBucket
                   deepLinkURLScheme:(NSString *)deepLinkURLScheme
-    DEPRECATED_MSG_ATTRIBUTE("Use `-[FIROptions initWithGoogleAppID:gcmSenderID:]` and "
+    DEPRECATED_MSG_ATTRIBUTE("Use `-[[FIROptions alloc] initWithGoogleAppID:gcmSenderID:]` and "
                              "properties instead.");
 
 /**
