@@ -109,10 +109,11 @@ static NSString *const kWeakPasswordErrorMessage =
 static NSString *const kWeakPasswordClientErrorMessage =
     @"Password should be at least 6 characters";
 
-/** @var kEpsilon
-    @brief Allowed difference when comparing floating point numbers.
+/** @var kAllowedTimeDifference
+    @brief Allowed difference when comparing times because of execution time and floating point
+        error.
  */
-static const double kEpsilon = 1e-3;
+static const double kAllowedTimeDifference = 0.1;
 
 @interface FIRSignUpNewUserResponseTests : XCTestCase
 @end
@@ -167,7 +168,7 @@ static const double kEpsilon = 1e-3;
   XCTAssertNotNil(RPCResponse);
   XCTAssertEqualObjects(RPCResponse.IDToken, kTestIDToken);
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kEpsilon);
+  XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
   XCTAssertNil(RPCError, "There should be no error");
 }

@@ -142,10 +142,11 @@ static NSString *const kPasswordLoginDisabledErrorMessage = @"PASSWORD_LOGIN_DIS
  */
 static NSString *const kFederatedUserIDAlreadyLinkedMessage = @"FEDERATED_USER_ID_ALREADY_LINKED:";
 
-/** @var kEpsilon
-    @brief Allowed difference when comparing floating point numbers.
+/** @var kAllowedTimeDifference
+    @brief Allowed difference when comparing times because of execution time and floating point
+        error.
  */
-static const double kEpsilon = 1e-3;
+static const double kAllowedTimeDifference = 0.1;
 
 /** @class FIRVerifyAssertionResponseTests
     @brief Tests for @c FIRVerifyAssertionResponse
@@ -357,7 +358,7 @@ static const double kEpsilon = 1e-3;
   XCTAssertNotNil(RPCResponse);
   XCTAssertEqualObjects(RPCResponse.IDToken, kTestIDToken);
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kEpsilon);
+  XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
   XCTAssertEqualObjects(RPCResponse.verifiedProvider, @[ kTestProvider ]);
   XCTAssertEqualObjects(RPCResponse.photoURL, [NSURL URLWithString:kTestPhotoUrl]);
@@ -404,7 +405,7 @@ static const double kEpsilon = 1e-3;
   XCTAssertNotNil(RPCResponse);
   XCTAssertEqualObjects(RPCResponse.IDToken, kTestIDToken);
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kEpsilon);
+  XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
   XCTAssertEqualObjects(RPCResponse.verifiedProvider, @[ kTestProvider ]);
   XCTAssertEqualObjects(RPCResponse.photoURL, [NSURL URLWithString:kTestPhotoUrl]);
