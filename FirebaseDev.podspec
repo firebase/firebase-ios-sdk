@@ -76,7 +76,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Database' do |sp|
-    sp.platform = 'ios'
     sp.source_files = 'Firebase/Database/**/*.[mh]',
       'Firebase/Database/third_party/Wrap-leveldb/APLevelDB.mm',
       'Firebase/Database/third_party/SocketRocket/fbase64.c'

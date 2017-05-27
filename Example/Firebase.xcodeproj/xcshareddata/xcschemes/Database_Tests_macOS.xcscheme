@@ -16,9 +16,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE7B8D1C1E8EF078009EB6DF"
-               BuildableName = "Database_Tests.xctest"
-               BlueprintName = "Database_Tests"
+               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
+               BuildableName = "Database_Tests_macOS.xctest"
+               BlueprintName = "Database_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>

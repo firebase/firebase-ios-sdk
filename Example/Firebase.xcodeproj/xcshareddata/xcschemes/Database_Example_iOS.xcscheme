@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0830"
+   LastUpgradeVersion = "0820"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -8,15 +8,15 @@
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
-               BuildableName = "AllUnitTests_macOS"
-               BlueprintName = "AllUnitTests_macOS"
+               BlueprintIdentifier = "DE7B8D041E8EF077009EB6DF"
+               BuildableName = "Database_Example_iOS.app"
+               BlueprintName = "Database_Example_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,19 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D064E6AA1ED9B31C001956DF"
-               BuildableName = "Core_Tests_macOS.xctest"
-               BlueprintName = "Core_Tests_macOS"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-               BuildableName = "Database_Tests_macOS.xctest"
-               BlueprintName = "Database_Tests_macOS"
+               BlueprintIdentifier = "DE7B8D1C1E8EF078009EB6DF"
+               BuildableName = "Database_Tests_iOS.xctest"
+               BlueprintName = "Database_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -52,9 +42,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
-            BuildableName = "AllUnitTests_macOS"
-            BlueprintName = "AllUnitTests_macOS"
+            BlueprintIdentifier = "DE7B8D041E8EF077009EB6DF"
+            BuildableName = "Database_Example_iOS.app"
+            BlueprintName = "Database_Example_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -71,6 +61,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE7B8D041E8EF077009EB6DF"
+            BuildableName = "Database_Example_iOS.app"
+            BlueprintName = "Database_Example_iOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -80,6 +80,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE7B8D041E8EF077009EB6DF"
+            BuildableName = "Database_Example_iOS.app"
+            BlueprintName = "Database_Example_iOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

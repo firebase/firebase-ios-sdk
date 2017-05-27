@@ -34,17 +34,33 @@ target 'Auth_Example' do
   end
 end
 
-target 'Database_Example' do
+target 'Database_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDev/Database', :path => '../'
 
-  target 'Database_Tests' do
+  target 'Database_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
 
-  target 'Database_IntegrationTests' do
+  target 'Database_IntegrationTests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Database_Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'FirebaseDev/Database', :path => '../'
+
+  target 'Database_Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+  target 'Database_IntegrationTests_macOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
