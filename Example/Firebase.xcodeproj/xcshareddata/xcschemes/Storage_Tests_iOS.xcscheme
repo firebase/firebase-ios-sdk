@@ -17,8 +17,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
-               BuildableName = "Storage_Tests.xctest"
-               BlueprintName = "Storage_Tests"
+               BuildableName = "Storage_Tests_iOS.xctest"
+               BlueprintName = "Storage_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>

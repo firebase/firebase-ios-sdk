@@ -20,6 +20,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
+  s.osx.deployment_target = '10.10'
 
   s.source_files = '**/*.[mh]'
   s.public_header_files =
@@ -35,7 +36,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'FIRStorageTaskSnapshot.h',
     'FIRStorageUploadTask.h'
 
-  s.framework = 'MobileCoreServices'
+  s.ios.framework = 'MobileCoreServices'
+  s.osx.framework = 'CoreServices'
 #    s.dependency 'FirebaseDev/Core'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>

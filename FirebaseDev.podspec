@@ -122,7 +122,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Storage' do |sp|
-    sp.platform = 'ios'
     sp.source_files = 'Firebase/Storage/**/*.[mh]'
     sp.public_header_files =
       'Firebase/Storage/FirebaseStorage.h',
@@ -136,7 +135,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'Firebase/Storage/FIRStorageTask.h',
       'Firebase/Storage/FIRStorageTaskSnapshot.h',
       'Firebase/Storage/FIRStorageUploadTask.h'
-    sp.framework = 'MobileCoreServices'
+    sp.ios.framework = 'MobileCoreServices'
+    sp.osx.framework = 'CoreServices'
     sp.dependency 'FirebaseDev/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
     sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRStorage_VERSION=' + s.version.to_s }

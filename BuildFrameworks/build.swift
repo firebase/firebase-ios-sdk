@@ -45,7 +45,7 @@ let allFrameworks: [String: [Platform]] = [
   "FirebaseCore": [.iOS, .macOS],
   "FirebaseDatabase": [.iOS, .macOS],
   "FirebaseMessaging": [.iOS],
-  "FirebaseStorage": [.iOS]
+  "FirebaseStorage": [.iOS, .macOS]
 ]
 
 let currentDirectoryURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)

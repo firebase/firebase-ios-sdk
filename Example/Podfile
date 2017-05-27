@@ -80,17 +80,33 @@ target 'Messaging_Example' do
   end
 end
 
-target 'Storage_Example' do
+target 'Storage_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDev/Storage', :path => '../'
 
-  target 'Storage_Tests' do
+  target 'Storage_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
 
-  target 'Storage_IntegrationTests' do
+  target 'Storage_IntegrationTests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Storage_Example_macOS' do
+  platform :ios, '8.0'
+
+  pod 'FirebaseDev/Storage', :path => '../'
+
+  target 'Storage_Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+  target 'Storage_IntegrationTests_macOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
