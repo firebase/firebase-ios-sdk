@@ -1,12 +1,12 @@
 
 use_frameworks!
 
-target 'Core_Example' do
+target 'Core_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDev/Core', :path => '../'
 
-  target 'Core_Tests' do
+  target 'Core_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
