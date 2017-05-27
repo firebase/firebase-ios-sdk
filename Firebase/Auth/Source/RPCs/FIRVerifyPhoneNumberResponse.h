@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly, nullable) NSString *refreshToken;
 
 /** @property localID
-    @brief The Firebear user ID.
+    @brief The Firebase Auth user ID.
  */
 @property(nonatomic, strong, readonly, nullable) NSString *localID;
 
