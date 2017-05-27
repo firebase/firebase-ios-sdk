@@ -97,7 +97,7 @@ target 'Storage_Example_iOS' do
 end
 
 target 'Storage_Example_macOS' do
-  platform :ios, '8.0'
+  platform :osx, '10.10'
 
   pod 'FirebaseDev/Storage', :path => '../'
 

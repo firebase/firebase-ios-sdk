@@ -8,15 +8,15 @@
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
-               BuildableName = "AllUnitTests_macOS"
-               BlueprintName = "AllUnitTests_macOS"
+               BlueprintIdentifier = "D0EDB2BC1EDA04F800B6C31B"
+               BuildableName = "Storage_Example_macOS.app"
+               BlueprintName = "Storage_Example_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,26 +32,6 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D064E6AA1ED9B31C001956DF"
-               BuildableName = "Core_Tests_macOS.xctest"
-               BlueprintName = "Core_Tests_macOS"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-               BuildableName = "Database_Tests_macOS.xctest"
-               BlueprintName = "Database_Tests_macOS"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "D0EDB2DE1EDA06CB00B6C31B"
                BuildableName = "Storage_Tests_macOS.xctest"
                BlueprintName = "Storage_Tests_macOS"
@@ -62,9 +42,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
-            BuildableName = "AllUnitTests_macOS"
-            BlueprintName = "AllUnitTests_macOS"
+            BlueprintIdentifier = "D0EDB2BC1EDA04F800B6C31B"
+            BuildableName = "Storage_Example_macOS.app"
+            BlueprintName = "Storage_Example_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -81,6 +61,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "D0EDB2BC1EDA04F800B6C31B"
+            BuildableName = "Storage_Example_macOS.app"
+            BlueprintName = "Storage_Example_macOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -90,6 +80,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "D0EDB2BC1EDA04F800B6C31B"
+            BuildableName = "Storage_Example_macOS.app"
+            BlueprintName = "Storage_Example_macOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
