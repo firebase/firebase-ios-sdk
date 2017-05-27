@@ -5,7 +5,7 @@ cache:
   - cocoapods
 podfile: Example/Podfile
 xcode_workspace: Example/Firebase.xcworkspace
-xcode_scheme: AllUnitTests
+xcode_scheme: AllUnitTests_iOS
 
 rvm: 2.3.1
 before_install:
@@ -14,6 +14,6 @@ before_install:
   - gem install xcpretty
   - pod install --project-directory=Example --repo-update
 
-script: 
+script:
   - ./test.sh
   - pod lib lint FirebaseDev.podspec

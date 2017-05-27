@@ -15,7 +15,7 @@ set -eo pipefail
 
 xcodebuild \
   -workspace Example/Firebase.xcworkspace \
-  -scheme AllUnitTests \
+  -scheme AllUnitTests_iOS \
   -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 7' \
   build \
@@ -29,7 +29,7 @@ if [ $RESULT == 65 ]; then
   echo "xcodebuild exited with 65, retrying"
   xcodebuild \
   -workspace Example/Firebase.xcworkspace \
-  -scheme AllUnitTests \
+  -scheme AllUnitTests_iOS \
   -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 7' \
   build \
