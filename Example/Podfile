@@ -1,8 +1,9 @@
 
 use_frameworks!
-platform :ios, '8.0'
 
 target 'Core_Example' do
+  platform :ios, '8.0'
+
   pod 'FirebaseDev/Core', :path => '../'
 
   target 'Core_Tests' do
@@ -11,7 +12,20 @@ target 'Core_Example' do
   end
 end
 
+target 'Core_Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'FirebaseDev/Core', :path => '../'
+
+  target 'Core_Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
 target 'Auth_Example' do
+  platform :ios, '8.0'
+
   pod 'FirebaseDev/Auth', :path => '../'
 
   target 'Auth_Tests' do
@@ -21,13 +35,15 @@ target 'Auth_Example' do
 end
 
 target 'Database_Example' do
+  platform :ios, '8.0'
+
   pod 'FirebaseDev/Database', :path => '../'
 
   target 'Database_Tests' do
     inherit! :search_paths
     pod 'OCMock'
   end
-  
+
   target 'Database_IntegrationTests' do
     inherit! :search_paths
     pod 'OCMock'
@@ -35,6 +51,8 @@ target 'Database_Example' do
 end
 
 target 'Messaging_Example' do
+  platform :ios, '8.0'
+
   pod 'FirebaseDev/Messaging', :path => '../'
   # Lock to the 1.0.9 version of InstanceID since 1.0.10 added a dependency
   # to FirebaseCore
@@ -47,13 +65,15 @@ target 'Messaging_Example' do
 end
 
 target 'Storage_Example' do
+  platform :ios, '8.0'
+
   pod 'FirebaseDev/Storage', :path => '../'
 
   target 'Storage_Tests' do
     inherit! :search_paths
     pod 'OCMock'
   end
-  
+
   target 'Storage_IntegrationTests' do
     inherit! :search_paths
     pod 'OCMock'

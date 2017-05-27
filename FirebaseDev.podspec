@@ -16,6 +16,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.10'
   s.default_subspec  = 'Root'
 
   s.subspec 'Root' do |sp|
@@ -40,6 +41,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Auth' do |sp|
+    sp.platform = 'ios'
     sp.source_files = 'Firebase/Auth/Source/**/*.[mh]'
     sp.public_header_files =
       'Firebase/Auth/Source/FirebaseAuth.h',
@@ -74,6 +76,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Database' do |sp|
+    sp.platform = 'ios'
     sp.source_files = 'Firebase/Database/**/*.[mh]',
       'Firebase/Database/third_party/Wrap-leveldb/APLevelDB.mm',
       'Firebase/Database/third_party/SocketRocket/fbase64.c'
@@ -99,6 +102,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Messaging' do |sp|
+    sp.platform = 'ios'
     sp.source_files = 'Firebase/Messaging/**/*.[mh]'
     sp.requires_arc = 'Firebase/Messaging/*.m'
 
@@ -119,6 +123,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Storage' do |sp|
+    sp.platform = 'ios'
     sp.source_files = 'Firebase/Storage/**/*.[mh]'
     sp.public_header_files =
       'Firebase/Storage/FirebaseStorage.h',
