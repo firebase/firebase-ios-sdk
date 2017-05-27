@@ -7,9 +7,20 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		DE3373891E73773400881891 /* AllUnitTests */ = {
+		D0FE8A041ED9C32C003F6722 /* AllUnitTests_macOS */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests" */;
+			buildConfigurationList = D0FE8A0F1ED9C32C003F6722 /* Build configuration list for PBXAggregateTarget "AllUnitTests_macOS" */;
+			buildPhases = (
+			);
+			dependencies = (
+				D0FE8A131ED9C349003F6722 /* PBXTargetDependency */,
+			);
+			name = AllUnitTests_macOS;
+			productName = AllTests;
+		};
+		DE3373891E73773400881891 /* AllUnitTests_iOS */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests_iOS" */;
 			buildPhases = (
 			);
 			dependencies = (
@@ -19,7 +30,7 @@
 				DEE14E0B1E844FDC006FA992 /* PBXTargetDependency */,
 				DE3373981E73776F00881891 /* PBXTargetDependency */,
 			);
-			name = AllUnitTests;
+			name = AllUnitTests_iOS;
 			productName = AllTests;
 		};
 /* End PBXAggregateTarget section */
@@ -107,7 +118,6 @@
 		D064E69A1ED9B1BF001956DF /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D064E6991ED9B1BF001956DF /* FIRAppDelegate.m */; };
 		D064E69D1ED9B1BF001956DF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D064E69C1ED9B1BF001956DF /* main.m */; };
 		D064E6A01ED9B1BF001956DF /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D064E69F1ED9B1BF001956DF /* FIRViewController.m */; };
-		D064E6A21ED9B1BF001956DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D064E6A11ED9B1BF001956DF /* Assets.xcassets */; };
 		D064E6A51ED9B1BF001956DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D064E6A31ED9B1BF001956DF /* Main.storyboard */; };
 		D064E6AF1ED9B31C001956DF /* FIRAppAssociationRegistrationUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */; };
 		D064E6B01ED9B31C001956DF /* FIRAppTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D761E844677006FA992 /* FIRAppTest.m */; };
@@ -117,6 +127,8 @@
 		D064E6B41ED9B31C001956DF /* FIRBundleUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D771E844677006FA992 /* FIRBundleUtilTest.m */; };
 		D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		D064E6B71ED9B31C001956DF /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE6F01B31E9567F1004AEE01 /* FirebaseDev.framework */; };
+		D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
 		D4C8048F30E7D6479E7D3598 /* Pods_Core_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE33CBF71A560A810CC1F205 /* Pods_Core_Tests_iOS.framework */; };
 		DE0E5BBB1EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */; };
 		DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */; };
@@ -280,6 +292,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = D064E6951ED9B1BF001956DF;
 			remoteInfo = Core_Example_macOS;
+		};
+		D0FE8A121ED9C349003F6722 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D064E6AA1ED9B31C001956DF;
+			remoteInfo = Core_Tests_macOS;
 		};
 		DE3373971E73776F00881891 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -469,7 +488,6 @@
 		D064E69C1ED9B1BF001956DF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D064E69E1ED9B1BF001956DF /* FIRViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
 		D064E69F1ED9B1BF001956DF /* FIRViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
-		D064E6A11ED9B1BF001956DF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D064E6A41ED9B1BF001956DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D064E6A61ED9B1BF001956DF /* Core-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
 		D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1020,7 +1038,6 @@
 				D064E6991ED9B1BF001956DF /* FIRAppDelegate.m */,
 				D064E69E1ED9B1BF001956DF /* FIRViewController.h */,
 				D064E69F1ED9B1BF001956DF /* FIRViewController.m */,
-				D064E6A11ED9B1BF001956DF /* Assets.xcassets */,
 				D064E6A31ED9B1BF001956DF /* Main.storyboard */,
 				D064E6A61ED9B1BF001956DF /* Core-Info.plist */,
 				D064E69C1ED9B1BF001956DF /* main.m */,
@@ -1654,11 +1671,15 @@
 					};
 					D064E6951ED9B1BF001956DF = {
 						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
 					};
 					D064E6AA1ED9B31C001956DF = {
 						DevelopmentTeam = EQHXZ8M8AV;
 						TestTargetID = D064E6951ED9B1BF001956DF;
+					};
+					D0FE8A041ED9C32C003F6722 = {
+						DevelopmentTeam = EQHXZ8M8AV;
 					};
 					DE3373891E73773400881891 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -1741,7 +1762,8 @@
 				DEB139E01E73506A00AC236D /* Storage_Example */,
 				DEB13A0A1E73507E00AC236D /* Storage_Tests */,
 				06121EBB1EC399C50008D70E /* Storage_IntegrationTests */,
-				DE3373891E73773400881891 /* AllUnitTests */,
+				DE3373891E73773400881891 /* AllUnitTests_iOS */,
+				D0FE8A041ED9C32C003F6722 /* AllUnitTests_macOS */,
 			);
 		};
 /* End PBXProject section */
@@ -1776,8 +1798,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D064E6A21ED9B1BF001956DF /* Assets.xcassets in Resources */,
+				D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */,
 				D064E6A51ED9B1BF001956DF /* Main.storyboard in Resources */,
+				D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2802,6 +2825,11 @@
 			target = D064E6951ED9B1BF001956DF /* Core_Example_macOS */;
 			targetProxy = D064E6C11ED9B369001956DF /* PBXContainerItemProxy */;
 		};
+		D0FE8A131ED9C349003F6722 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D064E6AA1ED9B31C001956DF /* Core_Tests_macOS */;
+			targetProxy = D0FE8A121ED9C349003F6722 /* PBXContainerItemProxy */;
+		};
 		DE3373981E73776F00881891 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DEB13A0A1E73507E00AC236D /* Storage_Tests */;
@@ -3212,9 +3240,10 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = "$(SRCROOT)/Core/App/macOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -3232,10 +3261,11 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = "$(SRCROOT)/Core/App/macOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3297,6 +3327,24 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_macOS.app/Contents/MacOS/Core_Example_macOS";
+			};
+			name = Release;
+		};
+		D0FE8A101ED9C32C003F6722 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D0FE8A111ED9C32C003F6722 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -3837,7 +3885,16 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests" */ = {
+		D0FE8A0F1ED9C32C003F6722 /* Build configuration list for PBXAggregateTarget "AllUnitTests_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D0FE8A101ED9C32C003F6722 /* Debug */,
+				D0FE8A111ED9C32C003F6722 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DE33738B1E73773400881891 /* Debug */,

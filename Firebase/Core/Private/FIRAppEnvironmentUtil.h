@@ -16,7 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
+#elif TARGET_OS_OSX
+#import <AppKit/AppKit.h>
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppEnvironmentUtil : NSObject
 
@@ -42,7 +48,14 @@
 /// Indicates whether it is running inside an extension or an app.
 + (BOOL)isAppExtension;
 
+#if TARGET_OS_IOS
 /// Returns the [UIApplication sharedApplication] if it is running on an app, not an extension.
-+ (UIApplication *)sharedApplication;
++ (nullable UIApplication *)sharedApplication;
+#elif TARGET_OS_OSX
+/// Returns the [NSApplication sharedApplication].
++ (NSApplication *)sharedApplication;
+#endif
 
 @end
+
+NS_ASSUME_NONNULL_END

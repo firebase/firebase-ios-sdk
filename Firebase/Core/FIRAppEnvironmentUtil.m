@@ -20,6 +20,8 @@
 #import <mach-o/dyld.h>
 #import <sys/utsname.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /// The encryption info struct and constants are missing from the iPhoneSimulator SDK, but not from
 /// the iPhoneOS or Mac OS X SDKs. Since one doesn't ever ship a Simulator binary, we'll just
 /// provide the definitions here.
@@ -152,12 +154,20 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)hasEmbeddedMobileProvision {
+  #if TARGET_OS_IOS
   return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
+  #elif TARGET_OS_OSX
+  return NO;
+  #endif
 }
 
 + (BOOL)isSimulator {
+  #if TARGET_OS_IOS
   NSString *platform = [FIRAppEnvironmentUtil deviceModel];
   return [platform isEqual:@"x86_64"] || [platform isEqual:@"i386"];
+  #elif TARGET_OS_OSX
+  return NO;
+  #endif
 }
 
 + (NSString *)deviceModel {
@@ -174,16 +184,25 @@ static BOOL isAppEncrypted() {
 }
 
 + (NSString *)systemVersion {
+  #if TARGET_OS_IOS
   return [UIDevice currentDevice].systemVersion;
+  #elif TARGET_OS_OSX
+  return [NSProcessInfo processInfo].operatingSystemVersionString;
+  #endif
 }
 
 + (BOOL)isAppExtension {
+  #if TARGET_OS_IOS
   // Documented by <a href="https://goo.gl/RRB2Up">Apple</a>
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
+  #elif TARGET_OS_OSX
+  return NO;
+  #endif
 }
 
-+ (UIApplication *)sharedApplication {
+#if TARGET_OS_IOS
++ (nullable UIApplication *)sharedApplication {
   if ([FIRAppEnvironmentUtil isAppExtension]) {
     return nil;
   }
@@ -195,13 +214,24 @@ static BOOL isAppEncrypted() {
   }
   return sharedApplication;
 }
+#elif TARGET_OS_OSX
++ (NSApplication *)sharedApplication {
+  return [NSApplication sharedApplication];
+}
+#endif
 
 #pragma mark - Helper methods
 
 + (BOOL)hasSCInfoFolder {
+  #if TARGET_OS_IOS
   NSString *bundlePath = [NSBundle mainBundle].bundlePath;
   NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
   return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];
+  #elif TARGET_OS_OSX
+  return NO;
+  #endif
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

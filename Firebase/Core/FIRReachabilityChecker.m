@@ -175,15 +175,23 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
     // Reachable flag is set. Check further flags.
     if (!(flags & kSCNetworkReachabilityFlagsConnectionRequired)) {
       // Connection required flag is not set, so we have connectivity.
+      #if TARGET_OS_IOS
       status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kFIRReachabilityViaCellular
                                                            : kFIRReachabilityViaWifi;
+      #elif TARGET_OS_OSX
+      status = kFIRReachabilityViaWifi;
+      #endif
     } else if ((flags & (kSCNetworkReachabilityFlagsConnectionOnDemand |
                          kSCNetworkReachabilityFlagsConnectionOnTraffic)) &&
                !(flags & kSCNetworkReachabilityFlagsInterventionRequired)) {
       // If the connection on demand or connection on traffic flag is set, and user intervention
       // is not required, we have connectivity.
+      #if TARGET_OS_IOS
       status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kFIRReachabilityViaCellular
                                                            : kFIRReachabilityViaWifi;
+      #elif TARGET_OS_OSX
+      status = kFIRReachabilityViaWifi;
+      #endif
     }
   }
   return status;
