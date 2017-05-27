@@ -41,6 +41,7 @@ test_iOS; RESULT=$?
 
 if [ $RESULT == 65 ]; then
   echo "xcodebuild exited with 65, retrying"
+  sleep 5
 
   test_iOS; RESULT=$?
 fi
@@ -51,6 +52,7 @@ test_macOS; RESULT=$?
 
 if [ $RESULT == 65 ]; then
   echo "xcodebuild exited with 65, retrying"
+  sleep 5
 
   test_macOS; RESULT=$?
 fi
