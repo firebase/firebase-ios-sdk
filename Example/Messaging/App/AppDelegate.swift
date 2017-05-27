@@ -50,6 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     FirebaseApp.configure()
     Messaging.messaging().delegate = self
+    Messaging.messaging().shouldEstablishDirectChannel = true
 
     NotificationsController.configure()
 
@@ -109,6 +110,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: MessagingDelegate {
   func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String) {
     printFCMToken()
+  }
+
+  // Direct channel data messages are delivered here, on iOS 10.0+.
+  // The `shouldEstablishDirectChannel` property should be be set to |true| before data messages can
+  // arrive.
+  func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage) {
+    // Convert to pretty-print JSON
+    guard let data =
+        try? JSONSerialization.data(withJSONObject: remoteMessage.appData, options: .prettyPrinted),
+        let prettyPrinted = String(data: data, encoding: .utf8) else {
+      return
+    }
+    print("Received direct channel message:\n\(prettyPrinted)")
   }
 }
 

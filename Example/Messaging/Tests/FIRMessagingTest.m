@@ -19,7 +19,6 @@
 #import <OCMock/OCMock.h>
 
 #import "FIRMessaging.h"
-#import "FIRMessagingConfig.h"
 #import "FIRMessagingInstanceIDProxy.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
@@ -30,7 +29,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
 
-- (instancetype)initWithConfig:(FIRMessagingConfig *)config;
+- (instancetype)initPrivately;
 // Direct Channel Methods
 - (void)updateAutomaticClientConnection;
 - (BOOL)shouldBeConnectedAutomatically;
@@ -49,8 +48,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)setUp {
   [super setUp];
-  FIRMessagingConfig *config = [FIRMessagingConfig defaultConfig];
-  _messaging = [[FIRMessaging alloc] initWithConfig:config];
+  _messaging = [[FIRMessaging alloc] initPrivately];
   _mockMessaging = OCMPartialMock(self.messaging);
   _mockInstanceIDProxy = OCMPartialMock(self.messaging.instanceIDProxy);
   self.messaging.instanceIDProxy = _mockInstanceIDProxy;

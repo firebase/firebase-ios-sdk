@@ -368,10 +368,16 @@ static NSString *kUserNotificationWillPresentSelectorString =
     struct objc_method_description method_description =
         protocol_getMethodDescription(protocol, originalSelector, NO, YES);
 
-    class_addMethod(klass,
-                    originalSelector,
-                    swizzledImplementation,
-                    method_description.types);
+    BOOL methodAdded = class_addMethod(klass,
+                                       originalSelector,
+                                       swizzledImplementation,
+                                       method_description.types);
+    if (!methodAdded) {
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeRemoteNotificationsProxyMethodNotAdded,
+                              @"Could not add method for %@ to class %@",
+                              NSStringFromSelector(originalSelector),
+                              NSStringFromClass(klass));
+    }
   }
   [self trackSwizzledSelector:originalSelector ofClass:klass];
 }

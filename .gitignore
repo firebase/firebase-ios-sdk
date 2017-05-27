@@ -5,6 +5,7 @@ AuthSamples/Sample/Application.plist
 AuthSamples/SwiftSample/GoogleService-Info.plist
 AuthSamples/SwiftSample/Info.plist
 AuthSamples/SwiftSample/AuthCredentials.swift
+AuthSamples/ApiTests/AuthCredentials.h
 
 Example/Database/App/GoogleService-Info.plist
 

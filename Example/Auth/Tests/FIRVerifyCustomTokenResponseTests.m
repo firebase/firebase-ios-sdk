@@ -101,10 +101,11 @@ static NSString *const kInvalidCustomTokenErrorDetails = @"Detailed Error";
  */
 static NSString *const kCredentialMismatchErrorMessage = @"CREDENTIAL_MISMATCH:";
 
-/** @var kEpsilon
-    @brief Allowed difference when comparing floating point numbers.
+/** @var kAllowedTimeDifference
+    @brief Allowed difference when comparing times because of execution time and floating point
+        error.
  */
-static const double kEpsilon = 1e-3;
+static const double kAllowedTimeDifference = 0.1;
 
 @interface FIRVerifyCustomTokenResponseTests : XCTestCase
 @end
@@ -267,7 +268,7 @@ static const double kEpsilon = 1e-3;
   XCTAssertNotNil(RPCResponse);
   XCTAssertEqualObjects(RPCResponse.IDToken, kTestIDToken);
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
-  XCTAssertLessThanOrEqual(fabs(expiresIn - [kTestExpiresIn doubleValue]), kEpsilon);
+  XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
 }
 

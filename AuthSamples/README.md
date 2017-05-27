@@ -8,7 +8,7 @@ workspace consisting of the samples, modifiable FirebaseAuth library, and its
 dependencies.
 
 
-### Running Sample Application or Firebear Api Tests
+### Running Sample Application
 
 In order to run this application, you'll need to follow the following steps!
 
@@ -55,6 +55,13 @@ Please follow the instructions in [SwiftSample/InfoTemplate.plist](SwiftSample/I
 
 Please follow the instructions in [SwiftSample/AuthCredentialsTemplate.swift](SwiftSample/AuthCredentialsTemplate.swift) to generate the AuthCredentials.swift file.
 
+### Running API tests
+
+In order to run the API tests, you'll need to follow the following steps!
+
+#### Getting your own Credential files
+
+Please follow the instructions in [ApiTests/AuthCredentialsTemplate.h](ApiTests/AuthCredentialsTemplate.h) to generate the AuthCredentials.h file.
 
 ## Usage
 

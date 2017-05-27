@@ -13,9 +13,7 @@
 
 set -eo pipefail
 
-EXIT_STATUS=0
-
-(xcodebuild \
+xcodebuild \
   -workspace Example/Firebase.xcworkspace \
   -scheme AllUnitTests \
   -sdk iphonesimulator \
@@ -24,6 +22,21 @@ EXIT_STATUS=0
   test \
   ONLY_ACTIVE_ARCH=YES \
   CODE_SIGNING_REQUIRED=NO \
-  | xcpretty) || EXIT_STATUS=$?
+  | xcpretty
   
-  exit $EXIT_STATUS
+RESULT=$?
+if [ $RESULT == 65 ]; then
+  echo "xcodebuild exited with 65, retrying"
+  xcodebuild \
+  -workspace Example/Firebase.xcworkspace \
+  -scheme AllUnitTests \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 7' \
+  build \
+  test \
+  ONLY_ACTIVE_ARCH=YES \
+  CODE_SIGNING_REQUIRED=NO \
+  | xcpretty
+else
+  exit $RESULT
+fi

@@ -24,7 +24,6 @@
 #import <UIKit/UIKit.h>
 
 #import "FIRMessagingClient.h"
-#import "FIRMessagingConfig.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingContextManagerService.h"
 #import "FIRMessagingDataMessageManager.h"
@@ -133,7 +132,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 // Due to our packaging requirements, we can't directly depend on FIRInstanceID currently.
 @property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
 
-@property(nonatomic, readwrite, strong) FIRMessagingConfig *config;
 @property(nonatomic, readwrite, assign) BOOL isClientSetup;
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
@@ -157,18 +155,15 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   static FIRMessaging *messaging;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    // Start Messaging (Fully initialize in one place).
-    FIRMessagingConfig *config = [FIRMessagingConfig defaultConfig];
-    messaging = [[FIRMessaging alloc] initWithConfig:config];
+    messaging = [[FIRMessaging alloc] initPrivately];
     [messaging start];
   });
   return messaging;
 }
 
-- (instancetype)initWithConfig:(FIRMessagingConfig *)config {
+- (instancetype)initPrivately {
   self = [super init];
   if (self) {
-    _config = config;
     _loggedMessageIDs = [NSMutableSet set];
     _instanceIDProxy = [[FIRMessagingInstanceIDProxy alloc] init];
   }
@@ -192,11 +187,9 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 #pragma mark - Config
 
 - (void)start {
-  _FIRMessagingDevAssert(self.config, @"Invalid nil config in FIRMessagingService");
 
   [self saveLibraryVersion];
-  [self setupLogger:self.config.logLevel];
-  [self setupReceiverWithConfig:self.config];
+  [self setupReceiver];
 
   NSString *hostname = kFIRMessagingReachabilityHostname;
   self.reachability = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
@@ -259,18 +252,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
                          currentLibraryVersion);
 }
 
-- (void)setupLogger:(FIRMessagingLogLevel)loggerLevel {
-#if FIRMessaging_PROBER
-  // do nothing
-#else
-  FIRMessagingLogger *logger = FIRMessagingSharedLogger();
-  FIRMessagingLogLevelFilter *filter =
-      [[FIRMessagingLogLevelFilter alloc] initWithLevel:loggerLevel];
-  [logger setFilter:filter];
-#endif
-}
-
-- (void)setupReceiverWithConfig:(FIRMessagingConfig *)config {
+- (void)setupReceiver {
   self.receiver = [[FIRMessagingReceiver alloc] init];
   self.receiver.delegate = self;
 }
