@@ -41,7 +41,7 @@ enum Platform: String {
 }
 
 let allFrameworks: [String: [Platform]] = [
-  "FirebaseAuth": [.iOS],
+  "FirebaseAuth": [.iOS, .macOS],
   "FirebaseCore": [.iOS, .macOS],
   "FirebaseDatabase": [.iOS, .macOS],
   "FirebaseMessaging": [.iOS],

@@ -9,14 +9,14 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-               BuildableName = "Database_Tests_macOS.xctest"
-               BlueprintName = "Database_Tests_macOS"
+               BlueprintIdentifier = "D01853671EDAD084003A645C"
+               BuildableName = "Auth_Example_macOS.app"
+               BlueprintName = "Auth_Example_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,13 +32,22 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-               BuildableName = "Database_Tests_macOS.xctest"
-               BlueprintName = "Database_Tests_macOS"
+               BlueprintIdentifier = "D01853881EDAD364003A645C"
+               BuildableName = "Auth_Tests_macOS.xctest"
+               BlueprintName = "Auth_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "D01853671EDAD084003A645C"
+            BuildableName = "Auth_Example_macOS.app"
+            BlueprintName = "Auth_Example_macOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -52,15 +61,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-            BuildableName = "Database_Tests_macOS.xctest"
-            BlueprintName = "Database_Tests_macOS"
+            BlueprintIdentifier = "D01853671EDAD084003A645C"
+            BuildableName = "Auth_Example_macOS.app"
+            BlueprintName = "Auth_Example_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -70,15 +80,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-            BuildableName = "Database_Tests_macOS.xctest"
-            BlueprintName = "Database_Tests_macOS"
+            BlueprintIdentifier = "D01853671EDAD084003A645C"
+            BuildableName = "Auth_Example_macOS.app"
+            BlueprintName = "Auth_Example_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

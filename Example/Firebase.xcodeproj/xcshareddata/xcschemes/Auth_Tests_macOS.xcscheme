@@ -14,9 +14,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-               BuildableName = "Database_Tests_macOS.xctest"
-               BlueprintName = "Database_Tests_macOS"
+               BlueprintIdentifier = "D01853881EDAD364003A645C"
+               BuildableName = "Auth_Tests_macOS.xctest"
+               BlueprintName = "Auth_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-               BuildableName = "Database_Tests_macOS.xctest"
-               BlueprintName = "Database_Tests_macOS"
+               BlueprintIdentifier = "D01853881EDAD364003A645C"
+               BuildableName = "Auth_Tests_macOS.xctest"
+               BlueprintName = "Auth_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -55,9 +55,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-            BuildableName = "Database_Tests_macOS.xctest"
-            BlueprintName = "Database_Tests_macOS"
+            BlueprintIdentifier = "D01853881EDAD364003A645C"
+            BuildableName = "Auth_Tests_macOS.xctest"
+            BlueprintName = "Auth_Tests_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -73,9 +73,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
-            BuildableName = "Database_Tests_macOS.xctest"
-            BlueprintName = "Database_Tests_macOS"
+            BlueprintIdentifier = "D01853881EDAD364003A645C"
+            BuildableName = "Auth_Tests_macOS.xctest"
+            BlueprintName = "Auth_Tests_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
