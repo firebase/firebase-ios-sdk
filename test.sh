@@ -19,6 +19,7 @@ test_iOS() {
     -scheme AllUnitTests_iOS \
     -sdk iphonesimulator \
     -destination 'platform=iOS Simulator,name=iPhone 7' \
+    build \
     test \
     ONLY_ACTIVE_ARCH=YES \
     CODE_SIGNING_REQUIRED=NO \
@@ -31,6 +32,7 @@ test_macOS() {
     -scheme AllUnitTests_macOS \
     -sdk macosx \
     -destination 'platform=OS X,arch=x86_64' \
+    build \
     test \
     ONLY_ACTIVE_ARCH=YES \
     CODE_SIGNING_REQUIRED=NO \
