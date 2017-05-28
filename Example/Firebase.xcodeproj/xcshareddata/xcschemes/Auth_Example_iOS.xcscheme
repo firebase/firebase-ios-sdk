@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE9314C51E86C6BD0083EDBF"
-               BuildableName = "Auth_Example.app"
-               BlueprintName = "Auth_Example"
+               BuildableName = "Auth_Example_iOS.app"
+               BlueprintName = "Auth_Example_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE9314DD1E86C6BE0083EDBF"
-               BuildableName = "Auth_Tests.xctest"
-               BlueprintName = "Auth_Tests"
+               BuildableName = "Auth_Tests_iOS.xctest"
+               BlueprintName = "Auth_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -43,8 +43,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE9314C51E86C6BD0083EDBF"
-            BuildableName = "Auth_Example.app"
-            BlueprintName = "Auth_Example"
+            BuildableName = "Auth_Example_iOS.app"
+            BlueprintName = "Auth_Example_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE9314C51E86C6BD0083EDBF"
-            BuildableName = "Auth_Example.app"
-            BlueprintName = "Auth_Example"
+            BuildableName = "Auth_Example_iOS.app"
+            BlueprintName = "Auth_Example_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,8 +85,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE9314C51E86C6BD0083EDBF"
-            BuildableName = "Auth_Example.app"
-            BlueprintName = "Auth_Example"
+            BuildableName = "Auth_Example_iOS.app"
+            BlueprintName = "Auth_Example_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

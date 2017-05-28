@@ -47,8 +47,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE9314DD1E86C6BE0083EDBF"
-               BuildableName = "Auth_Tests.xctest"
-               BlueprintName = "Auth_Tests"
+               BuildableName = "Auth_Tests_iOS.xctest"
+               BlueprintName = "Auth_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -77,8 +77,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE9315A61E8738460083EDBF"
-               BuildableName = "Messaging_Tests.xctest"
-               BlueprintName = "Messaging_Tests"
+               BuildableName = "Messaging_Tests_iOS.xctest"
+               BlueprintName = "Messaging_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>

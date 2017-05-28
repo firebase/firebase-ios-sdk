@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-               BuildableName = "Messaging_Example.app"
-               BlueprintName = "Messaging_Example"
+               BuildableName = "Messaging_Example_iOS.app"
+               BlueprintName = "Messaging_Example_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE9315A61E8738460083EDBF"
-               BuildableName = "Messaging_Tests.xctest"
-               BlueprintName = "Messaging_Tests"
+               BuildableName = "Messaging_Tests_iOS.xctest"
+               BlueprintName = "Messaging_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -43,8 +43,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-            BuildableName = "Messaging_Example.app"
-            BlueprintName = "Messaging_Example"
+            BuildableName = "Messaging_Example_iOS.app"
+            BlueprintName = "Messaging_Example_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-            BuildableName = "Messaging_Example.app"
-            BlueprintName = "Messaging_Example"
+            BuildableName = "Messaging_Example_iOS.app"
+            BlueprintName = "Messaging_Example_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,8 +85,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-            BuildableName = "Messaging_Example.app"
-            BlueprintName = "Messaging_Example"
+            BuildableName = "Messaging_Example_iOS.app"
+            BlueprintName = "Messaging_Example_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
