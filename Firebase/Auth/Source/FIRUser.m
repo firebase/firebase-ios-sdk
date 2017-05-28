@@ -19,7 +19,6 @@
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "AuthProviders/EmailPassword/FIREmailAuthProvider.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "AuthProviders/Phone/FIRPhoneAuthProvider.h"
 #import "Private/FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
 #import "Private/FIRAuthCredential_Internal.h"
@@ -47,6 +46,10 @@
 #import "FIRVerifyPasswordResponse.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
+
+#if TARGET_OS_IOS
+#import "AuthProviders/Phone/FIRPhoneAuthProvider.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -602,6 +605,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
+#if TARGET_OS_IOS
 /** @fn internalUpdatePhoneNumberCredential:completion:
     @brief Updates the phone number for the user. On success, the cached user profile data is
         updated.
@@ -654,6 +658,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     }];
   });
 }
+#endif
 
 - (FIRUserProfileChangeRequest *)profileChangeRequest {
   __block FIRUserProfileChangeRequest *result;
@@ -839,6 +844,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
 
+    #if TARGET_OS_IOS
     if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
       FIRPhoneAuthCredential *phoneAuthCredential = (FIRPhoneAuthCredential *)credential;
       [self internalUpdatePhoneNumberCredential:phoneAuthCredential
@@ -851,6 +857,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       }];
       return;
     }
+    #endif
 
     [_taskQueue enqueueTask:^(FIRAuthSerialTaskCompletionBlock _Nonnull complete) {
       CallbackWithAuthDataResultAndError completeWithError =
@@ -960,11 +967,13 @@ static void callInMainThreadWithAuthDataResultAndError(
           [mutableProviderData removeObjectForKey:provider];
           _providerData = [mutableProviderData copy];
 
+          #if TARGET_OS_IOS
           // After successfully unlinking a phone auth provider, remove the phone number from the
           // cached user info.
           if ([provider isEqualToString:FIRPhoneAuthProviderID]) {
             _phoneNumber = nil;
           }
+          #endif
         }
         if (response.IDToken && response.refreshToken) {
           FIRSecureTokenService *tokenService =

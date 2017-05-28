@@ -13,6 +13,7 @@ end
 target 'FrameworkMaker_macOS' do
   platform :osx, '10.10'
 
+  pod 'FirebaseAuth', :path => '../Firebase/Auth'
   pod 'FirebaseCore', :path => '../Firebase/Core'
   pod 'FirebaseDatabase', :path => '../Firebase/Database'
   pod 'FirebaseStorage', :path => '../Firebase/Storage'
