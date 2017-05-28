@@ -583,7 +583,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005311EDB32D600154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
@@ -593,7 +593,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005331EDB32F100154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
@@ -603,7 +603,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005351EDB330E00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
@@ -613,7 +613,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
@@ -623,7 +623,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005391EDB333A00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
@@ -633,7 +633,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D090053B1EDB334400154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
@@ -643,7 +643,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
@@ -653,7 +653,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005401EDB34F900154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
 			);
@@ -663,7 +663,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005421EDB358000154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
 			);
@@ -673,7 +673,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005441EDB358F00154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
 			);
@@ -683,7 +683,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005471EDB359F00154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
 			);
@@ -693,7 +693,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D09005491EDB35B700154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
 			);
@@ -703,7 +703,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				D090054B1EDB35C100154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
 			);
