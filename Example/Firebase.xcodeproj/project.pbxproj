@@ -4972,11 +4972,11 @@
 					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Storage-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Storage_Example_macOS.app/Contents/MacOS/Storage_Example_macOS";
 			};
 			name = Debug;
@@ -4996,11 +4996,11 @@
 					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Storage-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Storage_Example_macOS.app/Contents/MacOS/Storage_Example_macOS";
 			};
 			name = Release;
