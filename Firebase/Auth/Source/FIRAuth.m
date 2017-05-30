@@ -282,7 +282,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                 format:@"The default FIRApp instance must be configured before the default FIRAuth"
                        @"instance can be initialized. One way to ensure that is to call "
                        @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App "
-                       @"Delegate's `application:didFinishLaunchingWithOptions:`."];
+                       @"Delegate's `application:didFinishLaunchingWithOptions:` "
+                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
   }
   return [self authWithApp:defaultApp];
 }
