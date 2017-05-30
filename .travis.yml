@@ -4,8 +4,6 @@ cache:
   - bundler
   - cocoapods
 podfile: Example/Podfile
-xcode_workspace: Example/Firebase.xcworkspace
-xcode_scheme: AllUnitTests
 
 rvm: 2.3.1
 before_install:
