@@ -8,6 +8,7 @@ target 'Sample' do
   # Lock to the 1.0.9 version of InstanceID since 1.0.10 added a dependency
   # to FirebaseCore
   pod 'FirebaseInstanceID', '1.0.9'
+  pod 'GTMSessionFetcher/Core'
 end
 
 target 'SwiftBear' do
@@ -20,7 +21,7 @@ target 'ApiTests' do
   pod 'FirebaseDev/Auth', :path => '../'
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID', '1.0.9'
-  pod 'GTMSessionFetcher'
+  pod 'GTMSessionFetcher/Core'
 end
 
 target 'EarlGreyTests' do

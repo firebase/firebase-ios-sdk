@@ -33,10 +33,6 @@
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
 
-#if INTERNAL_GOOGLE3_BUILD
-#import "third_party/objective_c/FirebaseDatabase/FirebaseDatabase.framework/Headers/FirebaseDatabase.h"
-#endif
-
 /** @var kTokenGetButtonText
     @brief The text of the "Get Token" button.
  */
@@ -539,10 +535,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                                  name:FIRAuthStateDidChangeNotification
                                                object:nil];
     self.useStatusBarSpinner = YES;
-#if INTERNAL_GOOGLE3_BUILD
-    // Trigger automatic token refresh.
-    [[FIRDatabase database] reference];
-#endif
   }
   return self;
 }
