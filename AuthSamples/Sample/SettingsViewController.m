@@ -19,23 +19,20 @@
 #import <objc/runtime.h>
 
 #import "FIRApp.h"
+#import "FIRAuth_Internal.h"
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppCredential.h"
+#import "FIRAuthAppCredentialManager.h"
 #import "FIROptions.h"
 #import "FirebaseAuth.h"
 #import "StaticContentTableViewManager.h"
 #import "UIViewController+Alerts.h"
 
-#if INTERNAL_GOOGLE3_BUILD
-#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuth_Internal.h"
-#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAPNSToken.h"
-#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAPNSTokenManager.h"
-#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAppCredential.h"
-#import "googlemac/iPhone/Identity/Firebear/Auth/Source/FIRAuthAppCredentialManager.h"
-#import "googlemac/iPhone/InstanceID/Firebase/Lib/Source/FIRInstanceID+Internal.h"
-#else
+// Declares a private method of FIRInstanceID to work around a bug.
 @interface FIRInstanceID : NSObject
 + (void)notifyTokenRefresh;
 @end
-#endif
 
 /** @var kIdentityToolkitRequestClassName
     @brief The class name of Identity Toolkit requests.
@@ -238,7 +235,6 @@ static NSString *hexString(NSData *data) {
         [weakSelf toggleAPIHostWithRequestClassName:kSecureTokenRequestClassName];
       }],
     ]],
-#if INTERNAL_GOOGLE3_BUILD
     [StaticContentTableViewSection sectionWithTitle:@"Phone Auth" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"APNs Token"
                                           value:[self APNSTokenString]
@@ -251,7 +247,6 @@ static NSString *hexString(NSData *data) {
         [weakSelf clearAppCredential];
       }],
     ]],
-#endif  // INTERNAL_GOOGLE3_BUILD
   ]];
 }
 
@@ -304,8 +299,6 @@ static NSString *hexString(NSData *data) {
     }
   }
 }
-
-#if INTERNAL_GOOGLE3_BUILD
 
 /** @fn APNSTokenString
     @brief Returns a string representing APNS token.
@@ -375,7 +368,5 @@ static NSString *hexString(NSData *data) {
     }
   }];
 }
-
-#endif  // INTERNAL_GOOGLE3_BUILD
 
 @end
