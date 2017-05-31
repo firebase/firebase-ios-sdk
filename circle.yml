@@ -1,3 +1,5 @@
+general:
+  build_dir: Example
 machine:
   xcode:
     version: "8.2.1"
