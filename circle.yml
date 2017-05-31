@@ -1,8 +1,9 @@
+XCODE_SCHEME = AllUnitTests
 general:
   build_dir: Example
 machine:
   xcode:
-    version: "8.2.1"
+    version: "8.3.2"
 dependencies:
   override:
     - bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3 --without development
