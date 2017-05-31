@@ -10,4 +10,4 @@ dependencies:
     - vendor/bundle
 test:
   override:
-    - cd Example && bundle exec fastlane test
+    - bundle exec fastlane test
