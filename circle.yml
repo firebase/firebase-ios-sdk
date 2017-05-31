@@ -6,9 +6,9 @@ machine:
 dependencies:
   override:
     - cd Example
-    - bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3 --without development
+    - bundle check --path=Example/vendor/bundle || bundle install --path=Example/vendor/bundle --jobs=4 --retry=3 --without development
   cache_directories:
-    - vendor/bundle
+    - Example/vendor/bundle
 test:
   override:
     - bundle exec fastlane test
