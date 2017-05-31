@@ -5,7 +5,6 @@ machine:
     version: "8.2.1"
 dependencies:
   override:
-    - cd Example
     - bundle check --path=Example/vendor/bundle || bundle install --path=Example/vendor/bundle --jobs=4 --retry=3 --without development
   cache_directories:
     - Example/vendor/bundle
