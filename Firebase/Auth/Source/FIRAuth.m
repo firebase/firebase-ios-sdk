@@ -23,7 +23,6 @@
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Private/FIRAdditionalUserInfo_Internal.h"
-#import "Private/FIRAuthAppCredentialManager.h"
 #import "Private/FIRAuthCredential_Internal.h"
 #import "Private/FIRAuthDataResult_Internal.h"
 #import "Private/FIRAuthDispatcher.h"
@@ -58,6 +57,7 @@
 #if TARGET_OS_IOS
 #import "Private/FIRAuthAPNSToken.h"
 #import "Private/FIRAuthAPNSTokenManager.h"
+#import "Private/FIRAuthAppCredentialManager.h"
 #import "Private/FIRAuthAppDelegateProxy.h"
 #import "Private/FIRAuthNotificationManager.h"
 #endif
@@ -391,14 +391,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     // Initialize for phone number auth.
     _tokenManager =
         [[FIRAuthAPNSTokenManager alloc] initWithApplication:[UIApplication sharedApplication]];
-    #endif
 
     _appCredentialManager = [[FIRAuthAppCredentialManager alloc] initWithKeychain:_keychain];
 
-    #if TARGET_OS_IOS
     _notificationManager =
         [[FIRAuthNotificationManager alloc] initWithApplication:[UIApplication sharedApplication]
                                            appCredentialManager:_appCredentialManager];
+    
     [[FIRAuthAppDelegateProxy sharedInstance] addHandler:self];
     #endif
   }

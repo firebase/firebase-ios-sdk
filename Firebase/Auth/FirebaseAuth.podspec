@@ -24,12 +24,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.source_files = '**/*.[mh]'
   s.osx.exclude_files =
-    'Source/FIRAuthAppDelegateProxy.[mh]',
-    'Source/FIRAuthNotificationManager.[mh]',
-    'Source/FIRAuthAPNSTokenManager.[mh]',
-    'Source/FIRAuthAPNSTokenType.[mh]',
-    'Source/FIRAuthAPNSToken.[mh]',
-    'Source/AuthProviders/Phone/FIRPhoneAuthProvider.[mh]'
+    'Source/**/FIRAuthAppDelegateProxy.[mh]',
+    'Source/**/FIRAuthNotificationManager.[mh]',
+    'Source/**/FIRAuthAppCredentialManager.[mh]',
+    'Source/**/FIRAuthAPNSTokenManager.[mh]',
+    'Source/**/FIRAuthAPNSTokenType.[mh]',
+    'Source/**/FIRAuthAPNSToken.[mh]',
+    'Source/**/FIRPhoneAuthProvider.[mh]'
   s.public_header_files =
     'Source/FirebaseAuth.h',
     'Source/FirebaseAuthVersion.h',

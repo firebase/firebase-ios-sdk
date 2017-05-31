@@ -43,12 +43,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.subspec 'Auth' do |sp|
     sp.source_files = 'Firebase/Auth/Source/**/*.[mh]'
     sp.osx.exclude_files =
-      'Firebase/Auth/Source/FIRAuthAppDelegateProxy.[mh]',
-      'Firebase/Auth/Source/FIRAuthNotificationManager.[mh]',
-      'Firebase/Auth/Source/FIRAuthAPNSTokenManager.[mh]',
-      'Firebase/Auth/Source/FIRAuthAPNSTokenType.[mh]',
-      'Firebase/Auth/Source/FIRAuthAPNSToken.[mh]',
-      'Firebase/Auth/Source/AuthProviders/Phone/FIRPhoneAuthProvider.[mh]'
+      'Firebase/Auth/Source/**/FIRAuthAppDelegateProxy.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthNotificationManager.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthAppCredentialManager.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthAPNSTokenManager.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthAPNSTokenType.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthAPNSToken.[mh]',
+      'Firebase/Auth/Source/**/FIRPhoneAuthProvider.[mh]'
     sp.public_header_files =
       'Firebase/Auth/Source/FirebaseAuth.h',
       'Firebase/Auth/Source/FirebaseAuthVersion.h',

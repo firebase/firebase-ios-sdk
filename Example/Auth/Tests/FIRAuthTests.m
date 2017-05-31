@@ -512,7 +512,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                         NSError *_Nullable error) {
+                                                                             NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:user];
     XCTAssertNil(error);
@@ -532,7 +532,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                         NSError *_Nullable error) {
+                                                                             NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWrongPassword);
@@ -1722,7 +1722,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                         NSError *_Nullable error) {
+                                                                             NSError *_Nullable error) {
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];

@@ -377,21 +377,21 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] deleteAccount:request callback:callback];
 }
 
+#if TARGET_OS_IOS
 + (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback {
   [[self implementation] sendVerificationCode:request callback:callback];
 }
 
-#if TARGET_OS_IOS
 + (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   [[self implementation] verifyPhoneNumber:request callback:callback];
 }
-#endif
 
 + (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
   [[self implementation] verifyClient:request callback:callback];
 }
+#endif
 
 + (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {

@@ -293,17 +293,14 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMStub([mockGetAccountInfoResponseUser emailVerified]).andReturn(YES);
   OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
   OCMStub([mockGetAccountInfoResponseUser photoURL]).andReturn([NSURL URLWithString:kPhotoURL]);
-  NSArray *providerUserInfos =
+  NSArray *providerUserInfos = @[
     #if TARGET_OS_IOS
-    @[ mockPasswordUserInfo,
-       mockGoogleUserInfo,
-       mockFacebookUserInfo,
-       mockPhoneUserInfo ];
-    #elif TARGET_OS_OSX
-    @[ mockPasswordUserInfo,
-       mockGoogleUserInfo,
-       mockFacebookUserInfo ];
+    mockPhoneUserInfo,
     #endif
+    mockPasswordUserInfo,
+    mockGoogleUserInfo,
+    mockFacebookUserInfo
+  ];
   OCMStub([mockGetAccountInfoResponseUser providerUserInfo]).andReturn(providerUserInfos);
   OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
 
@@ -1637,7 +1634,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [self expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoResponse];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                         NSError *_Nullable error) {
+                                                                             NSError *_Nullable error) {
     XCTAssertNotNil(user);
     XCTAssertNil(error);
     completion(user);
