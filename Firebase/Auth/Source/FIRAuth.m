@@ -308,6 +308,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         if (strongSelf && !strongSelf->_autoRefreshTokens) {
           FIRLogInfo(kFIRLoggerAuth, @"I-AUT000002", @"Token auto-refresh enabled.");
           strongSelf->_autoRefreshTokens = YES;
+          [strongSelf scheduleAutoTokenRefresh];
           strongSelf->_applicationDidBecomeActiveObserver = [[NSNotificationCenter defaultCenter]
               addObserverForName:UIApplicationDidBecomeActiveNotification
                           object:nil
