@@ -20,8 +20,6 @@
 #import <mach-o/dyld.h>
 #import <sys/utsname.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 /// The encryption info struct and constants are missing from the iPhoneSimulator SDK, but not from
 /// the iPhoneOS or Mac OS X SDKs. Since one doesn't ever ship a Simulator binary, we'll just
 /// provide the definitions here.
@@ -202,7 +200,7 @@ static BOOL isAppEncrypted() {
 }
 
 #if TARGET_OS_IOS
-+ (nullable UIApplication *)sharedApplication {
++ (UIApplication *)sharedApplication {
   if ([FIRAppEnvironmentUtil isAppExtension]) {
     return nil;
   }
@@ -233,5 +231,3 @@ static BOOL isAppEncrypted() {
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

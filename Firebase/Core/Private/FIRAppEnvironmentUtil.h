@@ -22,8 +22,6 @@
 #import <AppKit/AppKit.h>
 #endif
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface FIRAppEnvironmentUtil : NSObject
 
 /// Indicates whether the app is from Apple Store or not. Returns NO if the app is on simulator,
@@ -50,12 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if TARGET_OS_IOS
 /// Returns the [UIApplication sharedApplication] if it is running on an app, not an extension.
-+ (nullable UIApplication *)sharedApplication;
++ (UIApplication *)sharedApplication;
 #elif TARGET_OS_OSX
 /// Returns the [NSApplication sharedApplication].
 + (NSApplication *)sharedApplication;
 #endif
 
 @end
-
-NS_ASSUME_NONNULL_END
