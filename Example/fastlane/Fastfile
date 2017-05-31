@@ -11,7 +11,7 @@
 
 # This is the minimum version number required.
 # Update this, if you use features of a newer version
-fastlane_version "2.35.1"
+fastlane_version "2.36.0"
 
 default_platform :ios
 
@@ -31,7 +31,7 @@ platform :ios do
   desc "This will also make sure the profile is up to date"
   lane :beta do
     # match(type: "appstore") # more information: https://codesigning.guide
-    gym # Build your app - more options available
+    gym(scheme: "AllUnitTests") # Build your app - more options available
     pilot
 
     # sh "your_script.sh"
@@ -42,7 +42,7 @@ platform :ios do
   lane :release do
     # match(type: "appstore")
     # snapshot
-    gym # Build your app - more options available
+    gym(scheme: "AllUnitTests") # Build your app - more options available
     deliver(force: true)
     # frameit
   end
