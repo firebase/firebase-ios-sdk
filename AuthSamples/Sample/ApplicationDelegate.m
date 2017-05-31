@@ -16,15 +16,12 @@
 
 #import "ApplicationDelegate.h"
 
+#import "AuthProviders.h"
 #import "FIRApp.h"
 #import "FirebaseAuth.h"
-#import "AuthProviders.h"
+#import "FIRLogger.h"
+#import "GTMSessionFetcherLogging.h"
 #import "MainViewController.h"
-
-#if INTERNAL_GOOGLE3_BUILD
-#import "googlemac/iPhone/Identity/Firebear/InternalUtils/FIRSessionFetcherLogging.h"
-#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRLogger.h"
-#endif
 
 /** @var gOpenURLDelegate
     @brief The delegate to for application:openURL:... method.
@@ -39,10 +36,8 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-#if INTERNAL_GOOGLE3_BUILD
-  [FIRSessionFetcherLogging setEnabled:YES];
+  [GTMSessionFetcher  setLoggingEnabled:YES];
   FIRSetLoggerLevel(FIRLoggerLevelInfo);
-#endif
 
   // Configure the default Firebase application:
   [FIRApp configure];
