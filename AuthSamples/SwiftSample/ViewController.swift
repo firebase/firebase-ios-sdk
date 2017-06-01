@@ -221,6 +221,37 @@ final class ViewController: UIViewController, UITextFieldDelegate {
             self.showAlert(title: "Updated Email", message: self.user?.email)
           }
         }
+      case .updatePhone:
+        if #available(iOS 8.0, *) {
+          let phoneNumber = phoneField.text
+          PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber!) { verificationID, error in
+            guard error == nil else {
+              self.showAlert(title: "Error", message: error!.localizedDescription)
+              return
+            }
+
+            let codeAlertController =
+                UIAlertController(title: "Enter Code", message: nil, preferredStyle: .alert)
+            codeAlertController.addTextField { (textfield) in
+                textfield.placeholder = "SMS Codde"
+                textfield.keyboardType = UIKeyboardType.numberPad
+            }
+            codeAlertController.addAction(UIAlertAction(title: "OK",
+                                                        style: .default,
+                                                        handler: { (UIAlertAction) in
+              let code = codeAlertController.textFields!.first!.text!
+              let phoneCredential =
+                PhoneAuthProvider.provider().credential(withVerificationID: verificationID ?? "",
+                                                        verificationCode: code)
+              self.user!.updatePhoneNumber(phoneCredential, completion: { error in
+                self.ifNoError(error) {
+                  self.showAlert(title: "Updated Phone Number")
+                }
+              })
+            }))
+            self.present(codeAlertController, animated: true, completion: nil)
+          }
+        }
       case .updatePassword:
         user!.updatePassword(to: passwordField.text!) { error in
           self.ifNoError(error) {
@@ -356,7 +387,11 @@ final class ViewController: UIViewController, UITextFieldDelegate {
         action.requiresPassword
     passwordInputLabel.alpha = isPasswordEnabled ? 1.0 : 0.6
     passwordField.isEnabled = isPasswordEnabled
-    phoneField.isEnabled = credentialType.requiresPhone
+    var userActionRequiresPhone : Bool = false
+    if action is UserAction {
+      userActionRequiresPhone = userAction.requiresPhoneNumber
+    }
+    phoneField.isEnabled = credentialType.requiresPhone || userActionRequiresPhone
   }
 
   fileprivate func showAlert(title: String, message: String? = "") {
@@ -499,13 +534,13 @@ fileprivate protocol Action {
   /// The text description for the particular action.
   var text: String { get }
 
-  /// Whether or not the action requires credential.
+  /// Whether or not the action requires a credential.
   var requiresCredential : Bool { get }
 
-  /// Whether or not the action requires email.
+  /// Whether or not the action requires an email.
   var requiresEmail: Bool { get }
 
-  /// Whether or not the credential requires password.
+  /// Whether or not the credential requires a password.
   var requiresPassword: Bool { get }
 }
 
@@ -550,8 +585,8 @@ fileprivate enum AuthAction: Int, Action {
 /// The list of all possible actions the operator can take on the User object.
 fileprivate enum UserAction: Int, Action {
 
-  case updateEmail, updatePassword, reload, reauthenticate, getToken, linkWithCredential,
-       deleteAccount
+  case updateEmail, updatePhone, updatePassword, reload, reauthenticate, getToken,
+      linkWithCredential, deleteAccount
 
   /// Total number of user actions.
   static var count: Int {
@@ -562,6 +597,8 @@ fileprivate enum UserAction: Int, Action {
     switch self {
     case .updateEmail:
       return "Update Email ⬇️"
+    case .updatePhone:
+      return "Update Phone ⬇️"
     case .updatePassword:
       return "Update Password ⬇️"
     case .reload:
@@ -588,6 +625,11 @@ fileprivate enum UserAction: Int, Action {
   var requiresPassword : Bool {
     return self == .updatePassword
   }
+
+  var requiresPhoneNumber : Bool {
+    return self == .updatePhone
+  }
+
 }
 
 /// The list of all possible credential types the operator can use to sign in or link.
@@ -616,17 +658,17 @@ fileprivate enum CredentialType: Int {
     }
   }
 
-  /// Whether or not the credential requires email.
+  /// Whether or not the credential requires an email.
   var requiresEmail : Bool {
     return self == .password
   }
 
-  /// Whether or not the credential requires password.
+  /// Whether or not the credential requires a password.
   var requiresPassword : Bool {
     return self == .password
   }
 
-  /// Whether or not the credential requires phone.
+  /// Whether or not the credential requires a phone number.
   var requiresPhone : Bool {
     return self == .phone
   }
