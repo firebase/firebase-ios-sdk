@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DEE13A011E9FFC9500D1BABA"
-               BuildableName = "SwiftBear.app"
-               BlueprintName = "SwiftBear"
+               BuildableName = "SwiftSample.app"
+               BlueprintName = "SwiftSample"
                ReferencedContainer = "container:Samples.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DEE13A011E9FFC9500D1BABA"
-            BuildableName = "SwiftBear.app"
-            BlueprintName = "SwiftBear"
+            BuildableName = "SwiftSample.app"
+            BlueprintName = "SwiftSample"
             ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -56,8 +56,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DEE13A011E9FFC9500D1BABA"
-            BuildableName = "SwiftBear.app"
-            BlueprintName = "SwiftBear"
+            BuildableName = "SwiftSample.app"
+            BlueprintName = "SwiftSample"
             ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -75,8 +75,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DEE13A011E9FFC9500D1BABA"
-            BuildableName = "SwiftBear.app"
-            BlueprintName = "SwiftBear"
+            BuildableName = "SwiftSample.app"
+            BlueprintName = "SwiftSample"
             ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

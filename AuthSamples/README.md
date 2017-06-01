@@ -44,7 +44,7 @@ In order to run this application, you'll need to follow the following steps!
 You'll need valid `GoogleService-Info.plist` files for those samples. To get your own `GoogleService-Info.plist` files:
 1. Go to the [Firebase Console](https://console.firebase.google.com/)
 2. Create a new Firebase project, if you don't already have one
-3. For each sample app you want to test, create a new Firebase app with the sample app's bundle identifier (e.g. `com.google.SwiftBear`)
+3. For each sample app you want to test, create a new Firebase app with the sample app's bundle identifier (e.g. `com.google.FirebaseExperimental2.dev`)
 4. Download the resulting `GoogleService-Info.plist` and place it in [SwiftSample/GoogleService-Info.plist](SwiftSample/GoogleService-Info.plist)
 
 #### Info.plist file
