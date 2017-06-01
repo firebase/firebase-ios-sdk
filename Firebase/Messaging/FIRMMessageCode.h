@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   // FIRMessaging+FIRApp.m
   kFIRMessagingMessageCodeFIRApp000 = 1000,  // I-FCM001000
