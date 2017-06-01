@@ -217,6 +217,11 @@ static NSString *const kFIRAuthErrorMessageInvalidSender = @"The email template 
 static NSString *const kFIRAuthErrorMessageInvalidRecipientEmail = @"The action code is invalid. "
    "This can happen if the code is malformed, expired, or has already been used.";
 
+/** @var kFIRAuthErrorMessageMissingEmail
+    @brief Message for @c FIRAuthErrorCodeMissingEmail error code.
+ */
+static NSString *const kFIRAuthErrorMessageMissingEmail = @"An email address must be provided.";
+
 /** @var kFIRAuthErrorMessageMissingContinueURI
     @brief Message for @c FIRAuthErrorCodeMissingContinueURI error code.
  */
@@ -381,6 +386,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidMessagePayload;
     case FIRAuthErrorCodeInvalidRecipientEmail:
       return kFIRAuthErrorMessageInvalidRecipientEmail;
+    case FIRAuthErrorCodeMissingEmail:
+      return kFIRAuthErrorMessageMissingEmail;
     case FIRAuthErrorCodeMissingPhoneNumber:
       return kFIRAuthErrorMessageMissingPhoneNumber;
     case FIRAuthErrorCodeInvalidPhoneNumber:
@@ -474,6 +481,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_SENDER";
     case FIRAuthErrorCodeInvalidRecipientEmail:
       return @"ERROR_INVALID_RECIPIENT_EMAIL";
+    case FIRAuthErrorCodeMissingEmail:
+      return @"MISSING_EMAIL";
     case FIRAuthErrorCodeMissingPhoneNumber:
       return @"ERROR_MISSING_PHONE_NUMBER";
     case FIRAuthErrorCodeInvalidPhoneNumber:
@@ -729,6 +738,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)invalidRecipientEmailErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidRecipientEmail message:message];
+}
+
++ (NSError *)missingEmail {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingEmail];
 }
 
 + (NSError *)missingPhoneNumberErrorWithMessage:(nullable NSString *)message {

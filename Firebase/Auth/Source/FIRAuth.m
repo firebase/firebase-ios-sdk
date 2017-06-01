@@ -93,7 +93,7 @@ static NSString *const kUserKey = @"%@_firebase_user";
 /** @var kMissingEmailInvalidParameterExceptionReason
     @brief The key of missing email key @c invalidParameterException.
  */
-static NSString *const kEmailInvalidParameterReason = @"The email used to initiate user password "
+static NSString *const kEmailInvalidParameterReason = @"The email used to initiate password reset "
     "cannot be nil";
 
 static NSString *const kPasswordResetRequestType = @"PASSWORD_RESET";
@@ -648,6 +648,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (![request.password length]) {
       decoratedCallback(nil, [FIRAuthErrorUtils
           weakPasswordErrorWithServerResponseReason:kMissingPasswordReason]);
+      return;
+    }
+    if (![request.email length]) {
+      decoratedCallback(nil, [FIRAuthErrorUtils missingEmail]);
       return;
     }
     [FIRAuthBackend signUpNewUser:request

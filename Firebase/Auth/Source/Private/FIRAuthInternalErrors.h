@@ -238,6 +238,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeInvalidRecipientEmail =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidRecipientEmail,
 
+  /** Indicates that an email address was expected but one was not provided.
+   */
+  FIRAuthInternalErrorCodeMissingEmail =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingEmail,
+
   /** Indicates that a phone number was not provided in a call to @c verifyPhoneNumber:completion:.
    */
   FIRAuthInternalErrorCodeMissingPhoneNumber =
