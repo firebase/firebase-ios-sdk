@@ -94,12 +94,6 @@ static NSString *const kPasswordLoginDisabledErrorMessage = @"PASSWORD_LOGIN_DIS
  */
 static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL";
 
-/** @var kMissingEmailErrorMessage
-    @brief The error returned by the server if an email address was expected and one was not
-        provided.
- */
-static NSString *const kMissingEmailErrorMessage = @"MISSING_EMAIL";
-
 /** @var kWeakPasswordErrorMessage
     @brief This is the error message the server will respond with if the new user's password
         is too weak that it is too short.
