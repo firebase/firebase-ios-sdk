@@ -166,7 +166,7 @@ final class ViewController: UIViewController, UITextFieldDelegate {
         let codeAlertController =
             UIAlertController(title: "Enter Code", message: nil, preferredStyle: .alert)
         codeAlertController.addTextField { textfield in
-            textfield.placeholder = "SMS Codde"
+            textfield.placeholder = "SMS Code"
             textfield.keyboardType = UIKeyboardType.numberPad
         }
         codeAlertController.addAction(UIAlertAction(title: "OK",
