@@ -29,6 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 FIR_SWIFT_NAME(Database)
 @interface FIRDatabase : NSObject
+  
+/**
+ * The NSObject initializer that has been marked as unavailable. Use the `database` 
+ * method instead
+ *
+ * @return An instancetype instance
+*/
++ (instancetype) init __attribute__((unavailable("use the database method instead")));
 
 /**
  * Gets the instance of FIRDatabase for the default FIRApp.
