@@ -127,7 +127,9 @@ func buildThin(framework: String, multiplatform: Bool, arch: String, multisdk: B
     schemeSuffix = "-OSX"
   } else if sdk.hasPrefix("iphone") {
     schemeSuffix = "-iOS"
-  } else { fatalError("TODO: tvOS/watchOS") }
+  } else {
+    fatalError("TODO: tvOS/watchOS")
+  }
 
   let buildDir = parentDir + "/" + arch
   let standardOptions = [ "build",
