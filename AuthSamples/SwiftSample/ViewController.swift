@@ -342,7 +342,13 @@ final class ViewController: UIViewController, UITextFieldDelegate {
     providerListLabel.text = providers?.joined(separator: ", ")
     if let photoURL = user?.photoURL {
       lastPhotoURL = photoURL
-      DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.background).async {
+      let queue: DispatchQueue
+      if #available(iOS 8.0, *) {
+        queue = DispatchQueue.global(qos: .background)
+      } else {
+        queue = DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.background)
+      }
+      queue.async {
         if let imageData = try? Data(contentsOf: photoURL) {
           let image = UIImage(data: imageData)
           DispatchQueue.main.async {
@@ -382,8 +388,22 @@ final class ViewController: UIViewController, UITextFieldDelegate {
   }
 
   fileprivate func showAlert(title: String, message: String? = "") {
-    UIAlertView(title: title, message: message ?? "(NULL)", delegate: nil, cancelButtonTitle: nil,
-                otherButtonTitles: "OK").show()
+    if #available(iOS 8.0, *) {
+      let alertController =
+          UIAlertController(title: title, message: message, preferredStyle: .alert)
+      alertController.addAction(UIAlertAction(title: "OK",
+                                              style: .default,
+                                              handler: { (UIAlertAction) in
+        alertController.dismiss(animated: true, completion: nil)
+      }))
+      self.present(alertController, animated: true, completion: nil)
+    } else {
+      UIAlertView(title: title,
+                  message: message ?? "(NULL)",
+                  delegate: nil,
+                  cancelButtonTitle: nil,
+                  otherButtonTitles: "OK").show()
+    }
   }
 
   private func ifNoError(_ error: Error?, execute: () -> Void) {
