@@ -23,7 +23,7 @@
 /// The encryption info struct and constants are missing from the iPhoneSimulator SDK, but not from
 /// the iPhoneOS or Mac OS X SDKs. Since one doesn't ever ship a Simulator binary, we'll just
 /// provide the definitions here.
-#if TARGET_IPHONE_SIMULATOR && !defined(LC_ENCRYPTION_INFO)
+#if TARGET_OS_SIMULATOR && !defined(LC_ENCRYPTION_INFO)
 #define LC_ENCRYPTION_INFO 0x21
 struct encryption_info_command {
   uint32_t cmd;

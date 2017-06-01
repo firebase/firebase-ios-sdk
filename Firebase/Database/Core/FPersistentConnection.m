@@ -922,15 +922,15 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
 - (void) sendConnectStats {
     NSMutableDictionary *stats = [NSMutableDictionary dictionary];
 
-#if TARGET_OS_IPHONE
+    #if TARGET_OS_IOS
     if (self.config.persistenceEnabled) {
         stats[@"persistence.ios.enabled"] = @1;
     }
-#else // this must be OSX then
+    #elif TARGET_OS_OSX
     if (self.config.persistenceEnabled) {
         stats[@"persistence.osx.enabled"] = @1;
     }
-#endif
+    #endif
     NSString *sdkVersion = [[FIRDatabase sdkVersion] stringByReplacingOccurrencesOfString:@"." withString:@"-"];
     NSString *sdkStatName = [NSString stringWithFormat:@"sdk.objc.%@", sdkVersion];
     stats[sdkStatName] = @1;

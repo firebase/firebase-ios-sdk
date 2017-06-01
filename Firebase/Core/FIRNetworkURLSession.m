@@ -430,15 +430,19 @@
 
 /// Creates a background session configuration with the session ID using the supported method.
 - (NSURLSessionConfiguration *)backgroundSessionConfigWithSessionID:(NSString *)sessionID {
-#if (!TARGET_OS_IPHONE && defined(MAC_OS_X_VERSION_10_10) &&     \
-     MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10) || \
-    (TARGET_OS_IPHONE && defined(__IPHONE_8_0) &&                \
-     __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0)
+  #if (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&          \
+      MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10) ||   \
+      (TARGET_OS_IOS && defined(__IPHONE_8_0) &&                    \
+      __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0)
+
   // iOS 8/10.10 builds require the new backgroundSessionConfiguration method name.
   return [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:sessionID];
-#elif (!TARGET_OS_IPHONE && defined(MAC_OS_X_VERSION_10_10) &&    \
-       MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_10) || \
-    (TARGET_OS_IPHONE && defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
+
+  #elif (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&        \
+        MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_10) ||  \
+        (TARGET_OS_IOS && defined(__IPHONE_8_0) &&                  \
+        __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
+
   // Do a runtime check to avoid a deprecation warning about using
   // +backgroundSessionConfiguration: on iOS 8.
   if ([NSURLSessionConfiguration
@@ -449,10 +453,11 @@
     // Running on iOS 7/OS X 10.9.
     return [NSURLSessionConfiguration backgroundSessionConfiguration:sessionID];
   }
-#else
+
+  #else
   // Building with an SDK earlier than iOS 8/OS X 10.10.
   return [NSURLSessionConfiguration backgroundSessionConfiguration:sessionID];
-#endif
+  #endif
 }
 
 - (void)maybeRemoveTempFilesAtURL:(NSURL *)folderURL expiringTime:(NSTimeInterval)staleTime {

@@ -565,6 +565,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [self postWithRequest:request response:response callback:callback];
 }
 
+#if TARGET_OS_IOS
 - (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback {
   FIRSendVerificationCodeResponse *response = [[FIRSendVerificationCodeResponse alloc] init];
@@ -577,7 +578,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }];
 }
 
-#if TARGET_OS_IOS
 - (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   FIRVerifyPhoneNumberResponse *response = [[FIRVerifyPhoneNumberResponse alloc] init];
@@ -601,7 +601,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     callback(response, nil);
   }];
 }
-#endif
 
 - (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
   FIRVerifyClientResponse *response = [[FIRVerifyClientResponse alloc] init];
@@ -613,6 +612,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     callback(response, nil);
   }];
 }
+#endif
 
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {

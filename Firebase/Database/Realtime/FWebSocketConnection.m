@@ -22,7 +22,7 @@
 #import "FStringUtilities.h"
 #import "FIRDatabase_Private.h"
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
 #endif
 
@@ -82,7 +82,7 @@
     BOOL hasUiDeviceClass = NO;
     
     // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
-    #if TARGET_OS_IPHONE
+    #if TARGET_OS_IOS
     Class uiDeviceClass = NSClassFromString(@"UIDevice");
     if (uiDeviceClass) {
         systemVersion = [uiDeviceClass currentDevice].systemVersion;
