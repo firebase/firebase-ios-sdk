@@ -8,8 +8,7 @@ podfile: Example/Podfile
 rvm: 2.3.1
 before_install:
   - gem uninstall cocoapods -a
-  - gem install cocoapods -v 1.2.0 # Since Travis is not always on latest version
-  - gem install xcpretty
+  - gem install cocoapods -v 1.2.1 # Since Travis is not always on latest version
   - pod install --project-directory=Example --repo-update
 
 script: 
