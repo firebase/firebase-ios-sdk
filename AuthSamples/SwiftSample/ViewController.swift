@@ -156,6 +156,32 @@ final class ViewController: UIViewController, UITextFieldDelegate {
       view.endEditing(true)
   }
 
+  func verify(phoneNumber: String, completion: @escaping (PhoneAuthCredential?, Error?) -> Void) {
+    if #available(iOS 8.0, *) {
+      PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber) { verificationID, error in
+        guard error == nil else {
+          completion(nil, error)
+          return
+        }
+        let codeAlertController =
+            UIAlertController(title: "Enter Code", message: nil, preferredStyle: .alert)
+        codeAlertController.addTextField { textfield in
+            textfield.placeholder = "SMS Code"
+            textfield.keyboardType = UIKeyboardType.numberPad
+        }
+        codeAlertController.addAction(UIAlertAction(title: "OK",
+                                                    style: .default,
+                                                    handler: { (UIAlertAction) in
+          let code = codeAlertController.textFields!.first!.text!
+          let phoneCredential =
+            PhoneAuthProvider.provider().credential(withVerificationID: verificationID ?? "",
+                                                    verificationCode: code)
+          completion(phoneCredential, nil)
+        }))
+        self.present(codeAlertController, animated: true, completion: nil)
+      }
+    }
+  }
   /// The user's photo URL used by the last network request for its contents.
   fileprivate var lastPhotoURL: URL? = nil
 
@@ -221,6 +247,20 @@ final class ViewController: UIViewController, UITextFieldDelegate {
             self.showAlert(title: "Updated Email", message: self.user?.email)
           }
         }
+      case .updatePhone:
+        let phoneNumber = phoneField.text
+        self.verify(phoneNumber: phoneNumber!, completion: { (phoneAuthCredential, error) in
+          guard error == nil else {
+            self.showAlert(title: "Error", message: error!.localizedDescription)
+            return
+          }
+          self.user!.updatePhoneNumber(phoneAuthCredential!, completion: { error in
+            self.ifNoError(error) {
+              self.showAlert(title: "Updated Phone Number")
+              self.updateUserInfo(Auth.auth())
+            }
+          })
+        })
       case .updatePassword:
         user!.updatePassword(to: passwordField.text!) { error in
           self.ifNoError(error) {
@@ -281,32 +321,14 @@ final class ViewController: UIViewController, UITextFieldDelegate {
       completion(EmailAuthProvider.credential(withEmail: emailField.text!,
                                               password: passwordField.text!))
     case .phone:
-      if #available(iOS 8.0, *) {
-        let phoneNumber = phoneField.text
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber!) { verificationID, error in
-          guard error == nil else {
-            self.showAlert(title: "Error", message: error!.localizedDescription)
-            return
-          }
-
-          let codeAlertController =
-              UIAlertController(title: "Enter Code", message: nil, preferredStyle: .alert)
-          codeAlertController.addTextField { (textfield) in
-              textfield.placeholder = "SMS Codde"
-              textfield.keyboardType = UIKeyboardType.numberPad
-          }
-          codeAlertController.addAction(UIAlertAction(title: "OK",
-                                                      style: .default,
-                                                      handler: { (UIAlertAction) in
-            let code = codeAlertController.textFields!.first!.text!
-            let phoneCredential =
-              PhoneAuthProvider.provider().credential(withVerificationID: verificationID ?? "",
-                                                      verificationCode: code)
-            completion(phoneCredential)
-          }))
-          self.present(codeAlertController, animated: true, completion: nil)
+      let phoneNumber = phoneField.text
+      self.verify(phoneNumber: phoneNumber!, completion: { (phoneAuthCredential, error) in
+        guard error == nil else {
+          self.showAlert(title: "Error", message: error!.localizedDescription)
+          return
         }
-      }
+        completion(phoneAuthCredential!)
+      })
     }
   }
 
@@ -356,7 +378,7 @@ final class ViewController: UIViewController, UITextFieldDelegate {
         action.requiresPassword
     passwordInputLabel.alpha = isPasswordEnabled ? 1.0 : 0.6
     passwordField.isEnabled = isPasswordEnabled
-    phoneField.isEnabled = credentialType.requiresPhone
+    phoneField.isEnabled = credentialType.requiresPhone || action.requiresPhoneNumber
   }
 
   fileprivate func showAlert(title: String, message: String? = "") {
@@ -499,14 +521,17 @@ fileprivate protocol Action {
   /// The text description for the particular action.
   var text: String { get }
 
-  /// Whether or not the action requires credential.
+  /// Whether or not the action requires a credential.
   var requiresCredential : Bool { get }
 
-  /// Whether or not the action requires email.
+  /// Whether or not the action requires an email.
   var requiresEmail: Bool { get }
 
-  /// Whether or not the credential requires password.
+  /// Whether or not the credential requires a password.
   var requiresPassword: Bool { get }
+
+  /// Whether or not the credential requires a phone number.
+  var requiresPhoneNumber: Bool { get }
 }
 
 /// The list of all possible actions the operator can take on the Auth object.
@@ -545,13 +570,17 @@ fileprivate enum AuthAction: Int, Action {
   var requiresPassword : Bool {
     return self == .createUser
   }
+
+  var requiresPhoneNumber: Bool {
+    return false
+  }
 }
 
 /// The list of all possible actions the operator can take on the User object.
 fileprivate enum UserAction: Int, Action {
 
-  case updateEmail, updatePassword, reload, reauthenticate, getToken, linkWithCredential,
-       deleteAccount
+  case updateEmail, updatePhone, updatePassword, reload, reauthenticate, getToken,
+      linkWithCredential, deleteAccount
 
   /// Total number of user actions.
   static var count: Int {
@@ -562,6 +591,12 @@ fileprivate enum UserAction: Int, Action {
     switch self {
     case .updateEmail:
       return "Update Email ⬇️"
+    case .updatePhone:
+      if #available(iOS 8.0, *) {
+        return "Update Phone ⬇️"
+      } else {
+        return "-"
+      }
     case .updatePassword:
       return "Update Password ⬇️"
     case .reload:
@@ -588,6 +623,11 @@ fileprivate enum UserAction: Int, Action {
   var requiresPassword : Bool {
     return self == .updatePassword
   }
+
+  var requiresPhoneNumber : Bool {
+    return self == .updatePhone
+  }
+
 }
 
 /// The list of all possible credential types the operator can use to sign in or link.
@@ -616,17 +656,17 @@ fileprivate enum CredentialType: Int {
     }
   }
 
-  /// Whether or not the credential requires email.
+  /// Whether or not the credential requires an email.
   var requiresEmail : Bool {
     return self == .password
   }
 
-  /// Whether or not the credential requires password.
+  /// Whether or not the credential requires a password.
   var requiresPassword : Bool {
     return self == .password
   }
 
-  /// Whether or not the credential requires phone.
+  /// Whether or not the credential requires a phone number.
   var requiresPhone : Bool {
     return self == .phone
   }

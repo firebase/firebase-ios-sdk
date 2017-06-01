@@ -11,7 +11,7 @@ target 'Sample' do
   pod 'GTMSessionFetcher/Core'
 end
 
-target 'SwiftBear' do
+target 'SwiftSample' do
   pod 'FirebaseDev/Auth', :path => '../'
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID', '1.0.9'
