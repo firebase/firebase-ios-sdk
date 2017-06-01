@@ -236,6 +236,12 @@ static NSString *const kInvalidMessagePayloadErrorMessage = @"INVALID_MESSAGE_PA
  */
 static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_EMAIL";
 
+/** @var kMissingEmailErrorMessage
+    @brief This is the error message the server will respond with if an email was expected in the
+        request but one was not provided.
+ */
+static NSString *const kMissingEmailErrorMessage = @"MISSING_EMAIL";
+
 /** @var kInvalidPhoneNumberErrorMessage
     @brief This is the error message the server will respond with if an incorrectly formatted phone
         number is provided.
@@ -882,6 +888,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kInvalidRecipientEmailErrorMessage]) {
     return [FIRAuthErrorUtils invalidRecipientEmailErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingEmailErrorMessage]) {
+    return [FIRAuthErrorUtils missingEmailWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidPhoneNumberErrorMessage]) {

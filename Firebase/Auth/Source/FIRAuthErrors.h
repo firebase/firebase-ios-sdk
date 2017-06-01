@@ -184,7 +184,11 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeInvalidRecipientEmail = 17033,
 
-    // The enum values between 17033 and 17041 are reserved and should NOT be used for new error
+    /** Indicates that an email address was expected but one was not provided.
+     */
+    FIRAuthErrorCodeMissingEmail = 17034,
+
+    // The enum values between 17034 and 17041 are reserved and should NOT be used for new error
     // codes.
 
     /** Indicates that a phone number was not provided in a call to

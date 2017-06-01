@@ -94,6 +94,12 @@ static NSString *const kPasswordLoginDisabledErrorMessage = @"PASSWORD_LOGIN_DIS
  */
 static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL";
 
+/** @var kMissingEmailErrorMessage
+    @brief The error returned by the server if an email address was expected and one was not
+        provided.
+ */
+static NSString *const kMissingEmailErrorMessage = @"MISSING_EMAIL";
+
 /** @var kWeakPasswordErrorMessage
     @brief This is the error message the server will respond with if the new user's password
         is too weak that it is too short.
@@ -242,11 +248,11 @@ static const double kAllowedTimeDifference = 0.1;
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeOperationNotAllowed);
 }
 
-/** @fn testinvalidEmailError
+/** @fn testInvalidEmailError
     @brief This test simulates making a request containing an invalid email address and receiving @c
         FIRAuthErrorInvalidEmail error as a result.
  */
-- (void)testinvalidEmailError {
+- (void)testInvalidEmailError {
   FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
 
   __block BOOL callbackInvoked;
@@ -263,6 +269,29 @@ static const double kAllowedTimeDifference = 0.1;
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInvalidEmail);
+}
+
+/** @fn testMissingEmailError
+    @brief This test simulates making a request without an email address parameter where one is
+        expected and receiving @c FIRAuthErrorMissingEmail error as a result.
+ */
+- (void)testMissingEmailError {
+  FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
+
+  __block BOOL callbackInvoked;
+  __block FIRSignUpNewUserResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend signUpNewUser:request
+                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
+                                  NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+  [_RPCIssuer respondWithServerErrorMessage:kMissingEmailErrorMessage];
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingEmail);
 }
 
 /** @fn testSignUpNewUserWeakPasswordError
