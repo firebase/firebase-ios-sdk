@@ -18,6 +18,7 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.ios.deployment_target = '8.0'
   s.default_subspec  = 'Root'
   s.preserve_paths = 'README.md'
+
   s.subspec 'Root' do |sp|
     sp.source_files = 'Firebase/Firebase/Firebase.h'
     sp.public_header_files = 'Firebase/Firebase/Firebase.h'
