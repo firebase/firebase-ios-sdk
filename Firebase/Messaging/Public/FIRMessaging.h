@@ -295,15 +295,15 @@ FIR_SWIFT_NAME(Messaging)
     __deprecated_msg("Use 'delegate' property");
 
 /**
- *  When set to YES, Firebase Messaging will automatically establish a socket-based, direct channel
- *  to the FCM server. You only need to enable this if you are sending upstream messages or
+ *  When set to `YES`, Firebase Messaging will automatically establish a socket-based, direct
+ *  channel to the FCM server. Enable this only if you are sending upstream messages or
  *  receiving non-APNS, data-only messages in foregrounded apps.
- *  Default is NO.
+ *  Default is `NO`.
  */
 @property(nonatomic) BOOL shouldEstablishDirectChannel;
 
 /**
- *  Returns YES if the direct channel to the FCM server is active, NO otherwise.
+ *  Returns `YES` if the direct channel to the FCM server is active, and `NO` otherwise.
  */
 @property(nonatomic, readonly) BOOL isDirectChannelEstablished;
 
@@ -324,14 +324,15 @@ FIR_SWIFT_NAME(Messaging)
 /**
  *  This property is used to set the APNS Token received by the application delegate.
  *
- *  FIRMessaging uses method swizzling to ensure the APNS token is set automatically.
- *  However, if you have disabled swizzling by setting `FirebaseAppDelegateProxyEnabled`
- *  to `NO` in your app's Info.plist, you should manually set the APNS token in your
- *  application delegate's -application:didRegisterForRemoteNotificationsWithDeviceToken:
+ *  FIRMessaging uses method swizzling to ensure that the APNS token is set
+ *  automatically. However, if you have disabled swizzling by setting
+ *  `FirebaseAppDelegateProxyEnabled` to `NO` in your app's
+ *  Info.plist, you should manually set the APNS token in your application
+ *  delegate's `-application:didRegisterForRemoteNotificationsWithDeviceToken:`
  *  method.
  *
- *  If you would like to set the type of the APNS token, rather than relying on automatic
- *  detection, see: -setAPNSToken:type:.
+ *  If you would like to set the type of the APNS token, rather than relying on
+ *  automatic detection, see: `-setAPNSToken:type:`.
  */
 @property(nonatomic, copy, nullable) NSData *APNSToken FIR_SWIFT_NAME(apnsToken);
 
@@ -416,7 +417,7 @@ FIR_SWIFT_NAME(Messaging)
  *  connect to FIRMessaging. Calling this on an already disconnected client is a no-op.
  *
  *  Call this before `teardown` when your app is going to the background.
- *  Since the FIRMessaging connection won't be allowed to live when in background it is
+ *  Since the FIRMessaging connection won't be allowed to live when in the background, it is
  *  prudent to close the connection.
  */
 - (void)disconnect
@@ -474,8 +475,8 @@ FIR_SWIFT_NAME(Messaging)
  *  Use this to track message delivery and analytics for messages, typically
  *  when you receive a notification in `application:didReceiveRemoteNotification:`.
  *  However, you only need to call this if you set the `FirebaseAppDelegateProxyEnabled`
- *  flag to NO in your Info.plist. If `FirebaseAppDelegateProxyEnabled` is either missing
- *  or set to YES in your Info.plist, the library will call this automatically.
+ *  flag to `NO` in your Info.plist. If `FirebaseAppDelegateProxyEnabled` is either missing
+ *  or set to `YES` in your Info.plist, the library will call this automatically.
  *
  *  @param message The downstream message received by the application.
  *
