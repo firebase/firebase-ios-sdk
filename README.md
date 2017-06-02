@@ -46,8 +46,8 @@ In order to run the sample apps and integration tests, you'll need valid
 
 Some sample apps like Firebase Messaging ([Example/Messaging/App](Example/Messaging/App)) require special Apple capabilities, and you will have to change the sample app to use a unique bundle identifier that you can control in your own Apple Developer account.
 
-## Specific SDK Instructions
-See the sections below for any special instructions for those SDKs.
+## Specific Component Instructions
+See the sections below for any special instructions for those components.
 
 ### Firebase Auth
 
