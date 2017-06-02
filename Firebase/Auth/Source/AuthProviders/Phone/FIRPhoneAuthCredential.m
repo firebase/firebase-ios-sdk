@@ -16,7 +16,6 @@
 
 #import "FIRPhoneAuthCredential.h"
 
-#import "FIRPhoneAuthProvider.h"
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthExceptionUtils.h"

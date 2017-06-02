@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0820"
+   LastUpgradeVersion = "0830"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -9,56 +9,70 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE3373891E73773400881891"
-               BuildableName = "AllUnitTests"
-               BlueprintName = "AllUnitTests"
+               BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
+               BuildableName = "AllUnitTests_macOS"
+               BlueprintName = "AllUnitTests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE7B8D1C1E8EF078009EB6DF"
-               BuildableName = "Database_Tests.xctest"
-               BlueprintName = "Database_Tests"
+               BlueprintIdentifier = "D01853881EDAD364003A645C"
+               BuildableName = "Auth_Tests_macOS.xctest"
+               BlueprintName = "Auth_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE9315A61E8738460083EDBF"
-               BuildableName = "Messaging_Tests.xctest"
-               BlueprintName = "Messaging_Tests"
+               BlueprintIdentifier = "D064E6AA1ED9B31C001956DF"
+               BuildableName = "Core_Tests_macOS.xctest"
+               BlueprintName = "Core_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE9314DD1E86C6BE0083EDBF"
-               BuildableName = "Auth_Tests.xctest"
-               BlueprintName = "Auth_Tests"
+               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
+               BuildableName = "Database_Tests_macOS.xctest"
+               BlueprintName = "Database_Tests_macOS"
+               ReferencedContainer = "container:Firebase.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D0EDB2DE1EDA06CB00B6C31B"
+               BuildableName = "Storage_Tests_macOS.xctest"
+               BlueprintName = "Storage_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -74,9 +88,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEE14D581E84464D006FA992"
-               BuildableName = "Core_Tests.xctest"
-               BlueprintName = "Core_Tests"
+               BlueprintIdentifier = "D01853881EDAD364003A645C"
+               BuildableName = "Auth_Tests_macOS.xctest"
+               BlueprintName = "Auth_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -84,9 +98,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
-               BuildableName = "Storage_Tests.xctest"
-               BlueprintName = "Storage_Tests"
+               BlueprintIdentifier = "D064E6AA1ED9B31C001956DF"
+               BuildableName = "Core_Tests_macOS.xctest"
+               BlueprintName = "Core_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -94,9 +108,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE9315A61E8738460083EDBF"
-               BuildableName = "Messaging_Tests.xctest"
-               BlueprintName = "Messaging_Tests"
+               BlueprintIdentifier = "D0FE8A311ED9C86F003F6722"
+               BuildableName = "Database_Tests_macOS.xctest"
+               BlueprintName = "Database_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -104,39 +118,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE9314DD1E86C6BE0083EDBF"
-               BuildableName = "Auth_Tests.xctest"
-               BlueprintName = "Auth_Tests"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE7B8D1C1E8EF078009EB6DF"
-               BuildableName = "Database_Tests.xctest"
-               BlueprintName = "Database_Tests"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0624F3E01EC0ECFA00E5940D"
-               BuildableName = "Database_IntegrationTests.xctest"
-               BlueprintName = "Database_IntegrationTests"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "06121EBB1EC399C50008D70E"
-               BuildableName = "Storage_IntegrationTests.xctest"
-               BlueprintName = "Storage_IntegrationTests"
+               BlueprintIdentifier = "D0EDB2DE1EDA06CB00B6C31B"
+               BuildableName = "Storage_Tests_macOS.xctest"
+               BlueprintName = "Storage_Tests_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -144,9 +128,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllUnitTests"
-            BlueprintName = "AllUnitTests"
+            BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
+            BuildableName = "AllUnitTests_macOS"
+            BlueprintName = "AllUnitTests_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -166,9 +150,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllUnitTests"
-            BlueprintName = "AllUnitTests"
+            BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
+            BuildableName = "AllUnitTests_macOS"
+            BlueprintName = "AllUnitTests_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -184,9 +168,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE3373891E73773400881891"
-            BuildableName = "AllUnitTests"
-            BlueprintName = "AllUnitTests"
+            BlueprintIdentifier = "D0FE8A041ED9C32C003F6722"
+            BuildableName = "AllUnitTests_macOS"
+            BlueprintName = "AllUnitTests_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

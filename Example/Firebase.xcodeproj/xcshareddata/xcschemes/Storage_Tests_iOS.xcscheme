@@ -9,14 +9,14 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-               BuildableName = "Messaging_Example.app"
-               BlueprintName = "Messaging_Example"
+               BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
+               BuildableName = "Storage_Tests_iOS.xctest"
+               BlueprintName = "Storage_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE9315A61E8738460083EDBF"
-               BuildableName = "Messaging_Tests.xctest"
-               BlueprintName = "Messaging_Tests"
+               BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
+               BuildableName = "Storage_Tests_iOS.xctest"
+               BlueprintName = "Storage_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -42,9 +42,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-            BuildableName = "Messaging_Example.app"
-            BlueprintName = "Messaging_Example"
+            BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
+            BuildableName = "Storage_Tests_iOS.xctest"
+            BlueprintName = "Storage_Tests_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -61,16 +61,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-            BuildableName = "Messaging_Example.app"
-            BlueprintName = "Messaging_Example"
+            BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
+            BuildableName = "Storage_Tests_iOS.xctest"
+            BlueprintName = "Storage_Tests_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -80,16 +79,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "AFD562E41EB13C6D00EA2233"
-            BuildableName = "Messaging_Example.app"
-            BlueprintName = "Messaging_Example"
+            BlueprintIdentifier = "DEB13A0A1E73507E00AC236D"
+            BuildableName = "Storage_Tests_iOS.xctest"
+            BlueprintName = "Storage_Tests_iOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

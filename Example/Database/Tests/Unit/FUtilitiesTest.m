@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 #import "FUtilities.h"
 #import "FIRDatabase_Private.h"
@@ -79,8 +78,8 @@
     XCTAssertEqualObjects(parts[0], @"Firebase");
     XCTAssertEqualObjects(parts[1], kWebsocketProtocolVersion); // Wire protocol version
     XCTAssertEqualObjects(parts[2], [FIRDatabase buildVersion]); // Build version
-    XCTAssertEqualObjects(parts[3], [[UIDevice currentDevice] systemVersion]); // iOS Version
 #if TARGET_OS_IPHONE
+    XCTAssertEqualObjects(parts[3], [[UIDevice currentDevice] systemVersion]); // iOS Version
     NSString *deviceName = [UIDevice currentDevice].model;
     XCTAssertEqualObjects([parts[4] componentsSeparatedByString:@"_"][0], deviceName);
 #endif

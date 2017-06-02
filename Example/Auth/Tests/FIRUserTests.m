@@ -20,7 +20,6 @@
 #import "Facebook/FIRFacebookAuthProvider.h"
 #import "Google/FIRGoogleAuthProvider.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
-#import "Phone/FIRPhoneAuthProvider.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
 #import "FIRAuthErrorUtils.h"
@@ -41,6 +40,10 @@
 #import "FIRApp+FIRAuthUnitTests.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 #import <OCMock/OCMock.h>
+
+#if TARGET_OS_IOS
+#import "Phone/FIRPhoneAuthProvider.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -139,10 +142,10 @@ static NSString *const kPhotoURL = @"https://host.domain/image";
  */
 static NSString *const kNewPhotoURL = @"https://host.domain/new/image";
 
-/** @var kPassword
+/** @var kFakePassword
     @brief The fake user password.
  */
-static NSString *const kPassword = @"123456";
+static NSString *const kFakePassword = @"123456";
 
 /** @var kNewPassword
     @brief The fake new user password.
@@ -276,10 +279,12 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMStub([mockFacebookUserInfo federatedID]).andReturn(kFacebookID);
   OCMStub([mockFacebookUserInfo email]).andReturn(kFacebookEmail);
 
+  #if TARGET_OS_IOS
   // Mock auth provider user info from Phone auth provider for GetAccountInfo.
   id mockPhoneUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
   OCMStub([mockPhoneUserInfo providerID]).andReturn(FIRPhoneAuthProviderID);
   OCMStub([mockPhoneUserInfo phoneNumber]).andReturn(kPhoneNumber);
+  #endif
 
   // Mock the root user info object for GetAccountInfo.
   id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
@@ -288,11 +293,15 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMStub([mockGetAccountInfoResponseUser emailVerified]).andReturn(YES);
   OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
   OCMStub([mockGetAccountInfoResponseUser photoURL]).andReturn([NSURL URLWithString:kPhotoURL]);
-  OCMStub([mockGetAccountInfoResponseUser providerUserInfo])
-      .andReturn((@[ mockPasswordUserInfo,
-                     mockGoogleUserInfo,
-                     mockFacebookUserInfo,
-                     mockPhoneUserInfo ]));
+  NSArray *providerUserInfos = @[
+    #if TARGET_OS_IOS
+    mockPhoneUserInfo,
+    #endif
+    mockPasswordUserInfo,
+    mockGoogleUserInfo,
+    mockFacebookUserInfo
+  ];
+  OCMStub([mockGetAccountInfoResponseUser providerUserInfo]).andReturn(providerUserInfos);
   OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
@@ -309,7 +318,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertFalse(user.anonymous);
     XCTAssertTrue(user.emailVerified);
     XCTAssertEqualObjects(user.refreshToken, kRefreshToken);
-    XCTAssertEqual(user.providerData.count, 4u);
+    XCTAssertEqual(user.providerData.count, providerUserInfos.count);
 
     NSDictionary<NSString *, id<FIRUserInfo>> *providerMap =
         [self dictionaryWithUserInfoArray:user.providerData];
@@ -338,10 +347,12 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertNil(facebookUserInfo.photoURL);
     XCTAssertEqualObjects(facebookUserInfo.email, kFacebookEmail);
 
+    #if TARGET_OS_IOS
     // Verify FIRUserInfo properties from the phone auth provider.
     id<FIRUserInfo> phoneUserInfo = providerMap[FIRPhoneAuthProviderID];
     XCTAssertNotNil(phoneUserInfo);
     XCTAssertEqualObjects(phoneUserInfo.phoneNumber, kPhoneNumber);
+    #endif
 
     [expectation fulfill];
   }];
@@ -425,6 +436,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMVerifyAll(_mockBackend);
 }
 
+#if TARGET_OS_IOS
 /** @fn testUpdatePhoneSuccess
     @brief Tests the flow of a successful @c updatePhoneNumberCredential:completion: call.
  */
@@ -487,6 +499,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
+#endif
 
 /** @fn testUpdatePasswordSuccess
     @brief Tests the flow of a successful @c updatePassword:completion: call.
@@ -737,7 +750,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
       });
     });
     FIRAuthCredential *emailCredential =
-        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
     [user reauthenticateWithCredential:emailCredential completion:^(NSError *_Nullable error) {
       XCTAssertNil(error);
       // Verify that the current user is unchanged.
@@ -851,7 +864,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
       });
     });
     FIRAuthCredential *emailCredential =
-        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
     [user reauthenticateWithCredential:emailCredential completion:^(NSError *_Nullable error) {
       // Verify user mismatch error.
       XCTAssertEqual(error.code, FIRAuthErrorCodeUserMismatch);
@@ -1087,7 +1100,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
                          FIRSetAccountInfoResponseCallback callback) {
       XCTAssertEqualObjects(request.APIKey, kAPIKey);
       XCTAssertEqualObjects(request.accessToken, kAccessToken);
-      XCTAssertEqualObjects(request.password, kPassword);
+      XCTAssertEqualObjects(request.password, kFakePassword);
       XCTAssertNil(request.localID);
       XCTAssertNil(request.displayName);
       dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
@@ -1097,7 +1110,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
 
     FIRAuthCredential *linkEmailCredential =
-        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
     [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
                                             completion:^(FIRAuthDataResult *_Nullable
                                                              linkAuthResult,
@@ -1154,7 +1167,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
                          FIRSetAccountInfoResponseCallback callback) {
       XCTAssertEqualObjects(request.APIKey, kAPIKey);
       XCTAssertEqualObjects(request.accessToken, kAccessToken);
-      XCTAssertEqualObjects(request.password, kPassword);
+      XCTAssertEqualObjects(request.password, kFakePassword);
       XCTAssertNil(request.localID);
       XCTAssertNil(request.displayName);
       dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
@@ -1164,7 +1177,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
 
     FIRAuthCredential *linkEmailCredential =
-        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
     [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
                                             completion:^(FIRAuthDataResult *_Nullable
                                                              linkAuthResult,
@@ -1226,7 +1239,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
 
     FIRAuthCredential *linkEmailCredential =
-        [FIREmailAuthProvider credentialWithEmail:kEmail password:kPassword];
+        [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
     [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
                                             completion:^(FIRAuthDataResult *_Nullable
                                                             linkAuthResult,
@@ -1378,6 +1391,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMVerifyAll(_mockBackend);
 }
 
+#if TARGET_OS_IOS
 /** @fn testlinkPhoneAuthCredentialSuccess
     @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
         call using a phoneAuthCredential.
@@ -1593,6 +1607,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
+#endif
 
 #pragma mark - Helpers
 
@@ -1618,8 +1633,8 @@ static const NSTimeInterval kExpectationTimeout = 1;
   });
   [self expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoResponse];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInWithEmail:kEmail password:kPassword completion:^(FIRUser *_Nullable user,
-                                                                         NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
+                                                                             NSError *_Nullable error) {
     XCTAssertNotNil(user);
     XCTAssertNil(error);
     completion(user);
@@ -1770,6 +1785,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [self expectGetAccountInfo:providerId federatedID:federatedID displayName:displayName];
 }
 
+#if TARGET_OS_IOS
 /** @fn expectVerifyPhoneNumberRequestWithPhoneNumber:error:
     @brief Expects a verify phone numner request on the mock backend and calls back with fake
         account data or an error.
@@ -1795,6 +1811,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
   });
 }
+#endif
 
 @end
 

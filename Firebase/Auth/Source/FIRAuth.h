@@ -16,9 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthSwiftNameSupport.h"
+
+#if TARGET_OS_IOS
+#import "FIRAuthAPNSTokenType.h"
+#endif
 
 @class FIRApp;
 @class FIRAuth;
@@ -249,6 +252,7 @@ FIR_SWIFT_NAME(Auth)
  */
 @property(nonatomic, strong, readonly, nullable) FIRUser *currentUser;
 
+#if TARGET_OS_IOS
 /** @property APNSToken
     @brief The APNs token used for phone number authentication. The type of the token (production
         or sandbox) will be attempted to be automatcially detected.
@@ -256,6 +260,7 @@ FIR_SWIFT_NAME(Auth)
         by either setting this property or by calling @c setAPNSToken:type:
  */
 @property(nonatomic, strong, nullable) NSData *APNSToken;
+#endif
 
 /** @fn init
     @brief Please access auth instances using @c FIRAuth.auth and @c FIRAuth.authForApp:.
@@ -587,6 +592,7 @@ FIR_SWIFT_NAME(Auth)
  */
 - (void)removeIDTokenDidChangeListener:(FIRIDTokenDidChangeListenerHandle)listenerHandle;
 
+#if TARGET_OS_IOS
 /** @fn setAPNSToken:type:
     @brief Sets the APNs token along with its type.
     @remarks If swizzling is disabled, the APNs Token must be set for phone number auth to work,
@@ -606,6 +612,7 @@ FIR_SWIFT_NAME(Auth)
         for phone number auth to work.
  */
 - (BOOL)canHandleNotification:(NSDictionary *)userInfo;
+#endif
 
 @end
 

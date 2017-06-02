@@ -33,11 +33,20 @@ func colorPrint(color: Colors, text: String) {
   print(color.rawValue + text + "\u{001B}[0;0m")
 }
 
-let allFrameworks = ["FirebaseAuth",
-                     "FirebaseCore",
-                     "FirebaseDatabase",
-                     "FirebaseMessaging",
-                     "FirebaseStorage"]
+enum Platform: String {
+  case iOS
+  case macOS
+  case tvOS
+  case watchOS
+}
+
+let allFrameworks: [String: [Platform]] = [
+  "FirebaseAuth": [.iOS, .macOS],
+  "FirebaseCore": [.iOS, .macOS],
+  "FirebaseDatabase": [.iOS, .macOS],
+  "FirebaseMessaging": [.iOS],
+  "FirebaseStorage": [.iOS, .macOS]
+]
 
 let currentDirectoryURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 let url = URL(fileURLWithPath: CommandLine.arguments[0], relativeTo: currentDirectoryURL)
@@ -63,7 +72,7 @@ func processOptions() -> [String] {
         colorPrint(color:Colors.red, text:"-all must be a solo option")
         usage()
       }
-      doFrameworks = allFrameworks
+      doFrameworks = Array(allFrameworks.keys)
       break whileLoop
     case "-f":
       optIndex += 1
@@ -72,7 +81,7 @@ func processOptions() -> [String] {
         usage()
       }
       let framework = CommandLine.arguments[optIndex]
-      guard allFrameworks.contains(framework) else {
+      guard allFrameworks.keys.contains(framework) else {
         colorPrint(color:Colors.red, text:"\(framework) is not a valid framework")
         usage()
       }
@@ -110,17 +119,28 @@ func syncExec(command: String, args: [String] = []) {
   }
 }
 
-func buildThin(framework: String, arch: String, sdk: String, parentDir: String) -> [String] {
+func buildThin(framework: String, multiplatform: Bool, arch: String, multisdk: Bool, sdk: String, parentDir: String) -> [String] {
+  let schemeSuffix: String
+  if !multiplatform {
+    schemeSuffix = ""
+  } else if sdk.hasPrefix("mac") {
+    schemeSuffix = "-OSX"
+  } else if sdk.hasPrefix("iphone") {
+    schemeSuffix = "-iOS"
+  } else {
+    fatalError("TODO: tvOS/watchOS")
+  }
+
   let buildDir = parentDir + "/" + arch
   let standardOptions = [ "build",
                           "-configuration", "release",
                           "-workspace", "FrameworkMaker.xcworkspace",
-                          "-scheme", framework,
+                          "-scheme", framework + schemeSuffix,
                           "GCC_GENERATE_DEBUGGING_SYMBOLS=No"]
   let bitcode = (sdk == "iphoneos") ? ["OTHER_CFLAGS=\"" + "-fembed-bitcode\""] : []
   let args = standardOptions + ["ARCHS=" + arch, "BUILD_DIR=" + buildDir, "-sdk", sdk] + bitcode
   syncExec(command:"/usr/bin/xcodebuild", args:args)
-  return [buildDir + "/Release-" + sdk + "/" + framework + "/lib" + framework + ".a"]
+  return [buildDir + "/Release" + (multisdk ? "-\(sdk)" : "") + "/" + framework + schemeSuffix + "/lib" + framework + schemeSuffix + ".a"]
 }
 
 func createFile(file: String, content: String) {
@@ -144,15 +164,21 @@ func makeModuleMap(framework: String, dir: String) {
   createFile(file:moduleFile, content:content)
 }
 
-func buildFramework(withName framework: String, outputDir: String) {
+func buildFramework(withName framework: String, multiplatform: Bool, platform: Platform, outputDir: String) {
   let buildDir = tempDir()
   var thinArchives = [String]()
-  thinArchives += buildThin(framework:framework, arch:"arm64", sdk:"iphoneos", parentDir:buildDir)
-  thinArchives += buildThin(framework:framework, arch:"armv7", sdk:"iphoneos", parentDir:buildDir)
-  thinArchives += buildThin(framework:framework, arch:"i386", sdk:"iphonesimulator", parentDir:buildDir)
-  thinArchives += buildThin(framework:framework, arch:"x86_64", sdk:"iphonesimulator", parentDir:buildDir)
+  switch platform {
+  case .iOS:
+    thinArchives += buildThin(framework:framework, multiplatform: multiplatform, arch:"arm64", multisdk: true, sdk:"iphoneos", parentDir:buildDir)
+    thinArchives += buildThin(framework:framework, multiplatform: multiplatform, arch:"armv7", multisdk: true, sdk:"iphoneos", parentDir:buildDir)
+    thinArchives += buildThin(framework:framework, multiplatform: multiplatform, arch:"i386", multisdk: true, sdk:"iphonesimulator", parentDir:buildDir)
+    thinArchives += buildThin(framework:framework, multiplatform: multiplatform, arch:"x86_64", multisdk: true, sdk:"iphonesimulator", parentDir:buildDir)
+  case .macOS:
+    thinArchives += buildThin(framework:framework, multiplatform: multiplatform, arch:"x86_64", multisdk: false, sdk:"macosx", parentDir:buildDir)
+  default: fatalError("TODO: tvOS/watchOS")
+  }
 
-  let frameworkDir = outputDir + "/" + framework + ".framework"
+  let frameworkDir = outputDir + "/" + framework + "_" + platform.rawValue + ".framework"
   syncExec(command:"/bin/mkdir", args:["-p", frameworkDir])
   let fatArchive = frameworkDir + "/" + framework
   syncExec(command:"/usr/bin/lipo", args:["-create", "-output", fatArchive] + thinArchives)
@@ -171,7 +197,10 @@ let outputDir = tempDir()
 syncExec(command:"/usr/local/bin/pod", args:["update"])
 
 for f in frameworks {
-  buildFramework(withName:f, outputDir:outputDir)
+  let platforms = allFrameworks[f]!
+  for p in platforms {
+    buildFramework(withName:f, multiplatform:platforms.count > 1, platform:p, outputDir:outputDir)
+  }
 }
 
 print()

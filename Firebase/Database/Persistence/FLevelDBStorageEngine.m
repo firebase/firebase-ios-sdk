@@ -204,13 +204,13 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 }
 
 + (NSString *) firebaseDir {
-#if TARGET_OS_IPHONE
+    #if TARGET_OS_IOS
     NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDir = [dirPaths objectAtIndex:0];
     return [documentsDir stringByAppendingPathComponent:@"firebase"];
-#else // this must be OSX then
+    #elif TARGET_OS_OSX
     return [NSHomeDirectory() stringByAppendingPathComponent:@".firebase"];
-#endif
+    #endif
 }
 
 - (APLevelDB *)createDB:(NSString *)name {

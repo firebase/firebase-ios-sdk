@@ -17,7 +17,6 @@
 #import "FIRAuthBackend.h"
 
 #import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "../AuthProviders/Phone/FIRPhoneAuthProvider.h"
 #import "../Private/FIRAuthErrorUtils.h"
 #import "../Private/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
@@ -53,6 +52,10 @@
 #import "FIRVerifyPhoneNumberResponse.h"
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+
+#if TARGET_OS_IOS
+#import "../AuthProviders/Phone/FIRPhoneAuthProvider.h"
+#endif
 
 /** @var kIosBundleIdentifierHeader
     @brief HTTP header name for iOS bundle ID.
@@ -374,6 +377,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] deleteAccount:request callback:callback];
 }
 
+#if TARGET_OS_IOS
 + (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback {
   [[self implementation] sendVerificationCode:request callback:callback];
@@ -387,6 +391,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 + (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
   [[self implementation] verifyClient:request callback:callback];
 }
+#endif
 
 + (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {
@@ -560,6 +565,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [self postWithRequest:request response:response callback:callback];
 }
 
+#if TARGET_OS_IOS
 - (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback {
   FIRSendVerificationCodeResponse *response = [[FIRSendVerificationCodeResponse alloc] init];
@@ -606,6 +612,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     callback(response, nil);
   }];
 }
+#endif
 
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {

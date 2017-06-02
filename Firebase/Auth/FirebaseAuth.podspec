@@ -20,8 +20,17 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
+  s.osx.deployment_target = '10.10'
 
   s.source_files = '**/*.[mh]'
+  s.osx.exclude_files =
+    'Source/**/FIRAuthAppDelegateProxy.[mh]',
+    'Source/**/FIRAuthNotificationManager.[mh]',
+    'Source/**/FIRAuthAppCredentialManager.[mh]',
+    'Source/**/FIRAuthAPNSTokenManager.[mh]',
+    'Source/**/FIRAuthAPNSTokenType.[mh]',
+    'Source/**/FIRAuthAPNSToken.[mh]',
+    'Source/**/FIRPhoneAuthProvider.[mh]'
   s.public_header_files =
     'Source/FirebaseAuth.h',
     'Source/FirebaseAuthVersion.h',

@@ -81,7 +81,7 @@ extern void FIRLogBasic(FIRLoggerLevel level,
                         NSString *message,
 // On 64-bit simulators, va_list is not a pointer, so cannot be marked nullable
 // See: http://stackoverflow.com/q/29095469
-#if __LP64__ && TARGET_IPHONE_SIMULATOR
+#if __LP64__ && TARGET_OS_SIMULATOR || TARGET_OS_OSX
                         va_list args_ptr
 #else
                         va_list _Nullable args_ptr

@@ -5,6 +5,22 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DE7B8D041E8EF077009EB6DF"
+               BuildableName = "Database_Example_iOS.app"
+               BlueprintName = "Database_Example_iOS"
+               ReferencedContainer = "container:Firebase.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -16,13 +32,22 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEE14D581E84464D006FA992"
-               BuildableName = "Core_Tests.xctest"
-               BlueprintName = "Core_Tests"
+               BlueprintIdentifier = "DE7B8D1C1E8EF078009EB6DF"
+               BuildableName = "Database_Tests_iOS.xctest"
+               BlueprintName = "Database_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE7B8D041E8EF077009EB6DF"
+            BuildableName = "Database_Example_iOS.app"
+            BlueprintName = "Database_Example_iOS"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>

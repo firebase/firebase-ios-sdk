@@ -16,9 +16,11 @@
 
 #import "FIRAuth.h"
 
+#if TARGET_OS_IOS
 @class FIRAuthAPNSTokenManager;
 @class FIRAuthAppCredentialManager;
 @class FIRAuthNotificationManager;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,6 +48,7 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
  */
 @property(nonatomic, copy, readonly) NSString *APIKey;
 
+#if TARGET_OS_IOS
 /** @property tokenManager
     @brief The manager for APNs tokens used by phone number auth.
  */
@@ -60,6 +63,7 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
     @brief The manager for remote notifications used by phone number auth.
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
+#endif
 
 /** @fn initWithAPIKey:appName:
     @brief Designated initializer.

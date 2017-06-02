@@ -3,7 +3,6 @@ language: objective-c
 cache:
   - bundler
   - cocoapods
-podfile: Example/Podfile
 
 rvm: 2.3.1
 before_install:
@@ -12,6 +11,6 @@ before_install:
   - gem install xcpretty
   - pod install --project-directory=Example --repo-update
 
-script: 
+script:
   - ./test.sh
   - pod lib lint FirebaseDev.podspec
