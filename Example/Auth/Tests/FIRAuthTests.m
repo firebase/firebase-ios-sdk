@@ -1200,6 +1200,25 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
+/** @fn testCreateUserEmptyEmailFailure
+    @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call due to an
+        empty email adress. This error occurs on the client side, so there is no need to fake an RPC
+        response.
+ */
+- (void)testCreateUserEmptyEmailFailure {
+  [self expectGetAccountInfo];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] createUserWithEmail:@""
+                             password:kPassword
+                           completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeMissingEmail);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+}
+
 /** @fn testSendPasswordResetEmailSuccess
     @brief Tests the flow of a successful @c sendPasswordResetWithEmail:completion: call.
  */

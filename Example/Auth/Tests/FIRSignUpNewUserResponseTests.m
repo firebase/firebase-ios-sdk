@@ -242,11 +242,11 @@ static const double kAllowedTimeDifference = 0.1;
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeOperationNotAllowed);
 }
 
-/** @fn testinvalidEmailError
+/** @fn testInvalidEmailError
     @brief This test simulates making a request containing an invalid email address and receiving @c
         FIRAuthErrorInvalidEmail error as a result.
  */
-- (void)testinvalidEmailError {
+- (void)testInvalidEmailError {
   FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
 
   __block BOOL callbackInvoked;
