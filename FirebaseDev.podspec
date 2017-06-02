@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDev'
-  s.version          = '4.0.1'
+  s.version          = '0.0.1'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
-Simplify your iOS development, grow your user base, and monetize more effectively with Firebase.
+Firebase Development CocoaPod including experimental and community supported features.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -17,6 +17,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
   s.default_subspec  = 'Root'
+  s.preserve_paths = 'README.md'
 
   s.subspec 'Root' do |sp|
     sp.source_files = 'Firebase/Firebase/Firebase.h'
