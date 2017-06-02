@@ -1215,7 +1215,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] createUserWithEmail:@""
-                             password:kPassword
+                             password:kFakePassword
                            completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqual(error.code, FIRAuthErrorCodeMissingEmail);
