@@ -524,7 +524,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                  isReauthentication:(BOOL)isReauthentication
                                            callback:(nullable FIRAuthDataResultCallback)callback {
   if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
-    // Special case for email/password credentials:
+    // Special case for email/password credentials
     FIREmailPasswordAuthCredential *emailPasswordCredential =
         (FIREmailPasswordAuthCredential *)credential;
     [self signInWithEmail:emailPasswordCredential.email
@@ -541,7 +541,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
   #if TARGET_OS_IOS
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
-    // Special case for phone auth credential
+    // Special case for phone auth credentials
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
     [self signInWithPhoneCredential:phoneCredential callback:^(FIRUser *_Nullable user,
                                                                NSError *_Nullable error) {
