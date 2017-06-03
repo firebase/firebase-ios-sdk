@@ -73,6 +73,11 @@ static NSString *const kAnonymousCodingKey = @"anonymous";
  */
 static NSString *const kEmailCodingKey = @"email";
 
+/** @var kPhoneNumberCodingKey
+    @brief The key used to encode the phoneNumber property for NSSecureCoding.
+ */
+static NSString *const kPhoneNumberCodingKey = @"phoneNumber";
+
 /** @var kEmailVerifiedCodingKey
     @brief The key used to encode the isEmailVerified property for NSSecureCoding.
  */
@@ -307,6 +312,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       [aDecoder decodeObjectOfClass:[NSURL class] forKey:kPhotoURLCodingKey];
   NSString *email =
       [aDecoder decodeObjectOfClass:[NSString class] forKey:kEmailCodingKey];
+  NSString *phoneNumber =
+      [aDecoder decodeObjectOfClass:[NSString class] forKey:kPhoneNumberCodingKey];
   BOOL emailVerified = [aDecoder decodeBoolForKey:kEmailVerifiedCodingKey];
   NSSet *providerDataClasses = [NSSet setWithArray:@[
       [NSDictionary class],
@@ -336,6 +343,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     _displayName = displayName;
     _photoURL = photoURL;
     _providerData = providerData;
+    _phoneNumber = phoneNumber;
   }
   return self;
 }
@@ -346,6 +354,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeBool:_hasEmailPasswordCredential forKey:kHasEmailPasswordCredentialCodingKey];
   [aCoder encodeObject:_providerData forKey:kProviderDataKey];
   [aCoder encodeObject:_email forKey:kEmailCodingKey];
+  [aCoder encodeObject:_phoneNumber forKey:kPhoneNumberCodingKey];
   [aCoder encodeBool:_emailVerified forKey:kEmailVerifiedCodingKey];
   [aCoder encodeObject:_photoURL forKey:kPhotoURLCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
