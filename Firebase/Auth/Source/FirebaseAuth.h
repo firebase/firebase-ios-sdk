@@ -18,10 +18,20 @@
 #import "FIRFacebookAuthProvider.h"
 #import "FIRGitHubAuthProvider.h"
 #import "FIRGoogleAuthProvider.h"
+#import "FIROAuthProvider.h"
 #import "FIRTwitterAuthProvider.h"
+#import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
 #import "FIRAuthCredential.h"
+#import "FIRAuthDataResult.h"
 #import "FIRAuthErrors.h"
+#import "FIRAuthSwiftNameSupport.h"
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
 #import "FirebaseAuthVersion.h"
+
+#if TARGET_OS_IOS
+#import "FIRPhoneAuthCredential.h"
+#import "FIRPhoneAuthProvider.h"
+#import "FIRAuthAPNSTokenType.h"
+#endif
