@@ -294,15 +294,15 @@
 		DEE13A361EA1642A00D1BABA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEE13A421EA16EE400D1BABA /* FirebaseAuthUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FirebaseAuthUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE13AA71EA1761B00D1BABA /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Auth-Info.plist"; path = "../../Example/Auth/App/Auth-Info.plist"; sourceTree = "<group>"; };
+		DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Auth-Info.plist"; path = "../../Example/Auth/App/iOS/Auth-Info.plist"; sourceTree = "<group>"; };
 		DEE13AC11EA1764B00D1BABA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DEE13AC31EA1764B00D1BABA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
-		DEE13AC41EA1764B00D1BABA /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAppDelegate.h; path = ../../Example/Auth/App/FIRAppDelegate.h; sourceTree = "<group>"; };
-		DEE13AC51EA1764B00D1BABA /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAppDelegate.m; path = ../../Example/Auth/App/FIRAppDelegate.m; sourceTree = "<group>"; };
-		DEE13AC61EA1764B00D1BABA /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRViewController.h; path = ../../Example/Auth/App/FIRViewController.h; sourceTree = "<group>"; };
-		DEE13AC71EA1764B00D1BABA /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRViewController.m; path = ../../Example/Auth/App/FIRViewController.m; sourceTree = "<group>"; };
+		DEE13AC41EA1764B00D1BABA /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAppDelegate.h; path = ../../Example/Auth/App/iOS/FIRAppDelegate.h; sourceTree = "<group>"; };
+		DEE13AC51EA1764B00D1BABA /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAppDelegate.m; path = ../../Example/Auth/App/iOS/FIRAppDelegate.m; sourceTree = "<group>"; };
+		DEE13AC61EA1764B00D1BABA /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRViewController.h; path = ../../Example/Auth/App/iOS/FIRViewController.h; sourceTree = "<group>"; };
+		DEE13AC71EA1764B00D1BABA /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRViewController.m; path = ../../Example/Auth/App/iOS/FIRViewController.m; sourceTree = "<group>"; };
 		DEE13AC81EA1764B00D1BABA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Example/Auth/App/GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DEE13ACA1EA1764B00D1BABA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../../Example/Auth/App/main.m; sourceTree = "<group>"; };
+		DEE13ACA1EA1764B00D1BABA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../../Example/Auth/App/iOS/main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -578,7 +578,7 @@
 				DEE13AC21EA1764B00D1BABA /* Main.storyboard */,
 			);
 			name = Base.lproj;
-			path = ../../Example/Auth/App/Base.lproj;
+			path = ../../Example/Auth/App/iOS/Base.lproj;
 			sourceTree = "<group>";
 		};
 		FC34A5565C2ACFA8C5AA3B1E /* Frameworks */ = {
@@ -1620,7 +1620,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/Auth-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.TestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1633,7 +1633,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/Auth-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.TestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
