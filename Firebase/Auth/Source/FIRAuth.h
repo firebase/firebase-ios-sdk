@@ -355,6 +355,20 @@ FIR_SWIFT_NAME(Auth)
         </li>
         <li>@c FIRAuthErrorCodeInvalidEmail - Indicates the email address is malformed.
         </li>
+        <li>@c FIRAuthErrorCodeMissingVerificationID - Indicates that the phone auth credential was
+            created with an empty verification ID.
+        </li>
+        <li>@c FIRAuthErrorCodeMissingVerificationCode - Indicates that the phone auth credential
+            was created with an empty verification code.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidVerificationCode - Indicates that the phone auth credential
+            was created with an invalid verification Code.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidVerificationID - Indicates that the phone auth credential was
+            created with an invalid verification ID.
+        </li>
+        <li>@c FIRAuthErrorCodeSessionExpired - Indicates that the SMS code has expired.
+        </li>
     </ul>
 
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
