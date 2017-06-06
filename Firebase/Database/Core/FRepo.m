@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 #import <dlfcn.h>
 #import "FRepo.h"
 #import "FSnapshotUtilities.h"

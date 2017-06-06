@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 #import "Private/FIRAuth_Internal.h"
 
 #import "FIRAppAssociationRegistration.h"

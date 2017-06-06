@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 #import "Private/FIRUser_Internal.h"
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"

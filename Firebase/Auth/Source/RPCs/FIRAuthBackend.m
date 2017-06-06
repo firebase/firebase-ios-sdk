@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 #import "FIRAuthBackend.h"
 
 #import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
