@@ -16,6 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if TARGET_OS_IOS
+// TODO: Remove UIKit import on next breaking change release
+#import <UIKit/UIKit.h>
+#endif
+
 #import "FIRCoreSwiftNameSupport.h"
 
 @class FIROptions;
