@@ -260,10 +260,11 @@ static const NSTimeInterval kExpectationTimeout = 1;
 
 #pragma mark - Tests
 
-/** @fn testUserProperties
-    @brief Tests properties of the @c FIRUser instance.
+/** @fn testUserPropertiesAndNSSecureCoding
+    @brief Tests properties of the @c FIRUser instance before and after being
+        serialized/deserialized.
  */
-- (void)testUserProperties {
+- (void)testUserPropertiesAndNSSecureCoding {
   // Mock auth provider user info for email/password for GetAccountInfo.
   id mockPasswordUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
   OCMStub([mockPasswordUserInfo providerID]).andReturn(FIREmailAuthProviderID);
