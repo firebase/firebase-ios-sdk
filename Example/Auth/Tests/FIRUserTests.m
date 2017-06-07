@@ -24,7 +24,7 @@
 #import "FIRAuth.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
-#import "FIRUser.h"
+#import "FIRUser_Internal.h"
 #import "FIRUserInfo.h"
 #import "FIRAuthBackend.h"
 #import "FIRGetAccountInfoRequest.h"
@@ -357,6 +357,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     #endif
 
     // Test NSSecureCoding
+    XCTAssertTrue([FIRUser supportsSecureCoding]);
     NSArray *paths =
         NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
