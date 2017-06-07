@@ -372,7 +372,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertEqualObjects(unarchivedUser.displayName, user.displayName);
 
     // Verify NSSecureCoding properties besides providerData contents.
-    XCTAssertEqual(unarchivedUser.anonymous,user.anonymous);
+    XCTAssertEqual(unarchivedUser.anonymous, user.anonymous);
     XCTAssertEqual(unarchivedUser.emailVerified, user.emailVerified);
     XCTAssertEqualObjects(unarchivedUser.refreshToken, user.refreshToken);
     XCTAssertEqual(unarchivedUser.providerData.count, user.providerData.count);
