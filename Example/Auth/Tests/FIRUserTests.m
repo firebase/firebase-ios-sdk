@@ -207,6 +207,11 @@ static NSString *const kVerificationCode = @"12345678";
  */
 static NSString *const kVerificationID = @"55432";
 
+/** @var kFilePath
+    @brief File path to test NSSecureCoding.
+ */
+static NSString *const kFilePath = @"testPath";
+
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
@@ -325,7 +330,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
 
     // Verify FIRUserInfo properties from email/password.
     id<FIRUserInfo> passwordUserInfo = providerMap[FIREmailAuthProviderID];
-    XCTAssertNotNil(passwordUserInfo);
     XCTAssertEqualObjects(passwordUserInfo.uid, kEmail);
     XCTAssertNil(passwordUserInfo.displayName);
     XCTAssertNil(passwordUserInfo.photoURL);
@@ -333,7 +337,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
 
     // Verify FIRUserInfo properties from the Google auth provider.
     id<FIRUserInfo> googleUserInfo = providerMap[FIRGoogleAuthProviderID];
-    XCTAssertNotNil(googleUserInfo);
     XCTAssertEqualObjects(googleUserInfo.uid, kGoogleID);
     XCTAssertEqualObjects(googleUserInfo.displayName, kGoogleDisplayName);
     XCTAssertEqualObjects(googleUserInfo.photoURL, [NSURL URLWithString:kGooglePhotoURL]);
@@ -341,7 +344,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
 
     // Verify FIRUserInfo properties from the Facebook auth provider.
     id<FIRUserInfo> facebookUserInfo = providerMap[FIRFacebookAuthProviderID];
-    XCTAssertNotNil(facebookUserInfo);
     XCTAssertEqualObjects(facebookUserInfo.uid, kFacebookID);
     XCTAssertNil(facebookUserInfo.displayName);
     XCTAssertNil(facebookUserInfo.photoURL);
@@ -350,8 +352,59 @@ static const NSTimeInterval kExpectationTimeout = 1;
     #if TARGET_OS_IOS
     // Verify FIRUserInfo properties from the phone auth provider.
     id<FIRUserInfo> phoneUserInfo = providerMap[FIRPhoneAuthProviderID];
-    XCTAssertNotNil(phoneUserInfo);
     XCTAssertEqualObjects(phoneUserInfo.phoneNumber, kPhoneNumber);
+    #endif
+
+    // Test NSSecureCoding
+    NSArray *paths =
+        NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:kFilePath];
+    [NSKeyedArchiver archiveRootObject:user toFile:filePath];
+    FIRUser *unarchivedUser = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+    [[NSFileManager defaultManager]removeItemAtPath: filePath error:nil];
+
+    // Verify NSSecureCoding for FIRUser
+    XCTAssertEqualObjects(unarchivedUser.providerID, user.providerID);
+    XCTAssertEqualObjects(unarchivedUser.uid, user.uid);
+    XCTAssertEqualObjects(unarchivedUser.email, user.email);
+    XCTAssertEqualObjects(unarchivedUser.photoURL, user.photoURL);
+    XCTAssertEqualObjects(unarchivedUser.displayName, user.displayName);
+
+    // Verify NSSecureCoding properties besides providerData contents.
+    XCTAssertEqual(unarchivedUser.anonymous,user.anonymous);
+    XCTAssertEqual(unarchivedUser.emailVerified, user.emailVerified);
+    XCTAssertEqualObjects(unarchivedUser.refreshToken, user.refreshToken);
+    XCTAssertEqual(unarchivedUser.providerData.count, user.providerData.count);
+
+    NSDictionary<NSString *, id<FIRUserInfo>> *unarchivedProviderMap =
+        [self dictionaryWithUserInfoArray:unarchivedUser.providerData];
+
+    // Verify NSSecureCoding properties from email/password.
+    id<FIRUserInfo> unarchivedPasswordUserInfo = unarchivedProviderMap[FIREmailAuthProviderID];
+    XCTAssertEqualObjects(unarchivedPasswordUserInfo.uid, passwordUserInfo.uid);
+    XCTAssertEqualObjects(unarchivedPasswordUserInfo.displayName, passwordUserInfo.displayName);
+    XCTAssertEqualObjects(unarchivedPasswordUserInfo.photoURL, passwordUserInfo.photoURL);
+    XCTAssertEqualObjects(unarchivedPasswordUserInfo.email, passwordUserInfo.email);
+
+    // Verify NSSecureCoding properties from the Google auth provider.
+    id<FIRUserInfo> unarchivedGoogleUserInfo = unarchivedProviderMap[FIRGoogleAuthProviderID];
+    XCTAssertEqualObjects(unarchivedGoogleUserInfo.uid, googleUserInfo.uid);
+    XCTAssertEqualObjects(unarchivedGoogleUserInfo.displayName, googleUserInfo.displayName);
+    XCTAssertEqualObjects(unarchivedGoogleUserInfo.photoURL, googleUserInfo.photoURL);
+    XCTAssertEqualObjects(unarchivedGoogleUserInfo.email, googleUserInfo.email);
+
+    // Verify NSSecureCoding properties from the Facebook auth provider.
+    id<FIRUserInfo> unarchivedFacebookUserInfo = unarchivedProviderMap[FIRFacebookAuthProviderID];
+    XCTAssertEqualObjects(unarchivedFacebookUserInfo.uid, facebookUserInfo.uid);
+    XCTAssertEqualObjects(unarchivedFacebookUserInfo.displayName, facebookUserInfo.displayName);
+    XCTAssertEqualObjects(unarchivedFacebookUserInfo.photoURL, facebookUserInfo.photoURL);
+    XCTAssertEqualObjects(unarchivedFacebookUserInfo.email, facebookUserInfo.email);
+
+    #if TARGET_OS_IOS
+    // Verify FIRUserInfo properties from the phone auth provider.
+    id<FIRUserInfo> unarchivedPhoneUserInfo = unarchivedProviderMap[FIRPhoneAuthProviderID];
+    XCTAssertEqualObjects(unarchivedPhoneUserInfo.phoneNumber, phoneUserInfo.phoneNumber);
     #endif
 
     [expectation fulfill];
@@ -1538,7 +1591,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
                                  completion:^(FIRAuthDataResult *_Nullable
                                               linkAuthResult,
                                               NSError *_Nullable error) {
-      XCTAssertNotNil(error);
       XCTAssertEqual(error.code, FIRAuthErrorCodeProviderAlreadyLinked);
       [expectation fulfill];
     }];
