@@ -81,13 +81,26 @@ The iOS Simulator cannot register for remote notifications, and will not receive
 
 ## Community Supported Efforts
  
-We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and participate in the Firebase community. However, not all of the changes can be officially supported by the Firebase team, so **we'd love help from the community in maintaining these efforts**.
+We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and participate in the Firebase community. 
  
-Note that if you are using CocoaPods and using the FirebaseDev podspec (the one in this repo), you cannot bring in Pods from the official Firebase podspec, because of duplicated symbol conflicts.
+Note that if you are using CocoaPods and using the FirebaseDev podspec (the one in this repo), you cannot bring in Pods from the official Firebase podspec, because of duplicated symbol conflicts. If you're not using one of the open-source SDKs in this repo for development purposes, we recommend using the regular Firebase pods for the best experience.
  
-### macOS Support 
-FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and work on macOS. The biggest changes are in ensuring iOS-only or macOS-only code is correctly guarded with checks for `TARGET_OS_IOS` and `TARGET_OS_OSX`. As this repository is actively developed primarily for iOS, and we can catch basic unit test issues with Travis, there may be some changes where SDKs no longer work as expected on macOS, so [file an issue](https://github.com/firebase/firebase-ios-sdk/issues) for it, and someone in the community may be able to help.
+To get started using the FirebaseDev SDKs, here is a typical Podfile:
+ 
+```
+use_frameworks!
+ 
+target 'MyAppTarget' do
+  platform :ios, '8.0'
+  pod 'FirebaseDev', :git => 'https://github.com/firebase/firebase-ios-sdk.git'
+end
+``` 
+Replace `MyAppTarget` with the name of the target in your Xcode project.
 
+### macOS
+FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and work on macOS, thanks to contributions from the community. There are a few tweaks needed, like ensuring iOS-only or macOS-only code is correctly guarded with checks for `TARGET_OS_IOS` and `TARGET_OS_OSX`. 
+ 
+Keep in mind that macOS is not officially supported by Firebase, and this repository is actively developed primarily for iOS. While we can catch basic unit test issues with Travis, there may be some changes where the SDK no longer works as expected on macOS. If you encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues) for it.
 
 
 ## Contributing
