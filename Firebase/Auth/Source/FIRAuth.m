@@ -401,7 +401,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _notificationManager =
         [[FIRAuthNotificationManager alloc] initWithApplication:[UIApplication sharedApplication]
                                            appCredentialManager:_appCredentialManager];
-    
+
     [[FIRAuthAppDelegateProxy sharedInstance] addHandler:self];
     #endif
   }
