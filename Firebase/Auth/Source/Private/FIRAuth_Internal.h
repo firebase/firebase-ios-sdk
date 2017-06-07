@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 #import "FIRAuth.h"
 
 #if TARGET_OS_IOS

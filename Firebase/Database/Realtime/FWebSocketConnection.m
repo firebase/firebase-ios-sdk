@@ -16,6 +16,8 @@
 
 // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
 
+#import <Foundation/Foundation.h>
+
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
 #import "FIRDatabaseReference.h"
