@@ -207,10 +207,10 @@ static NSString *const kVerificationCode = @"12345678";
  */
 static NSString *const kVerificationID = @"55432";
 
-/** @var kFilePath
-    @brief File path to test NSSecureCoding.
+/** @var kUserArchiverKey
+    @brief The key used to archive and unarchive the user object for test NSSecureCoding.
  */
-static NSString *const kFilePath = @"testPath";
+static NSString *const kUserArchiverKey = @"userArchiverKey";
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
@@ -358,13 +358,13 @@ static const NSTimeInterval kExpectationTimeout = 1;
 
     // Test NSSecureCoding
     XCTAssertTrue([FIRUser supportsSecureCoding]);
-    NSArray *paths =
-        NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:kFilePath];
-    [NSKeyedArchiver archiveRootObject:user toFile:filePath];
-    FIRUser *unarchivedUser = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-    [[NSFileManager defaultManager]removeItemAtPath: filePath error:nil];
+    NSMutableData *data = [NSMutableData data];
+    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+    [archiver encodeObject:user forKey:kUserArchiverKey];
+    [archiver finishEncoding];
+
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+    FIRUser *unarchivedUser = [unarchiver decodeObjectForKey:kUserArchiverKey];
 
     // Verify NSSecureCoding for FIRUser
     XCTAssertEqualObjects(unarchivedUser.providerID, user.providerID);
