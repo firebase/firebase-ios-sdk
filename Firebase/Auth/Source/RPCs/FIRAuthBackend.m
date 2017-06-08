@@ -59,6 +59,11 @@
 #import "../AuthProviders/Phone/FIRPhoneAuthProvider.h"
 #endif
 
+/** @var kClientVersionHeader
+    @brief HTTP header name for the client version.
+ */
+static NSString *const kClientVersionHeader = @"X-Client-Version";
+
 /** @var kIosBundleIdentifierHeader
     @brief HTTP header name for iOS bundle ID.
  */
@@ -428,6 +433,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
      completionHandler:(void (^)(NSData *_Nullable, NSError *_Nullable))handler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
+  NSString *clientVersion =
+      [NSString stringWithFormat:@"iOS/FirebaseSDK/%s", FirebaseAuthVersionString];
+  [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
 
