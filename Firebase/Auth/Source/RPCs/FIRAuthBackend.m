@@ -59,15 +59,15 @@
 #import "../AuthProviders/Phone/FIRPhoneAuthProvider.h"
 #endif
 
-/** @var kIosBundleIdentifierHeader
-    @brief HTTP header name for iOS bundle ID.
- */
-static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
-
 /** @var kClientVersionHeader
     @brief HTTP header name for the client version.
  */
 static NSString *const kClientVersionHeader = @"X-Client-Version";
+
+/** @var kIosBundleIdentifierHeader
+    @brief HTTP header name for iOS bundle ID.
+ */
+static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
 
 /** @var kJSONContentType
     @brief The value of the HTTP content-type header for JSON payloads.
