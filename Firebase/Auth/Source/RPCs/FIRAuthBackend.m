@@ -64,6 +64,11 @@
  */
 static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
 
+/** @var kClientVersionHeader
+    @brief HTTP header name for the client version.
+ */
+static NSString *const kClientVersionHeader = @"X-Client-Version";
+
 /** @var kJSONContentType
     @brief The value of the HTTP content-type header for JSON payloads.
  */
@@ -428,6 +433,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
      completionHandler:(void (^)(NSData *_Nullable, NSError *_Nullable))handler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
+  NSString *clientVersion =
+      [NSString stringWithFormat:@"iOS/FirebaseSDK/%s", FirebaseAuthVersionString];
+  [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
 
