@@ -46,37 +46,62 @@ In order to run the sample apps and integration tests, you'll need valid
 
 Some sample apps like Firebase Messaging ([Example/Messaging/App](Example/Messaging/App)) require special Apple capabilities, and you will have to change the sample app to use a unique bundle identifier that you can control in your own Apple Developer account.
 
-See the sections below for any special instructions for those SDKs.
+## Specific Component Instructions
+See the sections below for any special instructions for those components.
 
-## Firebase Auth
+### Firebase Auth
 
 If you're doing specific Firebase Auth development, see
 [AuthSamples/README.md](AuthSamples/README.md) for instructions about
 building and running the FirebaseAuth pod along with various samples and tests.
 
-## Firebase Database
+### Firebase Database
 
 To run the Database Integration tests, make your database authentication rules
 [public](https://firebase.google.com/docs/database/security/quickstart).
 
-## Firebase Storage
+### Firebase Storage
 
 To run the Storage Integration tests, follow the instructions in
 [FIRStorageIntegrationTests.m](Example/Storage/Tests/Integration/FIRStorageIntegrationTests.m).
 
-## Firebase Messaging
+### Firebase Messaging
 
-### Push Notifications
+#### Push Notifications
 
 Push notifications can only be delivered to specially provisioned App IDs in the developer portal. In order to actually test receiving push notifications, you will need to: 
 
 1. Change the bundle identifier of the sample app to something you own in your Apple Developer account, and enable that App ID for push notifications.
-2. You'll also need to [upload your APNs Provider Authentication token or certificate to the Firebase Console](https://firebase.google.com/docs/cloud-messaging/ios/certs) at **Project Settings > Cloud Messaging > [Your Firebase App]**.
+2. You'll also need to [upload your APNs Provider Authentication Key or certificate to the Firebase Console](https://firebase.google.com/docs/cloud-messaging/ios/certs) at **Project Settings > Cloud Messaging > [Your Firebase App]**.
 3. Ensure your iOS device is added to your Apple Developer portal as a test device.
 
-### iOS Simulator
+#### iOS Simulator
 
 The iOS Simulator cannot register for remote notifications, and will not receive push notifications. In order to receive push notifications, you'll have to follow the steps above and run the app on a physical device.
+
+## Community Supported Efforts
+ 
+We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and participate in the Firebase community. 
+ 
+Note that if you are using CocoaPods and using the FirebaseDev podspec (the one in this repo), you cannot bring in Pods from the official Firebase podspec, because of duplicated symbol conflicts. If you're not using one of the open-source SDKs in this repo for development purposes, we recommend using the regular Firebase pods for the best experience.
+ 
+To get started using the FirebaseDev SDKs, here is a typical Podfile:
+ 
+```
+use_frameworks!
+ 
+target 'MyAppTarget' do
+  platform :ios, '8.0'
+  pod 'FirebaseDev', :git => 'https://github.com/firebase/firebase-ios-sdk.git'
+end
+``` 
+Replace `MyAppTarget` with the name of the target in your Xcode project.
+
+### macOS
+FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and work on macOS, thanks to contributions from the community. There are a few tweaks needed, like ensuring iOS-only or macOS-only code is correctly guarded with checks for `TARGET_OS_IOS` and `TARGET_OS_OSX`. 
+ 
+Keep in mind that macOS is not officially supported by Firebase, and this repository is actively developed primarily for iOS. While we can catch basic unit test issues with Travis, there may be some changes where the SDK no longer works as expected on macOS. If you encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues) for it.
+
 
 ## Contributing
 
