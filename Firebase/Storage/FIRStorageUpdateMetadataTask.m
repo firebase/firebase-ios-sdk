@@ -24,6 +24,9 @@
   FIRStorageMetadata *_updateMetadata;
 }
 
+@synthesize fetcher = _fetcher;
+@synthesize fetcherCompletion = _fetcherCompletion;
+
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                          metadata:(FIRStorageMetadata *)metadata
@@ -34,6 +37,10 @@
     _completion = [completion copy];
   }
   return self;
+}
+
+- (void) dealloc {
+  [_fetcher stopFetching];
 }
 
 - (void)enqueue {
@@ -52,8 +59,9 @@
   _completion = nil;
 
   GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
-  fetcher.comment = @"UpdateMetadataTask";
-  [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+  _fetcher = fetcher;
+
+  _fetcherCompletion =^(NSData *data, NSError *error) {
     if (error) {
       if (!self.error) {
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
@@ -61,13 +69,14 @@
       if (callback) {
         callback(nil, self.error);
       }
+      _fetcherCompletion = nil;
       return;
     }
 
     NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
     if (responseDictionary) {
       FIRStorageMetadata *metadata =
-          [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+      [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
       [metadata setType:FIRStorageMetadataTypeFile];
       if (callback){
         callback(metadata, nil);
@@ -75,7 +84,7 @@
     } else {
       NSString *returnedData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
       NSString *invalidDataString =
-          [NSString stringWithFormat:kFIRStorageInvalidDataFormat, returnedData];
+      [NSString stringWithFormat:kFIRStorageInvalidDataFormat, returnedData];
       NSDictionary *dict;
       if (invalidDataString.length > 0) {
         dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
@@ -85,6 +94,14 @@
         callback(nil, self.error);
       }
     }
+    _fetcherCompletion = nil;
+  };
+
+  fetcher.comment = @"UpdateMetadataTask";
+
+  __weak FIRStorageUpdateMetadataTask *weakSelf = self;
+  [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+    weakSelf.fetcherCompletion(data, error);
   }];
 }
 
