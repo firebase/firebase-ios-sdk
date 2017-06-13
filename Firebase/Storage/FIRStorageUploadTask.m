@@ -126,6 +126,8 @@
   // Process fetches
   self.state = FIRStorageTaskStateRunning;
   
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion = ^(NSData *_Nullable data,
                          NSError *_Nullable error) {
     // Fire last progress updates
@@ -167,6 +169,7 @@
     [self removeAllObservers];
     _fetcherCompletion = nil;
   };
+#pragma clang diagnostic pop
   
   [_uploadFetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
                                                     NSError *_Nullable error) {

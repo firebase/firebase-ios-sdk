@@ -60,7 +60,9 @@
 
   GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
   _fetcher = fetcher;
-
+  
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion =^(NSData *data, NSError *error) {
     if (error) {
       if (!self.error) {
@@ -96,6 +98,7 @@
     }
     _fetcherCompletion = nil;
   };
+#pragma clang diagnostic pop
 
   fetcher.comment = @"UpdateMetadataTask";
 
