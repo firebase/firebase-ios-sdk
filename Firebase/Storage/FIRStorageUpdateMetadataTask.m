@@ -78,7 +78,7 @@
     NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
     if (responseDictionary) {
       FIRStorageMetadata *metadata =
-      [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+          [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
       [metadata setType:FIRStorageMetadataTypeFile];
       if (callback){
         callback(metadata, nil);
@@ -86,7 +86,7 @@
     } else {
       NSString *returnedData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
       NSString *invalidDataString =
-      [NSString stringWithFormat:kFIRStorageInvalidDataFormat, returnedData];
+          [NSString stringWithFormat:kFIRStorageInvalidDataFormat, returnedData];
       NSDictionary *dict;
       if (invalidDataString.length > 0) {
         dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
