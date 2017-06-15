@@ -24,6 +24,9 @@
   FIRStorageMetadata *_updateMetadata;
 }
 
+@synthesize fetcher = _fetcher;
+@synthesize fetcherCompletion = _fetcherCompletion;
+
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                          metadata:(FIRStorageMetadata *)metadata
@@ -34,6 +37,10 @@
     _completion = [completion copy];
   }
   return self;
+}
+
+- (void) dealloc {
+  [_fetcher stopFetching];
 }
 
 - (void)enqueue {
@@ -52,8 +59,11 @@
   _completion = nil;
 
   GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
-  fetcher.comment = @"UpdateMetadataTask";
-  [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+  _fetcher = fetcher;
+  
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+  _fetcherCompletion =^(NSData *data, NSError *error) {
     if (error) {
       if (!self.error) {
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
@@ -61,6 +71,7 @@
       if (callback) {
         callback(nil, self.error);
       }
+      _fetcherCompletion = nil;
       return;
     }
 
@@ -85,6 +96,15 @@
         callback(nil, self.error);
       }
     }
+    _fetcherCompletion = nil;
+  };
+#pragma clang diagnostic pop
+
+  fetcher.comment = @"UpdateMetadataTask";
+
+  __weak FIRStorageUpdateMetadataTask *weakSelf = self;
+  [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+    weakSelf.fetcherCompletion(data, error);
   }];
 }
 

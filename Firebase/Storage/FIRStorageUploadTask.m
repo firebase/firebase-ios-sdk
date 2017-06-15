@@ -25,6 +25,7 @@
 @implementation FIRStorageUploadTask
 
 @synthesize progress = _progress;
+@synthesize fetcherCompletion = _fetcherCompletion;
 
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
@@ -60,6 +61,10 @@
     }
   }
   return self;
+}
+
+- (void) dealloc {
+  [_uploadFetcher stopFetching];
 }
 
 - (void)enqueue {
@@ -103,23 +108,28 @@
   }
 
   uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryTime;
+  
+  __weak FIRStorageUploadTask* weakSelf = self;
 
   [uploadFetcher setSendProgressBlock:^(int64_t bytesSent, int64_t totalBytesSent,
                                         int64_t totalBytesExpectedToSend) {
-    self.state = FIRStorageTaskStateProgress;
-    self.progress.completedUnitCount = totalBytesSent;
-    self.progress.totalUnitCount = totalBytesExpectedToSend;
-    self.metadata = _uploadMetadata;
-    [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
-    self.state = FIRStorageTaskStateRunning;
+    weakSelf.state = FIRStorageTaskStateProgress;
+    weakSelf.progress.completedUnitCount = totalBytesSent;
+    weakSelf.progress.totalUnitCount = totalBytesExpectedToSend;
+    weakSelf.metadata = _uploadMetadata;
+    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:weakSelf.snapshot];
+    weakSelf.state = FIRStorageTaskStateRunning;
   }];
 
   _uploadFetcher = uploadFetcher;
 
   // Process fetches
   self.state = FIRStorageTaskStateRunning;
-  [_uploadFetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
-                                                    NSError *_Nullable error) {
+  
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+  _fetcherCompletion = ^(NSData *_Nullable data,
+                         NSError *_Nullable error) {
     // Fire last progress updates
     [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
 
@@ -130,6 +140,7 @@
       self.metadata = _uploadMetadata;
       [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
       [self removeAllObservers];
+      _fetcherCompletion = nil;
       return;
     }
 
@@ -156,6 +167,13 @@
 
     [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
     [self removeAllObservers];
+    _fetcherCompletion = nil;
+  };
+#pragma clang diagnostic pop
+  
+  [_uploadFetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
+                                                    NSError *_Nullable error) {
+    weakSelf.fetcherCompletion(data, error);
   }];
 }
 

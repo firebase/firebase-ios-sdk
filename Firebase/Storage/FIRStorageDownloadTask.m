@@ -23,6 +23,7 @@
 
 @synthesize progress = _progress;
 @synthesize fetcher = _fetcher;
+@synthesize fetcherCompletion = _fetcherCompletion;
 
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
@@ -33,6 +34,10 @@
     _progress = [NSProgress progressWithTotalUnitCount:0];
   }
   return self;
+}
+
+- (void) dealloc {
+  [_fetcher stopFetching];
 }
 
 - (void)enqueue {
@@ -60,9 +65,12 @@
     fetcher.comment = @"Starting DownloadTask";
   }
 
+  __weak FIRStorageDownloadTask *weakSelf = self;
+
   [fetcher setResumeDataBlock:^(NSData *data) {
     if (data) {
-      _downloadData = data;
+      FIRStorageDownloadTask *strongSelf = weakSelf;
+      strongSelf->_downloadData = data;
     }
   }];
 
@@ -73,30 +81,31 @@
     [fetcher setDestinationFileURL:_fileURL];
     [fetcher setDownloadProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten,
                                         int64_t totalBytesExpectedToWrite) {
-      self.state = FIRStorageTaskStateProgress;
-      self.progress.completedUnitCount = totalBytesWritten;
-      self.progress.totalUnitCount = totalBytesExpectedToWrite;
-      FIRStorageTaskSnapshot *snapshot = self.snapshot;
-      [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
-      self.state = FIRStorageTaskStateRunning;
+      weakSelf.state = FIRStorageTaskStateProgress;
+      weakSelf.progress.completedUnitCount = totalBytesWritten;
+      weakSelf.progress.totalUnitCount = totalBytesExpectedToWrite;
+      FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+      [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
+      weakSelf.state = FIRStorageTaskStateRunning;
     }];
   } else {
     // Handle data downloads
     [fetcher setReceivedProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten) {
-      self.state = FIRStorageTaskStateProgress;
-      self.progress.completedUnitCount = totalBytesWritten;
-      int64_t totalLength = [[self.fetcher response] expectedContentLength];
-      self.progress.totalUnitCount = totalLength;
-      FIRStorageTaskSnapshot *snapshot = self.snapshot;
-      [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
-      self.state = FIRStorageTaskStateRunning;
+      weakSelf.state = FIRStorageTaskStateProgress;
+      weakSelf.progress.completedUnitCount = totalBytesWritten;
+      int64_t totalLength = [[weakSelf.fetcher response] expectedContentLength];
+      weakSelf.progress.totalUnitCount = totalLength;
+      FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+      [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
+      weakSelf.state = FIRStorageTaskStateRunning;
     }];
   }
 
   _fetcher = fetcher;
 
-  self.state = FIRStorageTaskStateRunning;
-  [self.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+  _fetcherCompletion = ^(NSData *data, NSError *error) {
     // Fire last progress updates
     [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
 
@@ -106,6 +115,7 @@
       self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
       [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
       [self removeAllObservers];
+      _fetcherCompletion = nil;
       return;
     }
 
@@ -118,6 +128,13 @@
 
     [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
     [self removeAllObservers];
+    _fetcherCompletion = nil;
+  };
+#pragma clang diagnostic pop
+
+  self.state = FIRStorageTaskStateRunning;
+  [self.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+    weakSelf.fetcherCompletion(data, error);
   }];
 }
 

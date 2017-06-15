@@ -21,6 +21,13 @@
   FIRStorageVoidError _completion;
 }
 
+@synthesize fetcher = _fetcher;
+@synthesize fetcherCompletion = _fetcherCompletion;
+
+- (void) dealloc {
+  [_fetcher stopFetching];
+}
+
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                        completion:(FIRStorageVoidError)completion {
@@ -40,14 +47,26 @@
   _completion = nil;
 
   GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
+  _fetcher = fetcher;
+  
   fetcher.comment = @"DeleteTask";
-  [fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+  
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+  _fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
     if (!self.error) {
       self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
     }
     if (callback) {
       callback(self.error);
     }
+    _fetcherCompletion = nil;
+  };
+#pragma clang diangostic pop
+
+  __weak FIRStorageDeleteTask* weakSelf = self;
+  [fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+    weakSelf.fetcherCompletion(data, error);
   }];
 }
 
