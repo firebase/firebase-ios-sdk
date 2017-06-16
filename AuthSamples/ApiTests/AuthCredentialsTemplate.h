@@ -33,14 +33,14 @@ $KGOOGLE_USER_NAME
 The name of the test user for Google SignIn.
 
 $KFACEBOOK_APP_ID
-FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the 
-'Signing in with Facebook' feature of Firebase Auth. Follow the instructions 
-on the Facebook developer site: https://developers.facebook.com/docs/apps/register 
+FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the
+'Signing in with Facebook' feature of Firebase Auth. Follow the instructions
+on the Facebook developer site: https://developers.facebook.com/docs/apps/register
 to obtain such an id.
 
 $KFACEBOOK_APP_ACCESS_TOKEN
 Once you have an Facebook App Id, click on dashboard from your app you can see
-both your App ID and the App Secret. Once you have both of these generate the 
+both your App ID and the App Secret. Once you have both of these generate the
 access token using the step 13 of https://smashballoon.com/custom-facebook-feed/access-token/
 Follow the same link for comprehensive information on how to get the access token.
 

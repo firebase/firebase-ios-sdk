@@ -1,6 +1,6 @@
 <!--
 	For this to be a valid plist file replace the following
-	$REVERSE_CLIENT_ID: 
+	$REVERSE_CLIENT_ID:
 		Value of REVERSED_CLIENT_ID key in the GoogleService-Info.plist file.
 -->
 <?xml version="1.0" encoding="UTF-8"?>

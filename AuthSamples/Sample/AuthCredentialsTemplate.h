@@ -23,9 +23,9 @@ and copy it to AuthCredentials.h file
 You will need to replace the following values:
 
 $KFACEBOOK_APP_ID
-FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the 
-'Signing in with Facebook' feature of Firebase Auth. Follow the instructions 
-on the Facebook developer site: https://developers.facebook.com/docs/apps/register 
+FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the
+'Signing in with Facebook' feature of Firebase Auth. Follow the instructions
+on the Facebook developer site: https://developers.facebook.com/docs/apps/register
 to obtain such an id.
 */
 
