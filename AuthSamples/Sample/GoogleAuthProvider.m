@@ -16,13 +16,12 @@
 
 #import "GoogleAuthProvider.h"
 
+#import <GoogleSignIn/GoogleSignIn.h>
+
 #import "FIRApp.h"
 #import "FIROptions.h"
 #import "FIRGoogleAuthProvider.h"
 #import "ApplicationDelegate.h"
-
-@import GoogleSignIn;
-
 
 /** @typedef GoogleSignInCallback
     @brief The type of block invoked when a @c GIDGoogleUser object is ready or an error has
@@ -34,8 +33,6 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
 
 /** @class GoogleAuthDelegate
     @brief The designated delegate class for Google Sign-In.
-    @param callback A block which is invoked when the sign-in flow finishes. Invoked asynchronously
-        on an unspecified thread in the future.
  */
 @interface GoogleAuthDelegate : NSObject <GIDSignInDelegate, GIDSignInUIDelegate, OpenURLDelegate>
 
