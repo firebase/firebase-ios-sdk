@@ -16,11 +16,12 @@
 
 #import "FacebookAuthProvider.h"
 
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import <FBSDKLoginKit/FBSDKLoginKit.h>
+
 #import "FIRFacebookAuthProvider.h"
 #import "ApplicationDelegate.h"
 #import "AuthCredentials.h"
-#import "FBSDKCoreKit.h"
-#import "FBSDKLoginKit.h"
 
 /** @var kFacebookAppId
     @brief The App ID for the Facebook SDK.
