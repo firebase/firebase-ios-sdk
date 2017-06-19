@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRAppEnvironmentUtil.h"
+#import "../Private/FIRAppEnvironmentUtil.h"
 
 #import <dlfcn.h>
 #import <mach-o/dyld.h>
