@@ -28,14 +28,7 @@ Firebase Development CocoaPod including experimental and community supported fea
 
   s.subspec 'Core' do |sp|
     sp.source_files = 'Firebase/Core/**/*.[mh]'
-    sp.public_header_files =
-      'Firebase/Core/FirebaseCore.h',
-      'Firebase/Core/FIRAnalyticsConfiguration.h',
-      'Firebase/Core/FIRApp.h',
-      'Firebase/Core/FIRConfiguration.h',
-      'Firebase/Core/FIRLoggerLevel.h',
-      'Firebase/Core/FIROptions.h',
-      'Firebase/Core/FIRCoreSwiftNameSupport.h'
+    sp.public_header_files = 'Firebase/Core/Public/*.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
     sp.dependency 'FirebaseCommunity/Root'
   end
