@@ -27,7 +27,7 @@
 		569C3F4E18627674CABE02AE /* Pods_EarlGreyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */; };
 		67AFFB52FF0FC4668D92F2E4 /* Pods_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */; };
 		A7609DCAD8A247411F27EA14 /* Pods_TestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */; };
-		AB62D09AF8C1196E07F37D3B /* Pods_SwiftBear.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F689EE8E0E6F83D82429F0 /* Pods_SwiftBear.framework */; };
+		AB62D09AF8C1196E07F37D3B /* Pods_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F689EE8E0E6F83D82429F0 /* Pods_SwiftSample.framework */; };
 		BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */; };
 		BE7B447C1EC2508300FA4C1B /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7B447A1EC2507800FA4C1B /* AuthCredentials.swift */; };
 		D99C31A11ED7A0ED00607534 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = D99C31A01ED7A0ED00607534 /* GoogleService-Info_multi.plist */; };
@@ -170,10 +170,10 @@
 
 /* Begin PBXFileReference section */
 		113C36392871524143A53B07 /* Pods-ApiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.debug.xcconfig"; sourceTree = "<group>"; };
-		151B5A61F0B0D152CD55DF81 /* Pods-SwiftBear.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBear.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBear/Pods-SwiftBear.release.xcconfig"; sourceTree = "<group>"; };
+		151B5A61F0B0D152CD55DF81 /* Pods-SwiftSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.release.xcconfig"; sourceTree = "<group>"; };
 		178AA1A3F0690CDEC44E2BF1 /* Pods-FirebaseAuthUnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		1B16EC50B5315C8E9E2D21CE /* Pods-EarlGreyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EarlGreyTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests.debug.xcconfig"; sourceTree = "<group>"; };
-		36794820176319C88B4F11E5 /* Pods-SwiftBear.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBear.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBear/Pods-SwiftBear.debug.xcconfig"; sourceTree = "<group>"; };
+		36794820176319C88B4F11E5 /* Pods-SwiftSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.debug.xcconfig"; sourceTree = "<group>"; };
 		495F22BEDDFD4DFE3FB2D522 /* Pods-SwiftSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.debug.xcconfig"; sourceTree = "<group>"; };
 		4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FirebaseAuthUnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57150555A6B03949ECB58AD9 /* Pods-TestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TestApp/Pods-TestApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -181,7 +181,7 @@
 		81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.release.xcconfig"; sourceTree = "<group>"; };
 		920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		94E3B3EB70D34E55CFF2E45D /* Pods-EarlGreyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EarlGreyTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests.release.xcconfig"; sourceTree = "<group>"; };
-		A1F689EE8E0E6F83D82429F0 /* Pods_SwiftBear.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftBear.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1F689EE8E0E6F83D82429F0 /* Pods_SwiftSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A75CAF1D0796E27A3E899DE4 /* Pods-Sample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sample.release.xcconfig"; path = "Pods/Target Support Files/Pods-Sample/Pods-Sample.release.xcconfig"; sourceTree = "<group>"; };
 		AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EarlGreyTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B78FD2B21A8D72D5E38E3E79 /* Pods-TestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-TestApp/Pods-TestApp.release.xcconfig"; sourceTree = "<group>"; };
@@ -318,7 +318,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB62D09AF8C1196E07F37D3B /* Pods_SwiftBear.framework in Frameworks */,
+				AB62D09AF8C1196E07F37D3B /* Pods_SwiftSample.framework in Frameworks */,
 				52C975C71EE10B1304EBBEB2 /* Pods_SwiftSample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,8 +368,8 @@
 				D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */,
 				113C36392871524143A53B07 /* Pods-ApiTests.debug.xcconfig */,
 				81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */,
-				36794820176319C88B4F11E5 /* Pods-SwiftBear.debug.xcconfig */,
-				151B5A61F0B0D152CD55DF81 /* Pods-SwiftBear.release.xcconfig */,
+				36794820176319C88B4F11E5 /* Pods-SwiftSample.debug.xcconfig */,
+				151B5A61F0B0D152CD55DF81 /* Pods-SwiftSample.release.xcconfig */,
 				1B16EC50B5315C8E9E2D21CE /* Pods-EarlGreyTests.debug.xcconfig */,
 				94E3B3EB70D34E55CFF2E45D /* Pods-EarlGreyTests.release.xcconfig */,
 				920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */,
@@ -589,7 +589,7 @@
 				D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */,
 				BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */,
 				6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */,
-				A1F689EE8E0E6F83D82429F0 /* Pods_SwiftBear.framework */,
+				A1F689EE8E0E6F83D82429F0 /* Pods_SwiftSample.framework */,
 				AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */,
 				4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */,
 				CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */,
