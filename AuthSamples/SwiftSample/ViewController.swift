@@ -16,8 +16,8 @@
 
 import UIKit
 
-import FirebaseDev // FirebaseAuth
-import GoogleSignIn // GoogleSignIn
+import FirebaseDev.FirebaseAuth
+import GoogleSignIn
 
 final class ViewController: UIViewController, UITextFieldDelegate {
   /// The profile image for the currently signed-in user.
