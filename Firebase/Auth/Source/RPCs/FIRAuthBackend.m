@@ -246,6 +246,30 @@ static NSString *const kInvalidMessagePayloadErrorMessage = @"INVALID_MESSAGE_PA
  */
 static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_EMAIL";
 
+/** @var kMissingIosBundleIDErrorMessage
+    @brief This is the error message the server will respond with if iOS bundle ID is missing but
+        the iOS App store ID is provided.
+ */
+static NSString *const kMissingIosBundleIDErrorMessage = @"MISSING_IOS_BUNDLE_ID";
+
+/** @var kMissingAndroidPackageNameErrorMessage
+    @brief This is the error message the server will respond with if Android Package Name is missing
+        but the flag indicating the app should be installed is set to true.
+ */
+static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROID_PACKAGE_NAME";
+
+/** @var kUnauthorizedDomainErrorMessage
+    @brief This is the error message the server will respond with if the domain of the continue URL
+        specified is not whitelisted in the firebase console.
+ */
+static NSString *const kUnauthorizedDomainErrorMessage = @"ERROR_UNAUTHORIZED_DOMAIN";
+
+/** @var kInvalidContinueURIErrorMessage
+    @brief This is the error message the server will respond with if the continue URL provided in
+        the request is invalid.
+ */
+static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI";
+
 /** @var kInvalidPhoneNumberErrorMessage
     @brief This is the error message the server will respond with if an incorrectly formatted phone
         number is provided.
@@ -899,6 +923,22 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kInvalidRecipientEmailErrorMessage]) {
     return [FIRAuthErrorUtils invalidRecipientEmailErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingIosBundleIDErrorMessage]) {
+    return [FIRAuthErrorUtils missingIosBundleIDErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingAndroidPackageNameErrorMessage]) {
+    return [FIRAuthErrorUtils missingAndroidPackageNameErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnauthorizedDomainErrorMessage]) {
+    return [FIRAuthErrorUtils unauthorizedDomainErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kInvalidContinueURIErrorMessage]) {
+    return [FIRAuthErrorUtils invalidContinueURIErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidPhoneNumberErrorMessage]) {

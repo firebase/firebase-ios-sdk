@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRActionCodeSettings.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
@@ -69,12 +70,45 @@ static NSString *const kInvalidMessagePayloadErrorMessage = @"INVALID_MESSAGE_PA
  */
 static NSString *const kInvalidSenderErrorMessage = @"INVALID_SENDER";
 
+/** @var kMissingIosBundleIDErrorMessage
+    @brief This is the error message the server will respond with if iOS bundle ID is missing but
+        the iOS App store ID is provided.
+ */
+static NSString *const kMissingIosBundleIDErrorMessage = @"MISSING_IOS_BUNDLE_ID";
+
+/** @var kMissingAndroidPackageNameErrorMessage
+    @brief This is the error message the server will respond with if Android Package Name is missing
+        but the flag indicating the app should be installed is set to true.
+ */
+static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROID_PACKAGE_NAME";
+
+/** @var kUnauthorizedDomainErrorMessage
+    @brief This is the error message the server will respond with if the domain of the continue URL
+        specified is not whitelisted in the firebase console.
+ */
+static NSString *const kUnauthorizedDomainErrorMessage = @"ERROR_UNAUTHORIZED_DOMAIN";
 
 /** @var kInvalidRecipientEmailErrorMessage
     @brief This is the prefix for the error message the server responds with if the recipient email
         is invalid.
  */
 static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_EMAIL";
+
+/** @var kInvalidContinueURIErrorMessage
+    @brief This is the error returne by the backend if the continue URL provided in the request is
+        invalid.
+ */
+static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI";
+
+/** @var kIosBundleID
+    @brief Fake iOS bundle ID for testing.
+ */
+static NSString *const kIosBundleID = @"testBundleID";
+
+/** @var kAppStoreID
+    @brief Fake app store ID for testing.
+ */
+static NSString *const kAppStoreID = @"appStoreID";
 
 /** @class FIRGetOOBConfirmationCodeResponseTests
     @brief Tests for @c FIRGetOOBConfirmationCodeResponse.
@@ -109,6 +143,7 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
 - (void)testSuccessfulPasswordResetResponse {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
 
   __block BOOL callbackInvoked;
@@ -139,6 +174,7 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
 - (void)testSuccessfulPasswordResetResponseWithoutOOBCode {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
 
   __block BOOL callbackInvoked;
@@ -167,6 +203,7 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
 - (void)testEmailNotFoundError {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
 
   __block BOOL callbackInvoked;
@@ -195,6 +232,7 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
 - (void)testInvalidEmailError {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -222,6 +260,7 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
 - (void)testInvalidMessagePayloadError {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -246,6 +285,7 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
 - (void)testInvalidSenderError {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
 
   __block BOOL callbackInvoked;
@@ -264,12 +304,113 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInvalidSender);
 }
 
+/** @fn testMissingIosBundleIDError
+    @brief Tests for @c FIRAuthErrorCodeMissingIosBundleID.
+ */
+- (void)testMissingIosBundleIDError {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
+                                                               APIKey:kTestAPIKey];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+  [_RPCIssuer respondWithServerErrorMessage:kMissingIosBundleIDErrorMessage];
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingIosBundleID);
+}
+
+/** @fn testMissingAndroidPackageNameError
+    @brief Tests for @c FIRAuthErrorCodeMissingAndroidPackageName.
+ */
+- (void)testMissingAndroidPackageNameError {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
+                                                               APIKey:kTestAPIKey];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+  [_RPCIssuer respondWithServerErrorMessage:kMissingAndroidPackageNameErrorMessage];
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingAndroidPackageName);
+}
+
+/** @fn testUnauthorizedDomainError
+    @brief Tests for @c FIRAuthErrorCodeUnauthorizedDomain.
+ */
+- (void)testUnauthorizedDomainError {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
+                                                               APIKey:kTestAPIKey];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+  [_RPCIssuer respondWithServerErrorMessage:kUnauthorizedDomainErrorMessage];
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeUnauthorizedDomain);
+}
+
+/** @fn testInvalidContinueURIError
+    @brief Tests for @c FIRAuthErrorCodeInvalidContinueAuthURI.
+ */
+- (void)testInvalidContinueURIError {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
+                                                               APIKey:kTestAPIKey];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+  [_RPCIssuer respondWithServerErrorMessage:kInvalidContinueURIErrorMessage];
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInvalidContinueURI);
+}
+
 /** @fn testInvalidRecipientEmailError
     @brief Tests for @c FIRAuthErrorCodeInvalidRecipientEmail.
  */
 - (void)testInvalidRecipientEmailError {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
 
   __block BOOL callbackInvoked;
@@ -295,6 +436,7 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
 - (void)testSuccessfulEmailVerificationResponse {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
                                                                APIKey:kTestAPIKey];
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -315,6 +457,18 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
   XCTAssertNil(RPCError);
   XCTAssertNotNil(RPCResponse);
   XCTAssertEqualObjects(RPCResponse.OOBCode, kTestOOBCode);
+}
+
+#pragma mark - Helpers
+
+/** @fn fakeActionCodeSettings
+    @brief Contructs and retuns a fake instance of @c FIRActionCodeSettings for testing.
+    @return An instance of @c FIRActionCodeSettings for testing.
+ */
+- (FIRActionCodeSettings *)fakeActionCodeSettings {
+  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc]init];
+  [actionCodeSettings setIOSBundleID:kIosBundleID appStoreID:kAppStoreID];
+  return actionCodeSettings;
 }
 
 @end

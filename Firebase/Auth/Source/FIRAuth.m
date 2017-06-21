@@ -776,12 +776,39 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)sendPasswordResetWithEmail:(NSString *)email
                         completion:(nullable FIRSendPasswordResetCallback)completion {
+  [self sendPasswordResetWithNullableActionCodeSettings:nil email:email completion:completion];
+}
+
+- (void)sendPasswordResetWithEmail:(NSString *)email
+                actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
+                        completion:(nullable FIRSendPasswordResetCallback)completion {
+  [self sendPasswordResetWithNullableActionCodeSettings:actionCodeSettings
+                                                  email:email
+                                             completion:completion];
+}
+
+/** @fn sendPasswordResetWithNullableActionCodeSettings:actionCodeSetting:email:completion:
+    @brief Initiates a password reset for the given email address and @FIRActionCodeSettings object.
+
+    @param actionCodeSettings Optionally, An @c FIRActionCodeSettings object containing settings
+        related to the handling action codes.
+    @param email The email address of the user.
+    @param completion Optionally; a block which is invoked when the request finishes. Invoked
+        asynchronously on the main thread in the future.
+ */
+- (void)sendPasswordResetWithNullableActionCodeSettings:(nullable FIRActionCodeSettings *)
+                                                        actionCodeSettings
+                                                  email:(NSString *)email
+                                             completion:(nullable FIRSendPasswordResetCallback)
+                                                        completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     if (!email) {
       [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:kEmailInvalidParameterReason];
     }
     FIRGetOOBConfirmationCodeRequest *request =
-        [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:email APIKey:_APIKey];
+        [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:email
+                                                     actionCodeSettings:actionCodeSettings
+                                                                 APIKey:_APIKey];
     [FIRAuthBackend getOOBConfirmationCode:request
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
