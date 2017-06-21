@@ -47,5 +47,7 @@ NSString *const kFIRMessagingAPNSTokenNotification = @"com.firebase.iid.notif.ap
 NSString *const kFIRMessagingFCMTokenNotification = @"com.firebase.iid.notif.fcm-token";
 NSString *const kFIRMessagingInstanceIDTokenRefreshNotification =
     @"com.firebase.iid.notif.refresh-token";
+NSString *const kFIRMessagingRegistrationTokenRefreshNotification =
+    @"com.firebase.iid.notif.refresh-token";
 
 const int kFIRMessagingSendTtlDefault = 24 * 60 * 60; // 24 hours
