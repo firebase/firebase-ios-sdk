@@ -227,7 +227,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
                object:nil];
   [center addObserver:self
              selector:@selector(defaultInstanceIDTokenWasRefreshed:)
-                 name:kFIRMessagingInstanceIDTokenRefreshNotification
+                 name:kFIRMessagingRegistrationTokenRefreshNotification
                object:nil];
   [center addObserver:self
              selector:@selector(didReceiveAPNSToken:)
