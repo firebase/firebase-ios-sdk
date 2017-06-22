@@ -15,7 +15,7 @@
  */
 
 import UIKit
-import FirebaseDev
+import FirebaseCommunity
 import UserNotifications
 
 @UIApplicationMain

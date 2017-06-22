@@ -13,4 +13,4 @@ before_install:
 
 script:
   - ./test.sh
-  - pod lib lint FirebaseDev.podspec
+  - pod lib lint FirebaseCommunity.podspec

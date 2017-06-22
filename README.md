@@ -15,7 +15,7 @@ FirebaseAuth, FirebaseDatabase, FirebaseMessaging, and FirebaseStorage. By
 following the usage instructions below, they can be developed and debugged with
 unit tests, integration tests, and reference samples.
 
-Note, however, that the resulting FirebaseDev pod is NOT interoperable with the
+Note, however, that the resulting FirebaseCommunity pod is NOT interoperable with the
 official Firebase release pods because of different pod dependency definitions.
 
 Instructions and a script to build replaceable static library
@@ -83,16 +83,16 @@ The iOS Simulator cannot register for remote notifications, and will not receive
  
 We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and participate in the Firebase community. 
  
-Note that if you are using CocoaPods and using the FirebaseDev podspec (the one in this repo), you cannot bring in Pods from the official Firebase podspec, because of duplicated symbol conflicts. If you're not using one of the open-source SDKs in this repo for development purposes, we recommend using the regular Firebase pods for the best experience.
+Note that if you are using CocoaPods and using the FirebaseCommunity podspec (the one in this repo), you cannot bring in Pods from the official Firebase podspec, because of duplicated symbol conflicts. If you're not using one of the open-source SDKs in this repo for development purposes, we recommend using the regular Firebase pods for the best experience.
  
-To get started using the FirebaseDev SDKs, here is a typical Podfile:
+To get started using the FirebaseCommunity SDKs, here is a typical Podfile:
  
 ```
 use_frameworks!
  
 target 'MyAppTarget' do
   platform :ios, '8.0'
-  pod 'FirebaseDev', :git => 'https://github.com/firebase/firebase-ios-sdk.git'
+  pod 'FirebaseCommunity', :git => 'https://github.com/firebase/firebase-ios-sdk.git'
 end
 ``` 
 Replace `MyAppTarget` with the name of the target in your Xcode project.
