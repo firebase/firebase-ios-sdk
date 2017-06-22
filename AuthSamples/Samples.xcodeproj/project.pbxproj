@@ -105,7 +105,7 @@
 		DEE13A161E9FFD1F00D1BABA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A141E9FFD1F00D1BABA /* LaunchScreen.storyboard */; };
 		DEE13A171E9FFD1F00D1BABA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A151E9FFD1F00D1BABA /* Main.storyboard */; };
 		DEE13A1A1E9FFD2E00D1BABA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13A191E9FFD2E00D1BABA /* GoogleService-Info.plist */; };
-		DEE13AA21EA1724300D1BABA /* FirebaseDev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEE13A2C1EA12B8D00D1BABA /* FirebaseDev.framework */; };
+		DEE13AA21EA1724300D1BABA /* FirebaseCommunity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEE13A2C1EA12B8D00D1BABA /* FirebaseCommunity.framework */; };
 		DEE13ACB1EA1764B00D1BABA /* Auth-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE13ABE1EA1764B00D1BABA /* Auth-Info.plist */; };
 		DEE13ACC1EA1764B00D1BABA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13AC01EA1764B00D1BABA /* LaunchScreen.storyboard */; };
 		DEE13ACD1EA1764B00D1BABA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE13AC21EA1764B00D1BABA /* Main.storyboard */; };
@@ -289,7 +289,7 @@
 		DEE13A191E9FFD2E00D1BABA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DEE13A201EA1252D00D1BABA /* ApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE13A241EA1252D00D1BABA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DEE13A2C1EA12B8D00D1BABA /* FirebaseDev.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseDev.framework; path = "../../../Library/Developer/Xcode/DerivedData/Samples-dzyyktlzbrpvmobgpcqwaobjmibu/Build/Products/Debug-iphonesimulator/FirebaseDev/FirebaseDev.framework"; sourceTree = "<group>"; };
+		DEE13A2C1EA12B8D00D1BABA /* FirebaseCommunity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseCommunity.framework; path = "../../../Library/Developer/Xcode/DerivedData/Samples-dzyyktlzbrpvmobgpcqwaobjmibu/Build/Products/Debug-iphonesimulator/FirebaseCommunity/FirebaseCommunity.framework"; sourceTree = "<group>"; };
 		DEE13A321EA1642A00D1BABA /* EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE13A361EA1642A00D1BABA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEE13A421EA16EE400D1BABA /* FirebaseAuthUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FirebaseAuthUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -343,7 +343,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE13AA21EA1724300D1BABA /* FirebaseDev.framework in Frameworks */,
+				DEE13AA21EA1724300D1BABA /* FirebaseCommunity.framework in Frameworks */,
 				BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -585,7 +585,7 @@
 		FC34A5565C2ACFA8C5AA3B1E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DEE13A2C1EA12B8D00D1BABA /* FirebaseDev.framework */,
+				DEE13A2C1EA12B8D00D1BABA /* FirebaseCommunity.framework */,
 				D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */,
 				BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */,
 				6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */,

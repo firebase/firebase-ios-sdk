@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseDev'
+  s.name             = 'FirebaseCommunity'
   s.version          = '0.0.1'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
@@ -11,7 +11,7 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # NOTE that the FirebaseDev pod is neither publicly deployed nor yet interchangeable with the
+  # NOTE that the FirebaseCommunity pod is neither publicly deployed nor yet interchangeable with the
   # Firebase pod
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
@@ -37,7 +37,7 @@ Firebase Development CocoaPod including experimental and community supported fea
       'Firebase/Core/FIROptions.h',
       'Firebase/Core/FIRCoreSwiftNameSupport.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-    sp.dependency 'FirebaseDev/Root'
+    sp.dependency 'FirebaseCommunity/Root'
   end
 
   s.subspec 'Auth' do |sp|
@@ -77,7 +77,7 @@ Firebase Development CocoaPod including experimental and community supported fea
       ' -DFIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
     }
     sp.framework = 'Security'
-    sp.dependency 'FirebaseDev/Core'
+    sp.dependency 'FirebaseCommunity/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
     sp.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
   end
@@ -103,7 +103,7 @@ Firebase Development CocoaPod including experimental and community supported fea
     sp.framework = 'Security'
     sp.framework = 'SystemConfiguration'
     sp.dependency 'leveldb-library'
-    sp.dependency 'FirebaseDev/Core'
+    sp.dependency 'FirebaseCommunity/Core'
     sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRDatabase_VERSION=' + s.version.to_s }
   end
 
@@ -123,7 +123,7 @@ Firebase Development CocoaPod including experimental and community supported fea
     }
     sp.framework = 'AddressBook'
     sp.framework = 'SystemConfiguration'
-    sp.dependency 'FirebaseDev/Core'
+    sp.dependency 'FirebaseCommunity/Core'
     sp.dependency 'GoogleToolboxForMac/Logger', '~> 2.1'
     sp.dependency 'Protobuf', '~> 3.1'
   end
@@ -144,7 +144,7 @@ Firebase Development CocoaPod including experimental and community supported fea
       'Firebase/Storage/FIRStorageUploadTask.h'
     sp.ios.framework = 'MobileCoreServices'
     sp.osx.framework = 'CoreServices'
-    sp.dependency 'FirebaseDev/Core'
+    sp.dependency 'FirebaseCommunity/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
     sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRStorage_VERSION=' + s.version.to_s }
   end

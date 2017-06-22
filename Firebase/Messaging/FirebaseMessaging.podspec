@@ -15,7 +15,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.license          = { :type => 'Apache', :file => '../../LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # NOTE that the FirebaseDev pod is neither publicly deployed nor yet interchangeable with the
+  # NOTE that the FirebaseCommunity pod is neither publicly deployed nor yet interchangeable with the
   # Firebase pod
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
@@ -35,7 +35,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
   s.framework = 'AddressBook'
   s.framework = 'SystemConfiguration'
-#  s.dependency 'FirebaseDev/Core'
+#  s.dependency 'FirebaseCommunity/Core'
   s.dependency 'GoogleToolboxForMac/Logger', '~> 2.1'
   s.dependency 'Protobuf', '~> 3.1'
 end
