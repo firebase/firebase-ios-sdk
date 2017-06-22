@@ -163,7 +163,7 @@
 }
 
 - (void) nop:(NSTimer *)timer {
-    if(self.webSocket) {
+    if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
         [self.webSocket send:@"0"];        
     }
