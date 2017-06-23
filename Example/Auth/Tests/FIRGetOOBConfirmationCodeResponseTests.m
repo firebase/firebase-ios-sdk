@@ -105,11 +105,6 @@ static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI"
  */
 static NSString *const kIosBundleID = @"testBundleID";
 
-/** @var kAppStoreID
-    @brief Fake app store ID for testing.
- */
-static NSString *const kAppStoreID = @"appStoreID";
-
 /** @class FIRGetOOBConfirmationCodeResponseTests
     @brief Tests for @c FIRGetOOBConfirmationCodeResponse.
  */
@@ -467,7 +462,7 @@ static NSString *const kAppStoreID = @"appStoreID";
  */
 - (FIRActionCodeSettings *)fakeActionCodeSettings {
   FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc]init];
-  [actionCodeSettings setIOSBundleID:kIosBundleID appStoreID:kAppStoreID];
+  [actionCodeSettings setIOSBundleID:kIosBundleID];
   return actionCodeSettings;
 }
 

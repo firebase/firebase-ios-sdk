@@ -71,11 +71,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property(nonatomic, copy, nullable, readonly) NSString *iOSBundleID;
 
-/** @property iOSAppStoreID
-    @brief The iOS app store identifier, if available.
- */
-@property(nonatomic, copy, nullable, readonly) NSString *iOSAppStoreID;
-
 /** @property androidPackageName
     @brief The Android package name, if available.
  */

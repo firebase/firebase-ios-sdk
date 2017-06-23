@@ -51,11 +51,6 @@ static NSString *const kContinueURLKey = @"continueUrl";
  */
 static NSString *const kIosBundleIDKey = @"iOSBundleId";
 
-/** @var kIosAppStoreIDKey
-    @brief The key for the "iOS App Store Id" value in the request.
- */
-static NSString *const kIosAppStoreIDKey = @"iOSAppStoreId";
-
 /** @var kAndroidPackageNameKey
     @brief The key for the "Android Package Name" value in the request.
  */
@@ -156,7 +151,6 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
     _accessToken = accessToken;
     _continueURL = actionCodeSettings.URL.absoluteString;
     _iOSBundleID = actionCodeSettings.iOSBundleID;
-    _iOSAppStoreID = actionCodeSettings.iOSAppStoreID;
     _androidPackageName = actionCodeSettings.androidPackageName;
     _androidMinimumVersion = actionCodeSettings.androidMinimumVersion;
     _androidInstallApp = actionCodeSettings.androidInstallIfNotAvailable;
@@ -188,10 +182,6 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
   if (_iOSBundleID) {
     body[kIosBundleIDKey] = _iOSBundleID;
-  }
-
-  if (_iOSAppStoreID) {
-    body[kIosAppStoreIDKey] = _iOSAppStoreID;
   }
 
   if (_androidPackageName) {

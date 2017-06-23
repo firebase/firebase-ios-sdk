@@ -74,11 +74,6 @@ static NSString *const kTestAccessToken = @"ACCESS_TOKEN";
  */
 static NSString *const kIosBundleID = @"testBundleID";
 
-/** @var kAppStoreID
-    @brief Fake app store ID for testing.
- */
-static NSString *const kAppStoreID = @"appStoreID";
-
 /** @var kAndroidPackageName
     @brief Fake android package name for testing.
  */
@@ -103,11 +98,6 @@ static NSString *const kContinueURLKey = @"continueUrl";
     @brief The key for the "iOS Bundle Identifier" value in the request.
  */
 static NSString *const kIosBundleIDKey = @"iOSBundleId";
-
-/** @var kIosAppStoreIDKey
-    @brief The key for the "iOS App Store Id" value in the request.
- */
-static NSString *const kIosAppStoreIDKey = @"iOSAppStoreId";
 
 /** @var kAndroidPackageNameKey
     @brief The key for the "Android Package Name" value in the request.
@@ -184,7 +174,6 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kPasswordResetRequestTypeValue);
    XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosAppStoreIDKey], kAppStoreID);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
                         kAndroidMinimumVersion);
@@ -222,7 +211,6 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kVerifyEmailRequestTypeValue);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosAppStoreIDKey], kAppStoreID);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
                         kAndroidMinimumVersion);
@@ -240,7 +228,7 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
  */
 - (FIRActionCodeSettings *)fakeActionCodeSettings {
   FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc]init];
-  [actionCodeSettings setIOSBundleID:kIosBundleID appStoreID:kAppStoreID];
+  [actionCodeSettings setIOSBundleID:kIosBundleID];
   [actionCodeSettings setAndroidPackageName:kAndroidPackageName
                       installIfNotAvailable:YES
                              minimumVersion:kAndroidMinimumVersion];
