@@ -102,6 +102,10 @@ FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, ru
  
 Keep in mind that macOS is not officially supported by Firebase, and this repository is actively developed primarily for iOS. While we can catch basic unit test issues with Travis, there may be some changes where the SDK no longer works as expected on macOS. If you encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues) for it.
 
+## Roadmap
+
+See [Roadmap](ROADMAP.md) for more about the Firebase iOS SDK Open Source
+plans and directions.
 
 ## Contributing
 
