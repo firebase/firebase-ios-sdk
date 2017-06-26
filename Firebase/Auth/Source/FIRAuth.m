@@ -57,6 +57,7 @@
 #import "FIRVerifyPhoneNumberResponse.h"
 
 #if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
 #import "Private/FIRAuthAPNSToken.h"
 #import "Private/FIRAuthAPNSTokenManager.h"
 #import "Private/FIRAuthAppCredentialManager.h"
