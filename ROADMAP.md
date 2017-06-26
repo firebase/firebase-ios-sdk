@@ -18,7 +18,7 @@ build accordingly. See this
 
 ## Continuous Integration
 
-* [Stablize Travis](https://github.com/firebase/firebase-ios-sdk/issues/102)
+* [Stabilize Travis](https://github.com/firebase/firebase-ios-sdk/issues/102)
 * [Verify Objective-C style guide compliance](https://github.com/firebase/firebase-ios-sdk/issues/103)
 
 ## Samples and Integration Tests
@@ -28,7 +28,7 @@ developers onboard.
 
 ## Xcode 9 Workflow
 
-[Insure Firebase open source development works well with Xcode 9's git and
+[Ensure Firebase open source development works well with Xcode 9's git and
 GitHub features](https://github.com/firebase/firebase-ios-sdk/issues/101).
 
 ## Other
