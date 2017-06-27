@@ -491,6 +491,26 @@
     XCTAssertEqualObjects([[engine serverCacheAtPath:PATH(@"foo")] dataHash], hashFor247);
 }
 
+- (void)testIntegersAreReturnedsAsIntegers {
+    id intValue = @247;
+    id longValue = @1542405709418655810;
+    id doubleValue = @0xFFFFFFFFFFFFFFFFUL;  // This number can't be represented as a signed long.
+  
+    id<FNode> expectedData = NODE((@{@"int": @247, @"long": longValue, @"double": doubleValue}));
+    FLevelDBStorageEngine *engine = [self cleanStorageEngine];
+    [engine updateServerCache:expectedData atPath:PATH(@"foo") merge:NO];
+    id<FNode> actualData = [engine serverCacheAtPath:PATH(@"foo")];
+    NSNumber* actualInt = [actualData val][@"int"];
+    NSNumber* actualLong = [actualData val][@"long"];
+    NSNumber* actualDouble = [actualData val][@"double"];
+  
+    XCTAssertEqualObjects([actualInt stringValue], [intValue stringValue]);
+    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualInt), kCFNumberSInt64Type);
+    XCTAssertEqualObjects([actualLong stringValue ], [longValue stringValue]);
+    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualLong), kCFNumberSInt64Type);
+    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberFloat64Type);
+}
+
 // TODO[offline]: Somehow test estimated server size?
 // TODO[offline]: Test pruning!
 

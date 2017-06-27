@@ -74,10 +74,6 @@
         
 }
 
-- (void) testWriteTwoNestedLeafNodesChange {
-    
-}
-
 - (void) testSetMultipleEventListenersOnSameNode {
     
     FTupleFirebase* tuple = [FTestHelpers getRandomNodePair];
