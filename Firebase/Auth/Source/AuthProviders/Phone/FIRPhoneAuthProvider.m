@@ -198,9 +198,9 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
                                   timeout:timeout
                                  callback:^(FIRAuthAppCredential *credential) {
         if (!credential.secret) {
-          FIRLogError(kFIRLoggerAuth, @"I-AUT000014",
-                      @"Failed to receive remote notification to verify app identity within "
-                      @"%.0f second(s)", timeout);
+          FIRLogWarning(kFIRLoggerAuth, @"I-AUT000014",
+                        @"Failed to receive remote notification to verify app identity within "
+                        @"%.0f second(s)", timeout);
         }
         completion(credential, nil);
       }];
