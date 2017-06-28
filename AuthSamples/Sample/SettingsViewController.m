@@ -80,30 +80,6 @@ static NSArray<FIROptions *> *gFirebaseAppOptions;
 - (void)setHost:(NSString *)host;
 @end
 
-/** @category FIROptions(ProjectID)
-    @brief A category to FIROption to add the project ID property.
- */
-@interface FIROptions (ProjectID)
-
-/** @property projectID
-    @brief The Firebase project ID.
- */
-@property(nonatomic, copy) NSString *projectID;
-
-@end
-
-@implementation FIROptions (ProjectID)
-
-- (NSString *)projectID {
-  return objc_getAssociatedObject(self, @selector(projectID));
-}
-
-- (void)setProjectID:(NSString *)projectID {
-  objc_setAssociatedObject(self, @selector(projectID), projectID, OBJC_ASSOCIATION_COPY_NONATOMIC);
-}
-
-@end
-
 /** @fn versionString
     @brief Constructs a version string to display.
     @param string The version in string form.
@@ -190,19 +166,7 @@ static NSString *hexString(NSData *data) {
     NSString *plistFileName = kGoogleServiceInfoPlists[i];
     NSString *plistFilePath = [[NSBundle mainBundle] pathForResource:plistFileName
                                                               ofType:@"plist"];
-    NSDictionary *optionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
-    FIROptions *options = [[FIROptions alloc]
-        initWithGoogleAppID:optionsDictionary[@"GOOGLE_APP_ID"]
-                   bundleID:optionsDictionary[@"BUNDLE_ID"]
-                GCMSenderID:optionsDictionary[@"GCM_SENDER_ID"]
-                     APIKey:optionsDictionary[@"API_KEY"]
-                   clientID:optionsDictionary[@"CLIENT_ID"]
-                 trackingID:optionsDictionary[@"TRACKING_ID"]
-            androidClientID:optionsDictionary[@"ANDROID_CLIENT_ID"]
-                databaseURL:optionsDictionary[@"DATABASE_URL"]
-              storageBucket:optionsDictionary[@"STORAGE_BUCKET"]
-          deepLinkURLScheme:nil];
-    options.projectID = optionsDictionary[@"PROJECT_ID"];
+    FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistFilePath];
     [appOptions addObject:options];
   }
   gFirebaseAppOptions = [appOptions copy];
