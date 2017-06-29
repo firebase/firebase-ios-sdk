@@ -18,9 +18,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "EmailPassword/FIREmailAuthProvider.h"
-#import "Facebook/FIRFacebookAuthProvider.h"
-#import "Google/FIRGoogleAuthProvider.h"
+#import "FIREmailAuthProvider.h"
+#import "FIRFacebookAuthProvider.h"
+#import "FIRGoogleAuthProvider.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
@@ -44,7 +44,7 @@
 #import <OCMock/OCMock.h>
 
 #if TARGET_OS_IOS
-#import "Phone/FIRPhoneAuthProvider.h"
+#import "FIRPhoneAuthProvider.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

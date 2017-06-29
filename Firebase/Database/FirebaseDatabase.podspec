@@ -25,17 +25,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source_files =  '**/*.[mh]',
     'third_party/Wrap-leveldb/APLevelDB.mm',
     'third_party/SocketRocket/fbase64.c'
-  s.public_header_files =
-    'Api/FirebaseDatabase.h',
-    'Api/FIRDataEventType.h',
-    'Api/FIRDataSnapshot.h',
-    'Api/FIRDatabaseQuery.h',
-    'Api/FIRDatabaseSwiftNameSupport.h',
-    'Api/FIRMutableData.h',
-    'Api/FIRServerValue.h',
-    'Api/FIRTransactionResult.h',
-    'Api/FIRDatabase.h',
-    'FIRDatabaseReference.h'
+  s.public_header_files = 'Public/*.h'
   s.library = 'c++'
   s.library = 'icucore'
   s.framework = 'CFNetwork'

@@ -19,7 +19,7 @@
 #import "Private/FIRUser_Internal.h"
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
-#import "AuthProviders/EmailPassword/FIREmailAuthProvider.h"
+#import "FIREmailAuthProvider.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Private/FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
@@ -50,7 +50,7 @@
 #import "FIRVerifyPhoneNumberResponse.h"
 
 #if TARGET_OS_IOS
-#import "AuthProviders/Phone/FIRPhoneAuthProvider.h"
+#import "FIRPhoneAuthProvider.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

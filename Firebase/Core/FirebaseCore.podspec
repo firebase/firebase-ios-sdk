@@ -23,14 +23,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.osx.deployment_target = '10.10'
 
   s.source_files = '**/*.[mh]'
-  s.public_header_files =
-    'FirebaseCore.h',
-    'FIRAnalyticsConfiguration.h',
-    'FIRApp.h',
-    'FIRConfiguration.h',
-    'FIRLoggerLevel.h',
-    'FIROptions.h',
-    'FIRCoreSwiftNameSupport.h'
-
+  s.public_header_files = 'Firebase/Core/Public/*.h'
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
 end

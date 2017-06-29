@@ -56,7 +56,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 #if TARGET_OS_IOS
-#import "../AuthProviders/Phone/FIRPhoneAuthProvider.h"
+#import "FIRPhoneAuthProvider.h"
 #endif
 
 /** @var kClientVersionHeader
