@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAPNSTokenManager.h"
 
 #import "FIRLogger.h"
-#import "Private/FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSToken.h"
 #import "FIRAuthGlobalWorkQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN

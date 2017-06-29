@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthDataResult_Internal.h"
+#import "FIRAuthDataResult_Internal.h"
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRUser.h"

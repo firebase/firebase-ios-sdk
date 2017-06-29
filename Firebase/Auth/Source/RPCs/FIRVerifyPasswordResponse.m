@@ -16,7 +16,7 @@
 
 #import "FIRVerifyPasswordResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 @implementation FIRVerifyPasswordResponse
 

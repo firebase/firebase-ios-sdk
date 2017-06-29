@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

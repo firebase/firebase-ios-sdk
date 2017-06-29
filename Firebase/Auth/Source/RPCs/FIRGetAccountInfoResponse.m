@@ -16,7 +16,7 @@
 
 #import "FIRGetAccountInfoResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 /** @var kErrorKey
     @brief The key for the "error" value in JSON responses from the server.

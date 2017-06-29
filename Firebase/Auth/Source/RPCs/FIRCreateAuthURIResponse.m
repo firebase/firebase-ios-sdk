@@ -16,7 +16,7 @@
 
 #import "FIRCreateAuthURIResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 @implementation FIRCreateAuthURIResponse
 

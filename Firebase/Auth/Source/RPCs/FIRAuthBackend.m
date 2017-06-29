@@ -19,8 +19,8 @@
 #import "FIRAuthBackend.h"
 
 #import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "../Private/FIRAuthErrorUtils.h"
-#import "../Private/FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthRPCRequest.h"
 #import "FIRAuthRPCResponse.h"
