@@ -149,7 +149,7 @@ static BOOL (^kFKeepPredicate)(id) = ^BOOL(NSNumber *pruneValue) {
         [NSException raise:NSInvalidArgumentException format:@"Can't prune path that was kept previously!"];
     }
     if ([self.pruneForest rootMostValueOnPath:path matching:kFPrunePredicate]) {
-        // This path will already be kept
+        // This path will already be pruned
         return self;
     } else {
         return [self setPruneValue:[FPruneForest pruneTree] forAll:children atPath:path];
