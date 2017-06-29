@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Twitter/FIRTwitterAuthProvider.h"
+#import "FIRTwitterAuthProvider.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRVerifyAssertionRequest.h"
 

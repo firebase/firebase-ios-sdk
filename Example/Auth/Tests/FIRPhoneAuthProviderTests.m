@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Phone/FIRPhoneAuthProvider.h"
+#import "FIRPhoneAuthProvider.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Phone/NSString+FIRAuth.h"
 #import "FIRAuthAPNSToken.h"
