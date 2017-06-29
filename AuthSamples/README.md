@@ -30,6 +30,10 @@ This feature is for advanced testing.
 
 Please follow the instructions in [Sample/ApplicationTemplate.plist](Sample/ApplicationTemplate.plist) to generate the right Application.plist file
 
+### Sample.entitlements file
+
+In order to test the "Reset Password In App" feature you will need to create a dynamic link for your Firebase project in the Dynamic Links section of the Firebase Console. Once the link is created, please copy the contents of [Sample/SampleTemplate.entitlements](Sample/SampleTemplate.entitlements) into a file named `Sample/Sample.entitlements` and replace `$KAPP_LINKS_DOMAIN` with your own relevant appLinks domain. Your appLinks domains are domains that your app will handle as universal links, in this particular case you can obtain this domain from the aforementioned Dynamic Links section of the Firebase Console.
+
 #### Getting your own Credential files
 
 Please follow the instructions in [Sample/AuthCredentialsTemplate.h](Sample/AuthCredentialsTemplate.h) to generate the AuthCredentials.h file.

@@ -18,6 +18,7 @@
 
 #import <objc/runtime.h>
 
+#import "AuthCredentials.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRApp.h"
 #import "FIROAuthProvider.h"
@@ -263,6 +264,11 @@ static NSString *const kRequestPasswordReset = @"Send Password Reset Email";
  */
 static NSString *const kResetPassword = @"Reset Password";
 
+/** @var kResetPasswordInApp
+    @brief The text of the "Password Reset" button.
+ */
+static NSString *const kResetPasswordInApp = @"Reset Password In app";
+
 /** @var kCheckActionCode
     @brief The text of the "Check action code" button.
  */
@@ -458,6 +464,11 @@ static NSString *const kSafariFacebookSignOutMessagePrompt = @"This automated te
 static NSString *const kUnlinkAccountMessagePrompt = @"Sign into gmail with an email address "
     "that has not been linked to this sample application before. Delete account if necessary.";
 
+/** @var kPasswordResetAction
+    @brief The value for password reset mode in the action code URL.
+ */
+static NSString *const kPasswordResetAction = @"PASSWORD_RESET";
+
 // Declared extern in .h file.
 NSString *const kCreateUserAccessibilityID = @"CreateUserAccessibilityID";
 
@@ -617,6 +628,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                            action:^{ [weakSelf requestVerifyEmail]; }],
         [StaticContentTableViewCell cellWithTitle:kRequestPasswordReset
                                            action:^{ [weakSelf requestPasswordReset]; }],
+        [StaticContentTableViewCell cellWithTitle:kResetPasswordInApp
+                                           action:^{ [weakSelf requestPasswordResetInApp]; }],
         [StaticContentTableViewCell cellWithTitle:kResetPassword
                                            action:^{ [weakSelf resetPassword]; }],
         [StaticContentTableViewCell cellWithTitle:kCheckActionCode
@@ -724,6 +737,68 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (IBAction)memoryClear {
   _userInMemory = nil;
   [self updateUserInfo];
+}
+
+/** @fn parseURL
+    @brief Parses an incoming URL into all available query items.
+    @param urlString The url to be parsed.
+    @return A dictionary of available query items in the target URL.
+ */
+static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
+  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
+  NSMutableDictionary<NSString *, NSString *> *queryItems =
+      [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
+  for (NSString *component in URLComponents) {
+    NSRange equalRange = [component rangeOfString:@"="];
+    if (equalRange.location != NSNotFound) {
+      NSString *queryItemKey =
+          [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
+      NSString *queryItemValue =
+          [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
+      if (queryItemKey && queryItemValue) {
+        queryItems[queryItemKey] = queryItemValue;
+      }
+    }
+  }
+  return queryItems;
+}
+
+#pragma mark public methods
+
+- (BOOL)handleIncomingLinkWithURL:(NSURL *)URL {
+  // Parse the query portion of the incoming URL.
+  NSDictionary<NSString *, NSString *> *queryItems =
+      parseURL([NSURLComponents componentsWithString:URL.absoluteString].query);
+
+  // Check that all necessary query items are available.
+  if (!queryItems[@"oobCode"] ||
+      !queryItems[@"mode"]) {
+    return NO;
+  }
+  // Handle Password Reset action.
+  if ([queryItems[@"mode"] isEqualToString:kPasswordResetAction]) {
+    [self showTextInputPromptWithMessage:@"New Password:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable newPassword) {
+      if (!userPressedOK || !newPassword.length) {
+        return;
+      }
+      [[FIRAuth auth] confirmPasswordResetWithCode:queryItems[@"oobCode"]
+                                       newPassword:newPassword
+                                        completion:^(NSError *_Nullable error) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"Password reset failed" error:error];
+            [self showMessagePrompt:error.localizedDescription];
+            return;
+          }
+          [self logSuccess:@"Password reset succeeded."];
+          [self showMessagePrompt:@"Password reset succeeded."];
+        }];
+      }];
+    }];
+  }
+  return YES;
 }
 
 #pragma mark - Actions
@@ -1918,6 +1993,38 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     }
     [self showSpinner:^{
       [[FIRAuth auth] sendPasswordResetWithEmail:userInput completion:^(NSError *_Nullable error) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"request password reset failed" error:error];
+            [self showMessagePrompt:error.localizedDescription];
+            return;
+          }
+          [self logSuccess:@"request password reset succeeded."];
+          [self showMessagePrompt:@"Sent"];
+        }];
+      }];
+    }];
+  }];
+}
+
+/** @fn requestPasswordResetInApp
+    @brief Requests a "password reset" email be sent and handled in the app.
+ */
+- (void)requestPasswordResetInApp {
+  [self showTextInputPromptWithMessage:@"Email:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+    if (!userPressedOK || !userInput.length) {
+      return;
+    }
+    [self showSpinner:^{
+      FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
+      [actionCodeSettings setIOSBundleID:[NSBundle mainBundle].bundleIdentifier];
+      actionCodeSettings.URL = [NSURL URLWithString:KCONTINUE_URL];
+      actionCodeSettings.handleCodeInApp = YES;
+
+      [[FIRAuth auth] sendPasswordResetWithEmail:userInput
+                              actionCodeSettings:actionCodeSettings
+                                      completion:^(NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"request password reset failed" error:error];

@@ -1,3 +1,4 @@
+AuthSamples/Sample/Sample.entitlements
 AuthSamples/Sample/GoogleService-Info_multi.plist
 AuthSamples/Sample/AuthCredentials.h
 AuthSamples/Sample/GoogleService-Info.plist
