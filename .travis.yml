@@ -13,4 +13,4 @@ before_install:
 
 script:
   - ./test.sh
-  - pod lib lint FirebaseCommunity.podspec --verbose | tail -200
+  - pod lib lint FirebaseCommunity.podspec --verbose | tail -40
