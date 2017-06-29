@@ -16,7 +16,7 @@
 
 #import "FIRDeleteAccountResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 @implementation FIRDeleteAccountResponse
 

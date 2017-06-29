@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRAuth_Internal.h"
+#import "FIRAuth_Internal.h"
 
 #import "FIRAppAssociationRegistration.h"
 #import "FIRAppInternal.h"
@@ -24,15 +24,15 @@
 #import "FIRLogger.h"
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "Private/FIRAdditionalUserInfo_Internal.h"
-#import "Private/FIRAuthCredential_Internal.h"
-#import "Private/FIRAuthDataResult_Internal.h"
-#import "Private/FIRAuthDispatcher.h"
-#import "Private/FIRAuthErrorUtils.h"
+#import "FIRAdditionalUserInfo_Internal.h"
+#import "FIRAuthCredential_Internal.h"
+#import "FIRAuthDataResult_Internal.h"
+#import "FIRAuthDispatcher.h"
+#import "FIRAuthErrorUtils.h"
 #import "FIRAuthExceptionUtils.h"
-#import "Private/FIRAuthGlobalWorkQueue.h"
-#import "Private/FIRAuthKeychain.h"
-#import "Private/FIRUser_Internal.h"
+#import "FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthKeychain.h"
+#import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
 #import "FIRCreateAuthURIRequest.h"
@@ -58,11 +58,11 @@
 
 #if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
-#import "Private/FIRAuthAPNSToken.h"
-#import "Private/FIRAuthAPNSTokenManager.h"
-#import "Private/FIRAuthAppCredentialManager.h"
-#import "Private/FIRAuthAppDelegateProxy.h"
-#import "Private/FIRAuthNotificationManager.h"
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppCredentialManager.h"
+#import "FIRAuthAppDelegateProxy.h"
+#import "FIRAuthNotificationManager.h"
 #endif
 
 #pragma mark - Constants

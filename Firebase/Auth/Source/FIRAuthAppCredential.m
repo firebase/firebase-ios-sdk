@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthAppCredential.h"
+#import "FIRAuthAppCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

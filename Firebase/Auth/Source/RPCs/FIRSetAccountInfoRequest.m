@@ -16,8 +16,8 @@
 
 #import "FIRSetAccountInfoRequest.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
-#import "../Private/FIRAuth_Internal.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuth_Internal.h"
 #import "FIRGetAccountInfoResponse.h"
 
 NSString *const FIRSetAccountInfoUserAttributeEmail = @"EMAIL";

@@ -16,19 +16,19 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRUser_Internal.h"
+#import "FIRUser_Internal.h"
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIREmailAuthProvider.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "Private/FIRAdditionalUserInfo_Internal.h"
+#import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
-#import "Private/FIRAuthCredential_Internal.h"
-#import "Private/FIRAuthDataResult_Internal.h"
-#import "Private/FIRAuthErrorUtils.h"
-#import "Private/FIRAuthGlobalWorkQueue.h"
-#import "Private/FIRAuthSerialTaskQueue.h"
-#import "Private/FIRAuth_Internal.h"
+#import "FIRAuthCredential_Internal.h"
+#import "FIRAuthDataResult_Internal.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthSerialTaskQueue.h"
+#import "FIRAuth_Internal.h"
 #import "FIRSecureTokenService.h"
 #import "FIRUserInfoImpl.h"
 #import "FIRAuthBackend.h"
