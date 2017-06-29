@@ -1035,10 +1035,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
   if (retry) {
-    FIRLogNotice(kFIRLoggerAuth, @"I-AUT000003",
-                 @"Token auto-refresh re-scheduled in %02d:%02d "
-                 @"because of error on previous refresh attempt.",
-                 (int)ceil(delay) / 60, (int)ceil(delay) % 60);
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000003",
+               @"Token auto-refresh re-scheduled in %02d:%02d "
+               @"because of error on previous refresh attempt.",
+               (int)ceil(delay) / 60, (int)ceil(delay) % 60);
   } else {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000004",
                @"Token auto-refresh scheduled in %02d:%02d for the new token.",
@@ -1070,8 +1070,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       }
       // If the error is an invalid token, sign the user out.
       if (error.code == FIRAuthErrorCodeInvalidUserToken) {
-        FIRLogWarning(kFIRLoggerAuth, @"I-AUT000005",
-                      @"Invalid refresh token detected, user is automatically signed out.");
+        FIRLogNotice(kFIRLoggerAuth, @"I-AUT000005",
+                     @"Invalid refresh token detected, user is automatically signed out.");
         [strongSelf signOutByForceWithUserID:uid error:nil];
         return;
       }

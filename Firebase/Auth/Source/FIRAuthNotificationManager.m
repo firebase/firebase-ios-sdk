@@ -114,9 +114,9 @@ static const NSTimeInterval kProbingTimeout = 1;
       [_application.delegate application:_application
             didReceiveRemoteNotification:proberNotification];
     } else {
-      FIRLogError(kFIRLoggerAuth, @"I-AUT000015",
-                  @"The UIApplicationDelegate must handle remote notification for phone number "
-                  @"authentication to work.");
+      FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",
+                    @"The UIApplicationDelegate must handle remote notification for phone number "
+                    @"authentication to work.");
     }
   });
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)),

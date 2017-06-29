@@ -132,8 +132,8 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     if ([envClass performSelector:isSimulatorSelector]) {
 #pragma clang diagnostic pop
-      FIRLogWarning(kFIRLoggerAuth, @"I-AUT000006",
-                    @"Assuming prod APNs token type on simulator.");
+      FIRLogInfo(kFIRLoggerAuth, @"I-AUT000006",
+                 @"Assuming prod APNs token type on simulator.");
       return defaultAppTypeProd;
     }
   }
@@ -166,8 +166,8 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:path options:0 error:&error];
 
   if (!profileData.length || error) {
-    FIRLogWarning(kFIRLoggerAuth, @"I-AUT000007",
-                  @"Error while reading embedded mobileprovision %@", error);
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000007",
+               @"Error while reading embedded mobileprovision %@", error);
     return defaultAppTypeProd;
   }
 
@@ -188,8 +188,8 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
                                                        freeWhenDone:NO];
 
   if (error || !embeddedProfile.length) {
-    FIRLogWarning(kFIRLoggerAuth, @"I-AUT000008",
-                  @"Error while reading embedded mobileprovision %@", error);
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000008",
+               @"Error while reading embedded mobileprovision %@", error);
     return defaultAppTypeProd;
   }
 
@@ -207,8 +207,8 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
   NSData *data = [plistContents dataUsingEncoding:NSUTF8StringEncoding];
   if (!data.length) {
-    FIRLogWarning(kFIRLoggerAuth, @"I-AUT000009",
-                  @"Couldn't read plist fetched from embedded mobileprovision");
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000009",
+               @"Couldn't read plist fetched from embedded mobileprovision");
     return defaultAppTypeProd;
   }
 
@@ -218,9 +218,9 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
                                                             format:nil
                                                              error:&plistMapError];
   if (plistMapError || ![plistData isKindOfClass:[NSDictionary class]]) {
-    FIRLogWarning(kFIRLoggerAuth, @"I-AUT000010",
-                  @"Error while converting assumed plist to dict %@",
-                  plistMapError.localizedDescription);
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000010",
+               @"Error while converting assumed plist to dict %@",
+               plistMapError.localizedDescription);
     return defaultAppTypeProd;
   }
   NSDictionary *plistMap = (NSDictionary *)plistData;
@@ -237,9 +237,9 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
   // No aps-environment in the profile.
   if (!apsEnvironment.length) {
-    FIRLogWarning(kFIRLoggerAuth, @"I-AUT000013",
-                  @"No aps-environment set. If testing on a device APNS is not "
-                  @"correctly configured. Please recheck your provisioning profiles.");
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000013",
+               @"No aps-environment set. If testing on a device APNS is not "
+               @"correctly configured. Please recheck your provisioning profiles.");
     return defaultAppTypeProd;
   }
 
