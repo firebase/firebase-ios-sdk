@@ -221,7 +221,7 @@ NSString *const kInvalidKeyCharacters =  @"[].#$/";
             [self validateFrom:fn isValidPriorityValue:value withPath:@[]];
         } else {
           keyNum++;
-        
+
           if (![FValidation isValidKey:key]) {
               @throw [[NSException alloc] initWithName:@"InvalidFirebaseData" reason:[NSString stringWithFormat:@"(%@) Invalid key in object. Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'", fn] userInfo:nil];
           }

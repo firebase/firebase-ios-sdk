@@ -25,7 +25,7 @@
     XCTAssertTrue([[[FPath alloc] initWith:@"/a"] contains:[[FPath alloc] initWith:@"/a/b/c"]], @"contains should be correct");
     XCTAssertTrue([[[FPath alloc] initWith:@"/a/b"] contains:[[FPath alloc] initWith:@"/a/b/c"]], @"contains should be correct");
     XCTAssertTrue([[[FPath alloc] initWith:@"/a/b/c"] contains:[[FPath alloc] initWith:@"/a/b/c"]], @"contains should be correct");
-    
+
     XCTAssertFalse([[[FPath alloc] initWith:@"/a/b/c"] contains:[[FPath alloc] initWith:@"/a/b"]], @"contains should be correct");
     XCTAssertFalse([[[FPath alloc] initWith:@"/a/b/c"] contains:[[FPath alloc] initWith:@"/a"]], @"contains should be correct");
     XCTAssertFalse([[[FPath alloc] initWith:@"/a/b/c"] contains:[[FPath alloc] initWith:@"/"]], @"contains should be correct");
@@ -34,7 +34,7 @@
 
     XCTAssertTrue([[[FPath alloc] initWithPieces:pathPieces andPieceNum:1] contains:[[FPath alloc] initWith:@"/b/c"]], @"contains should be correct");
     XCTAssertTrue([[[FPath alloc] initWithPieces:pathPieces andPieceNum:1] contains:[[FPath alloc] initWith:@"/b/c/d"]], @"contains should be correct");
-                                
+
     XCTAssertFalse([[[FPath alloc] initWith:@"/a/b/c"] contains:[[FPath alloc] initWith:@"/b/c"]], @"contains should be correct");
     XCTAssertFalse([[[FPath alloc] initWith:@"/a/b/c"] contains:[[FPath alloc] initWith:@"/a/c/b"]], @"contains should be correct");
 

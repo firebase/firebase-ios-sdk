@@ -105,10 +105,10 @@
 - (void) testManualConnectionManagement {
     FIRDatabaseConfig *cfg = [FIRDatabaseConfig configForName:@"test-config"];
     FIRDatabaseConfig *altCfg = [FIRDatabaseConfig configForName:@"alt-config"];
-    
+
     FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
     FIRDatabaseReference * refAlt = [[FIRDatabaseReference alloc] initWithConfig:altCfg];
-  
+
     // Wait until we're connected to both Firebases
     __block BOOL ready = NO;
     [[ref child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
@@ -116,7 +116,7 @@
     }];
     [self waitUntil:^{ return ready; }];
     [[ref child:@".info/connected"] removeAllObservers];
-  
+
     ready = NO;
     [[refAlt child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         ready = [[snapshot value] boolValue];

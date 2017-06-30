@@ -44,7 +44,7 @@
     return result;
 }
 
-- (id<FLLRBNode>) remove:(id) key withComparator:(NSComparator)aComparator {    
+- (id<FLLRBNode>) remove:(id) key withComparator:(NSComparator)aComparator {
     return self;
 }
 

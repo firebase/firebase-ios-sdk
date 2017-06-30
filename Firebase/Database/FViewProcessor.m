@@ -522,7 +522,7 @@
                                             accumulator:accumulator];
         }
     }];
-    
+
     return curViewCache;
 }
 

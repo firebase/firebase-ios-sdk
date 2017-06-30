@@ -26,7 +26,7 @@ f_b64_ntop(u_char const *src,
 
 extern int
 f_b64_pton(char const *src,
-         u_char *target, 
+         u_char *target,
          size_t targsize);
 
 

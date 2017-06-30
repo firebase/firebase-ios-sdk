@@ -53,9 +53,9 @@
     FRepoInfo *info = [[FRepoInfo alloc] initWithHost:host isSecure:YES withNamespace:@"default"];
     FConnection *conn = [[FConnection alloc] initWith:info andDispatchQueue:[FIRDatabaseQuery sharedQueue] lastSessionID:nil];
     FTestConnectionDelegate *delegate = [[FTestConnectionDelegate alloc] init];
-    
+
     __block BOOL done = NO;
-    
+
     delegate.onDisconnect = ^(FDisconnectReason reason) {
         if (reason == DISCONNECT_REASON_SERVER_RESET) {
             // It is very likely that the first connection attempt sends us a redirect to the project's designated server.
@@ -68,10 +68,10 @@
         NSAssert([sessionID length] != 0, @"sessionID must have length > 0");
         done = YES;
     };
-    
+
     conn.delegate = delegate;
     [conn open];
-    
+
     WAIT_FOR(done);
 }
 @end

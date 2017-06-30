@@ -69,7 +69,7 @@ To run the Storage Integration tests, follow the instructions in
 
 #### Push Notifications
 
-Push notifications can only be delivered to specially provisioned App IDs in the developer portal. In order to actually test receiving push notifications, you will need to: 
+Push notifications can only be delivered to specially provisioned App IDs in the developer portal. In order to actually test receiving push notifications, you will need to:
 
 1. Change the bundle identifier of the sample app to something you own in your Apple Developer account, and enable that App ID for push notifications.
 2. You'll also need to [upload your APNs Provider Authentication Key or certificate to the Firebase Console](https://firebase.google.com/docs/cloud-messaging/ios/certs) at **Project Settings > Cloud Messaging > [Your Firebase App]**.
@@ -80,26 +80,26 @@ Push notifications can only be delivered to specially provisioned App IDs in the
 The iOS Simulator cannot register for remote notifications, and will not receive push notifications. In order to receive push notifications, you'll have to follow the steps above and run the app on a physical device.
 
 ## Community Supported Efforts
- 
-We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and participate in the Firebase community. 
- 
+
+We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and participate in the Firebase community.
+
 Note that if you are using CocoaPods and using the FirebaseCommunity podspec (the one in this repo), you cannot bring in Pods from the official Firebase podspec, because of duplicated symbol conflicts. If you're not using one of the open-source SDKs in this repo for development purposes, we recommend using the regular Firebase pods for the best experience.
- 
+
 To get started using the FirebaseCommunity SDKs, here is a typical Podfile:
- 
+
 ```
 use_frameworks!
- 
+
 target 'MyAppTarget' do
   platform :ios, '8.0'
   pod 'FirebaseCommunity', :git => 'https://github.com/firebase/firebase-ios-sdk.git'
 end
-``` 
+```
 Replace `MyAppTarget` with the name of the target in your Xcode project.
 
 ### macOS
-FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and work on macOS, thanks to contributions from the community. There are a few tweaks needed, like ensuring iOS-only or macOS-only code is correctly guarded with checks for `TARGET_OS_IOS` and `TARGET_OS_OSX`. 
- 
+FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and work on macOS, thanks to contributions from the community. There are a few tweaks needed, like ensuring iOS-only or macOS-only code is correctly guarded with checks for `TARGET_OS_IOS` and `TARGET_OS_OSX`.
+
 Keep in mind that macOS is not officially supported by Firebase, and this repository is actively developed primarily for iOS. While we can catch basic unit test issues with Travis, there may be some changes where the SDK no longer works as expected on macOS. If you encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues) for it.
 
 ## Roadmap

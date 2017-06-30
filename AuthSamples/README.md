@@ -22,7 +22,7 @@ You'll need valid `GoogleService-Info.plist` files for those samples. To get you
 
 #### GoogleService-Info_multi.plist files
 
-This feature is for advanced testing. 
+This feature is for advanced testing.
 1. The developer would need to get a GoogleService-Info.plist from a different iOS client (which can be in a different Firebase project)
 2. Save this plist file as GoogleService-Info_multi.plist in [Sample/GoogleService-Info_multi.plist](Sample/GoogleService-Info_multi.plist). This enables testing that FirebaseAuth continues to work after switching the Firebase App in the runtime.
 
