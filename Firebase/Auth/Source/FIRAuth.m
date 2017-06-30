@@ -320,7 +320,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     app.getTokenImplementation = ^(BOOL forceRefresh, FIRTokenCallback callback) {
       dispatch_async(FIRAuthGlobalWorkQueue(), ^{
         FIRAuth *strongSelf = weakSelf;
-        // Enable token aut-refresh if not aleady enabled.
+        // Enable token auto-refresh if not aleady enabled.
         if (strongSelf && !strongSelf->_autoRefreshTokens) {
           FIRLogInfo(kFIRLoggerAuth, @"I-AUT000002", @"Token auto-refresh enabled.");
           strongSelf->_autoRefreshTokens = YES;
@@ -359,7 +359,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           });
           return;
         }
-        // Call back with current user token otherwise.
+        // Call back with current user token.
         [strongSelf->_currentUser internalGetTokenForcingRefresh:forceRefresh
                                                         callback:^(NSString *_Nullable token,
                                                                    NSError *_Nullable error) {
