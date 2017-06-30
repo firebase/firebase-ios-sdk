@@ -199,6 +199,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 @end
 
 @implementation FIRAuth {
+  /** @var _currentUser
+      @brief The current user.
+   */
+  FIRUser *_currentUser;
+
   /** @var _firebaseAppName
       @brief The Firebase app name.
    */
@@ -315,6 +320,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     app.getTokenImplementation = ^(BOOL forceRefresh, FIRTokenCallback callback) {
       dispatch_async(FIRAuthGlobalWorkQueue(), ^{
         FIRAuth *strongSelf = weakSelf;
+        // Enable token auto-refresh if not aleady enabled.
         if (strongSelf && !strongSelf->_autoRefreshTokens) {
           FIRLogInfo(kFIRLoggerAuth, @"I-AUT000002", @"Token auto-refresh enabled.");
           strongSelf->_autoRefreshTokens = YES;
@@ -346,15 +352,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           }];
           #endif
         }
-        if (!strongSelf.currentUser) {
+        // Call back with 'nil' if there is no current user.
+        if (!strongSelf || !strongSelf->_currentUser) {
           dispatch_async(dispatch_get_main_queue(), ^{
             callback(nil, nil);
           });
           return;
         }
-        [strongSelf.currentUser internalGetTokenForcingRefresh:forceRefresh
-                                                      callback:^(NSString *_Nullable token,
-                                                                 NSError *_Nullable error) {
+        // Call back with current user token.
+        [strongSelf->_currentUser internalGetTokenForcingRefresh:forceRefresh
+                                                        callback:^(NSString *_Nullable token,
+                                                                   NSError *_Nullable error) {
           dispatch_async(dispatch_get_main_queue(), ^{
             callback(token, error);
           });
@@ -378,33 +386,47 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _listenerHandles = [NSMutableArray array];
     _APIKey = [APIKey copy];
     _firebaseAppName = [appName copy];
-    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppName:appName];
-    if (keychainServiceName) {
-      _keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
-    }
-    // Load current user from keychain.
-    FIRUser *user;
-    NSError *error;
-    if ([self getUser:&user error:&error]) {
-      [self updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
-    } else {
-      FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                  @"Error loading saved user when starting up: %@", error);
-    }
-
     #if TARGET_OS_IOS
-    // Initialize for phone number auth.
-    _tokenManager =
-        [[FIRAuthAPNSTokenManager alloc] initWithApplication:[UIApplication sharedApplication]];
-
-    _appCredentialManager = [[FIRAuthAppCredentialManager alloc] initWithKeychain:_keychain];
-
-    _notificationManager =
-        [[FIRAuthNotificationManager alloc] initWithApplication:[UIApplication sharedApplication]
-                                           appCredentialManager:_appCredentialManager];
-
-    [[FIRAuthAppDelegateProxy sharedInstance] addHandler:self];
+    UIApplication *application = [UIApplication sharedApplication];
     #endif
+
+    // Continue with the rest of initialization in the work thread.
+    __weak FIRAuth *weakSelf = self;
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+      // Load current user from Keychain.
+      FIRAuth *strongSelf = weakSelf;
+      if (!strongSelf) {
+        return;
+      }
+      NSString *keychainServiceName =
+          [FIRAuth keychainServiceNameForAppName:strongSelf->_firebaseAppName];
+      if (keychainServiceName) {
+        strongSelf->_keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
+      }
+      FIRUser *user;
+      NSError *error;
+      if ([strongSelf getUser:&user error:&error]) {
+        [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
+      } else {
+        FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                    @"Error loading saved user when starting up: %@", error);
+      }
+
+      #if TARGET_OS_IOS
+      // Initialize for phone number auth.
+      strongSelf->_tokenManager =
+          [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
+
+      strongSelf->_appCredentialManager =
+          [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychain];
+
+      strongSelf->_notificationManager = [[FIRAuthNotificationManager alloc]
+           initWithApplication:application
+          appCredentialManager:strongSelf->_appCredentialManager];
+
+      [[FIRAuthAppDelegateProxy sharedInstance] addHandler:strongSelf];
+      #endif
+    });
   }
   return self;
 }
@@ -430,6 +452,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 #pragma mark - Public API
+
+- (FIRUser *)currentUser {
+  __block FIRUser *result;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    result = _currentUser;
+  });
+  return result;
+}
 
 - (void)fetchProvidersForEmail:(NSString *)email
                     completion:(FIRProviderQueryCallback)completion {
@@ -1275,10 +1305,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return YES;
 }
 
-/** @fn getUID
-    @brief Gets the identifier of the current user, if any.
-    @return The identifier of the current user, or nil if there is no current user.
- */
 - (nullable NSString *)getUID {
   return _currentUser.uid;
 }

@@ -75,6 +75,12 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName NS_DESIGNATED_INITIALIZER;
 
+/** @fn getUID
+    @brief Gets the identifier of the current user, if any.
+    @return The identifier of the current user, or nil if there is no current user.
+ */
+- (nullable NSString *)getUID;
+
 /** @fn notifyListenersOfAuthStateChange
     @brief Posts the @c FIRAuthStateDidChangeNotification notification.
     @remarks Called by @c FIRUser when token changes occur.

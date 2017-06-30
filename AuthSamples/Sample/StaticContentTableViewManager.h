@@ -242,8 +242,6 @@ typedef void(^StaticContentTableViewCellAction)(void);
     @param customCell The custom @c UITableViewCell to use for this cell.
     @param title If no custom cell is being used, this is the text of the @c titleLabel of the
         @c UITableViewCell.
-    @param title If no custom cell is being used, this is the text of the @c detailTextLabel of the
-        @c UITableViewCell.
     @param action A block which is executed when the cell is selected.
     @param accessibilityID The accessibility ID to add to the cell.
  */

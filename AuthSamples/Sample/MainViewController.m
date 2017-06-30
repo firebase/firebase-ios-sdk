@@ -20,6 +20,7 @@
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRApp.h"
+#import "FIRAppAssociationRegistration.h"
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
@@ -362,6 +363,11 @@ static NSString *const kCreateUserTitle = @"Create User";
  */
 static NSString *const kDeleteAppTitle = @"Delete App";
 
+/** @var kTimeAuthInitTitle
+    @brief The text of the "Time Auth Initialization" button.
+ */
+static NSString *const kTimeAuthInitTitle = @"Time Auth Initialization";
+
 /** @var kSectionTitleManualTests
     @brief The section title for automated manual tests.
  */
@@ -491,6 +497,30 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @param callback The block to invoke when the token is available.
  */
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(nonnull FIRTokenCallback)callback;
+@end
+
+/** @category FIRAppAssociationRegistration(Deregistration)
+    @brief The category for the deregistration method.
+ */
+@interface FIRAppAssociationRegistration (Deregistration)
+/** @fn deregisteredObjectWithHost:key:
+    @brief Removes the object that was registered with a particular host and key, if one exists.
+    @param host The host object.
+    @param key The key to specify the registered object on the host.
+ */
++ (void)deregisterObjectWithHost:(id)host key:(NSString *)key;
+@end
+
+@implementation FIRAppAssociationRegistration (Deregistration)
+
++ (void)deregisterObjectWithHost:(id)host key:(NSString *)key {
+  @synchronized(self) {
+    SEL dictKey = @selector(registeredObjectWithHost:key:creationBlock:);
+    NSMutableDictionary<NSString *, id> *objectsByKey = objc_getAssociatedObject(host, dictKey);
+    [objectsByKey removeObjectForKey:key];
+  }
+}
+
 @end
 
 @implementation MainViewController {
@@ -681,7 +711,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [StaticContentTableViewCell cellWithTitle:kTokenGetButtonText
                                            action:^{ [weakSelf getAppTokenWithForce:NO]; }],
         [StaticContentTableViewCell cellWithTitle:kTokenRefreshButtonText
-                                           action:^{ [weakSelf getAppTokenWithForce:YES]; }]
+                                           action:^{ [weakSelf getAppTokenWithForce:YES]; }],
+        [StaticContentTableViewCell cellWithTitle:kTimeAuthInitTitle
+                                           action:^{ [weakSelf timeAuthInitialization]; }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleListeners cells:@[
         [StaticContentTableViewCell cellWithTitle:kAddAuthStateListenerTitle
@@ -730,8 +762,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 
 /** @fn signInWithProvider:provider:
     @brief Perform sign in with credential operataion, for given auth provider.
-    @provider The auth provider.
-    @callback The callback to continue the flow which executed this sign-in.
+    @param provider The auth provider.
+    @param callback The callback to continue the flow which executed this sign-in.
  */
 - (void)signInWithProvider:(nonnull id<AuthProvider>)provider callback:(void(^)(void))callback {
   if (!provider) {
@@ -2379,6 +2411,48 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)deleteApp {
   [[FIRApp defaultApp] deleteApp:^(BOOL success) {
     [self log:success ? @"App deleted successfully." : @"Failed to delete app."];
+  }];
+}
+
+/** @fn timeAuthInitialization
+    @brief Times FIRAuth instance initialization time.
+ */
+- (void)timeAuthInitialization {
+  // Temporarily disable auth state listener to avoid interfering with the result.
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:FIRAuthStateDidChangeNotification
+                                                object:nil];
+  [self showSpinner:^() {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^() {
+      const int numberOfRuns = 4096;
+      FIRApp *app = [FIRApp defaultApp];
+      NSString *key = NSStringFromClass([FIRAuth class]);
+      NSDate *startTime = [NSDate date];
+      for (int i = 0; i < numberOfRuns; i++) {
+        @autoreleasepool {
+          [FIRAppAssociationRegistration deregisterObjectWithHost:app key:key];
+          [FIRAuth auth];
+        }
+      }
+      NSDate *endTime = [NSDate date];
+      dispatch_async(dispatch_get_main_queue(), ^() {
+        // Re-enable auth state listener.
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(authStateChangedForAuth:)
+                                                     name:FIRAuthStateDidChangeNotification
+                                                   object:nil];
+        [self hideSpinner:^() {
+          NSTimeInterval averageTime = [endTime timeIntervalSinceDate:startTime] / numberOfRuns;
+          NSString *message = [NSString stringWithFormat:
+              @"Each [FIRAuth auth] takes average of %.3f ms for %d runs",
+              averageTime * 1000, numberOfRuns];
+          [self showMessagePromptWithTitle:@"Timing Result"
+                                   message:message
+                          showCancelButton:NO
+                                completion:nil];
+        }];
+      });
+    });
   }];
 }
 
