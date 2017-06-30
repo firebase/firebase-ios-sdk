@@ -22,6 +22,7 @@
 #import "AuthCredentials.h"
 
 #ifdef NO_NETWORK
+#import "ITUIOSTestUtil.h"
 #import "ioReplayer/IORManager.h"
 #import "ioReplayer/IORTestCase.h"
 #endif
