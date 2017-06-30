@@ -1303,10 +1303,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return YES;
 }
 
-/** @fn getUID
-    @brief Gets the identifier of the current user, if any.
-    @return The identifier of the current user, or nil if there is no current user.
- */
 - (nullable NSString *)getUID {
   return _currentUser.uid;
 }
