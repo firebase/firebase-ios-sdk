@@ -499,15 +499,16 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(nonnull FIRTokenCallback)callback;
 @end
 
+/** @category FIRAppAssociationRegistration(Deregistration)
+    @brief The category for the deregistration method.
+ */
 @interface FIRAppAssociationRegistration (Deregistration)
-
 /** @fn deregisteredObjectWithHost:key:
     @brief Removes the object that was registered with a particular host and key, if one exists.
     @param host The host object.
     @param key The key to specify the registered object on the host.
  */
 + (void)deregisterObjectWithHost:(id)host key:(NSString *)key;
-
 @end
 
 @implementation FIRAppAssociationRegistration (Deregistration)
@@ -516,9 +517,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   @synchronized(self) {
     SEL dictKey = @selector(registeredObjectWithHost:key:creationBlock:);
     NSMutableDictionary<NSString *, id> *objectsByKey = objc_getAssociatedObject(host, dictKey);
-    if (objectsByKey) {
-      [objectsByKey removeObjectForKey:key];
-    }
+    [objectsByKey removeObjectForKey:key];
   }
 }
 
