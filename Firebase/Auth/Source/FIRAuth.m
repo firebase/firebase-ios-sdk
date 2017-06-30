@@ -386,7 +386,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _listenerHandles = [NSMutableArray array];
     _APIKey = [APIKey copy];
     _firebaseAppName = [appName copy];
+    #if TARGET_OS_IOS
     UIApplication *application = [UIApplication sharedApplication];
+    #endif
 
     // Continue with the rest of initialization in the work thread.
     __weak FIRAuth *weakSelf = self;
