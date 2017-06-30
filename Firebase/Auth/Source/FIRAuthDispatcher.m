@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthDispatcher.h"
+#import "FIRAuthDispatcher.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

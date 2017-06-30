@@ -23,10 +23,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.source_files = '**/*.[mh]'
   s.requires_arc = '*.m'
-  s.public_header_files =
-      'Public/FirebaseMessaging.h',
-      'Public/FIRMessaging.h'
-
+  s.public_header_files = 'Public/*.h'
   s.library = 'sqlite3'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     '$(inherited) ' +

@@ -16,7 +16,7 @@
 
 #import "FIRResetPasswordResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 @implementation FIRResetPasswordResponse
 

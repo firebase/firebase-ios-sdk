@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthSerialTaskQueue.h"
+#import "FIRAuthSerialTaskQueue.h"
 
-#import "Private/FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthGlobalWorkQueue.h"
 
 @implementation FIRAuthSerialTaskQueue {
   /** @var _dispatchQueue

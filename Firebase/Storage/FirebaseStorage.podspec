@@ -21,21 +21,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
-
   s.source_files = '**/*.[mh]'
-  s.public_header_files =
-    'FirebaseStorage.h',
-    'FIRStorage.h',
-    'FIRStorageConstants.h',
-    'FIRStorageDownloadTask.h',
-    'FIRStorageMetadata.h',
-    'FIRStorageObservableTask.h',
-    'FIRStorageReference.h',
-    'FIRStorageSwiftNameSupport.h',
-    'FIRStorageTask.h',
-    'FIRStorageTaskSnapshot.h',
-    'FIRStorageUploadTask.h'
-
+  s.public_header_files = 'Public/*.h'
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
 #    s.dependency 'FirebaseCommunity/Core'

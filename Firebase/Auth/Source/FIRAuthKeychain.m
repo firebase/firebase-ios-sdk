@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthKeychain.h"
+#import "FIRAuthKeychain.h"
 
 #import <Security/Security.h>
 
-#import "Private/FIRAuthErrorUtils.h"
-#import "Private/FIRAuthUserDefaultsStorage.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthUserDefaultsStorage.h"
 
 #if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
 #import <UIKit/UIKit.h>

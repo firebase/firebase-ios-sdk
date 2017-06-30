@@ -19,14 +19,14 @@
 #import "FIRLogger.h"
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "NSString+FIRAuth.h"
-#import "../../Private/FIRAuthAPNSToken.h"
-#import "../../Private/FIRAuthAPNSTokenManager.h"
-#import "../../Private/FIRAuthAppCredential.h"
-#import "../../Private/FIRAuthAppCredentialManager.h"
-#import "../../Private/FIRAuthGlobalWorkQueue.h"
-#import "../../Private/FIRAuth_Internal.h"
-#import "../../Private/FIRAuthNotificationManager.h"
-#import "../../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppCredential.h"
+#import "FIRAuthAppCredentialManager.h"
+#import "FIRAuthGlobalWorkQueue.h"
+#import "FIRAuth_Internal.h"
+#import "FIRAuthNotificationManager.h"
+#import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
@@ -198,9 +198,9 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
                                   timeout:timeout
                                  callback:^(FIRAuthAppCredential *credential) {
         if (!credential.secret) {
-          FIRLogError(kFIRLoggerAuth, @"I-AUT000014",
-                      @"Failed to receive remote notification to verify app identity within "
-                      @"%.0f second(s)", timeout);
+          FIRLogWarning(kFIRLoggerAuth, @"I-AUT000014",
+                        @"Failed to receive remote notification to verify app identity within "
+                        @"%.0f second(s)", timeout);
         }
         completion(credential, nil);
       }];

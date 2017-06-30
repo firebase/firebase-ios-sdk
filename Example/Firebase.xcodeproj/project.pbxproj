@@ -4719,7 +4719,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
@@ -4746,7 +4746,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
@@ -5400,7 +5400,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
@@ -5427,7 +5427,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 					"\"${PODS_ROOT}/../../Firebase/Core/Private\"",
 				);
