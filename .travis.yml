@@ -12,5 +12,6 @@ before_install:
   - pod install --project-directory=Example --repo-update
 
 script:
+  - "! git grep ' $'" # Fail on trailing whitespace
   - ./test.sh
   - pod lib lint FirebaseCommunity.podspec --verbose | tail -40
