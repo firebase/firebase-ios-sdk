@@ -90,7 +90,7 @@
     FIRDatabaseHandle movedHandle = [path observeEventType:FIRDataEventTypeChildMoved withBlock:[self makeEventCallback:FIRDataEventTypeChildMoved]];
     FIRDatabaseHandle changedHandle = [path observeEventType:FIRDataEventTypeChildChanged withBlock:[self makeEventCallback:FIRDataEventTypeChildChanged]];
     FIRDatabaseHandle valueHandle = [path observeEventType:FIRDataEventTypeValue withBlock:[self makeEventCallback:FIRDataEventTypeValue]];
-    
+
     fbt_void_void cb = ^() {
         [path removeObserverWithHandle:removedHandle];
         [path removeObserverWithHandle:addedHandle];
@@ -137,7 +137,7 @@
 }
 
 - (fbt_void_datasnapshot) makeEventCallback:(FIRDataEventType)type {
-        
+
     fbt_void_datasnapshot cb = ^(FIRDataSnapshot * snap) {
 
         FIRDatabaseReference * ref = snap.ref;

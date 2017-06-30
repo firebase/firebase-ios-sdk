@@ -49,7 +49,7 @@
 - (void) testWriteAndReadData {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
     [node setValue:@42];
-    
+
     [self snapWaiter:node withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertEqualObjects(@42, [snapshot value], @"Properly saw correct value");
     }];
@@ -75,9 +75,9 @@
 
 - (void) testValReturnsCompoundObjectWithChildren {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     [node setValue:@{@"foo": @{@"bar": @5}}];
-    
+
     [self snapWaiter:node withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertEqualObjects([[[snapshot value] objectForKey:@"foo"] objectForKey:@"bar"], @5, @"Properly saw compound object");
     }];
@@ -98,16 +98,16 @@
     FIRDatabaseReference * writeNode = tuple.one;
     FIRDatabaseReference * readNode = tuple.two;
 
-    
+
     __block BOOL done = NO;
-    
+
     [[[[writeNode child:@"a"] child:@"b"] child:@"c"] setValue:@1];
     [[[[writeNode child:@"a"] child:@"d"] child:@"e"] setValue:@2];
     [[[[writeNode child:@"a"] child:@"d"] child:@"f"] setValue:@3];
     [[writeNode child:@"g"] setValue:@4 withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) { done = YES; }];
-    
+
     [self waitUntil:^BOOL{ return done; }];
-    
+
     [super snapWaiter:readNode withBlock:^(FIRDataSnapshot *s) {
         XCTAssertEqualObjects([[[[s childSnapshotForPath:@"a"] childSnapshotForPath:@"b"] childSnapshotForPath:@"c"] value], @1, @"Proper child value");
         XCTAssertEqualObjects([[[[s childSnapshotForPath:@"a"] childSnapshotForPath:@"d"] childSnapshotForPath:@"e"] value], @2, @"Proper child value");
@@ -234,7 +234,7 @@
     [[node repo] interrupt]; // Going offline ensures that local events get queued up before server events
     FEventTester* et = [[FEventTester alloc] initFrom:self];
     [et addLookingFor:lookingFor];
-    
+
     [[node child:@"a/aa"] setValue:@1];
     [[node child:@"a"] setValue:@{@"aa": @2}];
     [[node child:@"a"] setValue:@{@"aa": @3}];
@@ -498,7 +498,7 @@
 
 - (void) testWriteCompoundObjectAndGetItBack {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     NSDictionary* data = @{
         @"a": @{@"aa": @5,
                 @"ab": @3},
@@ -511,19 +511,19 @@
                 @NO,
                 @"dude"]
     };
-    
+
     __block FIRDataSnapshot *snap = nil;
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
-    
+
     __block BOOL done = NO;
     [node setValue:data withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) { done = YES; }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     [self snapWaiter:node withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertTrue([[[[snapshot value] objectForKey:@"c"] objectAtIndex:3] boolValue], @"Got proper boolean");
     }];
@@ -531,7 +531,7 @@
 
 - (void) testCanPassValueToPush {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     FIRDatabaseReference * pushA = [node childByAutoId];
     [pushA setValue:@5];
 
@@ -541,7 +541,7 @@
 
     FIRDatabaseReference * pushB = [node childByAutoId];
     [pushB setValue:@{@"a": @5, @"b": @6}];
-    
+
     [self snapWaiter:pushB withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertEqualObjects(@5, [[snapshot value] objectForKey:@"a"], @"Got proper value");
         XCTAssertEqualObjects(@6, [[snapshot value] objectForKey:@"b"], @"Got proper value");
@@ -556,7 +556,7 @@
     __block BOOL setDone = NO;
     __block BOOL removeDone = NO;
     __block BOOL readDone = NO;
-    
+
     [node setValue:@42 withCompletionBlock:^(NSError* error, FIRDatabaseReference * ref) {
         setDone = YES;
     }];
@@ -579,22 +579,22 @@
 
     [self waitUntil:^BOOL{
         return readDone && removeDone;
-    }];         
+    }];
 }
 
 - (void) testRemoveCallbackIsHitForNodesThatAreAlreadyRemoved {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block int removes = 0;
-    
+
     [node removeValueWithCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         removes = removes + 1;
     }];
-    
+
     [node removeValueWithCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         removes = removes + 1;
     }];
-    
+
     [self waitUntil:^BOOL{
         return removes == 2;
     }];
@@ -622,35 +622,35 @@
     FIRDatabaseReference * writeNode = tuple.one;
     FIRDatabaseReference * readNode = tuple.two;
     FIRDatabaseReference * readNodeB = tuple.three;
-    
+
     __block BOOL initialReadDone = NO;
 
     [readNode observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertTrue([[snapshot value] isEqual:[NSNull null]], @"First callback is null");
         initialReadDone = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return initialReadDone;
     }];
-    
+
     __block BOOL writeDone = NO;
-    
+
     [writeNode setValue:@42 withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         writeDone = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return writeDone;
     }];
-    
+
     __block BOOL readDone = NO;
 
     [readNodeB observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertEqualObjects(@42, [snapshot value], @"Proper second read");
         readDone = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return readDone;
     }];
@@ -660,13 +660,13 @@
 
 - (void) testSetAndThenListenForValueEventsAreCorrect {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block BOOL setDone = NO;
-    
+
     [node setValue:@"moo" withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         setDone = YES;
     }];
-    
+
     __block int calls = 0;
 
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
@@ -674,7 +674,7 @@
         XCTAssertTrue(calls == 1, @"Only called once");
         XCTAssertEqualObjects([snapshot value], @"moo", @"Proper snapshot value");
     }];
-    
+
     [self waitUntil:^BOOL{
         return setDone && calls == 1;
     }];
@@ -682,9 +682,9 @@
 
 - (void) testHasChildrenWorksCorrectly {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     [node setValue:@{@"one" : @42, @"two": @{@"a": @5}, @"three": @{@"a": @5, @"b": @6}}];
-    
+
     __block BOOL removedTwo = NO;
     __block BOOL done = NO;
 
@@ -703,7 +703,7 @@
             done = YES;
         }
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
@@ -711,9 +711,9 @@
 
 - (void) testNumChildrenWorksCorrectly {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     [node setValue:@{@"one" : @42, @"two": @{@"a": @5}, @"three": @{@"a": @5, @"b": @6}}];
-    
+
     __block BOOL removedTwo = NO;
     __block BOOL done = NO;
 
@@ -734,7 +734,7 @@
             done = YES;
         }
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
@@ -745,51 +745,51 @@
     FTupleFirebase* tuple = [FTestHelpers getRandomNodePairWithoutPersistence];
     FIRDatabaseReference * writeNode = tuple.one;
     FIRDatabaseReference * readNode = tuple.two;
-    
+
     __block BOOL done = NO;
-    
+
     NSDictionary* compound = @{@"a": @5, @"b": @6};
     NSNumber* number = @76;
-    
+
     [writeNode setValue:compound];
-    
+
     [self snapWaiter:writeNode withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertTrue([snapshot hasChildren], @"Has children");
         XCTAssertEqualObjects(@5, [[snapshot childSnapshotForPath:@"a"] value], @"First child");
         XCTAssertEqualObjects(@6, [[snapshot childSnapshotForPath:@"b"] value], @"First child");
         done = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     done = NO;
-    
+
     [self snapWaiter:readNode withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertTrue([snapshot hasChildren], @"has children");
         XCTAssertEqualObjects(@5, [[snapshot childSnapshotForPath:@"a"] value], @"First child");
         XCTAssertEqualObjects(@6, [[snapshot childSnapshotForPath:@"b"] value], @"First child");
         done = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     done = NO;
 
-    
+
     [writeNode setValue:number withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         done = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     done = NO;
-    
+
     [self snapWaiter:readNode withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertFalse([snapshot hasChildren], @"No more children");
         XCTAssertEqualObjects(number, [snapshot value], @"Proper non compound value");
@@ -799,30 +799,30 @@
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     done = NO;
-    
+
     [writeNode setValue:compound withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         done = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     done = NO;
-    
+
     [self snapWaiter:readNode withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertTrue([snapshot hasChildren], @"Has children");
         XCTAssertEqualObjects(@5, [[snapshot childSnapshotForPath:@"a"] value], @"First child");
         XCTAssertEqualObjects(@6, [[snapshot childSnapshotForPath:@"b"] value], @"First child");
         done = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     XCTAssertTrue(done, @"Properly finished");
 }
 
@@ -1421,7 +1421,7 @@
 
 - (void) testSettingInvalidObjectsThrow {
     FIRDatabaseReference * ref = [FTestHelpers getRandomNode];
-    
+
     XCTAssertThrows([ref setValue:[NSDate date]], @"Should throw");
 
     NSDictionary *data = @{@"invalid":@"data", @".sv":@"timestamp"};
@@ -1451,7 +1451,7 @@
 
 - (void) testSettingNull {
     FIRDatabaseReference * ref = [FTestHelpers getRandomNode];
-    
+
     XCTAssertNoThrow([ref setValue:nil], @"Should not throw");
     XCTAssertNoThrow([ref setValue:[NSNull null]], @"Should not throw");
 }
@@ -1470,7 +1470,7 @@
 
 - (void) testRemoveFromOnMobileGraffitiBugAtAngelHack {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block BOOL done = NO;
 
     [node observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
@@ -1478,53 +1478,53 @@
             done = YES;
         }];
     }];
-    
+
     [[node childByAutoId] setValue:@"moo"];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     XCTAssertTrue(done, @"Properly finished");
 }
 
 - (void) testSetANodeWithAQuotedKey {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block BOOL done = NO;
     __block FIRDataSnapshot * snap;
 
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
-    
+
     [node setValue:@{@"\"herp\"": @1234} withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         done = YES;
         XCTAssertEqualObjects(@1234, [[snap childSnapshotForPath:@"\"herp\""] value], @"Got it back");
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     XCTAssertTrue(done, @"Properly finished");
 }
 
 - (void) testSetANodeWithASingleQuoteKey {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block BOOL done = NO;
     __block FIRDataSnapshot * snap;
 
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
-    
+
     [node setValue:@{@"\"": @1234} withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
         done = YES;
         XCTAssertEqualObjects(@1234, [[snap childSnapshotForPath:@"\""] value], @"Got it back");
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
@@ -1534,18 +1534,18 @@
 
 - (void) testEmptyChildGetValueEventBeforeParent {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     NSArray* lookingFor = @[
             [[FTupleEventTypeString alloc] initWithFirebase:[node child:@"a/aa/aaa"] withEvent:FIRDataEventTypeValue withString:nil],
             [[FTupleEventTypeString alloc] initWithFirebase:[node child:@"a/aa"] withEvent:FIRDataEventTypeValue withString:nil],
             [[FTupleEventTypeString alloc] initWithFirebase:[node child:@"a"] withEvent:FIRDataEventTypeValue withString:nil],
     ];
-    
+
     FEventTester* et = [[FEventTester alloc] initFrom:self];
     [et addLookingFor:lookingFor];
-    
+
     [node setValue:@{@"b": @5}];
-    
+
     [et wait];
 
 }
@@ -1909,14 +1909,14 @@
     FTupleFirebase* refs = [FTestHelpers getRandomNodePair];
     FIRDatabaseReference * reader = refs.one;
     FIRDatabaseReference * writer = refs.two;
-    
+
     __block FIRDataSnapshot * localSnap = nil;
     __block BOOL ready = NO;
 
     [writer observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         localSnap = snapshot;
     }];
-    
+
     [writer setValue:@{@"a": @{@"aa": @1, @"ab": @2}}];
     [writer updateChildValues:@{@"a/aa": @10,
                                 @".priority": @3.0,
@@ -1925,7 +1925,7 @@
           withCompletionBlock:^(NSError* error, FIRDatabaseReference * ref) {
         ready = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return ready;
     }];
@@ -1937,7 +1937,7 @@
         XCTAssertTrue([result isEqualToDictionary:expected], @"Should get new value");
         ready = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         NSDictionary* result = [localSnap value];
         NSDictionary* expected = @{@"a": @{@"aa": @10, @"ab": @20}};
@@ -2165,7 +2165,7 @@
     snap = nil;
 
     [ref setValue:toSet];
-  
+
     [self waitUntil:^BOOL{
         return snap != nil;
     }];
@@ -2306,14 +2306,14 @@
         @".priority": [FIRServerValue timestamp]
       }
     };
-  
+
     __block BOOL done = NO;
     [writer setValue:data andPriority:[FIRServerValue timestamp] withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) { done = YES; }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     [self snapWaiter:reader withBlock:^(FIRDataSnapshot *snapshot) {
         NSDictionary* value = [snapshot value];
         NSNumber* now = [NSNumber numberWithDouble:round([[NSDate date] timeIntervalSince1970]*1000)];
@@ -2359,7 +2359,7 @@
     FTupleFirebase* refs = [FTestHelpers getRandomNodePair];
     FIRDatabaseReference * writer = refs.one;
     FIRDatabaseReference * reader = refs.two;
-    
+
     __block FIRDataSnapshot *snap = nil;
     __block BOOL done = NO;
     [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
@@ -2368,14 +2368,14 @@
             done = YES;
         }
     }];
-  
+
     [[writer child:@"a/b/c"] setValue:@1];
     [[writer child:@"a"] updateChildValues:@{ @"b": @{ @"c": [FIRServerValue timestamp], @"d":@1 } }];
 
     [self waitUntil:^BOOL{
         return done;
     }];
-  
+
     NSNumber* now = [NSNumber numberWithDouble:round([[NSDate date] timeIntervalSince1970]*1000)];
     NSNumber* timestamp = [[snap childSnapshotForPath:@"a/b/c"] value];
     XCTAssertTrue([[[snap childSnapshotForPath:@"a/b/c"] value] isKindOfClass:[NSNumber class]], @"Should get back number");
@@ -2392,19 +2392,19 @@
         @".priority": [FIRServerValue timestamp]
       }
     };
-    
+
     __block FIRDataSnapshot *snap = nil;
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
-  
+
     __block BOOL done = NO;
     [node setValue:data andPriority:[FIRServerValue timestamp] withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) { done = YES; }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     [self snapWaiter:node withBlock:^(FIRDataSnapshot *snapshot) {
         NSDictionary* value = [snapshot value];
         NSNumber* now = [NSNumber numberWithDouble:round([[NSDate date] timeIntervalSince1970]*1000)];
@@ -2419,20 +2419,20 @@
 
 - (void) testServerValuesSetPriorityLocalEvents {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block FIRDataSnapshot *snap = nil;
     [node observeEventType:FIRDataEventTypeChildMoved withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
     __block BOOL done = NO;
-  
+
     [[node child:@"a"] setValue:@1 andPriority:nil];
     [[node child:@"b"] setValue:@1 andPriority:@1];
     [[node child:@"a"] setPriority:[FIRServerValue timestamp] withCompletionBlock:^(NSError* error, FIRDatabaseReference * ref) {
       done = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
@@ -2445,7 +2445,7 @@
 
 - (void) testServerValuesUpdateLocalEvents {
     FIRDatabaseReference * node1 = [FTestHelpers getRandomNode];
-    
+
     __block FIRDataSnapshot *snap1 = nil;
     [node1 observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap1 = snapshot;
@@ -2460,11 +2460,11 @@
         [currentData setValue:[FIRServerValue timestamp]];
         return [FIRTransactionResult successWithValue:currentData];
     }];
-    
+
     [self waitUntil:^BOOL{
         return snap1 != nil && snap2 != nil && [snap1 value] != nil  && [snap2 value] != nil;
     }];
-  
+
     NSNumber* now = [NSNumber numberWithDouble:round([[NSDate date] timeIntervalSince1970]*1000)];
 
     NSNumber* timestamp1 = [snap1 value];
@@ -2478,19 +2478,19 @@
 
 - (void) testServerValuesTransactionLocalEvents {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block FIRDataSnapshot *snap = nil;
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
-  
+
     [[node child:@"a/b/c"] setValue:@1];
     [[node child:@"a"] updateChildValues:@{ @"b": @{ @"c": [FIRServerValue timestamp], @"d":@1 } }];
-    
+
     [self waitUntil:^BOOL{
         return snap != nil && [[snap childSnapshotForPath:@"a/b/d"] value] != nil;
     }];
-  
+
     NSNumber* now = [NSNumber numberWithDouble:round([[NSDate date] timeIntervalSince1970]*1000)];
     NSNumber* timestamp = [[snap childSnapshotForPath:@"a/b/c"] value];
     XCTAssertTrue([[[snap childSnapshotForPath:@"a/b/c"] value] isKindOfClass:[NSNumber class]], @"Should get back number");
@@ -2499,7 +2499,7 @@
 
 - (void) testUpdateAfterChildSet {
     FIRDatabaseReference *node = [FTestHelpers getRandomNode];
-    
+
     __block BOOL done = NO;
     __weak FIRDatabaseReference *weakRef = node;
     [node setValue:@{@"a": @"a"} withCompletionBlock:^(NSError *error, FIRDatabaseReference *ref) {
@@ -2508,12 +2508,12 @@
                 done = YES;
             }
         }];
-        
+
         [[weakRef child:@"b"] setValue:@"b"];
-        
+
         [weakRef updateChildValues:@{@"c" : @"c"}];
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
@@ -2555,7 +2555,7 @@
     ];
 
     [self waitUntil:^BOOL{ return done; }];
-    
+
     // cleanup
     [FRepoManager interrupt:cfg];
     [FRepoManager disposeRepos:cfg];

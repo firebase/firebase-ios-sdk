@@ -108,7 +108,7 @@
   }
 
   uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryTime;
-  
+
   __weak FIRStorageUploadTask* weakSelf = self;
 
   [uploadFetcher setSendProgressBlock:^(int64_t bytesSent, int64_t totalBytesSent,
@@ -125,7 +125,7 @@
 
   // Process fetches
   self.state = FIRStorageTaskStateRunning;
-  
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion = ^(NSData *_Nullable data,
@@ -170,7 +170,7 @@
     _fetcherCompletion = nil;
   };
 #pragma clang diagnostic pop
-  
+
   [_uploadFetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
                                                     NSError *_Nullable error) {
     weakSelf.fetcherCompletion(data, error);

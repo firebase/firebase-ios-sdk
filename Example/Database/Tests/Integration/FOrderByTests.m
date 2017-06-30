@@ -24,7 +24,7 @@
 
 - (void) testCanDefineAndUseAnIndex {
     __block FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
-   
+
     NSArray *users = @[
                     @{@"name": @"Andrew", @"nuggets": @35},
                     @{@"name": @"Rob", @"nuggets": @40},
@@ -539,8 +539,8 @@
     FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
     FIRDatabaseReference *writer = refs.one;
     FIRDatabaseReference *reader = refs.two;
-    
-    
+
+
     NSDictionary *initial = @{@"a": @{@"data": @"foo",
                                       @"idx": @YES},
                               @"b": @{@"data": @"bar",
@@ -548,7 +548,7 @@
                               @"c": @{@"data": @"baz",
                                       @"idx": @NO}};
     [self waitForCompletionOf:writer setValue:initial];
-    
+
     FIRDatabaseQuery *query = [[reader queryOrderedByChild:@"idx"] queryEqualToValue:@YES];
 
     NSDictionary* expected = @{@"a": @{@"data": @"foo",
@@ -557,12 +557,12 @@
                                        @"idx": @YES}};
 
     [self waitForExportValueOf:query toBe:expected];
-    
+
     NSDictionary *update = @{@"a/idx": @NO,
                              @"b/data": @"blah",
                              @"c/idx": @YES};
     [self waitForCompletionOf:writer updateChildValues:update];
-    
+
     expected = @{@"b": @{@"data": @"blah",
                          @"idx": @YES},
                  @"c": @{@"data": @"baz",

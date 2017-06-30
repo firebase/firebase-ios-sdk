@@ -42,7 +42,7 @@ Carthage
 # Since Firebase is building libraries, not apps, we should not check in Pods.
 # Pods are only used in the Examples and tests and doing a 'pod install' better
 # matches our customers' environments.
-# 
+#
 # Note: if you ignore the Pods directory, make sure to uncomment
 # `pod install` in .travis.yml
 #

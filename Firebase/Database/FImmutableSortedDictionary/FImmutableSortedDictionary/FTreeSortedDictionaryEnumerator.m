@@ -71,7 +71,7 @@
     if([self.stack count] == 0) {
         return nil;
     }
-    
+
     id<FLLRBNode> node = nil;
     @synchronized(self.stack) {
         node = [self.stack lastObject];

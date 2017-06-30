@@ -30,7 +30,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
  * - authentication read/write access to /ios/private
  *
  * A sample configuration may look like:
- * 
+ *
  * service firebase.storage {
  *   match /b/{YOUR_PROJECT_ID}.appspot.com/o {
  *     ...
@@ -63,14 +63,14 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
 
 - (void)setUp {
     [super setUp];
-    
+
     self.app = [FIRApp defaultApp];
     self.storage = [FIRStorage storageForApp:self.app];
-    
+
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         XCTestExpectation *expectation = [self expectationWithDescription:@"setup"];
-        
+
         FIRStorageReference *ref = [[FIRStorage storage].reference child:@"ios/public/1mb"];
         NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"1mb" ofType:@"dat"]];
         XCTAssertNotNil(data, "Could not load bundled file");
@@ -78,7 +78,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
             XCTAssertNil(error);
             [expectation fulfill];
         }];
-        
+
         [self waitForExpectations];
     });
 }
@@ -86,7 +86,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
 - (void)tearDown {
     self.app = nil;
     self.storage = nil;
-    
+
     [super tearDown];
 }
 
@@ -100,22 +100,22 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedGetMetadata"];
     FIRStorageReference *ref = [self.storage.reference child:@"ios/public/1mb"];
-    
+
     [ref metadataWithCompletion:^(FIRStorageMetadata *metadata, NSError *error) {
         XCTAssertNotNil(metadata, "Metadata should not be nil");
         XCTAssertNil(error, "Error should be nil");
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedUpdateMetadata {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedUpdateMetadata"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
-    
+
     FIRStorageMetadata *meta = [[FIRStorageMetadata alloc] init];
     [meta setContentType:@"lol/custom"];
     [meta setCustomMetadata:@{
@@ -123,7 +123,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                               @"ちかてつ" : @"🚇",
                               @"shinkansen" : @"新幹線"
                               }];
-    
+
     [ref updateMetadata:meta
              completion:^(FIRStorageMetadata *metadata, NSError *error) {
                  XCTAssertEqualObjects(meta.contentType, metadata.contentType);
@@ -136,17 +136,17 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                  XCTAssertNil(error, "Error should be nil");
                  [expectation fulfill];
              }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedDelete {
     XCTestExpectation *expectation = [self expectationWithDescription:@"testUnauthenticatedDelete"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/fileToDelete"];
-    
+
     NSData *data = [@"Delete me!!!!!!!" dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     [ref putData:data
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -157,17 +157,17 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
               [expectation fulfill];
           }];
       }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testDeleteWithNilCompletion {
     XCTestExpectation *expectation = [self expectationWithDescription:@"testDeleteWithNilCompletion"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/fileToDelete"];
-    
+
     NSData *data = [@"Delete me!!!!!!!" dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     [ref putData:data
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -176,7 +176,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
           [ref deleteWithCompletion:nil];
           [expectation fulfill];
       }];
-    
+
     [self waitForExpectations];
 }
 
@@ -184,9 +184,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
     XCTestExpectation *expectation =
     [self expectationWithDescription:@"testUnauthenticatedSimplePutData"];
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/testBytesUpload"];
-    
+
     NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     [ref putData:data
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -194,19 +194,19 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
           XCTAssertNil(error, "Error should be nil");
           [expectation fulfill];
       }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedSimplePutEmptyData {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimplePutEmptyData"];
-    
+
     FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutEmptyData"];
-    
+
     NSData *data = [[NSData alloc] init];
-    
+
     [ref putData:data
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -214,7 +214,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
           XCTAssertNil(error, "Error should be nil");
           [expectation fulfill];
       }];
-    
+
     [self waitForExpectations];
 }
 
@@ -222,9 +222,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimplePutDataUnauthorized"];
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/private/secretfile.txt"];
-    
+
     NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     [ref putData:data
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -233,38 +233,38 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
           XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthorized);
           [expectation fulfill];
       }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedSimplePutFile {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimplePutFile"];
-    
+
     FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutFile"];
-    
+
     NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *fileURL =
     [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
     [data writeToURL:fileURL atomically:YES];
-    
+
     FIRStorageUploadTask *task = [ref putFile:fileURL
                                      metadata:nil
                                    completion:^(FIRStorageMetadata *metadata, NSError *error) {
                                        XCTAssertNotNil(metadata, "Metadata should not be nil");
                                        XCTAssertNil(error, "Error should be nil");
                                    }];
-    
+
     __block long uploadedBytes = -1;
-    
+
     [task observeStatus:FIRStorageTaskStatusSuccess
                 handler:^(FIRStorageTaskSnapshot *snapshot) {
                     XCTAssertEqualObjects([snapshot description], @"<State: Success>");
                     [expectation fulfill];
                 }];
-    
+
     [task observeStatus:FIRStorageTaskStatusProgress
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                     XCTAssertTrue([[snapshot description] containsString:@"State: Progress"] ||
@@ -273,23 +273,23 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                     XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes);
                     uploadedBytes = progress.completedUnitCount;
                 }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testPutFileWithSpecialCharacters {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testPutFileWithSpecialCharacters"];
-    
+
     NSString *fileName = @"hello&+@_ .txt";
     FIRStorageReference *ref =
     [self.storage referenceWithPath:[@"ios/public/" stringByAppendingString:fileName]];
-    
+
     NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *fileURL = [tmpDirURL URLByAppendingPathComponent:fileName];
     [data writeToURL:fileURL atomically:YES];
-    
+
     [ref putFile:fileURL
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -305,19 +305,19 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
               [expectation fulfill];
           }];
       }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedSimplePutDataNoMetadata {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimplePutDataNoMetadata"];
-    
+
     FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutDataNoMetadata"];
-    
+
     NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     [ref putData:data
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -325,23 +325,23 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
           XCTAssertNil(error, "Error should be nil");
           [expectation fulfill];
       }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedSimplePutFileNoMetadata {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimplePutFileNoMetadata"];
-    
+
     FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutFileNoMetadata"];
-    
+
     NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *fileURL =
     [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
     [data writeToURL:fileURL atomically:YES];
-    
+
     [ref putFile:fileURL
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -349,32 +349,32 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
           XCTAssertNil(error, "Error should be nil");
           [expectation fulfill];
       }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedSimpleGetData {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimpleGetData"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
-    
+
     [ref dataWithMaxSize:1 * 1024 * 1024
               completion:^(NSData *data, NSError *error) {
                   XCTAssertNotNil(data, "Data should not be nil");
                   XCTAssertNil(error, "Error should be nil");
                   [expectation fulfill];
               }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedSimpleGetDataTooSmall {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimpleGetDataTooSmall"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
-    
+
     /// Only allow 1kB size, which is smaller than our file
     [ref dataWithMaxSize:1 * 1024
               completion:^(NSData *data, NSError *error) {
@@ -382,25 +382,25 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                   XCTAssertEqual(error.code, FIRStorageErrorCodeDownloadSizeExceeded);
                   [expectation fulfill];
               }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedSimpleGetFile {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimpleGetData"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/helloworld"];
-    
+
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *fileURL =
       [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
-   
+
     [ref putData:[@"Hello World" dataUsingEncoding:NSUTF8StringEncoding] metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error)
     {
         FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
-        
+
         [task observeStatus:FIRStorageTaskStatusSuccess
                     handler:^(FIRStorageTaskSnapshot *snapshot) {
                         NSString *data = [NSString stringWithContentsOfURL:fileURL
@@ -411,71 +411,71 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                         XCTAssertEqualObjects([snapshot description], @"<State: Success>");
                         [expectation fulfill];
                     }];
-        
+
         [task observeStatus:FIRStorageTaskStatusProgress
                     handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                         NSProgress *progress = snapshot.progress;
                         NSLog(@"%lld of %lld", progress.completedUnitCount, progress.totalUnitCount);
                     }];
-        
+
         [task observeStatus:FIRStorageTaskStatusFailure
                     handler:^(FIRStorageTaskSnapshot *snapshot) {
                         XCTAssertNil(snapshot.error);
                         [expectation fulfill];
                     }];
     }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testCancelDownload {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testCancelDownload"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
-    
+
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *fileURL =
         [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"dat"];
-    
+
     FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
-    
+
     [task observeStatus:FIRStorageTaskStatusFailure
                 handler:^(FIRStorageTaskSnapshot *snapshot) {
                     XCTAssertTrue([[snapshot description] containsString:@"State: Failed"]);
                     [expectation fulfill];
                 }];
-    
+
     [task observeStatus:FIRStorageTaskStatusProgress
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                     [task cancel];
                 }];
-    
+
     [self waitForExpectations];
 }
 
 - (void)testUnauthenticatedResumeGetFile {
     XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedResumeGetFile"];
-    
+
     FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
-    
+
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
     NSURL *fileURL =
     [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
-    
+
     __block long resumeAtBytes = 256 * 1024;
     __block long downloadedBytes = 0;
     __block double computationResult = 0;
-    
+
     FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
-    
+
     [task observeStatus:FIRStorageTaskStatusSuccess
                 handler:^(FIRStorageTaskSnapshot *snapshot) {
                     XCTAssertEqualObjects([snapshot description], @"<State: Success>");
                     [expectation fulfill];
                 }];
-    
+
     [task observeStatus:FIRStorageTaskStatusProgress
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                     XCTAssertTrue([[snapshot description] containsString:@"State: Progress"] ||
@@ -495,14 +495,14 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                         resumeAtBytes = INT_MAX;
                     }
                 }];
-    
+
     [task observeStatus:FIRStorageTaskStatusPause
                 handler:^(FIRStorageTaskSnapshot *snapshot) {
                     XCTAssertEqualObjects([snapshot description], @"<State: Paused>");
                     NSLog(@"Resuming");
                     [task resume];
                 }];
-    
+
     [self waitForExpectations];
     XCTAssertEqual(INT_MAX, resumeAtBytes);
     XCTAssertEqualWithAccuracy(sqrt(INT_MAX - 499), computationResult, 0.1);

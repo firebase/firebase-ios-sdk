@@ -42,7 +42,7 @@
 - (void) addEventRegistration:(id<FEventRegistration>)eventRegistration forQuery:(FQuerySpec *)query;
 - (void) removeEventRegistration:(id<FEventRegistration>)eventRegistration forQuery:(FQuerySpec *)query;
 - (void) keepQuery:(FQuerySpec *)query synced:(BOOL)synced;
-    
+
 - (NSString*)name;
 - (NSTimeInterval)serverTime;
 

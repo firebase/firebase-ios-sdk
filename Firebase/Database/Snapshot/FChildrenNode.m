@@ -157,7 +157,7 @@
     if([self isEmpty]) {
         return [NSNull null];
     }
-    
+
     __block int numKeys = 0;
     __block NSInteger maxKey = 0;
     __block BOOL allIntegerKeys = YES;
@@ -208,7 +208,7 @@
         if(exp && [self getPriority] != nil && !self.getPriority.isEmpty) {
             obj[kPayloadPriority] = [self.getPriority val];
         }
-        
+
         return obj;
     }
 }

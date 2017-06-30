@@ -44,11 +44,11 @@
     // We use this shared queue across all of the FQueries so things happen FIFO (as opposed to dispatch_get_global_queue(0, 0) which is concurrent)
     static dispatch_once_t pred;
     static dispatch_queue_t sharedDispatchQueue;
-    
+
     dispatch_once(&pred, ^{
         sharedDispatchQueue = dispatch_queue_create("FirebaseWorker", NULL);
     });
-    
+
     return sharedDispatchQueue;
 }
 

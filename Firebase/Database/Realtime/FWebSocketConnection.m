@@ -65,11 +65,11 @@
         self.totalFrames = 0;
         self.dispatchQueue = queue;
         frame = nil;
-        
+
         NSString* connectionUrl = [repoInfo connectionURLWithLastSessionID:lastSessionID];
         NSString* ua = [self userAgent];
         FFLog(@"I-RDB083001", @"(wsc:%@) Connecting to: %@ as %@", self.connectionId, connectionUrl, ua);
-        
+
         NSURLRequest* req = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:connectionUrl]];
         self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req queue:queue andUserAgent:ua];
         [self.webSocket setDelegateDispatchQueue:queue];
@@ -82,7 +82,7 @@
     NSString* systemVersion;
     NSString* deviceName;
     BOOL hasUiDeviceClass = NO;
-    
+
     // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
     #if TARGET_OS_IOS
     Class uiDeviceClass = NSClassFromString(@"UIDevice");
@@ -92,7 +92,7 @@
         hasUiDeviceClass = YES;
     }
     #endif
-    
+
     if (!hasUiDeviceClass) {
         NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
         systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
@@ -143,19 +143,19 @@
 
     [self resetKeepAlive];
 
-    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dictionary 
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
                                                        options:kNilOptions error:nil];
-    
+
     NSString* data = [[NSString alloc] initWithData:jsonData
                                            encoding:NSUTF8StringEncoding];
-    
+
     NSArray* dataSegs = [FUtilities splitString:data intoMaxSize:kWebsocketMaxFrameSize];
 
     // First send the header so the server knows how many segments are forthcoming
     if (dataSegs.count > 1) {
         [self.webSocket send:[NSString stringWithFormat:@"%u", (unsigned int)dataSegs.count]];
     }
-    
+
     // Then, actually send the segments.
     for(NSString * segment in dataSegs) {
         [self.webSocket send:segment];
@@ -165,7 +165,7 @@
 - (void) nop:(NSTimer *)timer {
     if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
-        [self.webSocket send:@"0"];        
+        [self.webSocket send:@"0"];
     }
     else {
         FFLog(@"I-RDB083005", @"(wsc:%@) No more websocket; invalidating nop timer.", self.connectionId);
@@ -202,7 +202,7 @@
                                                                error:nil];
         frame = nil;
         FFLog(@"I-RDB083007", @"(wsc:%@) handleIncomingFrame sending complete frame: %d", self.connectionId, self.totalFrames);
-        
+
         @autoreleasepool {
             [self.delegate onMessage:self withMessage:json];
         }
@@ -231,9 +231,9 @@
 - (void)webSocketDidOpen:(FSRWebSocket *)webSocket
 {
     FFLog(@"I-RDB083008", @"(wsc:%@) webSocketDidOpen", self.connectionId);
-    
+
     everConnected = YES;
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         self->keepAlive = [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
                                                            target:self
@@ -261,8 +261,8 @@
 
 /**
  * Note that the close / onClosed / shutdown cycle here is a little different from the javascript client.
- * In order to properly handle deallocation, no close-related action is taken at a higher level until we 
- * have received notification from the websocket itself that it is closed. Otherwise, we end up deallocating 
+ * In order to properly handle deallocation, no close-related action is taken at a higher level until we
+ * have received notification from the websocket itself that it is closed. Otherwise, we end up deallocating
  * this class and the FConnection class before the websocket has a change to call some of its delegate methods.
  * So, since close is the external close handler, we just set a flag saying not to call our own delegate method
  * and close the websocket. That will trigger a callback into this class that can then do things like clean up
@@ -278,7 +278,7 @@
 
 - (void) shutdown {
     isClosed = YES;
-    
+
     // Call delegate methods
     [self.delegate onDisconnect:self wasEverConnected:everConnected];
 

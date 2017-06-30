@@ -36,13 +36,13 @@
     NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
     NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
     NSTimeInterval currentTime;
-    
+
     for (currentTime = [NSDate timeIntervalSinceReferenceDate];
          !predicate() && currentTime < timeoutTime;
          currentTime = [NSDate timeIntervalSinceReferenceDate]) {
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
     }
-        
+
     NSTimeInterval finish = [NSDate timeIntervalSinceReferenceDate];
     if (currentTime > timeoutTime) {
         if (desc != nil) {

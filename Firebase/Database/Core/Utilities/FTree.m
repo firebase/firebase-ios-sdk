@@ -107,11 +107,11 @@
     if(incSelf && !childFirst) {
         action(self);
     }
-    
+
     [self forEachChild:^(FTree* child) {
         [child forEachDescendant:action includeSelf:YES childrenFirst:childFirst];
     }];
-    
+
     if(incSelf && childFirst) {
         action(self);
     }

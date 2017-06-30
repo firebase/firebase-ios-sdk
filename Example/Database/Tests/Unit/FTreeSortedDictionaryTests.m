@@ -75,7 +75,7 @@
     FTreeSortedDictionary* map = [[[[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]]
                                         insertKey:@1 withValue:@1]
                                        insertKey:@2 withValue:@2];
-    
+
     XCTAssertEqualObjects([map get:@1], @1, @"Found first object");
     XCTAssertEqualObjects([map get:@2], @2, @"Found second object");
     XCTAssertNil([map get:@3], @"Properly not found object");
@@ -85,7 +85,7 @@
     FTreeSortedDictionary* map = [[[[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]]
                                         insertKey:@1 withValue:@1]
                                        insertKey:@2 withValue:@2];
-    
+
     XCTAssertEqualObjects(map.root.key, @2, @"Check the root key");
     XCTAssertEqualObjects(map.root.left.key, @1, @"Check the root.left key");
 }
@@ -94,11 +94,11 @@
     FTreeSortedDictionary* map = [[[[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]]
                                         insertKey:@1 withValue:@1]
                                        insertKey:@2 withValue:@2];
-    
+
     FImmutableSortedDictionary* newMap = [map removeKey:@1];
     XCTAssertEqualObjects([newMap get:@2], @2, @"Found second object");
     XCTAssertNil([newMap get:@1], @"Properly not found object");
-    
+
     // Make sure the original one is not mutated
     XCTAssertEqualObjects([map get:@1], @1, @"Found first object");
     XCTAssertEqualObjects([map get:@2], @2, @"Found second object");
@@ -121,21 +121,21 @@
     XCTAssertNotNil([map get:@7], @"Found object");
     XCTAssertNotNil([map get:@3], @"Found object");
     XCTAssertNotNil([map get:@1], @"Found object");
-    
-    
+
+
     FImmutableSortedDictionary* m1 = [map removeKey:@7];
     FImmutableSortedDictionary* m2 = [map removeKey:@3];
     FImmutableSortedDictionary* m3 = [map removeKey:@1];
-    
+
     XCTAssertNil([m1 get:@7], @"Removed object");
     XCTAssertNotNil([m1 get:@3], @"Found object");
     XCTAssertNotNil([m1 get:@1], @"Found object");
-    
+
     XCTAssertNil([m2 get:@3], @"Removed object");
     XCTAssertNotNil([m2 get:@7], @"Found object");
     XCTAssertNotNil([m2 get:@1], @"Found object");
-    
-    
+
+
     XCTAssertNil([m3 get:@1], @"Removed object");
     XCTAssertNotNil([m3 get:@7], @"Found object");
     XCTAssertNotNil([m3 get:@3], @"Found object");
@@ -146,11 +146,11 @@
                                          insertKey:@1 withValue:@1]
                                         insertKey:@2 withValue:@2]
                                        insertKey:@3 withValue:@3];
-    
+
     XCTAssertEqualObjects([map get:@1], @1, @"Found object");
     XCTAssertEqualObjects([map get:@2], @2, @"Found object");
     XCTAssertEqualObjects([map get:@3], @3, @"Found object");
-    
+
     FImmutableSortedDictionary* m1 = [map removeKey:@2];
     XCTAssertEqualObjects([m1 get:@1], @1, @"Found object");
     XCTAssertEqualObjects([m1 get:@3], @3, @"Found object");
@@ -159,23 +159,23 @@
 
 - (void) testIncreasing {
     int total = 100;
-    
+
     FTreeSortedDictionary* map = [[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]];
-    
+
     for(int i = 0; i < total; i++) {
         NSNumber* item = [NSNumber numberWithInt:i];
         map = [map insertKey:item withValue:item];
     }
-    
+
     XCTAssertTrue([map count] == 100, @"Check if all 100 objects are in the map");
     XCTAssertTrue([map.root isMemberOfClass:[FLLRBValueNode class]], @"Root is a value node");
     XCTAssertTrue([(FLLRBValueNode *)map.root checkMaxDepth], @"Checking valid depth and tree structure");
-    
+
     for(int i = 0; i < total; i++) {
         NSNumber* item = [NSNumber numberWithInt:i];
         map = [map removeKey:item];
     }
-    
+
     XCTAssertTrue([map count] == 0, @"Check if all 100 objects were removed");
     // We can't check the depth here because the map no longer contains values, so we check that it doesn't responsd to this check
     XCTAssertTrue([map.root isMemberOfClass:[FLLRBEmptyNode class]], @"Root is an empty node");
@@ -187,8 +187,8 @@
                                          insertKey:@1 withValue:@1]
                                         insertKey:@2 withValue:@2]
                                        insertKey:@3 withValue:@3];
-    
-    
+
+
     XCTAssertEqualObjects(map.root.key, @2, @"Check root key");
     XCTAssertEqualObjects(map.root.left.key, @1, @"Check the left key is correct");
     XCTAssertEqualObjects(map.root.right.key, @3, @"Check the right key is correct");
@@ -208,7 +208,7 @@
                                          insertKey:@71 withValue:@71]
                                         insertKey:@42 withValue:@42]
                                        insertKey:@88 withValue:@88];
-    
+
     XCTAssertTrue([map count] == 12, @"Check if all 12 objects are in the map");
     XCTAssertTrue([map.root isMemberOfClass:[FLLRBValueNode class]], @"Root is a value node");
     XCTAssertTrue([(FLLRBValueNode *)map.root checkMaxDepth], @"Checking valid depth and tree structure");
@@ -217,18 +217,18 @@
 - (void) testRotateLeftLeavesTreeInAValidState {
     FLLRBValueNode* node = [[FLLRBValueNode alloc] initWithKey:@4 withValue:@4 withColor:BLACK withLeft:
                             [[FLLRBValueNode alloc] initWithKey:@2 withValue:@2 withColor:BLACK withLeft:nil withRight:nil] withRight:[[FLLRBValueNode alloc]initWithKey:@7 withValue:@7 withColor:RED withLeft:[[FLLRBValueNode alloc ]initWithKey:@5 withValue:@5 withColor:BLACK withLeft:nil withRight:nil] withRight:[[FLLRBValueNode alloc] initWithKey:@8 withValue:@8 withColor:BLACK withLeft:nil withRight:nil]]];
-  
+
     FLLRBValueNode* node2 = [node performSelector:@selector(rotateLeft)];
-    
+
     XCTAssertTrue([node2 count] == 5, @"Make sure the count is correct");
     XCTAssertTrue([node2 checkMaxDepth], @"Check proper structure");
 }
 
 - (void) testRotateRightLeavesTreeInAValidState {
     FLLRBValueNode* node = [[FLLRBValueNode alloc] initWithKey:@7 withValue:@7 withColor:BLACK withLeft:[[FLLRBValueNode alloc] initWithKey:@4 withValue:@4 withColor:RED withLeft:[[FLLRBValueNode alloc] initWithKey:@2 withValue:@2 withColor:BLACK withLeft:nil withRight:nil] withRight:[[FLLRBValueNode alloc] initWithKey:@5 withValue:@5 withColor:BLACK withLeft:nil withRight:nil]] withRight:[[FLLRBValueNode alloc] initWithKey:@8 withValue:@8 withColor:BLACK withLeft:nil withRight:nil]];
-    
+
     FLLRBValueNode* node2 = [node performSelector:@selector(rotateRight)];
-    
+
     XCTAssertTrue([node2 count] == 5, @"Make sure the count is correct");
     XCTAssertEqualObjects(node2.key, @4, @"Check roots key");
     XCTAssertEqualObjects(node2.left.key, @2, @"Check first left child key");
@@ -245,18 +245,18 @@
                                          insertKey:@4 withValue:@4]
                                         insertKey:@7 withValue:@7]
                                        insertKey:@9 withValue:@9];
-    
+
     XCTAssertTrue([map count] == 6, @"Check if all 6 objects are in the map");
     XCTAssertTrue([map.root isMemberOfClass:[FLLRBValueNode class]], @"Root is a value node");
     XCTAssertTrue([(FLLRBValueNode *)map.root checkMaxDepth], @"Checking valid depth and tree structure");
-    
+
     FTreeSortedDictionary* m2 = [[[map insertKey:@20 withValue:@20]
                                        insertKey:@18 withValue:@18]
                                       insertKey:@2 withValue:@2];
     XCTAssertTrue([m2 count] == 9, @"Check if all 9 objects are in the map");
     XCTAssertTrue([m2.root isMemberOfClass:[FLLRBValueNode class]], @"Root is a value node");
     XCTAssertTrue([(FLLRBValueNode *)m2.root checkMaxDepth], @"Checking valid depth and tree structure");
-    
+
     FTreeSortedDictionary* m3 = [[[[m2 insertKey:@71 withValue:@71]
                                         insertKey:@42 withValue:@42]
                                        insertKey:@88 withValue:@88]
@@ -270,16 +270,16 @@
     FTreeSortedDictionary* map = [[[[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]]
                                         insertKey:@10 withValue:@10]
                                        insertKey:@10 withValue:@8];
-    
+
     XCTAssertEqualObjects([map get:@10], @8, @"Found first object");
 }
 - (void) testEmpty {
     FTreeSortedDictionary* map = [[[[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]]
                                         insertKey:@10 withValue:@10]
                                        removeKey:@10];
-    
+
     XCTAssertTrue([map isEmpty], @"Properly empty");
-    
+
 }
 
 - (void) testEmptyGet {
@@ -304,7 +304,7 @@
                                          insertKey:@3 withValue:@3]
                                         insertKey:@2 withValue:@2]
                                        insertKey:@4 withValue:@4];
-    
+
     __block int next = 5;
     [map enumerateKeysAndObjectsReverse:YES usingBlock:^(id key, id value, BOOL *stop) {
         XCTAssertEqualObjects(key, [NSNumber numberWithInt:next], @"Properly equal");
@@ -317,18 +317,18 @@
     int N = 100;
     NSMutableArray* toInsert = [[NSMutableArray alloc] initWithCapacity:N];
     NSMutableArray* toRemove = [[NSMutableArray alloc] initWithCapacity:N];
-    
+
     for(int i = 0; i < N; i++) {
         [toInsert addObject:[NSNumber numberWithInt:i]];
         [toRemove addObject:[NSNumber numberWithInt:i]];
     }
-    
-    
+
+
     [self shuffleArray:toInsert];
     [self shuffleArray:toRemove];
-    
+
     FTreeSortedDictionary* map = [[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]];
-    
+
     // add them to the dictionary
     for(int i = 0; i < N; i++) {
         map = [map insertKey:[toInsert objectAtIndex:i] withValue:[toInsert objectAtIndex:i]];
@@ -336,7 +336,7 @@
         XCTAssertTrue([(FLLRBValueNode *)map.root checkMaxDepth], @"Checking valid depth and tree structure");
     }
     XCTAssertTrue([map count] == N, @"Check if all N objects are in the map");
-    
+
     // check the order is correct
     __block int next = 0;
     [map enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
@@ -345,9 +345,9 @@
         next = next + 1;
     }];
     XCTAssertEqual(next, N, @"Check we traversed all of the items");
-    
+
     // remove them
-    
+
     for(int i = 0; i < N; i++) {
         if([map.root isMemberOfClass:[FLLRBValueNode class]]) {
             XCTAssertTrue([map.root isMemberOfClass:[FLLRBValueNode class]], @"Root is a value node");
@@ -355,8 +355,8 @@
         }
         map = [map removeKey:[toRemove objectAtIndex:i]];
     }
-    
-    
+
+
     XCTAssertEqual([map count], 0, @"Check we removed all of the items");
 }
 
@@ -370,11 +370,11 @@
 }
 
 - (void) testBalanceProblem {
-    
+
     NSArray* toInsert = [[NSArray alloc] initWithObjects:@1,@7,@8,@5,@2,@6,@4,@0,@3, nil];
-    
+
     FTreeSortedDictionary* map = [[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]];
-    
+
     // add them to the dictionary
     for(int i = 0; i < [toInsert count]; i++) {
         map = [map insertKey:[toInsert objectAtIndex:i] withValue:[toInsert objectAtIndex:i]];
@@ -382,7 +382,7 @@
         XCTAssertTrue([(FLLRBValueNode *)map.root checkMaxDepth], @"Checking valid depth and tree structure");
     }
     XCTAssertTrue([map count] == [toInsert count], @"Check if all N objects are in the map");
-    
+
     // check the order is correct
     __block int next = 0;
     [map enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
@@ -391,11 +391,11 @@
         next = next + 1;
     }];
     XCTAssertEqual(next, [[NSNumber numberWithUnsignedInteger:[toInsert count]] intValue], @"Check we traversed all of the items");
-    
+
     // removing one triggers the balance problem
-    
+
     map = [map removeKey:@5];
-    
+
     if([map.root isMemberOfClass:[FLLRBValueNode class]]) {
         XCTAssertTrue([map.root isMemberOfClass:[FLLRBValueNode class]], @"Root is a value node");
         XCTAssertTrue([(FLLRBValueNode *)map.root checkMaxDepth], @"Checking valid depth and tree structure");
@@ -410,7 +410,7 @@
                                          insertKey:@4 withValue:@4]
                                         insertKey:@7 withValue:@7]
                                        insertKey:@9 withValue:@9];
-    
+
     XCTAssertNil([map getPredecessorKey:@1], @"First object doesn't have a predecessor");
     XCTAssertEqualObjects([map getPredecessorKey:@3], @1, @"@1");
     XCTAssertEqualObjects([map getPredecessorKey:@4], @3, @"@3");
@@ -424,18 +424,18 @@
     int N = 100;
     NSMutableArray* toInsert = [[NSMutableArray alloc] initWithCapacity:N];
     NSMutableArray* toRemove = [[NSMutableArray alloc] initWithCapacity:N];
-    
+
     for(int i = 0; i < N; i++) {
         [toInsert addObject:[NSNumber numberWithInt:i]];
         [toRemove addObject:[NSNumber numberWithInt:i]];
     }
-    
-    
+
+
     [self shuffleArray:toInsert];
     [self shuffleArray:toRemove];
-    
+
     FTreeSortedDictionary* map = [[FTreeSortedDictionary alloc] initWithComparator:[self defaultComparator]];
-    
+
     // add them to the dictionary
     for(int i = 0; i < N; i++) {
         map = [map insertKey:[toInsert objectAtIndex:i] withValue:[toInsert objectAtIndex:i]];

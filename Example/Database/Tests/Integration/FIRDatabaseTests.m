@@ -168,7 +168,7 @@ static const NSInteger kFErrorCodeWriteCanceled = 3;
     [self waitForEvents:ref];
     XCTAssertEqual(engine.userWrites.count, (NSUInteger)0);
     XCTAssertEqualObjects(order, (@[@"1", @"2", @"3", @"4"]));
-    
+
     [database goOnline];
 }
 

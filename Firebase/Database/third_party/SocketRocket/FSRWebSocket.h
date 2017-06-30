@@ -22,7 +22,7 @@ typedef enum {
     SR_OPEN         = 1,
     SR_CLOSING      = 2,
     SR_CLOSED       = 3,
-    
+
 } FSRReadyState;
 
 @class FSRWebSocket;
@@ -74,7 +74,7 @@ extern NSString *const FSRWebSocketErrorDomain;
 
 @protocol FSRWebSocketDelegate <NSObject>
 
-// message will either be an NSString if the server is using text 
+// message will either be an NSString if the server is using text
 // or NSData if the server is using binary
 - (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message;
 
