@@ -182,7 +182,7 @@
   }
   
   if (_size) {
-    metadataDictionary[kFIRStorageMetadataSize] = [NSNumber numberWithLong:_size];
+    metadataDictionary[kFIRStorageMetadataSize] = [NSNumber numberWithLongLong:_size];
   }
 
   return [metadataDictionary copy];

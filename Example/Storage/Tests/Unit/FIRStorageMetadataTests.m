@@ -46,7 +46,6 @@
     kFIRStorageMetadataUpdated : @"2016-03-01T20:16:01.673Z",
     kFIRStorageMetadataSize : @1337
   };
-  
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata);
   XCTAssertEqualObjects(metadata.bucket, metaDict[kFIRStorageMetadataBucket]);
@@ -71,7 +70,7 @@
                         metaDict[kFIRStorageMetadataTimeCreated]);
   XCTAssertEqualObjects([metadata RFC3339StringFromDate:metadata.updated],
                         metaDict[kFIRStorageMetadataUpdated]);
-  NSNumber *size = [NSNumber numberWithLong:metadata.size];
+  NSNumber *size = [NSNumber numberWithLongLong:metadata.size];
   XCTAssertEqualObjects(size, metaDict[kFIRStorageMetadataSize]);
 }
 
@@ -92,7 +91,6 @@
     kFIRStorageMetadataUpdated : @"2016-03-01T20:16:01.673Z",
     kFIRStorageMetadataSize : @1337
   };
-  
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   NSDictionary *dictRepresentation = [metadata dictionaryRepresentation];
   XCTAssertNotEqual(dictRepresentation, nil);
