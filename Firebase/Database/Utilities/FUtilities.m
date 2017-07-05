@@ -41,7 +41,7 @@ void firebaseJobsTroll(void) {
 #pragma mark Private property and singleton specification
 
 @interface FUtilities() {
-    
+
 }
 
 @property (nonatomic, strong) FAtomicNumber* localUid;
@@ -87,7 +87,7 @@ void firebaseJobsTroll(void) {
     if(str.length <= size) {
         return [NSArray arrayWithObject:str];
     }
-    
+
     NSMutableArray* dataSegs = [[NSMutableArray alloc] init];
     for(int c = 0; c < str.length; c += size) {
         if (c + size > str.length) {
@@ -97,7 +97,7 @@ void firebaseJobsTroll(void) {
         }
         else {
             int rangeStart = c;
-            int rangeLength = size;            
+            int rangeLength = size;
             [dataSegs addObject:[str substringWithRange:NSMakeRange(rangeStart, rangeLength)]];
         }
     }
@@ -168,7 +168,7 @@ void firebaseJobsTroll(void) {
     FRepoInfo* repoInfo = [[FRepoInfo alloc] initWithHost:host isSecure:secure withNamespace:namespace];
 
     FFLog(@"I-RDB095002", @"---> Parsed (%@) to: (%@,%@); ns=(%@); path=(%@)", original, [repoInfo description], [repoInfo connectionURL], repoInfo.namespace, [path description]);
-    
+
     FParsedUrl* parsedUrl = [[FParsedUrl alloc] init];
     parsedUrl.repoInfo = repoInfo;
     parsedUrl.path = path;

@@ -307,30 +307,30 @@
 - (void)testDeltaSyncWorksWithUnfilteredQuery {
     FIRDatabaseReference *writerRef = [FTestHelpers getRandomNode];
     FDevice *device = [[FDevice alloc] initOnlineWithUrl:[writerRef description] ];
-    
+
     // List must be large enough to trigger delta sync.
     NSMutableDictionary *longList = [[NSMutableDictionary alloc] init];
     for(NSInteger i = 0; i < 50; i++) {
         NSString *key = [[writerRef childByAutoId] key];
         longList[key] = @{ @"order": @1, @"text": @"This is an awesome message!" };
     }
-    
+
     [writerRef setValue:longList];
-    
+
     [device do:^(FIRDatabaseReference *ref) {
         // Cache this location.
         [self waitForValueOf:[ref queryOrderedByChild:@"order"] toBe:longList];
         XCTAssertEqual(ref.repo.dataUpdateCount, 1L, @"Should have gotten one update.");
     }];
     [device restartOffline];
-    
+
     // Add a new child while the device is offline.
     FIRDatabaseReference *newChildRef = [writerRef childByAutoId];
     NSDictionary *newChild = @{ @"order": @50, @"text": @"This is a new appended child!" };
-    
+
     [self waitForCompletionOf:newChildRef setValue:newChild];
     longList[[newChildRef key]] = newChild;
-    
+
     [device goOnline];
     [device do:^(FIRDatabaseReference *ref) {
         // Wait for updated value with new child.

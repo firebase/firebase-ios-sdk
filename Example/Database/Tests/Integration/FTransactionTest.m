@@ -955,7 +955,7 @@
     FTupleFirebase* refs = [FTestHelpers getRandomNodePair];
     FIRDatabaseReference * ref1 = refs.one;
     FIRDatabaseReference * ref2 = refs.two;
-    
+
     __block BOOL done = NO;
     [[ref1 child:@"y"] setValue:@"test" withCompletionBlock:^(NSError *error, FIRDatabaseReference * ref) {
         [ref2 runTransactionBlock:^FIRTransactionResult *(FIRMutableData *currentData) {
@@ -973,7 +973,7 @@
             }
         }];
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
@@ -993,7 +993,7 @@
             done = YES;
         }];
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
@@ -1092,7 +1092,7 @@
     FIRDatabaseReference * writer = refs.one;
     FIRDatabaseReference * reader = refs.two;
     __block int done = 0;
-    
+
     NSMutableArray* readSnaps = [[NSMutableArray alloc] init];
     NSMutableArray* writeSnaps = [[NSMutableArray alloc] init];
 
@@ -1113,20 +1113,20 @@
             }
         }
     }];
-    
+
     [writer runTransactionBlock:^FIRTransactionResult *(FIRMutableData *currentData) {
         [currentData setValue:[FIRServerValue timestamp]];
         [currentData setPriority:[FIRServerValue timestamp]];
         return [FIRTransactionResult successWithValue:currentData];
     } andCompletionBlock:^(NSError *error, BOOL committed, FIRDataSnapshot *snapshot) {}];
-    
+
     [self waitUntil:^BOOL{
         return done == 2;
     }];
-    
+
     XCTAssertEqual((unsigned long)[readSnaps count], (unsigned long)1, @"Should have received one snapshot on reader");
     XCTAssertEqual((unsigned long)[writeSnaps count], (unsigned long)2, @"Should have received two snapshots on writer");
-    
+
     FIRDataSnapshot * firstReadSnap = [readSnaps objectAtIndex:0];
     FIRDataSnapshot * firstWriteSnap = [writeSnaps objectAtIndex:0];
     FIRDataSnapshot * secondWriteSnap = [writeSnaps objectAtIndex:1];
@@ -1151,7 +1151,7 @@
         [[ref queryLimitedToFirst:1] observeEventType:FIRDataEventTypeChildAdded andPreviousSiblingKeyWithBlock:^(FIRDataSnapshot *snapshot, NSString *prevName) {
         }                             withCancelBlock:^(NSError *error) {
         }];
-         
+
         [[ref child:@"a"] runTransactionBlock:^FIRTransactionResult *(FIRMutableData *currentData) {
             return [FIRTransactionResult successWithValue:currentData];
         } andCompletionBlock:^(NSError *error, BOOL committed, FIRDataSnapshot *snapshot) {
@@ -1161,7 +1161,7 @@
             done = YES;
         }];
     }];
-    
+
     WAIT_FOR(done);
 }
 
@@ -1206,7 +1206,7 @@
         XCTAssertEqualObjects([snapshot value], @"it was null!", @"Transaction value should match remote null set");
         done = YES;
     }];
-    
+
     WAIT_FOR(done);
 }
 
@@ -1249,7 +1249,7 @@
         XCTAssertEqualObjects([snapshot value], @"it was null!", @"Transaction value should match remote null set");
         done = YES;
     }];
-    
+
     WAIT_FOR(done);
 }
 

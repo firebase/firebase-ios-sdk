@@ -73,23 +73,23 @@ static const char Pad64 = '=';
  The following encoding technique is taken from RFC 1521 by Borenstein
  and Freed.  It is reproduced here in a slightly edited form for
  convenience.
- 
+
  A 65-character subset of US-ASCII is used, enabling 6 bits to be
  represented per printable character. (The extra 65th character, "=",
  is used to signify a special processing function.)
- 
+
  The encoding process represents 24-bit groups of input bits as output
  strings of 4 encoded characters. Proceeding from left to right, a
  24-bit input group is formed by concatenating 3 8-bit input groups.
  These 24 bits are then treated as 4 concatenated 6-bit groups, each
  of which is translated into a single digit in the base64 alphabet.
- 
+
  Each 6-bit group is used as an index into an array of 64 printable
  characters. The character referenced by the index is placed in the
  output string.
- 
+
  Table 1: The Base64 Alphabet
- 
+
  Value Encoding  Value Encoding  Value Encoding  Value Encoding
  0 A            17 R            34 i            51 z
  1 B            18 S            35 j            52 0
@@ -108,18 +108,18 @@ static const char Pad64 = '=';
  14 O            31 f            48 w         (pad) =
  15 P            32 g            49 x
  16 Q            33 h            50 y
- 
+
  Special processing is performed if fewer than 24 bits are available
  at the end of the data being encoded.  A full encoding quantum is
  always completed at the end of a quantity.  When fewer than 24 input
  bits are available in an input group, zero bits are added (on the
  right) to form an integral number of 6-bit groups.  Padding at the
  end of the data is performed using the '=' character.
- 
+
  Since all base64 input is an integral number of octets, only the
- -------------------------------------------------                       
+ -------------------------------------------------
  following cases can arise:
- 
+
  (1) the final quantum of encoding input is an integral
  multiple of 24 bits; here, the final unit of encoded
  output will be an integral multiple of 4 characters
@@ -132,7 +132,7 @@ static const char Pad64 = '=';
  characters followed by one "=" padding character.
  */
 
-#if !defined(HAVE_B64_NTOP) && !defined(HAVE___B64_NTOP) 
+#if !defined(HAVE_B64_NTOP) && !defined(HAVE___B64_NTOP)
 int
 f_b64_ntop(u_char const *src, size_t srclength, char *target, size_t targsize)
 {
@@ -140,18 +140,18 @@ f_b64_ntop(u_char const *src, size_t srclength, char *target, size_t targsize)
 	u_char input[3];
 	u_char output[4];
 	u_int i;
-    
+
 	while (2 < srclength) {
 		input[0] = *src++;
 		input[1] = *src++;
 		input[2] = *src++;
 		srclength -= 3;
-        
+
 		output[0] = input[0] >> 2;
 		output[1] = ((input[0] & 0x03) << 4) + (input[1] >> 4);
 		output[2] = ((input[1] & 0x0f) << 2) + (input[2] >> 6);
 		output[3] = input[2] & 0x3f;
-        
+
 		if (datalength + 4 > targsize)
 			return (-1);
 		target[datalength++] = Base64[output[0]];
@@ -159,18 +159,18 @@ f_b64_ntop(u_char const *src, size_t srclength, char *target, size_t targsize)
 		target[datalength++] = Base64[output[2]];
 		target[datalength++] = Base64[output[3]];
 	}
-    
+
 	/* Now we worry about padding. */
 	if (0 != srclength) {
 		/* Get what's left. */
 		input[0] = input[1] = input[2] = '\0';
 		for (i = 0; i < srclength; i++)
 			input[i] = *src++;
-        
+
 		output[0] = input[0] >> 2;
 		output[1] = ((input[0] & 0x03) << 4) + (input[1] >> 4);
 		output[2] = ((input[1] & 0x0f) << 2) + (input[2] >> 6);
-        
+
 		if (datalength + 4 > targsize)
 			return (-1);
 		target[datalength++] = Base64[output[0]];
@@ -202,21 +202,21 @@ f_b64_pton(char const *src, u_char *target, size_t targsize)
 	u_int tarindex, state;
 	int ch;
 	char *pos;
-    
+
 	state = 0;
 	tarindex = 0;
-    
+
 	while ((ch = *src++) != '\0') {
 		if (isspace(ch))	/* Skip whitespace anywhere. */
 			continue;
-        
+
 		if (ch == Pad64)
 			break;
-        
+
 		pos = strchr(Base64, ch);
 		if (pos == 0) 		/* A non-base64 character. */
 			return (-1);
-        
+
 		switch (state) {
             case 0:
                 if (target) {
@@ -259,19 +259,19 @@ f_b64_pton(char const *src, u_char *target, size_t targsize)
                 break;
 		}
 	}
-    
+
 	/*
 	 * We are done decoding Base-64 chars.  Let's see if we ended
 	 * on a byte boundary, and/or with erroneous trailing characters.
 	 */
-    
+
 	if (ch == Pad64) {		/* We got a pad char. */
 		ch = *src++;		/* Skip it, get next. */
 		switch (state) {
             case 0:		/* Invalid = in first position */
             case 1:		/* Invalid = in second position */
                 return (-1);
-                
+
             case 2:		/* Valid, means one byte of info */
                 /* Skip any number of spaces. */
                 for (; ch != '\0'; ch = *src++)
@@ -283,7 +283,7 @@ f_b64_pton(char const *src, u_char *target, size_t targsize)
                 ch = *src++;		/* Skip the = */
                 /* Fall through to "single trailing =" case. */
                 /* FALLTHROUGH */
-                
+
             case 3:		/* Valid, means two bytes of info */
                 /*
                  * We know this char is an =.  Is there anything but
@@ -292,7 +292,7 @@ f_b64_pton(char const *src, u_char *target, size_t targsize)
                 for (; ch != '\0'; ch = *src++)
                     if (!isspace(ch))
                         return (-1);
-                
+
                 /*
                  * Now make sure for cases 2 and 3 that the "extra"
                  * bits that slopped past the last full byte were
@@ -310,9 +310,9 @@ f_b64_pton(char const *src, u_char *target, size_t targsize)
 		if (state != 0)
 			return (-1);
 	}
-    
+
 	return (tarindex);
 }
 
 #endif /* !defined(HAVE_B64_PTON) && !defined(HAVE___B64_PTON) */
-#endif 
+#endif

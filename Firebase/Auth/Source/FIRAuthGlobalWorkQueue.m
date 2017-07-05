@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthGlobalWorkQueue.h"
 
 dispatch_queue_t FIRAuthGlobalWorkQueue() {
   static dispatch_once_t once;

@@ -62,7 +62,7 @@ FIR_SWIFT_NAME(PhoneAuthProvider)
 
     @param phoneNumber The phone number to be verified.
     @param completion The callback to be invoked when the verification flow is finished.
-    
+
     @remarks Possible error codes:
     <ul>
         <li>@c FIRAuthErrorCodeAppNotVerified - Indicates that Firebase could not retrieve the

@@ -15,30 +15,17 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.license          = { :type => 'Apache', :file => '../../LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # NOTE that the FirebaseDev pod is neither publicly deployed nor yet interchangeable with the
+  # NOTE that the FirebaseCommunity pod is neither publicly deployed nor yet interchangeable with the
   # Firebase pod
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
-
   s.source_files = '**/*.[mh]'
-  s.public_header_files =
-    'FirebaseStorage.h',
-    'FIRStorage.h',
-    'FIRStorageConstants.h',
-    'FIRStorageDownloadTask.h',
-    'FIRStorageMetadata.h',
-    'FIRStorageObservableTask.h',
-    'FIRStorageReference.h',
-    'FIRStorageSwiftNameSupport.h',
-    'FIRStorageTask.h',
-    'FIRStorageTaskSnapshot.h',
-    'FIRStorageUploadTask.h'
-
+  s.public_header_files = 'Public/*.h'
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
-#    s.dependency 'FirebaseDev/Core'
+#    s.dependency 'FirebaseCommunity/Core'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     '$(inherited) ' +

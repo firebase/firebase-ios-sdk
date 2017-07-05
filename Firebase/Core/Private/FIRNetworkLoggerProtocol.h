@@ -17,7 +17,7 @@
 @import Foundation;
 
 #import "FIRNetworkMessageCode.h"
-#import "../FIRLoggerLevel.h"
+#import "FIRLoggerLevel.h"
 
 /// The log levels used by FIRNetworkLogger.
 typedef NS_ENUM(NSInteger, FIRNetworkLogLevel) {

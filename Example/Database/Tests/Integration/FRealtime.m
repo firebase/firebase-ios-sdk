@@ -57,7 +57,7 @@
     FRepoInfo* repoInfo2 = [[FRepoInfo alloc] initWithHost:host2 isSecure:YES withNamespace:host2];
     XCTAssertTrue([repoInfo2.host isEqualToString:host2], @"Got correct host");
     XCTAssertTrue([repoInfo2.internalHost isEqualToString:host2], @"Got correct host");
-    
+
     repoInfo2.internalHost = internalHost2;
     XCTAssertTrue([repoInfo2.internalHost isEqualToString:internalHost2], @"Got correct host");
 

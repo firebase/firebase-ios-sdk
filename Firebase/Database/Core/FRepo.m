@@ -457,7 +457,7 @@
 
     // For testing.
     self.dataUpdateCount++;
-    
+
     FPath* path = [[FPath alloc] initWith:pathString];
     data = self.interceptServerDataCallback ? self.interceptServerDataCallback(pathString, data) : data;
     NSArray *events = nil;
@@ -543,7 +543,7 @@
 - (void) didEnterBackground {
     if (!self.config.persistenceEnabled)
         return;
-    
+
     // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
     #if TARGET_OS_IOS
     // The idea is to wait until any outstanding sets get written to disk.  Since the sets might still be in our

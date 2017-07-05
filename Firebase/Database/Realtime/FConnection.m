@@ -67,13 +67,13 @@ typedef enum {
     if (state != REALTIME_STATE_DISCONNECTED) {
         FFLog(@"I-RDB082002", @"Closing realtime connection.");
         state = REALTIME_STATE_DISCONNECTED;
-            
+
         if (self.conn) {
             FFLog(@"I-RDB082003", @"Calling close again.");
             [self.conn close];
             self.conn = nil;
         }
-            
+
         [self.delegate onDisconnect:self withReason:reason];
     }
 }
@@ -123,7 +123,7 @@ typedef enum {
     } else if (state == REALTIME_STATE_CONNECTED) {
         FFLog(@"I-RDB082007", @"Realtime connection lost.");
     }
-    
+
     [self close];
 }
 
@@ -138,7 +138,7 @@ typedef enum {
             [self onControl:[message objectForKey:kFWPAsyncServerEnvelopeData]];
         }
         else {
-            FFLog(@"I-RDB082008", @"Unrecognized server packet type: %@", rawMessageType);    
+            FFLog(@"I-RDB082008", @"Unrecognized server packet type: %@", rawMessageType);
         }
     }
     else {
@@ -174,7 +174,7 @@ typedef enum {
 
 - (void) onConnectionShutdownWithReason:(NSString *)reason {
     FFLog(@"I-RDB082013", @"Connection shutdown command received. Shutting down...");
-    
+
     [self.delegate onKill:self withReason:reason];
     [self close];
 }
@@ -184,9 +184,9 @@ typedef enum {
 //    NSString* version = [handshake objectForKey:kFWPAsyncServerHelloVersion];
     NSString* host = [handshake objectForKey:kFWPAsyncServerHelloConnectedHost];
     NSString* sessionID = [handshake objectForKey:kFWPAsyncServerHelloSession];
-    
+
     self.repoInfo.internalHost = host;
-        
+
     if (state == REALTIME_STATE_CONNECTING) {
         [self.conn start];
         [self onConnection:self.conn readyAtTime:timestamp sessionID:sessionID];
@@ -196,7 +196,7 @@ typedef enum {
 - (void) onConnection:(FWebSocketConnection *)conn readyAtTime:(NSNumber *)timestamp sessionID:(NSString *)sessionID {
     FFLog(@"I-RDB082014", @"Realtime connection established");
     state = REALTIME_STATE_CONNECTED;
-    
+
     [self.delegate onReady:self atTime:timestamp sessionID:sessionID];
 }
 

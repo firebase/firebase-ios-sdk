@@ -16,7 +16,7 @@
 
 #import "FIRGetOOBConfirmationCodeResponse.h"
 
-#import "../Private/FIRAuthErrorUtils.h"
+#import "FIRAuthErrorUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

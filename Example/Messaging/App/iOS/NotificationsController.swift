@@ -17,7 +17,7 @@
 import UIKit
 import UserNotifications
 
-import FirebaseDev
+import FirebaseCommunity
 
 enum NotificationsControllerAllowedNotificationType: String {
   case none = "None"

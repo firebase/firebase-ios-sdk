@@ -38,7 +38,7 @@ FIR_SWIFT_NAME(DataSnapshot)
 
 /**
  * Gets a FIRDataSnapshot for the location at the specified relative path.
- * The relative path can either be a simple child key (e.g. 'fred') 
+ * The relative path can either be a simple child key (e.g. 'fred')
  * or a deeper slash-separated path (e.g. 'fred/name/first'). If the child
  * location has no data, an empty FIRDataSnapshot is returned.
  *
@@ -59,7 +59,7 @@ FIR_SWIFT_NAME(DataSnapshot)
 
 /**
  * Return YES if the DataSnapshot has any children.
- * 
+ *
  * @return YES if this snapshot has any children, else NO.
  */
 - (BOOL) hasChildren;
@@ -78,7 +78,7 @@ FIR_SWIFT_NAME(DataSnapshot)
 /**
  * Returns the raw value at this location, coupled with any metadata, such as priority.
  *
- * Priorities, where they exist, are accessible under the ".priority" key in instances of NSDictionary. 
+ * Priorities, where they exist, are accessible under the ".priority" key in instances of NSDictionary.
  * For leaf locations with priorities, the value will be under the ".value" key.
  */
 - (id __nullable) valueInExportFormat;
