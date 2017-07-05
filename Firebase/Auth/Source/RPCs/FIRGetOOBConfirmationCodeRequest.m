@@ -91,6 +91,8 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
     @param email The email of the user.
     @param accessToken The STS Access Token of the currently signed in user.
     @param APIKey The client's API Key.
+    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+        settings to be applied to the OOB code request.
  */
 - (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
                                        email:(nullable NSString *)email

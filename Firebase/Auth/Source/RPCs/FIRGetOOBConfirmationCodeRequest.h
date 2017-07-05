@@ -95,6 +95,8 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
 /** @fn passwordResetRequestWithEmail:APIKey:
     @brief Creates a password reset request.
     @param email The user's email address.
+    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+        settings to be applied to the password reset request.
     @param APIKey The client's API Key.
     @return A password reset request.
  */
@@ -106,6 +108,8 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
 /** @fn verifyEmailRequestWithAccessToken:APIKey:
     @brief Creates a password reset request.
     @param accessToken The user's STS Access Token.
+    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+        settings to be applied to the email verification request.
     @param APIKey The client's API Key.
     @return A password reset request.
  */
