@@ -175,11 +175,11 @@
     for (NSInteger i = self.pieceNum; i < self.pieces.count; i++) {
         [newPieces addObject:[self.pieces objectAtIndex:i]];
     }
-    
+
     for (NSInteger i = childPathObj.pieceNum; i < childPathObj.pieces.count; i++) {
         [newPieces addObject:[childPathObj.pieces objectAtIndex:i]];
     }
-    
+
     return [[FPath alloc] initWithPieces:newPieces andPieceNum:0];
 }
 

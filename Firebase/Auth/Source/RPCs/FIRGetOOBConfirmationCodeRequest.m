@@ -16,9 +16,10 @@
 
 #import "FIRGetOOBConfirmationCodeRequest.h"
 
-#import "../Private/FIRActionCodeSettings.h"
-#import "../Private/FIRAuthErrorUtils.h"
-#import "../Private/FIRAuth_Internal.h"
+#import "FIRActionCodeSettings.h"
+
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuth_Internal.h"
 
 /** @var kEndpoint
     @brief The getOobConfirmationCode endpoint name.

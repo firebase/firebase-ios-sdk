@@ -28,17 +28,17 @@
     NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
     NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
     NSTimeInterval currentTime;
-    
+
     for (currentTime = [NSDate timeIntervalSinceReferenceDate];
          !predicate() && currentTime < timeoutTime;
          currentTime = [NSDate timeIntervalSinceReferenceDate]) {
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
     }
-    
+
     NSTimeInterval finish = [NSDate timeIntervalSinceReferenceDate];
-    
+
     NSAssert(currentTime <= timeoutTime, @"Timed out");
-    
+
     return (finish - start);
 }
 
@@ -54,9 +54,9 @@
     });
 
     NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
-    
+
     id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
-    
+
     while (num > refs.count) {
         NSString *sessionIdentifier = [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-", refs.count];
         FIRDatabaseConfig *config = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier authTokenProvider:authTokenProvider];
@@ -64,7 +64,7 @@
         FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:config];
         [refs addObject:ref];
     }
-    
+
     NSMutableArray* results = [[NSMutableArray alloc] init];
     NSString* name = nil;
     for (int i = 0; i < num; ++i) {
@@ -90,11 +90,11 @@
 
 + (FTupleFirebase *) getRandomNodePair {
     NSArray* refs = [self getRandomNodes:2 persistence:YES];
-    
+
     FTupleFirebase* tuple = [[FTupleFirebase alloc] init];
     tuple.one = [refs objectAtIndex:0];
     tuple.two = [refs objectAtIndex:1];
-    
+
     return tuple;
 }
 
@@ -114,7 +114,7 @@
     triple.one = [refs objectAtIndex:0];
     triple.two = [refs objectAtIndex:1];
     triple.three = [refs objectAtIndex:2];
-    
+
     return triple;
 }
 

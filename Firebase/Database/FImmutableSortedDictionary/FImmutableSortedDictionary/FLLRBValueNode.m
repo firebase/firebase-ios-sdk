@@ -95,7 +95,7 @@
 - (id<FLLRBNode>) insertKey:(__unsafe_unretained id) aKey forValue:(__unsafe_unretained id)aValue withComparator:(NSComparator)aComparator {
     NSComparisonResult cmp = aComparator(aKey, self.key);
     FLLRBValueNode* n = self;
-    
+
     if(cmp == NSOrderedAscending) {
         n = [n copyWith:nil withValue:nil withColor:nil withLeft:[n.left insertKey:aKey forValue:aValue withComparator:aComparator] withRight:nil];
     }
@@ -105,7 +105,7 @@
     else {
         n = [n copyWith:nil withValue:nil withColor:nil withLeft:nil withRight:[n.right insertKey:aKey forValue:aValue withComparator:aComparator]];
     }
-    
+
     return [n fixUp];
 }
 
@@ -114,12 +114,12 @@
     if([self.left isEmpty]) {
         return [FLLRBEmptyNode emptyNode];
     }
-    
+
     FLLRBValueNode* n = self;
     if(! [n.left isRed] && ! [n.left.left isRed]) {
         n = [n moveRedLeft];
     }
-    
+
     n = [n copyWith:nil withValue:nil withColor:nil withLeft:[(FLLRBValueNode*)n.left removeMin] withRight:nil];
     return [n fixUp];
 }
@@ -165,14 +165,14 @@
 - (id<FLLRBNode>) colorFlip {
     id<FLLRBNode> nleft = [self.left copyWith:nil withValue:nil withColor:[NSNumber numberWithBool:![self.left.color boolValue]] withLeft:nil withRight:nil];
     id<FLLRBNode> nright = [self.right copyWith:nil withValue:nil withColor:[NSNumber numberWithBool:![self.right.color boolValue]] withLeft:nil withRight:nil];
-    
+
     return [self copyWith:nil withValue:nil withColor:[NSNumber numberWithBool:![self.color boolValue]] withLeft:nleft withRight:nright];
 }
 
 - (id<FLLRBNode>) remove:(__unsafe_unretained id) aKey withComparator:(NSComparator)comparator {
     id<FLLRBNode> smallest;
     FLLRBValueNode* n = self;
-    
+
     if(comparator(aKey, n.key) == NSOrderedAscending) {
         if(![n.left isEmpty] && ![n.left isRed] && ![n.left.left isRed]) {
             n = [n moveRedLeft];
@@ -183,11 +183,11 @@
         if([n.left isRed]) {
             n = [n rotateRight];
         }
-        
+
         if(![n.right isEmpty] && ![n.right isRed] && ![n.right.left isRed]) {
             n = [n moveRedRight];
         }
-        
+
         if(comparator(aKey, n.key) == NSOrderedSame) {
             if([n.right isEmpty]) {
                 return [FLLRBEmptyNode emptyNode];
@@ -218,15 +218,15 @@
 
 - (int) check {
     int blackDepth = 0;
-    
+
     if([self isRed] && [self.left isRed]) {
         @throw [[NSException alloc] initWithName:@"check" reason:@"Red node has a red child" userInfo:nil];
     }
-    
+
     if([self.right isRed]) {
         @throw [[NSException alloc] initWithName:@"check" reason:@"Right child is red" userInfo:nil];
     }
-    
+
     blackDepth = [self.left check];
 //    NSLog(err);
     if(blackDepth != [self.right check]) {

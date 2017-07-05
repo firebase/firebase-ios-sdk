@@ -52,7 +52,7 @@
 
 + (id<FNode>) internalNodeFrom:(id)val priority:(id)aPriority withValidationFrom:(NSString *)fn atDepth:(int)depth path:(NSMutableArray *)path {
 
-        
+
     if (depth > kFirebaseMaxObjectDepth) {
         NSRange range;
         range.location = 0;
@@ -179,7 +179,7 @@
         [updatePaths addObject:path];
         compoundWrite = [compoundWrite addWrite:node atPath:path];
     }
-    
+
     // Check that the update paths are not descendants of each other.
     [updatePaths sortUsingComparator:^NSComparisonResult(FPath* left, FPath* right) {
         return [left compare:right];

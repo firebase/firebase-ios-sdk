@@ -16,7 +16,7 @@
 
 import UIKit
 
-import FirebaseDev.FirebaseAuth
+import FirebaseCommunity.FirebaseAuth
 import GoogleSignIn
 
 final class ViewController: UIViewController, UITextFieldDelegate {

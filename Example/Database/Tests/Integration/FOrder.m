@@ -29,7 +29,7 @@
     for(int i = 0; i < 10; i++) {
         [[node childByAutoId] setValue:[NSNumber numberWithInt:i]];
     }
-    
+
     [super snapWaiter:node withBlock:^(FIRDataSnapshot * snapshot) {
         int expected = 0;
         for (FIRDataSnapshot * child in snapshot.children) {
@@ -44,15 +44,15 @@
 - (void) testPushEnumerateManyPathsWriteAndCheckOrder {
     FIRDatabaseReference *  node = [FTestHelpers getRandomNode];
     NSMutableArray* paths = [[NSMutableArray alloc] init];
-    
+
     for(int i = 0; i < 20; i++) {
         [paths addObject:[node childByAutoId]];
     }
-    
+
     for(int i = 0; i < 20; i++) {
         [(FIRDatabaseReference *)[paths objectAtIndex:i] setValue:[NSNumber numberWithInt:i]];
     }
-    
+
     [super snapWaiter:node withBlock:^(FIRDataSnapshot *snap) {
         int expected = 0;
         for (FIRDataSnapshot * child in snap.children) {
@@ -65,22 +65,22 @@
 }
 
 - (void) testPushDataReconnectReadBackAndVerifyOrder {
-        
+
     FTupleFirebase* tuple = [FTestHelpers getRandomNodePair];
-    
+
     __block int expected = 0;
     __block int nodesSet = 0;
     FIRDatabaseReference * node = tuple.one;
     for(int i = 0; i < 10; i++) {
         [[node childByAutoId] setValue:[NSNumber numberWithInt:i] withCompletionBlock:^(NSError* err, FIRDatabaseReference * ref) {
             nodesSet++;
-        }];        
+        }];
     }
-    
+
     [self waitUntil:^BOOL{
         return nodesSet == 10;
     }];
-    
+
     __block BOOL done = NO;
     [super snapWaiter:node withBlock:^(FIRDataSnapshot *snap) {
         expected = 0;
@@ -92,15 +92,15 @@
         }
         done = YES;
     }];
-    
+
     [self waitUntil:^BOOL{
         return done;
     }];
-    
+
     done = NO;
-    
+
     XCTAssertTrue(nodesSet == 10, @"All of the nodes have been set");
-    
+
     [super snapWaiter:tuple.two withBlock:^(FIRDataSnapshot *snap) {
         expected = 0;
         for (FIRDataSnapshot * child in snap.children) {
@@ -115,7 +115,7 @@
 
 - (void) testPushDataWithPrioritiesReconnectReadBackAndVerifyOrder {
     FTupleFirebase* tuple = [FTestHelpers getRandomNodePair];
-    
+
     __block int expected = 0;
     __block int nodesSet = 0;
     FIRDatabaseReference * node = tuple.one;
@@ -124,17 +124,17 @@
             nodesSet = nodesSet + 1;
         }];
     }
-    
+
     [super snapWaiter:node withBlock:^(FIRDataSnapshot *snap) {
         expected = 9;
-        
+
         for (FIRDataSnapshot * child in snap.children) {
             XCTAssertEqualObjects([child value], [NSNumber numberWithInt:expected], @"Expected child value as per priority");
             expected = expected - 1;
         }
         XCTAssertTrue(expected == -1, @"Saw the expected number of children");
     }];
-    
+
     [self waitUntil:^BOOL{
         return nodesSet == 10;
     }];
@@ -153,7 +153,7 @@
 
 - (void) testPushDataWithExponentialPrioritiesReconnectReadBackAndVerifyOrder {
     FTupleFirebase* tuple = [FTestHelpers getRandomNodePair];
-    
+
     __block int expected = 0;
     __block int nodesSet = 0;
     FIRDatabaseReference * node = tuple.one;
@@ -162,19 +162,19 @@
             nodesSet = nodesSet + 1;
         }];
     }
-    
+
     [super snapWaiter:node withBlock:^(FIRDataSnapshot *snap) {
         expected = 9;
-        
+
         for (FIRDataSnapshot * child in snap.children) {
             XCTAssertEqualObjects([child value], [NSNumber numberWithInt:expected], @"Expected child value as per priority");
             expected = expected - 1;
         }
         XCTAssertTrue(expected == -1, @"Saw the expected number of children");
     }];
-    
+
     WAIT_FOR(nodesSet == 10);
-    
+
     [super snapWaiter:tuple.two withBlock:^(FIRDataSnapshot *snap) {
         expected = 9;
         for (FIRDataSnapshot * child in snap.children) {
@@ -189,15 +189,15 @@
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
     [node child:@"foo"];
     [[node child:@"bar"] setValue:@"test"];
-    
+
     __block int items = 0;
     [super snapWaiter:node withBlock:^(FIRDataSnapshot *snap) {
-        
+
         for (FIRDataSnapshot * child in snap.children) {
             items = items + 1;
             XCTAssertEqualObjects([child key], @"bar", @"Saw the child which had a value set and not the empty one");
         }
-        
+
         XCTAssertTrue(items == 1, @"Saw only the one that was actually set.");
     }];
 }
@@ -235,7 +235,7 @@
 
 - (void) testCanResetPriorityToNull {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     [[node child:@"a"] setValue:@"a" andPriority:@1];
     [[node child:@"b"] setValue:@"b" andPriority:@2];
 
@@ -275,15 +275,15 @@
 
 - (void) testInsertingANodeUnderALeafPreservesItsPriority {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block FIRDataSnapshot * snap;
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *s) {
         snap = s;
     }];
-    
+
     [node setValue:@"a" andPriority:@10];
     [[node child:@"deeper"] setValue:@"deeper"];
-    
+
     [self waitUntil:^BOOL{
         id result = [snap value];
         NSDictionary* expected = @{@"deeper": @"deeper"};
@@ -317,16 +317,16 @@
     @"alpha40", @"zed",
     @"num40", @500
     ];
-    
+
     __block int setsCompleted = 0;
-    
+
     for (int i = 0; i < [nodeAndPriorities count]; i++) {
         FIRDatabaseReference * n = [tuple.one child:[nodeAndPriorities objectAtIndex:i++]];
         [n setValue:@1 andPriority:[nodeAndPriorities objectAtIndex:i] withCompletionBlock:^(NSError* error, FIRDatabaseReference * ref) {
             setsCompleted = setsCompleted + 1;
         }];
     }
-    
+
     NSString* expected = @"noPriorityA, noPriorityB, noPriorityC, num10, num20, num30, num40, num41, num42, num50, num60, num70, num80, alpha10, alpha20, alpha30, alpha40, alpha41, alpha42, ";
 
     [super snapWaiter:tuple.one withBlock:^(FIRDataSnapshot *snap) {
@@ -337,22 +337,22 @@
 
         XCTAssertTrue([expected isEqualToString:output], @"Proper order");
     }];
-    
+
     WAIT_FOR(setsCompleted == [nodeAndPriorities count] / 2);
-    
+
     [super snapWaiter:tuple.two withBlock:^(FIRDataSnapshot *snap) {
         NSMutableString* output = [[NSMutableString alloc] init];
         for (FIRDataSnapshot * n in snap.children) {
             [output appendFormat:@"%@, ", [n key]];
         }
-        
+
         XCTAssertTrue([expected isEqualToString:output], @"Proper order");
     }];
 }
 
 - (void) testVerifyOrderOfIntegerNames {
     FIRDatabaseReference * ref = [FTestHelpers getRandomNode];
-    
+
     NSArray* keys = @[
                       @"foo",
                       @"bar",
@@ -365,31 +365,31 @@
                       @"003",
                       @"9"
                      ];
-    
+
     __block int setsCompleted = 0;
-    
+
     for (int i = 0; i < [keys count]; i++) {
         FIRDatabaseReference * n = [ref child:[keys objectAtIndex:i]];
         [n setValue:@1 withCompletionBlock:^(NSError* error, FIRDatabaseReference * ref) {
             setsCompleted = setsCompleted + 1;
         }];
     }
-    
+
     NSString* expected = @"0, 3, 03, 003, 5, 9, 20, 100, bar, foo, ";
-    
+
     [super snapWaiter:ref withBlock:^(FIRDataSnapshot *snap) {
         NSMutableString* output = [[NSMutableString alloc] init];
         for (FIRDataSnapshot * n in snap.children) {
             [output appendFormat:@"%@, ", [n key]];
         }
-        
+
         XCTAssertTrue([expected isEqualToString:output], @"Proper order");
     }];
 }
 
 - (void) testPrevNameIsCorrectOnChildAddedEvent {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     [node setValue:@{@"a": @1, @"b": @2, @"c": @3}];
 
 
@@ -406,15 +406,15 @@
     }];
 
     XCTAssertTrue([added isEqualToString:@"a (null), b a, c b, "], @"Proper order and prevname");
-    
+
 }
 
 - (void) testPrevNameIsCorrectWhenAddingNewNodes {
 
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     [node setValue:@{@"b": @2, @"c": @3, @"d": @4}];
-    
+
     NSMutableString* added = [[NSMutableString alloc] init];
 
     __block int count = 0;
@@ -426,9 +426,9 @@
     [self waitUntil:^BOOL{
         return count == 3;
     }];
-    
+
     XCTAssertTrue([added isEqualToString:@"b (null), c b, d c, "], @"Proper order and prevname");
-    
+
     [added setString:@""];
     [[node child:@"a"] setValue:@1];
     [self waitUntil:^BOOL{
@@ -608,36 +608,36 @@
 
 - (void) testCanSetAValueWithPriZero {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block FIRDataSnapshot * snap = nil;
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *s) {
         snap = s;
     }];
-    
+
     [node setValue:@"test" andPriority:@0];
-    
+
     [self waitUntil:^BOOL{
         return snap != nil;
     }];
-    
+
     XCTAssertEqualObjects([snap value], @"test", @"Proper value");
     XCTAssertEqualObjects([snap priority], @0, @"Proper value");
 }
 
 - (void) testCanSetObjectWithPriZero {
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
-    
+
     __block FIRDataSnapshot * snap = nil;
     [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *s) {
         snap = s;
     }];
-    
+
     [node setValue:@{@"x": @"test", @"y": @7} andPriority:@0];
-    
+
     [self waitUntil:^BOOL{
         return snap != nil;
     }];
-    
+
     XCTAssertEqualObjects([[snap value] objectForKey:@"x"], @"test", @"Proper value");
     XCTAssertEqualObjects([[snap value] objectForKey:@"y"], @7, @"Proper value");
     XCTAssertEqualObjects([snap priority], @0, @"Proper value");

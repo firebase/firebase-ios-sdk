@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRAuth_Internal.h"
+#import "FIRAuth_Internal.h"
 
 #import "FIRAppAssociationRegistration.h"
 #import "FIRAppInternal.h"
@@ -24,15 +24,15 @@
 #import "FIRLogger.h"
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "Private/FIRAdditionalUserInfo_Internal.h"
-#import "Private/FIRAuthCredential_Internal.h"
-#import "Private/FIRAuthDataResult_Internal.h"
-#import "Private/FIRAuthDispatcher.h"
-#import "Private/FIRAuthErrorUtils.h"
+#import "FIRAdditionalUserInfo_Internal.h"
+#import "FIRAuthCredential_Internal.h"
+#import "FIRAuthDataResult_Internal.h"
+#import "FIRAuthDispatcher.h"
+#import "FIRAuthErrorUtils.h"
 #import "FIRAuthExceptionUtils.h"
-#import "Private/FIRAuthGlobalWorkQueue.h"
-#import "Private/FIRAuthKeychain.h"
-#import "Private/FIRUser_Internal.h"
+#import "FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthKeychain.h"
+#import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
 #import "FIRCreateAuthURIRequest.h"
@@ -57,11 +57,12 @@
 #import "FIRVerifyPhoneNumberResponse.h"
 
 #if TARGET_OS_IOS
-#import "Private/FIRAuthAPNSToken.h"
-#import "Private/FIRAuthAPNSTokenManager.h"
-#import "Private/FIRAuthAppCredentialManager.h"
-#import "Private/FIRAuthAppDelegateProxy.h"
-#import "Private/FIRAuthNotificationManager.h"
+#import <UIKit/UIKit.h>
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppCredentialManager.h"
+#import "FIRAuthAppDelegateProxy.h"
+#import "FIRAuthNotificationManager.h"
 #endif
 
 #pragma mark - Constants
@@ -198,6 +199,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 @end
 
 @implementation FIRAuth {
+  /** @var _currentUser
+      @brief The current user.
+   */
+  FIRUser *_currentUser;
+
   /** @var _firebaseAppName
       @brief The Firebase app name.
    */
@@ -314,6 +320,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     app.getTokenImplementation = ^(BOOL forceRefresh, FIRTokenCallback callback) {
       dispatch_async(FIRAuthGlobalWorkQueue(), ^{
         FIRAuth *strongSelf = weakSelf;
+        // Enable token auto-refresh if not aleady enabled.
         if (strongSelf && !strongSelf->_autoRefreshTokens) {
           FIRLogInfo(kFIRLoggerAuth, @"I-AUT000002", @"Token auto-refresh enabled.");
           strongSelf->_autoRefreshTokens = YES;
@@ -345,15 +352,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           }];
           #endif
         }
-        if (!strongSelf.currentUser) {
+        // Call back with 'nil' if there is no current user.
+        if (!strongSelf || !strongSelf->_currentUser) {
           dispatch_async(dispatch_get_main_queue(), ^{
             callback(nil, nil);
           });
           return;
         }
-        [strongSelf.currentUser internalGetTokenForcingRefresh:forceRefresh
-                                                      callback:^(NSString *_Nullable token,
-                                                                 NSError *_Nullable error) {
+        // Call back with current user token.
+        [strongSelf->_currentUser internalGetTokenForcingRefresh:forceRefresh
+                                                        callback:^(NSString *_Nullable token,
+                                                                   NSError *_Nullable error) {
           dispatch_async(dispatch_get_main_queue(), ^{
             callback(token, error);
           });
@@ -377,33 +386,47 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _listenerHandles = [NSMutableArray array];
     _APIKey = [APIKey copy];
     _firebaseAppName = [appName copy];
-    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppName:appName];
-    if (keychainServiceName) {
-      _keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
-    }
-    // Load current user from keychain.
-    FIRUser *user;
-    NSError *error;
-    if ([self getUser:&user error:&error]) {
-      [self updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
-    } else {
-      FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                  @"Error loading saved user when starting up: %@", error);
-    }
-
     #if TARGET_OS_IOS
-    // Initialize for phone number auth.
-    _tokenManager =
-        [[FIRAuthAPNSTokenManager alloc] initWithApplication:[UIApplication sharedApplication]];
-
-    _appCredentialManager = [[FIRAuthAppCredentialManager alloc] initWithKeychain:_keychain];
-
-    _notificationManager =
-        [[FIRAuthNotificationManager alloc] initWithApplication:[UIApplication sharedApplication]
-                                           appCredentialManager:_appCredentialManager];
-
-    [[FIRAuthAppDelegateProxy sharedInstance] addHandler:self];
+    UIApplication *application = [UIApplication sharedApplication];
     #endif
+
+    // Continue with the rest of initialization in the work thread.
+    __weak FIRAuth *weakSelf = self;
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+      // Load current user from Keychain.
+      FIRAuth *strongSelf = weakSelf;
+      if (!strongSelf) {
+        return;
+      }
+      NSString *keychainServiceName =
+          [FIRAuth keychainServiceNameForAppName:strongSelf->_firebaseAppName];
+      if (keychainServiceName) {
+        strongSelf->_keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
+      }
+      FIRUser *user;
+      NSError *error;
+      if ([strongSelf getUser:&user error:&error]) {
+        [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
+      } else {
+        FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                    @"Error loading saved user when starting up: %@", error);
+      }
+
+      #if TARGET_OS_IOS
+      // Initialize for phone number auth.
+      strongSelf->_tokenManager =
+          [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
+
+      strongSelf->_appCredentialManager =
+          [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychain];
+
+      strongSelf->_notificationManager = [[FIRAuthNotificationManager alloc]
+           initWithApplication:application
+          appCredentialManager:strongSelf->_appCredentialManager];
+
+      [[FIRAuthAppDelegateProxy sharedInstance] addHandler:strongSelf];
+      #endif
+    });
   }
   return self;
 }
@@ -429,6 +452,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 #pragma mark - Public API
+
+- (FIRUser *)currentUser {
+  __block FIRUser *result;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    result = _currentUser;
+  });
+  return result;
+}
 
 - (void)fetchProvidersForEmail:(NSString *)email
                     completion:(FIRProviderQueryCallback)completion {
@@ -1061,10 +1092,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
   if (retry) {
-    FIRLogNotice(kFIRLoggerAuth, @"I-AUT000003",
-                 @"Token auto-refresh re-scheduled in %02d:%02d "
-                 @"because of error on previous refresh attempt.",
-                 (int)ceil(delay) / 60, (int)ceil(delay) % 60);
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000003",
+               @"Token auto-refresh re-scheduled in %02d:%02d "
+               @"because of error on previous refresh attempt.",
+               (int)ceil(delay) / 60, (int)ceil(delay) % 60);
   } else {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000004",
                @"Token auto-refresh scheduled in %02d:%02d for the new token.",
@@ -1096,8 +1127,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       }
       // If the error is an invalid token, sign the user out.
       if (error.code == FIRAuthErrorCodeInvalidUserToken) {
-        FIRLogWarning(kFIRLoggerAuth, @"I-AUT000005",
-                      @"Invalid refresh token detected, user is automatically signed out.");
+        FIRLogNotice(kFIRLoggerAuth, @"I-AUT000005",
+                     @"Invalid refresh token detected, user is automatically signed out.");
         [strongSelf signOutByForceWithUserID:uid error:nil];
         return;
       }
@@ -1301,10 +1332,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return YES;
 }
 
-/** @fn getUID
-    @brief Gets the identifier of the current user, if any.
-    @return The identifier of the current user, or nil if there is no current user.
- */
 - (nullable NSString *)getUID {
   return _currentUser.uid;
 }

@@ -15,7 +15,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.license          = { :type => 'Apache', :file => '../../LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # NOTE that the FirebaseDev pod is neither publicly deployed nor yet interchangeable with the
+  # NOTE that the FirebaseCommunity pod is neither publicly deployed nor yet interchangeable with the
   # Firebase pod
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
@@ -25,24 +25,14 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source_files =  '**/*.[mh]',
     'third_party/Wrap-leveldb/APLevelDB.mm',
     'third_party/SocketRocket/fbase64.c'
-  s.public_header_files =
-    'Api/FirebaseDatabase.h',
-    'Api/FIRDataEventType.h',
-    'Api/FIRDataSnapshot.h',
-    'Api/FIRDatabaseQuery.h',
-    'Api/FIRDatabaseSwiftNameSupport.h',
-    'Api/FIRMutableData.h',
-    'Api/FIRServerValue.h',
-    'Api/FIRTransactionResult.h',
-    'Api/FIRDatabase.h',
-    'FIRDatabaseReference.h'
+  s.public_header_files = 'Public/*.h'
   s.library = 'c++'
   s.library = 'icucore'
   s.framework = 'CFNetwork'
   s.framework = 'Security'
   s.framework = 'SystemConfiguration'
   s.dependency 'leveldb-library'
-#  s.dependency 'FirebaseDev/Core'
+#  s.dependency 'FirebaseCommunity/Core'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     '$(inherited) ' +
     'FIRDatabase_VERSION=' + s.version.to_s }

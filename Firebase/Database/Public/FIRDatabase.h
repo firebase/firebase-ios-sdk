@@ -29,9 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 FIR_SWIFT_NAME(Database)
 @interface FIRDatabase : NSObject
-  
+
 /**
- * The NSObject initializer that has been marked as unavailable. Use the `database` 
+ * The NSObject initializer that has been marked as unavailable. Use the `database`
  * method instead
  *
  * @return An instancetype instance

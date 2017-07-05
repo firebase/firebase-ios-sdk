@@ -282,7 +282,7 @@ typedef enum {
     if (firstConnection) {
         [self sendConnectStats];
     }
-    
+
     [self restoreAuth];
     firstConnection = NO;
     self.lastSessionID = sessionID;
@@ -564,7 +564,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     FOutstandingPut* put = self.outstandingPuts[index];
     assert(put != nil);
     fbt_void_nsstring_nsstring onComplete = put.onCompleteBlock;
-    
+
     // Do not async this block; copying the block insinde sendAction: doesn't happen in time (or something) so coredumps
     put.sent = YES;
     [self sendAction:put.action
@@ -611,23 +611,23 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
 }
 
 - (void) putInternal:(id)data forAction:(NSString *)action forPath:(NSString *)pathString withHash:(NSString *)hash withCallback:(fbt_void_nsstring_nsstring)onComplete {
-    
+
     NSMutableDictionary *request = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                     pathString, kFWPRequestPath,
                                     data, kFWPRequestData, nil];
     if(hash) {
         [request setObject:hash forKey:kFWPRequestHash];
     }
-    
+
     FOutstandingPut *put = [[FOutstandingPut alloc] init];
     put.action = action;
     put.request = request;
     put.onCompleteBlock = onComplete;
     put.sent = NO;
-    
+
     NSNumber* index = [self.putCounter getAndIncrement];
     self.outstandingPuts[index] = put;
-    
+
     if ([self canSendWrites]) {
         FFLog(@"I-RDB034024", @"Was connected, and added as index: %@", index);
         [self sendPut:index];
@@ -725,7 +725,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
                          nil];
 
     [self.realtime sendRequest:msg sensitive:sensitive];
-    
+
     if (onMessage) {
         // Debug message without a callback; bump the rn, but don't hold onto the cb
         [self.requestCBHash setObject:[onMessage copy] forKey:rn];

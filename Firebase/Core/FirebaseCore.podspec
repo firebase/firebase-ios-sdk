@@ -15,7 +15,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.license          = { :type => 'Apache', :file => '../../LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # NOTE that the FirebaseDev pod is neither publicly deployed nor yet interchangeable with the
+  # NOTE that the FirebaseCommunity pod is neither publicly deployed nor yet interchangeable with the
   # Firebase pod
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
@@ -23,14 +23,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.osx.deployment_target = '10.10'
 
   s.source_files = '**/*.[mh]'
-  s.public_header_files =
-    'FirebaseCore.h',
-    'FIRAnalyticsConfiguration.h',
-    'FIRApp.h',
-    'FIRConfiguration.h',
-    'FIRLoggerLevel.h',
-    'FIROptions.h',
-    'FIRCoreSwiftNameSupport.h'
-
+  s.public_header_files = 'Firebase/Core/Public/*.h'
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
 end

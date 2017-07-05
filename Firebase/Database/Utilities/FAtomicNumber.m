@@ -42,12 +42,12 @@
     NSNumber* result;
 
     // See: http://developer.apple.com/library/ios/#DOCUMENTATION/Cocoa/Conceptual/Multithreading/ThreadSafety/ThreadSafety.html#//apple_ref/doc/uid/10000057i-CH8-SW14 to improve, etc.
-    
+
     [self.lock lock];
     result = [NSNumber numberWithUnsignedLong:number];
     number = number + 1;
     [self.lock unlock];
-    
+
     return result;
 }
 

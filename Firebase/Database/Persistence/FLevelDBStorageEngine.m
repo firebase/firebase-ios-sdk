@@ -669,6 +669,8 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
             if ((double)(long long)[value doubleValue] != [value doubleValue]) {
                 NSString *doubleString = [value stringValue];
                 return [NSNumber numberWithDouble:[doubleString doubleValue]];
+            } else {
+                return [NSNumber numberWithLong:[value longValue]];
             }
         }
     }

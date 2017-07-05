@@ -16,7 +16,7 @@
 
 import UIKit
 
-import FirebaseDev.FirebaseCore
+import FirebaseCommunity.FirebaseCore
 import GoogleSignIn
 
 @UIApplicationMain

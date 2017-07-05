@@ -93,7 +93,7 @@
     _fetcherCompletion = nil;
   };
 #pragma clang diagnostic pop
-  
+
   __weak FIRStorageGetMetadataTask *weakSelf = self;
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
     weakSelf.fetcherCompletion(data, error);

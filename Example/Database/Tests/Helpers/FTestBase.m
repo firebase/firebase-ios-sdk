@@ -30,11 +30,11 @@
         [FIRApp configure];
     });
 }
-     
+
 - (void)setUp
 {
     [super setUp];
-    
+
     [FIRDatabase setLoggingEnabled:YES];
     _databaseURL = [[FIRApp defaultApp] options].databaseURL;
 
@@ -49,13 +49,13 @@
         fn(snap);
         done = YES;
     }];
-    
+
     NSTimeInterval timeTaken = [self waitUntil:^BOOL{
         return done;
     } timeout:kFirebaseTestWaitUntilTimeout];
-    
+
     NSLog(@"snapWaiter:withBlock: timeTaken:%f", timeTaken);
-    
+
     XCTAssertTrue(done, @"Properly finished.");
 }
 

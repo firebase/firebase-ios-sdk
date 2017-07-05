@@ -16,19 +16,19 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRUser_Internal.h"
+#import "FIRUser_Internal.h"
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
-#import "AuthProviders/EmailPassword/FIREmailAuthProvider.h"
+#import "FIREmailAuthProvider.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
-#import "Private/FIRAdditionalUserInfo_Internal.h"
+#import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
-#import "Private/FIRAuthCredential_Internal.h"
-#import "Private/FIRAuthDataResult_Internal.h"
-#import "Private/FIRAuthErrorUtils.h"
-#import "Private/FIRAuthGlobalWorkQueue.h"
-#import "Private/FIRAuthSerialTaskQueue.h"
-#import "Private/FIRAuth_Internal.h"
+#import "FIRAuthCredential_Internal.h"
+#import "FIRAuthDataResult_Internal.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthGlobalWorkQueue.h"
+#import "FIRAuthSerialTaskQueue.h"
+#import "FIRAuth_Internal.h"
 #import "FIRSecureTokenService.h"
 #import "FIRUserInfoImpl.h"
 #import "FIRAuthBackend.h"
@@ -50,7 +50,7 @@
 #import "FIRVerifyPhoneNumberResponse.h"
 
 #if TARGET_OS_IOS
-#import "AuthProviders/Phone/FIRPhoneAuthProvider.h"
+#import "FIRPhoneAuthProvider.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -734,7 +734,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithAuthDataResultAndError(completion, authResult, error);
         return;
       }
-      if (![authResult.user.uid isEqual:_auth.currentUser.uid]) {
+      if (![authResult.user.uid isEqual:[_auth getUID]]) {
         callInMainThreadWithAuthDataResultAndError(completion, authResult,
                                                    [FIRAuthErrorUtils userMismatchError]);
         return;
