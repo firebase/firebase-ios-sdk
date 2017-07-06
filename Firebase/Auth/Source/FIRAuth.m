@@ -388,6 +388,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _firebaseAppName = [appName copy];
     #if TARGET_OS_IOS
     UIApplication *application = [UIApplication sharedApplication];
+    // Initailize the shared FIRAuthAppDelegateProxy instance in the main thread if not already.
+    [FIRAuthAppDelegateProxy sharedInstance];
     #endif
 
     // Continue with the rest of initialization in the work thread.
