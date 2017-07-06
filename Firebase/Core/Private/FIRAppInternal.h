@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRApp.h"
-#import "FIRErrors.h"
+#import "FirebaseCommunity/FIRApp.h"
+#import "FirebaseCommunity/FIRErrors.h"
 
 /**
  * The internal interface to FIRApp. This is meant for first-party integrators, who need to receive

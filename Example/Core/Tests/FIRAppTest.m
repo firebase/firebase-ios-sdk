@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppInternal.h"
-#import "FIROptionsInternal.h"
+#import "FirebaseCommunity/FIRApp.h"
+#import "FirebaseCommunity/FIRAppInternal.h"
+#import "FirebaseCommunity/FIROptions.h"
+#import "FirebaseCommunity/FIROptionsInternal.h"
 #import "FIRTestCase.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";

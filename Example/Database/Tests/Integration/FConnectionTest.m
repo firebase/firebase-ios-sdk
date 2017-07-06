@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRApp.h"
+#import "FirebaseCommunity/FIRApp.h"
 #import "FIROptions.h"
 #import "FTestHelpers.h"
 #import "FConnection.h"
