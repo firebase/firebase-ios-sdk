@@ -84,10 +84,12 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the reset password reqeust.
  */
 - (void)testResetPasswordRequest {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRResetPasswordRequest *request =
-      [[FIRResetPasswordRequest alloc] initWithAPIKey:kTestAPIKey
-                                               oobCode:kTestOOBCode
-                                           newPassword:kTestNewPassword];
+      [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
+                                           newPassword:kTestNewPassword
+                                  requestConfiguration:requestConfiguration];
   [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
                                                    NSError *_Nullable error) {
 

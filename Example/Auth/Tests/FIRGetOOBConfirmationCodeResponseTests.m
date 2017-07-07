@@ -116,6 +116,11 @@ static NSString *const kIosBundleID = @"testBundleID";
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -123,9 +128,11 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
+  _requestConfiguration = nil;
   _RPCIssuer = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
@@ -139,7 +146,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -170,7 +177,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -199,7 +206,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -228,7 +235,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
   __block NSError *RPCError;
@@ -256,7 +263,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
   __block NSError *RPCError;
@@ -281,7 +288,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -306,7 +313,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -331,7 +338,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -356,7 +363,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -381,7 +388,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -406,7 +413,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -432,7 +439,7 @@ static NSString *const kIosBundleID = @"testBundleID";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
   __block NSError *RPCError;

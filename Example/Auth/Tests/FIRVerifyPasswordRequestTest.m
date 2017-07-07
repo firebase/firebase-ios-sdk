@@ -99,6 +99,11 @@ static NSString *const kExpectedAPIURL =
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -106,10 +111,12 @@ static NSString *const kExpectedAPIURL =
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -120,7 +127,7 @@ static NSString *const kExpectedAPIURL =
 - (void)testVerifyPasswordRequest {
   FIRVerifyPasswordRequest * request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                                                               password:kTestPassword
-                                                                                APIKey:kTestAPIKey];
+                                                                                requestConfiguration:_requestConfiguration];
   request.returnSecureToken = NO;
   [FIRAuthBackend verifyPassword:request
                         callback:^(FIRVerifyPasswordResponse *_Nullable response,
@@ -142,7 +149,7 @@ static NSString *const kExpectedAPIURL =
 - (void)testVerifyPasswordRequestOptionalFields {
   FIRVerifyPasswordRequest * request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                                                               password:kTestPassword
-                                                                                APIKey:kTestAPIKey];
+                                                                                requestConfiguration:_requestConfiguration];
   request.pendingIDToken = kTestPendingToken;
   request.captchaChallenge = kTestCaptchaChallenge;
   request.captchaResponse = kTestCaptchaResponse;

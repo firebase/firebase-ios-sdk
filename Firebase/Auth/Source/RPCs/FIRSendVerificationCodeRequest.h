@@ -35,21 +35,24 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly) FIRAuthAppCredential *appCredential;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithPhoneNumber:APIKey:
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithPhoneNumber:appCredentials:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithPhoneNumber:APIKey:
+/** @fn initWithPhoneNumber:appCredentials:requestConfiguration:
     @brief Designated initializer.
     @param phoneNumber The phone number to which the verification code is to be sent.
     @param appCredential The credential that proves the identity of the app.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
                                appCredential:(FIRAuthAppCredential *)appCredential
-                                      APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                            NS_DESIGNATED_INITIALIZER;
+
 
 @end
 

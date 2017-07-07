@@ -43,11 +43,11 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
 @implementation FIRSignUpNewUserRequest
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                  email:(NSString *)email
-                               password:(NSString *)password
-                            displayName:(NSString *)displayName {
-  self = [super initWithEndpoint:kSignupNewUserEndpoint APIKey:APIKey];
+- (nullable instancetype)initWithEmail:(nullable NSString *)email
+                              password:(nullable NSString *)password
+                           displayName:(nullable NSString *)displayName
+                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kSignupNewUserEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _email = [email copy];
     _password = [password copy];
@@ -57,8 +57,12 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   return self;
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey{
-    self = [self initWithAPIKey:APIKey email:nil password:nil displayName:nil];
+- (nullable instancetype)initWithRequestConfiguration:
+    (FIRAuthRequestConfiguration *)requestConfiguration {
+    self = [self initWithEmail:nil
+                      password:nil
+                   displayName:nil
+          requestConfiguration:requestConfiguration];
     return self;
 }
 

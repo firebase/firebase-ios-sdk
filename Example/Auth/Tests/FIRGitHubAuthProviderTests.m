@@ -42,9 +42,12 @@ static NSString *const kAPIKey = @"APIKey";
         the appropriate fields in a verify assertion request.
  */
 - (void)testCredentialWithToken {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
   FIRAuthCredential *credential = [FIRGitHubAuthProvider credentialWithToken:kGitHubToken];
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kAPIKey providerID:FIRGitHubAuthProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRGitHubAuthProviderID
+                                       requestConfiguration:requestConfiguration];
   [credential prepareVerifyAssertionRequest:request];
   XCTAssertEqualObjects(request.providerAccessToken, kGitHubToken);
 }

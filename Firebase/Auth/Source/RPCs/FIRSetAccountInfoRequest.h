@@ -132,17 +132,19 @@ extern NSString *const FIRSetAccountInfoUserAttributePassword;
  */
 @property(nonatomic, assign) BOOL returnSecureToken;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithAPIKey:
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithAPIKey:email:password:displayName:requestConfiguration instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithAPIKey:
+/** @fn initWithRequestConfiguration:
     @brief Designated initializer.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithRequestConfiguration:
+    (FIRAuthRequestConfiguration *)requestConfiguration NS_DESIGNATED_INITIALIZER;
 
 @end
 

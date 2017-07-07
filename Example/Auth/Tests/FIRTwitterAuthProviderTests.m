@@ -49,9 +49,11 @@ static NSString *const kAPIKey = @"APIKey";
 - (void)testCredentialWithToken {
   FIRAuthCredential *credential =
       [FIRTwitterAuthProvider credentialWithToken:kTwitterToken secret:kTwitterSecret];
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kAPIKey
-                                             providerID:FIRTwitterAuthProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRTwitterAuthProviderID
+                                       requestConfiguration:requestConfiguration];
   [credential prepareVerifyAssertionRequest:request];
   XCTAssertEqualObjects(request.providerAccessToken, kTwitterToken);
   XCTAssertEqualObjects(request.providerOAuthTokenSecret, kTwitterSecret);

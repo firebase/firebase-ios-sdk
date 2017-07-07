@@ -127,11 +127,16 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
 @interface FIRGetOOBConfirmationCodeRequestTests : XCTestCase
 @end
 @implementation FIRGetOOBConfirmationCodeRequestTests {
-  /** @var _RPCIssuer
+   /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -139,9 +144,11 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
+  _requestConfiguration = nil;
   _RPCIssuer = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
@@ -154,7 +161,7 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
                                                    actionCodeSettings:[self fakeActionCodeSettings]
-                                                               APIKey:kTestAPIKey];
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -191,7 +198,7 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:kTestAccessToken
                                                        actionCodeSettings:testSettings
-                                                                   APIKey:kTestAPIKey];
+                                                     requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;

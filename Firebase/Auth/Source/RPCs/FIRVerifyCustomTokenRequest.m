@@ -34,8 +34,9 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 @implementation FIRVerifyCustomTokenRequest
 
 - (nullable instancetype)initWithToken:(NSString *)token
-                                APIKey:(NSString *)APIKey {
-  self = [super initWithEndpoint:kVerifyCustomTokenEndpoint APIKey:APIKey];
+                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kVerifyCustomTokenEndpoint
+            requestConfiguration:requestConfiguration];
   if (self) {
     _token = [token copy];
     _returnSecureToken = YES;

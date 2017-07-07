@@ -97,32 +97,33 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
     @param email The user's email address.
     @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
         settings to be applied to the password reset request.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
     @return A password reset request.
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     passwordResetRequestWithEmail:(NSString *)email
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-                           APIKey:(NSString *)APIKey;
+             requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn verifyEmailRequestWithAccessToken:APIKey:
     @brief Creates a password reset request.
     @param accessToken The user's STS Access Token.
     @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
         settings to be applied to the email verification request.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
     @return A password reset request.
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     verifyEmailRequestWithAccessToken:(NSString *)accessToken
                    actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-                               APIKey:(NSString *)APIKey;
+                 requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn init
     @brief Please use a factory method.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
 @end
 
