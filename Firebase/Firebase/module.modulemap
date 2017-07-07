@@ -14,7 +14,7 @@ framework module FirebaseCommunity {
     header "FIRErrors.h"
     header "FIRNetworkConstants.h"
     header "FIROptionsInternal.h"
-    header "FIRAppInternal.h" 
+    header "FIRAppInternal.h"
     header "FIRLogger.h"
     header "FIRNetworkLoggerProtocol.h"
     header "FIRReachabilityChecker+Internal.h"

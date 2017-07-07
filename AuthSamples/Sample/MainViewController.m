@@ -19,8 +19,9 @@
 #import <objc/runtime.h>
 
 #import "FIRAdditionalUserInfo.h"
-#import "FIRApp.h"
-#import "FIRAppAssociationRegistration.h"
+#import "FirebaseCommunity/FIRApp.h"
+#import "FirebaseCommunity/FIRAppInternal.h"
+#import "FirebaseCommunity/FIRAppAssociationRegistration.h"
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
@@ -486,18 +487,6 @@ typedef void (^ShowEmailPasswordDialogCompletion)(FIRAuthCredential *credential)
     @brief The type of block which gets called when a token is ready.
  */
 typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error);
-
-/** @brief Method declarations copied from FIRAppInternal.h to avoid importing non-public headers.
- */
-@interface FIRApp (Internal)
-/** @fn getTokenForcingRefresh:withCallback:
-    @brief Retrieves the Firebase authentication token, possibly refreshing it.
-    @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-        other than an expiration.
-    @param callback The block to invoke when the token is available.
- */
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(nonnull FIRTokenCallback)callback;
-@end
 
 /** @category FIRAppAssociationRegistration(Deregistration)
     @brief The category for the deregistration method.
