@@ -2200,37 +2200,38 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       [[FIRPhoneAuthProvider provider] verifyPhoneNumber:phoneNumber
                                               completion:^(NSString *_Nullable verificationID,
                                                            NSError *_Nullable error) {
-        if (error) {
-          [self logFailure:@"failed to send verification code" error:error];
-          [self showMessagePrompt:error.localizedDescription];
-          return;
-        }
-        [self logSuccess:@"Code sent"];
-
-        [self showTextInputPromptWithMessage:@"Verification code:"
-                                keyboardType:UIKeyboardTypeNumberPad
-                             completionBlock:^(BOOL userPressedOK,
-                                               NSString *_Nullable verificationCode) {
-          if (!userPressedOK || !verificationCode.length) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"failed to send verification code" error:error];
+            [self showMessagePrompt:error.localizedDescription];
             return;
           }
-          [self showSpinner:^{
-            FIRAuthCredential *credential =
-                [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                             verificationCode:verificationCode];
-            [[FIRAuth auth] signInWithCredential:credential
-                                      completion:^(FIRUser *_Nullable user,
-                                                  NSError *_Nullable error) {
-              if (error) {
-                [self logFailure:@"failed to verify phone number" error:error];
-                [self showMessagePrompt:error.localizedDescription];
-                return;
-              }
+          [self logSuccess:@"Code sent"];
+
+          [self showTextInputPromptWithMessage:@"Verification code:"
+                                  keyboardType:UIKeyboardTypeNumberPad
+                               completionBlock:^(BOOL userPressedOK,
+                                                 NSString *_Nullable verificationCode) {
+            if (!userPressedOK || !verificationCode.length) {
+              return;
+            }
+            [self showSpinner:^{
+              FIRAuthCredential *credential =
+                  [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                               verificationCode:verificationCode];
+              [[FIRAuth auth] signInWithCredential:credential
+                                        completion:^(FIRUser *_Nullable user,
+                                                    NSError *_Nullable error) {
+                [self hideSpinner:^{
+                  if (error) {
+                    [self logFailure:@"failed to verify phone number" error:error];
+                    [self showMessagePrompt:error.localizedDescription];
+                    return;
+                  }
+                }];
+              }];
             }];
           }];
-        }];
-        [self hideSpinner:^{
-          [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
         }];
       }];
     }];
@@ -2302,62 +2303,68 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       [[FIRPhoneAuthProvider provider] verifyPhoneNumber:phoneNumber
                                               completion:^(NSString *_Nullable verificationID,
                                                            NSError *_Nullable error) {
-        if (error) {
-          [self logFailure:@"failed to send verification code" error:error];
-          [self showMessagePrompt:error.localizedDescription];
-          return;
-        }
-        [self logSuccess:@"Code sent"];
-
-        [self showTextInputPromptWithMessage:@"Verification code:"
-                                keyboardType:UIKeyboardTypeNumberPad
-                             completionBlock:^(BOOL userPressedOK,
-                                               NSString *_Nullable verificationCode) {
-          if (!userPressedOK || !verificationCode.length) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"failed to send verification code" error:error];
+            [self showMessagePrompt:error.localizedDescription];
             return;
           }
-          [self showSpinner:^{
-            FIRPhoneAuthCredential *credential =
-                [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                             verificationCode:verificationCode];
-            [[self user] linkWithCredential:credential
-                                 completion:^(FIRUser *_Nullable user,
-                                              NSError *_Nullable error) {
-              if (error) {
-                if (error.code == FIRAuthErrorCodeCredentialAlreadyInUse) {
-                  [self showMessagePromptWithTitle:@"Phone number is already linked to another user"
-                                           message:@"Tap Ok to sign in with that user now."
-                                  showCancelButton:YES
-                                        completion:^(BOOL userPressedOK,
-                                                     NSString *_Nullable userInput) {
-                    if (userPressedOK) {
-                      // If FIRAuthErrorCodeCredentialAlreadyInUse error, sign in with the provided
-                      // credential.
-                      FIRPhoneAuthCredential *credential =
-                          error.userInfo[FIRAuthUpdatedCredentialKey];
-                      [[FIRAuth auth] signInWithCredential:credential
-                                                completion:^(FIRUser *_Nullable user,
-                                                             NSError *_Nullable error) {
-                        if (error) {
-                          [self logFailure:@"failed to verify phone number" error:error];
-                          [self showMessagePrompt:error.localizedDescription];
-                          return;
+          [self logSuccess:@"Code sent"];
+
+          [self showTextInputPromptWithMessage:@"Verification code:"
+                                  keyboardType:UIKeyboardTypeNumberPad
+                               completionBlock:^(BOOL userPressedOK,
+                                                 NSString *_Nullable verificationCode) {
+            if (!userPressedOK || !verificationCode.length) {
+              return;
+            }
+            [self showSpinner:^{
+              FIRPhoneAuthCredential *credential =
+                  [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                               verificationCode:verificationCode];
+              [[self user] linkWithCredential:credential
+                                   completion:^(FIRUser *_Nullable user,
+                                                NSError *_Nullable error) {
+                [self hideSpinner:^{
+                  if (error) {
+                    if (error.code == FIRAuthErrorCodeCredentialAlreadyInUse) {
+                      [self showMessagePromptWithTitle:@"Phone number is already linked to "
+                                                       @"another user"
+                                               message:@"Tap Ok to sign in with that user now."
+                                      showCancelButton:YES
+                                            completion:^(BOOL userPressedOK,
+                                                         NSString *_Nullable userInput) {
+                        if (userPressedOK) {
+                          // If FIRAuthErrorCodeCredentialAlreadyInUse error, sign in with the
+                          // provided credential.
+                          [self showSpinner:^{
+                            FIRPhoneAuthCredential *credential =
+                                error.userInfo[FIRAuthUpdatedCredentialKey];
+                            [[FIRAuth auth] signInWithCredential:credential
+                                                      completion:^(FIRUser *_Nullable user,
+                                                                   NSError *_Nullable error) {
+                              [self hideSpinner:^{
+                                if (error) {
+                                  [self logFailure:@"failed to verify phone number" error:error];
+                                  [self showMessagePrompt:error.localizedDescription];
+                                  return;
+                                }
+                              }];
+                            }];
+                          }];
                         }
                       }];
+                    } else {
+                      [self logFailure:@"link phone number failed" error:error];
+                      [self showMessagePrompt:error.localizedDescription];
                     }
-                  }];
-                } else {
-                  [self logFailure:@"link phone number failed" error:error];
-                  [self showMessagePrompt:error.localizedDescription];
-                }
-                return;
-              }
-              [self logSuccess:@"link phone number succeeded."];
+                    return;
+                  }
+                  [self logSuccess:@"link phone number succeeded."];
+                }];
+              }];
             }];
           }];
-        }];
-        [self hideSpinner:^{
-          [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
         }];
       }];
     }];
