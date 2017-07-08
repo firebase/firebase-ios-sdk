@@ -20,7 +20,6 @@
 #import "FirebaseCommunity/FIRApp.h"
 #import "FirebaseAuth.h"
 #import "FirebaseCommunity/FIRLogger.h"
-#import "FirebaseCommunity/FIRLoggerLevel.h"
 #import "GTMSessionFetcherLogging.h"
 #import "MainViewController.h"
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCommunity/FIROptions.h"
+#import "FIROptions.h"
 
 /**
  * Keys for the strings in the plist file.

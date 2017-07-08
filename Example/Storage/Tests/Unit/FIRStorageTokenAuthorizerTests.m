@@ -14,7 +14,6 @@
 
 #import "FIRStorageTestHelpers.h"
 
-#import "FirebaseCommunity/FIRApp.h"
 #import "FirebaseCommunity/FIRAppInternal.h"
 
 @interface FIRStorageTokenAuthorizerTests : XCTestCase

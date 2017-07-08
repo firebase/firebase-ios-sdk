@@ -15,6 +15,7 @@
  */
 #import <Foundation/Foundation.h>
 
+#import "FIRLogger.h"
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <netinet/in.h>
 #import <dlfcn.h>

@@ -14,7 +14,6 @@
 
 #import "FirebaseCommunity/FIRAppInternal.h"
 #import "FirebaseCommunity/FIRBundleUtil.h"
-#import "FirebaseCommunity/FIROptions.h"
 #import "FirebaseCommunity/FIROptionsInternal.h"
 
 #import "FIRTestCase.h"

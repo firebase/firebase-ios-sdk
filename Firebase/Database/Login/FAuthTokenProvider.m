@@ -16,6 +16,7 @@
 
 #import "FAuthTokenProvider.h"
 #import "FUtilities.h"
+#import "FIRLogger.h"
 #import "FIRDatabaseQuery_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
 

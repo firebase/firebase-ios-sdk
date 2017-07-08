@@ -15,7 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseCommunity/FIRLogger.h"
 #import "FParsedUrl.h"
 
 @interface FUtilities : NSObject

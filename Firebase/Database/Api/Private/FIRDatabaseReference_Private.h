@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCommunity/FIRDatabaseReference.h"
+#import "FIRDatabaseReference.h"
 #import "FTypedefs_Private.h"
 #import "FIRDatabaseConfig.h"
 #import "FRepo.h"

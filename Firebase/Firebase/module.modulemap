@@ -3,24 +3,4 @@ framework module FirebaseCommunity {
 
   export *
   module * { export * }
-
-  explicit module Private {
-    header "FIRAnalyticsConfiguration+Internal.h"
-    header "FIRErrorCode.h"
-    header "FIRNetwork.h"
-    header "FIRNetworkURLSession.h"
-    header "FIRURLSchemeUtil.h"
-    header "FIRAppAssociationRegistration.h"
-    header "FIRErrors.h"
-    header "FIRNetworkConstants.h"
-    header "FIROptionsInternal.h"
-    header "FIRAppInternal.h"
-    header "FIRLogger.h"
-    header "FIRNetworkLoggerProtocol.h"
-    header "FIRReachabilityChecker+Internal.h"
-    header "FIRBundleUtil.h"
-    header "FIRMutableDictionary.h"
-    header "FIRNetworkMessageCode.h"
-    header "FIRReachabilityChecker.h"
-  }
 }

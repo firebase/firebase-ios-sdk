@@ -18,6 +18,7 @@
 
 #import "FLevelDBStorageEngine.h"
 
+#import "FIRLogger.h"
 #import "APLevelDB.h"
 #import "FSnapshotUtilities.h"
 #import "FWriteRecord.h"

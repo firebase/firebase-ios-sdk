@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseCommunity/FIRDatabaseReference.h"
+#import "FIRDatabaseReference.h"
 
 @interface FTupleFirebase : NSObject
 

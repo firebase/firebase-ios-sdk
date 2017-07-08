@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCommunity/FIRApp.h"
 #import "FirebaseCommunity/FIRAppInternal.h"
-#import "FirebaseCommunity/FIROptions.h"
 #import "FirebaseCommunity/FIROptionsInternal.h"
 #import "FIRTestCase.h"
 
