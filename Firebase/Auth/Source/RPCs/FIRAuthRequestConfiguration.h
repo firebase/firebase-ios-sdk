@@ -20,17 +20,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRAuthRequestConfiguration
+    @brief Defines configurations to be added to a request to Firebase Auth's backend.
+  */
 @interface FIRAuthRequestConfiguration : NSObject
 
 /** @property APIKey
     @brief The Firebase Auth API key used in the request.
  */
-@property(nonatomic, copy, readonly, nullable) NSString *APIKey;
-
-/** @property languageCode
-    @brief The language code to used in the request.
- */
-@property(nonatomic, copy, readonly, nullable) NSString *languageCode;
+@property(nonatomic, copy, readonly) NSString *APIKey;
 
 - (nullable instancetype)init NS_UNAVAILABLE;
 
