@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRLogger.h"
 #import "FConnection.h"
 #import "FConstants.h"
 

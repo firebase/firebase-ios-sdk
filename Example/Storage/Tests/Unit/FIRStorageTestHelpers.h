@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRAppInternal.h"
-
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>

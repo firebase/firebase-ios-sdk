@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseCommunity/FIRAuth.h"
 #import "FIRPhoneAuthProvider.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Phone/NSString+FIRAuth.h"

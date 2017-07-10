@@ -18,6 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRLogger.h"
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
 #import "FIRDatabaseReference.h"

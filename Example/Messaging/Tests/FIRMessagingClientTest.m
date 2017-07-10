@@ -31,7 +31,7 @@
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
-#import "FIRReachabilityChecker.h"
+#import "FirebaseCommunity/FIRReachabilityChecker.h"
 
 static NSString *const kFIRMessagingUserDefaultsSuite = @"FIRMessagingClientTestUserDefaultsSuite";
 

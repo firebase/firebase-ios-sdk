@@ -19,16 +19,17 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.osx.deployment_target = '10.10'
   s.default_subspec  = 'Root'
   s.preserve_paths = 'README.md'
+  s.module_map = 'Firebase/Firebase/module.modulemap'
 
   s.subspec 'Root' do |sp|
-    sp.source_files = 'Firebase/Firebase/Firebase.h'
-    sp.public_header_files = 'Firebase/Firebase/Firebase.h'
-    sp.user_target_xcconfig = { 'HEADER_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}/Firebase/Firebase/Firebase"' }
+    sp.source_files = 'Firebase/Firebase/FirebaseCommunity.h'
+    sp.public_header_files = 'Firebase/Firebase/FirebaseCommunity.h'
   end
 
   s.subspec 'Core' do |sp|
     sp.source_files = 'Firebase/Core/**/*.[mh]'
-    sp.public_header_files = 'Firebase/Core/Public/*.h'
+    sp.public_header_files = 'Firebase/Core/Public/*.h','Firebase/Core/Private/*.h',
+    sp.private_header_files = 'Firebase/Core/Private/*.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
     sp.dependency 'FirebaseCommunity/Root'
   end

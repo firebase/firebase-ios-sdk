@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRLogger.h"
 #import "FUtilities.h"
 #import "FStringUtilities.h"
 #import "FConstants.h"

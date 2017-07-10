@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FirebaseCommunity/FIRLogger.h"
 #import "FSyncPointTests.h"
 #import "FListenProvider.h"
 #import "FQuerySpec.h"

@@ -15,7 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRLogger.h"
 #import "FParsedUrl.h"
 
 @interface FUtilities : NSObject

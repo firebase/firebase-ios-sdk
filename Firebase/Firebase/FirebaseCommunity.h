@@ -18,28 +18,24 @@
   #error "Firebase.h won't import anything if your compiler doesn't support __has_include. Please \
           import the headers individually."
 #else
-  #if __has_include(<Firebase/FirebaseCore.h>)
-    #import <Firebase/FirebaseCore.h>
+  #if __has_include(<FirebaseCommunity/FirebaseCore.h>)
+    #import <FirebaseCommunity/FirebaseCore.h>
   #endif
 
   #if __has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)
     #import <FirebaseAnalytics/FirebaseAnalytics.h>
   #endif
 
-  #if __has_include(<FirebaseAppIndexing/FirebaseAppIndexing.h>)
-    #import <FirebaseAppIndexing/FirebaseAppIndexing.h>
-  #endif
-
-  #if __has_include(<Firebase/FirebaseAuth.h>)
-    #import <Firebase/FirebaseAuth.h>
+  #if __has_include(<FirebaseCommunity/FirebaseAuth.h>)
+    #import <FirebaseCommunity/FirebaseAuth.h>
   #endif
 
   #if __has_include(<FirebaseCrash/FirebaseCrash.h>)
     #import <FirebaseCrash/FirebaseCrash.h>
   #endif
 
-  #if __has_include(<Firebase/FirebaseDatabase.h>)
-    #import <Firebase/FirebaseDatabase.h>
+  #if __has_include(<FirebaseCommunity/FirebaseDatabase.h>)
+    #import <FirebaseCommunity/FirebaseDatabase.h>
   #endif
 
   #if __has_include(<FirebaseDynamicLinks/FirebaseDynamicLinks.h>)
@@ -54,16 +50,16 @@
     #import <FirebaseInvites/FirebaseInvites.h>
   #endif
 
-  #if __has_include(<Firebase/FirebaseMessaging.h>)
-    #import <Firebase/FirebaseMessaging.h>
+  #if __has_include(<FirebaseCommunity/FirebaseMessaging.h>)
+    #import <FirebaseCommunity/FirebaseMessaging.h>
   #endif
 
   #if __has_include(<FirebaseRemoteConfig/FirebaseRemoteConfig.h>)
     #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
   #endif
 
-  #if __has_include(<Firebase/FirebaseStorage.h>)
-    #import <Firebase/FirebaseStorage.h>
+  #if __has_include(<FirebaseCommunity/FirebaseStorage.h>)
+    #import <FirebaseCommunity/FirebaseStorage.h>
   #endif
 
   #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)

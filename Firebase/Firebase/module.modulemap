@@ -1,0 +1,6 @@
+framework module FirebaseCommunity {
+  umbrella header "FirebaseCommunity.h"
+
+  export *
+  module * { export * }
+}

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRLogger.h"
 #import "FChildEventRegistration.h"
 #import "FIRDatabaseQuery_Private.h"
 #import "FQueryParams.h"

@@ -1464,7 +1464,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
-				USER_HEADER_SEARCH_PATHS = "$(inherited) ../Firebase/Core/Private ../Firebase/Auth/Source";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../Firebase/Auth/Source";
 			};
 			name = Debug;
 		};
@@ -1481,7 +1481,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
-				USER_HEADER_SEARCH_PATHS = "$(inherited) ../Firebase/Core/Private ../Firebase/Auth/Source";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../Firebase/Auth/Source";
 			};
 			name = Release;
 		};
@@ -1583,7 +1583,6 @@
 					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1604,7 +1603,6 @@
 					"\"$(SRCROOT)/../Firebase/Auth/Source/RPCs\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source\"",
 					"\"$(SRCROOT)/../Firebase/Auth/Source/AuthProviders\"",
-					"\"$(SRCROOT)/../Firebase/Core/Private\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../Example/Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

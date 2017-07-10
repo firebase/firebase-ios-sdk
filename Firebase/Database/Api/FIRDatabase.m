@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FIRLogger.h"
 #import "FIRDatabase.h"
 #import "FIRDatabase_Private.h"
 #import "FIRDatabaseQuery_Private.h"

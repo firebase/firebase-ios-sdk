@@ -17,9 +17,9 @@
 #import "ApplicationDelegate.h"
 
 #import "AuthProviders.h"
-#import "FIRApp.h"
+#import "FirebaseCommunity/FIRApp.h"
 #import "FirebaseAuth.h"
-#import "FIRLogger.h"
+#import "FirebaseCommunity/FIRLogger.h"
 #import "GTMSessionFetcherLogging.h"
 #import "MainViewController.h"
 

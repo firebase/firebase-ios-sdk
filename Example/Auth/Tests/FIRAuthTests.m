@@ -18,11 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAppInternal.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRPhoneAuthCredential.h"
-#import "FIRAdditionalUserInfo.h"
+#import "FirebaseCommunity/FIRAppInternal.h"
+#import "FirebaseCommunity/FIREmailAuthProvider.h"
+#import "FirebaseCommunity/FIRGoogleAuthProvider.h"
+#import "FirebaseCommunity/FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthDispatcher.h"
@@ -56,6 +55,7 @@
 #import <OCMock/OCMock.h>
 
 #if TARGET_OS_IOS
+#import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
 #endif
 
