@@ -178,7 +178,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 // following test only checks whether the logs have been sent to system with the default settings in
 // the unit test environment.
 - (void)testSystemLogWithDefaultStatus {
-#if !(TARGET_OS_SIMULATOR)
+#if !(BUG128) // Disable until https://github.com/firebase/firebase-ios-sdk/issues/128 is fixed
   // Test fails on device - b/38130372
   return;
 #else
