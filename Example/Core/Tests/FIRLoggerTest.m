@@ -35,7 +35,7 @@ extern dispatch_queue_t getFIRClientQueue();
 
 extern BOOL getFIRLoggerDebugMode();
 
-// Define the message format again to make sure the format doesn't accidentally change.
+// Define the message format again to make sure the format doesn't accidentally change.
 static NSString *const kCorrectASLMessageFormat =
     @"$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
 
