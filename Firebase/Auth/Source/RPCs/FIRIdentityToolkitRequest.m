@@ -16,6 +16,8 @@
 
 #import "FIRIdentityToolkitRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kAPIURLFormat
     @brief URL format for server API calls.
  */
@@ -29,11 +31,11 @@ static NSString *gAPIHost = @"www.googleapis.com";
 @implementation FIRIdentityToolkitRequest
 
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey {
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super init];
   if (self) {
     _endpoint = [endpoint copy];
-    _APIKey = [APIKey copy];
+    _APIKey = [requestConfiguration.APIKey copy];
   }
   return self;
 }
@@ -53,5 +55,7 @@ static NSString *gAPIHost = @"www.googleapis.com";
 + (void)setHost:(NSString *)host {
   gAPIHost = host;
 }
+
+NS_ASSUME_NONNULL_END
 
 @end

@@ -94,6 +94,11 @@ static NSString *const kExpectedAPIURL =
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+    /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -101,10 +106,12 @@ static NSString *const kExpectedAPIURL =
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -116,7 +123,7 @@ static NSString *const kExpectedAPIURL =
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
-                                                           APIKey:kTestAPIKey];
+                                             requestConfiguration:_requestConfiguration];
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
@@ -137,7 +144,7 @@ static NSString *const kExpectedAPIURL =
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:kTemporaryProof
                                                       phoneNumber:kPhoneNumber
-                                                           APIKey:kTestAPIKey];
+                                             requestConfiguration:_requestConfiguration];
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request
                            callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,

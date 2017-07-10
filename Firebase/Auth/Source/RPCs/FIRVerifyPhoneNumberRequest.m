@@ -52,8 +52,10 @@ static NSString *const kPhoneNumberKey = @"phoneNumber";
 
 - (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
                                     phoneNumber:(NSString *)phoneNumber
-                                         APIKey:(NSString *)APIKey {
-  self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint APIKey:APIKey];
+                           requestConfiguration:
+                              (FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
+            requestConfiguration:requestConfiguration];
   if (self) {
     _temporaryProof = [temporaryProof copy];
     _phoneNumber = [phoneNumber copy];
@@ -63,8 +65,10 @@ static NSString *const kPhoneNumberKey = @"phoneNumber";
 
 - (nullable instancetype)initWithVerificationID:(NSString *)verificationID
                                verificationCode:(NSString *)verificationCode
-                                         APIKey:(NSString *)APIKey {
-  self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint APIKey:APIKey];
+                           requestConfiguration:
+                              (FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
+            requestConfiguration:requestConfiguration];
   if (self) {
     _verificationID = verificationID;
     _verificationCode = verificationCode;

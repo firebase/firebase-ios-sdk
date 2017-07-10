@@ -94,12 +94,14 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the sendVerificationCode request.
  */
 - (void)testSendVerificationCodeRequest {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRAuthAppCredential *credential =
       [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
-                                                           APIKey:kTestAPIKey];
+                                             requestConfiguration:requestConfiguration];
   XCTAssertEqualObjects(request.phoneNumber, kTestPhoneNumber);
   XCTAssertEqualObjects(request.appCredential.receipt, kTestReceipt);
   XCTAssertEqualObjects(request.appCredential.secret, kTestSecret);

@@ -269,7 +269,7 @@ static const NSTimeInterval kWaitInterval = .5;
  */
 - (void)testAppAPIkey {
   FIRAuth *auth = [FIRAuth auth];
-  XCTAssertEqualObjects(auth.APIKey, kAPIKey);
+  XCTAssertEqualObjects(auth.requestConfiguration.APIKey, kAPIKey);
 }
 
 /** @fn testAppAssociation

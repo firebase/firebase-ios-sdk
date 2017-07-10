@@ -60,8 +60,8 @@ static NSString *const kAppIDKey = @"appId";
 
 - (nullable instancetype)initWithIdentifier:(NSString *)identifier
                                 continueURI:(NSString *)continueURI
-                                     APIKey:(NSString *)APIKey {
-  self = [super initWithEndpoint:kCreateAuthURIEndpoint APIKey:APIKey];
+                       requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kCreateAuthURIEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _identifier = [identifier copy];
     _continueURI = [continueURI copy];

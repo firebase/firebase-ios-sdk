@@ -32,21 +32,24 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign, readonly) BOOL isSandbox;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithAppToken:isSandbox: instead.
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithToken:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithAppToken:isSandbox:
+/** @fn initWithAppToken:isSandbox:requestConfiguration:
     @brief Designated initializer.
     @param appToken The APNS device token.
     @param isSandbox The flag indicating whether or not the app token provided is for Sandbox or
         Production.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithAppToken:(NSString *)appToken
                                 isSandbox:(BOOL)isSandbox
-                                   APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_DESIGNATED_INITIALIZER;
 
 @end
 

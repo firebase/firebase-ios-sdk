@@ -65,21 +65,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *appID;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithIdentifier:continueURI:APIKey:
+/** @fn initWithEndpoint:requestConfiguration:requestConfiguration.
+    @brief Please use initWithIdentifier:continueURI:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithIdentifier:continueURI:APIKey:
+/** @fn initWithIdentifier:continueURI:requestConfiguration:
     @brief Designated initializer.
     @param identifier The email or federated ID of the user.
     @param continueURI The URI to which the IDP redirects the user after the federated login flow.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithIdentifier:(NSString *)identifier
                                 continueURI:(NSString *)continueURI
-                                     APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+                       requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                           NS_DESIGNATED_INITIALIZER;
 
 @end
 

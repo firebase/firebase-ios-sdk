@@ -35,6 +35,7 @@
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthRequestConfiguration.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
@@ -384,7 +385,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];
-    _APIKey = [APIKey copy];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
     _firebaseAppName = [appName copy];
     #if TARGET_OS_IOS
     UIApplication *application = [UIApplication sharedApplication];
@@ -467,7 +468,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRCreateAuthURIRequest *request =
         [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
                                                 continueURI:@"http://www.google.com/"
-                                                     APIKey:_APIKey];
+                                       requestConfiguration:_requestConfiguration];
     [FIRAuthBackend createAuthURI:request callback:^(FIRCreateAuthURIResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -502,7 +503,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                password:(NSString *)password
                callback:(FIRAuthResultCallback)callback {
   FIRVerifyPasswordRequest *request =
-      [[FIRVerifyPasswordRequest alloc] initWithEmail:email password:password APIKey:_APIKey];
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:email
+                                             password:password
+                                 requestConfiguration:_requestConfiguration];
 
   if (![request.password length]) {
     callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
@@ -587,9 +590,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
   #endif
-
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:_APIKey providerID:credential.provider];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:credential.provider
+                                       requestConfiguration:_requestConfiguration];
   request.autoCreate = !isReauthentication;
   [credential prepareVerifyAssertionRequest:request];
   [FIRAuthBackend verifyAssertion:request
@@ -649,7 +652,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       decoratedCallback(_currentUser, nil);
       return;
     }
-    FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:_APIKey];
+    FIRSignUpNewUserRequest *request =
+        [[FIRSignUpNewUserRequest alloc]initWithRequestConfiguration:_requestConfiguration];
     [FIRAuthBackend signUpNewUser:request
                          callback:^(FIRSignUpNewUserResponse *_Nullable response,
                                     NSError *_Nullable error) {
@@ -672,7 +676,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRAuthResultCallback decoratedCallback =
         [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
     FIRVerifyCustomTokenRequest *request =
-        [[FIRVerifyCustomTokenRequest alloc] initWithToken:token APIKey:_APIKey];
+        [[FIRVerifyCustomTokenRequest alloc] initWithToken:token
+                                      requestConfiguration:_requestConfiguration];
     [FIRAuthBackend verifyCustomToken:request
                              callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
                                         NSError *_Nullable error) {
@@ -695,10 +700,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthResultCallback decoratedCallback =
         [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
-    FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:_APIKey
-                                                                                 email:email
-                                                                              password:password
-                                                                           displayName:nil];
+    FIRSignUpNewUserRequest *request =
+        [[FIRSignUpNewUserRequest alloc] initWithEmail:email
+                                              password:password
+                                           displayName:nil
+                                  requestConfiguration:_requestConfiguration];
     if (![request.password length]) {
       decoratedCallback(nil, [FIRAuthErrorUtils
           weakPasswordErrorWithServerResponseReason:kMissingPasswordReason]);
@@ -729,9 +735,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                           completion:(FIRConfirmPasswordResetCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRResetPasswordRequest *request =
-        [[FIRResetPasswordRequest alloc] initWithAPIKey:_APIKey
-                                                oobCode:code
-                                            newPassword:newPassword];
+        [[FIRResetPasswordRequest alloc] initWithOobCode:code
+                                             newPassword:newPassword
+                                    requestConfiguration:_requestConfiguration];
     [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -750,9 +756,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)checkActionCode:(NSString *)code completion:(FIRCheckActionCodeCallBack)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^ {
     FIRResetPasswordRequest *request =
-    [[FIRResetPasswordRequest alloc] initWithAPIKey:_APIKey
-                                            oobCode:code
-                                        newPassword:nil];
+    [[FIRResetPasswordRequest alloc] initWithOobCode:code
+                                         newPassword:nil
+                                requestConfiguration:_requestConfiguration];
     [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -792,7 +798,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)applyActionCode:(NSString *)code completion:(FIRApplyActionCodeCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^ {
-    FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc]initWithAPIKey:_APIKey];
+    FIRSetAccountInfoRequest *request =
+        [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
     request.OOBCode = code;
     [FIRAuthBackend setAccountInfo:request callback:^(FIRSetAccountInfoResponse *_Nullable response,
                                                       NSError *_Nullable error) {
@@ -839,7 +846,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRGetOOBConfirmationCodeRequest *request =
         [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:email
                                                      actionCodeSettings:actionCodeSettings
-                                                                 APIKey:_APIKey];
+                                                   requestConfiguration:_requestConfiguration];
     [FIRAuthBackend getOOBConfirmationCode:request
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
@@ -963,7 +970,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:credential.temporaryProof
                                                       phoneNumber:credential.phoneNumber
-                                                           APIKey:_APIKey];
+                                             requestConfiguration:_requestConfiguration];
     [self phoneNumberSignInWithRequest:request callback:callback];
     return;
   }
@@ -979,7 +986,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc]initWithVerificationID:credential.verificationID
                                                 verificationCode:credential.verificationCode
-                                                          APIKey:_APIKey];
+                                            requestConfiguration:_requestConfiguration];
   [self phoneNumberSignInWithRequest:request callback:callback];
 }
 
@@ -1163,7 +1170,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                          refreshToken:(NSString *)refreshToken
                             anonymous:(BOOL)anonymous
                              callback:(FIRAuthResultCallback)callback {
-  [FIRUser retrieveUserWithAPIKey:_APIKey
+  [FIRUser retrieveUserWithAPIKey:_requestConfiguration.APIKey
                       accessToken:accessToken
         accessTokenExpirationDate:accessTokenExpirationDate
                      refreshToken:refreshToken

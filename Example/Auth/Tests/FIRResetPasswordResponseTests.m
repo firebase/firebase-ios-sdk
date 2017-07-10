@@ -92,11 +92,16 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
 @end
 
 @implementation FIRResetPasswordResponseTests {
-  /** @var _RPCIssuer
+    /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -104,9 +109,11 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
+  _requestConfiguration = nil;
   _RPCIssuer = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
@@ -117,9 +124,9 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
  */
 - (void)testUserDisabledError {
   FIRResetPasswordRequest *request =
-      [[FIRResetPasswordRequest alloc] initWithAPIKey:kTestAPIKey
-                                              oobCode:kTestOOBCode
-                                          newPassword:kTestNewPassword];
+      [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
+                                           newPassword:kTestNewPassword
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -140,9 +147,9 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
  */
 - (void)testOperationNotAllowedError {
   FIRResetPasswordRequest *request =
-      [[FIRResetPasswordRequest alloc] initWithAPIKey:kTestAPIKey
-                                              oobCode:kTestOOBCode
-                                          newPassword:kTestNewPassword];
+      [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
+                                           newPassword:kTestNewPassword
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -163,9 +170,9 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
  */
 - (void)testOOBExpiredError {
   FIRResetPasswordRequest *request =
-      [[FIRResetPasswordRequest alloc] initWithAPIKey:kTestAPIKey
-                                              oobCode:kTestOOBCode
-                                          newPassword:kTestNewPassword];
+      [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
+                                           newPassword:kTestNewPassword
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -186,9 +193,9 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
  */
 - (void)testOOBInvalidError {
   FIRResetPasswordRequest *request =
-      [[FIRResetPasswordRequest alloc] initWithAPIKey:kTestAPIKey
-                                              oobCode:kTestOOBCode
-                                          newPassword:kTestNewPassword];
+      [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
+                                           newPassword:kTestNewPassword
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -209,9 +216,9 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
  */
 - (void)testWeakPasswordError {
   FIRResetPasswordRequest *request =
-      [[FIRResetPasswordRequest alloc] initWithAPIKey:kTestAPIKey
-                                              oobCode:kTestOOBCode
-                                          newPassword:kTestNewPassword];
+      [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
+                                           newPassword:kTestNewPassword
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -232,9 +239,9 @@ static NSString *const kExpectedResetPasswordRequestType = @"PASSWORD_RESET";
  */
 - (void)testSuccessfulResetPassword {
   FIRResetPasswordRequest *request =
-      [[FIRResetPasswordRequest alloc] initWithAPIKey:kTestAPIKey
-                                              oobCode:kTestOOBCode
-                                          newPassword:kTestNewPassword];
+      [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
+                                           newPassword:kTestNewPassword
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRResetPasswordResponse *RPCResponse;
   __block NSError *RPCError;

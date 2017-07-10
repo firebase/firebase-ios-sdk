@@ -150,8 +150,11 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
         flow.
  */
 - (void)testGetAccountInfoUnexpectedResponseError {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRGetAccountInfoRequest *request =
-      [[FIRGetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey accessToken:kTestAccessToken];
+      [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
+                                       requestConfiguration:requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetAccountInfoResponse *RPCResponse;
@@ -184,8 +187,11 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
     @brief This test simulates a successful @c GetAccountInfo flow.
  */
 - (void)testSuccessfulGetAccountInfoResponse {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRGetAccountInfoRequest *request =
-      [[FIRGetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey accessToken:kTestAccessToken];
+      [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
+                                       requestConfiguration:requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetAccountInfoResponse *RPCResponse;

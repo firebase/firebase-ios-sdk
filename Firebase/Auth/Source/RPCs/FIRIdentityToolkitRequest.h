@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRAuthRequestConfiguration.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRIdentityToolkitRequest
@@ -41,11 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn initWithEndpoint:APIKey:
     @brief Designated initializer.
     @param endpoint The endpoint name.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey
-    NS_DESIGNATED_INITIALIZER;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_DESIGNATED_INITIALIZER;
 
 /** @fn requestURL
     @brief Gets the request's full URL.

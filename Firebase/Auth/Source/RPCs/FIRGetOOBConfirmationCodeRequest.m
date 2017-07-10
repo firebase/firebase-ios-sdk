@@ -24,7 +24,7 @@
 /** @var kEndpoint
     @brief The getOobConfirmationCode endpoint name.
  */
-static NSString *const kEndpoint = @"getOobConfirmationCode";
+static NSString *const kGetOobConfirmationCodeEndpoint = @"getOobConfirmationCode";
 
 /** @var kRequestTypeKey
     @brief The name of the required "requestType" property in the request.
@@ -91,15 +91,15 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
     @param requestType The types of OOB Confirmation Code to request.
     @param email The email of the user.
     @param accessToken The STS Access Token of the currently signed in user.
-    @param APIKey The client's API Key.
     @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
         settings to be applied to the OOB code request.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
                                        email:(nullable NSString *)email
                                  accessToken:(nullable NSString *)accessToken
-                                      APIKey:(nullable NSString *)APIKey
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                               NS_DESIGNATED_INITIALIZER;
 
 @end
@@ -123,31 +123,32 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 + (FIRGetOOBConfirmationCodeRequest *)
     passwordResetRequestWithEmail:(NSString *)email
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-                           APIKey:(NSString *)APIKey {
+             requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypePasswordReset
                                      email:email
                                accessToken:nil
-                                    APIKey:APIKey
-                        actionCodeSettings:actionCodeSettings];
+                        actionCodeSettings:actionCodeSettings
+                      requestConfiguration:requestConfiguration];
 }
 
 + (FIRGetOOBConfirmationCodeRequest *)
     verifyEmailRequestWithAccessToken:(NSString *)accessToken
                    actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-                               APIKey:(NSString *)APIKey {
+                 requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeVerifyEmail
                                      email:nil
                                accessToken:accessToken
-                                    APIKey:APIKey
-                        actionCodeSettings:actionCodeSettings];
+                        actionCodeSettings:actionCodeSettings
+                      requestConfiguration:requestConfiguration];
 }
 
 - (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
                                        email:(nullable NSString *)email
                                  accessToken:(nullable NSString *)accessToken
-                                      APIKey:(nullable NSString *)APIKey
-                          actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings {
-  self = [super initWithEndpoint:kEndpoint APIKey:APIKey];
+                          actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kGetOobConfirmationCodeEndpoint
+            requestConfiguration:requestConfiguration];
   if (self) {
     _requestType = requestType;
     _email = email;

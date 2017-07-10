@@ -45,8 +45,9 @@ static NSString *const kSecretKey = @"iosSecret";
 
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
                                appCredential:(FIRAuthAppCredential *)appCredential
-                                      APIKey:(NSString *)APIKey {
-  self = [super initWithEndpoint:kSendVerificationCodeEndPoint APIKey:APIKey];
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kSendVerificationCodeEndPoint
+            requestConfiguration:requestConfiguration];
   if (self) {
     _phoneNumber = [phoneNumber copy];
     _appCredential = appCredential;

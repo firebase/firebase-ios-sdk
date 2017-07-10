@@ -117,22 +117,29 @@ static const double kAllowedTimeDifference = 0.1;
 
 @interface FIRSignUpNewUserResponseTests : XCTestCase
 @end
-@implementation FIRSignUpNewUserResponseTests
+@implementation FIRSignUpNewUserResponseTests {
   /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
 
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
+}
 - (void)setUp {
   [super setUp];
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -142,10 +149,10 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testSuccessfulSignUp {
   FIRSignUpNewUserRequest *request =
-      [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey
-                                                email:kTestEmail
+      [[FIRSignUpNewUserRequest alloc] initWithEmail:kTestEmail
                                              password:kTestPassword
-                                          displayName:kTestDisplayName];
+                                          displayName:kTestDisplayName
+                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
@@ -178,7 +185,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeEmailAlreadyInUse error.
  */
 - (void)testSignUpNewUserEmailAlreadyInUseError {
-  FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
@@ -201,7 +209,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeOperationNotAllowed error.
  */
 - (void)testSignUpNewUserOperationNotAllowedError {
-  FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
@@ -224,7 +233,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeOperationNotAllowed error.
  */
 - (void)testSignUpNewUserPasswordLoginDisabledError {
-  FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
@@ -247,7 +257,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorInvalidEmail error as a result.
  */
 - (void)testInvalidEmailError {
-  FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;
@@ -269,7 +280,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates @c FIRAuthErrorCodeWeakPassword error.
  */
 - (void)testSignUpNewUserWeakPasswordError {
-  FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSignUpNewUserResponse *RPCResponse;

@@ -29,9 +29,10 @@ static NSString *const kIDTokenKey = @"idToken";
 
 @implementation FIRGetAccountInfoRequest
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                            accessToken:(NSString *)accessToken {
-  self = [super initWithEndpoint:kGetAccountInfoEndpoint APIKey:APIKey];
+- (nullable instancetype)initWithAccessToken:(NSString *)accessToken
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kGetAccountInfoEndpoint
+            requestConfiguration:requestConfiguration];
   if (self) {
     _accessToken = [accessToken copy];
   }
