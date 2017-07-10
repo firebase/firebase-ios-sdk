@@ -24,7 +24,6 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.subspec 'Root' do |sp|
     sp.source_files = 'Firebase/Firebase/FirebaseCommunity.h'
     sp.public_header_files = 'Firebase/Firebase/FirebaseCommunity.h'
-    sp.user_target_xcconfig = { 'HEADER_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}/Firebase/Firebase/Firebase"' }
   end
 
   s.subspec 'Core' do |sp|
