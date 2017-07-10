@@ -253,6 +253,14 @@ FIR_SWIFT_NAME(Auth)
  */
 @property(nonatomic, strong, readonly, nullable) FIRUser *currentUser;
 
+/** @proprty languageCode
+    @brief The current user language code. This property can be set to the app's current language by
+        calling @c useAppLanguage.
+
+    @remarks The string used to set this property must be a language code that follows BCP 47.
+ */
+@property (nonatomic, copy, nullable) NSString *languageCode;
+
 #if TARGET_OS_IOS
 /** @property APNSToken
     @brief The APNs token used for phone number authentication. The type of the token (production
@@ -644,6 +652,11 @@ FIR_SWIFT_NAME(Auth)
     @param listenerHandle The handle for the listener.
  */
 - (void)removeIDTokenDidChangeListener:(FIRIDTokenDidChangeListenerHandle)listenerHandle;
+
+/** @fn useAppLanguage
+    @brief Sets @c languageCode to the app's current language.
+ */
+- (void)useAppLanguage;
 
 #if TARGET_OS_IOS
 /** @fn setAPNSToken:type:

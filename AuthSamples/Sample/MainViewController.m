@@ -55,10 +55,11 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
  */
 static NSString *const kTokenRefreshErrorAlertTitle = @"Get Token Error";
 
-/** @var kSettingsButtonText
-    @brief The text of the "Settings" button.
+/** @var kSettingsButtonTextDesription
+    @brief The description for the text of the "Settings" button.
  */
-static NSString *const kSettingsButtonText = @"[Sample App Settings]";
+static NSString *const kSettingsButtonTextDesription =
+    @"The button text to open sample app settings";
 
 /** @var kUserInfoButtonText
     @brief The text of the "Show User Info" button.
@@ -606,7 +607,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSettings cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSettingsButtonText
+        [StaticContentTableViewCell cellWithTitle:NSLocalizedString(@"SETTINGSKEY",
+                                                                    kSettingsButtonTextDesription)
                                            action:^{ [weakSelf presentSettings]; }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
@@ -2049,6 +2051,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       return;
     }
     [self showSpinner:^{
+      [[FIRAuth auth] useAppLanguage];
       FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
       [actionCodeSettings setIOSBundleID:[NSBundle mainBundle].bundleIdentifier];
       actionCodeSettings.URL = [NSURL URLWithString:KCONTINUE_URL];
