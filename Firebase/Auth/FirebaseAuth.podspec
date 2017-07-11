@@ -35,7 +35,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.preserve_paths =
     'README.md',
     'CHANGELOG.md'
-  #s.resource_bundle = 'Source/FirebaseAuth.bundle'
   s.resource_bundle = {
     'FirebaseAuth' => 'Source/FirebaseAuth.bundle/**/*.strings'
   }

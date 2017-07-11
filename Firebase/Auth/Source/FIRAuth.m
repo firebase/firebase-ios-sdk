@@ -108,7 +108,8 @@ static NSString *const kMissingEmailInvalidParameterExceptionReason =
     @brief The reason for @c invalidParameterException when the locale bundle is missing.
  */
 static NSString *const kMissingLocaleBundleInvalidParameterExceptionReason =
-    @"The bundle used to obtain the current device language is missing.";
+    @"The bundle used to obtain the current device language is missing. Please ensure that"
+    " %@.bundle is included as part of Firebase Auth.";
 
 static NSString *const kPasswordResetRequestType = @"PASSWORD_RESET";
 
@@ -954,12 +955,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   NSString *path =
       [[NSBundle bundleForClass:[self class]] pathForResource:kFirebaseAuthBundleFileName
                                                        ofType:@"bundle"];
-  static NSBundle *bundle;
+  NSBundle *bundle;
   bundle = [NSBundle bundleWithPath:path];
   if (!bundle) {
-    [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
-        kMissingLocaleBundleInvalidParameterExceptionReason];
-    _languageCode = nil;
+  NSString *reason = [NSString stringWithFormat:kMissingLocaleBundleInvalidParameterExceptionReason,
+      kFirebaseAuthBundleFileName];
+    [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:reason];
+   _requestConfiguration.languageCode = nil;
   }
   _requestConfiguration.languageCode =
       [bundle localizedStringForKey:kFirebaseLocaleStringKey value:nil table:@"FirebaseLocale"];
@@ -994,6 +996,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif
 
 #pragma mark - Internal Methods
+
+- (void)setLanguageCode:(NSString *)languageCode {
+  _requestConfiguration.languageCode = [languageCode copy];
+}
 
 #if TARGET_OS_IOS
 /** @fn signInWithPhoneCredential:callback:
