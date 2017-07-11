@@ -961,7 +961,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   NSString *reason = [NSString stringWithFormat:kMissingLocaleBundleInvalidParameterExceptionReason,
       kFirebaseAuthBundleFileName];
     [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:reason];
-   _requestConfiguration.languageCode = nil;
   }
   _requestConfiguration.languageCode =
       [bundle localizedStringForKey:kFirebaseLocaleStringKey value:nil table:@"FirebaseLocale"];
