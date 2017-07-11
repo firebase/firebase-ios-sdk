@@ -30,6 +30,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'Source/**/FIRAuthAPNSTokenManager.[mh]',
     'Source/**/FIRAuthAPNSTokenType.[mh]',
     'Source/**/FIRAuthAPNSToken.[mh]',
+    'Source/**/FIRPhoneAuthCredential.[mh]',
     'Source/**/FIRPhoneAuthProvider.[mh]'
   s.public_header_files = 'Source/Public/*.h'
   s.preserve_paths =
