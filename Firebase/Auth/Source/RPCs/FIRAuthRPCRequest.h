@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAuthRequestConfiguration;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @protocol FIRAuthRPCRequest
@@ -34,6 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
     @return The HTTP body data representing the request before any encoding, or nil for error.
  */
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error;
+
+@optional
+
+/** @fn requestConfiguration
+    @brief Obtains the request configurations if available.
+    @return Returns the request configurations.
+ */
+- (FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
 

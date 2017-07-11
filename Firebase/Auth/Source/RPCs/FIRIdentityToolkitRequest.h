@@ -18,6 +18,8 @@
 
 #import "FIRAuthRequestConfiguration.h"
 
+@class FIRAuthRequestConfiguration;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRIdentityToolkitRequest
@@ -53,6 +55,11 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Gets the request's full URL.
  */
 - (NSURL *)requestURL;
+
+/** @fn requestConfiguration
+    @brief Gets the request's configuration.
+ */
+- (FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
 

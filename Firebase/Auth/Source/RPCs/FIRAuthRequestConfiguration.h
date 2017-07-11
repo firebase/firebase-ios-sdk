@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) NSString *APIKey;
 
+/** @property LanguageCode
+    @brief The language code used in the request.
+ */
+@property(nonatomic, copy, nullable) NSString *languageCode;
+
 - (nullable instancetype)init NS_UNAVAILABLE;
 
 /** @fn initWithRequestClass:APIKey:authLanguage:

@@ -19,6 +19,7 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthInternalErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthRequestConfiguration.h"
 #import "FIRAuthRPCRequest.h"
 #import "FIRAuthRPCResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -28,6 +29,11 @@
         for the specific RPC requests in their various unit tests.
  */
 static NSString *const kFakeRequestURL = @"https://www.google.com/";
+
+/** @var kFakeAPIkey
+    @brief Used as a fake APIKey for a fake RPC request. We don't test this here.
+ */
+static NSString *const kFakeAPIkey = @"FAKE_API_KEY";
 
 /** @var kFakeErrorDomain
     @brief A value to use for fake @c NSErrors.
@@ -228,6 +234,12 @@ static NSString *const kTestValue = @"TestValue";
 
 - (NSURL *)requestURL {
   return [NSURL URLWithString:kFakeRequestURL];
+}
+
+- (FIRAuthRequestConfiguration *)requestConfiguration {
+  FIRAuthRequestConfiguration *fakeConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey];
+  return fakeConfiguration;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {

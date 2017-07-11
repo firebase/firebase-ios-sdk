@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;
 @class FIRCreateAuthURIResponse;
 @class FIRGetAccountInfoRequest;
@@ -348,18 +349,20 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 @protocol FIRAuthBackendRPCIssuer <NSObject>
 
-/** @fn asyncPostToURL:body:contentType:completionHandler:
-    @brief Asynchronously sends a POST request.
-    @param URL URL of the request.
+/** @fn asyncPostToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
+    @brief Asynchronously seXnds a POST request.
+    @param requestConfiguration The request to be made.
+    @param URL The request URL.
     @param body Request body.
     @param contentType Content type of the body.
     @param handler provided that handles POST response. Invoked asynchronously on the auth global
         work queue in the future.
  */
-- (void)asyncPostToURL:(NSURL *)URL
-                  body:(NSData *)body
-           contentType:(NSString *)contentType
-     completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler;
+- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                           URL:(NSURL *)URL
+                                          body:(NSData *)body
+                                   contentType:(NSString *)contentType
+                             completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler;
 
 @end
 

@@ -69,6 +69,11 @@ static NSString *const kClientVersionHeader = @"X-Client-Version";
  */
 static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
 
+/** @var kFirebaseLocalHeader
+    @brief HTTP header name for the firebase locale.
+ */
+static NSString *const kFirebaseLocalHeader = @"X-Firebase-Locale";
+
 /** @var kJSONContentType
     @brief The value of the HTTP content-type header for JSON payloads.
  */
@@ -451,10 +456,12 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   return self;
 }
 
-- (void)asyncPostToURL:(NSURL *)URL
-                  body:(NSData *)body
-           contentType:(NSString *)contentType
-     completionHandler:(void (^)(NSData *_Nullable, NSError *_Nullable))handler {
+- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                           URL:(NSURL *)URL
+                                          body:(NSData *)body
+                                   contentType:(NSString *)contentType
+                             completionHandler:(void (^)(NSData *_Nullable,
+                               NSError *_Nullable))handler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
   NSString *clientVersion =
@@ -468,7 +475,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     NSString *acceptLanguage = preferredLocalizations.firstObject;
     [request setValue:acceptLanguage forHTTPHeaderField:@"Accept-Language"];
   }
-
+  NSString *languageCode = requestConfiguration.languageCode;
+  [request setValue:languageCode.length ? [languageCode copy] : @"en"
+      forHTTPHeaderField:kFirebaseLocalHeader];
   GTMSessionFetcher* fetcher = [_fetcherService fetcherWithRequest:request];
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
@@ -708,10 +717,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return;
   }
 
-  [_RPCIssuer asyncPostToURL:[request requestURL]
-                        body:bodyData
-                 contentType:kJSONContentType
-           completionHandler:^(NSData *data, NSError *error) {
+  [_RPCIssuer asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
+                                                 URL:[request requestURL]
+                                                body:bodyData
+                                         contentType:kJSONContentType
+                                   completionHandler:^(NSData *data, NSError *error) {
     // If there is an error with no body data at all, then this must be a network error.
     if (error && !data) {
       callback([FIRAuthErrorUtils networkErrorWithUnderlyingError:error]);
