@@ -45,11 +45,4 @@ if [ $RESULT != 0 ]; then exit $RESULT; fi
 
 test_macOS; RESULT=$?
 
-if [ $RESULT == 65 ]; then
-  echo "xcodebuild exited with 65, retrying"
-  sleep 5
-
-  test_macOS; RESULT=$?
-fi
-
 exit $RESULT
