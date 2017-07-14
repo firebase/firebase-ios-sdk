@@ -18,7 +18,6 @@
 
 #import "FIRAuthBackend.h"
 
-#import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
@@ -56,6 +55,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 #if TARGET_OS_IOS
+#import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRPhoneAuthProvider.h"
 #endif
 

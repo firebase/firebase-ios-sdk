@@ -23,7 +23,6 @@
 #import "FIROptions.h"
 #import "FIRLogger.h"
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
-#import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthDataResult_Internal.h"
@@ -62,6 +61,7 @@
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredentialManager.h"
 #import "FIRAuthAppDelegateProxy.h"
+#import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthNotificationManager.h"
 #endif
 

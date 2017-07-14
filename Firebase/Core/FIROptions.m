@@ -62,8 +62,8 @@ NSString *const kFIRExceptionBadModification =
 @property(nonatomic, readwrite) NSMutableDictionary *optionsDictionary;
 
 /**
- * Combination of analytics options from both the main plist and the GoogleService-info.plist.
- * Values which are present in the main plist override values from the GoogleService-info.plist.
+ * Combination of analytics options from both the main plist and the GoogleService-Info.plist.
+ * Values which are present in the main plist override values from the GoogleService-Info.plist.
  */
 @property(nonatomic, readonly) NSDictionary *analyticsOptionsDictionary;
 
