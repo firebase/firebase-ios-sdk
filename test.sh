@@ -18,7 +18,7 @@ test_iOS() {
     -workspace Example/Firebase.xcworkspace \
     -scheme AllUnitTests_iOS \
     -sdk iphonesimulator \
-    -destination 'platform=iOS Simulator,name=iPhone 7' \
+    -destination 'platform=iOS Simulator,OS=10.3.1,name=iPhone 7' \
     build \
     test \
     ONLY_ACTIVE_ARCH=YES \
@@ -40,13 +40,6 @@ test_macOS() {
 }
 
 test_iOS; RESULT=$?
-
-if [ $RESULT == 65 ]; then
-  echo "xcodebuild exited with 65, retrying"
-  sleep 5
-
-  test_iOS; RESULT=$?
-fi
 
 if [ $RESULT != 0 ]; then exit $RESULT; fi
 
