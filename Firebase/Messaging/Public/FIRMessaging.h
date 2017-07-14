@@ -367,9 +367,10 @@ FIR_SWIFT_NAME(Messaging)
 
 
 /**
- *  Retrieves an FCM registration token for a particular Sender ID. This registration token is
- *  not cached by FIRMessaging. FIRMessaging should have an APNS token set before calling this
- *  to ensure that notifications can be delivered via APNS using this FCM token. You may
+ *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
+ *  multiple senders to send notifications to the same device. This registration token is not
+ *  cached by FIRMessaging. FIRMessaging should have an APNS token set before calling this to
+ *  ensure that notifications can be delivered via APNS using this FCM token. You may
  *  re-retrieve the FCM token once you have the APNS token set, to associate it with the FCM
  *  token. The default FCM token is automatically associated with the APNS token, if the APNS
  *  token data is available.
