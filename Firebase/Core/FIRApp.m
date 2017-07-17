@@ -23,6 +23,7 @@
 
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
+NSString *const kFIRServiceAuthUI = @"AuthUI";
 NSString *const kFIRServiceCrash = @"Crash";
 NSString *const kFIRServiceDatabase = @"Database";
 NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";

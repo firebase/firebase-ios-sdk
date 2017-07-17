@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, FIRConfigType) {
  */
 extern NSString *const kFIRServiceAdMob;
 extern NSString *const kFIRServiceAuth;
+extern NSString *const kFIRServiceAuthUI;
 extern NSString *const kFIRServiceCrash;
 extern NSString *const kFIRServiceDatabase;
 extern NSString *const kFIRServiceDynamicLinks;
