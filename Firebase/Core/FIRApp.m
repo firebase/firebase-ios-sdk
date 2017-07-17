@@ -379,6 +379,10 @@ static FIRApp *sDefaultApp;
   return FIRCreateError(kFirebaseCoreErrorDomain, FIRErrorCodeInvalidAppID, errorDict);
 }
 
++ (BOOL)isDefaultAppConfigured {
+  return (sDefaultApp != nil);
+}
+
 - (void)checkExpectedBundleID {
   NSArray *bundles = [FIRBundleUtil relevantBundles];
   NSString *expectedBundleID = [self expectedBundleID];

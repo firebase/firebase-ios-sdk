@@ -568,6 +568,19 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertEqual([[FIRApp defaultApp] getUID], @"highlander");
 }
 
+- (void)testIsAppConfigured {
+  // Ensure it's false before anything is configured.
+  XCTAssertFalse([FIRApp isDefaultAppConfigured]);
+
+  // Configure it and ensure it's configured.
+  [FIRApp configure];
+  XCTAssertTrue([FIRApp isDefaultAppConfigured]);
+
+  // Reset the apps and ensure it's not configured anymore.
+  [FIRApp resetApps];
+  XCTAssertFalse([FIRApp isDefaultAppConfigured]);
+}
+
 #pragma mark - private
 
 - (NSDictionary <NSString *, NSObject *> *)expectedUserInfoWithAppName:(NSString *)name
