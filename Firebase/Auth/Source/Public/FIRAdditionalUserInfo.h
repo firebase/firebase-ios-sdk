@@ -30,7 +30,7 @@ FIR_SWIFT_NAME(AdditionalUserInfo)
 
 /** @fn init
     @brief This class should not be initialized manually. @c FIRAdditionalUserInfo can be retrieved
-        from @c FIRAuthDataResult .
+        from from an instance of @c FIRAuthDataResult.
  */
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -40,7 +40,7 @@ FIR_SWIFT_NAME(AdditionalUserInfo)
 @property(nonatomic, readonly) NSString *providerID;
 
 /** @property profile
-    @brief profile Dictionary containing the additional IdP specific information.
+    @brief Dictionary containing the additional IdP specific information.
  */
 @property(nonatomic, readonly, nullable) NSDictionary<NSString *, NSObject *> *profile;
 
