@@ -98,6 +98,10 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)();
                                                  errorCode:(FIRErrorCode)code
                                                    service:(NSString *)service
                                                     reason:(NSString *)reason;
+/**
+ * Checks if the default app is configured without trying to configure it.
+ */
++ (BOOL)isDefaultAppConfigured;
 
 /**
  * Used by each SDK to send logs about SDK configuration status to Clearcut.
