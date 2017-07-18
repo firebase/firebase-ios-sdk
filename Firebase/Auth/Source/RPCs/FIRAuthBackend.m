@@ -477,7 +477,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
   NSString *languageCode = requestConfiguration.languageCode;
   if (languageCode.length) {
-    [request setValue:[languageCode copy] forHTTPHeaderField:kFirebaseLocalHeader];
+    [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
   GTMSessionFetcher* fetcher = [_fetcherService fetcherWithRequest:request];
   fetcher.bodyData = body;
