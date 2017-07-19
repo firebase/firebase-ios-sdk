@@ -476,8 +476,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [request setValue:acceptLanguage forHTTPHeaderField:@"Accept-Language"];
   }
   NSString *languageCode = requestConfiguration.languageCode;
-  [request setValue:languageCode.length ? [languageCode copy] : @"en"
-      forHTTPHeaderField:kFirebaseLocalHeader];
+  if (languageCode.length) {
+    [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
+  }
   GTMSessionFetcher* fetcher = [_fetcherService fetcherWithRequest:request];
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
