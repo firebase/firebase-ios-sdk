@@ -47,5 +47,4 @@ extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
   FIRSetLoggerLevel(loggerLevel);
 }
 
-
 @end

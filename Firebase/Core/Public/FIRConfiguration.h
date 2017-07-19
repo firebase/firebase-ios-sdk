@@ -48,7 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 FIR_SWIFT_NAME(FirebaseConfiguration)
 @interface FIRConfiguration : NSObject
 
-
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /** Returns the shared configuration object. */
 @property(class, nonatomic, readonly) FIRConfiguration *sharedInstance FIR_SWIFT_NAME(shared);

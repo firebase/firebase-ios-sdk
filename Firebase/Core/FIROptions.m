@@ -39,11 +39,10 @@ NSString *const kFIRIsAnalyticsEnabled = @"IS_ANALYTICS_ENABLED";
 NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 
 // Library version ID.
-NSString *const kFIRLibraryVersionID =
-    @"4"     // Major version (one or more digits)
-    @"00"    // Minor version (exactly 2 digits)
-    @"04"    // Build number (exactly 2 digits)
-    @"000";  // Fixed "000"
+NSString *const kFIRLibraryVersionID = @"4"     // Major version (one or more digits)
+                                       @"00"    // Minor version (exactly 2 digits)
+                                       @"04"    // Build number (exactly 2 digits)
+                                       @"000";  // Fixed "000"
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
 // Plist file type.
@@ -90,8 +89,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     return nil;
   }
 
-  sDefaultOptions =
-      [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
+  sDefaultOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
   return sDefaultOptions;
 }
 
@@ -108,7 +106,8 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
   if (sDefaultOptionsDictionary == nil) {
     FIRLogError(kFIRLoggerCore, @"I-COR000011", @"The configuration file is not a dictionary: "
-                @"'%@.%@'.", kServiceInfoFileName, kServiceInfoFileType);
+                                                @"'%@.%@'.",
+                kServiceInfoFileName, kServiceInfoFileType);
   }
   return sDefaultOptionsDictionary;
 }
@@ -205,7 +204,8 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     _optionsDictionary = [[NSDictionary dictionaryWithContentsOfFile:plistPath] mutableCopy];
     if (_optionsDictionary == nil) {
       FIRLogError(kFIRLoggerCore, @"I-COR000014", @"The configuration file at %@ does not exist or "
-                  @"is not a well-formed plist file.", plistPath);
+                                                  @"is not a well-formed plist file.",
+                  plistPath);
       return nil;
     }
     // TODO: Do we want to validate the dictionary here? It says we do that already in
@@ -214,8 +214,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   return self;
 }
 
-- (instancetype)initWithGoogleAppID:(NSString *)googleAppID
-                        GCMSenderID:(NSString *)GCMSenderID {
+- (instancetype)initWithGoogleAppID:(NSString *)googleAppID GCMSenderID:(NSString *)GCMSenderID {
   self = [super init];
   if (self) {
     NSMutableDictionary *mutableOptionsDict = [NSMutableDictionary dictionary];
@@ -369,9 +368,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   dispatch_once(&_createAnalyticsOptionsDictionaryOnce, ^{
     NSMutableDictionary *tempAnalyticsOptions = [[NSMutableDictionary alloc] init];
     NSDictionary *mainInfoDictionary = [NSBundle mainBundle].infoDictionary;
-    NSArray *measurementKeys = @[ kFIRIsMeasurementEnabled,
-                                  kFIRIsAnalyticsCollectionEnabled,
-                                  kFIRIsAnalyticsCollectionDeactivated ];
+    NSArray *measurementKeys = @[
+      kFIRIsMeasurementEnabled, kFIRIsAnalyticsCollectionEnabled,
+      kFIRIsAnalyticsCollectionDeactivated
+    ];
     for (NSString *key in measurementKeys) {
       id value = mainInfoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
       if (!value) {

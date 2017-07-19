@@ -15,55 +15,56 @@
  */
 
 #if !defined(__has_include)
-  #error "Firebase.h won't import anything if your compiler doesn't support __has_include. Please \
+#error \
+    "Firebase.h won't import anything if your compiler doesn't support __has_include. Please \
           import the headers individually."
 #else
-  #if __has_include(<FirebaseCommunity/FirebaseCore.h>)
-    #import <FirebaseCommunity/FirebaseCore.h>
-  #endif
+#if __has_include(<FirebaseCommunity / FirebaseCore.h>)
+#import <FirebaseCommunity/FirebaseCore.h>
+#endif
 
-  #if __has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)
-    #import <FirebaseAnalytics/FirebaseAnalytics.h>
-  #endif
+#if __has_include(<FirebaseAnalytics / FirebaseAnalytics.h>)
+#import <FirebaseAnalytics/FirebaseAnalytics.h>
+#endif
 
-  #if __has_include(<FirebaseCommunity/FirebaseAuth.h>)
-    #import <FirebaseCommunity/FirebaseAuth.h>
-  #endif
+#if __has_include(<FirebaseCommunity / FirebaseAuth.h>)
+#import <FirebaseCommunity/FirebaseAuth.h>
+#endif
 
-  #if __has_include(<FirebaseCrash/FirebaseCrash.h>)
-    #import <FirebaseCrash/FirebaseCrash.h>
-  #endif
+#if __has_include(<FirebaseCrash / FirebaseCrash.h>)
+#import <FirebaseCrash/FirebaseCrash.h>
+#endif
 
-  #if __has_include(<FirebaseCommunity/FirebaseDatabase.h>)
-    #import <FirebaseCommunity/FirebaseDatabase.h>
-  #endif
+#if __has_include(<FirebaseCommunity / FirebaseDatabase.h>)
+#import <FirebaseCommunity/FirebaseDatabase.h>
+#endif
 
-  #if __has_include(<FirebaseDynamicLinks/FirebaseDynamicLinks.h>)
-    #import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
-  #endif
+#if __has_include(<FirebaseDynamicLinks / FirebaseDynamicLinks.h>)
+#import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
+#endif
 
-  #if __has_include(<Firebase/FirebaseInstanceID.h>)
-    #import <Firebase/FirebaseInstanceID.h>
-  #endif
+#if __has_include(<Firebase / FirebaseInstanceID.h>)
+#import <Firebase/FirebaseInstanceID.h>
+#endif
 
-  #if __has_include(<FirebaseInvites/FirebaseInvites.h>)
-    #import <FirebaseInvites/FirebaseInvites.h>
-  #endif
+#if __has_include(<FirebaseInvites / FirebaseInvites.h>)
+#import <FirebaseInvites/FirebaseInvites.h>
+#endif
 
-  #if __has_include(<FirebaseCommunity/FirebaseMessaging.h>)
-    #import <FirebaseCommunity/FirebaseMessaging.h>
-  #endif
+#if __has_include(<FirebaseCommunity / FirebaseMessaging.h>)
+#import <FirebaseCommunity/FirebaseMessaging.h>
+#endif
 
-  #if __has_include(<FirebaseRemoteConfig/FirebaseRemoteConfig.h>)
-    #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
-  #endif
+#if __has_include(<FirebaseRemoteConfig / FirebaseRemoteConfig.h>)
+#import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
+#endif
 
-  #if __has_include(<FirebaseCommunity/FirebaseStorage.h>)
-    #import <FirebaseCommunity/FirebaseStorage.h>
-  #endif
+#if __has_include(<FirebaseCommunity / FirebaseStorage.h>)
+#import <FirebaseCommunity/FirebaseStorage.h>
+#endif
 
-  #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
-    #import <GoogleMobileAds/GoogleMobileAds.h>
-  #endif
+#if __has_include(<GoogleMobileAds / GoogleMobileAds.h>)
+#import <GoogleMobileAds/GoogleMobileAds.h>
+#endif
 
 #endif  // defined(__has_include)

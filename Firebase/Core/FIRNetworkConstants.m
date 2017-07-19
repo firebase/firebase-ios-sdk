@@ -21,7 +21,7 @@ NSString *const kFIRNetworkBackgroundSessionConfigIDPrefix =
 NSString *const kFIRNetworkApplicationSupportSubdirectory = @"Firebase/Network";
 NSString *const kFIRNetworkTempDirectoryName = @"FIRNetworkTemporaryDirectory";
 const NSTimeInterval kFIRNetworkTempFolderExpireTime = 60 * 60;  // 1 hour
-const NSTimeInterval kFIRNetworkTimeOutInterval = 60;  // 1 minute.
+const NSTimeInterval kFIRNetworkTimeOutInterval = 60;            // 1 minute.
 NSString *const kFIRNetworkReachabilityHost = @"app-measurement.com";
 NSString *const kFIRNetworkErrorContext = @"Context";
 

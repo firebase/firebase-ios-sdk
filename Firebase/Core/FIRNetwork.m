@@ -15,10 +15,10 @@
 #import "Private/FIRNetwork.h"
 #import "Private/FIRNetworkMessageCode.h"
 
+#import "Private/FIRLogger.h"
 #import "Private/FIRMutableDictionary.h"
 #import "Private/FIRNetworkConstants.h"
 #import "Private/FIRReachabilityChecker.h"
-#import "Private/FIRLogger.h"
 
 #import <GoogleToolboxForMac/GTMNSData+zlib.h>
 
@@ -46,7 +46,7 @@ static NSString *const kFIRNetworkPOSTRequestMethod = @"POST";
 /// Default constant string as a prefix for network logger.
 static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
 
-@interface FIRNetwork ()<FIRReachabilityDelegate, FIRNetworkLoggerDelegate>
+@interface FIRNetwork () <FIRReachabilityDelegate, FIRNetworkLoggerDelegate>
 @end
 
 @implementation FIRNetwork {
@@ -65,10 +65,9 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
   self = [super init];
   if (self) {
     // Setup reachability.
-    _reachability =
-        [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                      loggerDelegate:self
-                                                            withHost:reachabilityHost];
+    _reachability = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
+                                                                  loggerDelegate:self
+                                                                        withHost:reachabilityHost];
     if (![_reachability start]) {
       return nil;
     }
@@ -169,7 +168,7 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
   }
 
   [self firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                       messageCode:kFIRNetworkMessageCodeNetwork000
+                    messageCode:kFIRNetworkMessageCodeNetwork000
                         message:@"Uploading data. Host"
                         context:url];
   _requests[requestID] = fetcher;
@@ -362,7 +361,8 @@ static NSString *FIRLogLevelDescriptionFromLogLevel(FIRNetworkLogLevel logLevel)
 }
 
 /// Returns a formatted string to be used for console logging.
-static NSString *FIRStringWithLogMessage(NSString *message, FIRNetworkLogLevel logLevel,
+static NSString *FIRStringWithLogMessage(NSString *message,
+                                         FIRNetworkLogLevel logLevel,
                                          NSArray *contexts) {
   if (!message) {
     message = @"(Message was nil)";

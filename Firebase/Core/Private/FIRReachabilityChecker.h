@@ -21,8 +21,8 @@
 typedef enum {
   kFIRReachabilityUnknown,  ///< Have not yet checked or been notified whether host is reachable.
   kFIRReachabilityNotReachable,  ///< Host is not reachable.
-  kFIRReachabilityViaWifi,  ///< Host is reachable via Wifi.
-  kFIRReachabilityViaCellular,  ///< Host is reachable via cellular.
+  kFIRReachabilityViaWifi,       ///< Host is reachable via Wifi.
+  kFIRReachabilityViaCellular,   ///< Host is reachable via cellular.
 } FIRReachabilityStatus;
 
 const NSString *FIRReachabilityStatusString(FIRReachabilityStatus status);
