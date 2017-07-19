@@ -34,9 +34,7 @@ static NSString *kKey2 = @"key2";
 /** @var gCreateNewObject
     @brief A block that returns a new object everytime it is called.
  */
-static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
-  return [[NSObject alloc] init];
-};
+static id _Nullable (^gCreateNewObject)() = ^id _Nullable() { return [[NSObject alloc] init]; };
 
 /** @class FIRAppAssociationRegistrationTests
     @brief Tests for @c FIRAppAssociationRegistration
@@ -52,8 +50,8 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
   id result = [FIRAppAssociationRegistration registeredObjectWithHost:host
                                                                   key:kKey
                                                         creationBlock:^id _Nullable() {
-    return obj;
-  }];
+                                                          return obj;
+                                                        }];
   XCTAssertEqual(obj, result);
 }
 
@@ -62,8 +60,8 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
   id obj = [FIRAppAssociationRegistration registeredObjectWithHost:host
                                                                key:kKey
                                                      creationBlock:^id _Nullable() {
-    return nil;
-  }];
+                                                       return nil;
+                                                     }];
   XCTAssertNil(obj);
 }
 
@@ -76,10 +74,10 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
     [FIRAppAssociationRegistration registeredObjectWithHost:host
                                                         key:kKey
                                               creationBlock:^id _Nullable() {
-      id obj = gCreateNewObject();
-      weakObj = obj;
-      return obj;
-    }];
+                                                id obj = gCreateNewObject();
+                                                weakObj = obj;
+                                                return obj;
+                                              }];
     // Verify that neither the host nor the object is released yet, i.e., the host owns the object
     // because nothing else retains the object.
     XCTAssertNotNil(weakHost);
@@ -139,14 +137,15 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
 
 - (void)testReentrySameHostSameKey {
   id host = gCreateNewObject();
-  XCTAssertThrows([FIRAppAssociationRegistration registeredObjectWithHost:host
-                                                                key:kKey
-                                                      creationBlock:^id _Nullable() {
-    [FIRAppAssociationRegistration registeredObjectWithHost:host
-                                                        key:kKey
-                                              creationBlock:gCreateNewObject];
-    return gCreateNewObject();
-  }]);
+  XCTAssertThrows([FIRAppAssociationRegistration
+      registeredObjectWithHost:host
+                           key:kKey
+                 creationBlock:^id _Nullable() {
+                   [FIRAppAssociationRegistration registeredObjectWithHost:host
+                                                                       key:kKey
+                                                             creationBlock:gCreateNewObject];
+                   return gCreateNewObject();
+                 }]);
 }
 
 - (void)testReentrySameHostDifferentKey {
@@ -154,11 +153,12 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
   [FIRAppAssociationRegistration registeredObjectWithHost:host
                                                       key:kKey1
                                             creationBlock:^id _Nullable() {
-    [FIRAppAssociationRegistration registeredObjectWithHost:host
-                                                        key:kKey2
-                                              creationBlock:gCreateNewObject];
-    return gCreateNewObject();
-  }];
+                                              [FIRAppAssociationRegistration
+                                                  registeredObjectWithHost:host
+                                                                       key:kKey2
+                                                             creationBlock:gCreateNewObject];
+                                              return gCreateNewObject();
+                                            }];
   // Expect no exception raised.
 }
 
@@ -168,11 +168,12 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
   [FIRAppAssociationRegistration registeredObjectWithHost:host1
                                                       key:kKey
                                             creationBlock:^id _Nullable() {
-    [FIRAppAssociationRegistration registeredObjectWithHost:host2
-                                                        key:kKey
-                                              creationBlock:gCreateNewObject];
-    return gCreateNewObject();
-  }];
+                                              [FIRAppAssociationRegistration
+                                                  registeredObjectWithHost:host2
+                                                                       key:kKey
+                                                             creationBlock:gCreateNewObject];
+                                              return gCreateNewObject();
+                                            }];
   // Expect no exception raised.
 }
 
@@ -182,11 +183,12 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
   [FIRAppAssociationRegistration registeredObjectWithHost:host1
                                                       key:kKey1
                                             creationBlock:^id _Nullable() {
-    [FIRAppAssociationRegistration registeredObjectWithHost:host2
-                                                        key:kKey2
-                                              creationBlock:gCreateNewObject];
-    return gCreateNewObject();
-  }];
+                                              [FIRAppAssociationRegistration
+                                                  registeredObjectWithHost:host2
+                                                                       key:kKey2
+                                                             creationBlock:gCreateNewObject];
+                                              return gCreateNewObject();
+                                            }];
   // Expect no exception raised.
 }
 

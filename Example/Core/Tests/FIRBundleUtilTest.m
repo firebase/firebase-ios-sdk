@@ -43,11 +43,10 @@ static NSString *const kFileType = @"fileType";
 
 - (void)testFindOptionsDictionaryPath {
   [OCMStub([self.mockBundle pathForResource:kResourceName ofType:kFileType]) andReturn:kResultPath];
-  XCTAssertEqualObjects(
-      [FIRBundleUtil optionsDictionaryPathWithResourceName:kResourceName
-                                               andFileType:kFileType
-                                                 inBundles:@[ self.mockBundle ]],
-      kResultPath);
+  XCTAssertEqualObjects([FIRBundleUtil optionsDictionaryPathWithResourceName:kResourceName
+                                                                 andFileType:kFileType
+                                                                   inBundles:@[ self.mockBundle ]],
+                        kResultPath);
 }
 
 - (void)testFindOptionsDictionaryPath_notFound {
@@ -61,11 +60,10 @@ static NSString *const kFileType = @"fileType";
   [OCMStub([self.mockBundle pathForResource:kResourceName ofType:kFileType]) andReturn:kResultPath];
 
   NSArray *bundles = @[ mockBundleEmpty, self.mockBundle ];
-  XCTAssertEqualObjects(
-      [FIRBundleUtil optionsDictionaryPathWithResourceName:kResourceName
-                                               andFileType:kFileType
-                                                 inBundles:bundles],
-      kResultPath);
+  XCTAssertEqualObjects([FIRBundleUtil optionsDictionaryPathWithResourceName:kResourceName
+                                                                 andFileType:kFileType
+                                                                   inBundles:bundles],
+                        kResultPath);
 }
 
 - (void)testBundleIdentifierExistsInBundles {
@@ -80,7 +78,7 @@ static NSString *const kFileType = @"fileType";
 }
 
 - (void)testBundleIdentifierExistsInBundles_emptyBundlesArray {
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifier:@"com.google.test" inBundles:@[ ]]);
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifier:@"com.google.test" inBundles:@[]]);
 }
 
 @end
