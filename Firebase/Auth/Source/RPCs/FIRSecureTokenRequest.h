@@ -71,19 +71,22 @@ typedef NS_ENUM(NSUInteger, FIRSecureTokenRequestGrantType) {
 /** @fn authCodeRequestWithCode:
     @brief Creates an authorization code request with the given code (legacy Gitkit "ID Token").
     @param code The authorization code (legacy Gitkit "ID Token").
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
     @return An authorization request.
  */
-+ (FIRSecureTokenRequest *)authCodeRequestWithCode:(NSString *)code APIKey:(NSString *)APIKey;
++ (FIRSecureTokenRequest *)authCodeRequestWithCode:(NSString *)code
+                              requestConfiguration:(FIRAuthRequestConfiguration *)
+                                  requestConfiguration;
 
 /** @fn refreshRequestWithCode:
     @brief Creates a refresh request with the given refresh token.
     @param refreshToken The refresh token.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
     @return A refresh request.
  */
 + (FIRSecureTokenRequest *)refreshRequestWithRefreshToken:(NSString *)refreshToken
-                                                   APIKey:(NSString *)APIKey;
+                                            requestConfiguration:(FIRAuthRequestConfiguration *)
+                                                requestConfiguration;
 
 /** @fn init
     @brief Please use initWithGrantType:scope:refreshToken:code:
@@ -96,13 +99,14 @@ typedef NS_ENUM(NSUInteger, FIRSecureTokenRequestGrantType) {
     @param scope The scopes requested.
     @param refreshToken The client's refresh token (for refresh requests.)
     @param code The client's authorization code (Gitkit ID Token) (for authorization code requests.)
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithGrantType:(FIRSecureTokenRequestGrantType)grantType
                                      scope:(nullable NSString *)scope
                               refreshToken:(nullable NSString *)refreshToken
                                       code:(nullable NSString *)code
-                                    APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                          NS_DESIGNATED_INITIALIZER;
 
 @end
 

@@ -15,6 +15,7 @@
  */
 
 #import "FIRSecureTokenRequest.h"
+#import "FIRAuthRequestConfiguration.h"
 
 /** @var kFIRSecureTokenServiceGetTokenURLFormat
     @brief The format of the secure token service URLs. Requires string format substitution with
@@ -57,23 +58,31 @@ static NSString *const kCodeKey = @"code";
  */
 static NSString *gAPIHost = @"securetoken.googleapis.com";
 
-@implementation FIRSecureTokenRequest
+@implementation FIRSecureTokenRequest {
+  /** @var _requestConfiguration
+      @brief Contains configuration relevant to the request.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
+}
 
-+ (FIRSecureTokenRequest *)authCodeRequestWithCode:(NSString *)code APIKey:(NSString *)APIKey {
++ (FIRSecureTokenRequest *)authCodeRequestWithCode:(NSString *)code
+                                     requestConfiguration:(FIRAuthRequestConfiguration *)
+                                         requestConfiguration {
   return [[self alloc] initWithGrantType:FIRSecureTokenRequestGrantTypeAuthorizationCode
                                    scope:nil
                             refreshToken:nil
                                     code:code
-                                  APIKey:APIKey];
+                    requestConfiguration:requestConfiguration];
 }
 
 + (FIRSecureTokenRequest *)refreshRequestWithRefreshToken:(NSString *)refreshToken
-                                                   APIKey:(NSString *)APIKey {
+                                     requestConfiguration:(FIRAuthRequestConfiguration *)
+                                         requestConfiguration {
   return [[self alloc] initWithGrantType:FIRSecureTokenRequestGrantTypeRefreshToken
                                    scope:nil
                             refreshToken:refreshToken
                                     code:nil
-                                  APIKey:APIKey];
+                    requestConfiguration:requestConfiguration];
 }
 
 /** @fn grantTypeStringWithGrantType:
@@ -93,16 +102,21 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
                                      scope:(nullable NSString *)scope
                               refreshToken:(nullable NSString *)refreshToken
                                       code:(nullable NSString *)code
-                                    APIKey:(NSString *)APIKey {
+                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super init];
   if (self) {
     _grantType = grantType;
     _scope = [scope copy];
     _refreshToken = [refreshToken copy];
     _code = [code copy];
-    _APIKey = [APIKey copy];
+    _APIKey = [requestConfiguration.APIKey copy];
+    _requestConfiguration = requestConfiguration;
   }
   return self;
+}
+
+- (FIRAuthRequestConfiguration *)requestConfiguration {
+  return _requestConfiguration;
 }
 
 - (NSURL *)requestURL {
