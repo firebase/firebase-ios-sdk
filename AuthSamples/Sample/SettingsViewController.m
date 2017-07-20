@@ -342,7 +342,6 @@ static NSString *hexString(NSData *data) {
     @brief Show language code input field.
  */
 - (void)showLanguageInput {
-  // Show language picker UI here
   [self showTextInputPromptWithMessage:@"Enter Language Code For Auth:"
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable languageCode) {
     if (!userPressedOK) {
