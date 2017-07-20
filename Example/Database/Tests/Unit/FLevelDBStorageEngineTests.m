@@ -426,7 +426,7 @@
 // Well this is awkward, but NSJSONSerialization fails to deserialize JSON with tiny/huge doubles
 // It is kind of bad we raise "invalid" data, but at least we don't crash *trollface*
 - (void)testExtremeDoublesAsServerCache {
-#ifdef TARGET_OS_IPHONE
+#ifdef TARGET_OS_IOS
     if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
         // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
         return;
@@ -442,7 +442,7 @@
 }
 
 - (void)testExtremeDoublesAsTrackedQuery {
-#ifdef TARGET_OS_IPHONE
+#ifdef TARGET_OS_IOS
     if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
         // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
         return;
