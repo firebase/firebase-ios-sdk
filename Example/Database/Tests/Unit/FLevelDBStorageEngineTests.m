@@ -435,10 +435,12 @@ isComplete:NO])
 }
 
 - (void)testExtremeDoublesAsTrackedQuery {
+#ifdef TARGET_OS_IPHONE
     if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
         // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
         return;
     }
+#endif
     
     FLevelDBStorageEngine *engine = [self cleanStorageEngine];
     id<FNode> tinyDouble = NODE(@(2.225073858507201e-308));
@@ -459,10 +461,12 @@ isComplete:NO])
 }
 
 - (void)testExtremeDoublesAsUserWrites {
+#ifdef TARGET_OS_IPHONE
     if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
         // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
         return;
     }
+#endif
     
     FLevelDBStorageEngine *engine = [self cleanStorageEngine];
     id<FNode> tinyDouble = NODE(@(2.225073858507201e-308));
