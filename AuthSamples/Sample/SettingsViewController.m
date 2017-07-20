@@ -210,6 +210,11 @@ static NSString *hexString(NSData *data) {
                                          action:^{
         [weakSelf clearAppCredential];
       }],
+      [StaticContentTableViewCell cellWithTitle:@"Auth Language"
+                                          value:[FIRAuth auth].languageCode ?: @"none"
+                                         action:^{
+        [weakSelf showLanguageInput];
+      }],
     ]],
   ]];
 }
@@ -330,6 +335,21 @@ static NSString *hexString(NSData *data) {
       [[FIRAuth auth].appCredentialManager clearCredential];
       [self loadTableView];
     }
+  }];
+}
+
+/** @fn showLanguageInput
+    @brief Show language code input field.
+ */
+- (void)showLanguageInput {
+  // Show language picker UI here
+  [self showTextInputPromptWithMessage:@"Enter Language Code For Auth:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable languageCode) {
+    if (!userPressedOK) {
+      return;
+    }
+    [FIRAuth auth].languageCode = languageCode;
+    [self loadTableView];
   }];
 }
 

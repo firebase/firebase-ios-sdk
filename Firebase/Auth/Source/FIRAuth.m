@@ -997,6 +997,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - Internal Methods
 
 - (void)setLanguageCode:(NSString *)languageCode {
+  _languageCode = [languageCode copy];
   _requestConfiguration.languageCode = [languageCode copy];
 }
 
