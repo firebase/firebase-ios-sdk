@@ -89,7 +89,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
   self = [super init];
   if (self) {
-    _requestConfiguration = [[FIRAuthRequestConfiguration alloc]initWithAPIKey:APIKey];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
     _taskQueue = [[FIRAuthSerialTaskQueue alloc] init];
   }
   return self;
