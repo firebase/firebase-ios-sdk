@@ -2051,7 +2051,6 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       return;
     }
     [self showSpinner:^{
-      [[FIRAuth auth] useAppLanguage];
       FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
       [actionCodeSettings setIOSBundleID:[NSBundle mainBundle].bundleIdentifier];
       actionCodeSettings.URL = [NSURL URLWithString:KCONTINUE_URL];
