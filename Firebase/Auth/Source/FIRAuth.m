@@ -966,6 +966,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [bundle localizedStringForKey:kFirebaseLocaleStringKey value:nil table:@"FirebaseLocale"];
 }
 
+- (NSString *)languageCode {
+  return _requestConfiguration.languageCode;
+}
+
 #if TARGET_OS_IOS
 - (NSData *)APNSToken {
   __block NSData *result = nil;
@@ -997,7 +1001,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - Internal Methods
 
 - (void)setLanguageCode:(NSString *)languageCode {
-  _languageCode = [languageCode copy];
   _requestConfiguration.languageCode = [languageCode copy];
 }
 

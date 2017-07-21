@@ -211,7 +211,7 @@ static NSString *hexString(NSData *data) {
         [weakSelf clearAppCredential];
       }],
       [StaticContentTableViewCell cellWithTitle:@"Auth Language"
-                                          value:[FIRAuth auth].languageCode ?: @"none"
+                                          value:[FIRAuth auth].languageCode ?: @"[none]"
                                          action:^{
         [weakSelf showLanguageInput];
       }],
@@ -347,7 +347,7 @@ static NSString *hexString(NSData *data) {
     if (!userPressedOK) {
       return;
     }
-    [FIRAuth auth].languageCode = languageCode;
+    [FIRAuth auth].languageCode = languageCode.length ? languageCode : nil;
     [self loadTableView];
   }];
 }
