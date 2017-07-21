@@ -217,7 +217,7 @@ static NSString *hexString(NSData *data) {
       }],
       [StaticContentTableViewCell cellWithTitle:@"Use App language" action:^{
         [[FIRAuth auth] useAppLanguage];
-        [self loadTableView];
+        [weakSelf loadTableView];
       }],
     ]],
   ]];
