@@ -69,9 +69,11 @@ static BOOL sFIRAnalyticsDebugMode;
 
 static FIRLoggerLevel sFIRLoggerMaximumLevel;
 
+#ifdef DEBUG
 /// The regex pattern for the message code.
 static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
+#endif
 
 void FIRLoggerInitializeASL() {
   dispatch_once(&sFIRLoggerOnceToken, ^{
@@ -112,8 +114,10 @@ void FIRLoggerInitializeASL() {
     dispatch_set_target_queue(sFIRClientQueue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
 
+#ifdef DEBUG
     sMessageCodeRegex =
         [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern options:0 error:NULL];
+#endif
   });
 }
 
