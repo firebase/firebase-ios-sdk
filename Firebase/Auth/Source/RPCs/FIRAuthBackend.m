@@ -275,6 +275,12 @@ static NSString *const kUnauthorizedDomainErrorMessage = @"ERROR_UNAUTHORIZED_DO
  */
 static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI";
 
+/** @var kMissingContinueURIErrorMessage
+    @brief This is the error message the server will respond with if there was no continue URI
+        present in a request that required one.
+ */
+static NSString *const kMissingContinueURIErrorMessage = @"MISSING_CONTINUE_URI";
+
 /** @var kInvalidPhoneNumberErrorMessage
     @brief This is the error message the server will respond with if an incorrectly formatted phone
         number is provided.
@@ -950,6 +956,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kInvalidContinueURIErrorMessage]) {
     return [FIRAuthErrorUtils invalidContinueURIErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingContinueURIErrorMessage]) {
+    return [FIRAuthErrorUtils missingContinueURIErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidPhoneNumberErrorMessage]) {

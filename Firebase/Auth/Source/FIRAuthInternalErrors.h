@@ -260,6 +260,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeInvalidContinueURI =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidContinueURI,
 
+  /** Indicates that a continue URI was not provided in a request to the backend which requires
+        one.
+   */
+  FIRAuthInternalErrorCodeMissingContinueURI =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingContinueURI,
+
   /** Indicates that an email address was expected but one was not provided.
    */
   FIRAuthInternalErrorCodeMissingEmail =

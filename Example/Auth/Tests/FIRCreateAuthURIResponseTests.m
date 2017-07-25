@@ -119,7 +119,7 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
-  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInternalError);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingContinueURI);
   XCTAssertNil(RPCResponse);
 }
 
