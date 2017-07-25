@@ -100,6 +100,12 @@ static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_
  */
 static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI";
 
+/** @var kMissingContinueURIErrorMessage
+    @brief This is the error message the server will respond with if there was no continue URI
+        present in a request that required one.
+ */
+static NSString *const kMissingContinueURIErrorMessage = @"MISSING_CONTINUE_URI";
+
 /** @var kIosBundleID
     @brief Fake iOS bundle ID for testing.
  */
@@ -404,6 +410,31 @@ static NSString *const kIosBundleID = @"testBundleID";
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInvalidContinueURI);
+}
+
+/** @fn testMissingContinueURIError
+    @brief Tests for @c FIRAuthErrorCodeMissingContinueURI.
+ */
+- (void)testMissingContinueURIError {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
+                                                 requestConfiguration:_requestConfiguration];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+  [_RPCIssuer respondWithServerErrorMessage:kMissingContinueURIErrorMessage];
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingContinueURI);
 }
 
 /** @fn testInvalidRecipientEmailError

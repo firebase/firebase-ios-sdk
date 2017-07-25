@@ -208,7 +208,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeInvalidContinueURI = 17039,
 
-    // The enum values 17040 is reserved and should NOT be used for new error codes.
+    /** Indicates that a continue URI was not provided in a request to the backend which requires
+        one.
+     */
+    FIRAuthErrorCodeMissingContinueURI = 17040,
 
     /** Indicates that a phone number was not provided in a call to
         @c verifyPhoneNumber:completion:.

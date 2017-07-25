@@ -418,6 +418,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageUnauthorizedDomain;
     case FIRAuthErrorCodeInvalidContinueURI:
       return kFIRAuthErrorMessageInvalidContinueURI;
+    case FIRAuthErrorCodeMissingContinueURI:
+      return kFIRAuthErrorMessageMissingContinueURI;
     case FIRAuthErrorCodeMissingEmail:
       return kFIRAuthErrorMessageMissingEmail;
     case FIRAuthErrorCodeMissingPhoneNumber:
@@ -521,6 +523,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_UNAUTHORIZED_DOMAIN";
     case FIRAuthErrorCodeInvalidContinueURI:
       return @"ERROR_INVALID_CONTINUE_URI";
+    case FIRAuthErrorCodeMissingContinueURI:
+      return @"ERROR_MISSING_CONTINUE_URI";
     case FIRAuthErrorCodeMissingEmail:
       return @"MISSING_EMAIL";
     case FIRAuthErrorCodeMissingPhoneNumber:
@@ -794,6 +798,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)invalidContinueURIErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidContinueURI message:message];
+}
+
++ (NSError *)missingContinueURIErrorWithMessage:(nullable NSString *)message {
+  return[self errorWithCode:FIRAuthInternalErrorCodeMissingContinueURI message:message];
 }
 
 + (NSError *)missingEmail {
