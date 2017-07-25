@@ -15,8 +15,6 @@
 @import FirebaseCommunity;
 #import "FIRAppDelegate.h"
 
-@import FirebaseCommunity;
-
 @implementation FIRAppDelegate
 
 - (BOOL)application:(UIApplication *)application
