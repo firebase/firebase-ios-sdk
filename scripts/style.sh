@@ -7,6 +7,7 @@ find . \
     -name 'FirebaseCommunity.h' -prune -o \
     -name 'Messaging' -prune -o \
     -name 'Storage' -prune -o \
+    -name 'Pods' -prune -o \
     -name '*.[mh]' \
     -not -name '*.pbobjc.*' \
-    -exec clang-format -style=file -i '{}' \;
+    -print0 | xargs -0 clang-format -style=file -i \

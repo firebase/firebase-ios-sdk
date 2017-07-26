@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "FIRTestCase.h"
+
 #import "FirebaseCommunity/FIRAppInternal.h"
 #import "FirebaseCommunity/FIRBundleUtil.h"
 #import "FirebaseCommunity/FIROptionsInternal.h"
-
-#import "FIRTestCase.h"
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;

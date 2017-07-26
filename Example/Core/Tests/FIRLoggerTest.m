@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FIRTestCase.h"
+
 #import "FirebaseCommunity/FIRLogger.h"
 
 #import <asl.h>

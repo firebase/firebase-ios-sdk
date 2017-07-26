@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCommunity/FIRBundleUtil.h"
-
 #import "FIRTestCase.h"
+
+#import "FirebaseCommunity/FIRBundleUtil.h"
 
 static NSString *const kResultPath = @"resultPath";
 static NSString *const kResourceName = @"resourceName";
