@@ -70,6 +70,16 @@
 #define MERGE_RECORD(__path, __merge, __writeId) \
     ([[FWriteRecord alloc] initWithPath:[FPath pathWithString:__path] merge:__merge writeId:__writeId])
 
+- (void)testRecocversFromBadCache {
+    NSString *dbPath = @"corrupted-db";
+    NSString *serverData = [[FLevelDBStorageEngine firebaseDir] stringByAppendingPathComponent:@"corrupted-db/server_data/CURRENT"];
+    [@"Corrupted" writeToFile:serverData atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    NSString *userData = [[FLevelDBStorageEngine firebaseDir] stringByAppendingPathComponent:@"corrupted-db/writes/CURRENT"];
+    [@"Corrupted" writeToFile:userData atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    FLevelDBStorageEngine *db = [[FLevelDBStorageEngine alloc] initWithPath:dbPath];
+    XCTAssertNotNil(db);
+}
+
 - (void)testUserWriteIsPersisted {
     FLevelDBStorageEngine *engine = [self cleanStorageEngine];
     [engine saveUserOverwrite:SAMPLE_NODE atPath:[FPath pathWithString:@"foo/bar"] writeId:1];
