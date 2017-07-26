@@ -183,7 +183,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 - (void)purgeDatabase:(NSString*) dbPath {
     NSString *path = [self.basePath stringByAppendingPathComponent:dbPath];
     NSError *error;
-    FFDebug(@"I-RDB076009", @"Deleting database at path %@", path);
+    FFWarn(@"I-RDB076009", @"Deleting database at path %@", path);
     BOOL success = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
     if (!success) {
         [NSException raise:NSInternalInconsistencyException format:@"Failed to delete database files: %@", error];
@@ -226,10 +226,11 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     APLevelDB *db = [APLevelDB levelDBWithPath:path error:&err];
 
     if (err) {
-        FFWarn(@"I-RDB076017", @"Failed to read database persistence file '%@': %@",
+        FFWarn(@"I-RDB076036", @"Failed to read database persistence file '%@': %@",
                dbName, [err localizedDescription]);
         err = nil;
 
+        // Delete the database and try again.
         [self purgeDatabase:dbName];
         db = [APLevelDB levelDBWithPath:path error:&err];
 
