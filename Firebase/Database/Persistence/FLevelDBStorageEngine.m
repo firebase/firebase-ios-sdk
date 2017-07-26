@@ -188,7 +188,6 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     if (!success) {
         [NSException raise:NSInternalInconsistencyException format:@"Failed to delete database files: %@", error];
     }
-
 }
 
 - (void)purgeEverything {
@@ -228,7 +227,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 
     if (err) {
         FFWarn(@"I-RDB076017", @"Failed to read database persistence file '%@': %@",
-               dbName, [err description]);
+               dbName, [err localizedDescription]);
         err = nil;
 
         [self purgeDatabase:dbName];
