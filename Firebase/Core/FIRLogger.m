@@ -100,9 +100,7 @@ void FIRLoggerInitializeASL() {
     }
 
     // We should disable debug mode if we are running from App Store.
-    if (sFIRLoggerDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
-      sFIRLoggerDebugMode = NO;
-    }
+    if (sFIRLoggerDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) { sFIRLoggerDebugMode = NO; }
 
     // Need to call asl_add_output_file so that the logs can appear in Xcode's console view. Set
     // the ASL filter mask for this output file up to debug level so that all messages are
@@ -125,9 +123,7 @@ void FIRSetAnalyticsDebugMode(BOOL analyticsDebugMode) {
   FIRLoggerInitializeASL();
   dispatch_async(sFIRClientQueue, ^{
     // We should not enable debug mode if we are running from App Store.
-    if (analyticsDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
-      return;
-    }
+    if (analyticsDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) { return; }
     sFIRAnalyticsDebugMode = analyticsDebugMode;
     asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG));
   });
@@ -141,9 +137,7 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
   FIRLoggerInitializeASL();
   dispatch_async(sFIRClientQueue, ^{
     // We should not raise the logger level if we are running from App Store.
-    if (loggerLevel >= FIRLoggerLevelNotice && [FIRAppEnvironmentUtil isFromAppStore]) {
-      return;
-    }
+    if (loggerLevel >= FIRLoggerLevelNotice && [FIRAppEnvironmentUtil isFromAppStore]) { return; }
 
     sFIRLoggerMaximumLevel = loggerLevel;
     asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(loggerLevel));
@@ -187,9 +181,7 @@ void FIRLogBasic(FIRLoggerLevel level,
     canLog = YES;
   }
 
-  if (!canLog) {
-    return;
-  }
+  if (!canLog) { return; }
 #ifdef DEBUG
   NSCAssert(messageCode.length == 11, @"Incorrect message code length.");
   NSRange messageCodeRange = NSMakeRange(0, messageCode.length);
@@ -199,9 +191,8 @@ void FIRLogBasic(FIRLoggerLevel level,
 #endif
   NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
   logMsg = [NSString stringWithFormat:@"%@[%@] %@", service, messageCode, logMsg];
-  dispatch_async(sFIRClientQueue, ^{
-    asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
-  });
+  dispatch_async(sFIRClientQueue,
+                 ^{ asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String); });
 }
 
 /**

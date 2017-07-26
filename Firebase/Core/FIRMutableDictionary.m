@@ -36,43 +36,31 @@
 
 - (NSString *)description {
   __block NSString *description;
-  dispatch_sync(_queue, ^{
-    description = _objects.description;
-  });
+  dispatch_sync(_queue, ^{ description = _objects.description; });
   return description;
 }
 
 - (id)objectForKey:(id)key {
   __block id object;
-  dispatch_sync(_queue, ^{
-    object = _objects[key];
-  });
+  dispatch_sync(_queue, ^{ object = _objects[key]; });
   return object;
 }
 
 - (void)setObject:(id)object forKey:(id<NSCopying>)key {
-  dispatch_async(_queue, ^{
-    _objects[key] = object;
-  });
+  dispatch_async(_queue, ^{ _objects[key] = object; });
 }
 
 - (void)removeObjectForKey:(id)key {
-  dispatch_async(_queue, ^{
-    [_objects removeObjectForKey:key];
-  });
+  dispatch_async(_queue, ^{ [_objects removeObjectForKey:key]; });
 }
 
 - (void)removeAllObjects {
-  dispatch_async(_queue, ^{
-    [_objects removeAllObjects];
-  });
+  dispatch_async(_queue, ^{ [_objects removeAllObjects]; });
 }
 
 - (NSUInteger)count {
   __block NSUInteger count;
-  dispatch_sync(_queue, ^{
-    count = _objects.count;
-  });
+  dispatch_sync(_queue, ^{ count = _objects.count; });
   return count;
 }
 
@@ -88,9 +76,7 @@
 
 - (NSDictionary *)dictionary {
   __block NSDictionary *dictionary;
-  dispatch_sync(_queue, ^{
-    dictionary = [_objects copy];
-  });
+  dispatch_sync(_queue, ^{ dictionary = [_objects copy]; });
   return dictionary;
 }
 

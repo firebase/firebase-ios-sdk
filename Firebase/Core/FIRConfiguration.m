@@ -21,17 +21,13 @@ extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 + (instancetype)sharedInstance {
   static FIRConfiguration *sharedInstance = nil;
   static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FIRConfiguration alloc] init];
-  });
+  dispatch_once(&onceToken, ^{ sharedInstance = [[FIRConfiguration alloc] init]; });
   return sharedInstance;
 }
 
 - (instancetype)init {
   self = [super init];
-  if (self) {
-    _analyticsConfiguration = [FIRAnalyticsConfiguration sharedInstance];
-  }
+  if (self) { _analyticsConfiguration = [FIRAnalyticsConfiguration sharedInstance]; }
   return self;
 }
 

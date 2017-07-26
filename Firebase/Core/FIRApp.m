@@ -176,9 +176,7 @@ static FIRApp *sDefaultApp;
 }
 
 + (FIRApp *)defaultApp {
-  if (sDefaultApp) {
-    return sDefaultApp;
-  }
+  if (sDefaultApp) { return sDefaultApp; }
   FIRLogError(kFIRLoggerCore, @"I-COR000003",
               @"The default Firebase app has not yet been "
               @"configured. Add `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) to your "
@@ -190,9 +188,7 @@ static FIRApp *sDefaultApp;
   @synchronized(self) {
     if (sAllApps) {
       FIRApp *app = sAllApps[name];
-      if (app) {
-        return app;
-      }
+      if (app) { return app; }
     }
     FIRLogError(kFIRLoggerCore, @"I-COR000004", @"App with name %@ does not exist.", name);
     return nil;
@@ -221,9 +217,7 @@ static FIRApp *sDefaultApp;
     if (sAllApps && sAllApps[self.name]) {
       FIRLogDebug(kFIRLoggerCore, @"I-COR000006", @"Deleting app named %@", self.name);
       [sAllApps removeObjectForKey:self.name];
-      if ([self.name isEqualToString:kFIRDefaultAppName]) {
-        sDefaultApp = nil;
-      }
+      if ([self.name isEqualToString:kFIRDefaultAppName]) { sDefaultApp = nil; }
       if (!self.alreadySentDeleteNotification) {
         NSDictionary *appInfoDict = @{kFIRAppNameKey : self.name};
         [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDeleteNotification
@@ -240,9 +234,7 @@ static FIRApp *sDefaultApp;
 }
 
 + (void)addAppToAppDictionary:(FIRApp *)app {
-  if (!sAllApps) {
-    sAllApps = [NSMutableDictionary dictionary];
-  }
+  if (!sAllApps) { sAllApps = [NSMutableDictionary dictionary]; }
   if ([app configureCore]) {
     sAllApps[app.name] = app;
     [[NSNotificationCenter defaultCenter]
@@ -436,23 +428,17 @@ static FIRApp *sDefaultApp;
 + (BOOL)validateAppID:(NSString *)appID {
   // Failing validation only occurs when we are sure we are looking at a V2 app ID and it does not
   // have a valid fingerprint, otherwise we just warn about the potential issue.
-  if (!appID.length) {
-    return NO;
-  }
+  if (!appID.length) { return NO; }
 
   // All app IDs must start with at least "<version number>:".
   NSString *const versionPattern = @"^\\d+:";
   NSRegularExpression *versionRegex =
       [NSRegularExpression regularExpressionWithPattern:versionPattern options:0 error:NULL];
-  if (!versionRegex) {
-    return NO;
-  }
+  if (!versionRegex) { return NO; }
 
   NSRange appIDRange = NSMakeRange(0, appID.length);
   NSArray *versionMatches = [versionRegex matchesInString:appID options:0 range:appIDRange];
-  if (versionMatches.count != 1) {
-    return NO;
-  }
+  if (versionMatches.count != 1) { return NO; }
 
   NSRange versionRange = [(NSTextCheckingResult *)versionMatches.firstObject range];
   NSString *appIDVersion = [appID substringWithRange:versionRange];
@@ -462,13 +448,9 @@ static FIRApp *sDefaultApp;
     return YES;
   }
 
-  if (![FIRApp validateAppIDFormat:appID withVersion:appIDVersion]) {
-    return NO;
-  }
+  if (![FIRApp validateAppIDFormat:appID withVersion:appIDVersion]) { return NO; }
 
-  if (![FIRApp validateAppIDFingerprint:appID withVersion:appIDVersion]) {
-    return NO;
-  }
+  if (![FIRApp validateAppIDFingerprint:appID withVersion:appIDVersion]) { return NO; }
 
   return YES;
 }
@@ -492,30 +474,20 @@ static FIRApp *sDefaultApp;
  * @return YES if provided string fufills the expected format, NO otherwise.
  */
 + (BOOL)validateAppIDFormat:(NSString *)appID withVersion:(NSString *)version {
-  if (!appID.length || !version.length) {
-    return NO;
-  }
+  if (!appID.length || !version.length) { return NO; }
 
-  if (![version hasSuffix:@":"]) {
-    return NO;
-  }
+  if (![version hasSuffix:@":"]) { return NO; }
 
-  if (![appID hasPrefix:version]) {
-    return NO;
-  }
+  if (![appID hasPrefix:version]) { return NO; }
 
   NSString *const pattern = @"^\\d+:ios:[a-f0-9]+$";
   NSRegularExpression *regex =
       [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:NULL];
-  if (!regex) {
-    return NO;
-  }
+  if (!regex) { return NO; }
 
   NSRange localRange = NSMakeRange(version.length, appID.length - version.length);
   NSUInteger numberOfMatches = [regex numberOfMatchesInString:appID options:0 range:localRange];
-  if (numberOfMatches != 1) {
-    return NO;
-  }
+  if (numberOfMatches != 1) { return NO; }
   return YES;
 }
 
@@ -531,37 +503,25 @@ static FIRApp *sDefaultApp;
  *         otherwise.
  */
 + (BOOL)validateAppIDFingerprint:(NSString *)appID withVersion:(NSString *)version {
-  if (!appID.length || !version.length) {
-    return NO;
-  }
+  if (!appID.length || !version.length) { return NO; }
 
-  if (![version hasSuffix:@":"]) {
-    return NO;
-  }
+  if (![version hasSuffix:@":"]) { return NO; }
 
-  if (![appID hasPrefix:version]) {
-    return NO;
-  }
+  if (![appID hasPrefix:version]) { return NO; }
 
   // Extract the supplied fingerprint from the supplied app ID.
   // This assumes the app ID format is the same for all known versions below. If the app ID format
   // changes in future versions, the tokenizing of the app ID format will need to take into account
   // the version of the app ID.
   NSArray *components = [appID componentsSeparatedByString:@":"];
-  if (components.count != 4) {
-    return NO;
-  }
+  if (components.count != 4) { return NO; }
 
   NSString *suppliedFingerprintString = components[3];
-  if (!suppliedFingerprintString.length) {
-    return NO;
-  }
+  if (!suppliedFingerprintString.length) { return NO; }
 
   uint64_t suppliedFingerprint;
   NSScanner *scanner = [NSScanner scannerWithString:suppliedFingerprintString];
-  if (![scanner scanHexLongLong:&suppliedFingerprint]) {
-    return NO;
-  }
+  if (![scanner scanHexLongLong:&suppliedFingerprint]) { return NO; }
 
   if ([version isEqual:@"1:"]) {
     // The v1 hash algorithm is not permitted on the client so the actual hash cannot be validated.
@@ -588,9 +548,7 @@ static FIRApp *sDefaultApp;
     kFIRAppDiagnosticsSDKVersionKey : version,
     kFIRAppDiagnosticsFIRAppKey : self
   }];
-  if (error) {
-    userInfo[kFIRAppDiagnosticsErrorKey] = error;
-  }
+  if (error) { userInfo[kFIRAppDiagnosticsErrorKey] = error; }
   [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDiagnosticsNotification
                                                       object:nil
                                                     userInfo:userInfo];

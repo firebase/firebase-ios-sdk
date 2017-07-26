@@ -27,9 +27,7 @@
   for (NSBundle *bundle in bundles) {
     NSString *path = [bundle pathForResource:resourceName ofType:fileType];
     // Use the first one we find.
-    if (path) {
-      return path;
-    }
+    if (path) { return path; }
   }
   return nil;
 }
@@ -55,9 +53,7 @@
 
 + (BOOL)hasBundleIdentifier:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles {
   for (NSBundle *bundle in bundles) {
-    if ([bundle.bundleIdentifier isEqualToString:bundleIdentifier]) {
-      return YES;
-    }
+    if ([bundle.bundleIdentifier isEqualToString:bundleIdentifier]) { return YES; }
   }
   return NO;
 }

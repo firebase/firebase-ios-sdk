@@ -51,29 +51,19 @@ NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be update
 
 + (BOOL)containsRealServiceInfoPlistInBundle:(NSBundle *)bundle {
   NSString *bundlePath = bundle.bundlePath;
-  if (!bundlePath.length) {
-    return NO;
-  }
+  if (!bundlePath.length) { return NO; }
 
   NSString *plistFilePath =
       [bundle pathForResource:kServiceInfoFileName ofType:kServiceInfoFileType];
-  if (!plistFilePath.length) {
-    return NO;
-  }
+  if (!plistFilePath.length) { return NO; }
 
   NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
-  if (!plist) {
-    return NO;
-  }
+  if (!plist) { return NO; }
 
   // Perform a very naive validation by checking to see if the plist has the dummy google app id
   NSString *googleAppID = plist[kGoogleAppIDPlistKey];
-  if (!googleAppID.length) {
-    return NO;
-  }
-  if ([googleAppID isEqualToString:kDummyGoogleAppID]) {
-    return NO;
-  }
+  if (!googleAppID.length) { return NO; }
+  if ([googleAppID isEqualToString:kDummyGoogleAppID]) { return NO; }
 
   return YES;
 }

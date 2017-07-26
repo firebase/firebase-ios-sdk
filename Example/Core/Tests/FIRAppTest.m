@@ -244,9 +244,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIRApp configure];
   self.app = [FIRApp defaultApp];
   XCTAssertTrue([FIRApp allApps].count == 1);
-  [self.app deleteApp:^(BOOL success) {
-    XCTAssertTrue(success);
-  }];
+  [self.app deleteApp:^(BOOL success) { XCTAssertTrue(success); }];
   OCMVerify([self.notificationCenterMock postNotificationName:kFIRAppDeleteNotification
                                                        object:[FIRApp class]
                                                      userInfo:[OCMArg any]]);

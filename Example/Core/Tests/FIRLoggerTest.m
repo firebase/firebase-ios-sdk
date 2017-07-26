@@ -234,9 +234,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 - (void)drainFIRClientQueue {
   dispatch_semaphore_t workerSemaphore = dispatch_semaphore_create(0);
-  dispatch_async(getFIRClientQueue(), ^{
-    dispatch_semaphore_signal(workerSemaphore);
-  });
+  dispatch_async(getFIRClientQueue(), ^{ dispatch_semaphore_signal(workerSemaphore); });
   dispatch_semaphore_wait(workerSemaphore, DISPATCH_TIME_FOREVER);
 }
 
@@ -250,9 +248,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   NSMutableArray *allMsg = [[NSMutableArray alloc] init];
   while ((m = asl_next(r)) != NULL) {
     val = asl_get(m, ASL_KEY_MSG);
-    if (val) {
-      [allMsg addObject:[NSString stringWithUTF8String:val]];
-    }
+    if (val) { [allMsg addObject:[NSString stringWithUTF8String:val]]; }
   }
   asl_free(m);
   asl_release(r);
