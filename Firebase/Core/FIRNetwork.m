@@ -68,7 +68,9 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
     _reachability = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
                                                                   loggerDelegate:self
                                                                         withHost:reachabilityHost];
-    if (![_reachability start]) { return nil; }
+    if (![_reachability start]) {
+      return nil;
+    }
 
     _requests = [[FIRMutableDictionary alloc] init];
     _timeoutInterval = kFIRNetworkTimeOutInterval;
@@ -145,13 +147,17 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
                   completionHandler:^(NSHTTPURLResponse *response, NSData *data,
                                       NSString *sessionID, NSError *error) {
                     FIRNetwork *strongSelf = weakSelf;
-                    if (!strongSelf) { return; }
+                    if (!strongSelf) {
+                      return;
+                    }
                     dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
                     dispatch_async(queueToDispatch, ^{
                       if (sessionID.length) {
                         [strongSelf->_requests removeObjectForKey:sessionID];
                       }
-                      if (handler) { handler(response, data, error); }
+                      if (handler) {
+                        handler(response, data, error);
+                      }
                     });
                   }];
   if (!requestID) {
@@ -204,11 +210,17 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
                  completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSString *sessionID,
                                      NSError *error) {
                    FIRNetwork *strongSelf = weakSelf;
-                   if (!strongSelf) { return; }
+                   if (!strongSelf) {
+                     return;
+                   }
                    dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
                    dispatch_async(queueToDispatch, ^{
-                     if (sessionID.length) { [strongSelf->_requests removeObjectForKey:sessionID]; }
-                     if (handler) { handler(response, data, error); }
+                     if (sessionID.length) {
+                       [strongSelf->_requests removeObjectForKey:sessionID];
+                     }
+                     if (handler) {
+                       handler(response, data, error);
+                     }
                    });
                  }];
 
@@ -277,7 +289,9 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
                        contexts:@[ @(code), error ]];
   if (handler) {
     dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
-    dispatch_async(queueToDispatch, ^{ handler(nil, nil, error); });
+    dispatch_async(queueToDispatch, ^{
+      handler(nil, nil, error);
+    });
   }
 }
 
@@ -359,7 +373,9 @@ static NSString *FIRStringWithLogMessage(NSString *message,
       initWithFormat:@"<%@/%@> %@", kFIRNetworkLogTag, FIRLogLevelDescriptionFromLogLevel(logLevel),
                      message];
 
-  if (!contexts.count) { return result; }
+  if (!contexts.count) {
+    return result;
+  }
 
   NSMutableArray *formattedContexts = [[NSMutableArray alloc] init];
   for (id item in contexts) {

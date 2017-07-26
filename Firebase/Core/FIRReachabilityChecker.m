@@ -132,7 +132,9 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 - (BOOL)start {
   if (!reachability_) {
     reachability_ = reachabilityApi_->createWithNameFn(kCFAllocatorDefault, [host_ UTF8String]);
-    if (!reachability_) { return NO; }
+    if (!reachability_) {
+      return NO;
+    }
     SCNetworkReachabilityContext context = {
         0,                       /* version */
         (__bridge void *)(self), /* info (passed as last parameter to reachability callback) */

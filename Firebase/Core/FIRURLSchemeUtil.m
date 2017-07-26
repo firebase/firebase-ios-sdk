@@ -27,10 +27,14 @@ BOOL fir_areURLSchemesValidForGoogleSignIn(NSArray *urlSchemes) {
     if (!hasReversedClientID) {
       NSRange range = [urlScheme rangeOfString:kFIRGoogleSignInURLSchemePattern
                                        options:NSRegularExpressionSearch];
-      if (range.location != NSNotFound) { hasReversedClientID = YES; }
+      if (range.location != NSNotFound) {
+        hasReversedClientID = YES;
+      }
     }
   }
-  if (hasReversedClientID) { return YES; }
+  if (hasReversedClientID) {
+    return YES;
+  }
   if (!hasReversedClientID) {
     FIRLogInfo(kFIRLoggerCore, @"I-COR000021", @"A reversed client ID should be added as a URL "
                                                @"scheme to enable Google sign-in.");

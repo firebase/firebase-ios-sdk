@@ -73,7 +73,9 @@
                             completionHandler:
                                 (FIRNetworkSystemCompletionHandler)systemCompletionHandler {
   // The session may not be FIRAnalytics background. Ignore those that do not have the prefix.
-  if (![sessionID hasPrefix:kFIRNetworkBackgroundSessionConfigIDPrefix]) { return; }
+  if (![sessionID hasPrefix:kFIRNetworkBackgroundSessionConfigIDPrefix]) {
+    return;
+  }
   FIRNetworkURLSession *fetcher = [self fetcherWithSessionIdentifier:sessionID];
   if (fetcher != nil) {
     [fetcher addSystemCompletionHandler:systemCompletionHandler forSession:sessionID];
@@ -416,7 +418,9 @@
   if (handler) {
     [systemCompletionHandlers removeObjectForKey:identifier];
 
-    dispatch_async(dispatch_get_main_queue(), ^{ handler(); });
+    dispatch_async(dispatch_get_main_queue(), ^{
+      handler();
+    });
   }
 }
 
@@ -456,7 +460,9 @@
 }
 
 - (void)maybeRemoveTempFilesAtURL:(NSURL *)folderURL expiringTime:(NSTimeInterval)staleTime {
-  if (!folderURL.absoluteString.length) { return; }
+  if (!folderURL.absoluteString.length) {
+    return;
+  }
 
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSError *error = nil;
@@ -476,23 +482,31 @@
     return;
   }
 
-  if (!directoryContent.count) { return; }
+  if (!directoryContent.count) {
+    return;
+  }
 
   NSTimeInterval now = [NSDate date].timeIntervalSince1970;
   for (NSURL *tempFile in directoryContent) {
     NSDate *creationDate;
     BOOL getCreationDate =
         [tempFile getResourceValue:&creationDate forKey:NSURLCreationDateKey error:NULL];
-    if (!getCreationDate) { continue; }
+    if (!getCreationDate) {
+      continue;
+    }
     NSTimeInterval creationTimeInterval = creationDate.timeIntervalSince1970;
-    if (fabs(now - creationTimeInterval) > staleTime) { [self removeTempItemAtURL:tempFile]; }
+    if (fabs(now - creationTimeInterval) > staleTime) {
+      [self removeTempItemAtURL:tempFile];
+    }
   }
 }
 
 /// Removes the temporary file written to disk for sending the request. It has to be cleaned up
 /// after the session is done.
 - (void)removeTempItemAtURL:(NSURL *)fileURL {
-  if (!fileURL.absoluteString.length) { return; }
+  if (!fileURL.absoluteString.length) {
+    return;
+  }
 
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSError *error = nil;
@@ -523,8 +537,9 @@
   static NSMapTable *sessionIDToFetcherMap;
 
   static dispatch_once_t sessionMapOnceToken;
-  dispatch_once(&sessionMapOnceToken,
-                ^{ sessionIDToFetcherMap = [NSMapTable strongToWeakObjectsMapTable]; });
+  dispatch_once(&sessionMapOnceToken, ^{
+    sessionIDToFetcherMap = [NSMapTable strongToWeakObjectsMapTable];
+  });
   return sessionIDToFetcherMap;
 }
 
@@ -534,8 +549,9 @@
   static FIRMutableDictionary *systemCompletionHandlers;
 
   static dispatch_once_t systemCompletionHandlerOnceToken;
-  dispatch_once(&systemCompletionHandlerOnceToken,
-                ^{ systemCompletionHandlers = [[FIRMutableDictionary alloc] init]; });
+  dispatch_once(&systemCompletionHandlerOnceToken, ^{
+    systemCompletionHandlers = [[FIRMutableDictionary alloc] init];
+  });
   return systemCompletionHandlers;
 }
 
@@ -551,7 +567,9 @@
   NSError *error = nil;
 
   // Create a temporary directory if it does not exist or was deleted.
-  if ([_networkDirectoryURL checkResourceIsReachableAndReturnError:&error]) { return YES; }
+  if ([_networkDirectoryURL checkResourceIsReachableAndReturnError:&error]) {
+    return YES;
+  }
 
   if (error && error.code != NSFileReadNoSuchFileError) {
     [_loggerDelegate
@@ -582,7 +600,9 @@
 }
 
 - (void)excludeFromBackupForURL:(NSURL *)url {
-  if (!url.path) { return; }
+  if (!url.path) {
+    return;
+  }
 
   // Set the iCloud exclusion attribute on the Documents URL.
   NSError *preventBackupError = nil;
@@ -613,7 +633,9 @@
   // Do not allow redirection if the response code is in the non-allowed list.
   NSURLRequest *newRequest = request;
 
-  if (response) { newRequest = nil; }
+  if (response) {
+    newRequest = nil;
+  }
 
   completionHandler(newRequest);
 }
@@ -632,7 +654,9 @@
   }
 
   if (handler) {
-    dispatch_async(dispatch_get_main_queue(), ^{ handler(response, data, _sessionID, error); });
+    dispatch_async(dispatch_get_main_queue(), ^{
+      handler(response, data, _sessionID, error);
+    });
   }
 }
 

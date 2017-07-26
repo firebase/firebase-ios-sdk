@@ -151,7 +151,9 @@ extern NSString *const kFIRLibraryVersionID;
 
   // Custom `matchProjectID` parameter to be removed once the deprecated `FIROptions` constructor is
   // removed.
-  if (matchProjectID) { XCTAssertEqualObjects(options.projectID, kProjectID); }
+  if (matchProjectID) {
+    XCTAssertEqualObjects(options.projectID, kProjectID);
+  }
 }
 
 - (void)testCopyingProperties {
@@ -443,7 +445,9 @@ extern NSString *const kFIRLibraryVersionID;
 
   XCTAssertEqual(uniqueMainCombinations.count, 27);
   int mainSizeCount[4] = {0};
-  for (NSDictionary *dictionary in uniqueMainCombinations) { mainSizeCount[dictionary.count]++; }
+  for (NSDictionary *dictionary in uniqueMainCombinations) {
+    mainSizeCount[dictionary.count]++;
+  }
   XCTAssertEqual(mainSizeCount[0], 1);
   XCTAssertEqual(mainSizeCount[1], 6);
   XCTAssertEqual(mainSizeCount[2], 12);

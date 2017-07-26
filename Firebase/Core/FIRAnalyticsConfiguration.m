@@ -21,12 +21,16 @@
 + (FIRAnalyticsConfiguration *)sharedInstance {
   static FIRAnalyticsConfiguration *sharedInstance = nil;
   static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{ sharedInstance = [[FIRAnalyticsConfiguration alloc] init]; });
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[FIRAnalyticsConfiguration alloc] init];
+  });
   return sharedInstance;
 }
 
 - (void)postNotificationName:(NSString *)name value:(id)value {
-  if (!name.length || !value) { return; }
+  if (!name.length || !value) {
+    return;
+  }
   [[NSNotificationCenter defaultCenter] postNotificationName:name
                                                       object:self
                                                     userInfo:@{name : value}];

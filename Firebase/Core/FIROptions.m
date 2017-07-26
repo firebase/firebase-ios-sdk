@@ -80,10 +80,14 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 #pragma mark - Public only for internal class methods
 
 + (FIROptions *)defaultOptions {
-  if (sDefaultOptions != nil) { return sDefaultOptions; }
+  if (sDefaultOptions != nil) {
+    return sDefaultOptions;
+  }
 
   NSDictionary *defaultOptionsDictionary = [self defaultOptionsDictionary];
-  if (defaultOptionsDictionary == nil) { return nil; }
+  if (defaultOptionsDictionary == nil) {
+    return nil;
+  }
 
   sDefaultOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
   return sDefaultOptions;
@@ -92,9 +96,13 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 #pragma mark - Private class methods
 
 + (NSDictionary *)defaultOptionsDictionary {
-  if (sDefaultOptionsDictionary != nil) { return sDefaultOptionsDictionary; }
+  if (sDefaultOptionsDictionary != nil) {
+    return sDefaultOptionsDictionary;
+  }
   NSString *plistFilePath = [FIROptions plistFilePathWithName:kServiceInfoFileName];
-  if (plistFilePath == nil) { return nil; }
+  if (plistFilePath == nil) {
+    return nil;
+  }
   sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
   if (sDefaultOptionsDictionary == nil) {
     FIRLogError(kFIRLoggerCore, @"I-COR000011", @"The configuration file is not a dictionary: "
@@ -166,7 +174,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     }
 
     // `bundleID` is a required property, default to the main `bundleIdentifier` if it's `nil`.
-    if (!bundleID) { bundleID = [[NSBundle mainBundle] bundleIdentifier]; }
+    if (!bundleID) {
+      bundleID = [[NSBundle mainBundle] bundleIdentifier];
+    }
 
     NSMutableDictionary *mutableOptionsDict = [NSMutableDictionary dictionary];
     [mutableOptionsDict setValue:googleAppID forKey:kFIRGoogleAppID];
@@ -364,7 +374,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     ];
     for (NSString *key in measurementKeys) {
       id value = mainInfoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
-      if (!value) { continue; }
+      if (!value) {
+        continue;
+      }
       tempAnalyticsOptions[key] = value;
     }
     _analyticsOptionsDictionary = tempAnalyticsOptions;
@@ -378,7 +390,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
  * be supported.
  */
 - (BOOL)isMeasurementEnabled {
-  if (self.isAnalyticsCollectionDeactivated) { return NO; }
+  if (self.isAnalyticsCollectionDeactivated) {
+    return NO;
+  }
   if (!self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled]) {
     return YES;  // Enable Measurement by default when the key is not in the dictionary.
   }
@@ -386,7 +400,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (BOOL)isAnalyticsCollectionEnabled {
-  if (self.isAnalyticsCollectionDeactivated) { return NO; }
+  if (self.isAnalyticsCollectionDeactivated) {
+    return NO;
+  }
   if (!self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionEnabled]) {
     return self.isMeasurementEnabled;  // Fall back to older plist flag.
   }

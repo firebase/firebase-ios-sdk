@@ -47,10 +47,11 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() { return [[NSObject 
 - (void)testPassObject {
   id host = gCreateNewObject();
   id obj = gCreateNewObject();
-  id result =
-      [FIRAppAssociationRegistration registeredObjectWithHost:host
-                                                          key:kKey
-                                                creationBlock:^id _Nullable() { return obj; }];
+  id result = [FIRAppAssociationRegistration registeredObjectWithHost:host
+                                                                  key:kKey
+                                                        creationBlock:^id _Nullable() {
+                                                          return obj;
+                                                        }];
   XCTAssertEqual(obj, result);
 }
 
@@ -58,7 +59,9 @@ static id _Nullable (^gCreateNewObject)() = ^id _Nullable() { return [[NSObject 
   id host = gCreateNewObject();
   id obj = [FIRAppAssociationRegistration registeredObjectWithHost:host
                                                                key:kKey
-                                                     creationBlock:^id _Nullable() { return nil; }];
+                                                     creationBlock:^id _Nullable() {
+                                                       return nil;
+                                                     }];
   XCTAssertNil(obj);
 }
 
