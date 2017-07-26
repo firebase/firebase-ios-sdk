@@ -10,4 +10,4 @@ find . \
     -name 'Pods' -prune -o \
     -name '*.[mh]' \
     -not -name '*.pbobjc.*' \
-    -print0 | xargs -0 clang-format -style=file -i \
+    -print0 | xargs -0 clang-format -style=file -i
