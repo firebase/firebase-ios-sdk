@@ -33,7 +33,7 @@
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:name
                                                       object:self
-                                                    userInfo:@{ name : value }];
+                                                    userInfo:@{name : value}];
 }
 
 - (void)setMinimumSessionInterval:(NSTimeInterval)minimumSessionInterval {

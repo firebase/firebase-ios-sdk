@@ -20,9 +20,9 @@
 #include <asl.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <sys/sysctl.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/sysctl.h>
 
 FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 FIRLoggerService kFIRLoggerAdMob = @"[Firebase/AdMob]";
@@ -90,10 +90,10 @@ void FIRLoggerInitializeASL() {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     BOOL debugMode = [userDefaults boolForKey:kFIRPersistedDebugModeKey];
 
-    if ([arguments containsObject:kFIRDisableDebugModeApplicationArgument]) { // Default mode
+    if ([arguments containsObject:kFIRDisableDebugModeApplicationArgument]) {  // Default mode
       [userDefaults removeObjectForKey:kFIRPersistedDebugModeKey];
-    } else if ([arguments containsObject:kFIREnableDebugModeApplicationArgument]
-               || debugMode) { // Debug mode
+    } else if ([arguments containsObject:kFIREnableDebugModeApplicationArgument] ||
+               debugMode) {  // Debug mode
       [userDefaults setBool:YES forKey:kFIRPersistedDebugModeKey];
       asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG));
       sFIRLoggerDebugMode = YES;
@@ -105,8 +105,8 @@ void FIRLoggerInitializeASL() {
     }
 
     // Need to call asl_add_output_file so that the logs can appear in Xcode's console view. Set
-    // the ASL filter mask for this output file up to debug level so that all messages are viewable
-    // in the console.
+    // the ASL filter mask for this output file up to debug level so that all messages are
+    // viewable in the console.
     asl_add_output_file(sFIRLoggerClient, STDERR_FILENO, kFIRLoggerCustomASLMessageFormat,
                         ASL_TIME_FMT_LCL, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG), ASL_ENCODE_SAFE);
 
@@ -166,21 +166,18 @@ void FIRResetLogger() {
   [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFIRPersistedDebugModeKey];
 }
 
-aslclient getFIRLoggerClient() {
-  return sFIRLoggerClient;
-}
+aslclient getFIRLoggerClient() { return sFIRLoggerClient; }
 
-dispatch_queue_t getFIRClientQueue() {
-  return sFIRClientQueue;
-}
+dispatch_queue_t getFIRClientQueue() { return sFIRClientQueue; }
 
-BOOL getFIRLoggerDebugMode() {
-  return sFIRLoggerDebugMode;
-}
+BOOL getFIRLoggerDebugMode() { return sFIRLoggerDebugMode; }
 #endif
 
-void FIRLogBasic(FIRLoggerLevel level, FIRLoggerService service, NSString *messageCode,
-                 NSString *message, va_list args_ptr) {
+void FIRLogBasic(FIRLoggerLevel level,
+                 FIRLoggerService service,
+                 NSString *messageCode,
+                 NSString *message,
+                 va_list args_ptr) {
   FIRLoggerInitializeASL();
   BOOL canLog = level <= sFIRLoggerMaximumLevel;
 
@@ -215,13 +212,13 @@ void FIRLogBasic(FIRLoggerLevel level, FIRLoggerService service, NSString *messa
  * Calling FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configure succeed.") shows:
  * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [Firebase/Core][I-COR000001] Configure succeed.
  */
-#define FIR_LOGGING_FUNCTION(level) \
-void FIRLog##level(FIRLoggerService service, NSString *messageCode, NSString *message, ...) { \
-  va_list args_ptr; \
-  va_start(args_ptr, message); \
-  FIRLogBasic(FIRLoggerLevel##level, service, messageCode, message, args_ptr); \
-  va_end(args_ptr); \
-}
+#define FIR_LOGGING_FUNCTION(level)                                                             \
+  void FIRLog##level(FIRLoggerService service, NSString *messageCode, NSString *message, ...) { \
+    va_list args_ptr;                                                                           \
+    va_start(args_ptr, message);                                                                \
+    FIRLogBasic(FIRLoggerLevel##level, service, messageCode, message, args_ptr);                \
+    va_end(args_ptr);                                                                           \
+  }
 
 FIR_LOGGING_FUNCTION(Error)
 FIR_LOGGING_FUNCTION(Warning)

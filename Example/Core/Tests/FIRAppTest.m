@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "FIRTestCase.h"
+
 #import "FirebaseCommunity/FIRAppInternal.h"
 #import "FirebaseCommunity/FIROptionsInternal.h"
-#import "FIRTestCase.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
@@ -42,7 +43,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 + (BOOL)validateAppIDFingerprint:(NSString *)appID withVersion:(NSString *)version;
 
 @end
-
 
 @interface FIRAppTest : FIRTestCase
 
@@ -73,8 +73,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigure {
-  NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
-                                                        isDefaultApp:YES];
+  NSDictionary *expectedUserInfo =
+      [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                        object:[FIRApp class]
                                                      userInfo:expectedUserInfo]);
@@ -99,8 +99,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithOptions:nil]);
   XCTAssertTrue([FIRApp allApps].count == 0);
 
-  NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
-                                                        isDefaultApp:YES];
+  NSDictionary *expectedUserInfo =
+      [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                        object:[FIRApp class]
                                                      userInfo:expectedUserInfo]);
@@ -128,8 +128,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                   storageBucket:nil
                                               deepLinkURLScheme:nil];
 
-  NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
-                                                        isDefaultApp:YES];
+  NSDictionary *expectedUserInfo =
+      [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                        object:[FIRApp class]
                                                      userInfo:expectedUserInfo]);
@@ -149,12 +149,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithName:nil options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:nil]);
   XCTAssertThrows([FIRApp configureWithName:@"" options:[FIROptions defaultOptions]]);
-  XCTAssertThrows([FIRApp configureWithName:kFIRDefaultAppName
-                                    options:[FIROptions defaultOptions]]);
+  XCTAssertThrows(
+      [FIRApp configureWithName:kFIRDefaultAppName options:[FIROptions defaultOptions]]);
   XCTAssertTrue([FIRApp allApps].count == 0);
 
-  NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRTestAppName1
-                                                        isDefaultApp:NO];
+  NSDictionary *expectedUserInfo =
+      [self expectedUserInfoWithAppName:kFIRTestAppName1 isDefaultApp:NO];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                        object:[FIRApp class]
                                                      userInfo:expectedUserInfo]);
@@ -176,8 +176,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIROptions *newOptions = [options copy];
   newOptions.deepLinkURLScheme = kDeepLinkURLScheme;
 
-  NSDictionary *expectedUserInfo1 = [self expectedUserInfoWithAppName:kFIRTestAppName1
-                                                        isDefaultApp:NO];
+  NSDictionary *expectedUserInfo1 =
+      [self expectedUserInfoWithAppName:kFIRTestAppName1 isDefaultApp:NO];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                        object:[FIRApp class]
                                                      userInfo:expectedUserInfo1]);
@@ -197,8 +197,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                             storageBucket:nil
                                                         deepLinkURLScheme:nil];
 
-  NSDictionary *expectedUserInfo2 = [self expectedUserInfoWithAppName:kFIRTestAppName2
-                                                         isDefaultApp:NO];
+  NSDictionary *expectedUserInfo2 =
+      [self expectedUserInfoWithAppName:kFIRTestAppName2 isDefaultApp:NO];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                        object:[FIRApp class]
                                                      userInfo:expectedUserInfo2]);
@@ -275,12 +275,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   [app getTokenForcingRefresh:YES
                  withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-    getTokenCallbackWasCalled = YES;
-  }];
+                   getTokenCallbackWasCalled = YES;
+                 }];
 
   XCTAssert(getTokenCallbackWasCalled,
             @"The callback should be invoked by the base implementation when no block for "
-            "'getTokenImplementation' has been specified.");
+             "'getTokenImplementation' has been specified.");
 
   getTokenCallbackWasCalled = NO;
 
@@ -291,18 +291,18 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   };
   [app getTokenForcingRefresh:YES
                  withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-    getTokenCallbackWasCalled = YES;
-  }];
+                   getTokenCallbackWasCalled = YES;
+                 }];
 
   XCTAssert(getTokenImplementationWasCalled,
             @"The 'getTokenImplementation' block was never called.");
   XCTAssert(passedRefreshValue,
             @"The value for the 'refresh' parameter wasn't passed to the 'getTokenImplementation' "
-            "block correctly.");
+             "block correctly.");
   XCTAssert(getTokenCallbackWasCalled,
             @"The 'getTokenImplementation' should have invoked the callback. This could be an "
-            "error in this test, or the callback parameter may not have been passed to the "
-            "implementation correctly.");
+             "error in this test, or the callback parameter may not have been passed to the "
+             "implementation correctly.");
 
   getTokenImplementationWasCalled = NO;
   getTokenCallbackWasCalled = NO;
@@ -310,12 +310,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   [app getTokenForcingRefresh:NO
                  withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-    getTokenCallbackWasCalled = YES;
-  }];
+                   getTokenCallbackWasCalled = YES;
+                 }];
 
-  XCTAssertFalse(passedRefreshValue,
-                 @"The value for the 'refresh' parameter wasn't passed to the "
-                 "'getTokenImplementation' block correctly.");
+  XCTAssertFalse(passedRefreshValue, @"The value for the 'refresh' parameter wasn't passed to the "
+                                      "'getTokenImplementation' block correctly.");
 }
 
 - (void)testModifyingOptionsThrows {
@@ -338,8 +337,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testOptionsLocking {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
   options.projectID = kProjectID;
   options.databaseURL = kDatabaseURL;
 
@@ -484,14 +483,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFormat:@"01:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
   XCTAssertFalse([FIRApp validateAppIDFormat:@"10:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
   XCTAssertFalse([FIRApp validateAppIDFormat:@"11:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFormat:@"21:1337:ios:5e18052ab54fbfec"
-                                 withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFormat:@"22:1337:ios:5e18052ab54fbfec"
-                                 withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFormat:@"02:1337:ios:5e18052ab54fbfec"
-                                 withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFormat:@"20:1337:ios:5e18052ab54fbfec"
-                                 withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFormat:@"21:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFormat:@"22:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFormat:@"02:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFormat:@"20:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
 
   // Extra fields.
   XCTAssertFalse([FIRApp validateAppIDFormat:@"ab:1:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
@@ -532,31 +531,31 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodAppIDV1]);
 
   // Versions digits that may make a partial match.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"01:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"10:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"11:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"21:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"22:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"02:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"20:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"01:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"10:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"11:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"21:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"22:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"02:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"20:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
   // Extra fields.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"ab:1:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:ab:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ab:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ios:ab:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ios:deadbeef:ab"
-                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"ab:1:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"1:ab:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"1:1337:ab:ios:deadbeef" withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"1:1337:ios:ab:deadbeef" withVersion:kGoodVersionV1]);
+  XCTAssertFalse(
+      [FIRApp validateAppIDFingerprint:@"1:1337:ios:deadbeef:ab" withVersion:kGoodVersionV1]);
 }
 
 #pragma mark - Internal Methods
@@ -564,7 +563,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testAuthGetUID {
   [FIRApp configure];
 
-  [FIRApp defaultApp].getUIDImplementation = ^NSString *{ return @"highlander"; };
+  [FIRApp defaultApp].getUIDImplementation = ^NSString * { return @"highlander"; };
   XCTAssertEqual([[FIRApp defaultApp] getUID], @"highlander");
 }
 
@@ -583,8 +582,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - private
 
-- (NSDictionary <NSString *, NSObject *> *)expectedUserInfoWithAppName:(NSString *)name
-                                                          isDefaultApp:(BOOL)isDefaultApp {
+- (NSDictionary<NSString *, NSObject *> *)expectedUserInfoWithAppName:(NSString *)name
+                                                         isDefaultApp:(BOOL)isDefaultApp {
   return @{
     kFIRAppNameKey : name,
     kFIRAppIsDefaultAppKey : [NSNumber numberWithBool:isDefaultApp],

@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This class provides constant fields of Google APIs.
  */
 FIR_SWIFT_NAME(FirebaseOptions)
-@interface FIROptions : NSObject<NSCopying>
+@interface FIROptions : NSObject <NSCopying>
 
 /**
  * Returns the default options.
@@ -105,9 +105,10 @@ FIR_SWIFT_NAME(FirebaseOptions)
                         databaseURL:(NSString *)databaseURL
                       storageBucket:(NSString *)storageBucket
                   deepLinkURLScheme:(NSString *)deepLinkURLScheme
-    DEPRECATED_MSG_ATTRIBUTE("Use `-[[FIROptions alloc] initWithGoogleAppID:GCMSenderID:]` "
-                             "(`FirebaseOptions(googleAppID:gcmSenderID:)` in Swift)` and property "
-                             "setters instead.");
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Use `-[[FIROptions alloc] initWithGoogleAppID:GCMSenderID:]` "
+        "(`FirebaseOptions(googleAppID:gcmSenderID:)` in Swift)` and property "
+        "setters instead.");
 
 /**
  * Initializes a customized instance of FIROptions from the file at the given plist file path.

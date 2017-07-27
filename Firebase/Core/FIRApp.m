@@ -15,9 +15,9 @@
 #include <sys/utsname.h>
 
 #import "FIRApp.h"
+#import "FIRConfiguration.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
-#import "FIRConfiguration.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 
@@ -109,8 +109,9 @@ static FIRApp *sDefaultApp;
                       kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
                       kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
                     }];
-    [NSException raise:kFirebaseCoreErrorDomain format:@"Please check there is a valid "
-                                                       @"GoogleService-Info.plist in the project."];
+    [NSException raise:kFirebaseCoreErrorDomain
+                format:@"Please check there is a valid "
+                       @"GoogleService-Info.plist in the project."];
   }
   [FIRApp configureDefaultAppWithOptions:options sendingNotifications:NO];
 }
@@ -150,13 +151,12 @@ static FIRApp *sDefaultApp;
   NSString *lowerCaseName = [name lowercaseString];
   for (NSInteger charIndex = 0; charIndex < lowerCaseName.length; charIndex++) {
     char character = [lowerCaseName characterAtIndex:charIndex];
-     if (!((character >= 'a' && character <= 'z')
-           || (character >= '0' && character <= '9')
-           || character == '_'
-           || character == '-'))  {
-       [NSException raise:kFirebaseCoreErrorDomain format:@"App name should only contain Letters, "
-                                                      @"Numbers, Underscores, and Dashes."];
-     }
+    if (!((character >= 'a' && character <= 'z') || (character >= '0' && character <= '9') ||
+          character == '_' || character == '-')) {
+      [NSException raise:kFirebaseCoreErrorDomain
+                  format:@"App name should only contain Letters, "
+                         @"Numbers, Underscores, and Dashes."];
+    }
   }
 
   if (sAllApps && sAllApps[name]) {
@@ -179,7 +179,8 @@ static FIRApp *sDefaultApp;
   if (sDefaultApp) {
     return sDefaultApp;
   }
-  FIRLogError(kFIRLoggerCore, @"I-COR000003", @"The default Firebase app has not yet been "
+  FIRLogError(kFIRLoggerCore, @"I-COR000003",
+              @"The default Firebase app has not yet been "
               @"configured. Add `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) to your "
               @"application initialization. Read more: https://goo.gl/ctyzm8.");
   return nil;
@@ -224,9 +225,7 @@ static FIRApp *sDefaultApp;
         sDefaultApp = nil;
       }
       if (!self.alreadySentDeleteNotification) {
-        NSDictionary *appInfoDict = @ {
-          kFIRAppNameKey : self.name
-        };
+        NSDictionary *appInfoDict = @{kFIRAppNameKey : self.name};
         [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDeleteNotification
                                                             object:[self class]
                                                           userInfo:appInfoDict];
@@ -299,7 +298,8 @@ static FIRApp *sDefaultApp;
   }
 
   if (NSClassFromString(@"FIRAppIndexing") != nil) {
-    FIRLogDebug(kFIRLoggerCore, @"I-COR000024", @"Firebase App Indexing on iOS is deprecated. "
+    FIRLogDebug(kFIRLoggerCore, @"I-COR000024",
+                @"Firebase App Indexing on iOS is deprecated. "
                 @"You don't need to take any action at this time. Learn more about Firebase App "
                 @"Indexing at https://firebase.google.com/docs/app-indexing/.");
   }
@@ -336,7 +336,7 @@ static FIRApp *sDefaultApp;
 
 + (void)sendNotificationsToSDKs:(FIRApp *)app {
   NSNumber *isDefaultApp = [NSNumber numberWithBool:(app == sDefaultApp)];
-  NSDictionary *appInfoDict = @ {
+  NSDictionary *appInfoDict = @{
     kFIRAppNameKey : app.name,
     kFIRAppIsDefaultAppKey : isDefaultApp,
     kFIRGoogleAppIDKey : app.options.googleAppID
@@ -362,20 +362,17 @@ static FIRApp *sDefaultApp;
                                                     reason:(NSString *)reason {
   NSString *description =
       [NSString stringWithFormat:@"Configuration failed for service %@.", service];
-  NSDictionary *errorDict = @{
-    NSLocalizedDescriptionKey : description,
-    NSLocalizedFailureReasonErrorKey : reason
-  };
+  NSDictionary *errorDict =
+      @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : reason};
   return FIRCreateError(domain, code, errorDict);
 }
 
 + (NSError *)errorForInvalidAppID {
   NSDictionary *errorDict = @{
-      NSLocalizedDescriptionKey :
-      @"Unable to validate Google App ID",
-      NSLocalizedRecoverySuggestionErrorKey :
-      @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
-      @"customized options."
+    NSLocalizedDescriptionKey : @"Unable to validate Google App ID",
+    NSLocalizedRecoverySuggestionErrorKey :
+        @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
+        @"customized options."
   };
   return FIRCreateError(kFirebaseCoreErrorDomain, FIRErrorCodeInvalidAppID, errorDict);
 }
@@ -391,14 +388,15 @@ static FIRApp *sDefaultApp;
   // backward compatibility.
   if (expectedBundleID != nil &&
       ![FIRBundleUtil hasBundleIdentifier:expectedBundleID inBundles:bundles]) {
-    FIRLogInfo(kFIRLoggerCore, @"I-COR000008", @"The project's Bundle ID is inconsistent with "
-                @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
-                @"using a customized options. To ensure that everything can be configured "
-                @"correctly, you may need to make the Bundle IDs consistent. To continue with this "
-                @"plist file, you may change your app's bundle identifier to '%@'. Or you can "
-                @"download a new configuration file that matches your bundle identifier from %@ "
-                @"and replace the current one.", kServiceInfoFileName, kServiceInfoFileType,
-                expectedBundleID, kPlistURL);
+    FIRLogInfo(kFIRLoggerCore, @"I-COR000008",
+               @"The project's Bundle ID is inconsistent with "
+               @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
+               @"using a customized options. To ensure that everything can be configured "
+               @"correctly, you may need to make the Bundle IDs consistent. To continue with this "
+               @"plist file, you may change your app's bundle identifier to '%@'. Or you can "
+               @"download a new configuration file that matches your bundle identifier from %@ "
+               @"and replace the current one.",
+               kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
   }
 }
 
@@ -421,16 +419,16 @@ static FIRApp *sDefaultApp;
 - (BOOL)isAppIDValid {
   NSString *appID = _options.googleAppID;
   BOOL isValid = [FIRApp validateAppID:appID];
-  if (!isValid){
+  if (!isValid) {
     NSString *expectedBundleID = [self expectedBundleID];
-    FIRLogError(kFIRLoggerCore, @"I-COR000009", @"The GOOGLE_APP_ID either in the plist file "
+    FIRLogError(kFIRLoggerCore, @"I-COR000009",
+                @"The GOOGLE_APP_ID either in the plist file "
                 @"'%@.%@' or the one set in the customized options is invalid. If you are using "
                 @"the plist file, use the iOS version of bundle identifier to download the file, "
                 @"and do not manually edit the GOOGLE_APP_ID. You may change your app's bundle "
                 @"identifier to '%@'. Or you can download a new configuration file that matches "
                 @"your bundle identifier from %@ and replace the current one.",
                 kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
-
   };
   return isValid;
 }
@@ -583,7 +581,7 @@ static FIRApp *sDefaultApp;
 
 - (void)sendLogsWithServiceName:(NSString *)serviceName
                         version:(NSString *)version
-                          error:(NSError *)error{
+                          error:(NSError *)error {
   NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@{
     kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeSDK),
     kFIRAppDiagnosticsSDKNameKey : serviceName,
@@ -593,10 +591,9 @@ static FIRApp *sDefaultApp;
   if (error) {
     userInfo[kFIRAppDiagnosticsErrorKey] = error;
   }
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:kFIRAppDiagnosticsNotification
-                    object:nil
-                  userInfo:userInfo];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDiagnosticsNotification
+                                                      object:nil
+                                                    userInfo:userInfo];
 }
 
 @end

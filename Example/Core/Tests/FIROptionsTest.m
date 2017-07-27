@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "FIRTestCase.h"
+
 #import "FirebaseCommunity/FIRAppInternal.h"
 #import "FirebaseCommunity/FIRBundleUtil.h"
 #import "FirebaseCommunity/FIROptionsInternal.h"
-
-#import "FIRTestCase.h"
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;
@@ -42,8 +42,7 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testInit {
   NSDictionary *optionsDictionary = [FIROptions defaultOptionsDictionary];
-  FIROptions *options =
-      [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertTrue(options.usingOptionsFromDefaultPlist);
@@ -95,8 +94,8 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
-  FIROptions *options2 = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                     GCMSenderID:kGCMSenderID];
+  FIROptions *options2 =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
   options2.androidClientID = kAndroidClientID;
   options2.APIKey = kAPIKey;
   options2.bundleID = kBundleID;
@@ -112,15 +111,15 @@ extern NSString *const kFIRLibraryVersionID;
 
   // nil GoogleAppID should throw an exception
   XCTAssertThrows([[FIROptions alloc] initWithGoogleAppID:nil
-                                           bundleID:kBundleID
-                                        GCMSenderID:kGCMSenderID
-                                             APIKey:kCustomizedAPIKey
-                                           clientID:nil
-                                         trackingID:nil
-                                    androidClientID:nil
-                                        databaseURL:nil
-                                      storageBucket:nil
-                                  deepLinkURLScheme:nil]);
+                                                 bundleID:kBundleID
+                                              GCMSenderID:kGCMSenderID
+                                                   APIKey:kCustomizedAPIKey
+                                                 clientID:nil
+                                               trackingID:nil
+                                          androidClientID:nil
+                                              databaseURL:nil
+                                            storageBucket:nil
+                                        deepLinkURLScheme:nil]);
 }
 
 - (void)testinitWithContentsOfFile {
@@ -159,8 +158,8 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testCopyingProperties {
   NSMutableString *mutableString;
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.APIKey = mutableString;
   [mutableString appendString:@"2"];
@@ -322,7 +321,7 @@ extern NSString *const kFIRLibraryVersionID;
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   mainDictionary = @{ kFIRIsAnalyticsCollectionDeactivated : @NO };
   OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
-  expectedAnalyticsOptions =  @{
+  expectedAnalyticsOptions = @{
     kFIRIsAnalyticsCollectionDeactivated : @NO,  // override
     kFIRIsAnalyticsCollectionEnabled : @YES,
     kFIRIsMeasurementEnabled : @YES

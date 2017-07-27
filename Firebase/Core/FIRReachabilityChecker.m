@@ -14,15 +14,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRReachabilityChecker.h"
 #import "Private/FIRReachabilityChecker+Internal.h"
+#import "Private/FIRReachabilityChecker.h"
 
+#import "Private/FIRLogger.h"
 #import "Private/FIRNetwork.h"
 #import "Private/FIRNetworkMessageCode.h"
-#import "Private/FIRLogger.h"
 
 static void ReachabilityCallback(SCNetworkReachabilityRef reachability,
-                                 SCNetworkReachabilityFlags flags, void *info);
+                                 SCNetworkReachabilityFlags flags,
+                                 void *info);
 
 static const struct FIRReachabilityApi kFIRDefaultReachabilityApi = {
     SCNetworkReachabilityCreateWithName,
@@ -78,11 +79,10 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 - (void)setReachabilityDelegate:(id<FIRReachabilityDelegate>)reachabilityDelegate {
   if (reachabilityDelegate &&
       (![(NSObject *)reachabilityDelegate conformsToProtocol:@protocol(FIRReachabilityDelegate)])) {
-    FIRLogError(
-        kFIRLoggerCore,
-        [NSString stringWithFormat:@"I-NET%06ld",
-        (long)kFIRNetworkMessageCodeReachabilityChecker005],
-        @"Reachability delegate doesn't conform to Reachability protocol.");
+    FIRLogError(kFIRLoggerCore,
+                [NSString stringWithFormat:@"I-NET%06ld",
+                                           (long)kFIRNetworkMessageCodeReachabilityChecker005],
+                @"Reachability delegate doesn't conform to Reachability protocol.");
     return;
   }
   reachabilityDelegate_ = reachabilityDelegate;
@@ -91,11 +91,10 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 - (void)setLoggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate {
   if (loggerDelegate &&
       (![(NSObject *)loggerDelegate conformsToProtocol:@protocol(FIRNetworkLoggerDelegate)])) {
-    FIRLogError(
-        kFIRLoggerCore,
-        [NSString stringWithFormat:@"I-NET%06ld",
-        (long)kFIRNetworkMessageCodeReachabilityChecker006],
-        @"Reachability delegate doesn't conform to Logger protocol.");
+    FIRLogError(kFIRLoggerCore,
+                [NSString stringWithFormat:@"I-NET%06ld",
+                                           (long)kFIRNetworkMessageCodeReachabilityChecker006],
+                @"Reachability delegate doesn't conform to Logger protocol.");
     return;
   }
   loggerDelegate_ = loggerDelegate;
@@ -137,11 +136,11 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
       return NO;
     }
     SCNetworkReachabilityContext context = {
-        0, /* version */
+        0,                       /* version */
         (__bridge void *)(self), /* info (passed as last parameter to reachability callback) */
-        NULL, /* retain */
-        NULL, /* release */
-        NULL /* copyDescription */
+        NULL,                    /* retain */
+        NULL,                    /* release */
+        NULL                     /* copyDescription */
     };
     if (!reachabilityApi_->setCallbackFn(reachability_, ReachabilityCallback, &context) ||
         !reachabilityApi_->scheduleWithRunLoopFn(reachability_, CFRunLoopGetMain(),
@@ -176,24 +175,24 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
   if (flags & kSCNetworkReachabilityFlagsReachable) {
     // Reachable flag is set. Check further flags.
     if (!(flags & kSCNetworkReachabilityFlagsConnectionRequired)) {
-      // Connection required flag is not set, so we have connectivity.
-      #if TARGET_OS_IOS
+// Connection required flag is not set, so we have connectivity.
+#if TARGET_OS_IOS
       status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kFIRReachabilityViaCellular
                                                            : kFIRReachabilityViaWifi;
-      #elif TARGET_OS_OSX
+#elif TARGET_OS_OSX
       status = kFIRReachabilityViaWifi;
-      #endif
+#endif
     } else if ((flags & (kSCNetworkReachabilityFlagsConnectionOnDemand |
                          kSCNetworkReachabilityFlagsConnectionOnTraffic)) &&
                !(flags & kSCNetworkReachabilityFlagsInterventionRequired)) {
-      // If the connection on demand or connection on traffic flag is set, and user intervention
-      // is not required, we have connectivity.
-      #if TARGET_OS_IOS
+// If the connection on demand or connection on traffic flag is set, and user intervention
+// is not required, we have connectivity.
+#if TARGET_OS_IOS
       status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kFIRReachabilityViaCellular
                                                            : kFIRReachabilityViaWifi;
-      #elif TARGET_OS_OSX
+#elif TARGET_OS_OSX
       status = kFIRReachabilityViaWifi;
-      #endif
+#endif
     }
   }
   return status;
@@ -222,7 +221,8 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 @end
 
 static void ReachabilityCallback(SCNetworkReachabilityRef reachability,
-                                 SCNetworkReachabilityFlags flags, void *info) {
+                                 SCNetworkReachabilityFlags flags,
+                                 void *info) {
   FIRReachabilityChecker *checker = (__bridge FIRReachabilityChecker *)info;
   [checker reachabilityFlagsChanged:flags];
 }

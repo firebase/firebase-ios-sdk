@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCommunity/FIRLogger.h"
 #import "FIRTestCase.h"
+
+#import "FirebaseCommunity/FIRLogger.h"
 
 #import <asl.h>
 
@@ -155,7 +156,6 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, @"A-APP000001", @"Message."));
 }
 
-
 - (void)testLoggerInterface {
   XCTAssertNoThrow(FIRLogError(kFIRLoggerCore, kMessageCode, @"Message."));
   XCTAssertNoThrow(FIRLogError(kFIRLoggerCore, kMessageCode, @"Configure %@.", @"blah"));
@@ -173,12 +173,11 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertNoThrow(FIRLogDebug(kFIRLoggerCore, kMessageCode, @"Configure %@.", @"blah"));
 }
 
-
 // asl_set_filter does not perform as expected in unit test environment with simulator. The
 // following test only checks whether the logs have been sent to system with the default settings in
 // the unit test environment.
 - (void)testSystemLogWithDefaultStatus {
-#if !(BUG128) // Disable until https://github.com/firebase/firebase-ios-sdk/issues/128 is fixed
+#if !(BUG128)  // Disable until https://github.com/firebase/firebase-ios-sdk/issues/128 is fixed
   // Test fails on device and iOS 9 simulators - b/38130372
   return;
 #else
@@ -225,15 +224,13 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertEqual(FIRLoggerLevelDebug, ASL_LEVEL_DEBUG);
 }
 
-
 // Helper functions.
 - (BOOL)logExists {
   [self drainFIRClientQueue];
-  NSString *correctMsg = [NSString stringWithFormat:@"%@[%@] %@", kFIRLoggerCore, kMessageCode,
-      self.randomLogString];
+  NSString *correctMsg =
+      [NSString stringWithFormat:@"%@[%@] %@", kFIRLoggerCore, kMessageCode, self.randomLogString];
   return [self messageWasLogged:correctMsg];
 }
-
 
 - (void)drainFIRClientQueue {
   dispatch_semaphore_t workerSemaphore = dispatch_semaphore_create(0);

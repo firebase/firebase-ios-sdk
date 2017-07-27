@@ -16,10 +16,10 @@
 
 #import "Private/FIRNetworkURLSession.h"
 
+#import "Private/FIRLogger.h"
 #import "Private/FIRMutableDictionary.h"
 #import "Private/FIRNetworkConstants.h"
 #import "Private/FIRNetworkMessageCode.h"
-#import "Private/FIRLogger.h"
 
 @implementation FIRNetworkURLSession {
   /// The handler to be called when the request completes or error has occurs.
@@ -54,8 +54,7 @@
         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
     NSString *applicationSupportDirectory = paths.firstObject;
     NSArray *tempPathComponents = @[
-      applicationSupportDirectory,
-      kFIRNetworkApplicationSupportSubdirectory,
+      applicationSupportDirectory, kFIRNetworkApplicationSupportSubdirectory,
       kFIRNetworkTempDirectoryName
     ];
     _networkDirectoryURL = [NSURL fileURLWithPathComponents:tempPathComponents];
@@ -432,18 +431,16 @@
 
 /// Creates a background session configuration with the session ID using the supported method.
 - (NSURLSessionConfiguration *)backgroundSessionConfigWithSessionID:(NSString *)sessionID {
-  #if (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&          \
-      MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10) ||   \
-      (TARGET_OS_IOS && defined(__IPHONE_8_0) &&                    \
-      __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0)
+#if (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&         \
+     MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10) || \
+    (TARGET_OS_IOS && defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0)
 
   // iOS 8/10.10 builds require the new backgroundSessionConfiguration method name.
   return [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:sessionID];
 
-  #elif (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&        \
-        MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_10) ||  \
-        (TARGET_OS_IOS && defined(__IPHONE_8_0) &&                  \
-        __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
+#elif (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&        \
+       MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_10) || \
+    (TARGET_OS_IOS && defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
 
   // Do a runtime check to avoid a deprecation warning about using
   // +backgroundSessionConfiguration: on iOS 8.
@@ -456,10 +453,10 @@
     return [NSURLSessionConfiguration backgroundSessionConfiguration:sessionID];
   }
 
-  #else
+#else
   // Building with an SDK earlier than iOS 8/OS X 10.10.
   return [NSURLSessionConfiguration backgroundSessionConfiguration:sessionID];
-  #endif
+#endif
 }
 
 - (void)maybeRemoveTempFilesAtURL:(NSURL *)folderURL expiringTime:(NSTimeInterval)staleTime {
@@ -623,10 +620,8 @@
                     newRequest:(NSURLRequest *)request
              completionHandler:(void (^)(NSURLRequest *))completionHandler {
   NSArray *nonAllowedRedirectionCodes = @[
-    @(kFIRNetworkHTTPStatusCodeFound),
-    @(kFIRNetworkHTTPStatusCodeMovedPermanently),
-    @(kFIRNetworkHTTPStatusCodeMovedTemporarily),
-    @(kFIRNetworkHTTPStatusCodeMultipleChoices)
+    @(kFIRNetworkHTTPStatusCodeFound), @(kFIRNetworkHTTPStatusCodeMovedPermanently),
+    @(kFIRNetworkHTTPStatusCodeMovedTemporarily), @(kFIRNetworkHTTPStatusCodeMultipleChoices)
   ];
 
   // Allow those not in the non allowed list to be followed.
@@ -655,7 +650,7 @@
     [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
                                  messageCode:kFIRNetworkMessageCodeURLSession017
                                      message:@"Encounter network error. Code, error"
-                                    contexts:@[@(error.code), error]];
+                                    contexts:@[ @(error.code), error ]];
   }
 
   if (handler) {

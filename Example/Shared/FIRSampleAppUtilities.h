@@ -20,7 +20,7 @@ NS_SWIFT_NAME(SampleAppUtilities)
 @interface FIRSampleAppUtilities : NSObject
 
 + (BOOL)appContainsRealServiceInfoPlist;
-+ (void)presentAlertForInvalidServiceInfoPlistFromViewController:(UIViewController *)
-      viewController NS_SWIFT_NAME(presentAlertForInvalidServiceInfoPlistFrom(_:));
++ (void)presentAlertForInvalidServiceInfoPlistFromViewController:(UIViewController *)viewController
+    NS_SWIFT_NAME(presentAlertForInvalidServiceInfoPlistFrom(_:));
 
 @end
