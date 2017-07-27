@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly) NSData *data;
 
+/** @property string
+    @brief The uppercase hexadecimal string form of the APNs token data.
+ */
+@property(nonatomic, strong, readonly) NSString *string;
+
 /** @property type
     @brief The APNs token type.
  */

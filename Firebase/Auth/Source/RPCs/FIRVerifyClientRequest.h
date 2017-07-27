@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param isSandbox The flag indicating whether or not the app token provided is for Sandbox or
         Production.
  */
-- (nullable instancetype)initWithAppToken:(NSString *)appToken
+- (nullable instancetype)initWithAppToken:(nullable NSString *)appToken
                                 isSandbox:(BOOL)isSandbox
                                    APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
 
