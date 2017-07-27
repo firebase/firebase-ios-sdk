@@ -129,7 +129,6 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
       callback(nil, error);
       return;
     }
-    NSString *APIKey = _auth.requestConfiguration.APIKey;
     FIRSendVerificationCodeRequest *request =
         [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
                                                      appCredential:appCredential
