@@ -19,6 +19,8 @@
 #import "FTypedefs.h"
 #import "FTypedefs_Private.h"
 
+@class FIRApp;
+
 @protocol FAuthTokenProvider <NSObject>
 
 - (void) fetchTokenForcingRefresh:(BOOL)forceRefresh withCallback:(fbt_void_nsstring_nserror)callback;
@@ -29,7 +31,7 @@
 
 @interface FAuthTokenProvider : NSObject
 
-+ (id<FAuthTokenProvider>) authTokenProviderForApp:(id)app;
++ (id<FAuthTokenProvider>) authTokenProviderForApp:(FIRApp *)app;
 
 - (instancetype)init NS_UNAVAILABLE;
 

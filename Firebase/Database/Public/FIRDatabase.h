@@ -51,7 +51,7 @@ FIR_SWIFT_NAME(Database)
  * @param app The FIRApp to get a FIRDatabase for.
  * @return A FIRDatabase instance.
  */
-+ (FIRDatabase *) databaseForApp:(FIRApp*)app FIR_SWIFT_NAME(database(app:));
++ (FIRDatabase *) databaseForApp:(FIRApp *)app FIR_SWIFT_NAME(database(app:));
 
 /** The FIRApp instance to which this FIRDatabase belongs. */
 @property (weak, readonly, nonatomic) FIRApp *app;

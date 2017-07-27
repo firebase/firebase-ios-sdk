@@ -16,32 +16,17 @@
 
 #import "FAuthTokenProvider.h"
 #import "FUtilities.h"
+#import "FIRAppInternal.h"
 #import "FIRLogger.h"
 #import "FIRDatabaseQuery_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
-
-static NSString *const FIRAuthStateDidChangeInternalNotification = @"FIRAuthStateDidChangeInternalNotification";
-static NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey = @"FIRAuthStateDidChangeInternalNotificationTokenKey";
-
-
-/**
- * This is a hack that defines all the methods we need from FIRFirebaseApp. At runtime we use reflection to get an
- * actual instance of FIRFirebaseApp. Since protocols don't carry any runtime information and selectors are invoked
- * by name we can write code against this protocol as long as the method signatures of FIRFirebaseApp don't change.
- */
-@protocol FIRFirebaseAppLike <NSObject>
-
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(void (^)(NSString *_Nullable token, NSError *_Nullable error))callback;
-
-@end
-
 
 /**
  * This is a hack that defines all the methods we need from FIRAuth.
  */
 @protocol FIRFirebaseAuthLike <NSObject>
 
-- (id<FIRFirebaseAppLike>) app;
+- (FIRApp *) app;
 
 @end
 
@@ -49,18 +34,18 @@ static NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey = @"FIR
  * This is a hack that copies the definitions of Firebase Auth error codes. If the error codes change in the original code, this
  * will break at runtime due to undefined behavior!
  */
-typedef NS_ENUM(NSUInteger, FIRErrorCode) {
-    /*! @var FIRErrorCodeNoAuth
+typedef NS_ENUM(NSUInteger, FIRMockErrorCode) {
+    /*! @var FIRMockErrorCodeNoAuth
      @brief Represents the case where an auth-related message was sent to a @c FIRFirebaseApp
      instance which has no associated @c FIRAuth instance.
      */
-    FIRErrorCodeNoAuth,
+    FIRMockErrorCodeNoAuth,
 
-    /*! @var FIRErrorCodeNoSignedInUser
+    /*! @var FIRMockErrorCodeNoSignedInUser
      @brief Represents the case where an attempt was made to fetch a token when there is no signed
      in user.
      */
-    FIRErrorCodeNoSignedInUser,
+    FIRMockErrorCodeNoSignedInUser,
 };
 
 
@@ -68,13 +53,13 @@ typedef NS_ENUM(NSUInteger, FIRErrorCode) {
 
 @property (nonatomic, copy) fbt_void_nsstring listener;
 
-@property (nonatomic, weak) id<FIRFirebaseAppLike> app;
+@property (nonatomic, weak) FIRApp *app;
 
 @end
 
 @implementation FAuthStateListenerWrapper
 
-- (instancetype) initWithListener:(fbt_void_nsstring)listener app:(id<FIRFirebaseAppLike>)app {
+- (instancetype) initWithListener:(fbt_void_nsstring)listener app:(FIRApp *)app {
     self = [super init];
     if (self != nil) {
         self->_listener = listener;
@@ -107,17 +92,17 @@ typedef NS_ENUM(NSUInteger, FIRErrorCode) {
 
 @interface FIRFirebaseAuthTokenProvider : NSObject <FAuthTokenProvider>
 
-@property (nonatomic, strong) id<FIRFirebaseAppLike> app;
+@property (nonatomic, strong) FIRApp *app;
 /** Strong references to the auth listeners as they are only weak in FIRFirebaseApp */
 @property (nonatomic, strong) NSMutableArray *authListeners;
 
-- (instancetype) initWithFirebaseApp:(id<FIRFirebaseAppLike>)app;
+- (instancetype) initWithFirebaseApp:(FIRApp *)app;
 
 @end
 
 @implementation FIRFirebaseAuthTokenProvider
 
-- (instancetype) initWithFirebaseApp:(id<FIRFirebaseAppLike>)app {
+- (instancetype) initWithFirebaseApp:(FIRApp *)app {
     self = [super init];
     if (self != nil) {
         self->_app = app;
@@ -131,10 +116,10 @@ typedef NS_ENUM(NSUInteger, FIRErrorCode) {
     [self.app getTokenForcingRefresh:forceRefresh withCallback:^(NSString * _Nullable token, NSError * _Nullable error) {
         dispatch_async([FIRDatabaseQuery sharedQueue], ^{
             if (error != nil) {
-                if (error.code == FIRErrorCodeNoAuth) {
+                if (error.code == FIRMockErrorCodeNoAuth) {
                     FFLog(@"I-RDB073001", @"Firebase Auth is not configured, not going to use authentication.");
                     callback(nil, nil);
-                } else if (error.code == FIRErrorCodeNoSignedInUser) {
+                } else if (error.code == FIRMockErrorCodeNoSignedInUser) {
                     // No signed in user is an expected case, callback as success with no token
                     callback(nil, nil);
                 } else {
