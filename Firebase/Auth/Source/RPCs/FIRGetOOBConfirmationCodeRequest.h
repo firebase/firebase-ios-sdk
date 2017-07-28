@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-
 #import "FIRAuthRPCRequest.h"
 #import "FIRIdentityToolkitRequest.h"
 

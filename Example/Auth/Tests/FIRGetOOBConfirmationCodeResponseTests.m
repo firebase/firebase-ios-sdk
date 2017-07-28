@@ -95,8 +95,8 @@ static NSString *const kUnauthorizedDomainErrorMessage = @"ERROR_UNAUTHORIZED_DO
 static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_EMAIL";
 
 /** @var kInvalidContinueURIErrorMessage
-    @brief This is the error returne by the backend if the continue URL provided in the request is
-        invalid.
+    @brief This is the error returned by the backend if the continue URL provided in the request
+        is invalid.
  */
 static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI";
 
@@ -495,11 +495,11 @@ static NSString *const kIosBundleID = @"testBundleID";
 #pragma mark - Helpers
 
 /** @fn fakeActionCodeSettings
-    @brief Contructs and retuns a fake instance of @c FIRActionCodeSettings for testing.
+    @brief Constructs and returns a fake instance of @c FIRActionCodeSettings for testing.
     @return An instance of @c FIRActionCodeSettings for testing.
  */
 - (FIRActionCodeSettings *)fakeActionCodeSettings {
-  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc]init];
+  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
   [actionCodeSettings setIOSBundleID:kIosBundleID];
   return actionCodeSettings;
 }

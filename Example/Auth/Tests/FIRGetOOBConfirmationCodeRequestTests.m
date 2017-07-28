@@ -179,7 +179,7 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kPasswordResetRequestTypeValue);
-   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
@@ -230,7 +230,7 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
 #pragma mark - Helpers
 
 /** @fn fakeActionCodeSettings
-    @brief Contructs and retuns a fake instance of @c FIRActionCodeSettings for testing.
+    @brief Constructs and returns a fake instance of @c FIRActionCodeSettings for testing.
     @return An instance of @c FIRActionCodeSettings for testing.
  */
 - (FIRActionCodeSettings *)fakeActionCodeSettings {
