@@ -33,10 +33,10 @@ static NSString *const kCurrentPasswordKey = @"newPassword";
 
 @implementation FIRResetPasswordRequest
 
-- (instancetype)initWithAPIKey:(NSString *)APIKey
-                       oobCode:(NSString *)oobCode
-                   newPassword:(NSString *)newPassword {
-  self = [super initWithEndpoint:kResetPasswordEndpoint APIKey:APIKey];
+- (instancetype)initWithOobCode:(NSString *)oobCode
+                   newPassword:(NSString *)newPassword
+          requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kResetPasswordEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _oobCode = oobCode;
     _updatedPassword = newPassword;

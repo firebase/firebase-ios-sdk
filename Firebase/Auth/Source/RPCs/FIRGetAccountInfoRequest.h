@@ -32,19 +32,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy) NSString *accessToken;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithAPIKey:IDToken:
+/** @fn initWithEndpoint:requestConfiguration:requestConfiguration
+    @brief Please use initWithAccessToken:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithAPIKey:accessToken:
+/** @fn initWithAccessToken:requestConfiguration
     @brief Designated initializer.
-    @param APIKey The client's API Key.
     @param accessToken The Access Token of the authenticated user.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                            accessToken:(NSString *)accessToken NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithAccessToken:(NSString *)accessToken
+                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                            NS_DESIGNATED_INITIALIZER;
 
 @end
 

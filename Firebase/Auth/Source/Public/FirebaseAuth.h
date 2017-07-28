@@ -22,6 +22,7 @@
 #import "FIRGoogleAuthProvider.h"
 #import "FIROAuthProvider.h"
 #import "FIRTwitterAuthProvider.h"
+#import "FIRActionCodeSettings.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
 #import "FIRAuthCredential.h"

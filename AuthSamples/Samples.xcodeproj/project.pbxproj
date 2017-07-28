@@ -26,6 +26,7 @@
 		52C975C71EE10B1304EBBEB2 /* Pods_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */; };
 		569C3F4E18627674CABE02AE /* Pods_EarlGreyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */; };
 		67AFFB52FF0FC4668D92F2E4 /* Pods_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */; };
+		7EDFD35B1F0EA29200B29DC5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7EDFD35D1F0EA29200B29DC5 /* Localizable.strings */; };
 		A7609DCAD8A247411F27EA14 /* Pods_TestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */; };
 		AB62D09AF8C1196E07F37D3B /* Pods_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F689EE8E0E6F83D82429F0 /* Pods_SwiftSample.framework */; };
 		BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */; };
@@ -178,6 +179,10 @@
 		4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FirebaseAuthUnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57150555A6B03949ECB58AD9 /* Pods-TestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TestApp/Pods-TestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7E0BC64A1F199D86008BE4E0 /* fr-FR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-FR"; path = "fr-FR.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7E0BC64E1F19A77C008BE4E0 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7EDFD35C1F0EA29200B29DC5 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7EDFD3771F0EA2A900B29DC5 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.release.xcconfig"; sourceTree = "<group>"; };
 		920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		94E3B3EB70D34E55CFF2E45D /* Pods-EarlGreyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EarlGreyTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -411,6 +416,7 @@
 		DECE04851E9FEA7500164CA4 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
+				7EDFD35D1F0EA29200B29DC5 /* Localizable.strings */,
 				D930B7611EDF9AAD001265FD /* Sample.entitlements */,
 				DECEA5661EBBDFB400273585 /* AuthCredentials.h */,
 				DECE049B1E9FEAE600164CA4 /* Application.plist */,
@@ -821,6 +827,9 @@
 				vi,
 				zh_CN,
 				zh_TW,
+				"es-419",
+				"fr-FR",
+				"ru-RU",
 			);
 			mainGroup = DECE045D1E9FEA1000164CA4;
 			productRefGroup = DECE04671E9FEA1000164CA4 /* Products */;
@@ -848,6 +857,7 @@
 				D99C31A11ED7A0ED00607534 /* GoogleService-Info_multi.plist in Resources */,
 				DECE04ED1E9FEAE600164CA4 /* MainViewController.xib in Resources */,
 				DECE04F61E9FEAE600164CA4 /* UserInfoViewController.xib in Resources */,
+				7EDFD35B1F0EA29200B29DC5 /* Localizable.strings in Resources */,
 				DECE04F01E9FEAE600164CA4 /* SettingsViewController.xib in Resources */,
 				DECE04E91E9FEAE600164CA4 /* GoogleService-Info.plist in Resources */,
 			);
@@ -1323,6 +1333,17 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		7EDFD35D1F0EA29200B29DC5 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7EDFD35C1F0EA29200B29DC5 /* en-GB */,
+				7EDFD3771F0EA2A900B29DC5 /* es-MX */,
+				7E0BC64A1F199D86008BE4E0 /* fr-FR */,
+				7E0BC64E1F19A77C008BE4E0 /* ru-RU */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		DEE13AC01EA1764B00D1BABA /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

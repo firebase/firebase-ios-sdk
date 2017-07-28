@@ -115,6 +115,11 @@ static const double kAllowedTimeDifference = 0.1;
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -122,10 +127,12 @@ static const double kAllowedTimeDifference = 0.1;
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -136,7 +143,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testInvalidCustomTokenError {
   FIRVerifyCustomTokenRequest *request =
-      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken APIKey:kTestAPIKey];
+      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
@@ -162,7 +170,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testInvalidCustomTokenServerError {
   FIRVerifyCustomTokenRequest *request =
-      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken APIKey:kTestAPIKey];
+      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
@@ -192,7 +201,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testEmptyServerDetailMessage {
   FIRVerifyCustomTokenRequest *request =
-      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken APIKey:kTestAPIKey];
+      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
@@ -220,7 +230,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testInvalidCredentialMismatchError {
   FIRVerifyCustomTokenRequest *request =
-      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken APIKey:kTestAPIKey];
+      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRVerifyCustomTokenResponse *RPCResponse;
@@ -245,7 +256,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testSuccessfulVerifyCustomTokenResponse {
   FIRVerifyCustomTokenRequest *request =
-      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken APIKey:kTestAPIKey];
+      [[FIRVerifyCustomTokenRequest alloc] initWithToken:kTestToken
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRVerifyCustomTokenResponse *RPCResponse;

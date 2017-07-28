@@ -71,8 +71,11 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the set account info request.
  */
 - (void)testGetAccountInfoRequest {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRGetAccountInfoRequest *request =
-      [[FIRGetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey accessToken:kTestAccessToken];
+      [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
+                                       requestConfiguration:requestConfiguration];
 
   [FIRAuthBackend getAccountInfo:request callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                                     NSError *_Nullable error) {

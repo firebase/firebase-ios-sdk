@@ -86,11 +86,6 @@ static NSString *const kTestVerificationCode = @"verificationCode";
  */
 static const NSTimeInterval kTestTimeout = 5;
 
-/** @var kAPIKey
-    @brief The fake API key.
- */
-static NSString *const kAPIKey = @"FAKE_API_KEY";
-
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */

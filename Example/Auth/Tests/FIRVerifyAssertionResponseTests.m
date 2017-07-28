@@ -159,6 +159,11 @@ static const double kAllowedTimeDifference = 0.1;
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 /** @fn profile
@@ -183,10 +188,12 @@ static const double kAllowedTimeDifference = 0.1;
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -197,7 +204,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testInvalidIDPResponseError {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
 
   __block BOOL callbackInvoked;
@@ -224,7 +232,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testUserDisabledError {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
 
   __block BOOL callbackInvoked;
@@ -250,7 +259,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testCredentialAlreadyInUseError {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
 
   __block BOOL callbackInvoked;
@@ -276,7 +286,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testOperationNotAllowedError {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
 
   __block BOOL callbackInvoked;
@@ -302,7 +313,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testPasswordLoginDisabledError {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
 
   __block BOOL callbackInvoked;
@@ -328,7 +340,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testSuccessfulVerifyAssertionResponse {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
 
   __block BOOL callbackInvoked;
@@ -374,7 +387,8 @@ static const double kAllowedTimeDifference = 0.1;
  */
 - (void)testSuccessfulVerifyAssertionResponseWithTextData {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
 
   __block BOOL callbackInvoked;

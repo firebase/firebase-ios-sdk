@@ -44,10 +44,10 @@ static NSString *const kLocalIDKey = @"localId";
   NSString *_localID;
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                localID:(nonnull NSString *)localID
-                                accessToken:(nonnull NSString *)accessToken {
-  self = [super initWithEndpoint:kDeleteAccountEndpoint APIKey:APIKey];
+- (nullable instancetype)initWitLocalID:(NSString *)localID
+                            accessToken:(NSString *)accessToken
+                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kDeleteAccountEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _localID = [localID copy];
     _accessToken = [accessToken copy];

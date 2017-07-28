@@ -28,7 +28,10 @@
  */
 static __weak id<OpenURLDelegate> gOpenURLDelegate;
 
-@implementation ApplicationDelegate
+@implementation ApplicationDelegate {
+  // The main view controller of the sample app.
+  MainViewController *_sampleAppMainViewController;
+}
 
 + (void)setOpenURLDelegate:(nullable id<OpenURLDelegate>)openURLDelegate {
   gOpenURLDelegate = openURLDelegate;
@@ -44,9 +47,10 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 
   // Load and present the UI:
   UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-  window.rootViewController =
+  _sampleAppMainViewController =
       [[MainViewController alloc] initWithNibName:NSStringFromClass([MainViewController class])
                                            bundle:nil];
+  window.rootViewController = _sampleAppMainViewController;
   self.window = window;
   [self.window makeKeyAndVisible];
 
@@ -68,6 +72,15 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
            annotation:(id)annotation {
   if ([gOpenURLDelegate handleOpenURL:url sourceApplication:sourceApplication]) {
     return YES;
+  }
+  return NO;
+}
+
+- (BOOL)application:(UIApplication *)application
+continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray *))restorationHandler {
+  if (userActivity.webpageURL) {
+    return [_sampleAppMainViewController handleIncomingLinkWithURL:userActivity.webpageURL];
   }
   return NO;
 }

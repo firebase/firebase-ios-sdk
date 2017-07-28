@@ -47,31 +47,34 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nonnull) NSString *phoneNumber;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithPhoneNumber:APIKey:
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithVerificationID:verificationCode:requestConfiguration
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
 /** @fn initWithTemporaryProof:phoneNumberAPIKey
     @brief Designated initializer.
     @param temporaryProof The temporary proof sent by the backed.
     @param phoneNumber The phone number associated with the credential to be signed in.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
                                     phoneNumber:(NSString *)phoneNumber
-                                         APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+                           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                              NS_DESIGNATED_INITIALIZER;
 
-/** @fn initWithVerificationID:verificationCode:APIKey
+/** @fn initWithVerificationID:verificationCode:requestConfiguration
     @brief Designated initializer.
     @param verificationID The verification ID obtained from the response of @c sendVerificationCode.
     @param verificationCode The verification code provided by the user.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithVerificationID:(NSString *)verificationID
                                verificationCode:(NSString *)verificationCode
-                                         APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+                           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                              NS_DESIGNATED_INITIALIZER;
 
 @end
 

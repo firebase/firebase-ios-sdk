@@ -20,8 +20,11 @@
 #import "FIRAuthKeychain.h"
 #import "FIRAuthSerialTaskQueue.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthRequestConfiguration.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
+
+@class FIRAuthRequestConfiguration;
 
 /** @var kAPIKeyCodingKey
     @brief The key used to encode the APIKey for NSSecureCoding.
@@ -57,10 +60,10 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 @end
 
 @implementation FIRSecureTokenService {
-  /** @var _APIKey
-      @brief A Google API key for making Secure Token Service requests.
+  /** @var _requestConfiguration
+      @brief Contains configuration relevant to the request.
    */
-  NSString *_APIKey;
+  FIRAuthRequestConfiguration *_requestConfiguration;
 
   /** @var _taskQueue
       @brief Used to serialize all requests for access tokens.
@@ -86,7 +89,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
   self = [super init];
   if (self) {
-    _APIKey = [APIKey copy];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
     _taskQueue = [[FIRAuthSerialTaskQueue alloc] init];
   }
   return self;
@@ -160,7 +163,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:_APIKey forKey:kAPIKeyCodingKey];
+  [aCoder encodeObject:_requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   // Authorization code is not encoded because it is not long-lived.
   [aCoder encodeObject:_refreshToken forKey:kRefreshTokenKey];
   [aCoder encodeObject:_accessToken forKey:kAccessTokenKey];
@@ -184,9 +187,11 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (void)requestAccessToken:(FIRFetchAccessTokenCallback)callback {
   FIRSecureTokenRequest *request;
   if (_refreshToken.length) {
-    request = [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken APIKey:_APIKey];
+    request = [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
+                                               requestConfiguration:_requestConfiguration];
   } else {
-    request = [FIRSecureTokenRequest authCodeRequestWithCode:_authorizationCode APIKey:_APIKey];
+    request = [FIRSecureTokenRequest authCodeRequestWithCode:_authorizationCode
+                                        requestConfiguration:_requestConfiguration];
   }
   [FIRAuthBackend secureToken:request
                      callback:^(FIRSecureTokenResponse *_Nullable response,

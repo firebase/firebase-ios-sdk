@@ -131,6 +131,11 @@ static NSString *const kAutoCreateKey = @"autoCreate";
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -138,10 +143,12 @@ static NSString *const kAutoCreateKey = @"autoCreate";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -153,7 +160,8 @@ static NSString *const kAutoCreateKey = @"autoCreate";
  */
 - (void)testVerifyAssertionRequestMissingTokens {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
 
   FIRVerifyAssertionResponseCallback callback =
       ^(FIRVerifyAssertionResponse *_Nullable response, NSError *_Nullable error) {};
@@ -172,7 +180,8 @@ static NSString *const kAutoCreateKey = @"autoCreate";
  */
 - (void)testVerifyAssertionRequestProviderAccessToken {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerAccessToken = kTestProviderAccessToken;
   request.returnSecureToken = NO;
   [FIRAuthBackend verifyAssertion:request
@@ -199,7 +208,8 @@ static NSString *const kAutoCreateKey = @"autoCreate";
  */
 - (void)testVerifyAssertionRequestOptionalFields {
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithAPIKey:kTestAPIKey providerID:kTestProviderID];
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:kTestProviderID
+                                       requestConfiguration:_requestConfiguration];
   request.providerIDToken = kTestProviderIDToken;
   request.providerAccessToken = kTestProviderAccessToken;
   request.accessToken = kTestAccessToken;

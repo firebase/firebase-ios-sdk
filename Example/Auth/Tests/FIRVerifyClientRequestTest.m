@@ -78,10 +78,12 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the verify client request.
  */
 - (void)testVerifyClientRequest {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey];
   FIRVerifyClientRequest *request =
       [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
                                              isSandbox:YES
-                                                APIKey:kFakeAPIKey];
+                                  requestConfiguration:requestConfiguration];
   [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
                                                   NSError *_Nullable error) {
   }];

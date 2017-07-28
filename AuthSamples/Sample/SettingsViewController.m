@@ -210,6 +210,15 @@ static NSString *hexString(NSData *data) {
                                          action:^{
         [weakSelf clearAppCredential];
       }],
+      [StaticContentTableViewCell cellWithTitle:@"Auth Language"
+                                          value:[FIRAuth auth].languageCode ?: @"[none]"
+                                         action:^{
+        [weakSelf showLanguageInput];
+      }],
+      [StaticContentTableViewCell cellWithTitle:@"Use App language" action:^{
+        [[FIRAuth auth] useAppLanguage];
+        [weakSelf loadTableView];
+      }],
     ]],
   ]];
 }
@@ -330,6 +339,20 @@ static NSString *hexString(NSData *data) {
       [[FIRAuth auth].appCredentialManager clearCredential];
       [self loadTableView];
     }
+  }];
+}
+
+/** @fn showLanguageInput
+    @brief Show language code input field.
+ */
+- (void)showLanguageInput {
+  [self showTextInputPromptWithMessage:@"Enter Language Code For Auth:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable languageCode) {
+    if (!userPressedOK) {
+      return;
+    }
+    [FIRAuth auth].languageCode = languageCode.length ? languageCode : nil;
+    [self loadTableView];
   }];
 }
 

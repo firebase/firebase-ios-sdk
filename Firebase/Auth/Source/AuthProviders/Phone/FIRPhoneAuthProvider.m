@@ -131,8 +131,8 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
     }
     FIRSendVerificationCodeRequest *request =
         [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
-                                                      appCredential:appCredential
-                                                             APIKey:_auth.APIKey];
+                                                     appCredential:appCredential
+                                              requestConfiguration:_auth.requestConfiguration];
     [FIRAuthBackend sendVerificationCode:request
                                 callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
@@ -185,7 +185,7 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
     FIRVerifyClientRequest *request =
         [[FIRVerifyClientRequest alloc] initWithAppToken:tokenString
                                                isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
-                                                  APIKey:_auth.APIKey];
+                                    requestConfiguration:_auth.requestConfiguration];
     [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
                                                     NSError *_Nullable error) {
       if (error) {

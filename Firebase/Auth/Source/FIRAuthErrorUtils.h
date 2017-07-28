@@ -313,6 +313,41 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)invalidRecipientEmailErrorWithMessage:(nullable NSString *)message;
 
+/** @fn missingIosBundleIDErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingIosBundleID code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingIosBundleIDErrorWithMessage:(nullable NSString *)message;
+
+/** @fn missingAndroidPackageNameErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingAndroidPackageName code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingAndroidPackageNameErrorWithMessage:(nullable NSString *)message;
+
+/** @fn unauthorizedDomainErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeUnauthorizedDomain code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)unauthorizedDomainErrorWithMessage:(nullable NSString *)message;
+
+/** @fn invalidContinueURIErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeInvalidContinueURI code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)invalidContinueURIErrorWithMessage:(nullable NSString *)message;
+
+/** @fn missingContinueURIErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingContinueURI code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingContinueURIErrorWithMessage:(nullable NSString *)message;
+
 /** @fn missingEmail
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingEmail code.
     @return The NSError instance associated with the given FIRAuthError.

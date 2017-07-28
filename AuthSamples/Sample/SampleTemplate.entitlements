@@ -6,5 +6,9 @@
 	<string>$(AppIdentifierPrefix)$(CFBundleIdentifier)</string>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:$KAPP_LINKS_DOMAIN</string>
+	</array>
 </dict>
 </plist>

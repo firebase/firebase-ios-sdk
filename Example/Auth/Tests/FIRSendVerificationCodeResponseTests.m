@@ -84,20 +84,28 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
 @end
 
 @implementation FIRSendVerificationCodeResponseTests {
-  /** @var _RPCIssuer
+   /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
+  [super setUp];
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
+  _requestConfiguration = nil;
   _RPCIssuer = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
@@ -112,7 +120,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestInvalidPhoneNumber
                                                     appCredential:credential
-                                                           APIKey:kTestAPIKey];
+                                             requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
   __block NSError *RPCError;
@@ -140,7 +148,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
-                                                           APIKey:kTestAPIKey];
+                                             requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
   __block NSError *RPCError;
@@ -169,7 +177,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
-                                                           APIKey:kTestAPIKey];
+                                             requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
   __block NSError *RPCError;
@@ -197,7 +205,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
-                                                           APIKey:kTestAPIKey];
+                                             requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
   __block NSError *RPCError;

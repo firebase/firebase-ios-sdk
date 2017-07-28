@@ -82,4 +82,11 @@ extern NSString *const kCreateUserAccessibilityID;
  */
 - (IBAction)memoryClear;
 
+/** @fn handleIncomingLinkWithURL:
+    @brief Handles an incoming link to trigger the appropriate OOBCode if possible.
+    @param URL The webURL of the incoming universal link.
+    @return Boolean value indicating whether the incoming link could be handled or not.
+ */
+- (BOOL)handleIncomingLinkWithURL:(NSURL *)URL;
+
 @end
