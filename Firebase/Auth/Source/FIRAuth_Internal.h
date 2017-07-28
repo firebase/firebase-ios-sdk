@@ -18,11 +18,12 @@
 
 #import "FIRAuth.h"
 
+@class FIRAuthRequestConfiguration;
+
 #if TARGET_OS_IOS
 @class FIRAuthAPNSTokenManager;
 @class FIRAuthAppCredentialManager;
 @class FIRAuthNotificationManager;
-@class FIRAuthRequestConfiguration;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
