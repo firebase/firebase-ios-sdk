@@ -29,7 +29,7 @@ static NSString *const kFakeErrorDomain = @"fake domain";
 }
 
 - (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                                           URL:(NSURL *)URL 
+                                           URL:(NSURL *)URL
                                           body:(NSData *)body
                                    contentType:(NSString *)contentType
                              completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler {

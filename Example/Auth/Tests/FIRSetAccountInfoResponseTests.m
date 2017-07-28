@@ -172,7 +172,7 @@ static const double kAllowedTimeDifference = 0.1;
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
-  
+
   /** @var _requestConfiguration
       @brief This is the request configuration used for testing.
    */
