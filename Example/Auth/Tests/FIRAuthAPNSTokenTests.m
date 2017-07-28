@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRAuthAPNSToken *token = [[FIRAuthAPNSToken alloc] initWithData:data
                                                               type:FIRAuthAPNSTokenTypeProd];
   XCTAssertEqualObjects(token.data, data);
-  XCTAssertEqualObjects(token.string, @"61736466");
+  XCTAssertEqualObjects(token.string, @"61736466");  // hex string representation of "asdf"
   XCTAssertEqual(token.type, FIRAuthAPNSTokenTypeProd);
 }
 
