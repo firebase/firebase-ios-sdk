@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
         Production.
     @param requestConfiguration An object containing configurations to be added to the request.
  */
-- (nullable instancetype)initWithAppToken:(NSString *)appToken
+- (nullable instancetype)initWithAppToken:(nullable NSString *)appToken
                                 isSandbox:(BOOL)isSandbox
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                          NS_DESIGNATED_INITIALIZER;

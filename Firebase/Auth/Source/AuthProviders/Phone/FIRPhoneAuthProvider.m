@@ -168,22 +168,9 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
     completion(_auth.appCredentialManager.credential, nil);
     return;
   }
-  [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken * _Nullable token) {
-    if (!token) {
-      completion(nil, [FIRAuthErrorUtils missingAppTokenError]);
-      return;
-    }
-
-    // Convert token data to hex string.
-    NSUInteger capacity = token.data.length * 2;
-    NSMutableString *tokenString = [NSMutableString stringWithCapacity:capacity];
-    const unsigned char *tokenData = token.data.bytes;
-    for (int idx = 0; idx < token.data.length; ++idx) {
-      [tokenString appendFormat:@"%02X", (int)tokenData[idx]];
-    }
-
+  [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token) {
     FIRVerifyClientRequest *request =
-        [[FIRVerifyClientRequest alloc] initWithAppToken:tokenString
+        [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
                                                isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
                                     requestConfiguration:_auth.requestConfiguration];
     [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,

@@ -113,20 +113,6 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
                                     [string substringFromIndex:string.length - half]];
 }
 
-/** @fn hexString
-    @brief Converts a piece of data into a hexadecimal string.
-    @param data The raw data.
-    @return The hexadecimal string representation of the data.
- */
-static NSString *hexString(NSData *data) {
-  NSMutableString *string = [NSMutableString stringWithCapacity:data.length * 2];
-  const unsigned char *bytes = data.bytes;
-  for (int idx = 0; idx < data.length; ++idx) {
-    [string appendFormat:@"%02X", (int)bytes[idx]];
-  }
-  return string;
-}
-
 @implementation SettingsViewController
 
 - (void)viewDidLoad {
@@ -282,7 +268,7 @@ static NSString *hexString(NSData *data) {
     return @"";
   }
   return [NSString stringWithFormat:@"%@(%@)",
-                                    truncatedString(hexString(token.data), 19),
+                                    truncatedString(token.string, 19),
                                     token.type == FIRAuthAPNSTokenTypeProd ? @"P" : @"S"];
 }
 
@@ -296,7 +282,7 @@ static NSString *hexString(NSData *data) {
   }
   NSString *tokenType = token.type == FIRAuthAPNSTokenTypeProd ? @"Production" : @"Sandbox";
   NSString *message = [NSString stringWithFormat:@"token: %@\ntype: %@",
-                                                 hexString(token.data), tokenType];
+                                                 token.string, tokenType];
   [self showMessagePromptWithTitle:@"Clear APNs Token?"
                            message:message
                   showCancelButton:YES

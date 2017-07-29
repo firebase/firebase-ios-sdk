@@ -275,12 +275,25 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMExpect([_mockAppCredentialManager credential]).andReturn(nil);
   OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
       .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(nil); });
+  // Expect verify client request to the backend wth empty token.
+  OCMExpect([_mockBackend verifyClient:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyClientRequest *request,
+                       FIRVerifyClientResponseCallback callback) {
+    XCTAssertNil(request.appToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      // The backend is supposed to return an error.
+      callback(nil, [NSError errorWithDomain:FIRAuthErrorDomain
+                                        code:FIRAuthErrorCodeMissingAppToken
+                                    userInfo:nil]);
+    });
+  });
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [_provider verifyPhoneNumber:kTestPhoneNumber
                     completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(verificationID);
+    XCTAssertEqualObjects(error.domain, FIRAuthErrorDomain);
     XCTAssertEqual(error.code, FIRAuthErrorCodeMissingAppToken);
     [expectation fulfill];
   }];

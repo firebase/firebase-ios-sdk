@@ -27,14 +27,15 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 @implementation FIRAuthAPNSTokenTests
 
-/** @fn testInitializer
-    @brief Tests the initializer of the class.
+/** @fn testProperties
+    @brief Tests the properties of the class.
  */
-- (void)testInitializer {
+- (void)testProperties {
   NSData *data = [@"asdf" dataUsingEncoding:NSUTF8StringEncoding];
   FIRAuthAPNSToken *token = [[FIRAuthAPNSToken alloc] initWithData:data
                                                               type:FIRAuthAPNSTokenTypeProd];
   XCTAssertEqualObjects(token.data, data);
+  XCTAssertEqualObjects(token.string, @"61736466");  // hex string representation of "asdf"
   XCTAssertEqual(token.type, FIRAuthAPNSTokenTypeProd);
 }
 

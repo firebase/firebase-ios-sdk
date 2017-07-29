@@ -18,7 +18,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRAuthAPNSToken
+@implementation FIRAuthAPNSToken {
+  /** @var _string
+      @brief The lazy-initialized string form of the token data.
+   */
+  NSString *_string;
+}
 
 - (instancetype)initWithData:(NSData *)data type:(FIRAuthAPNSTokenType)type {
   self = [super init];
@@ -27,6 +32,19 @@ NS_ASSUME_NONNULL_BEGIN
     _type = type;
   }
   return self;
+}
+
+- (NSString *)string {
+  if (!_string) {
+    NSUInteger capacity = _data.length * 2;
+    NSMutableString *tokenString = [NSMutableString stringWithCapacity:capacity];
+    const unsigned char *tokenData = _data.bytes;
+    for (int idx = 0; idx < _data.length; ++idx) {
+      [tokenString appendFormat:@"%02X", (int)tokenData[idx]];
+    }
+    _string = tokenString;
+  }
+  return _string;
 }
 
 @end

@@ -305,15 +305,21 @@ static NSString *const kInvalidSessionInfoErrorMessage = @"INVALID_SESSION_INFO"
  */
 static NSString *const kSessionExpiredErrorMessage = @"SESSION_EXPIRED";
 
-/** @var kMissingAppCredentialErrorMessage
+/** @var kMissingAppTokenErrorMessage
     @brief This is the error message the server will respond with if the APNS token is missing in a
         verifyClient request.
  */
-static NSString *const kMissingAppCredentialErrorMessage = @"MISSING_APP_CREDENTIAL";
+static NSString *const kMissingAppTokenErrorMessage = @"MISSING_IOS_APP_TOKEN";
 
 /** @var kMissingAppCredentialErrorMessage
-    @brief This is the error message the server will respond with if the APNS token in a
-        verifyClient request is invalid.
+    @brief This is the error message the server will respond with if the app token is missing in a
+        sendVerificationCode request.
+ */
+static NSString *const kMissingAppCredentialErrorMessage = @"MISSING_APP_CREDENTIAL";
+
+/** @var kInvalidAppCredentialErrorMessage
+    @brief This is the error message the server will respond with if the app credential in a
+        sendVerificationCode request is invalid.
  */
 static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENTIAL";
 
@@ -976,6 +982,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kSessionExpiredErrorMessage]) {
     return [FIRAuthErrorUtils sessionExpiredErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingAppTokenErrorMessage]) {
+    return [FIRAuthErrorUtils missingAppTokenError];
   }
 
   if ([shortErrorMessage isEqualToString:kMissingAppCredentialErrorMessage]) {

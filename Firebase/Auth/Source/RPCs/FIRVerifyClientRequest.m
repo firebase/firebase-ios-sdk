@@ -36,7 +36,7 @@ static NSString *const kIsSandboxKey = @"isSandbox";
 
 @implementation FIRVerifyClientRequest
 
-- (nullable instancetype)initWithAppToken:(NSString *)appToken
+- (nullable instancetype)initWithAppToken:(nullable NSString *)appToken
                                 isSandbox:(BOOL)isSandbox
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyClientEndpoint requestConfiguration:requestConfiguration];
@@ -47,7 +47,7 @@ static NSString *const kIsSandboxKey = @"isSandbox";
   return self;
 }
 
-- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_appToken) {
     postBody[kAPPTokenKey] = _appToken;
