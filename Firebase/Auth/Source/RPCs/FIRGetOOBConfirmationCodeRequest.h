@@ -19,6 +19,8 @@
 #import "FIRAuthRPCRequest.h"
 #import "FIRIdentityToolkitRequest.h"
 
+@class FIRActionCodeSettings;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @enum FIRGetOOBConfirmationCodeRequestType
@@ -58,29 +60,69 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property(nonatomic, copy, nullable, readonly) NSString *accessToken;
 
+/** @property continueURL
+    @brief This URL represents the state/Continue URL in the form of a universal link.
+ */
+@property(nonatomic, copy, nullable, readonly) NSString *continueURL;
+
+/** @property iOSBundleID
+    @brief The iOS bundle Identifier, if available.
+ */
+@property(nonatomic, copy, nullable, readonly) NSString *iOSBundleID;
+
+/** @property androidPackageName
+    @brief The Android package name, if available.
+ */
+@property(nonatomic, copy, nullable, readonly) NSString *androidPackageName;
+
+/** @property androidMinimumVersion
+    @brief The minimum Android version supported, if available.
+ */
+@property(nonatomic, copy, nullable, readonly) NSString *androidMinimumVersion;
+
+/** @property androidInstallIfNotAvailable
+    @brief Indicates whether or not the Android app should be installed if not already available.
+ */
+@property(nonatomic, assign, readonly) BOOL androidInstallApp;
+
+/** @property handleCodeInApp
+    @brief Indicates whether or not the action code link will open the app directly or after being
+        redirected from a Firebase owned web widget.
+ */
+@property(assign, nonatomic) BOOL handleCodeInApp;
+
 /** @fn passwordResetRequestWithEmail:APIKey:
     @brief Creates a password reset request.
     @param email The user's email address.
-    @param APIKey The client's API Key.
+    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+        settings to be applied to the password reset request.
+    @param requestConfiguration An object containing configurations to be added to the request.
     @return A password reset request.
  */
-+ (nullable FIRGetOOBConfirmationCodeRequest *)passwordResetRequestWithEmail:(NSString *)email
-                                                                      APIKey:(NSString *)APIKey;
++ (nullable FIRGetOOBConfirmationCodeRequest *)
+    passwordResetRequestWithEmail:(NSString *)email
+               actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+             requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn verifyEmailRequestWithAccessToken:APIKey:
     @brief Creates a password reset request.
     @param accessToken The user's STS Access Token.
-    @param APIKey The client's API Key.
+    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+        settings to be applied to the email verification request.
+    @param requestConfiguration An object containing configurations to be added to the request.
     @return A password reset request.
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
-    verifyEmailRequestWithAccessToken:(NSString *)accessToken APIKey:(NSString *)APIKey;
+    verifyEmailRequestWithAccessToken:(NSString *)accessToken
+                   actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                 requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn init
     @brief Please use a factory method.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
 @end
 

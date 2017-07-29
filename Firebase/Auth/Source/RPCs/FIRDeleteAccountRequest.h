@@ -27,21 +27,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRDeleteAccountRequest : FIRIdentityToolkitRequest<FIRAuthRPCRequest>
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithAPIKey:
+/** @fn initWithEndpoint:requestConfiguration:requestConfiguration.
+    @brief Please use initWitLocalID:accessToken:requestConfiguration instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithAPIKey:
+/** @fn initWitLocalID:accessToken:requestConfiguration.
     @brief Designated initializer.
-    @param APIKey The client's API Key.
     @param localID The local ID.
     @param accessToken The access token.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                localID:(NSString *)localID
-                            accessToken:(NSString *)accessToken NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWitLocalID:(NSString *)localID
+                            accessToken:(NSString *)accessToken
+                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                      NS_DESIGNATED_INITIALIZER;
 
 @end
 

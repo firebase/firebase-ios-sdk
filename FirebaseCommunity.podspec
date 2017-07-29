@@ -52,6 +52,7 @@ Firebase Development CocoaPod including experimental and community supported fea
     sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRAuth_VERSION=' + s.version.to_s +
       ' -DFIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
     }
+    sp.resources = [ 'Firebase/Auth/Source/FirebaseAuth.bundle' ]
     sp.framework = 'Security'
     sp.dependency 'FirebaseCommunity/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'

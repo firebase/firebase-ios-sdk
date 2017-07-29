@@ -176,21 +176,29 @@ static const double kAllowedTimeDifference = 0.1;
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
+  [super setUp];
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 /** @fn testUserDisabledError
     @brief Tests that @c FIRAuthErrorCodeUserDisabled error is received if the email is disabled.
  */
 - (void)testUserDisabledError {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -211,9 +219,10 @@ static const double kAllowedTimeDifference = 0.1;
     @brief Tests that @c FIRAuthErrorCodeEmailNotFound error is received if the email is not found.
  */
 - (void)testEmailNotFoundError {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -235,9 +244,10 @@ static const double kAllowedTimeDifference = 0.1;
         invalid.
  */
 - (void)testInvalidPasswordError {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -259,9 +269,10 @@ static const double kAllowedTimeDifference = 0.1;
         incorrect format.
  */
 - (void)testInvalidEmailError {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+  FIRVerifyPasswordRequest *request =
+    [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                           password:kTestPassword
+                               requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -283,9 +294,10 @@ static const double kAllowedTimeDifference = 0.1;
         attempts were made.
  */
 - (void)testTooManySignInAttemptsError {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -306,9 +318,10 @@ static const double kAllowedTimeDifference = 0.1;
     @brief Tests that @c FIRAuthErrorCodeInvalidApiKey error is received from the server.
  */
 - (void)testKeyInvalid {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -336,9 +349,10 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates a @c FIRAuthErrorCodeOperationNotAllowed error.
  */
 - (void)testOperationNotAllowedError {
-  FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                             password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -363,7 +377,7 @@ static const double kAllowedTimeDifference = 0.1;
 - (void)testPasswordLoginDisabledError {
   FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                                                              password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+                                                                               requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -388,7 +402,7 @@ static const double kAllowedTimeDifference = 0.1;
 - (void)testAppNotAuthorized {
   FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                                                              password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+                                                                               requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;
@@ -418,7 +432,7 @@ static const double kAllowedTimeDifference = 0.1;
 - (void)testSuccessfulVerifyPasswordResponse {
   FIRVerifyPasswordRequest *request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                                                              password:kTestPassword
-                                                                               APIKey:kTestAPIKey];
+                                                                               requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPasswordResponse *RPCResponse;
   __block NSError *RPCError;

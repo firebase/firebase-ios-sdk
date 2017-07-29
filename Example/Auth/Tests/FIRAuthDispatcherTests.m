@@ -98,7 +98,7 @@ id<OS_dispatch_queue> testWorkQueue;
     XCTFail();
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  dispatcher.dispatchAfterImplementation = nil;;
+  dispatcher.dispatchAfterImplementation = nil;
 }
 
 

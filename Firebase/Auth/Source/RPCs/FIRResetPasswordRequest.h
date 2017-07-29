@@ -33,21 +33,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) NSString *updatedPassword;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithOOBCode:oobCode: instead.
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithOobCode:newPassword:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithAPIKey:oobCode:currentPassword:
+/** @fn initWithOobCode:newPassword:requestConfiguration:
     @brief Designated initializer.
-    @param APIKey The client's API Key.
     @param oobCode The OOB Code.
     @param newPassword The new password.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                oobCode:(NSString *)oobCode
-                            newPassword:(nullable NSString *)newPassword NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithOobCode:(NSString *)oobCode
+                             newPassword:(nullable NSString *)newPassword
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+
 @end
 
 NS_ASSUME_NONNULL_END

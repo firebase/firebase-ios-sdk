@@ -23,6 +23,7 @@
 #import "FIRAuthAPNSTokenType.h"
 #endif
 
+@class FIRActionCodeSettings;
 @class FIRApp;
 @class FIRAuth;
 @class FIRAuthCredential;
@@ -251,6 +252,14 @@ FIR_SWIFT_NAME(Auth)
     @brief Synchronously gets the cached current user, or null if there is none.
  */
 @property(nonatomic, strong, readonly, nullable) FIRUser *currentUser;
+
+/** @proprty languageCode
+    @brief The current user language code. This property can be set to the app's current language by
+        calling @c useAppLanguage.
+
+    @remarks The string used to set this property must be a language code that follows BCP 47.
+ */
+@property (nonatomic, copy, nullable) NSString *languageCode;
 
 #if TARGET_OS_IOS
 /** @property APNSToken
@@ -531,6 +540,44 @@ FIR_SWIFT_NAME(Auth)
 - (void)sendPasswordResetWithEmail:(NSString *)email
                         completion:(nullable FIRSendPasswordResetCallback)completion;
 
+/** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
+    @brief Initiates a password reset for the given email address and @FIRActionCodeSettings object.
+
+    @param email The email address of the user.
+    @param actionCodeSettings An @c FIRActionCodeSettings object containing settings related to the
+        handling action codes.
+    @param completion Optionally; a block which is invoked when the request finishes. Invoked
+        asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeInvalidRecipientEmail - Indicates an invalid recipient email was
+            sent in the request.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidSender - Indicates an invalid sender email is set in
+            the console for this action.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidMessagePayload - Indicates an invalid email template for
+            sending update email.
+        </li>
+        <li>@c FIRAuthErrorCodeMissingIosBundleID - Indicates that the iOS bundle ID is missing when
+            a iOS App Store ID is provided.
+        </li>
+        <li>@c FIRAuthErrorCodeMissingAndroidPackageName - Indicates that the android package name
+            is missing when the @c androidInstallApp flag is set to true.
+        </li>
+        <li>@c FIRAuthErrorCodeUnauthorizedDomain - Indicates that the domain specified in the
+            continue URL is not whitelisted in the Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidContinueURI - Indicates that the domain specified in the
+            continue URI is not valid.
+        </li>
+    </ul>
+ */
+ - (void)sendPasswordResetWithEmail:(NSString *)email
+                 actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
+                         completion:(nullable FIRSendPasswordResetCallback)completion;
+
 /** @fn signOut:
     @brief Signs out the current user.
 
@@ -605,6 +652,11 @@ FIR_SWIFT_NAME(Auth)
     @param listenerHandle The handle for the listener.
  */
 - (void)removeIDTokenDidChangeListener:(FIRIDTokenDidChangeListenerHandle)listenerHandle;
+
+/** @fn useAppLanguage
+    @brief Sets @c languageCode to the app's current language.
+ */
+- (void)useAppLanguage;
 
 #if TARGET_OS_IOS
 /** @fn setAPNSToken:type:

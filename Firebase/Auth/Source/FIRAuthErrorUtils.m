@@ -217,6 +217,30 @@ static NSString *const kFIRAuthErrorMessageInvalidSender = @"The email template 
 static NSString *const kFIRAuthErrorMessageInvalidRecipientEmail = @"The action code is invalid. "
    "This can happen if the code is malformed, expired, or has already been used.";
 
+/** @var kFIRAuthErrorMessageMissingIosBundleID
+    @brief Message for @c FIRAuthErrorCodeMissingIosbundleID error code.
+ */
+static NSString *const kFIRAuthErrorMessageMissingIosBundleID =
+    @"An iOS Bundle ID must be provided if an App Store ID is provided.";
+
+/** @var kFIRAuthErrorMessageMissingAndroidPackageName
+    @brief Message for @c FIRAuthErrorCodeMissingAndroidPackageName error code.
+ */
+static NSString *const kFIRAuthErrorMessageMissingAndroidPackageName =
+    @"An Android Package Name must be provided if the Android App is required to be installed.";
+
+/** @var kFIRAuthErrorMessageUnauthorizedDomain
+    @brief Message for @c FIRAuthErrorCodeUnauthorizedDomain error code.
+ */
+static NSString *const kFIRAuthErrorMessageUnauthorizedDomain = @"The domain of the continue URL "
+    "is not whitelisted. Please whitelist the domain in the Firebase console.";
+
+/** @var kFIRAuthErrorMessageInvalidContinueURI
+    @brief Message for @c FIRAuthErrorCodeInvalidContinueURI error code.
+ */
+static NSString *const kFIRAuthErrorMessageInvalidContinueURI =
+    @"The continue URL provided in the request is invalid.";
+
 /** @var kFIRAuthErrorMessageMissingEmail
     @brief Message for @c FIRAuthErrorCodeMissingEmail error code.
  */
@@ -386,6 +410,16 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidMessagePayload;
     case FIRAuthErrorCodeInvalidRecipientEmail:
       return kFIRAuthErrorMessageInvalidRecipientEmail;
+    case FIRAuthErrorCodeMissingIosBundleID:
+      return kFIRAuthErrorMessageMissingIosBundleID;
+    case FIRAuthErrorCodeMissingAndroidPackageName:
+      return kFIRAuthErrorMessageMissingAndroidPackageName;
+    case FIRAuthErrorCodeUnauthorizedDomain:
+      return kFIRAuthErrorMessageUnauthorizedDomain;
+    case FIRAuthErrorCodeInvalidContinueURI:
+      return kFIRAuthErrorMessageInvalidContinueURI;
+    case FIRAuthErrorCodeMissingContinueURI:
+      return kFIRAuthErrorMessageMissingContinueURI;
     case FIRAuthErrorCodeMissingEmail:
       return kFIRAuthErrorMessageMissingEmail;
     case FIRAuthErrorCodeMissingPhoneNumber:
@@ -481,6 +515,16 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_SENDER";
     case FIRAuthErrorCodeInvalidRecipientEmail:
       return @"ERROR_INVALID_RECIPIENT_EMAIL";
+    case FIRAuthErrorCodeMissingIosBundleID:
+      return @"ERROR_MISSING_IOS_BUNDLE_ID";
+    case FIRAuthErrorCodeMissingAndroidPackageName:
+      return @"ERROR_MISSING_ANDROID_PKG_NAME";
+    case FIRAuthErrorCodeUnauthorizedDomain:
+      return @"ERROR_UNAUTHORIZED_DOMAIN";
+    case FIRAuthErrorCodeInvalidContinueURI:
+      return @"ERROR_INVALID_CONTINUE_URI";
+    case FIRAuthErrorCodeMissingContinueURI:
+      return @"ERROR_MISSING_CONTINUE_URI";
     case FIRAuthErrorCodeMissingEmail:
       return @"MISSING_EMAIL";
     case FIRAuthErrorCodeMissingPhoneNumber:
@@ -738,6 +782,26 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)invalidRecipientEmailErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidRecipientEmail message:message];
+}
+
++ (NSError *)missingIosBundleIDErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthinternalErrorCodeMissingIosBundleID message:message];
+}
+
++ (NSError *)missingAndroidPackageNameErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAndroidPackageName message:message];
+}
+
++ (NSError *)unauthorizedDomainErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnauthorizedDomain message:message];
+}
+
++ (NSError *)invalidContinueURIErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeInvalidContinueURI message:message];
+}
+
++ (NSError *)missingContinueURIErrorWithMessage:(nullable NSString *)message {
+  return[self errorWithCode:FIRAuthInternalErrorCodeMissingContinueURI message:message];
 }
 
 + (NSError *)missingEmail {

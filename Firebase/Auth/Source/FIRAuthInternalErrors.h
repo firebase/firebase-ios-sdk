@@ -238,6 +238,34 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeInvalidRecipientEmail =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidRecipientEmail,
 
+  /** Indicates that the iOS bundle ID is missing when a iOS App Store ID is provided.
+   */
+  FIRAuthinternalErrorCodeMissingIosBundleID =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingIosBundleID,
+
+  /** Indicates that the android package name is missing when the @c androidInstallApp flag is set
+        to true.
+   */
+  FIRAuthInternalErrorCodeMissingAndroidPackageName =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingAndroidPackageName,
+
+  /** Indicates that the domain specified in the continue URL is not whitelisted in the Firebase
+        console.
+   */
+  FIRAuthInternalErrorCodeUnauthorizedDomain =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnauthorizedDomain,
+
+  /** Indicates that the domain specified in the continue URI is not valid.
+   */
+  FIRAuthInternalErrorCodeInvalidContinueURI =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidContinueURI,
+
+  /** Indicates that a continue URI was not provided in a request to the backend which requires
+        one.
+   */
+  FIRAuthInternalErrorCodeMissingContinueURI =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingContinueURI,
+
   /** Indicates that an email address was expected but one was not provided.
    */
   FIRAuthInternalErrorCodeMissingEmail =

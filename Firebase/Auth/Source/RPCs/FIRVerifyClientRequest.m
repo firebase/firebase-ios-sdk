@@ -38,8 +38,8 @@ static NSString *const kIsSandboxKey = @"isSandbox";
 
 - (nullable instancetype)initWithAppToken:(NSString *)appToken
                                 isSandbox:(BOOL)isSandbox
-                                   APIKey:(NSString *)APIKey {
-  self = [super initWithEndpoint:kVerifyClientEndpoint APIKey:APIKey];
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kVerifyClientEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _appToken = appToken;
     _isSandbox = isSandbox;

@@ -188,8 +188,30 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeMissingEmail = 17034,
 
-    // The enum values between 17034 and 17041 are reserved and should NOT be used for new error
-    // codes.
+    // The enum values 17035 is reserved and should NOT be used for new error codes.
+
+    /** Indicates that the iOS bundle ID is missing when a iOS App Store ID is provided.
+     */
+    FIRAuthErrorCodeMissingIosBundleID = 17036,
+
+    /** Indicates that the android package name is missing when the @c androidInstallApp flag is set
+        to true.
+     */
+    FIRAuthErrorCodeMissingAndroidPackageName = 17037,
+
+    /** Indicates that the domain specified in the continue URL is not whitelisted in the Firebase
+        console.
+     */
+    FIRAuthErrorCodeUnauthorizedDomain = 17038,
+
+    /** Indicates that the domain specified in the continue URI is not valid.
+     */
+    FIRAuthErrorCodeInvalidContinueURI = 17039,
+
+    /** Indicates that a continue URI was not provided in a request to the backend which requires
+        one.
+     */
+    FIRAuthErrorCodeMissingContinueURI = 17040,
 
     /** Indicates that a phone number was not provided in a call to
         @c verifyPhoneNumber:completion:.

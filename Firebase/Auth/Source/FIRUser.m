@@ -31,6 +31,7 @@
 #import "FIRSecureTokenService.h"
 #import "FIRUserInfoImpl.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthRequestConfiguration.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
 #import "FIRGetAccountInfoRequest.h"
@@ -215,7 +216,7 @@ static void callInMainThreadWithAuthDataResultAndError(
    */
   NSDictionary<NSString *, FIRUserInfoImpl *> *_providerData;
 
-  /** @var _APIKey
+   /** @var _APIKey
       @brief The application's API Key.
    */
   NSString *_APIKey;
@@ -262,7 +263,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
     FIRGetAccountInfoRequest *getAccountInfoRequest =
-        [[FIRGetAccountInfoRequest alloc] initWithAPIKey:APIKey accessToken:accessToken];
+        [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                         requestConfiguration:[FIRAuth auth].requestConfiguration];
     [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                           callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                      NSError *_Nullable error) {
@@ -387,7 +389,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
     FIRGetAccountInfoRequest *getAccountInfoRequest =
-        [[FIRGetAccountInfoRequest alloc] initWithAPIKey:_APIKey accessToken:accessToken];
+        [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                         requestConfiguration:_auth.requestConfiguration];
     [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                           callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                      NSError *_Nullable error) {
@@ -452,9 +455,11 @@ static void callInMainThreadWithAuthDataResultAndError(
           callback(error);
           return;
         }
+        FIRAuthRequestConfiguration *configuration =
+            _auth.requestConfiguration;
         // Mutate setAccountInfoRequest in block:
         FIRSetAccountInfoRequest *setAccountInfoRequest =
-            [[FIRSetAccountInfoRequest alloc] initWithAPIKey:_APIKey];
+            [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:configuration];
         setAccountInfoRequest.accessToken = accessToken;
         changeBlock(user, setAccountInfoRequest);
         // Execute request:
@@ -571,8 +576,10 @@ static void callInMainThreadWithAuthDataResultAndError(
             callback(error);
             return;
           }
+          FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
           FIRGetAccountInfoRequest *getAccountInfoRequest =
-              [[FIRGetAccountInfoRequest alloc] initWithAPIKey:_APIKey accessToken:accessToken];
+              [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                               requestConfiguration:requestConfiguration];
           [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                                 callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                            NSError *_Nullable error) {
@@ -638,7 +645,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     FIRVerifyPhoneNumberRequest *request = [[FIRVerifyPhoneNumberRequest alloc]
         initWithVerificationID:phoneAuthCredential.verificationID
               verificationCode:phoneAuthCredential.verificationCode
-                        APIKey:_APIKey];
+          requestConfiguration:_auth.requestConfiguration];
     request.accessToken = accessToken;
     [FIRAuthBackend verifyPhoneNumber:request
                              callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
@@ -882,8 +889,10 @@ static void callInMainThreadWithAuthDataResultAndError(
           completeWithError(nil, error);
           return;
         }
+        FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
         FIRVerifyAssertionRequest *request =
-          [[FIRVerifyAssertionRequest alloc] initWithAPIKey:_APIKey providerID:credential.provider];
+            [[FIRVerifyAssertionRequest alloc] initWithProviderID:credential.provider
+                                             requestConfiguration:requestConfiguration];
         [credential prepareVerifyAssertionRequest:request];
         request.accessToken = accessToken;
         [FIRAuthBackend verifyAssertion:request
@@ -909,7 +918,8 @@ static void callInMainThreadWithAuthDataResultAndError(
               return;
             }
             FIRGetAccountInfoRequest *getAccountInfoRequest =
-                [[FIRGetAccountInfoRequest alloc] initWithAPIKey:_APIKey accessToken:accessToken];
+                [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                                 requestConfiguration:requestConfiguration];
             [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                                   callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                              NSError *_Nullable error) {
@@ -945,8 +955,9 @@ static void callInMainThreadWithAuthDataResultAndError(
         completeAndCallbackWithError(error);
         return;
       }
+      FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
       FIRSetAccountInfoRequest *setAccountInfoRequest =
-          [[FIRSetAccountInfoRequest alloc] initWithAPIKey:_APIKey];
+          [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:requestConfiguration];
       setAccountInfoRequest.accessToken = accessToken;
       BOOL isEmailPasswordProvider = [provider isEqualToString:FIREmailAuthProviderID];
       if (isEmailPasswordProvider) {
@@ -1008,6 +1019,27 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (void)sendEmailVerificationWithCompletion:(nullable FIRSendEmailVerificationCallback)completion {
+  [self sendEmailVerificationWithNullableActionCodeSettings:nil completion:completion];
+}
+
+- (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
+                                         completion:(nullable FIRSendEmailVerificationCallback)
+                                                    completion {
+  [self sendEmailVerificationWithNullableActionCodeSettings:actionCodeSettings
+                                                 completion:completion];
+}
+
+/** @fn sendEmailVerificationWithNullableActionCodeSettings:completion:
+    @brief Initiates email verification for the user.
+
+    @param actionCodeSettings Optionally, a @c FIRActionCodeSettings object containing settings
+        related to the handling action codes.
+ */
+- (void)sendEmailVerificationWithNullableActionCodeSettings:(nullable FIRActionCodeSettings *)
+                                                            actionCodeSettings
+                                                 completion:
+                                                         (nullable FIRSendEmailVerificationCallback)
+                                                            completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                          NSError *_Nullable error) {
@@ -1015,9 +1047,11 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithError(completion, error);
         return;
       }
+      FIRAuthRequestConfiguration *configuration = _auth.requestConfiguration;
       FIRGetOOBConfirmationCodeRequest *request =
           [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:accessToken
-                                                                       APIKey:_APIKey];
+                                                           actionCodeSettings:actionCodeSettings
+                                                         requestConfiguration:configuration];
       [FIRAuthBackend getOOBConfirmationCode:request
                                     callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable
                                                    response,
@@ -1037,15 +1071,15 @@ static void callInMainThreadWithAuthDataResultAndError(
         return;
       }
       FIRDeleteAccountRequest *deleteUserRequest =
-        [[FIRDeleteAccountRequest alloc] initWithAPIKey:_APIKey
-                                                localID:_userID
-                                            accessToken:accessToken];
+        [[FIRDeleteAccountRequest alloc] initWitLocalID:_userID
+                                            accessToken:accessToken
+                                   requestConfiguration:_auth.requestConfiguration];
       [FIRAuthBackend deleteAccount:deleteUserRequest callback:^(NSError *_Nullable error) {
         if (error) {
           callInMainThreadWithError(completion, error);
           return;
         }
-        if (![[FIRAuth auth] signOutByForceWithUserID:_userID error:&error]) {
+        if (![_auth signOutByForceWithUserID:_userID error:&error]) {
           callInMainThreadWithError(completion, error);
           return;
         }

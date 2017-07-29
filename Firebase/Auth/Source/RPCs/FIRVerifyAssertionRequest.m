@@ -82,9 +82,10 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
 @implementation FIRVerifyAssertionRequest
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                             providerID:(nonnull NSString *)providerID{
-  self = [super initWithEndpoint:kVerifyAssertionEndpoint APIKey:APIKey];
+- (nullable instancetype)initWithProviderID:(NSString *)providerID
+                       requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kVerifyAssertionEndpoint
+            requestConfiguration:requestConfiguration];
   if (self) {
     _providerID = providerID;
     _returnSecureToken = YES;

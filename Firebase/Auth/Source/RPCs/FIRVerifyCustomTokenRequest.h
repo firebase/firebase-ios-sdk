@@ -37,19 +37,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign) BOOL returnSecureToken;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithToken:APIKey:
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithToken:requestConfiguration: instead.
  */
-- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey  NS_UNAVAILABLE;
+- (nullable instancetype)initWithEndpoint:(NSString *)endpoint requestConfiguration:
+    (FIRAuthRequestConfiguration *)requestConfiguration  NS_UNAVAILABLE;
 
-/** @fn initWithToken:APIKey:
+/** @fn initWithToken:requestConfiguration:
     @brief Designated initializer.
     @param token The self-signed token from the client's BYOAuth server.
-    @param APIKey The client's API Key.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithToken:(NSString *)token
-                                APIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                      NS_DESIGNATED_INITIALIZER;
 
 @end
 

@@ -79,6 +79,11 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -86,9 +91,11 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
+  _requestConfiguration = nil;
   _RPCIssuer = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
@@ -98,7 +105,8 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
     @brief Tests the encoding of a sign up new user request when user is signed in anonymously.
  */
 - (void)testSignUpNewUserRequestAnonymous {
-  FIRSignUpNewUserRequest *request = [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc] initWithRequestConfiguration:_requestConfiguration];
   request.returnSecureToken = NO;
   [FIRAuthBackend signUpNewUser:request
                        callback:^(FIRSignUpNewUserResponse *_Nullable response,
@@ -119,10 +127,10 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
  */
 - (void)testSignUpNewUserRequestNotAnonymous {
   FIRSignUpNewUserRequest *request =
-      [[FIRSignUpNewUserRequest alloc] initWithAPIKey:kTestAPIKey
-                                                email:kTestEmail
-                                             password:kTestPassword
-                                          displayName:kTestDisplayName];
+      [[FIRSignUpNewUserRequest alloc] initWithEmail:kTestEmail
+                                            password:kTestPassword
+                                         displayName:kTestDisplayName
+                                requestConfiguration:_requestConfiguration];
   [FIRAuthBackend signUpNewUser:request
                        callback:^(FIRSignUpNewUserResponse *_Nullable response,
                                            NSError *_Nullable error) {

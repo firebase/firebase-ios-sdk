@@ -18,6 +18,8 @@
 
 #import "FIRAuth.h"
 
+@class FIRAuthRequestConfiguration;
+
 #if TARGET_OS_IOS
 @class FIRAuthAPNSTokenManager;
 @class FIRAuthAppCredentialManager;
@@ -44,11 +46,11 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
 
 @interface FIRAuth ()
 
-/** @property APIKey
-    @brief The Google API key.
-    @remarks Needed for calls to identity toolkit and secure token service.
+/** @property requestConfiguration
+    @brief The configuration object comprising of paramters needed to make a request to Firebase
+        Auth's backend.
  */
-@property(nonatomic, copy, readonly) NSString *APIKey;
+@property(nonatomic, copy, readonly) FIRAuthRequestConfiguration *requestConfiguration;
 
 #if TARGET_OS_IOS
 /** @property tokenManager

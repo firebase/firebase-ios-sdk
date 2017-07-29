@@ -172,6 +172,11 @@ static const double kAllowedTimeDifference = 0.1;
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -179,10 +184,12 @@ static const double kAllowedTimeDifference = 0.1;
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -192,7 +199,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeEmailExists error.
  */
 - (void)testEmailExistsError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -216,7 +224,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeOperationNotAllowed error.
  */
 - (void)testEmailSignUpNotAllowedError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -240,7 +249,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeOperationNotAllowed error.
  */
 - (void)testPasswordLoginDisabledError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -263,7 +273,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates @c testUserDisabledError with @c FIRAuthErrorCodeUserDisabled error.
  */
 - (void)testUserDisabledError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -287,7 +298,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeCredentialTooOld error.
  */
 - (void)testInvalidUserTokenError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -311,7 +323,8 @@ static const double kAllowedTimeDifference = 0.1;
         FIRAuthErrorCodeRequiresRecentLogin error.
  */
 - (void)testrequiresRecentLogin {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -334,7 +347,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates @c FIRAuthErrorCodeWeakPassword error.
  */
 - (void)testWeakPasswordError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -359,7 +373,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates @c FIRAuthErrorCodeInvalidEmail error code.
  */
 - (void)testInvalidEmailError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -382,7 +397,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates @c FIRAuthErrorCodeInvalidActionCode error code.
  */
 - (void)testInvalidActionCodeError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -405,7 +421,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates @c FIRAuthErrorCodeExpiredActionCode error code.
  */
 - (void)testExpiredActionCodeError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -428,7 +445,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief Tests for @c FIRAuthErrorCodeInvalidMessagePayload.
  */
 - (void)testInvalidMessagePayloadError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -450,7 +468,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief Tests for @c FIRAuthErrorCodeInvalidSender.
  */
 - (void)testInvalidSenderError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -472,7 +491,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief Tests for @c FIRAuthErrorCodeInvalidRecipientEmail.
  */
 - (void)testInvalidRecipientEmailError {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;
@@ -494,7 +514,8 @@ static const double kAllowedTimeDifference = 0.1;
     @brief This test simulates a successful @c SetAccountInfo flow.
  */
 - (void)testSuccessfulSetAccountInfoResponse {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRSetAccountInfoResponse *RPCResponse;

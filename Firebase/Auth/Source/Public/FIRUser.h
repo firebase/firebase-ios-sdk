@@ -401,6 +401,42 @@ FIR_SWIFT_NAME(User)
  */
 - (void)sendEmailVerificationWithCompletion:(nullable FIRSendEmailVerificationCallback)completion;
 
+/** @fn sendEmailVerificationWithActionCodeSettings:completion:
+    @brief Initiates email verification for the user.
+
+    @param actionCodeSettings An @c FIRActionCodeSettings object containing settings related to the
+        handling action codes.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeInvalidRecipientEmail - Indicates an invalid recipient email was
+            sent in the request.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidSender - Indicates an invalid sender email is set in
+            the console for this action.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidMessagePayload - Indicates an invalid email template for
+            sending update email.
+        </li>
+        <li>@c FIRAuthErrorCodeUserNotFound - Indicates the user account was not found.</li>
+        <li>@c FIRAuthErrorCodeMissingIosBundleID - Indicates that the iOS bundle ID is missing when
+            a iOS App Store ID is provided.
+        </li>
+        <li>@c FIRAuthErrorCodeMissingAndroidPackageName - Indicates that the android package name
+            is missing when the @c androidInstallApp flag is set to true.
+        </li>
+        <li>@c FIRAuthErrorCodeUnauthorizedDomain - Indicates that the domain specified in the
+            continue URL is not whitelisted in the Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidContinueURI - Indicates that the domain specified in the
+            continue URI is not valid.
+        </li>
+    </ul>
+ */
+- (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
+                                         completion:(nullable FIRSendEmailVerificationCallback)
+                                                    completion;
+
 /** @fn deleteWithCompletion:
     @brief Deletes the user account (also signs out the user, if this was the current user).
 

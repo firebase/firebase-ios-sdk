@@ -69,6 +69,11 @@ static NSString *const kClientVersionHeader = @"X-Client-Version";
  */
 static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
 
+/** @var kFirebaseLocalHeader
+    @brief HTTP header name for the firebase locale.
+ */
+static NSString *const kFirebaseLocalHeader = @"X-Firebase-Locale";
+
 /** @var kJSONContentType
     @brief The value of the HTTP content-type header for JSON payloads.
  */
@@ -245,6 +250,36 @@ static NSString *const kInvalidMessagePayloadErrorMessage = @"INVALID_MESSAGE_PA
     @brief This is the error message the server will respond with if the recipient email is invalid.
  */
 static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_EMAIL";
+
+/** @var kMissingIosBundleIDErrorMessage
+    @brief This is the error message the server will respond with if iOS bundle ID is missing but
+        the iOS App store ID is provided.
+ */
+static NSString *const kMissingIosBundleIDErrorMessage = @"MISSING_IOS_BUNDLE_ID";
+
+/** @var kMissingAndroidPackageNameErrorMessage
+    @brief This is the error message the server will respond with if Android Package Name is missing
+        but the flag indicating the app should be installed is set to true.
+ */
+static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROID_PACKAGE_NAME";
+
+/** @var kUnauthorizedDomainErrorMessage
+    @brief This is the error message the server will respond with if the domain of the continue URL
+        specified is not whitelisted in the firebase console.
+ */
+static NSString *const kUnauthorizedDomainErrorMessage = @"ERROR_UNAUTHORIZED_DOMAIN";
+
+/** @var kInvalidContinueURIErrorMessage
+    @brief This is the error message the server will respond with if the continue URL provided in
+        the request is invalid.
+ */
+static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI";
+
+/** @var kMissingContinueURIErrorMessage
+    @brief This is the error message the server will respond with if there was no continue URI
+        present in a request that required one.
+ */
+static NSString *const kMissingContinueURIErrorMessage = @"MISSING_CONTINUE_URI";
 
 /** @var kInvalidPhoneNumberErrorMessage
     @brief This is the error message the server will respond with if an incorrectly formatted phone
@@ -427,10 +462,12 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   return self;
 }
 
-- (void)asyncPostToURL:(NSURL *)URL
-                  body:(NSData *)body
-           contentType:(NSString *)contentType
-     completionHandler:(void (^)(NSData *_Nullable, NSError *_Nullable))handler {
+- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                           URL:(NSURL *)URL
+                                          body:(NSData *)body
+                                   contentType:(NSString *)contentType
+                             completionHandler:(void (^)(NSData *_Nullable,
+                               NSError *_Nullable))handler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
   NSString *clientVersion =
@@ -444,7 +481,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     NSString *acceptLanguage = preferredLocalizations.firstObject;
     [request setValue:acceptLanguage forHTTPHeaderField:@"Accept-Language"];
   }
-
+  NSString *languageCode = requestConfiguration.languageCode;
+  if (languageCode.length) {
+    [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
+  }
   GTMSessionFetcher* fetcher = [_fetcherService fetcherWithRequest:request];
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
@@ -684,10 +724,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return;
   }
 
-  [_RPCIssuer asyncPostToURL:[request requestURL]
-                        body:bodyData
-                 contentType:kJSONContentType
-           completionHandler:^(NSData *data, NSError *error) {
+  [_RPCIssuer asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
+                                                 URL:[request requestURL]
+                                                body:bodyData
+                                         contentType:kJSONContentType
+                                   completionHandler:^(NSData *data, NSError *error) {
     // If there is an error with no body data at all, then this must be a network error.
     if (error && !data) {
       callback([FIRAuthErrorUtils networkErrorWithUnderlyingError:error]);
@@ -899,6 +940,26 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kInvalidRecipientEmailErrorMessage]) {
     return [FIRAuthErrorUtils invalidRecipientEmailErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingIosBundleIDErrorMessage]) {
+    return [FIRAuthErrorUtils missingIosBundleIDErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingAndroidPackageNameErrorMessage]) {
+    return [FIRAuthErrorUtils missingAndroidPackageNameErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnauthorizedDomainErrorMessage]) {
+    return [FIRAuthErrorUtils unauthorizedDomainErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kInvalidContinueURIErrorMessage]) {
+    return [FIRAuthErrorUtils invalidContinueURIErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingContinueURIErrorMessage]) {
+    return [FIRAuthErrorUtils missingContinueURIErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidPhoneNumberErrorMessage]) {

@@ -81,19 +81,22 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign) BOOL autoCreate;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithAPIKey:
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithProviderID:requestConfifuration instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
 
-/** @fn initWithAPIKey:
+/** @fn initWithProviderID:requestConfifuration
     @brief Designated initializer.
-    @param APIKey The client's API Key.
     @param providerID The auth provider's ID.
+    @param requestConfiguration An object containing configurations to be added to the request.
+
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                             providerID:(NSString *)providerID NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithProviderID:(NSString *)providerID
+                       requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                           NS_DESIGNATED_INITIALIZER;
 
 @end
 

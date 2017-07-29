@@ -83,10 +83,12 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the encoding of an create auth URI request.
  */
 - (void)testEmailVerificationRequest {
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc]initWithIdentifier:kTestIdentifier
                                              continueURI:kTestContinueURI
-                                                  APIKey:kTestAPIKey];
+                                    requestConfiguration:requestConfiguration];
 
   [FIRAuthBackend createAuthURI:request
                                 callback:^(FIRCreateAuthURIResponse *_Nullable response,

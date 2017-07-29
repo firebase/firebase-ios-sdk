@@ -89,12 +89,19 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
+  [super setUp];
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey];
 }
 
 /** @fn testMissingAppCredentialError
@@ -104,7 +111,7 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   FIRVerifyClientRequest *request =
       [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
                                              isSandbox:YES
-                                                APIKey:kFakeAPIKey];
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyClientResponse *RPCResponse;
   __block NSError *RPCError;
@@ -128,7 +135,7 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   FIRVerifyClientRequest *request =
       [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
                                              isSandbox:YES
-                                                APIKey:kFakeAPIKey];
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyClientResponse *RPCResponse;
   __block NSError *RPCError;
@@ -152,7 +159,7 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   FIRVerifyClientRequest *request =
       [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
                                              isSandbox:YES
-                                                APIKey:kFakeAPIKey];
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyClientResponse *RPCResponse;
   __block NSError *RPCError;
