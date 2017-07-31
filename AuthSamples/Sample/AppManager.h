@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The total count of apps under management, including the default app.
  */
 @property(nonatomic, assign, readonly) int count;
+
 /** @property active
     @brief The index of the currently active app, 0 being the default app.
  */
