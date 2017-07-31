@@ -76,6 +76,13 @@ extern NSString *const FIRAuthStateDidChangeInternalNotification;
  */
 extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
 
+/** @var FIRAuthStateDidChangeInternalNotificationAppKey
+ @brief A key present in the dictionary object parameter of the
+ @c FIRAuthStateDidChangeInternalNotification notification. The value associated with this
+ key will contain the FIRApp associated with the auth instance.
+ */
+extern NSString *const FIRAuthStateDidChangeInternalNotificationAppKey;
+
 /** @typedef FIRTokenCallback
     @brief The type of block which gets called when a token is ready.
  */

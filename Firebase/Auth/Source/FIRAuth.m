@@ -1035,6 +1035,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [self scheduleAutoTokenRefresh];
   }
   NSMutableDictionary *internalNotificationParameters = [NSMutableDictionary dictionary];
+  if (self.app) {
+    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationAppKey] = self.app;
+  }
   if (token.length) {
     internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token;
   }

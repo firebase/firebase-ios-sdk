@@ -54,6 +54,8 @@ NSString *const kFIRAppDiagnosticsSDKVersionKey = @"SDKVersion";
 // Auth internal notification notification and key.
 NSString *const FIRAuthStateDidChangeInternalNotification =
     @"FIRAuthStateDidChangeInternalNotification";
+NSString *const FIRAuthStateDidChangeInternalNotificationAppKey =
+    @"FIRAuthStateDidChangeInternalNotificationAppKey";
 NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey =
     @"FIRAuthStateDidChangeInternalNotificationTokenKey";
 
