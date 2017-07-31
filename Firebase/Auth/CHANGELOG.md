@@ -1,3 +1,14 @@
+# v4.1.0
+- Allows the app to handle continue URL natively, e.g., from password reset
+  email.
+- Allows the app to set language code, e.g., for sending password reset email.
+- Fixes an issue that user's phone number does not persist on client.
+- Improves app start-up time by moving initialization off from the main
+  thread.
+- Better reports missing email error when creating a new password user.
+- Changes console message logging levels to be more consistent with other
+  Firebase products on the iOS platform.
+
 # 2017-05-17 -- v4.0.0
 - Adds Phone Number Authentication.
 - Adds support for generic OAuth2 identity providers.
