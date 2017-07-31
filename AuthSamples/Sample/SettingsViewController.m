@@ -240,6 +240,10 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
  */
 - (void)toggleActiveApp {
   AppManager *apps = [AppManager sharedInstance];
+  // This changes the FIRAuth instance returned from `[AppManager auth]` to be one that is
+  // associated with a different `FIRApp` instance. The sample app uses `[AppManager auth]`
+  // instead of `[FIRAuth auth]` almost everywhere. Thus, this statement switches between default
+  // and non-default `FIRApp` instances for the sample app to test against.
   apps.active = (apps.active + 1) % apps.count;
   [self loadTableView];
 }

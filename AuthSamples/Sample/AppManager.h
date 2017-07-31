@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn recreateAppAtIndex:withOptions:completion:
     @brief Deletes the app at the given index, and optionally creates it again with given options.
     @param index The index of the app to be recreated, 0 being the default app.
-    @param options The new options to create the app with, or nil for not to create the app.
+    @param options Optionally, the new options with which app should be created.
     @param completion The block to call when completes.
  */
 - (void)recreateAppAtIndex:(int)index
