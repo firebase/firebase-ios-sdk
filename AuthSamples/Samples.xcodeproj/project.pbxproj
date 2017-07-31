@@ -32,6 +32,7 @@
 		BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */; };
 		BE7B447C1EC2508300FA4C1B /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7B447A1EC2507800FA4C1B /* AuthCredentials.swift */; };
 		D99C31A11ED7A0ED00607534 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = D99C31A01ED7A0ED00607534 /* GoogleService-Info_multi.plist */; };
+		D9AC266E1F2ABBC5002B789B /* AppManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AC266C1F2ABBC5002B789B /* AppManager.m */; };
 		D9AE2A641ED751C900DDAD18 /* FirebaseAuthApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AE2A631ED751C900DDAD18 /* FirebaseAuthApiTests.m */; };
 		D9AE2A661ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AE2A651ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m */; };
 		DE5371B31EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */; };
@@ -199,6 +200,8 @@
 		D90D8C411ED3B72B00C6BE87 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
 		D930B7611EDF9AAD001265FD /* Sample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
 		D99C31A01ED7A0ED00607534 /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info_multi.plist"; sourceTree = "<group>"; };
+		D9AC266C1F2ABBC5002B789B /* AppManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppManager.m; sourceTree = "<group>"; };
+		D9AC266D1F2ABBC5002B789B /* AppManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppManager.h; sourceTree = "<group>"; };
 		D9AE2A631ED751C900DDAD18 /* FirebaseAuthApiTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthApiTests.m; sourceTree = "<group>"; };
 		D9AE2A651ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthEarlGreyTests.m; sourceTree = "<group>"; };
 		D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.release.xcconfig"; sourceTree = "<group>"; };
@@ -418,6 +421,8 @@
 			children = (
 				7EDFD35D1F0EA29200B29DC5 /* Localizable.strings */,
 				D930B7611EDF9AAD001265FD /* Sample.entitlements */,
+				D9AC266D1F2ABBC5002B789B /* AppManager.h */,
+				D9AC266C1F2ABBC5002B789B /* AppManager.m */,
 				DECEA5661EBBDFB400273585 /* AuthCredentials.h */,
 				DECE049B1E9FEAE600164CA4 /* Application.plist */,
 				DECE049C1E9FEAE600164CA4 /* ApplicationDelegate.h */,
@@ -1191,6 +1196,7 @@
 				DECE04E51E9FEAE600164CA4 /* CustomTokenDataEntryViewController.m in Sources */,
 				DECE04E41E9FEAE600164CA4 /* AuthProviders.m in Sources */,
 				DECE04EF1E9FEAE600164CA4 /* SettingsViewController.m in Sources */,
+				D9AC266E1F2ABBC5002B789B /* AppManager.m in Sources */,
 				DECE04E71E9FEAE600164CA4 /* GoogleAuthProvider.m in Sources */,
 				DECE04F51E9FEAE600164CA4 /* UserInfoViewController.m in Sources */,
 				DECE04EC1E9FEAE600164CA4 /* MainViewController.m in Sources */,
