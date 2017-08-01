@@ -972,6 +972,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return _requestConfiguration.languageCode;
 }
 
+- (void)setLanguageCode:(NSString *)languageCode {
+  _requestConfiguration.languageCode = [languageCode copy];
+}
+
 #if TARGET_OS_IOS
 - (NSData *)APNSToken {
   __block NSData *result = nil;
@@ -1001,10 +1005,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif
 
 #pragma mark - Internal Methods
-
-- (void)setLanguageCode:(NSString *)languageCode {
-  _requestConfiguration.languageCode = [languageCode copy];
-}
 
 #if TARGET_OS_IOS
 /** @fn signInWithPhoneCredential:callback:
@@ -1065,33 +1065,34 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif
 
 - (void)notifyListenersOfAuthStateChangeWithUser:(FIRUser *)user token:(NSString *)token {
-  if (user && _autoRefreshTokens) {
+  if (user != _currentUser) {
+    return;
+  }
+  if (_autoRefreshTokens) {
     // Shedule new refresh task after successful attempt.
     [self scheduleAutoTokenRefresh];
   }
-  if (user == _currentUser) {
-    NSMutableDictionary *internalNotificationParameters = [NSMutableDictionary dictionary];
-    if (token.length) {
-      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token;
-    }
-    NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [notifications postNotificationName:FIRAuthStateDidChangeInternalNotification
-                                   object:self
-                                 userInfo:internalNotificationParameters];
-      [notifications postNotificationName:FIRAuthStateDidChangeNotification
-                                   object:self];
-    });
+  NSMutableDictionary *internalNotificationParameters = [NSMutableDictionary dictionary];
+  if (token.length) {
+    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token;
   }
+  NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [notifications postNotificationName:FIRAuthStateDidChangeInternalNotification
+                                 object:self
+                               userInfo:internalNotificationParameters];
+    [notifications postNotificationName:FIRAuthStateDidChangeNotification
+                                 object:self];
+  });
 }
 
 - (BOOL)updateKeychainWithUser:(FIRUser *)user error:(NSError *_Nullable *_Nullable)error {
-  if (user == _currentUser) {
-    return [self saveUser:user error:error];
+  if (user != _currentUser) {
+    // No-op if the user is no longer signed in. This is not considered an error as we don't check
+    // whether the user is still current on other callbacks of user operations either.
+    return YES;
   }
-  // No-op if the user is no longer signed in. This is not considered an error as we don't check
-  // whether the user is still current on other callbacks of user operations either.
-  return YES;
+  return [self saveUser:user error:error];
 }
 
 /** @fn setKeychainServiceNameForApp
@@ -1219,12 +1220,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                          refreshToken:(NSString *)refreshToken
                             anonymous:(BOOL)anonymous
                              callback:(FIRAuthResultCallback)callback {
-  [FIRUser retrieveUserWithAPIKey:_requestConfiguration.APIKey
-                      accessToken:accessToken
-        accessTokenExpirationDate:accessTokenExpirationDate
-                     refreshToken:refreshToken
-                        anonymous:anonymous
-                         callback:callback];
+  [FIRUser retrieveUserWithAuth:self
+                    accessToken:accessToken
+      accessTokenExpirationDate:accessTokenExpirationDate
+                   refreshToken:refreshToken
+                      anonymous:anonymous
+                       callback:callback];
 }
 
 /** @fn signInFlowAuthResultCallbackByDecoratingCallback:
@@ -1324,10 +1325,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     success = [self saveUser:user error:error];
   }
   if (success || force) {
-    FIRUser *previousUser = _currentUser;
-    previousUser.auth = nil;
     _currentUser = user;
-    _currentUser.auth = self;
     [self notifyListenersOfAuthStateChangeWithUser:user token:user.rawAccessToken];
   }
   return success;
@@ -1384,7 +1382,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
   NSKeyedUnarchiver *unarchiver =
       [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
-  *outUser = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
+  FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
+  user.auth = self;
+  *outUser = user;
   return YES;
 }
 

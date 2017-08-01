@@ -24,8 +24,6 @@
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 
-@class FIRAuthRequestConfiguration;
-
 /** @var kAPIKeyCodingKey
     @brief The key used to encode the APIKey for NSSecureCoding.
  */
@@ -52,19 +50,10 @@ static NSString *const kAccessTokenExpirationDateKey = @"accessTokenExpirationDa
 static const NSTimeInterval kFiveMinutes = 5 * 60;
 
 @interface FIRSecureTokenService ()
-/** @fn initWithAPIKey:
-    @brief Creates a @c FIRSecureTokenService without a credential.
-    @param APIKey A Google API key for making STS requests.
- */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FIRSecureTokenService {
-  /** @var _requestConfiguration
-      @brief Contains configuration relevant to the request.
-   */
-  FIRAuthRequestConfiguration *_requestConfiguration;
-
   /** @var _taskQueue
       @brief Used to serialize all requests for access tokens.
    */
@@ -82,34 +71,30 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (instancetype)init {
-  [self doesNotRecognizeSelector:_cmd];
-  return nil;
-}
-
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
   self = [super init];
   if (self) {
-    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
     _taskQueue = [[FIRAuthSerialTaskQueue alloc] init];
   }
   return self;
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                      authorizationCode:(NSString *)authorizationCode {
-  self = [self initWithAPIKey:APIKey];
+- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                           authorizationCode:(NSString *)authorizationCode {
+  self = [self init];
   if (self) {
+    _requestConfiguration = requestConfiguration;
     _authorizationCode = [authorizationCode copy];
   }
   return self;
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                            accessToken:(nullable NSString *)accessToken
-              accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                           refreshToken:(NSString *)refreshToken {
-  self = [self initWithAPIKey:APIKey];
+- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                 accessToken:(nullable NSString *)accessToken
+                   accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                                refreshToken:(NSString *)refreshToken {
+  self = [self init];
   if (self) {
+    _requestConfiguration = requestConfiguration;
     _accessToken = [accessToken copy];
     _accessTokenExpirationDate = [accessTokenExpirationDate copy];
     _refreshToken = [refreshToken copy];
@@ -145,15 +130,14 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *APIKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey];
   NSString *refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kRefreshTokenKey];
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAccessTokenKey];
   NSDate *accessTokenExpirationDate =
       [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAccessTokenExpirationDateKey];
-  if (!APIKey || !refreshToken) {
+  if (!refreshToken) {
     return nil;
   }
-  self = [self initWithAPIKey:APIKey];
+  self = [self init];
   if (self) {
     _refreshToken = refreshToken;
     _accessToken = accessToken;
@@ -163,6 +147,8 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
+  // The API key is encoded even it is not used in decoding to be compatible with previous versions
+  // of the library.
   [aCoder encodeObject:_requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   // Authorization code is not encoded because it is not long-lived.
   [aCoder encodeObject:_refreshToken forKey:kRefreshTokenKey];
