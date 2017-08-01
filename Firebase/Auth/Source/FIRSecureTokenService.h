@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAuthRequestConfiguration;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRFetchAccessTokenCallback
@@ -38,6 +40,11 @@ typedef void(^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
  */
 @interface FIRSecureTokenService : NSObject <NSSecureCoding>
 
+/** @property requestConfiguration
+    @brief The configuration for making requests to server.
+ */
+@property(nonatomic, strong) FIRAuthRequestConfiguration *requestConfiguration;
+
 /** @property rawAccessToken
     @brief The cached access token.
     @remarks This method is specifically for providing the access token to internal clients during
@@ -48,6 +55,7 @@ typedef void(^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
 
 /** @property refreshToken
     @brief The refresh token for the user, or @c nil if the user has yet completed sign-in flow.
+    @remarks This property needs to be set manually after the instance is decoded from archive.
  */
 @property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
 
@@ -56,30 +64,25 @@ typedef void(^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
  */
 @property(nonatomic, copy, readonly, nullable) NSDate *accessTokenExpirationDate;
 
-/** @fn init
-    @brief Please use @c initWithAPIKey:authorizationCode: .
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-/** @fn initWithAPIKey:authorizationCode:
+/** @fn initWithRequestConfiguration:authorizationCode:
     @brief Creates a @c FIRSecureTokenService with an authroization code.
-    @param APIKey A Google API key for making STS requests.
+    @param requestConfiguration The configuration for making requests to server.
     @param authorizationCode An authorization code which needs to be exchanged for STS tokens.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                      authorizationCode:(NSString *)authorizationCode;
+- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                           authorizationCode:(NSString *)authorizationCode;
 
-/** @fn initWithAPIKey:authorizationCode:
-    @brief Creates a @c FIRSecureTokenService with an authroization code.
-    @param APIKey A Google API key for making STS requests.
+/** @fn initWithRequestConfiguration:accessToken:accessTokenExpirationDate:refreshToken
+    @brief Creates a @c FIRSecureTokenService with access and refresh tokens.
+    @param requestConfiguration The configuration for making requests to server.
     @param accessToken The STS access token.
     @param accessTokenExpirationDate The approximate expiration date of the access token.
     @param refreshToken The STS refresh token.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                            accessToken:(nullable NSString *)accessToken
-              accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                           refreshToken:(NSString *)refreshToken;
+- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                 accessToken:(nullable NSString *)accessToken
+                   accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                                refreshToken:(NSString *)refreshToken;
 
 /** @fn fetchAccessTokenForcingRefresh:callback:
     @brief Fetch a fresh ephemeral access token for the ID associated with this instance. The token
