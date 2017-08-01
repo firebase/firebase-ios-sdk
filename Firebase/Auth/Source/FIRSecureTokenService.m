@@ -54,11 +54,6 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 @end
 
 @implementation FIRSecureTokenService {
-  /** @var _requestConfiguration
-      @brief Contains configuration relevant to the request.
-   */
-  FIRAuthRequestConfiguration *_requestConfiguration;
-
   /** @var _taskQueue
       @brief Used to serialize all requests for access tokens.
    */
