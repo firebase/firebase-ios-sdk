@@ -18,21 +18,16 @@
 
 #import <objc/runtime.h>
 
-#import "FIRApp.h"
+#import "AppManager.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
-#import "FIROptions.h"
 #import "FirebaseAuth.h"
+#import "FirebaseCore.h"
 #import "StaticContentTableViewManager.h"
 #import "UIViewController+Alerts.h"
-
-// Declares a private method of FIRInstanceID to work around a bug.
-@interface FIRInstanceID : NSObject
-+ (void)notifyTokenRefresh;
-@end
 
 /** @var kIdentityToolkitRequestClassName
     @brief The class name of Identity Toolkit requests.
@@ -166,13 +161,6 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
                                           value:versionString(
           FirebaseAuthVersionString, FirebaseAuthVersionNumber)],
     ]],
-    [StaticContentTableViewSection sectionWithTitle:@"Client Identity" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"Project"
-                                          value:[self currentProjectID]
-                                         action:^{
-        [weakSelf toggleClientProject];
-      }],
-    ]],
     [StaticContentTableViewSection sectionWithTitle:@"API Hosts" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Identity Toolkit"
                                           value:APIHost(kIdentityToolkitRequestClassName)
@@ -183,6 +171,23 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
                                           value:APIHost(kSecureTokenRequestClassName)
                                          action:^{
         [weakSelf toggleAPIHostWithRequestClassName:kSecureTokenRequestClassName];
+      }],
+    ]],
+    [StaticContentTableViewSection sectionWithTitle:@"Firebase Apps" cells:@[
+      [StaticContentTableViewCell cellWithTitle:@"Active App"
+                                          value:[self activeAppDescription]
+                                         action:^{
+        [weakSelf toggleActiveApp];
+      }],
+      [StaticContentTableViewCell cellWithTitle:@"Default App"
+                                          value:[self projectIDForAppAtIndex:0]
+                                         action:^{
+        [weakSelf toggleProjectForAppAtIndex:0];
+      }],
+      [StaticContentTableViewCell cellWithTitle:@"Other App"
+                                          value:[self projectIDForAppAtIndex:1]
+                                         action:^{
+        [weakSelf toggleProjectForAppAtIndex:1];
       }],
     ]],
     [StaticContentTableViewSection sectionWithTitle:@"Phone Auth" cells:@[
@@ -196,13 +201,15 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
                                          action:^{
         [weakSelf clearAppCredential];
       }],
+    ]],
+    [StaticContentTableViewSection sectionWithTitle:@"Language" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Auth Language"
-                                          value:[FIRAuth auth].languageCode ?: @"[none]"
+                                          value:[AppManager auth].languageCode ?: @"[none]"
                                          action:^{
         [weakSelf showLanguageInput];
       }],
       [StaticContentTableViewCell cellWithTitle:@"Use App language" action:^{
-        [[FIRAuth auth] useAppLanguage];
+        [[AppManager auth] useAppLanguage];
         [weakSelf loadTableView];
       }],
     ]],
@@ -221,49 +228,72 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   [self loadTableView];
 }
 
-/** @fn currentProjectID
-    @brief Returns the the current Firebase project ID.
+/** @fn activeAppDescription
+    @brief Returns the description for the currently active Firebase app.
  */
-- (NSString *)currentProjectID {
-  NSString *APIKey = [FIRApp defaultApp].options.APIKey;
+- (NSString *)activeAppDescription {
+  return [AppManager sharedInstance].active == 0 ? @"[Default]" : @"[Other]";
+}
+
+/** @fn toggleActiveApp
+    @brief Toggles the active Firebase app for the rest of the application.
+ */
+- (void)toggleActiveApp {
+  AppManager *apps = [AppManager sharedInstance];
+  // This changes the FIRAuth instance returned from `[AppManager auth]` to be one that is
+  // associated with a different `FIRApp` instance. The sample app uses `[AppManager auth]`
+  // instead of `[FIRAuth auth]` almost everywhere. Thus, this statement switches between default
+  // and non-default `FIRApp` instances for the sample app to test against.
+  apps.active = (apps.active + 1) % apps.count;
+  [self loadTableView];
+}
+
+/** @fn projectIDForAppAtIndex:
+    @brief Returns the Firebase project ID for the Firebase app at the given index.
+    @param index The index for the app in the app manager.
+    @return The ID of the project.
+ */
+- (NSString *)projectIDForAppAtIndex:(int)index {
+  NSString *APIKey = [[AppManager sharedInstance] appAtIndex:index].options.APIKey;
   for (FIROptions *options in gFirebaseAppOptions) {
     if ([options.APIKey isEqualToString:APIKey]) {
       return options.projectID;
     }
   }
-  return nil;
+  return @"[none]";
 }
 
-/** @fn toggleClientProject
-    @brief Toggles the Firebase/Google project this client presents by recreating the default
+/** @fn toggleProjectForAppAtIndex:
+    @brief Toggles the Firebase project for the Firebase app at the given index by recreating the
         FIRApp instance with different options.
+    @param index The index for the app to be recreated in the app manager.
  */
-- (void)toggleClientProject {
-  NSString *APIKey = [FIRApp defaultApp].options.APIKey;
-  for (NSUInteger i = 0 ; i < gFirebaseAppOptions.count; i++) {
-    FIROptions *options = gFirebaseAppOptions[i];
+- (void)toggleProjectForAppAtIndex:(int)index {
+  NSString *APIKey = [[AppManager sharedInstance] appAtIndex:index].options.APIKey;
+  int optionIndex;
+  for (optionIndex = 0; optionIndex < gFirebaseAppOptions.count; optionIndex++) {
+    FIROptions *options = gFirebaseAppOptions[optionIndex];
     if ([options.APIKey isEqualToString:APIKey]) {
-      __weak typeof(self) weakSelf = self;
-      [[FIRApp defaultApp] deleteApp:^(BOOL success) {
-        if (success) {
-          [FIRInstanceID notifyTokenRefresh];  // b/28967043
-          dispatch_async(dispatch_get_main_queue(), ^() {
-            FIROptions *options = gFirebaseAppOptions[(i + 1) % gFirebaseAppOptions.count];
-            [FIRApp configureWithOptions:options];
-            [weakSelf loadTableView];
-          });
-        }
-      }];
-      return;
+      break;
     }
   }
+  // For non-default apps, `nil` is considered the next option after the last options in the array.
+  int useNil = index > 0;
+  optionIndex = (optionIndex + 1 + useNil) % (gFirebaseAppOptions.count + useNil) - useNil;
+  FIROptions *options = optionIndex >= 0 ? gFirebaseAppOptions[optionIndex] : nil;
+  __weak typeof(self) weakSelf = self;
+  [[AppManager sharedInstance] recreateAppAtIndex:index withOptions:options completion:^() {
+    dispatch_async(dispatch_get_main_queue(), ^() {
+      [weakSelf loadTableView];
+    });
+  }];
 }
 
 /** @fn APNSTokenString
     @brief Returns a string representing APNS token.
  */
 - (NSString *)APNSTokenString {
-  FIRAuthAPNSToken *token = [FIRAuth auth].tokenManager.token;
+  FIRAuthAPNSToken *token = [AppManager auth].tokenManager.token;
   if (!token) {
     return @"";
   }
@@ -276,7 +306,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     @brief Clears the saved app credential.
  */
 - (void)clearAPNSToken {
-  FIRAuthAPNSToken *token = [FIRAuth auth].tokenManager.token;
+  FIRAuthAPNSToken *token = [AppManager auth].tokenManager.token;
   if (!token) {
     return;
   }
@@ -288,7 +318,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
                   showCancelButton:YES
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
     if (userPressedOK) {
-      [FIRAuth auth].tokenManager.token = nil;
+      [AppManager auth].tokenManager.token = nil;
       [self loadTableView];
     }
   }];
@@ -298,7 +328,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     @brief Returns a string representing app credential.
  */
 - (NSString *)appCredentialString {
-  FIRAuthAppCredential *credential = [FIRAuth auth].appCredentialManager.credential;
+  FIRAuthAppCredential *credential = [AppManager auth].appCredentialManager.credential;
   if (!credential) {
     return @"";
   }
@@ -311,7 +341,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     @brief Clears the saved app credential.
  */
 - (void)clearAppCredential {
-  FIRAuthAppCredential *credential = [FIRAuth auth].appCredentialManager.credential;
+  FIRAuthAppCredential *credential = [AppManager auth].appCredentialManager.credential;
   if (!credential) {
     return;
   }
@@ -322,7 +352,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
                   showCancelButton:YES
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
     if (userPressedOK) {
-      [[FIRAuth auth].appCredentialManager clearCredential];
+      [[AppManager auth].appCredentialManager clearCredential];
       [self loadTableView];
     }
   }];
@@ -337,7 +367,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     if (!userPressedOK) {
       return;
     }
-    [FIRAuth auth].languageCode = languageCode.length ? languageCode : nil;
+    [AppManager auth].languageCode = languageCode.length ? languageCode : nil;
     [self loadTableView];
   }];
 }
