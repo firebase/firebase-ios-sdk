@@ -24,8 +24,6 @@
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 
-@class FIRAuthRequestConfiguration;
-
 /** @var kAPIKeyCodingKey
     @brief The key used to encode the APIKey for NSSecureCoding.
  */
