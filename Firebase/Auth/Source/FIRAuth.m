@@ -104,13 +104,6 @@ static NSString *const kUserKey = @"%@_firebase_user";
 static NSString *const kMissingEmailInvalidParameterExceptionReason =
     @"The email used to initiate password reset cannot be nil.";
 
-/** @var kMissingLocaleBundleInvalidParameterExceptionReason
-    @brief The reason for @c invalidParameterException when the locale bundle is missing.
- */
-static NSString *const kMissingLocaleBundleInvalidParameterExceptionReason =
-    @"The bundle used to obtain the current device language is missing. Please ensure that"
-    " %@.bundle is included as part of Firebase Auth.";
-
 static NSString *const kPasswordResetRequestType = @"PASSWORD_RESET";
 
 static NSString *const kVerifyEmailRequestType = @"VERIFY_EMAIL";
@@ -120,21 +113,6 @@ static NSString *const kVerifyEmailRequestType = @"VERIFY_EMAIL";
     @remarks This error message will be localized in the future.
  */
 static NSString *const kMissingPasswordReason = @"Missing Password";
-
-/** @var kFirebaseAuthBundleFileName
-    @brief The name of the Firebase Auth bundle file.
- */
-static NSString *const kFirebaseAuthBundleFileName = @"FirebaseAuth";
-
-/** @var kFirebaseLocalizedStringKey
-    @brief The key for the Firebase locale langauge code.
- */
-static NSString *const kFirebaseLocaleStringKey = @"FIREBASE_LOCALE_STRING";
-
-/** @var kFirebaseLocaleTabe
-    @brief The table from which we obtain the Firebase language code.
- */
-static NSString *const kFirebaseLocaleTabe = @"FirebaseLocale";
 
 /** @var gKeychainServiceNameForAppName
     @brief A map from Firebase app name to keychain service names.
@@ -954,25 +932,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)useAppLanguage {
-  NSString *path =
-      [[NSBundle bundleForClass:[self class]] pathForResource:kFirebaseAuthBundleFileName
-                                                       ofType:@"bundle"];
-  NSBundle *bundle;
-  bundle = [NSBundle bundleWithPath:path];
-  if (!bundle) {
-  NSString *reason = [NSString stringWithFormat:kMissingLocaleBundleInvalidParameterExceptionReason,
-      kFirebaseAuthBundleFileName];
-    [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:reason];
-  }
-  _requestConfiguration.languageCode =
-      [bundle localizedStringForKey:kFirebaseLocaleStringKey value:nil table:@"FirebaseLocale"];
+  _requestConfiguration.languageCode = [NSBundle mainBundle].preferredLocalizations.firstObject;
 }
 
-- (NSString *)languageCode {
+- (nullable NSString *)languageCode {
   return _requestConfiguration.languageCode;
 }
 
-- (void)setLanguageCode:(NSString *)languageCode {
+- (void)setLanguageCode:(nullable NSString *)languageCode {
   _requestConfiguration.languageCode = [languageCode copy];
 }
 
