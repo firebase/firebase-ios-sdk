@@ -182,7 +182,7 @@
 		6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E0BC64A1F199D86008BE4E0 /* fr-FR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-FR"; path = "fr-FR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7E0BC64E1F19A77C008BE4E0 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		7EDFD35C1F0EA29200B29DC5 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7EDFD35C1F0EA29200B29DC5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en"; path = "en.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7EDFD3771F0EA2A900B29DC5 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.release.xcconfig"; sourceTree = "<group>"; };
 		920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -198,7 +198,8 @@
 		D1EE09E5B9A6C092236222A9 /* Pods-Sample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sample/Pods-Sample.debug.xcconfig"; sourceTree = "<group>"; };
 		D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D90D8C411ED3B72B00C6BE87 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
-		D930B7611EDF9AAD001265FD /* Sample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
+		D930B7611EDF9AAD001265FD /* Sample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
+		D9578E2C1F313962006D4384 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		D99C31A01ED7A0ED00607534 /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info_multi.plist"; sourceTree = "<group>"; };
 		D9AC266C1F2ABBC5002B789B /* AppManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppManager.m; sourceTree = "<group>"; };
 		D9AC266D1F2ABBC5002B789B /* AppManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppManager.h; sourceTree = "<group>"; };
@@ -430,7 +431,6 @@
 				DECE049D1E9FEAE600164CA4 /* ApplicationDelegate.m */,
 				DECE049E1E9FEAE600164CA4 /* AuthProviders.h */,
 				DECE049F1E9FEAE600164CA4 /* AuthProviders.m */,
-				DECE04A01E9FEAE600164CA4 /* Base.lproj */,
 				DECE04A11E9FEAE600164CA4 /* CustomTokenDataEntryViewController.h */,
 				DECE04A21E9FEAE600164CA4 /* CustomTokenDataEntryViewController.m */,
 				DECE04A31E9FEAE600164CA4 /* FacebookAuthProvider.h */,
@@ -458,13 +458,6 @@
 				DECE04E11E9FEAE600164CA4 /* UserTableViewCell.m */,
 			);
 			path = Sample;
-			sourceTree = "<group>";
-		};
-		DECE04A01E9FEAE600164CA4 /* Base.lproj */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Base.lproj;
 			sourceTree = "<group>";
 		};
 		DEE13A031E9FFC9500D1BABA /* SwiftSample */ = {
@@ -835,6 +828,7 @@
 				"es-419",
 				"fr-FR",
 				"ru-RU",
+				"zh-Hans",
 			);
 			mainGroup = DECE045D1E9FEA1000164CA4;
 			productRefGroup = DECE04671E9FEA1000164CA4 /* Products */;
@@ -1342,10 +1336,11 @@
 		7EDFD35D1F0EA29200B29DC5 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				7EDFD35C1F0EA29200B29DC5 /* en-GB */,
+				7EDFD35C1F0EA29200B29DC5 /* en */,
 				7EDFD3771F0EA2A900B29DC5 /* es-MX */,
 				7E0BC64A1F199D86008BE4E0 /* fr-FR */,
 				7E0BC64E1F19A77C008BE4E0 /* ru-RU */,
+				D9578E2C1F313962006D4384 /* zh-Hans */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
