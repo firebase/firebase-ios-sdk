@@ -30,12 +30,13 @@ NSString *const kDummyGoogleAppID = @"1:123:ios:123abc";
 NSString *const kGithubRepoURLString = @"https://github.com/firebase/firebase-ios-sdk/";
 // Alert contents
 NSString *const kInvalidPlistAlertTitle = @"GoogleService-Info.plist";
-NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be updated with a valid "
-                                            @"GoogleService-Info.plist file in order to configure "
-                                            @"Firebase.\n\n"
-                                            @"Please update the app with a valid plist file, "
-                                            @"following the instructions in the Firebase Github "
-                                            @"repository at: %@";
+NSString *const kInvalidPlistAlertMessage =
+    @"This sample app needs to be updated with a valid "
+    @"GoogleService-Info.plist file in order to configure "
+    @"Firebase.\n\n"
+    @"Please update the app with a valid plist file, "
+    @"following the instructions in the Firebase Github "
+    @"repository at: %@";
 
 @implementation FIRSampleAppUtilities
 

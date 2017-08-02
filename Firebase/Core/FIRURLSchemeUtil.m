@@ -36,8 +36,9 @@ BOOL fir_areURLSchemesValidForGoogleSignIn(NSArray *urlSchemes) {
     return YES;
   }
   if (!hasReversedClientID) {
-    FIRLogInfo(kFIRLoggerCore, @"I-COR000021", @"A reversed client ID should be added as a URL "
-                                               @"scheme to enable Google sign-in.");
+    FIRLogInfo(kFIRLoggerCore, @"I-COR000021",
+               @"A reversed client ID should be added as a URL "
+               @"scheme to enable Google sign-in.");
   }
   return NO;
 }

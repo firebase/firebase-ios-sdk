@@ -263,8 +263,8 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
           respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:contexts:)] ||
       ![loggerDelegate
           respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:context:)] ||
-      ![loggerDelegate
-          respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:)]) {
+      !
+      [loggerDelegate respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:)]) {
     FIRLogError(kFIRLoggerAnalytics,
                 [NSString stringWithFormat:@"I-NET%06ld", (long)kFIRNetworkMessageCodeNetwork002],
                 @"Cannot set the network logger delegate: delegate does not conform to the network "
@@ -280,7 +280,7 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
 - (void)handleErrorWithCode:(NSInteger)code
                       queue:(dispatch_queue_t)queue
                 withHandler:(FIRNetworkCompletionHandler)handler {
-  NSDictionary *userInfo = @{ kFIRNetworkErrorContext : @"Failed to create network request" };
+  NSDictionary *userInfo = @{kFIRNetworkErrorContext : @"Failed to create network request"};
   NSError *error =
       [[NSError alloc] initWithDomain:kFIRNetworkErrorDomain code:code userInfo:userInfo];
   [self firNetwork_logWithLevel:kFIRNetworkLogLevelWarning

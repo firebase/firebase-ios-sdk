@@ -57,8 +57,9 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 
 - (void)setReachabilityApi:(const struct FIRReachabilityApi *)reachabilityApi {
   if (reachability_) {
-    NSString *message = @"Cannot change reachability API while reachability is running. "
-                        @"Call stop first.";
+    NSString *message =
+        @"Cannot change reachability API while reachability is running. "
+        @"Call stop first.";
     [loggerDelegate_ firNetwork_logWithLevel:kFIRNetworkLogLevelError
                                  messageCode:kFIRNetworkMessageCodeReachabilityChecker000
                                      message:message];
