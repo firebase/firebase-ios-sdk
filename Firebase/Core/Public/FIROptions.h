@@ -124,9 +124,11 @@ FIR_SWIFT_NAME(FirebaseOptions)
  * Initializes a customized instance of FIROptions with required fields. Use the mutable properties
  * to modify fields for configuring specific services.
  */
+// clang-format off
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                         GCMSenderID:(NSString *)GCMSenderID
     FIR_SWIFT_NAME(init(googleAppID:gcmSenderID:));
+// clang-format on
 
 @end
 

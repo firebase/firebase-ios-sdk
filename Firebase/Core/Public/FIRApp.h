@@ -75,8 +75,10 @@ FIR_SWIFT_NAME(FirebaseApp)
                Letters, Numbers and Underscore.
  * @param options The Firebase application options used to configure the services.
  */
+// clang-format off
 + (void)configureWithName:(NSString *)name
                   options:(FIROptions *)options FIR_SWIFT_NAME(configure(name:options:));
+// clang-format on
 
 /**
  * Returns the default app, or nil if the default app does not exist.
