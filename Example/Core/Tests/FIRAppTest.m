@@ -564,7 +564,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testAuthGetUID {
   [FIRApp configure];
 
-  [FIRApp defaultApp].getUIDImplementation = ^NSString * { return @"highlander"; };
+  [FIRApp defaultApp].getUIDImplementation = ^NSString * {
+    return @"highlander";
+  };
   XCTAssertEqual([[FIRApp defaultApp] getUID], @"highlander");
 }
 
