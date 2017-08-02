@@ -34,7 +34,9 @@ static NSString *kKey2 = @"key2";
 /** @var gCreateNewObject
     @brief A block that returns a new object everytime it is called.
  */
-static id _Nullable (^gCreateNewObject)() = ^id _Nullable() { return [[NSObject alloc] init]; };
+static id _Nullable (^gCreateNewObject)() = ^id _Nullable() {
+  return [[NSObject alloc] init];
+};
 
 /** @class FIRAppAssociationRegistrationTests
     @brief Tests for @c FIRAppAssociationRegistration

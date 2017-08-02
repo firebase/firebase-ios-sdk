@@ -166,11 +166,17 @@ void FIRResetLogger() {
   [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFIRPersistedDebugModeKey];
 }
 
-aslclient getFIRLoggerClient() { return sFIRLoggerClient; }
+aslclient getFIRLoggerClient() {
+  return sFIRLoggerClient;
+}
 
-dispatch_queue_t getFIRClientQueue() { return sFIRClientQueue; }
+dispatch_queue_t getFIRClientQueue() {
+  return sFIRClientQueue;
+}
 
-BOOL getFIRLoggerDebugMode() { return sFIRLoggerDebugMode; }
+BOOL getFIRLoggerDebugMode() {
+  return sFIRLoggerDebugMode;
+}
 #endif
 
 void FIRLogBasic(FIRLoggerLevel level,
