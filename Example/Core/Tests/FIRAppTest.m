@@ -313,8 +313,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                    getTokenCallbackWasCalled = YES;
                  }];
 
-  XCTAssertFalse(passedRefreshValue, @"The value for the 'refresh' parameter wasn't passed to the "
-                                      "'getTokenImplementation' block correctly.");
+  XCTAssertFalse(passedRefreshValue,
+                 @"The value for the 'refresh' parameter wasn't passed to the "
+                  "'getTokenImplementation' block correctly.");
 }
 
 - (void)testModifyingOptionsThrows {

@@ -83,10 +83,11 @@ static FIRApp *sDefaultApp;
                       kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
                     }];
     [NSException raise:kFirebaseCoreErrorDomain
-                format:@"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
-                       @"a valid GoogleService-Info.plist in your project. Please download one "
-                       @"from %@.",
-                       kPlistURL];
+                format:
+                    @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
+                    @"a valid GoogleService-Info.plist in your project. Please download one "
+                    @"from %@.",
+                    kPlistURL];
   }
   [FIRApp configureDefaultAppWithOptions:options sendingNotifications:YES];
 }
@@ -110,8 +111,9 @@ static FIRApp *sDefaultApp;
                       kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
                     }];
     [NSException raise:kFirebaseCoreErrorDomain
-                format:@"Please check there is a valid "
-                       @"GoogleService-Info.plist in the project."];
+                format:
+                    @"Please check there is a valid "
+                    @"GoogleService-Info.plist in the project."];
   }
   [FIRApp configureDefaultAppWithOptions:options sendingNotifications:NO];
 }
@@ -154,8 +156,9 @@ static FIRApp *sDefaultApp;
     if (!((character >= 'a' && character <= 'z') || (character >= '0' && character <= '9') ||
           character == '_' || character == '-')) {
       [NSException raise:kFirebaseCoreErrorDomain
-                  format:@"App name should only contain Letters, "
-                         @"Numbers, Underscores, and Dashes."];
+                  format:
+                      @"App name should only contain Letters, "
+                      @"Numbers, Underscores, and Dashes."];
     }
   }
 
@@ -254,8 +257,9 @@ static FIRApp *sDefaultApp;
                     }];
   } else {
     [NSException raise:kFirebaseCoreErrorDomain
-                format:@"Configuration fails. It may be caused by an invalid GOOGLE_APP_ID in "
-                       @"GoogleService-Info.plist or set in the customized options."];
+                format:
+                    @"Configuration fails. It may be caused by an invalid GOOGLE_APP_ID in "
+                    @"GoogleService-Info.plist or set in the customized options."];
   }
 }
 

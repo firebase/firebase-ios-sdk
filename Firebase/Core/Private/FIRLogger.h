@@ -86,7 +86,7 @@ extern void FIRLogBasic(FIRLoggerLevel level,
 #else
                         va_list _Nullable args_ptr
 #endif
-                        );
+);
 
 /**
  * The following functions accept the following parameters in order:

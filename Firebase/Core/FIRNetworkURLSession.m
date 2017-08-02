@@ -145,12 +145,10 @@
   }
 
   if (!session || !postRequestTask) {
-    NSError *error =
-        [[NSError alloc] initWithDomain:kFIRNetworkErrorDomain
-                                   code:FIRErrorCodeNetworkRequestCreation
-                               userInfo:@{
-                                 kFIRNetworkErrorContext : @"Cannot create network session"
-                               }];
+    NSError *error = [[NSError alloc]
+        initWithDomain:kFIRNetworkErrorDomain
+                  code:FIRErrorCodeNetworkRequestCreation
+              userInfo:@{kFIRNetworkErrorContext : @"Cannot create network session"}];
     [self callCompletionHandler:handler withResponse:nil data:nil error:error];
     return nil;
   }
@@ -189,12 +187,10 @@
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithRequest:request];
 
   if (!session || !downloadTask) {
-    NSError *error =
-        [[NSError alloc] initWithDomain:kFIRNetworkErrorDomain
-                                   code:FIRErrorCodeNetworkRequestCreation
-                               userInfo:@{
-                                 kFIRNetworkErrorContext : @"Cannot create network session"
-                               }];
+    NSError *error = [[NSError alloc]
+        initWithDomain:kFIRNetworkErrorDomain
+                  code:FIRErrorCodeNetworkRequestCreation
+              userInfo:@{kFIRNetworkErrorContext : @"Cannot create network session"}];
     [self callCompletionHandler:handler withResponse:nil data:nil error:error];
     return nil;
   }
@@ -263,12 +259,10 @@
     // The server responded so ignore the error created by the system.
     error = nil;
   } else if (!error) {
-    error =
-        [[NSError alloc] initWithDomain:kFIRNetworkErrorDomain
-                                   code:FIRErrorCodeNetworkInvalidResponse
-                               userInfo:@{
-                                 kFIRNetworkErrorContext : @"Network Error: Empty network response"
-                               }];
+    error = [[NSError alloc]
+        initWithDomain:kFIRNetworkErrorDomain
+                  code:FIRErrorCodeNetworkInvalidResponse
+              userInfo:@{kFIRNetworkErrorContext : @"Network Error: Empty network response"}];
   }
 
   [self callCompletionHandler:handler
@@ -391,8 +385,9 @@
     [_loggerDelegate
         firNetwork_logWithLevel:kFIRNetworkLogLevelError
                     messageCode:kFIRNetworkMessageCodeURLSession010
-                        message:@"Cannot store system completion handler with empty network "
-                                 "session identifier"];
+                        message:
+                            @"Cannot store system completion handler with empty network "
+                             "session identifier"];
     return;
   }
 
