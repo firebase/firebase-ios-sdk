@@ -5,3 +5,4 @@ AllowAllParametersOfDeclarationOnNextLine: true
 ObjCSpaceBeforeProtocolList: true
 SpacesInContainerLiterals: true
 PointerAlignment: Right
+AllowShortFunctionsOnASingleLine: None
