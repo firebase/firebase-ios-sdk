@@ -33,6 +33,10 @@ DerivedData
 *.hmap
 *.ipa
 
+# Vim
+*.swo
+*.swp
+
 # Bundler
 .bundle
 
