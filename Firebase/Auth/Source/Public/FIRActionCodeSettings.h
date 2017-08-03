@@ -41,7 +41,7 @@
  @property(assign, nonatomic) BOOL handleCodeInApp;
 
  /** @property iOSBundleID
-     @brief The iOS bundle ID, if available.
+     @brief The iOS bundle ID, if available. The default value is the current app's bundle ID.
   */
  @property(copy, nonatomic, readonly, nullable) NSString *iOSBundleID;
 

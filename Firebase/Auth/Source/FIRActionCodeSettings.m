@@ -14,11 +14,19 @@
   * limitations under the License.
   */
 
- #import "FIRActionCodeSettings.h"
+#import "FIRActionCodeSettings.h"
 
- NS_ASSUME_NONNULL_BEGIN
+NS_ASSUME_NONNULL_BEGIN
 
- @implementation FIRActionCodeSettings
+@implementation FIRActionCodeSettings
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _iOSBundleID = [NSBundle mainBundle].bundleIdentifier;
+  }
+  return self;
+}
 
 - (void)setIOSBundleID:(NSString *)iOSBundleID {
    _iOSBundleID = [iOSBundleID copy];
