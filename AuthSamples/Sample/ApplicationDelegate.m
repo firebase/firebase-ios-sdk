@@ -73,12 +73,15 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
   if ([gOpenURLDelegate handleOpenURL:url sourceApplication:sourceApplication]) {
     return YES;
   }
+  if ([_sampleAppMainViewController handleIncomingLinkWithURL:url]) {
+    return YES;
+  }
   return NO;
 }
 
 - (BOOL)application:(UIApplication *)application
-continueUserActivity:(NSUserActivity *)userActivity
- restorationHandler:(void (^)(NSArray *))restorationHandler {
+   continueUserActivity:(NSUserActivity *)userActivity
+     restorationHandler:(void (^)(NSArray *))restorationHandler {
   if (userActivity.webpageURL) {
     return [_sampleAppMainViewController handleIncomingLinkWithURL:userActivity.webpageURL];
   }

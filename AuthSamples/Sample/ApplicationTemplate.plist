@@ -58,6 +58,16 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>$BUNDLE_ID</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$BUNDLE_ID</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
 	</array>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
