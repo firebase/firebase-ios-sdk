@@ -92,10 +92,12 @@ use_frameworks!
 
 target 'MyAppTarget' do
   platform :ios, '8.0'
-  pod 'FirebaseCommunity', :git => 'https://github.com/firebase/firebase-ios-sdk.git'
+  pod 'FirebaseCommunity/Database'
 end
 ```
-Replace `MyAppTarget` with the name of the target in your Xcode project.
+1. Replace `MyAppTarget` with the name of the target in your Xcode project.
+2. Specify the subspec in the pod specification for each Firebase component wanted. Database is 
+used in the example above. Storage, Auth, and Messaging are other options.
 
 ### macOS
 FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and work on macOS, thanks to contributions from the community. There are a few tweaks needed, like ensuring iOS-only or macOS-only code is correctly guarded with checks for `TARGET_OS_IOS` and `TARGET_OS_OSX`.
