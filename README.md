@@ -96,7 +96,7 @@ target 'MyAppTarget' do
 end
 ```
 1. Replace `MyAppTarget` with the name of the target in your Xcode project.
-2. Specify the subspec in the pod specification for each Firebase component wanted. Database is 
+2. Specify the subspec in the pod specification for each Firebase component wanted. Database is
 used in the example above. Storage, Auth, and Messaging are other options.
 
 ### macOS
