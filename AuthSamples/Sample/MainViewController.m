@@ -258,6 +258,11 @@ static NSString *const kGetProvidersForEmail = @"Get Provider IDs for Email";
  */
 static NSString *const kRequestVerifyEmail = @"Request Verify Email Link";
 
+/** @var kRequestVerifyEmailInApp
+    @brief The text of the "Verify Email in app" button.
+ */
+static NSString *const kRequestVerifyEmailInApp = @"Verify Email in app";
+
 /** @var kRequestPasswordReset
     @brief The text of the "Email Password Reset" button.
  */
@@ -478,6 +483,11 @@ static NSString *const kUnlinkAccountMessagePrompt = @"Sign into gmail with an e
  */
 static NSString *const kPasswordResetAction = @"PASSWORD_RESET";
 
+/** @var kVerifyEmailAction
+    @brief The value for verify email mode in the action code URL.
+ */
+static NSString *const kVerifyEmailAction = @"VERIFY_EMAIL";
+
 // Declared extern in .h file.
 NSString *const kCreateUserAccessibilityID = @"CreateUserAccessibilityID";
 
@@ -652,6 +662,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                            action:^{ [weakSelf getProvidersForEmail]; }],
         [StaticContentTableViewCell cellWithTitle:kRequestVerifyEmail
                                            action:^{ [weakSelf requestVerifyEmail]; }],
+        [StaticContentTableViewCell cellWithTitle:kRequestVerifyEmailInApp
+                                           action:^{ [weakSelf requestVerifyEmailInApp]; }],
         [StaticContentTableViewCell cellWithTitle:kRequestPasswordReset
                                            action:^{ [weakSelf requestPasswordReset]; }],
         [StaticContentTableViewCell cellWithTitle:kResetPasswordInApp
@@ -800,33 +812,61 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       parseURL([NSURLComponents componentsWithString:URL.absoluteString].query);
 
   // Check that all necessary query items are available.
-  if (!queryItems[@"oobCode"] ||
-      !queryItems[@"mode"]) {
+  NSString *actionCode = queryItems[@"oobCode"];
+  NSString *mode = queryItems[@"mode"];
+  if (!actionCode || !mode) {
     return NO;
   }
   // Handle Password Reset action.
-  if ([queryItems[@"mode"] isEqualToString:kPasswordResetAction]) {
+  if ([mode isEqualToString:kPasswordResetAction]) {
     [self showTextInputPromptWithMessage:@"New Password:"
                          completionBlock:^(BOOL userPressedOK, NSString *_Nullable newPassword) {
       if (!userPressedOK || !newPassword.length) {
         return;
       }
-      [[AppManager auth] confirmPasswordResetWithCode:queryItems[@"oobCode"]
-                                          newPassword:newPassword
-                                           completion:^(NSError *_Nullable error) {
-        [self hideSpinner:^{
-          if (error) {
-            [self logFailure:@"Password reset failed" error:error];
-            [self showMessagePrompt:error.localizedDescription];
-            return;
-          }
-          [self logSuccess:@"Password reset succeeded."];
-          [self showMessagePrompt:@"Password reset succeeded."];
+      [self showSpinner:^() {
+        [[AppManager auth] confirmPasswordResetWithCode:actionCode
+                                            newPassword:newPassword
+                                             completion:^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Password reset in app failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Password reset in app succeeded."];
+            [self showMessagePrompt:@"Password reset in app succeeded."];
+          }];
         }];
       }];
     }];
+    return YES;
   }
-  return YES;
+  if ([mode isEqualToString:kVerifyEmailAction]) {
+    [self showMessagePromptWithTitle:@"Verify Email"
+                             message:@"Proceed?"
+                    showCancelButton:YES
+                          completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+      if (!userPressedOK) {
+        return;
+      }
+      [self showSpinner:^() {
+        [[AppManager auth] applyActionCode:actionCode completion:^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Verify email in app failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Verify email in app succeeded."];
+            [self showMessagePrompt:@"Verify email in app succeeded."];
+          }];
+        }];
+      }];
+    }];
+    return YES;
+  }
+  return NO;
 }
 
 #pragma mark - Actions
@@ -2010,6 +2050,26 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+/** @fn requestVerifyEmailInApp
+    @brief Requests a "verify email" email be sent that can be completed in app.
+ */
+- (void)requestVerifyEmailInApp {
+  [self showSpinner:^{
+    [[self user] sendEmailVerificationWithActionCodeSettings:[self actionCodeSettings]
+                                                  completion:^(NSError *_Nullable error) {
+      [self hideSpinner:^{
+        if (error) {
+          [self logFailure:@"request verify email in app failed" error:error];
+          [self showMessagePrompt:error.localizedDescription];
+          return;
+        }
+        [self logSuccess:@"request verify email in app succeeded."];
+        [self showMessagePrompt:@"Sent"];
+      }];
+    }];
+  }];
+}
+
 /** @fn requestPasswordReset
     @brief Requests a "password reset" email be sent.
  */
@@ -2045,13 +2105,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       return;
     }
     [self showSpinner:^{
-      FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
-      [actionCodeSettings setIOSBundleID:[NSBundle mainBundle].bundleIdentifier];
-      actionCodeSettings.URL = [NSURL URLWithString:KCONTINUE_URL];
-      actionCodeSettings.handleCodeInApp = YES;
-
       [[AppManager auth] sendPasswordResetWithEmail:userInput
-                                 actionCodeSettings:actionCodeSettings
+                                 actionCodeSettings:[self actionCodeSettings]
                                          completion:^(NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
@@ -2574,6 +2629,16 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
  */
 - (FIRUser *)user {
   return _useUserInMemory ? _userInMemory : [AppManager auth].currentUser;
+}
+
+/** @fn actionCodeSettings
+    @brief Returns the action code settings for this app.
+ */
+- (FIRActionCodeSettings *)actionCodeSettings {
+  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
+  actionCodeSettings.URL = [NSURL URLWithString:KCONTINUE_URL];
+  actionCodeSettings.handleCodeInApp = YES;
+  return actionCodeSettings;
 }
 
 /** @fn showTypicalUIForUserUpdateResultsWithTitle:error:
