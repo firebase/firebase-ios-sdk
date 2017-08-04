@@ -35,6 +35,7 @@
 		D9AC266E1F2ABBC5002B789B /* AppManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AC266C1F2ABBC5002B789B /* AppManager.m */; };
 		D9AE2A641ED751C900DDAD18 /* FirebaseAuthApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AE2A631ED751C900DDAD18 /* FirebaseAuthApiTests.m */; };
 		D9AE2A661ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AE2A651ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m */; };
+		D9ECB0751F34F0D800CFACFD /* Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9ECB0741F34F0D800CFACFD /* Stubs.swift */; };
 		DE5371B31EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */; };
 		DE5371B41EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371851EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m */; };
 		DE5371B51EA7E89D000DA57F /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5371861EA7E89D000DA57F /* FIRAuthAppCredentialTests.m */; };
@@ -182,7 +183,7 @@
 		6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E0BC64A1F199D86008BE4E0 /* fr-FR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-FR"; path = "fr-FR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7E0BC64E1F19A77C008BE4E0 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		7EDFD35C1F0EA29200B29DC5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en"; path = "en.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7EDFD35C1F0EA29200B29DC5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		7EDFD3771F0EA2A900B29DC5 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.release.xcconfig"; sourceTree = "<group>"; };
 		920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -206,6 +207,7 @@
 		D9AE2A631ED751C900DDAD18 /* FirebaseAuthApiTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthApiTests.m; sourceTree = "<group>"; };
 		D9AE2A651ED757C400DDAD18 /* FirebaseAuthEarlGreyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthEarlGreyTests.m; sourceTree = "<group>"; };
 		D9D6F0DE0BB3F49EF1B7CBB3 /* Pods-SwiftSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftSample/Pods-SwiftSample.release.xcconfig"; sourceTree = "<group>"; };
+		D9ECB0741F34F0D800CFACFD /* Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stubs.swift; sourceTree = "<group>"; };
 		DE5371831EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAdditionalUserInfoTests.m; sourceTree = "<group>"; };
 		DE5371841EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FIRApp+FIRAuthUnitTests.h"; sourceTree = "<group>"; };
 		DE5371851EA7E89D000DA57F /* FIRApp+FIRAuthUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FIRApp+FIRAuthUnitTests.m"; sourceTree = "<group>"; };
@@ -464,22 +466,15 @@
 			isa = PBXGroup;
 			children = (
 				BE7B447A1EC2507800FA4C1B /* AuthCredentials.swift */,
-				DEE13A181E9FFD2E00D1BABA /* Base.lproj */,
 				DEE13A191E9FFD2E00D1BABA /* GoogleService-Info.plist */,
 				DEE13A141E9FFD1F00D1BABA /* LaunchScreen.storyboard */,
 				DEE13A151E9FFD1F00D1BABA /* Main.storyboard */,
 				DEE13A041E9FFC9500D1BABA /* AppDelegate.swift */,
 				DEE13A061E9FFC9500D1BABA /* ViewController.swift */,
+				D9ECB0741F34F0D800CFACFD /* Stubs.swift */,
 				DEE13A101E9FFC9500D1BABA /* Info.plist */,
 			);
 			path = SwiftSample;
-			sourceTree = "<group>";
-		};
-		DEE13A181E9FFD2E00D1BABA /* Base.lproj */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Base.lproj;
 			sourceTree = "<group>";
 		};
 		DEE13A211EA1252D00D1BABA /* ApiTests */ = {
@@ -1208,6 +1203,7 @@
 				DEE13A071E9FFC9500D1BABA /* ViewController.swift in Sources */,
 				BE7B447C1EC2508300FA4C1B /* AuthCredentials.swift in Sources */,
 				DEE13A051E9FFC9500D1BABA /* AppDelegate.swift in Sources */,
+				D9ECB0751F34F0D800CFACFD /* Stubs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
