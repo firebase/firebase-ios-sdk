@@ -68,11 +68,6 @@
 
 #pragma mark - Constants
 
-NSString *const FIRAuthStateDidChangeInternalNotification =
-    @"FIRAuthStateDidChangeInternalNotification";
-NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey =
-    @"FIRAuthStateDidChangeInternalNotificationTokenKey";
-
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
 #else
@@ -1054,6 +1049,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [self scheduleAutoTokenRefresh];
   }
   NSMutableDictionary *internalNotificationParameters = [NSMutableDictionary dictionary];
+  if (self.app) {
+    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationAppKey] = self.app;
+  }
   if (token.length) {
     internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token;
   }

@@ -60,6 +60,29 @@ extern NSString *const kFIRAppIsDefaultAppKey;
 extern NSString *const kFIRAppNameKey;
 extern NSString *const kFIRGoogleAppIDKey;
 
+/** @var FIRAuthStateDidChangeInternalNotification
+ @brief The name of the @c NSNotificationCenter notification which is posted when the auth state
+ changes (e.g. a new token has been produced, a user logs in or out). The object parameter of
+ the notification is a dictionary possibly containing the key:
+ @c FIRAuthStateDidChangeInternalNotificationTokenKey (the new access token.) If it does not
+ contain this key it indicates a sign-out event took place.
+ */
+extern NSString *const FIRAuthStateDidChangeInternalNotification;
+
+/** @var FIRAuthStateDidChangeInternalNotificationTokenKey
+ @brief A key present in the dictionary object parameter of the
+ @c FIRAuthStateDidChangeInternalNotification notification. The value associated with this
+ key will contain the new access token.
+ */
+extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
+
+/** @var FIRAuthStateDidChangeInternalNotificationAppKey
+ @brief A key present in the dictionary object parameter of the
+ @c FIRAuthStateDidChangeInternalNotification notification. The value associated with this
+ key will contain the FIRApp associated with the auth instance.
+ */
+extern NSString *const FIRAuthStateDidChangeInternalNotificationAppKey;
+
 /** @typedef FIRTokenCallback
     @brief The type of block which gets called when a token is ready.
  */

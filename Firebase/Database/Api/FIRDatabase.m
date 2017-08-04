@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FIRAppInternal.h"
 #import "FIRLogger.h"
 #import "FIRDatabase.h"
 #import "FIRDatabase_Private.h"
@@ -25,25 +26,7 @@
 #import "FRepoInfo.h"
 #import "FIRDatabaseConfig.h"
 #import "FIRDatabaseReference_Private.h"
-
-/**
- * This is a hack that defines all the methods we need from FIRApp/Options. At runtime we use reflection to get the
- * default FIRApp instance if we need it. Since protocols don't carry any runtime information and selectors
- * are invoked by name we can write code against this protocol as long as the method signatures don't change.
- *
- * TODO: Consider weak-linking the actual Firebase/Core framework or something.
- */
-
-extern NSString *const kFIRDefaultAppName;
-
-@protocol FIROptionsLike <NSObject>
-@property(nonatomic, readonly, copy) NSString *databaseURL;
-@end
-
-@protocol FIRAppLike <NSObject>
-@property(nonatomic, readonly) id<FIROptionsLike> options;
-@property(nonatomic, copy, readonly) NSString *name;
-@end
+#import "FIROptions.h"
 
 @interface FIRDatabase ()
 @property (nonatomic, strong) FRepoInfo *repoInfo;
@@ -77,23 +60,25 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 }
 
 + (FIRDatabase *)database {
-    id<FIRAppLike> app = [FIRDatabase getDefaultApp];
-    if (app == nil) {
-        [NSException raise:@"FIRAppNotConfigured" format:@"Failed to get default FIRDatabase instance. Must call FIRApp.configure() before using FIRDatabase."];
+    if (![FIRApp isDefaultAppConfigured]) {
+        [NSException raise:@"FIRAppNotConfigured"
+                    format:@"Failed to get default Firebase Database instance. Must call `[FIRApp "
+                           @"configure]` (`FirebaseApp.configure()` in Swift) before using "
+                           @"Firebase Database."];
     }
-    return [FIRDatabase databaseForApp:(FIRApp*)app];
+    FIRApp *app = [FIRApp defaultApp];
+    return [FIRDatabase databaseForApp:app];
 }
 
-+ (FIRDatabase *)databaseForApp:(id)app {
++ (FIRDatabase *)databaseForApp:(FIRApp *)app {
     if (app == nil) {
         [NSException raise:@"InvalidFIRApp" format:@"nil FIRApp instance passed to databaseForApp."];
     }
     NSMutableDictionary *instances = [self instances];
     @synchronized (instances) {
-        id<FIRAppLike> appLike = (id<FIRAppLike>)app;
-        FIRDatabase *database = instances[appLike.name];
+        FIRDatabase *database = instances[app.name];
         if (!database) {
-            NSString *databaseUrl = appLike.options.databaseURL;
+            NSString *databaseUrl = app.options.databaseURL;
             if (databaseUrl == nil) {
                 [NSException raise:@"MissingDatabaseURL" format:@"Failed to get FIRDatabase instance: FIRApp object has no "
                         "databaseURL in its FirebaseOptions object."];
@@ -106,20 +91,20 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
                                                                 databaseUrl, [parsedUrl.path toString]];
             }
 
-            id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:appLike];
+            id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:app];
 
             // If this is the default app, don't set the session persistence key so that we use our
             // default ("default") instead of the FIRApp default ("[DEFAULT]") so that we
             // preserve the default location used by the legacy Firebase SDK.
             NSString *sessionIdentifier = @"default";
-            if (![appLike.name isEqualToString:kFIRDefaultAppName]) {
-                sessionIdentifier = appLike.name;
+            if ([FIRApp isDefaultAppConfigured] && app == [FIRApp defaultApp]) {
+                sessionIdentifier = app.name;
             }
 
             FIRDatabaseConfig *config = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier
                                                                            authTokenProvider:authTokenProvider];
-            database = [[FIRDatabase alloc] initWithApp:appLike repoInfo:parsedUrl.repoInfo config:config];
-            instances[appLike.name] = database;
+            database = [[FIRDatabase alloc] initWithApp:app repoInfo:parsedUrl.repoInfo config:config];
+            instances[app.name] = database;
         }
 
         return database;
@@ -148,12 +133,12 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 }
 
 
-- (id)initWithApp:(id <FIRAppLike>)appLike repoInfo:(FRepoInfo *)info config:(FIRDatabaseConfig *)config {
+- (id)initWithApp:(FIRApp *)app repoInfo:(FRepoInfo *)info config:(FIRDatabaseConfig *)config {
     self = [super init];
     if (self != nil) {
         self->_repoInfo = info;
         self->_config = config;
-        self->_app = (FIRApp*) appLike;
+        self->_app = app;
     }
     return self;
 }
@@ -204,26 +189,12 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     });
 }
 
-
 - (void)goOffline {
     [self ensureRepo];
 
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
         [self.repo interrupt];
     });
-}
-
-+ (id<FIRAppLike>) getDefaultApp {
-    Class appClass = NSClassFromString(@"FIRApp");
-    if (appClass == nil) {
-        [NSException raise:@"FailedToFindFIRApp" format:@"Failed to find FIRApp class."];
-        return nil;
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-        return [appClass performSelector:@selector(defaultApp)];
-#pragma clang diagnostic pop
-    }
 }
 
 - (void)setPersistenceEnabled:(BOOL)persistenceEnabled {
