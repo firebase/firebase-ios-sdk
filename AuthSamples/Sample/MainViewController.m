@@ -481,12 +481,12 @@ static NSString *const kUnlinkAccountMessagePrompt = @"Sign into gmail with an e
 /** @var kPasswordResetAction
     @brief The value for password reset mode in the action code URL.
  */
-static NSString *const kPasswordResetAction = @"PASSWORD_RESET";
+static NSString *const kPasswordResetAction = @"resetPassword";
 
 /** @var kVerifyEmailAction
     @brief The value for verify email mode in the action code URL.
  */
-static NSString *const kVerifyEmailAction = @"VERIFY_EMAIL";
+static NSString *const kVerifyEmailAction = @"verifyEmail";
 
 // Declared extern in .h file.
 NSString *const kCreateUserAccessibilityID = @"CreateUserAccessibilityID";
