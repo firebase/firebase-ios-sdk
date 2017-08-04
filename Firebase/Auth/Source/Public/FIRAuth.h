@@ -186,7 +186,11 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
     FIRActionCodeOperationPasswordReset = 1,
 
     /** Action code for verify email operation. */
-    FIRActionCodeOperationVerifyEmail = 2
+    FIRActionCodeOperationVerifyEmail = 2,
+
+    /** Action code for recover email operation. */
+    FIRActionCodeOperationRecoverEmail = 3,
+
 } FIR_SWIFT_NAME(ActionCodeOperation);
 
 /**
