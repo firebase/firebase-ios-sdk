@@ -822,6 +822,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     [self showTextInputPromptWithMessage:@"New Password:"
                          completionBlock:^(BOOL userPressedOK, NSString *_Nullable newPassword) {
       if (!userPressedOK || !newPassword.length) {
+        [UIPasteboard generalPasteboard].string = actionCode;
         return;
       }
       [self showSpinner:^() {
@@ -843,8 +844,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     return YES;
   }
   if ([mode isEqualToString:kVerifyEmailAction]) {
-    [self showMessagePromptWithTitle:@"Verify Email"
-                             message:@"Proceed?"
+    [self showMessagePromptWithTitle:@"Tap OK to verify email"
+                             message:actionCode
                     showCancelButton:YES
                           completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
       if (!userPressedOK) {
@@ -2178,10 +2179,14 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }
           [self logSuccess:@"Check action code succeeded."];
           NSString *email = [info dataForKey:FIRActionCodeEmailKey];
+          NSString *fromEmail = [info dataForKey:FIRActionCodeFromEmailKey];
+          NSString *message =
+              fromEmail ? [NSString stringWithFormat:@"%@ -> %@", fromEmail, email] : email;
           NSString *operation = [self nameForActionCodeOperation:info.operation];
-          NSString *infoMessage =
-            [[NSString alloc] initWithFormat:@"Email: %@\n Operation: %@", email, operation];
-          [self showMessagePrompt:infoMessage];
+          [self showMessagePromptWithTitle:operation
+                                   message:message
+                          showCancelButton:NO
+                                completion:nil];
         }];
       }];
     }];
@@ -2252,6 +2257,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   switch (operation) {
   case FIRActionCodeOperationVerifyEmail:
     return @"Verify Email";
+  case FIRActionCodeOperationRecoverEmail:
+    return @"Recover Email";
   case FIRActionCodeOperationPasswordReset:
     return @"Password Reset";
   case FIRActionCodeOperationUnknown:

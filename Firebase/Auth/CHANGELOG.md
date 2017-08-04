@@ -2,7 +2,8 @@
 - Allows the app to handle continue URL natively, e.g., from password reset
   email.
 - Allows the app to set language code, e.g., for sending password reset email.
-- Fixes an issue that user's phone number does not persist on client.
+- Fixes an issue that user's phone number did not persist on client.
+- Fixes an issue that recover email action code type was reported as unknown.
 - Improves app start-up time by moving initialization off from the main
   thread.
 - Better reports missing email error when creating a new password user.

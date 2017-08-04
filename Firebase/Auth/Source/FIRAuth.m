@@ -104,9 +104,20 @@ static NSString *const kUserKey = @"%@_firebase_user";
 static NSString *const kMissingEmailInvalidParameterExceptionReason =
     @"The email used to initiate password reset cannot be nil.";
 
+/** @var kPasswordResetRequestType
+    @brief The action code type value for resetting password in the check action code response.
+ */
 static NSString *const kPasswordResetRequestType = @"PASSWORD_RESET";
 
+/** @var kVerifyEmailRequestType
+    @brief The action code type value for verifying email in the check action code response.
+ */
 static NSString *const kVerifyEmailRequestType = @"VERIFY_EMAIL";
+
+/** @var kRecoverEmailRequestType
+    @brief The action code type value for recovering email in the check action code response.
+ */
+static NSString *const kRecoverEmailRequestType = @"RECOVER_EMAIL";
 
 /** @var kMissingPasswordReason
     @brief The reason why the @c FIRAuthErrorCodeWeakPassword error is thrown.
@@ -173,6 +184,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
   if ([requestType isEqualToString:kVerifyEmailRequestType]) {
     return FIRActionCodeOperationVerifyEmail;
+  }
+  if ([requestType isEqualToString:kRecoverEmailRequestType]) {
+    return FIRActionCodeOperationRecoverEmail;
   }
   return FIRActionCodeOperationUnknown;
 }
