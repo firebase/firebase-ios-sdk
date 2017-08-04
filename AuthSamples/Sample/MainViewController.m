@@ -844,7 +844,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     return YES;
   }
   if ([mode isEqualToString:kVerifyEmailAction]) {
-    [self showMessagePromptWithTitle:@"Verify Email?"
+    [self showMessagePromptWithTitle:@"Tap OK to verify email"
                              message:actionCode
                     showCancelButton:YES
                           completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
