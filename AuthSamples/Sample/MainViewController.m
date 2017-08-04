@@ -2051,7 +2051,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn requestVerifyEmailInApp
-    @brief Requests a "verify email" email be sent that can be completed in-app.
+    @brief Requests a "verify email" email be sent that can be completed in app.
  */
 - (void)requestVerifyEmailInApp {
   [self showSpinner:^{
@@ -2059,11 +2059,11 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                                   completion:^(NSError *_Nullable error) {
       [self hideSpinner:^{
         if (error) {
-          [self logFailure:@"request verify email in-app failed" error:error];
+          [self logFailure:@"request verify email in app failed" error:error];
           [self showMessagePrompt:error.localizedDescription];
           return;
         }
-        [self logSuccess:@"request verify email in-app succeeded."];
+        [self logSuccess:@"request verify email in app succeeded."];
         [self showMessagePrompt:@"Sent"];
       }];
     }];
