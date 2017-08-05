@@ -253,15 +253,20 @@ static NSString *const kUnlinkFromEmailPassword = @"Unlink from Email/Password";
  */
 static NSString *const kGetProvidersForEmail = @"Get Provider IDs for Email";
 
+/** @var kActionCodeTypeDescription
+    @brief The description of the "Action Type" entry.
+ */
+static NSString *const kActionCodeTypeDescription = @"Action Type";
+
+/** @var kContinueURLDescription
+    @brief The description of the "Continue URL" entry.
+ */
+static NSString *const kContinueURLDescription = @"Continue URL";
+
 /** @var kRequestVerifyEmail
     @brief The text of the "Request Verify Email Link" button.
  */
 static NSString *const kRequestVerifyEmail = @"Request Verify Email Link";
-
-/** @var kRequestVerifyEmailInApp
-    @brief The text of the "Verify Email in app" button.
- */
-static NSString *const kRequestVerifyEmailInApp = @"Verify Email in app";
 
 /** @var kRequestPasswordReset
     @brief The text of the "Email Password Reset" button.
@@ -272,11 +277,6 @@ static NSString *const kRequestPasswordReset = @"Send Password Reset Email";
     @brief The text of the "Password Reset" button.
  */
 static NSString *const kResetPassword = @"Reset Password";
-
-/** @var kResetPasswordInApp
-    @brief The text of the "Password Reset" button.
- */
-static NSString *const kResetPasswordInApp = @"Reset Password In app";
 
 /** @var kCheckActionCode
     @brief The text of the "Check action code" button.
@@ -327,6 +327,11 @@ static NSString *const kSectionTitleLinkUnlinkAccounts = @"LINK/UNLINK ACCOUNT";
     @brief The text for the title of the "User Actions" section.
  */
 static NSString *const kSectionTitleUserActions = @"USER ACTIONS";
+
+/** @var kSectionTitleOOBAction
+    @brief The text for the title of the "OOB Actions" section.
+ */
+static NSString *const kSectionTitleOOBActions = @"OOB ACTIONS";
 
 /** @var kSectionTitleUserDetails
     @brief The text for the title of the "User Details" section.
@@ -511,6 +516,17 @@ typedef void (^ShowEmailPasswordDialogCompletion)(FIRAuthCredential *credential)
  */
 typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error);
 
+/** @brief The request type for OOB action codes.
+ */
+typedef enum {
+  /** No action code settings. */
+  ActionCodeRequestTypeEmail,
+  /** With continue URL but not handled in-app. */
+  ActionCodeRequestTypeContinue,
+  /** Handled in-app. */
+  ActionCodeRequestTypeInApp,
+} ActionCodeRequestType;
+
 /** @category FIRAppAssociationRegistration(Deregistration)
     @brief The category for the deregistration method.
  */
@@ -562,6 +578,16 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           is non-nil (do to a subsequent sign-in.)
    */
   BOOL _useUserInMemory;
+
+  /** @var _actionCodeRequestType
+      @brief The type for the next action code request.
+   */
+  ActionCodeRequestType _actionCodeRequestType;
+
+  /** @var _actionCodeContinueURL
+      @brief The continue URL to be used in the next action code request.
+   */
+  NSURL *_actionCodeContinueURL;
 }
 
 /** @fn initWithNibName:bundle:
@@ -570,6 +596,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (id)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
+    _actionCodeRequestType = ActionCodeRequestTypeInApp;
+    _actionCodeContinueURL = [NSURL URLWithString:KCONTINUE_URL];
     _authStateDidChangeListeners = [NSMutableArray array];
     _IDTokenDidChangeListeners = [NSMutableArray array];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -660,14 +688,24 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                            action:^{ [weakSelf reloadUser]; }],
         [StaticContentTableViewCell cellWithTitle:kGetProvidersForEmail
                                            action:^{ [weakSelf getProvidersForEmail]; }],
+        [StaticContentTableViewCell cellWithTitle:kUpdateEmailText
+                                           action:^{ [weakSelf updateEmail]; }],
+        [StaticContentTableViewCell cellWithTitle:kUpdatePasswordText
+                                           action:^{ [weakSelf updatePassword]; }],
+        [StaticContentTableViewCell cellWithTitle:kDeleteUserText
+                                           action:^{ [weakSelf deleteAccount]; }],
+      ]],
+      [StaticContentTableViewSection sectionWithTitle:kSectionTitleOOBActions cells:@[
+        [StaticContentTableViewCell cellWithTitle:kActionCodeTypeDescription
+                                            value:[self actionCodeRequestTypeString]
+                                           action:^{ [weakSelf toggleActionCodeRequestType]; }],
+        [StaticContentTableViewCell cellWithTitle:kContinueURLDescription
+                                            value:_actionCodeContinueURL.absoluteString ?: @"(nil)"
+                                           action:^{ [weakSelf changeActionCodeContinueURL]; }],
         [StaticContentTableViewCell cellWithTitle:kRequestVerifyEmail
                                            action:^{ [weakSelf requestVerifyEmail]; }],
-        [StaticContentTableViewCell cellWithTitle:kRequestVerifyEmailInApp
-                                           action:^{ [weakSelf requestVerifyEmailInApp]; }],
         [StaticContentTableViewCell cellWithTitle:kRequestPasswordReset
                                            action:^{ [weakSelf requestPasswordReset]; }],
-        [StaticContentTableViewCell cellWithTitle:kResetPasswordInApp
-                                           action:^{ [weakSelf requestPasswordResetInApp]; }],
         [StaticContentTableViewCell cellWithTitle:kResetPassword
                                            action:^{ [weakSelf resetPassword]; }],
         [StaticContentTableViewCell cellWithTitle:kCheckActionCode
@@ -676,12 +714,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                            action:^{ [weakSelf applyActionCode]; }],
         [StaticContentTableViewCell cellWithTitle:kVerifyPasswordResetCode
                                            action:^{ [weakSelf verifyPasswordResetCode]; }],
-        [StaticContentTableViewCell cellWithTitle:kUpdateEmailText
-                                           action:^{ [weakSelf updateEmail]; }],
-        [StaticContentTableViewCell cellWithTitle:kUpdatePasswordText
-                                           action:^{ [weakSelf updatePassword]; }],
-        [StaticContentTableViewCell cellWithTitle:kDeleteUserText
-                                           action:^{ [weakSelf deleteAccount]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleReauthenticate cells:@[
         [StaticContentTableViewCell cellWithTitle:kReauthenticateGoogleText
@@ -2032,12 +2064,62 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+/** @fn actionCodeRequestTypeString
+    @brief Returns a string description for the type of the next action code request.
+ */
+- (NSString *)actionCodeRequestTypeString {
+  switch (_actionCodeRequestType) {
+    case ActionCodeRequestTypeInApp:
+      return @"In-App + Continue URL";
+    case ActionCodeRequestTypeContinue:
+      return @"Continue URL";
+    case ActionCodeRequestTypeEmail:
+      return @"Email Only";
+  }
+}
+
+/** @fn toggleActionCodeRequestType
+    @brief Toggle the next action code request type.
+ */
+- (void)toggleActionCodeRequestType {
+  switch (_actionCodeRequestType) {
+    case ActionCodeRequestTypeInApp:
+      _actionCodeRequestType = ActionCodeRequestTypeContinue;
+      break;
+    case ActionCodeRequestTypeContinue:
+      _actionCodeRequestType = ActionCodeRequestTypeEmail;
+      break;
+    case ActionCodeRequestTypeEmail:
+      _actionCodeRequestType = ActionCodeRequestTypeInApp;
+      break;
+  }
+  [self updateTable];
+}
+
+- (void)changeActionCodeContinueURL {
+  [self showTextInputPromptWithMessage:kContinueURLDescription
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+    if (userPressedOK) {
+      _actionCodeContinueURL = userInput.length ? [NSURL URLWithString:userInput] : nil;
+      [self updateTable];
+    }
+  }];
+}
+
 /** @fn requestVerifyEmail
     @brief Requests a "verify email" email be sent.
  */
 - (void)requestVerifyEmail {
   [self showSpinner:^{
-    [[self user] sendEmailVerificationWithCompletion:^(NSError *_Nullable error) {
+    void (^sendEmailVerification)(void (^)(NSError *)) = ^(void (^completion)(NSError *)) {
+      if (_actionCodeRequestType == ActionCodeRequestTypeEmail) {
+        [[self user] sendEmailVerificationWithCompletion:completion];
+      } else {
+        [[self user] sendEmailVerificationWithActionCodeSettings:[self actionCodeSettings]
+                                                      completion:completion];
+      }
+    };
+    sendEmailVerification(^(NSError *_Nullable error) {
       [self hideSpinner:^{
         if (error) {
           [self logFailure:@"request verify email failed" error:error];
@@ -2047,27 +2129,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         [self logSuccess:@"request verify email succeeded."];
         [self showMessagePrompt:@"Sent"];
       }];
-    }];
-  }];
-}
-
-/** @fn requestVerifyEmailInApp
-    @brief Requests a "verify email" email be sent that can be completed in app.
- */
-- (void)requestVerifyEmailInApp {
-  [self showSpinner:^{
-    [[self user] sendEmailVerificationWithActionCodeSettings:[self actionCodeSettings]
-                                                  completion:^(NSError *_Nullable error) {
-      [self hideSpinner:^{
-        if (error) {
-          [self logFailure:@"request verify email in app failed" error:error];
-          [self showMessagePrompt:error.localizedDescription];
-          return;
-        }
-        [self logSuccess:@"request verify email in app succeeded."];
-        [self showMessagePrompt:@"Sent"];
-      }];
-    }];
+    });
   }];
 }
 
@@ -2081,7 +2143,16 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       return;
     }
     [self showSpinner:^{
-      [[AppManager auth] sendPasswordResetWithEmail:userInput completion:^(NSError *_Nullable error) {
+      void (^requestPasswordReset)(void (^)(NSError *)) = ^(void (^completion)(NSError *)) {
+        if (_actionCodeRequestType == ActionCodeRequestTypeEmail) {
+          [[AppManager auth] sendPasswordResetWithEmail:userInput completion:completion];
+        } else {
+          [[AppManager auth] sendPasswordResetWithEmail:userInput
+                                     actionCodeSettings:[self actionCodeSettings]
+                                             completion:completion];
+        }
+      };
+      requestPasswordReset(^(NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"request password reset failed" error:error];
@@ -2091,34 +2162,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logSuccess:@"request password reset succeeded."];
           [self showMessagePrompt:@"Sent"];
         }];
-      }];
-    }];
-  }];
-}
-
-/** @fn requestPasswordResetInApp
-    @brief Requests a "password reset" email be sent and handled in the app.
- */
-- (void)requestPasswordResetInApp {
-  [self showTextInputPromptWithMessage:@"Email:"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-    if (!userPressedOK || !userInput.length) {
-      return;
-    }
-    [self showSpinner:^{
-      [[AppManager auth] sendPasswordResetWithEmail:userInput
-                                 actionCodeSettings:[self actionCodeSettings]
-                                         completion:^(NSError *_Nullable error) {
-        [self hideSpinner:^{
-          if (error) {
-            [self logFailure:@"request password reset failed" error:error];
-            [self showMessagePrompt:error.localizedDescription];
-            return;
-          }
-          [self logSuccess:@"request password reset succeeded."];
-          [self showMessagePrompt:@"Sent"];
-        }];
-      }];
+      });
     }];
   }];
 }
@@ -2643,8 +2687,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
  */
 - (FIRActionCodeSettings *)actionCodeSettings {
   FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
-  actionCodeSettings.URL = [NSURL URLWithString:KCONTINUE_URL];
-  actionCodeSettings.handleCodeInApp = YES;
+  actionCodeSettings.URL = _actionCodeContinueURL;
+  actionCodeSettings.handleCodeInApp = _actionCodeRequestType == ActionCodeRequestTypeInApp;
   return actionCodeSettings;
 }
 

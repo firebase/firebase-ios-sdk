@@ -267,7 +267,7 @@ static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROI
     @brief This is the error message the server will respond with if the domain of the continue URL
         specified is not whitelisted in the firebase console.
  */
-static NSString *const kUnauthorizedDomainErrorMessage = @"ERROR_UNAUTHORIZED_DOMAIN";
+static NSString *const kUnauthorizedDomainErrorMessage = @"UNAUTHORIZED_DOMAIN";
 
 /** @var kInvalidContinueURIErrorMessage
     @brief This is the error message the server will respond with if the continue URL provided in
