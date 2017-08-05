@@ -321,7 +321,7 @@ static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The phone verificat
 /** @var kFIRAuthErrorMessageMissingAppToken
     @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
  */
-static NSString *const kFIRAuthErrorMessageMissingAppToken = @"There seems to be problem with your "
+static NSString *const kFIRAuthErrorMessageMissingAppToken = @"There seems to be a problem with the"
     "configuration of Firebase phone number authentication, please make sure to follow the "
     "instructions found at https://firebase.google.com/docs/auth/ios/phone-auth";
 
