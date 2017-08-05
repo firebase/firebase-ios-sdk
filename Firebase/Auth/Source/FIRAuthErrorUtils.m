@@ -321,10 +321,9 @@ static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The phone verificat
 /** @var kFIRAuthErrorMessageMissingAppToken
     @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
  */
-static NSString *const kFIRAuthErrorMessageMissingAppToken = @"Remote notification and background "
-    "fetching need to be set up for the app. If app delegate swizzling is disabled, the APNs "
-    "device token received by UIApplicationDelegate needs to be forwarded to FIRAuth's APNSToken "
-    "property.";
+static NSString *const kFIRAuthErrorMessageMissingAppToken = @"There seems to be problem with your "
+    "configuration of Firebase phone number authentication, please make sure to follow the "
+    "instructions found at https://firebase.google.com/docs/auth/ios/phone-auth";
 
 /** @var kFIRAuthErrorMessageMissingAppToken
     @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
