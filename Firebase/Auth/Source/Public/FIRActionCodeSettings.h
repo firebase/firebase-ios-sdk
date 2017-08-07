@@ -78,8 +78,8 @@
          will try to install the app if not already available. Otherwise the web URL is used.
   */
   - (void)setAndroidPackageName:(NSString *)androidPackageName
-         installIfNotAvailable:(BOOL)installIfNotAvailable
-                minimumVersion:(nullable NSString *)minimumVersion;
+          installIfNotAvailable:(BOOL)installIfNotAvailable
+                 minimumVersion:(nullable NSString *)minimumVersion;
 
  @end
 

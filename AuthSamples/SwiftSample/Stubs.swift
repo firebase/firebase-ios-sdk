@@ -13,3 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/// This file contains a collection of stub functions to verify the Swift syntax of Firebase Auth
+/// APIs in Swift for those that are not already covered by other parts of the app.
+/// These functions are never executed, but just for passing compilation.
+
+import FirebaseCommunity.FirebaseAuth
+
+func actionCodeSettingsStubs() {
+  let actionCodeSettings = ActionCodeSettings()
+  actionCodeSettings.url = URL(string: "http://some.url/path/")
+  actionCodeSettings.setIOSBundleID("some.bundle.id")
+  actionCodeSettings.setAndroidPackageName("some.package.name", installIfNotAvailable: true,
+      minimumVersion: nil)
+  let _: String? = actionCodeSettings.iOSBundleID
+  let _: String? = actionCodeSettings.androidPackageName
+  let _: Bool = actionCodeSettings.androidInstallIfNotAvailable
+  let _: String? = actionCodeSettings.androidMinimumVersion
+  Auth.auth().sendPasswordReset(withEmail: "nobody@nowhere.com",
+      actionCodeSettings: actionCodeSettings) { (error: Error?) -> () in
+  }
+  Auth.auth().currentUser?.sendEmailVerification(with: actionCodeSettings) {
+      (error: Error?) -> () in
+  }
+}
+
+func languageStubs() {
+  let _: String? = Auth.auth().languageCode
+  Auth.auth().languageCode = "asdf"
+  Auth.auth().useAppLanguage()
+}
