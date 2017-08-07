@@ -400,7 +400,7 @@ static FIRApp *sDefaultApp;
   // backward compatibility.
   if (expectedBundleID != nil &&
       ![FIRBundleUtil hasBundleIdentifier:expectedBundleID inBundles:bundles]) {
-    FIRLogInfo(kFIRLoggerCore, @"I-COR000008",
+    FIRLogError(kFIRLoggerCore, @"I-COR000008",
                @"The project's Bundle ID is inconsistent with "
                @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
                @"using a customized options. To ensure that everything can be configured "
