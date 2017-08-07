@@ -545,6 +545,13 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 - (void)updateAutomaticClientConnection {
+  if (![NSThread isMainThread]) {
+    // Call this method from the main thread
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self updateAutomaticClientConnection];
+    });
+    return;
+  }
   BOOL shouldBeConnected = [self shouldBeConnectedAutomatically];
   if (shouldBeConnected && !self.client.isConnected) {
     [self.client connectWithHandler:^(NSError *error) {
