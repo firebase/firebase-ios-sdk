@@ -187,12 +187,6 @@
 		D09005391EDB333A00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D090053B1EDB334400154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005401EDB34F900154410 /* OCMock-OSX/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005421EDB358000154410 /* OCMock-OSX/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005441EDB358F00154410 /* OCMock-OSX/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005471EDB359F00154410 /* OCMock-OSX/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005491EDB35B700154410 /* OCMock-OSX/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D090054B1EDB35C100154410 /* OCMock-OSX/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D090054F1EDB366100154410 /* FirebaseCommunity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D090054E1EDB366100154410 /* FirebaseCommunity.framework */; };
 		D09005531EDB36BD00154410 /* FirebaseCommunity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09005521EDB36BD00154410 /* FirebaseCommunity.framework */; };
 		D09005571EDB36ED00154410 /* FirebaseCommunity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09005561EDB36ED00154410 /* FirebaseCommunity.framework */; };
@@ -644,66 +638,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D090053E1EDB34DF00154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005401EDB34F900154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D09005411EDB356900154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005421EDB358000154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D09005431EDB358A00154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005441EDB358F00154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D09005461EDB359900154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005471EDB359F00154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D09005481EDB35B200154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005491EDB35B700154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D090054A1EDB35BD00154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D090054B1EDB35C100154410 /* OCMock-OSX/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -861,7 +795,6 @@
 		D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D090052D1EDB2FA300154410 /* FirebaseCommunity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseCommunity.framework; path = "FirebaseCommunity-Auth-Core-Root-iOS/FirebaseCommunity.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = "OCMock-iOS/OCMock.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = "OCMock-OSX/OCMock.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D090054E1EDB366100154410 /* FirebaseCommunity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseCommunity.framework; path = "FirebaseCommunity-Auth-Core-Root-OSX/FirebaseCommunity.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D09005521EDB36BD00154410 /* FirebaseCommunity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseCommunity.framework; path = "FirebaseCommunity-Core-Root-iOS/FirebaseCommunity.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D09005541EDB36DB00154410 /* FirebaseCommunity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FirebaseCommunity.framework; path = "FirebaseCommunity-Core-Root-Storage-OSX/FirebaseCommunity.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1387,7 +1320,6 @@
 				D090054E1EDB366100154410 /* FirebaseCommunity.framework */,
 				D090052D1EDB2FA300154410 /* FirebaseCommunity.framework */,
 				D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */,
-				D090053F1EDB34F900154410 /* OCMock-OSX/OCMock.framework */,
 				DE45C6641E7DA8CB009E6ACD /* XCTest.framework */,
 				DEB61E781E7C542600C04B96 /* libsqlite3.tbd */,
 				6003F58D195388D20070C39A /* Foundation.framework */,
@@ -2009,7 +1941,6 @@
 				D01853C01EDAD364003A645C /* Resources */,
 				F6DC06843B1A770F9279D334 /* [CP] Embed Pods Frameworks */,
 				A969D5847DE84AFD9C0B2EAA /* [CP] Copy Pods Resources */,
-				D090053E1EDB34DF00154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2051,7 +1982,6 @@
 				D064E6B91ED9B31C001956DF /* Resources */,
 				283462258BC55738810D1B9D /* [CP] Embed Pods Frameworks */,
 				8500FBBCF671CB86388A2A1F /* [CP] Copy Pods Resources */,
-				D09005411EDB356900154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2093,7 +2023,6 @@
 				D0EDB2F01EDA06CB00B6C31B /* Resources */,
 				3144FCB09106E152A32EBA5C /* [CP] Embed Pods Frameworks */,
 				9545BA7AC96B74C6340B0A5B /* [CP] Copy Pods Resources */,
-				D09005481EDB35B200154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2115,7 +2044,6 @@
 				D0EDB3011EDA06D500B6C31B /* Resources */,
 				AAAD94DC9AD45DB4D4A83C6F /* [CP] Embed Pods Frameworks */,
 				6906C02D16345BF9950F16BD /* [CP] Copy Pods Resources */,
-				D090054A1EDB35BD00154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2157,7 +2085,6 @@
 				D0FE8A591ED9C86F003F6722 /* Resources */,
 				071225E5DBC237232EC1AB19 /* [CP] Embed Pods Frameworks */,
 				66E15CF732415F6E8CE006A4 /* [CP] Copy Pods Resources */,
-				D09005431EDB358A00154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2179,7 +2106,6 @@
 				D0FE8A861ED9C87B003F6722 /* Resources */,
 				1ED619955966F8E7002E743A /* [CP] Embed Pods Frameworks */,
 				6F226BA957A397FC5FECC12E /* [CP] Copy Pods Resources */,
-				D09005461EDB359900154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
