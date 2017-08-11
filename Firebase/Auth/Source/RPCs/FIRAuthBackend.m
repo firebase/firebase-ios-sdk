@@ -234,6 +234,12 @@ static NSString *const kExpiredActionCodeErrorMessage = @"EXPIRED_OOB_CODE";
  */
 static NSString *const kInvalidActionCodeErrorMessage = @"INVALID_OOB_CODE";
 
+/** @var kMissingEmailErrorMessage
+    @brief This is the error message the server will respond with if the email address is missing
+        during a "send password reset email" attempt.
+ */
+static NSString *const kMissingEmailErrorMessage = @"MISSING_EMAIL";
+
 /** @var kInvalidSenderEmailErrorMessage
     @brief This is the error message the server will respond with if the sender email is invalid
         during a "send password reset email" attempt.
@@ -934,6 +940,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kInvalidActionCodeErrorMessage]) {
     return [FIRAuthErrorUtils invalidActionCodeErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingEmailErrorMessage]) {
+    return [FIRAuthErrorUtils missingEmailErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidSenderEmailErrorMessage]) {
