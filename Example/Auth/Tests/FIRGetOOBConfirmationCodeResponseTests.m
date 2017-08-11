@@ -53,10 +53,10 @@ static NSString *const kTestOOBCode = @"OOBCode";
  */
 static NSString *const kEmailNotFoundMessage = @"EMAIL_NOT_FOUND: fake custom message";
 
-/** @var kMissingEmailMessage
+/** @var kMissingEmailErrorMessage
     @brief The value of the "message" field returned for a "missing email" error.
  */
-static NSString *const kMissingEmailMessage = @"MISSING_EMAIL";
+static NSString *const kMissingEmailErrorMessage = @"MISSING_EMAIL";
 
 /** @var kInvalidEmailErrorMessage
     @brief The error returned by the server if the email is invalid.
@@ -260,7 +260,7 @@ static NSString *const kIosBundleID = @"testBundleID";
     RPCError = error;
   }];
 
-  [_RPCIssuer respondWithServerErrorMessage:kMissingEmailMessage];
+  [_RPCIssuer respondWithServerErrorMessage:kMissingEmailErrorMessage];
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
