@@ -1,0 +1,35 @@
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.36.0"
+
+default_platform :ios
+
+platform :ios do
+  before_all do
+    # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
+    cocoapods
+  end
+
+  desc "Runs all the tests"
+  lane :test do
+    scan(scheme: "AllUnitTests")
+  end
+
+  after_all do |lane|
+    # This block is called, only if the executed lane was successful
+
+    # slack(
+    #   message: "Successfully deployed new App Update."
+    # )
+  end
+
+  error do |lane, exception|
+    # slack(
+    #   message: exception.message,
+    #   success: false
+    # )
+  end
+end
