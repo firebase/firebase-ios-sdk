@@ -723,7 +723,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       return;
     }
     if (![request.email length]) {
-      decoratedCallback(nil, [FIRAuthErrorUtils missingEmail]);
+      decoratedCallback(nil, [FIRAuthErrorUtils missingEmailErrorWithMessage:nil]);
       return;
     }
     [FIRAuthBackend signUpNewUser:request

@@ -525,7 +525,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     case FIRAuthErrorCodeMissingContinueURI:
       return @"ERROR_MISSING_CONTINUE_URI";
     case FIRAuthErrorCodeMissingEmail:
-      return @"MISSING_EMAIL";
+      return @"ERROR_MISSING_EMAIL";
     case FIRAuthErrorCodeMissingPhoneNumber:
       return @"ERROR_MISSING_PHONE_NUMBER";
     case FIRAuthErrorCodeInvalidPhoneNumber:
@@ -803,8 +803,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return[self errorWithCode:FIRAuthInternalErrorCodeMissingContinueURI message:message];
 }
 
-+ (NSError *)missingEmail {
-  return [self errorWithCode:FIRAuthInternalErrorCodeMissingEmail];
++ (NSError *)missingEmailErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingEmail message:message];
 }
 
 + (NSError *)missingPhoneNumberErrorWithMessage:(nullable NSString *)message {

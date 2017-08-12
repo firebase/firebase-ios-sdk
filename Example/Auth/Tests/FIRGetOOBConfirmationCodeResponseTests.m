@@ -53,6 +53,11 @@ static NSString *const kTestOOBCode = @"OOBCode";
  */
 static NSString *const kEmailNotFoundMessage = @"EMAIL_NOT_FOUND: fake custom message";
 
+/** @var kMissingEmailErrorMessage
+    @brief The value of the "message" field returned for a "missing email" error.
+ */
+static NSString *const kMissingEmailErrorMessage = @"MISSING_EMAIL";
+
 /** @var kInvalidEmailErrorMessage
     @brief The error returned by the server if the email is invalid.
  */
@@ -231,6 +236,36 @@ static NSString *const kIosBundleID = @"testBundleID";
   XCTAssertNotNil(RPCError);
   XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeUserNotFound);
+  XCTAssertNil(RPCResponse);
+}
+
+/** @fn testMissingEmailError
+    @brief This test checks for missing email responses, and makes sure they are decoded to the
+        correct error response.
+ */
+- (void)testMissingEmailError {
+  FIRGetOOBConfirmationCodeRequest *request = [FIRGetOOBConfirmationCodeRequest
+      verifyEmailRequestWithAccessToken:kTestAccessToken
+                     actionCodeSettings:[self fakeActionCodeSettings]
+                   requestConfiguration:_requestConfiguration];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+
+  [_RPCIssuer respondWithServerErrorMessage:kMissingEmailErrorMessage];
+
+  XCTAssert(callbackInvoked);
+  XCTAssertNotNil(RPCError);
+  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingEmail);
   XCTAssertNil(RPCResponse);
 }
 

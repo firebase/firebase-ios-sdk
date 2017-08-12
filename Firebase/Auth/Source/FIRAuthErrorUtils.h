@@ -348,11 +348,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)missingContinueURIErrorWithMessage:(nullable NSString *)message;
 
-/** @fn missingEmail
+/** @fn missingEmailErrorWithMessage
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingEmail code.
+    @param message Error message from the backend, if any.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)missingEmail;
++ (NSError *)missingEmailErrorWithMessage:(nullable NSString *)message;
 
 /** @fn missingPhoneNumberErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingPhoneNumber code.
