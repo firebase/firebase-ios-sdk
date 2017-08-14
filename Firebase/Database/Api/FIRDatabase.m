@@ -49,7 +49,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
                        queue:nil
                   usingBlock:^(NSNotification * _Nonnull note) {
                     NSString *appName = note.userInfo[kFIRAppNameKey];
-                    if (appName == nil) { return }
+                    if (appName == nil) { return; }
 
                     NSMutableDictionary *instances = [self instances];
                     @synchronized (instances) {
