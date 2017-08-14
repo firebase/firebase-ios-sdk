@@ -45,11 +45,6 @@
 + (NSArray *)relevantURLSchemes;
 
 /**
- * Finds bundle identifiers in all relevant bundles, starting with those from [NSBundle mainBundle].
- */
-+ (NSSet *)relevantBundleIdentifiers;
-
-/**
  * Checks if the bundle identifier exists in the given bundles.
  */
 + (BOOL)hasBundleIdentifier:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles;
