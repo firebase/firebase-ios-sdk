@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
 @property(nonatomic, assign, readonly) BOOL androidInstallApp;
 
 /** @property handleCodeInApp
-    @brief Indicates whether or not the action code link will open the app directly or after being
+    @brief Indicates whether the action code link will open the app directly or after being
         redirected from a Firebase owned web widget.
  */
 @property(assign, nonatomic) BOOL handleCodeInApp;

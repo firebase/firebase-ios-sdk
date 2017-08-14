@@ -21,7 +21,7 @@
  NS_ASSUME_NONNULL_BEGIN
 
  /** @class FIRActionCodeSettings
-     @brief Used to set and retrieve settings related to the handling action codes.
+     @brief Used to set and retrieve settings related to handling action codes.
   */
  FIR_SWIFT_NAME(ActionCodeSettings)
  @interface FIRActionCodeSettings : NSObject
@@ -30,12 +30,12 @@
      @brief This URL represents the state/Continue URL in the form of a universal link.
      @remarks This URL can should be contructed as a universal link that would either directly open
          the app where the action code would be handled or continue to the app after the action code
-         handled by Firebase.
+         is handled by Firebase.
   */
  @property(nonatomic, copy, nullable) NSURL *URL;
 
  /** @property handleCodeInApp
-     @brief Indicates whether or not the action code link will open the app directly or after being
+     @brief Indicates whether the action code link will open the app directly or after being
          redirected from a Firebase owned web widget.
   */
  @property(assign, nonatomic) BOOL handleCodeInApp;
@@ -56,7 +56,7 @@
  @property(nonatomic, copy, readonly, nullable) NSString *androidMinimumVersion;
 
  /** @property androidInstallIfNotAvailable
-     @brief Indicates whether the Android app should be installed or not on a device where it is not
+     @brief Indicates whether the Android app should be installed on a device where it is not
         available.
   */
  @property(nonatomic, assign, readonly) BOOL androidInstallIfNotAvailable;
