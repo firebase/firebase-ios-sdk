@@ -67,7 +67,7 @@ typedef void(^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullabl
     @brief The type of block invoked when sign-in related events complete.
 
     @param authResult Optionally; Result of sign-in request containing both the user and
-       the additional user info.
+       the additional user info associated with the user.
     @param error Optionally; the error which occurred - or nil if the request was successful.
  */
 typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
@@ -548,7 +548,7 @@ FIR_SWIFT_NAME(Auth)
     @brief Initiates a password reset for the given email address and @FIRActionCodeSettings object.
 
     @param email The email address of the user.
-    @param actionCodeSettings An @c FIRActionCodeSettings object containing settings related to the
+    @param actionCodeSettings An @c FIRActionCodeSettings object containing settings related to
         handling action codes.
     @param completion Optionally; a block which is invoked when the request finishes. Invoked
         asynchronously on the main thread in the future.
@@ -565,7 +565,7 @@ FIR_SWIFT_NAME(Auth)
             sending update email.
         </li>
         <li>@c FIRAuthErrorCodeMissingIosBundleID - Indicates that the iOS bundle ID is missing when
-            a iOS App Store ID is provided.
+            @c handleCodeInApp is set to YES.
         </li>
         <li>@c FIRAuthErrorCodeMissingAndroidPackageName - Indicates that the android package name
             is missing when the @c androidInstallApp flag is set to true.
