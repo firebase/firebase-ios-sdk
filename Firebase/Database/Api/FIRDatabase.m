@@ -42,6 +42,26 @@
 #define STR_EXPAND(x) #x
 static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 
++ (void)load {
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center addObserverForName:kFIRAppDeleteNotification
+                      object:nil
+                       queue:nil
+                  usingBlock:^(NSNotification * _Nonnull note) {
+      NSString *appName = note.userInfo[kFIRAppNameKey];
+      if (appName == nil) { return; }
+
+      NSMutableDictionary *instances = [self instances];
+      @synchronized (instances) {
+          FIRDatabase *deletedApp = instances[appName];
+          // Clean up the deleted instance in an effort to remove any resources still in use.
+          // Note: Any leftover instances of this exact database will be invalid.
+          [FRepoManager disposeRepos:deletedApp.config];
+          [instances removeObjectForKey:appName];
+      }
+  }];
+}
+
 /**
  * A static NSMutableDictionary of FirebaseApp names to FirebaseDatabase instance. To ensure thread-
  * safety, it should only be accessed in databaseForApp, which is synchronized.
