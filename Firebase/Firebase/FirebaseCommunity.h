@@ -66,4 +66,12 @@
     #import <GoogleMobileAds/GoogleMobileAds.h>
   #endif
 
+  #if __has_include(<Fabric/Fabric.h>)
+    #import <Fabric/Fabric.h>
+  #endif
+
+  #if __has_include(<Crashlytics/Crashlytics.h>)
+    #import <Crashlytics/Crashlytics.h>
+  #endif
+
 #endif  // defined(__has_include)
