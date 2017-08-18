@@ -142,7 +142,7 @@
     __block BOOL done = NO;
     __block FIRDataSnapshot * snap = nil;
 
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
         done = YES;
     }];
@@ -159,7 +159,7 @@
 
     __block BOOL done = NO;
     __block FIRDataSnapshot * snap = nil;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
         done = (snapshot.childrenCount == 2);
     }];
@@ -177,7 +177,7 @@
     FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
 
     __block BOOL done = NO;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         [snapshot.ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
             done = YES;
         }];
@@ -190,7 +190,7 @@
 
     FIRDatabaseReference * connected = [[[FIRDatabase database] reference] child:@".info/connected"];
     __block BOOL ready = NO;
-    [connected observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [connected observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         NSNumber *val = [snapshot value];
         ready = [val boolValue];
     }];
@@ -331,14 +331,14 @@
     __block NSNumber* readVal = @0.0;
     __block NSNumber* writeVal = @0.0;
 
-    [[reader child:@"a/aa"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[reader child:@"a/aa"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         if (val != [NSNull null]) {
             readVal = val;
         }
     }];
 
-    [[writer child:@"a/aa"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[writer child:@"a/aa"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         if (val != [NSNull null]) {
             writeVal = val;
@@ -418,14 +418,14 @@
     __block NSNumber* readVal = @0.0;
     __block NSNumber* writeVal = @0.0;
 
-    [[reader child:@"a/aa"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[reader child:@"a/aa"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         if (val != [NSNull null]) {
             readVal = val;
         }
     }];
 
-    [[writer child:@"a/aa"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[writer child:@"a/aa"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         if (val != [NSNull null]) {
             writeVal = val;
@@ -470,7 +470,7 @@
     [[ref child:@"4"] setValue:@"echo"];
 
     __block BOOL ready = NO;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         XCTAssertTrue([val isKindOfClass:[NSArray class]], @"Expected an array");
         NSArray *expected = @[@"alpha", @"bravo", @"charlie", @"delta", @"echo"];
@@ -487,7 +487,7 @@
     [[ref child:@"100003354884401"] setValue:@"alpha"];
 
     __block BOOL ready = NO;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         XCTAssertTrue([val isKindOfClass:[NSDictionary class]], @"Expected a dictionary.");
         ready = YES;
@@ -513,7 +513,7 @@
     };
 
     __block FIRDataSnapshot *snap = nil;
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
@@ -565,7 +565,7 @@
         return setDone;
     }];
 
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         if (val == [NSNull null]) {
             readDone = YES;
@@ -606,7 +606,7 @@
     [[ref child:@"3024"] setValue:@5];
 
     __block BOOL ready = NO;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         XCTAssertTrue(![val isKindOfClass:[NSArray class]], @"Should not be an array");
         ready = YES;
@@ -669,7 +669,7 @@
 
     __block int calls = 0;
 
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         calls = calls + 1;
         XCTAssertTrue(calls == 1, @"Only called once");
         XCTAssertEqualObjects([snapshot value], @"moo", @"Proper snapshot value");
@@ -688,7 +688,7 @@
     __block BOOL removedTwo = NO;
     __block BOOL done = NO;
 
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         if (!removedTwo) {
             XCTAssertFalse([[snapshot childSnapshotForPath:@"one"] hasChildren], @"nope");
             XCTAssertTrue([[snapshot childSnapshotForPath:@"two"] hasChildren], @"nope");
@@ -717,7 +717,7 @@
     __block BOOL removedTwo = NO;
     __block BOOL done = NO;
 
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         if (!removedTwo) {
             XCTAssertTrue([snapshot childrenCount] == 3, @"Total children");
             XCTAssertTrue([[snapshot childSnapshotForPath:@"one"] childrenCount] == 0, @"Two's children");
@@ -843,7 +843,7 @@
     }];
 
     __block NSDictionary* readVal = nil;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         readVal = [snapshot value];
     }];
 
@@ -863,7 +863,7 @@
     [self waitForCompletionOf:writer setValue:@{@"a": @5, @"b": @2}];
 
     __block int calls = 0;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         calls++;
         if (calls == 1) {
             NSDictionary *val = [snapshot value];
@@ -918,10 +918,10 @@
 
     __block FIRDataSnapshot * writeSnap = nil;
     __block FIRDataSnapshot * readSnap = nil;
-    [writer observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [writer observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         writeSnap = snapshot;
     }];
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         readSnap = snapshot;
     }];
 
@@ -948,7 +948,7 @@
     [ref setValue:@5];
     [ref setPriority:@10];
     __block BOOL ready = NO;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         [values addObject:[snapshot value]];
         [priorities addObject:[snapshot priority]];
         ready = YES;
@@ -982,7 +982,7 @@
     }];
 
     ready = NO;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id pri = [snapshot priority];
         XCTAssertTrue([NSNull null] == pri, @"Expected null priority");
         FIRDataSnapshot *child = [snapshot childSnapshotForPath:@"a"];
@@ -1010,7 +1010,7 @@
     }];
 
     ready = NO;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id pri = [snapshot priority];
         XCTAssertTrue([@992 isEqualToNumber:pri], @"Expected non-null priority");
         ready = YES;
@@ -1036,7 +1036,7 @@
     }];
 
     ready = NO;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id pri = [snapshot priority];
         XCTAssertTrue([@991 isEqualToNumber:pri], @"Expected non-null priority");
         ready = YES;
@@ -1072,7 +1072,7 @@
     }];
 
     ready = NO;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id pri = [snapshot priority];
         XCTAssertTrue([NSNull null] == pri, @"Expected null priority");
         ready = YES;
@@ -1147,13 +1147,14 @@
     XCTAssertTrue([snap priority] == [NSNull null], @"Expect priority");
     snap = nil;
 
+    [ref removeAllObservers];
 }
 
 - (void) testExportValIncludesPriorities {
     FIRDatabaseReference * ref = [FTestHelpers getRandomNode];
     NSDictionary* contents = @{@"foo": @{@"bar": @{@".value": @5, @".priority": @7}, @".priority": @"hi"}};
     __block FIRDataSnapshot * snap = nil;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
     [ref setValue:contents];
@@ -1172,7 +1173,7 @@
 
     __block int event = 0;
     __block BOOL done = NO;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         NSLog(@"%@ Snapshot", snapshot);
         id pri = [snapshot priority];
         if (event == 0) {
@@ -1188,7 +1189,7 @@
         }
     }];
 
-    [writer observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [writer observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id pri = [snapshot priority];
         if ([[pri class] isSubclassOfClass:[NSNumber class]] && [@100 isEqualToNumber:pri]) {
             [writer setValue:@"whatever"];
@@ -1211,7 +1212,7 @@
     [self waitForCompletionOf:writer setValue:@5 andPriority:bigPriority];
 
     __block NSNumber* serverPriority = @0;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         serverPriority = [snapshot priority];
         ready = YES;
     }];
@@ -1245,7 +1246,7 @@
     NSString* path = [NSString stringWithFormat:@"%i", rnd];
     [[ref child:path] setValue:@"testdata" withCompletionBlock:^(NSError* error, FIRDatabaseReference * childRef) {
         FIRDatabaseReference * other = [[FIRDatabase database] referenceFromURL:[ref description]];
-        [[other child:path] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+        [[other child:path] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
             NSString *val = snapshot.value;
             XCTAssertTrue([val isEqualToString:@"testdata"], @"Expected to get testdata back");
             ready = YES;
@@ -1279,7 +1280,7 @@
     }];
 
     ready = NO;
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertTrue(snapshot.key == nil, @"Root snap should not have a key");
         NSString *snapString = [snapshot.ref description];
         XCTAssertTrue([snapString isEqualToString:snapString], @"Refs should be equivalent");
@@ -1338,7 +1339,7 @@
     __block BOOL ready = NO;
     [writer removeValue];
     [[writer child:@"foo"] setValue:@"hi" withCompletionBlock:^(NSError* error, FIRDatabaseReference * ref) {
-        [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+        [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
             NSDictionary *val = [snapshot value];
             NSDictionary *expected = @{@"foo" : @"hi"};
             XCTAssertTrue([val isEqualToDictionary:expected], @"Got child");
@@ -1377,7 +1378,7 @@
 
     __block BOOL ready = NO;
     FIRDatabaseReference * ref = [FTestHelpers getRandomNode];
-    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         for (NSString *key in badPaths) {
             XCTAssertThrows([snapshot childSnapshotForPath:key], @"should throw");
             XCTAssertThrows([snapshot hasChild:key], @"should throw");
@@ -1473,7 +1474,7 @@
 
     __block BOOL done = NO;
 
-    [node observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         [[node child:[snapshot key]] removeValueWithCompletionBlock:^(NSError *err, FIRDatabaseReference *ref) {
             done = YES;
         }];
@@ -1494,7 +1495,7 @@
     __block BOOL done = NO;
     __block FIRDataSnapshot * snap;
 
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
@@ -1516,7 +1517,7 @@
     __block BOOL done = NO;
     __block FIRDataSnapshot * snap;
 
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
@@ -1572,7 +1573,7 @@
 
     ready = NO;
 
-    [node1 observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node1 observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         NSNumber *val = [snapshot value];
         XCTAssertTrue([val isEqualToNumber:@42], @"Should not have cached earlier set");
         ready = YES;
@@ -1769,7 +1770,7 @@
     [et wait];
 
     ready = NO;
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         NSDictionary *result = [snapshot value];
         NSDictionary *expected = @{@"a" : @4, @"b" : @2, @"c" : @3, @"d" : @1};
         XCTAssertTrue([result isEqualToDictionary:expected], @"Got expected results");
@@ -1820,6 +1821,8 @@
     }];
 
     XCTAssertTrue([[snap priority] isEqualToString:@"testpri"], @"Got initial priority");
+
+    [ref removeAllObservers];
 }
 
 - (void) testUpdateDoesntAffectPriorityRemotely {
@@ -1903,6 +1906,8 @@
         NSDictionary* expected = @{@"a": @{@"aa": @1}};
         return ready && [result isEqualToDictionary:expected];
     }];
+
+    [writer removeAllObservers];
 }
 
 - (void) testDeepUpdatesWork {
@@ -1943,6 +1948,8 @@
         NSDictionary* expected = @{@"a": @{@"aa": @10, @"ab": @20}};
         return ready && [result isEqualToDictionary:expected];
     }];
+
+    [writer removeAllObservers];
 }
 
 // Type signature means we don't need a test for updating scalars. They wouldn't compile
@@ -1996,6 +2003,9 @@
     NSDictionary* expected = @{@"b": @6};
     XCTAssertTrue([[remoteSnap value] isEqualToDictionary:expected], @"Removed child");
     XCTAssertTrue([[localSnap value] isEqualToDictionary:expected], @"Removed child");
+
+    [reader removeAllObservers];
+    [writer removeAllObservers];
 }
 
 - (void) testUpdateFiresCorrectEventOnNewChildren {
@@ -2006,11 +2016,11 @@
     __block FIRDataSnapshot * localSnap = nil;
     __block FIRDataSnapshot * remoteSnap = nil;
 
-    [[writer child:@"a"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[writer child:@"a"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         localSnap = snapshot;
     }];
 
-    [[reader child:@"a"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[reader child:@"a"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         remoteSnap = snapshot;
     }];
 
@@ -2062,6 +2072,9 @@
 
     XCTAssertTrue([remoteSnap value] == [NSNull null], @"Removed child");
     XCTAssertTrue([localSnap value]  == [NSNull null], @"Removed child");
+
+    [writer removeAllObservers];
+    [reader removeAllObservers];
 }
 
 - (void) testUpdateFiresCorrectEventOnChangedChildren {
@@ -2097,6 +2110,9 @@
 
     XCTAssertTrue([[remoteSnap value] isEqualToNumber:@11], @"Changed child");
     XCTAssertTrue([[localSnap value] isEqualToNumber:@11], @"Changed child");
+
+    [[writer child:@"a"] removeAllObservers];
+    [[reader child:@"a"] removeAllObservers];
 }
 
 
@@ -2118,7 +2134,7 @@
 
     ready = NO;
 
-    [reader observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertEqualObjects([[snapshot childSnapshotForPath:@"a"] value], @6, @"Should match write values");
         XCTAssertTrue([[snapshot priority] isEqualToString:@"pri2"], @"Should get updated priority");
         XCTAssertTrue([[[snapshot childSnapshotForPath:@"b"] priority] isEqualToString:@"pri3"], @"Should get updated priority");
@@ -2183,6 +2199,8 @@
 
     result = [snap value];
     XCTAssertTrue([result isEqualToNumber:toSet], @"Should get back same number");
+
+    [ref removeAllObservers];
 }
 
 - (void) testParentDeleteShadowsChildListeners {
@@ -2193,7 +2211,7 @@
     NSString* childName = [writer childByAutoId].key;
 
     __block BOOL called = NO;
-    [[deleter child:childName] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[deleter child:childName] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertFalse(called, @"Should only be hit once");
         called = YES;
         XCTAssertTrue(snapshot.value == [NSNull null], @"Value should be null");
@@ -2219,13 +2237,13 @@
 
     __block BOOL queryCalled = NO;
     __block BOOL deepChildCalled = NO;
-    [[[[deleter child:childName] queryOrderedByPriority] queryStartingAtValue:nil childKey:@"b"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[[[deleter child:childName] queryOrderedByPriority] queryStartingAtValue:nil childKey:@"b"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertFalse(queryCalled, @"Should only be hit once");
         queryCalled = YES;
         XCTAssertTrue(snapshot.value == [NSNull null], @"Value should be null");
     }];
 
-    [[[deleter child:childName] child:@"a"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [[[deleter child:childName] child:@"a"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertFalse(deepChildCalled, @"Should only be hit once");
         deepChildCalled = YES;
         XCTAssertTrue(snapshot.value == [NSNull null], @"Value should be null");
@@ -2292,6 +2310,9 @@
     XCTAssertFalse([firstWriteSnap priority] == [secondWriteSnap priority], @"Initial and future writer priorities should be different");
     XCTAssertEqualObjects(firstReadSnap.value, secondWriteSnap.value, @"Eventual reader and writer values should be equal");
     XCTAssertEqualObjects(firstReadSnap.priority, secondWriteSnap.priority, @"Eventual reader and writer priorities should be equal");
+
+    [reader removeAllObservers];
+    [writer removeAllObservers];
 }
 
 - (void) testServerValuesSetWithPriorityRemoteEvents {
@@ -2332,7 +2353,7 @@
     FIRDatabaseReference * reader = refs.two;
 
     __block FIRDataSnapshot *snap = nil;
-    [reader observeEventType:FIRDataEventTypeChildMoved withBlock:^(FIRDataSnapshot *snapshot) {
+    [reader observeSingleEventOfType:FIRDataEventTypeChildMoved withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
@@ -2380,6 +2401,8 @@
     NSNumber* timestamp = [[snap childSnapshotForPath:@"a/b/c"] value];
     XCTAssertTrue([[[snap childSnapshotForPath:@"a/b/c"] value] isKindOfClass:[NSNumber class]], @"Should get back number");
     XCTAssertTrue([now doubleValue] - [timestamp doubleValue] < 2000, @"Number should be no more than 2 seconds ago");
+
+    [reader removeAllObservers];
 }
 
 - (void) testServerValuesSetWithPriorityLocalEvents {
@@ -2394,7 +2417,7 @@
     };
 
     __block FIRDataSnapshot *snap = nil;
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
@@ -2421,7 +2444,7 @@
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
 
     __block FIRDataSnapshot *snap = nil;
-    [node observeEventType:FIRDataEventTypeChildMoved withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeChildMoved withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
@@ -2447,12 +2470,12 @@
     FIRDatabaseReference * node1 = [FTestHelpers getRandomNode];
 
     __block FIRDataSnapshot *snap1 = nil;
-    [node1 observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node1 observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap1 = snapshot;
     }];
 
     __block FIRDataSnapshot *snap2 = nil;
-    [node1 observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node1 observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap2 = snapshot;
     }];
 
@@ -2480,7 +2503,7 @@
     FIRDatabaseReference * node = [FTestHelpers getRandomNode];
 
     __block FIRDataSnapshot *snap = nil;
-    [node observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [node observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         snap = snapshot;
     }];
 
@@ -2517,6 +2540,8 @@
     [self waitUntil:^BOOL{
         return done;
     }];
+
+    [weakRef removeAllObservers];
 }
 
 - (void) testDeltaSyncNoDataUpdatesAfterReconnect {
@@ -2527,7 +2552,7 @@
     [self waitForCompletionOf:ref setValue:data];
 
     __block BOOL gotData = NO;
-    [ref2 observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref2 observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         XCTAssertFalse(gotData, @"event triggered twice.");
         gotData = YES;
         XCTAssertEqualObjects(snapshot.valueInExportFormat, data, @"Got wrong data.");
@@ -2542,7 +2567,7 @@
     [FRepoManager interrupt:cfg];
     [FRepoManager resume:cfg];
 
-    [[[ref2 root] child:@".info/connected"] observeEventType:FIRDataEventTypeValue
+    FIRDatabaseHandle* connectedHandle = [[[ref2 root] child:@".info/connected"] observeEventType:FIRDataEventTypeValue
         withBlock:^(FIRDataSnapshot *snapshot) {
             if ([snapshot.value boolValue]) {
                 // We're connected.  Do one more round-trip to make sure all state restoration is done
@@ -2555,6 +2580,8 @@
     ];
 
     [self waitUntil:^BOOL{ return done; }];
+
+    [ref removeObserverWithHandle:connectedHandle];
 
     // cleanup
     [FRepoManager interrupt:cfg];
@@ -2587,6 +2614,9 @@
       }
       return NO;
     }];
+
+    [reader removeAllObservers];
+    [writer removeAllObservers];
 }
 
 // Listens at a location and then creates a bunch of children, waiting for them all to complete.
@@ -2594,7 +2624,7 @@
     if (!runPerfTests) return;
 
     FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
-    [ref observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
 
     }];
 
@@ -2624,7 +2654,7 @@
     FIRDatabaseReference *ref = [FTestHelpers getRandomNode],
             *childRef = [ref child:@"child"];
 
-    [ref observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
 
     }];
 
@@ -2657,7 +2687,7 @@
     FIRDatabaseReference *ref = [FTestHelpers getRandomNode],
             *childRef = [ref child:@"child"];
 
-    [ref observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeSingleEventOfType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
 
     }];
 
