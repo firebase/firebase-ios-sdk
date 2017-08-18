@@ -401,14 +401,14 @@ static FIRApp *sDefaultApp;
   if (expectedBundleID != nil &&
       ![FIRBundleUtil hasBundleIdentifier:expectedBundleID inBundles:bundles]) {
     FIRLogError(kFIRLoggerCore, @"I-COR000008",
-               @"The project's Bundle ID is inconsistent with "
-               @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
-               @"using a customized options. To ensure that everything can be configured "
-               @"correctly, you may need to make the Bundle IDs consistent. To continue with this "
-               @"plist file, you may change your app's bundle identifier to '%@'. Or you can "
-               @"download a new configuration file that matches your bundle identifier from %@ "
-               @"and replace the current one.",
-               kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
+                @"The project's Bundle ID is inconsistent with "
+                @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
+                @"using a customized options. To ensure that everything can be configured "
+                @"correctly, you may need to make the Bundle IDs consistent. To continue with this "
+                @"plist file, you may change your app's bundle identifier to '%@'. Or you can "
+                @"download a new configuration file that matches your bundle identifier from %@ "
+                @"and replace the current one.",
+                kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
   }
 }
 
