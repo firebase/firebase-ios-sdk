@@ -427,9 +427,8 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertEqualObjects(delegate.notificationReceived, _notification);
       delegate.notificationReceived = nil;
 
-      // Verify NOT handling of one of the `application:openURL:...` methods.
-      OCMExpect([mockHandler1 canHandleURL:_url]).andReturn(NO);
       // Verify NOT handling of `application:openURL:sourceApplication:annotation:`.
+      OCMExpect([mockHandler1 canHandleURL:_url]).andReturn(NO);
       XCTAssertFalse([delegate application:_mockApplication
                                    openURL:_url
                          sourceApplication:@"sourceApplication"

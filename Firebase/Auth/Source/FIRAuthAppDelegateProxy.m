@@ -150,8 +150,8 @@ static id noop(id object, SEL cmd, ...) {
                   handleOpenURL:url];
        }];
     }
-    // Reset the application delegate to clear the system cache on whether either of the openURL:
-    // methods is implemented on the application delegate.
+    // Reset the application delegate to clear the system cache that indicates whether each of the
+    // openURL: methods is implemented on the application delegate.
     application.delegate = nil;
     application.delegate = _appDelegate;
   }
