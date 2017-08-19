@@ -14,7 +14,7 @@
 
 #import "FIRTestCase.h"
 
-#import "FirebaseCommunity/FIRLogger.h"
+#import "FirebaseFutureCore/FIRLogger.h"
 
 #import <asl.h>
 

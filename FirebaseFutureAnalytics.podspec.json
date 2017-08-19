@@ -2,6 +2,7 @@
   "authors": "Google, Inc.",
   "dependencies": {
     "FirebaseFutureCore": "~> 0.0",
+    "FirebaseFutureCoreDiagnostics": "~> 0.0",
     "FirebaseFutureInstanceID": "~> 0.0",
     "GoogleToolboxForMac/NSData+zlib": "~> 2.1",
     "nanopb": "~> 0.3"
@@ -31,5 +32,5 @@
   "vendored_frameworks": [
     "Frameworks/FirebaseAnalytics.framework"
   ],
-  "version": "0.0.2"
+  "version": "0.0.3"
 }

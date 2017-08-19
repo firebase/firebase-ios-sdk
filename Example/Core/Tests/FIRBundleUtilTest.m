@@ -14,7 +14,7 @@
 
 #import "FIRTestCase.h"
 
-#import "FirebaseCommunity/FIRBundleUtil.h"
+#import "FirebaseFutureCore/FIRBundleUtil.h"
 
 static NSString *const kResultPath = @"resultPath";
 static NSString *const kResourceName = @"resourceName";

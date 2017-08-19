@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFutureCore'
-  s.version          = '0.0.2'
+  s.version          = '0.0.3'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -25,4 +25,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.public_header_files = 'Firebase/Core/Public/*.h','Firebase/Core/Private/*.h'
   s.private_header_files = 'Firebase/Core/Private/*.h'
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
+
+  # Workaround 
+  s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
 end

@@ -14,9 +14,9 @@
 
 #import "FIRTestCase.h"
 
-#import "FirebaseCommunity/FIRAppInternal.h"
-#import "FirebaseCommunity/FIRBundleUtil.h"
-#import "FirebaseCommunity/FIROptionsInternal.h"
+#import "FirebaseFutureCore/FIRAppInternal.h"
+#import "FirebaseFutureCore/FIRBundleUtil.h"
+#import "FirebaseFutureCore/FIROptionsInternal.h"
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;

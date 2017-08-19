@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFutureAuth'
-  s.version          = '0.0.2'
+  s.version          = '0.0.3'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -39,7 +39,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     '$(inherited) ' + 'FIRAuth_VERSION=' + s.version.to_s +
     ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }
-  s.dependency 'FirebaseFutureAnalytics'
+  s.ios.dependency 'FirebaseFutureAnalytics'
   s.framework = 'Security'
 #  s.dependency 'FirebaseCommunity/Core'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'

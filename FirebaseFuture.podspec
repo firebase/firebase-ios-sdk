@@ -22,8 +22,8 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.subspec 'Root' do |sp|
     sp.dependency 'FirebaseFutureCore'
     sp.dependency 'FirebaseFutureAnalytics'
-    sp.source_files = 'Firebase/Firebase/FirebaseCommunity.h'
-    sp.public_header_files = 'Firebase/Firebase/FirebaseCommunity.h'
+    sp.source_files = 'Firebase/Firebase/FirebaseFuture.h'
+    sp.public_header_files = 'Firebase/Firebase/FirebaseFuture.h'
   end
 
   s.subspec 'Core' do |sp|
@@ -31,7 +31,7 @@ Firebase Development CocoaPod including experimental and community supported fea
     sp.public_header_files = 'Firebase/Core/Public/*.h','Firebase/Core/Private/*.h',
     sp.private_header_files = 'Firebase/Core/Private/*.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-    sp.dependency 'FirebaseCommunity/Root'
+    sp.dependency 'FirebaseFuture/Root'
   end
 
 #  s.subspec 'Auth' do |sp|
