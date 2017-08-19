@@ -980,6 +980,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 #endif
 
+- (BOOL)canHandleURL:(NSURL *)url {
+  return NO;
+}
+
 #pragma mark - Internal Methods
 
 #if TARGET_OS_IOS

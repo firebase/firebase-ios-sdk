@@ -33,7 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthLegacyAppDelegate
     @brief A @c UIApplicationDelegate implementation that implements
-        `application:didReceiveRemoteNotification:`.
+        `application:didReceiveRemoteNotification:` and
+        `application:openURL:sourceApplication:annotation:`.
  */
 @interface FIRAuthLegacyAppDelegate : NSObject <UIApplicationDelegate>
 
@@ -41,6 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The last notification received, if any.
  */
 @property(nonatomic, copy, nullable) NSDictionary *notificationReceived;
+
+/** @var urlOpened
+    @brief The last URL opened, if any.
+ */
+@property(nonatomic, copy, nullable) NSURL *urlOpened;
 
 @end
 
@@ -51,12 +57,21 @@ NS_ASSUME_NONNULL_BEGIN
   self.notificationReceived = userInfo;
 }
 
+- (BOOL)application:(UIApplication *)application
+              openURL:(NSURL *)url
+    sourceApplication:(nullable NSString *)sourceApplication
+           annotation:(id)annotation {
+  self.urlOpened = url;
+  return NO;
+}
+
 @end
 
 /** @class FIRAuthModernAppDelegate
     @brief A @c UIApplicationDelegate implementation that implements both
-        `application:didRegisterForRemoteNotificationsWithDeviceToken:` and
-        `application:didReceiveRemoteNotification:fetchCompletionHandler:`.
+        `application:didRegisterForRemoteNotificationsWithDeviceToken:`,
+        `application:didReceiveRemoteNotification:fetchCompletionHandler:`, and
+        `application:openURL:options:`.
  */
 @interface FIRAuthModernAppDelegate : NSObject <UIApplicationDelegate>
 
@@ -69,6 +84,11 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The last notification received, if any.
  */
 @property(nonatomic, copy, nullable) NSDictionary *notificationReceived;
+
+/** @var urlOpened
+    @brief The last URL opened, if any.
+ */
+@property(nonatomic, copy, nullable) NSURL *urlOpened;
 
 @end
 
@@ -84,6 +104,34 @@ NS_ASSUME_NONNULL_BEGIN
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   self.notificationReceived = userInfo;
   completionHandler(UIBackgroundFetchResultNewData);
+}
+
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
+  self.urlOpened = url;
+  return NO;
+}
+
+@end
+
+/** @class FIRAuthOtherLegacyAppDelegate
+    @brief A @c UIApplicationDelegate implementation that implements `application:handleOpenURL:`.
+ */
+@interface FIRAuthOtherLegacyAppDelegate : NSObject <UIApplicationDelegate>
+
+/** @var urlOpened
+    @brief The last URL opened, if any.
+ */
+@property(nonatomic, copy, nullable) NSURL *urlOpened;
+
+@end
+
+@implementation FIRAuthOtherLegacyAppDelegate
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+  self.urlOpened = url;
+  return NO;
 }
 
 @end
@@ -108,6 +156,11 @@ NS_ASSUME_NONNULL_BEGIN
       @brief The fake notification for testing.
    */
   NSDictionary* _notification;
+
+  /** @var _url
+      @brief The fake URL for testing.
+   */
+  NSURL *_url;
 }
 
 - (void)setUp {
@@ -115,6 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
   _mockApplication = OCMClassMock([UIApplication class]);
   _deviceToken = [@"asdf" dataUsingEncoding:NSUTF8StringEncoding];
   _notification = @{ @"zxcv" : @1234 };
+  _url = [NSURL URLWithString:@"https://abc.def/ghi"];
 }
 
 - (void)tearDown {
@@ -193,9 +247,23 @@ NS_ASSUME_NONNULL_BEGIN
         [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
     XCTAssertNotNil(proxy);
 
-    // Verify `application:didReceiveRemoteNotification:` is not swizzled.
+    // Verify certain methods are swizzled while others are not.
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]);
     XCTAssertFalse([delegate respondsToSelector:
                     @selector(application:didReceiveRemoteNotification:)]);
+    if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
+      XCTAssertTrue([delegate respondsToSelector:@selector(application:openURL:options:)]);
+      XCTAssertFalse([delegate respondsToSelector:
+                      @selector(application:openURL:sourceApplication:annotation:)]);
+    } else {
+      XCTAssertFalse([delegate respondsToSelector:@selector(application:openURL:options:)]);
+      XCTAssertTrue([delegate respondsToSelector:
+                     @selector(application:openURL:sourceApplication:annotation:)]);
+    }
+    XCTAssertFalse([delegate respondsToSelector:@selector(application:handleOpenURL:)]);
 
     // Verify the handler is called after being added.
     __weak id weakHandler;
@@ -221,6 +289,20 @@ NS_ASSUME_NONNULL_BEGIN
       OCMVerifyAll(mockHandler);
       XCTAssertTrue(fetchCompletionHandlerCalled);
 
+      // Verify handling of one of the `application:openURL:...` methods.
+      OCMExpect([mockHandler canHandleURL:_url]).andReturn(YES);
+      if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
+        // Verify handling of `application:openURL:options:`.
+        XCTAssertTrue([delegate application:_mockApplication openURL:_url options:@{}]);
+      } else {
+        // Verify handling of `application:openURL:sourceApplication:annotation:`.
+        XCTAssertTrue([delegate application:_mockApplication
+                                    openURL:_url
+                          sourceApplication:@"sourceApplication"
+                                 annotation:@"annotaton"]);
+      }
+      OCMVerifyAll(mockHandler);
+
       weakHandler = mockHandler;
       XCTAssertNotNil(weakHandler);
     }
@@ -235,7 +317,14 @@ NS_ASSUME_NONNULL_BEGIN
               fetchCompletionHandler:^(UIBackgroundFetchResult result) {
       XCTFail(@"Should not call completion handler.");
     }];
-
+    if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
+      XCTAssertFalse([delegate application:_mockApplication openURL:_url options:@{}]);
+    } else {
+      XCTAssertFalse([delegate application:_mockApplication
+                                   openURL:_url
+                         sourceApplication:@"sourceApplication"
+                                annotation:@"annotaton"]);
+    }
     weakProxy = proxy;
     XCTAssertNotNil(weakProxy);
   }
@@ -249,6 +338,14 @@ NS_ASSUME_NONNULL_BEGIN
             fetchCompletionHandler:^(UIBackgroundFetchResult result) {
     XCTFail(@"Should not call completion handler.");
   }];
+  if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
+    XCTAssertFalse([delegate application:_mockApplication openURL:_url options:@{}]);
+  } else {
+    XCTAssertFalse([delegate application:_mockApplication
+                                 openURL:_url
+                       sourceApplication:@"sourceApplication"
+                              annotation:@"annotaton"]);
+  }
 }
 
 /** @fn testLegacyDelegateTwoHandlers
@@ -263,9 +360,17 @@ NS_ASSUME_NONNULL_BEGIN
         [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
     XCTAssertNotNil(proxy);
 
-    // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler` is not swizzled.
+    // Verify certain methods are swizzled while others are not.
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
     XCTAssertFalse([delegate respondsToSelector:
                     @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]);
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didReceiveRemoteNotification:)]);
+    XCTAssertFalse([delegate respondsToSelector:@selector(application:openURL:options:)]);
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:openURL:sourceApplication:annotation:)]);
+    XCTAssertFalse([delegate respondsToSelector:@selector(application:handleOpenURL:)]);
 
     // Verify the handler is called after being added.
     __weak id weakHandler1;
@@ -293,6 +398,16 @@ NS_ASSUME_NONNULL_BEGIN
         OCMVerifyAll(mockHandler2);
         XCTAssertNil(delegate.notificationReceived);
 
+        // Verify handling of `application:openURL:sourceApplication:annotation:`.
+        OCMExpect([mockHandler1 canHandleURL:_url]).andReturn(YES);
+        XCTAssertTrue([delegate application:_mockApplication
+                                    openURL:_url
+                          sourceApplication:@"sourceApplication"
+                                 annotation:@"annotaton"]);
+        OCMVerifyAll(mockHandler1);
+        OCMVerifyAll(mockHandler2);
+        XCTAssertNil(delegate.urlOpened);
+
         weakHandler2 = mockHandler2;
         XCTAssertNotNil(weakHandler2);
       }
@@ -312,6 +427,17 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertEqualObjects(delegate.notificationReceived, _notification);
       delegate.notificationReceived = nil;
 
+      // Verify NOT handling of one of the `application:openURL:...` methods.
+      OCMExpect([mockHandler1 canHandleURL:_url]).andReturn(NO);
+      // Verify NOT handling of `application:openURL:sourceApplication:annotation:`.
+      XCTAssertFalse([delegate application:_mockApplication
+                                   openURL:_url
+                         sourceApplication:@"sourceApplication"
+                                annotation:@"annotation"]);
+      OCMVerifyAll(mockHandler1);
+      XCTAssertEqualObjects(delegate.urlOpened, _url);
+      delegate.urlOpened = nil;
+
       weakHandler1 = mockHandler1;
       XCTAssertNotNil(weakHandler1);
     }
@@ -324,6 +450,12 @@ NS_ASSUME_NONNULL_BEGIN
     [delegate application:_mockApplication didReceiveRemoteNotification:_notification];
     XCTAssertEqualObjects(delegate.notificationReceived, _notification);
     delegate.notificationReceived = nil;
+    XCTAssertFalse([delegate application:_mockApplication
+                                 openURL:_url
+                       sourceApplication:@"sourceApplication"
+                              annotation:@"annotation"]);
+    XCTAssertEqualObjects(delegate.urlOpened, _url);
+    delegate.urlOpened = nil;
 
     weakProxy = proxy;
     XCTAssertNotNil(weakProxy);
@@ -337,6 +469,12 @@ NS_ASSUME_NONNULL_BEGIN
   [delegate application:_mockApplication didReceiveRemoteNotification:_notification];
   XCTAssertEqualObjects(delegate.notificationReceived, _notification);
   delegate.notificationReceived = nil;
+  XCTAssertFalse([delegate application:_mockApplication
+                               openURL:_url
+                     sourceApplication:@"sourceApplication"
+                            annotation:@"annotation"]);
+  XCTAssertEqualObjects(delegate.urlOpened, _url);
+  delegate.urlOpened = nil;
 }
 
 /** @fn testModernDelegateWithOtherInstance
@@ -353,9 +491,22 @@ NS_ASSUME_NONNULL_BEGIN
         [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
     XCTAssertNotNil(proxy);
 
-    // Verify `application:didReceiveRemoteNotification:` is not swizzled.
+    // Verify certain methods are swizzled while others are not.
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]);
     XCTAssertFalse([delegate respondsToSelector:
                     @selector(application:didReceiveRemoteNotification:)]);
+    XCTAssertTrue([delegate respondsToSelector:@selector(application:openURL:options:)]);
+    if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
+      XCTAssertFalse([delegate respondsToSelector:
+                      @selector(application:openURL:sourceApplication:annotation:)]);
+    } else {
+      XCTAssertTrue([delegate respondsToSelector:
+                     @selector(application:openURL:sourceApplication:annotation:)]);
+    }
+    XCTAssertFalse([delegate respondsToSelector:@selector(application:handleOpenURL:)]);
 
     // Verify the handler is called after being added.
     __weak id weakHandler;
@@ -384,6 +535,21 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertTrue(fetchCompletionHandlerCalled);
       XCTAssertNil(delegate.notificationReceived);
 
+      // Verify handling of one of the `application:openURL:...` methods.
+      OCMExpect([mockHandler canHandleURL:_url]).andReturn(YES);
+      if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
+        // Verify handling of `application:openURL:options:`.
+        XCTAssertTrue([delegate application:_mockApplication openURL:_url options:@{}]);
+      } else {
+        // Verify handling of `application:openURL:sourceApplication:annotation:`.
+        XCTAssertTrue([delegate application:_mockApplication
+                                    openURL:_url
+                          sourceApplication:@"sourceApplication"
+                                 annotation:@"annotaton"]);
+      }
+      OCMVerifyAll(mockHandler);
+      XCTAssertNil(delegate.urlOpened);
+
       // Verify unaffected delegate instance.
       [unaffectedDelegate application:_mockApplication
           didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
@@ -399,6 +565,9 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertTrue(fetchCompletionHandlerCalled);
       XCTAssertEqualObjects(unaffectedDelegate.notificationReceived, _notification);
       unaffectedDelegate.notificationReceived = nil;
+      XCTAssertFalse([unaffectedDelegate application:_mockApplication openURL:_url options:@{}]);
+      XCTAssertEqualObjects(unaffectedDelegate.urlOpened, _url);
+      unaffectedDelegate.urlOpened = nil;
 
       weakHandler = mockHandler;
       XCTAssertNotNil(weakHandler);
@@ -421,6 +590,9 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(delegate.notificationReceived, _notification);
     delegate.notificationReceived = nil;
     XCTAssertTrue(fetchCompletionHandlerCalled);
+    XCTAssertFalse([delegate application:_mockApplication openURL:_url options:@{}]);
+    XCTAssertEqualObjects(delegate.urlOpened, _url);
+    delegate.urlOpened = nil;
 
     weakProxy = proxy;
     XCTAssertNotNil(weakProxy);
@@ -443,6 +615,61 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(delegate.notificationReceived, _notification);
   delegate.notificationReceived = nil;
   XCTAssertTrue(fetchCompletionHandlerCalled);
+  XCTAssertFalse([delegate application:_mockApplication openURL:_url options:@{}]);
+  XCTAssertEqualObjects(delegate.urlOpened, _url);
+  delegate.urlOpened = nil;
+}
+
+/** @fn testOtherLegacyDelegateHandleOpenURL
+    @brief Tests that the proxy works against another legacy @c UIApplicationDelegate for
+        `application:handleOpenURL:`.
+ */
+- (void)testOtherLegacyDelegateHandleOpenURL {
+  FIRAuthOtherLegacyAppDelegate *delegate = [[FIRAuthOtherLegacyAppDelegate alloc] init];
+  OCMExpect([_mockApplication delegate]).andReturn(delegate);
+  __weak id weakProxy;
+  @autoreleasepool {
+    FIRAuthAppDelegateProxy *proxy =
+        [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
+    XCTAssertNotNil(proxy);
+
+    // Verify certain methods are swizzled while others are not.
+    XCTAssertFalse([delegate respondsToSelector:@selector(application:openURL:options:)]);
+    XCTAssertFalse([delegate respondsToSelector:
+                    @selector(application:openURL:sourceApplication:annotation:)]);
+    XCTAssertTrue([delegate respondsToSelector:@selector(application:handleOpenURL:)]);
+
+    // Verify the handler is called after being added.
+    __weak id weakHandler;
+    @autoreleasepool {
+      id mockHandler = OCMProtocolMock(@protocol(FIRAuthAppDelegateHandler));
+      [proxy addHandler:mockHandler];
+
+      // Verify handling of `application:handleOpenURL:`.
+      OCMExpect([mockHandler canHandleURL:_url]).andReturn(YES);
+      XCTAssertTrue([delegate application:_mockApplication handleOpenURL:_url]);
+      OCMVerifyAll(mockHandler);
+
+      weakHandler = mockHandler;
+      XCTAssertNotNil(weakHandler);
+    }
+    // Verify the handler is not retained by the proxy.
+    XCTAssertNil(weakHandler);
+
+    // Verify nothing bad happens after the handler is released.
+    XCTAssertFalse([delegate application:_mockApplication handleOpenURL:_url]);
+    XCTAssertEqualObjects(delegate.urlOpened, _url);
+    delegate.urlOpened = nil;
+
+    weakProxy = proxy;
+    XCTAssertNotNil(weakProxy);
+  }
+  // Verify the proxy does not retain itself.
+  XCTAssertNil(weakProxy);
+  // Verify nothing bad happens after the proxy is released.
+  XCTAssertFalse([delegate application:_mockApplication handleOpenURL:_url]);
+  XCTAssertEqualObjects(delegate.urlOpened, _url);
+  delegate.urlOpened = nil;
 }
 
 @end
