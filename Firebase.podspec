@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseFuture'
-  s.version          = '0.1.0'
+  s.name             = 'Firebase'
+  s.version          = '0.0.4'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -20,19 +20,19 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.module_map = 'Firebase/Firebase/module.modulemap'
 
   s.subspec 'Root' do |sp|
-    sp.dependency 'FirebaseFutureCore'
-    sp.dependency 'FirebaseFutureAnalytics'
-    sp.source_files = 'Firebase/Firebase/FirebaseFuture.h'
-    sp.public_header_files = 'Firebase/Firebase/FirebaseFuture.h'
+    sp.dependency 'FirebaseCore'
+    sp.dependency 'FirebaseAnalytics'
+    sp.source_files = 'Firebase/Firebase/Firebase.h'
+    sp.public_header_files = 'Firebase/Firebase/Firebase.h'
   end
 
-  s.subspec 'Core' do |sp|
-    sp.source_files = 'Firebase/Core/**/*.[mh]'
-    sp.public_header_files = 'Firebase/Core/Public/*.h','Firebase/Core/Private/*.h',
-    sp.private_header_files = 'Firebase/Core/Private/*.h'
-    sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-    sp.dependency 'FirebaseFuture/Root'
-  end
+#  s.subspec 'Core' do |sp|
+#    sp.source_files = 'Firebase/Core/**/*.[mh]'
+#    sp.public_header_files = 'Firebase/Core/Public/*.h','Firebase/Core/Private/*.h',
+#    sp.private_header_files = 'Firebase/Core/Private/*.h'
+#    sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
+#    sp.dependency 'Firebase/Root'
+#  end
 
 #  s.subspec 'Auth' do |sp|
 #    sp.source_files = 'Firebase/Auth/Source/**/*.[mh]'

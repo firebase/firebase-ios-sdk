@@ -1,9 +1,9 @@
 {
   "authors": "Google, Inc.",
   "dependencies": {
-    "FirebaseFutureCore": "~> 0.0",
-    "FirebaseFutureCoreDiagnostics": "~> 0.0",
-    "FirebaseFutureInstanceID": "~> 0.0",
+    "FirebaseCore": "~> 0.0",
+    "FirebaseCoreDiagnostics": "~> 0.0",
+    "FirebaseInstanceID": "~> 0.0",
     "GoogleToolboxForMac/NSData+zlib": "~> 2.1",
     "nanopb": "~> 0.3"
   },
@@ -21,7 +21,7 @@
     "text": "Copyright 2017 Google",
     "type": "Copyright"
   },
-  "name": "FirebaseFutureAnalytics",
+  "name": "FirebaseAnalytics",
   "platforms": {
     "ios": "7.0"
   },
@@ -32,5 +32,5 @@
   "vendored_frameworks": [
     "Frameworks/FirebaseAnalytics.framework"
   ],
-  "version": "0.0.3"
+  "version": "0.0.4"
 }

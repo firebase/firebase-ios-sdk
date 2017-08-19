@@ -468,7 +468,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if (self) {
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _fetcherService.userAgent = [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
-        FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+        FirebaseAuthVersionStr, GTMFetcherStandardUserAgentString(nil)];
     _fetcherService.callbackQueue = FIRAuthGlobalWorkQueue();
   }
   return self;
@@ -483,7 +483,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
   NSString *clientVersion =
-      [NSString stringWithFormat:@"iOS/FirebaseSDK/%s", FirebaseAuthVersionString];
+      [NSString stringWithFormat:@"iOS/FirebaseSDK/%s", FirebaseAuthVersionStr];
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];

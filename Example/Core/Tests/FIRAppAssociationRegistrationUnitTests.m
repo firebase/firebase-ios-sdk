@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseFutureCore/FIRAppAssociationRegistration.h"
+#import "FirebaseCore/FIRAppAssociationRegistration.h"
 
 /** @var kKey
     @brief A unique string key.
