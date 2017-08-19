@@ -54,24 +54,6 @@ static const NSInteger kFErrorCodeWriteCanceled = 3;
 }
 
 - (void) testDeleteDatabase {
-    FIRDatabase *defaultDatabase = [FIRDatabase database];
-    FIRApp *defaultApp = [FIRApp defaultApp];
-    XCTAssertEqualObjects(defaultDatabase.app, defaultApp);
-
-    // Set up expectation for the default app to be deleted.
-    XCTestExpectation *defaultAppDeletedExpectation =
-        [self expectationWithDescription:@"Deleting the default app should invalidate the default "
-                                         @"database."];
-    [defaultApp deleteApp:^(BOOL success) {
-        // Deleting the default app should make the default database unavailable.
-        XCTAssertThrows([FIRDatabase database]);
-
-        [defaultAppDeletedExpectation fulfill];
-    }];
-
-    // Wait for the default app to be deleted.
-    [self waitForExpectations:@[defaultAppDeletedExpectation] timeout:2];
-
     // Set up a custom FIRApp with a custom database based on it.
     FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
                                                       GCMSenderID:@"gcm_sender_id"];
