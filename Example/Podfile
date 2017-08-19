@@ -5,7 +5,6 @@ source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
   pod 'Firebase', :path => '../'
-    pod 'FirebaseAnalytics', :path => '../'
   pod 'FirebaseCore', :path => '../'
 
 target 'Core_Example_iOS' do
