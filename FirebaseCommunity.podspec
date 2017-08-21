@@ -11,8 +11,7 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # NOTE that the FirebaseCommunity pod is neither publicly deployed nor yet interchangeable with the
-  # Firebase pod
+  # NOTE that the FirebaseCommunity pod is NOT yet interchangeable with the Firebase pod
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
