@@ -107,6 +107,53 @@ static id noop(id object, SEL cmd, ...) {
             didReceiveRemoteNotification:notification];
       }];
     }
+    SEL openURLOptionsSelector = @selector(application:openURL:options:);
+    SEL openURLAnnotationSelector = @selector(application:openURL:sourceApplication:annotation:);
+    SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
+    if (&UIApplicationOpenURLOptionsAnnotationKey &&  // the constant is only available on iOS 9+
+        ([_appDelegate respondsToSelector:openURLOptionsSelector] ||
+         (![_appDelegate respondsToSelector:openURLAnnotationSelector] &&
+          ![_appDelegate respondsToSelector:handleOpenURLSelector]))) {
+      // Replace the modern selector which is avaliable on iOS 9 and above because this is the one
+      // that the client app uses or the client app doesn't use any of them.
+      [self replaceSelector:openURLOptionsSelector
+                  withBlock:^BOOL(id object, UIApplication *application, NSURL *url,
+                                  NSDictionary *options) {
+        return [weakSelf object:object
+                       selector:openURLOptionsSelector
+                    application:application
+                        openURL:url
+                        options:options];
+       }];
+    } else if ([_appDelegate respondsToSelector:openURLAnnotationSelector] ||
+               ![_appDelegate respondsToSelector:handleOpenURLSelector]) {
+      // Replace the longer form of the deprecated selectors on iOS 8 and below because this is the
+      // one that the client app uses or the client app doesn't use either of the applicable ones.
+      [self replaceSelector:openURLAnnotationSelector
+                  withBlock:^(id object, UIApplication *application, NSURL *url,
+                              NSString *sourceApplication, id annotation) {
+        return [weakSelf object:object
+                       selector:openURLAnnotationSelector
+                    application:application
+                        openURL:url
+              sourceApplication:sourceApplication
+                     annotation:annotation];
+       }];
+    } else {
+      // Replace the shorter form of the deprecated selectors on iOS 8 and below because this is
+      // the only one that the client app uses.
+      [self replaceSelector:handleOpenURLSelector
+                  withBlock:^(id object, UIApplication *application, NSURL *url) {
+        return [weakSelf object:object
+                       selector:handleOpenURLSelector
+                    application:application
+                  handleOpenURL:url];
+       }];
+    }
+    // Reset the application delegate to clear the system cache that indicates whether each of the
+    // openURL: methods is implemented on the application delegate.
+    application.delegate = nil;
+    application.delegate = _appDelegate;
   }
   return self;
 }
@@ -146,7 +193,7 @@ static id noop(id object, SEL cmd, ...) {
     }
   }
   IMP originalImplementation = [self originalImplementationForSelector:selector];
-  if (originalImplementation) {
+  if (originalImplementation && originalImplementation != &noop) {
     typedef void (*Implmentation)(id, SEL, UIApplication*, NSData *);
     ((Implmentation)originalImplementation)(object, selector, application, deviceToken);
   }
@@ -166,10 +213,12 @@ static id noop(id object, SEL cmd, ...) {
     }
   }
   IMP originalImplementation = [self originalImplementationForSelector:selector];
-  typedef void (*Implmentation)(id, SEL, UIApplication*, NSDictionary *,
-                                void (^)(UIBackgroundFetchResult));
-  ((Implmentation)originalImplementation)(object, selector, application, notification,
-                                          completionHandler);
+  if (originalImplementation && originalImplementation != &noop) {
+    typedef void (*Implmentation)(id, SEL, UIApplication*, NSDictionary *,
+                                  void (^)(UIBackgroundFetchResult));
+    ((Implmentation)originalImplementation)(object, selector, application, notification,
+                                            completionHandler);
+  }
 }
 
 - (void)object:(id)object
@@ -184,11 +233,76 @@ static id noop(id object, SEL cmd, ...) {
     }
   }
   IMP originalImplementation = [self originalImplementationForSelector:selector];
-  typedef void (*Implmentation)(id, SEL, UIApplication*, NSDictionary *);
-  ((Implmentation)originalImplementation)(object, selector, application, notification);
+  if (originalImplementation && originalImplementation != &noop) {
+    typedef void (*Implmentation)(id, SEL, UIApplication*, NSDictionary *);
+    ((Implmentation)originalImplementation)(object, selector, application, notification);
+  }
+}
+
+- (BOOL)object:(id)object
+       selector:(SEL)selector
+    application:(UIApplication *)application
+        openURL:(NSURL *)url
+        options:(NSDictionary *)options {
+  if (object == _appDelegate && [self delegateCanHandleURL:url]) {
+    return YES;
+  }
+  IMP originalImplementation = [self originalImplementationForSelector:selector];
+  if (originalImplementation && originalImplementation != &noop) {
+    typedef BOOL (*Implmentation)(id, SEL, UIApplication*, NSURL *, NSDictionary *);
+    return ((Implmentation)originalImplementation)(object, selector, application, url, options);
+  }
+  return NO;
+}
+
+- (BOOL)object:(id)object
+             selector:(SEL)selector
+          application:(UIApplication *)application
+              openURL:(NSURL *)url
+    sourceApplication:(NSString *)sourceApplication
+           annotation:(id)annotation {
+  if (object == _appDelegate && [self delegateCanHandleURL:url]) {
+    return YES;
+  }
+  IMP originalImplementation = [self originalImplementationForSelector:selector];
+  if (originalImplementation && originalImplementation != &noop) {
+    typedef BOOL (*Implmentation)(id, SEL, UIApplication*, NSURL *, NSString *, id);
+    return ((Implmentation)originalImplementation)(object, selector, application, url,
+                                                   sourceApplication, annotation);
+  }
+  return NO;
+}
+
+- (BOOL)object:(id)object
+         selector:(SEL)selector
+      application:(UIApplication *)application
+    handleOpenURL:(NSURL *)url {
+  if (object == _appDelegate && [self delegateCanHandleURL:url]) {
+    return YES;
+  }
+  IMP originalImplementation = [self originalImplementationForSelector:selector];
+  if (originalImplementation && originalImplementation != &noop) {
+    typedef BOOL (*Implmentation)(id, SEL, UIApplication*, NSURL *);
+    return ((Implmentation)originalImplementation)(object, selector, application, url);
+  }
+  return NO;
 }
 
 #pragma mark - Internal Methods
+
+/** @fn delegateCanHandleURL:
+    @brief Checks for whether any of the delegates can handle the URL.
+    @param url The URL in question.
+    @return Whether any of the delegate can handle the URL.
+ */
+- (BOOL)delegateCanHandleURL:(NSURL *)url {
+  for (id<FIRAuthAppDelegateHandler> handler in [self handlers]) {
+    if ([handler canHandleURL:url]) {
+      return YES;
+    };
+  }
+  return NO;
+}
 
 /** @fn handlers
     @brief Gets the list of handlers from `_handlers` safely.

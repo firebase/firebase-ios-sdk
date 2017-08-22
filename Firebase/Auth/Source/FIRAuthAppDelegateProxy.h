@@ -37,6 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)canHandleNotification:(nonnull NSDictionary *)notification;
 
+/** @fn canHandleURL:
+    @brief Checks whether the URL can be handled by the receiver, and handles it if so.
+    @param url The URL in question, which will be consumed if returns @c YES.
+    @return Whether the URL can be (and already has been) handled by the receiver.
+ */
+- (BOOL)canHandleURL:(nonnull NSURL *)url;
+
 @end
 
 /** @class FIRAuthAppDelegateProxy
