@@ -34,6 +34,24 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readwrite) FIRStorageMetadataType type;
 
 /**
+ * The original metadata representation received from the server.
+ */
+@property(copy, nonatomic) NSDictionary *initialMetadata;
+
+/**
+ * Recursively removes entries in 'metadata' that are unmodified from 'oldMetadata'.
+ * Adds 'NSNull' for entries that only exist in oldMetadata.
+ */
++ (void)removeMatchingMetadata:(NSMutableDictionary *)metadata
+                   oldMetadata:(NSDictionary *)oldMetadata;
+
+/**
+ * Computes the updates between the state at initialization and the current state.
+ * Returns a dictionary with only the updated data. Removed keys are set to NSNull.
+ */
+- (NSDictionary *)updatedMetadata;
+
+/**
  * Returns an RFC3339 formatted date from a string.
  * @param dateString An NSString of the form: yyyy-MM-ddTHH:mm:ss.SSSZ.
  * @return An NSDate populated from the string or nil if conversion isn't possible.
