@@ -691,8 +691,8 @@ FIR_SWIFT_NAME(Auth)
         so the caller should ignore the URL from further processing, and NO means the
         the URL is for the app (or another libaray) so the caller should continue handling
         this URL as usual.
-    @remarks If swizzling is disabled, URLs received by application delegate must be forwarded to
-        this method for phone number auth to work.
+    @remarks If swizzling is disabled, URLs received by the application delegate must be forwarded
+        to this method for phone number auth to work.
  */
 - (BOOL)canHandleURL:(nonnull NSURL *)url;
 

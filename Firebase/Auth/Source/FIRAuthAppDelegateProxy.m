@@ -112,8 +112,8 @@ static id noop(id object, SEL cmd, ...) {
     SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
     if (&UIApplicationOpenURLOptionsAnnotationKey &&  // the constant is only available on iOS 9+
         ([_appDelegate respondsToSelector:openURLOptionsSelector] ||
-         !([_appDelegate respondsToSelector:openURLAnnotationSelector] ||
-           [_appDelegate respondsToSelector:handleOpenURLSelector]))) {
+         (![_appDelegate respondsToSelector:openURLAnnotationSelector] &&
+          ![_appDelegate respondsToSelector:handleOpenURLSelector]))) {
       // Replace the modern selector which is avaliable on iOS 9 and above because this is the one
       // that the client app uses or the client app doesn't use any of them.
       [self replaceSelector:openURLOptionsSelector

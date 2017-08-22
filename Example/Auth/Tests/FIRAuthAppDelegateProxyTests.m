@@ -271,13 +271,13 @@ NS_ASSUME_NONNULL_BEGIN
       id mockHandler = OCMProtocolMock(@protocol(FIRAuthAppDelegateHandler));
       [proxy addHandler:mockHandler];
 
-      // Verify handling of `application:didRegisterForRemoteNotificationsWithDeviceToken:`.
+      // Verify `application:didRegisterForRemoteNotificationsWithDeviceToken:` is handled.
       OCMExpect([mockHandler setAPNSToken:_deviceToken]);
       [delegate application:_mockApplication
           didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
       OCMVerifyAll(mockHandler);
 
-      // Verify handling of `application:didReceiveRemoteNotification:fetchCompletionHandler:`.
+      // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler:` is handled.
       OCMExpect([mockHandler canHandleNotification:_notification]).andReturn(YES);
       __block BOOL fetchCompletionHandlerCalled = NO;
       [delegate application:_mockApplication
@@ -289,13 +289,13 @@ NS_ASSUME_NONNULL_BEGIN
       OCMVerifyAll(mockHandler);
       XCTAssertTrue(fetchCompletionHandlerCalled);
 
-      // Verify handling of one of the `application:openURL:...` methods.
+      // Verify one of the `application:openURL:...` methods is handled.
       OCMExpect([mockHandler canHandleURL:_url]).andReturn(YES);
       if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
-        // Verify handling of `application:openURL:options:`.
+        // Verify `application:openURL:options:` is handled.
         XCTAssertTrue([delegate application:_mockApplication openURL:_url options:@{}]);
       } else {
-        // Verify handling of `application:openURL:sourceApplication:annotation:`.
+        // Verify `application:openURL:sourceApplication:annotation:` is handled.
         XCTAssertTrue([delegate application:_mockApplication
                                     openURL:_url
                           sourceApplication:@"sourceApplication"
@@ -382,7 +382,7 @@ NS_ASSUME_NONNULL_BEGIN
         id mockHandler2 = OCMProtocolMock(@protocol(FIRAuthAppDelegateHandler));
         [proxy addHandler:mockHandler2];
 
-        // Verify handling of `application:didRegisterForRemoteNotificationsWithDeviceToken:`.
+        // Verify `application:didRegisterForRemoteNotificationsWithDeviceToken:` is handled.
         OCMExpect([mockHandler1 setAPNSToken:_deviceToken]);
         OCMExpect([mockHandler2 setAPNSToken:_deviceToken]);
         [delegate application:_mockApplication
@@ -390,7 +390,7 @@ NS_ASSUME_NONNULL_BEGIN
         OCMVerifyAll(mockHandler1);
         OCMVerifyAll(mockHandler2);
 
-        // Verify handling of `application:didReceiveRemoteNotification:fetchCompletionHandler:`.
+        // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler:` is handled.
         OCMExpect([mockHandler1 canHandleNotification:_notification]).andReturn(YES);
         // handler2 shouldn't been invoked because it is already handled by handler1.
         [delegate application:_mockApplication didReceiveRemoteNotification:_notification];
@@ -398,7 +398,7 @@ NS_ASSUME_NONNULL_BEGIN
         OCMVerifyAll(mockHandler2);
         XCTAssertNil(delegate.notificationReceived);
 
-        // Verify handling of `application:openURL:sourceApplication:annotation:`.
+        // Verify `application:openURL:sourceApplication:annotation:` is handled.
         OCMExpect([mockHandler1 canHandleURL:_url]).andReturn(YES);
         XCTAssertTrue([delegate application:_mockApplication
                                     openURL:_url
@@ -414,20 +414,20 @@ NS_ASSUME_NONNULL_BEGIN
       // Verify the handler2 is not retained by the proxy.
       XCTAssertNil(weakHandler2);
 
-      // Verify handling of `application:didRegisterForRemoteNotificationsWithDeviceToken:`.
+      // Verify `application:didRegisterForRemoteNotificationsWithDeviceToken:` is handled.
       OCMExpect([mockHandler1 setAPNSToken:_deviceToken]);
       [delegate application:_mockApplication
           didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
       OCMVerifyAll(mockHandler1);
 
-      // Verify NOT handling of `application:didReceiveRemoteNotification:fetchCompletionHandler:`.
+      // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler:` is NOT handled.
       OCMExpect([mockHandler1 canHandleNotification:_notification]).andReturn(NO);
       [delegate application:_mockApplication didReceiveRemoteNotification:_notification];
       OCMVerifyAll(mockHandler1);
       XCTAssertEqualObjects(delegate.notificationReceived, _notification);
       delegate.notificationReceived = nil;
 
-      // Verify NOT handling of `application:openURL:sourceApplication:annotation:`.
+      // Verify `application:openURL:sourceApplication:annotation:` is NOT handled.
       OCMExpect([mockHandler1 canHandleURL:_url]).andReturn(NO);
       XCTAssertFalse([delegate application:_mockApplication
                                    openURL:_url
@@ -513,7 +513,7 @@ NS_ASSUME_NONNULL_BEGIN
       id mockHandler = OCMProtocolMock(@protocol(FIRAuthAppDelegateHandler));
       [proxy addHandler:mockHandler];
 
-      // Verify handling of `application:didRegisterForRemoteNotificationsWithDeviceToken:`.
+      // Verify `application:didRegisterForRemoteNotificationsWithDeviceToken:` is handled.
       OCMExpect([mockHandler setAPNSToken:_deviceToken]);
       [delegate application:_mockApplication
           didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
@@ -521,7 +521,7 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertEqualObjects(delegate.deviceTokenReceived, _deviceToken);
       delegate.deviceTokenReceived = nil;
 
-      // Verify handling of `application:didReceiveRemoteNotification:fetchCompletionHandler:`.
+      // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler:` is handled.
       OCMExpect([mockHandler canHandleNotification:_notification]).andReturn(YES);
       __block BOOL fetchCompletionHandlerCalled = NO;
       [delegate application:_mockApplication
@@ -534,13 +534,13 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertTrue(fetchCompletionHandlerCalled);
       XCTAssertNil(delegate.notificationReceived);
 
-      // Verify handling of one of the `application:openURL:...` methods.
+      // Verify one of the `application:openURL:...` methods is handled.
       OCMExpect([mockHandler canHandleURL:_url]).andReturn(YES);
       if (&UIApplicationOpenURLOptionsAnnotationKey) {  // iOS 9+
-        // Verify handling of `application:openURL:options:`.
+        // Verify `application:openURL:options:` is handled.
         XCTAssertTrue([delegate application:_mockApplication openURL:_url options:@{}]);
       } else {
-        // Verify handling of `application:openURL:sourceApplication:annotation:`.
+        // Verify `application:openURL:sourceApplication:annotation:` is handled.
         XCTAssertTrue([delegate application:_mockApplication
                                     openURL:_url
                           sourceApplication:@"sourceApplication"
@@ -644,7 +644,7 @@ NS_ASSUME_NONNULL_BEGIN
       id mockHandler = OCMProtocolMock(@protocol(FIRAuthAppDelegateHandler));
       [proxy addHandler:mockHandler];
 
-      // Verify handling of `application:handleOpenURL:`.
+      // Verify `application:handleOpenURL:` is handled.
       OCMExpect([mockHandler canHandleURL:_url]).andReturn(YES);
       XCTAssertTrue([delegate application:_mockApplication handleOpenURL:_url]);
       OCMVerifyAll(mockHandler);
