@@ -59,6 +59,11 @@ static NSString *const kTestSecret = @"secret";
  */
 static NSString *const kTestReceipt = @"receipt";
 
+/** @var kTestReCAPTCHAToken
+    @brief Fake reCAPTCHA token used for testing.
+ */
+static NSString *const kTestReCAPTCHAToken = @"reCAPTCHAToken";
+
 /** @var kInvalidPhoneNumberErrorMessage
     @brief This is the error message the server will respond with if an incorrectly formatted phone
         number is provided.
@@ -76,6 +81,12 @@ static NSString *const kQuotaExceededErrorMessage = @"QUOTA_EXCEEDED";
         app during a phone authentication flow.
  */
 static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
+
+/** @var kCaptchaCheckFailedErrorMessage
+    @brief This is the error message the server will respond with if the reCAPTCHA token provided is
+        invalid.
+ */
+static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
 
 /** @class FIRSendVerificationCodeResponseTests
     @brief Tests for @c FIRSendVerificationCodeResponseTests.
@@ -120,6 +131,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestInvalidPhoneNumber
                                                     appCredential:credential
+                                                   reCAPTCHAToken:nil
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
@@ -148,6 +160,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
+                                                   reCAPTCHAToken:nil
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
@@ -177,6 +190,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
+                                                   reCAPTCHAToken:nil
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;
@@ -196,6 +210,36 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeAppNotVerified);
 }
 
+/** @fn testSendVerificationCodeResponseCaptchaCheckFailedError
+    @brief Tests a failed attempt to send a verification code due to an invalid reCAPTCHA token
+        being provided in the request.
+ */
+- (void)testSendVerificationCodeResponseCaptchaCheckFailedError {
+  FIRAuthAppCredential *credential =
+      [[FIRAuthAppCredential alloc]initWithReceipt:kTestReceipt secret:kTestSecret];
+  FIRSendVerificationCodeRequest *request =
+      [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
+                                                    appCredential:credential
+                                                   reCAPTCHAToken:kTestReCAPTCHAToken
+                                             requestConfiguration:_requestConfiguration];
+  __block BOOL callbackInvoked;
+  __block FIRSendVerificationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend sendVerificationCode:request
+                              callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                         NSError *_Nullable error) {
+    RPCResponse = response;
+    RPCError = error;
+    callbackInvoked = YES;
+  }];
+
+  [_RPCIssuer respondWithServerErrorMessage:kCaptchaCheckFailedErrorMessage];
+
+  XCTAssert(callbackInvoked);
+  XCTAssertNil(RPCResponse);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeCaptchaCheckFailed);
+}
+
 /** @fn testSuccessfulSendVerificationCodeResponse
     @brief Tests a succesful to send a verification code.
  */
@@ -205,6 +249,7 @@ static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
+                                                   reCAPTCHAToken:nil
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRSendVerificationCodeResponse *RPCResponse;

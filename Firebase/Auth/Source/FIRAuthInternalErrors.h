@@ -307,6 +307,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeInvalidAppCredential =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidAppCredential,
 
+  /** Indicates that the reCAPTCHA token is not valid.
+   */
+  FIRAuthInternalErrorCodeCaptchaCheckFailed =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeCaptchaCheckFailed,
+
   /** Indicates that an invalid verification ID was used in the verifyPhoneNumber request.
    */
   FIRAuthInternalErrorCodeInvalidVerificationID =

@@ -444,6 +444,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message;
 
+/** @fn captchaCheckFailedErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCaptchaCheckFailed code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message;
+
 /** @fn keychainErrorWithFunction:status:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeKeychainError code.
     @param keychainFunction The keychain function which was invoked and yielded an unexpected
