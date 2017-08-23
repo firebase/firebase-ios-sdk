@@ -42,6 +42,11 @@ static NSString *const kTestSecret = @"secret";
  */
 static NSString *const kTestReceipt = @"receipt";
 
+/** @var kTestReCAPTCHAToken
+    @brief Fake reCAPTCHA token used for testing.
+ */
+static NSString *const kTestReCAPTCHAToken = @"reCAPTCHAToken";
+
 /** @var kPhoneNumberKey
     @brief The key for the "phone number" value in the request.
  */
@@ -101,10 +106,12 @@ static NSString *const kExpectedAPIURL =
   FIRSendVerificationCodeRequest *request =
       [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:kTestPhoneNumber
                                                     appCredential:credential
+                                                   reCAPTCHAToken:kTestReCAPTCHAToken
                                              requestConfiguration:requestConfiguration];
   XCTAssertEqualObjects(request.phoneNumber, kTestPhoneNumber);
   XCTAssertEqualObjects(request.appCredential.receipt, kTestReceipt);
   XCTAssertEqualObjects(request.appCredential.secret, kTestSecret);
+  XCTAssertEqualObjects(request.reCAPTCHAToken, kTestReCAPTCHAToken);
 
   [FIRAuthBackend sendVerificationCode:request
                               callback:^(FIRSendVerificationCodeResponse *_Nullable response,

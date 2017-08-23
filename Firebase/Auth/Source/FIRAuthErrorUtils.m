@@ -339,6 +339,12 @@ static NSString *const kFIRAuthErrorMessageAppNotVerified = @"Firebase could not
     "silent push notification and therefore could not verify your app. Ensure that you configured "
     "your app correctly to recieve push notifications.";
 
+/** @var kFIRAuthErrorMessageCaptchaCheckFailed
+    @brief Message for @c FIRAuthErrorCodeCaptchaCheckFailed error code.
+ */
+static NSString *const kFIRAuthErrorMessageCaptchaCheckFailed = @"The reCAPTCHA response token "
+    "provided is either invalid, expired or already";
+
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
@@ -447,6 +453,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageNotificationNotForwarded;
     case FIRAuthErrorCodeAppNotVerified:
       return kFIRAuthErrorMessageAppNotVerified;
+    case FIRAuthErrorCodeCaptchaCheckFailed:
+      return kFIRAuthErrorMessageCaptchaCheckFailed;
   }
 }
 
@@ -552,6 +560,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_NOTIFICATION_NOT_FORWARDED";
     case FIRAuthErrorCodeAppNotVerified:
       return @"ERROR_APP_NOT_VERIFIED";
+    case FIRAuthErrorCodeCaptchaCheckFailed:
+      return @"ERROR_CAPTCHA_CHECK_FAILED";
   }
 }
 
@@ -857,6 +867,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeAppNotVerified message:message];
+}
+
++ (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeCaptchaCheckFailed message:message];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

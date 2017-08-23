@@ -40,17 +40,24 @@ static NSString *const kReceiptKey = @"iosReceipt";
  */
 static NSString *const kSecretKey = @"iosSecret";
 
+/** @var kreCAPTCHATokenKey
+    @brief The key for the reCAPTCHAToken parameter in the request.
+ */
+static NSString *const kreCAPTCHATokenKey = @"recaptchaToken";
+
 @implementation FIRSendVerificationCodeRequest {
 }
 
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
-                               appCredential:(FIRAuthAppCredential *)appCredential
+                               appCredential:(nullable FIRAuthAppCredential *)appCredential
+                              reCAPTCHAToken:(nullable NSString *)reCAPTCHAToken
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kSendVerificationCodeEndPoint
             requestConfiguration:requestConfiguration];
   if (self) {
     _phoneNumber = [phoneNumber copy];
     _appCredential = appCredential;
+    _reCAPTCHAToken = [reCAPTCHAToken copy];
   }
   return self;
 }
@@ -65,6 +72,9 @@ static NSString *const kSecretKey = @"iosSecret";
   }
   if (_appCredential.secret) {
     postBody[kSecretKey] = _appCredential.secret;
+  }
+  if (_reCAPTCHAToken) {
+    postBody[kreCAPTCHATokenKey] = _reCAPTCHAToken;
   }
   return postBody;
 }

@@ -132,6 +132,7 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
     FIRSendVerificationCodeRequest *request =
         [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
                                                      appCredential:appCredential
+                                                    reCAPTCHAToken:nil
                                               requestConfiguration:_auth.requestConfiguration];
     [FIRAuthBackend sendVerificationCode:request
                                 callback:^(FIRSendVerificationCodeResponse *_Nullable response,

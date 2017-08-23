@@ -341,6 +341,12 @@ static NSString *const kQuoutaExceededErrorMessage = @"QUOTA_EXCEEDED";
  */
 static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
 
+/** @var kCaptchaCheckFailedErrorMessage
+    @brief This is the error message the server will respond with if the reCAPTCHA token provided is
+        invalid.
+ */
+static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
+
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
  */
@@ -1012,6 +1018,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage]) {
     return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kCaptchaCheckFailedErrorMessage]) {
+    return [FIRAuthErrorUtils captchaCheckFailedErrorWithMessage:serverErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,
