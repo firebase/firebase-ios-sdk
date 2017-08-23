@@ -747,23 +747,7 @@ static NSString *const kTestValue = @"TestValue";
 
   XCTAssertNotNil(callbackError);
   XCTAssertEqualObjects(callbackError.domain, FIRAuthErrorDomain);
-  XCTAssertEqual(callbackError.code, FIRAuthErrorCodeInternalError);
-
-  NSError *underlyingError = callbackError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNotNil(underlyingError);
-  XCTAssertEqualObjects(underlyingError.domain, FIRAuthInternalErrorDomain);
-  XCTAssertEqual(underlyingError.code, FIRAuthInternalErrorCodeUnexpectedErrorResponse);
-
-  NSError *underlyingUnderlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNil(underlyingUnderlyingError);
-
-  id deserializedResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDeserializedResponseKey];
-  XCTAssertNotNil(deserializedResponse);
-  XCTAssert([deserializedResponse isKindOfClass:[NSDictionary class]]);
-  XCTAssertNotNil(deserializedResponse[@"message"]);
-
-  id dataResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDataKey];
-  XCTAssertNil(dataResponse);
+  XCTAssertEqual(callbackError.code, FIRAuthErrorCodeCaptchaCheckFailed);
 }
 
 /** @fn testCaptchaRequiredInvalidPasswordResponse
