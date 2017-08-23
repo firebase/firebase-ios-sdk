@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '0.0.5'
+  s.version          = '0.0.6'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -14,7 +14,7 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
-  s.osx.deployment_target = '10.10'
+ # s.osx.deployment_target = '10.10'
   s.default_subspec  = 'Root'
 
   s.static_framework = true
