@@ -244,20 +244,7 @@
   XCTAssertEqualObjects(metadata0, metadata1);
 }
 
-- (void)testMetadataEmptyUpdate {
-  NSDictionary *oldMetadata = @{
-    kFIRStorageMetadataContentLanguage : @"old",
-    kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
-  };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
-
-  NSDictionary *update = [metadata updatedMetadata];
-
-  NSDictionary *expectedUpdate = @{ kFIRStorageMetadataCustomMetadata : @{} };
-  XCTAssertEqualObjects(update, expectedUpdate);
-}
-
-- (void)testMetadataFieldUpdate {
+- (void)testUpdatedMetadata {
   NSDictionary *oldMetadata = @{
     kFIRStorageMetadataContentLanguage : @"old",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
@@ -275,7 +262,20 @@
   XCTAssertEqualObjects(update, expectedUpdate);
 }
 
-- (void)testMetadataFieldDelete {
+- (void)testUpdatedMetadataWithEmptyUpdate {
+    NSDictionary *oldMetadata = @{
+                                  kFIRStorageMetadataContentLanguage : @"old",
+                                  kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
+                                  };
+    FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+
+    NSDictionary *update = [metadata updatedMetadata];
+
+    NSDictionary *expectedUpdate = @{ kFIRStorageMetadataCustomMetadata : @{} };
+    XCTAssertEqualObjects(update, expectedUpdate);
+}
+
+- (void)testUpdatedMetadataWithDelete {
   NSDictionary *oldMetadata = @{
     kFIRStorageMetadataContentLanguage : @"old",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}

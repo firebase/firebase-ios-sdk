@@ -15,6 +15,7 @@
  */
 
 #import "FIRStorageConstants_Private.h"
+#import "FIRStorageMetadata.h"
 
 @class FIRStorageReference;
 
@@ -34,7 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readwrite) FIRStorageMetadataType type;
 
 /**
- * The original metadata representation received from the server.
+ * The original metadata representation received from the server or an empty dictionary
+ * if the metadata object was initialized by the user.
  */
 @property(copy, nonatomic) NSDictionary *initialMetadata;
 
