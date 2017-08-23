@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '0.0.6'
+  s.version          = '0.0.7'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -14,12 +14,13 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
- # s.osx.deployment_target = '10.10'
+  s.osx.deployment_target = '10.10'
   s.default_subspec  = 'Root'
 
   s.static_framework = true
 
   s.preserve_paths = 'README.md'
+  s.preserve_paths = 'Firebase/Firebase/module.modulemap'
 
   #s.module_map = 'Firebase/Firebase/module.modulemap'
 #
@@ -27,44 +28,23 @@ Firebase Development CocoaPod including experimental and community supported fea
 
   #  sp.public_header_files = 'Firebase/Firebase/Firebase.h'
     sp.preserve_paths = 'README.md'
-    sp.preserve_paths = 'Firebase/Firebase/module.modulemap'
-    sp.source_files = 'Firebase/Firebase/Firebase.h'
-    sp.dependency 'FirebaseAnalytics'
+    sp.preserve_paths = 'Firebase/Firebase/Firebase.h'
+    sp.ios.dependency 'FirebaseAnalytics'
     sp.dependency 'FirebaseCore'
     sp.user_target_xcconfig = { 'HEADER_SEARCH_PATHS' =>
-      '$(inherited) ${PODS_ROOT}/Firebase'
-# TODO - Path in deployed pod
+      '$(inherited) ${PODS_ROOT}/Firebase/Firebase/Firebase'
     }
   end
 
-#  s.subspec 'Core' do |sp|
-#    sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-#    sp.dependency 'Firebase/Root'
-#  end
+  s.subspec 'Core' do |sp|
+    sp.dependency 'Firebase/Root'
+    sp.dependency 'FirebaseCore'
+  end
 
-#  s.subspec 'Auth' do |sp|
-#    sp.source_files = 'Firebase/Auth/Source/**/*.[mh]'
-#    sp.osx.exclude_files =
-#      'Firebase/Auth/Source/**/FIRAuthAppDelegateProxy.[mh]',
-#      'Firebase/Auth/Source/**/FIRAuthNotificationManager.[mh]',
-#      'Firebase/Auth/Source/**/FIRAuthAppCredentialManager.[mh]',
-#      'Firebase/Auth/Source/**/FIRAuthAPNSTokenManager.[mh]',
-#      'Firebase/Auth/Source/**/FIRAuthAPNSTokenType.[mh]',
-#      'Firebase/Auth/Source/**/FIRAuthAPNSToken.[mh]',
-#      'Firebase/Auth/Source/**/FIRPhoneAuthCredential.[mh]',
-#      'Firebase/Auth/Source/**/FIRPhoneAuthProvider.[mh]'
-#    sp.public_header_files = 'Firebase/Auth/Source/Public/*.h'
-#    sp.preserve_paths =
-#      'Firebase/Auth/README.md',
-#      'Firebase/Auth/CHANGELOG.md'
-#    sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRAuth_VERSION=' + s.version.to_s +
-#      ' -DFIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
-#    }
-#    sp.framework = 'Security'
-#    sp.dependency 'FirebaseCommunity/Core'
-#    sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'
-#    sp.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
-#  end
+  s.subspec 'Auth' do |sp|
+    sp.dependency 'Firebase/Root'
+    sp.dependency 'FirebaseAuth'
+  end
 #
 #  s.subspec 'Database' do |sp|
 #    sp.source_files = 'Firebase/Database/**/*.[mh]',
