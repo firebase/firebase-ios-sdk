@@ -35,8 +35,6 @@ NSString *const kFIRMessagingMessageSyncViaMCSKey = @"gcm." @"duplex";
 NSString *const kFIRMessagingMessageSyncMessageTTLKey = @"gcm." @"ttl";
 NSString *const kFIRMessagingMessageLinkKey = @"gcm." @"app_link";
 
-NSString *const kFIRMessagingLibraryVersion = @"FIRMessaging-version";
-
 NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey =
     @"FirebaseAppDelegateProxyEnabled";
 
