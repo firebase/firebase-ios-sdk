@@ -236,6 +236,10 @@ static NSString *const kTestValue = @"TestValue";
   return [NSURL URLWithString:kFakeRequestURL];
 }
 
+- (BOOL)containsPostBody {
+  return YES;
+}
+
 - (FIRAuthRequestConfiguration *)requestConfiguration {
   FIRAuthRequestConfiguration *fakeConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey];

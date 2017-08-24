@@ -31,6 +31,8 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRGetProjectConfigRequest.h"
+#import "FIRGetProjectConfigResponse.h"
 #import "FIRResetPasswordRequest.h"
 #import "FIRResetPasswordResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
@@ -398,6 +400,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] getAccountInfo:request callback:callback];
 }
 
++ (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback {
+  [[self implementation] getProjectConfig:request callback:callback];
+}
+
 + (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
               callback:(FIRSetAccountInfoResponseCallback)callback {
   [[self implementation] setAccountInfo:request callback:callback];
@@ -535,6 +542,18 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   FIRGetAccountInfoResponse *response = [[FIRGetAccountInfoResponse alloc] init];
+  [self postWithRequest:request response:response callback:^(NSError *error) {
+    if (error) {
+      callback(nil, error);
+    } else {
+      callback(response, nil);
+    }
+  }];
+}
+
+- (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback {
+  FIRGetProjectConfigResponse *response = [[FIRGetProjectConfigResponse alloc] init];
   [self postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
@@ -713,33 +732,36 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                response:(id<FIRAuthRPCResponse>)response
                callback:(void (^)(NSError *error))callback {
   NSError *error;
-  id postBody = [request unencodedHTTPRequestBodyWithError:&error];
-  if (!postBody) {
-    callback([FIRAuthErrorUtils RPCRequestEncodingErrorWithUnderlyingError:error]);
-    return;
-  }
-  NSJSONWritingOptions JSONWritingOptions = 0;
-  #if DEBUG
-    JSONWritingOptions |= NSJSONWritingPrettyPrinted;
-  #endif
-
   NSData *bodyData;
-  if ([NSJSONSerialization isValidJSONObject:postBody]) {
-    bodyData = [NSJSONSerialization dataWithJSONObject:postBody
-                                               options:JSONWritingOptions
-                                                 error:&error];
-    if (!bodyData) {
-      // This is an untested case. This happens exclusively when there is an error in the framework
-      // implementation of dataWithJSONObject:options:error:. This shouldn't normally occur as
-      // isValidJSONObject: should return NO in any case we should encounter an error.
-      error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:error];
+  if ([request containsPostBody]) {
+    id postBody = [request unencodedHTTPRequestBodyWithError:&error];
+    if (!postBody) {
+      callback([FIRAuthErrorUtils RPCRequestEncodingErrorWithUnderlyingError:error]);
+      return;
     }
-  } else {
-    error = [FIRAuthErrorUtils JSONSerializationErrorForUnencodableType];
-  }
-  if (!bodyData) {
-    callback(error);
-    return;
+
+    NSJSONWritingOptions JSONWritingOptions = 0;
+    #if DEBUG
+      JSONWritingOptions |= NSJSONWritingPrettyPrinted;
+    #endif
+
+    if ([NSJSONSerialization isValidJSONObject:postBody]) {
+      bodyData = [NSJSONSerialization dataWithJSONObject:postBody
+                                                 options:JSONWritingOptions
+                                                   error:&error];
+      if (!bodyData) {
+        // This is an untested case. This happens exclusively when there is an error in the framework
+        // implementation of dataWithJSONObject:options:error:. This shouldn't normally occur as
+        // isValidJSONObject: should return NO in any case we should encounter an error.
+        error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:error];
+      }
+    } else {
+      error = [FIRAuthErrorUtils JSONSerializationErrorForUnencodableType];
+    }
+    if (!bodyData) {
+      callback(error);
+      return;
+    }
   }
 
   [_RPCIssuer asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
