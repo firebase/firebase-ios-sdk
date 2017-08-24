@@ -733,7 +733,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                callback:(void (^)(NSError *error))callback {
   NSError *error;
   NSData *bodyData;
-  if ([request containPostBody]) {
+  if ([request containsPostBody]) {
     id postBody = [request unencodedHTTPRequestBodyWithError:&error];
     if (!postBody) {
       callback([FIRAuthErrorUtils RPCRequestEncodingErrorWithUnderlyingError:error]);

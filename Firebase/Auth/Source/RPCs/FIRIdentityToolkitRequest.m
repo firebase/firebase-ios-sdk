@@ -43,7 +43,7 @@ static NSString *gAPIHost = @"www.googleapis.com";
   return self;
 }
 
-- (BOOL)containPostBody {
+- (BOOL)containsPostBody {
   return YES;
 }
 

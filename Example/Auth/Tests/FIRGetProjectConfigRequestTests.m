@@ -65,7 +65,7 @@ static NSString *const kTestAPIKey = @"APIKey";
 
 
   }];
-  XCTAssertFalse([request containPostBody]);
+  XCTAssertFalse([request containsPostBody]);
   // Confirm that the quest has no decoded body as it is get request.
   XCTAssertNil(_RPCIssuer.decodedRequest);
 }

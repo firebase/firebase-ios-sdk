@@ -126,6 +126,10 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
   return URL;
 }
 
+- (BOOL)containsPostBody {
+  return YES;
+}
+
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   NSMutableDictionary *postBody = [@{
     kGrantTypeKey : [[self class] grantTypeStringWithGrantType:_grantType]

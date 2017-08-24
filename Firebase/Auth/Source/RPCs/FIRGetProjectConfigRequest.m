@@ -33,7 +33,7 @@ static NSString *const kGetProjectConfigEndPoint = @"getProjectConfig";
   return [super initWithEndpoint:getProjectConfigURL requestConfiguration:requestConfiguration];
 }
 
-- (BOOL)containPostBody {
+- (BOOL)containsPostBody {
   return NO;
 }
 

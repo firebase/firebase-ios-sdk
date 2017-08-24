@@ -124,7 +124,7 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
 
   [_RPCIssuer respondWithJSON:@{
     @"projectId": kTestProjectID,
-    @"authorizedDomains": @[ kTestDomain1, kTestDomain2]
+    @"authorizedDomains": @[ kTestDomain1, kTestDomain2 ]
   }];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);

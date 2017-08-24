@@ -236,7 +236,7 @@ static NSString *const kTestValue = @"TestValue";
   return [NSURL URLWithString:kFakeRequestURL];
 }
 
-- (BOOL)containPostBody {
+- (BOOL)containsPostBody {
   return YES;
 }
 

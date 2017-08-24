@@ -32,12 +32,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 
-/** @fn containPostBody
+/** @fn containsPostBody
     @brief Returns whether the request contains a post body or not. Requests without a post body
         are get requests.
     @remarks The default implementation returns YES.
  */
-- (BOOL)containPostBody;
+- (BOOL)containsPostBody;
 
 /** @fn UnencodedHTTPRequestBodyWithError:
     @brief Creates unencoded HTTP body representing the request.
