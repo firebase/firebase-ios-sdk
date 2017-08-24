@@ -27,11 +27,10 @@ static NSString *const kGetProjectConfigEndPoint = @"getProjectConfig";
 
 - (nullable instancetype)initWithRequestConfiguration:
     (FIRAuthRequestConfiguration *)requestConfiguration {
-    NSString *APIKey = requestConfiguration.APIKey;
-    NSString *getProjectConfigURL =
-        [NSString stringWithFormat:@"%@?key=%@", kGetProjectConfigEndPoint, APIKey];
-  return [super initWithEndpoint:getProjectConfigURL
-            requestConfiguration:requestConfiguration];
+  NSString *APIKey = requestConfiguration.APIKey;
+  NSString *getProjectConfigURL =
+      [NSString stringWithFormat:@"%@?key=%@", kGetProjectConfigEndPoint, APIKey];
+  return [super initWithEndpoint:getProjectConfigURL requestConfiguration:requestConfiguration];
 }
 
 - (BOOL)containPostBody {
