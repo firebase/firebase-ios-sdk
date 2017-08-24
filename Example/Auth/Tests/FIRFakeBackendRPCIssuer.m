@@ -34,9 +34,11 @@ static NSString *const kFakeErrorDomain = @"fake domain";
                                    contentType:(NSString *)contentType
                              completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler {
   _requestURL = [URL copy];
-  _requestData = body;
-  NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:body options:0 error:nil];
-  _decodedRequest = JSON;
+  if (body) {
+    _requestData = body;
+    NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:body options:0 error:nil];
+    _decodedRequest = JSON;
+  }
   _contentType = contentType;
   _handler = handler;
 }

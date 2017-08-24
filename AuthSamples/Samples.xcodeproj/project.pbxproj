@@ -26,7 +26,9 @@
 		52C975C71EE10B1304EBBEB2 /* Pods_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */; };
 		569C3F4E18627674CABE02AE /* Pods_EarlGreyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */; };
 		67AFFB52FF0FC4668D92F2E4 /* Pods_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */; };
+		7E9969EE1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E9969EC1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m */; };
 		7EDFD35B1F0EA29200B29DC5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7EDFD35D1F0EA29200B29DC5 /* Localizable.strings */; };
+		7EEEFEE61F4E4F75000FF966 /* FIRGetProjectConfigResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EEA8ADD1F4E4E840014A23B /* FIRGetProjectConfigResponseTests.m */; };
 		A7609DCAD8A247411F27EA14 /* Pods_TestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDD2401395E91D0923BC5CD8 /* Pods_TestApp.framework */; };
 		AB62D09AF8C1196E07F37D3B /* Pods_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F689EE8E0E6F83D82429F0 /* Pods_SwiftSample.framework */; };
 		BD555A1DCF4E889DC3338248 /* Pods_FirebaseAuthUnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */; };
@@ -183,8 +185,10 @@
 		6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E0BC64A1F199D86008BE4E0 /* fr-FR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-FR"; path = "fr-FR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7E0BC64E1F19A77C008BE4E0 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7E9969EC1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetProjectConfigRequestTests.m; path = ../../Example/Auth/Tests/FIRGetProjectConfigRequestTests.m; sourceTree = "<group>"; };
 		7EDFD35C1F0EA29200B29DC5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		7EDFD3771F0EA2A900B29DC5 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7EEA8ADD1F4E4E840014A23B /* FIRGetProjectConfigResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetProjectConfigResponseTests.m; sourceTree = "<group>"; };
 		81ED9C5F2E61472DE3FA17CC /* Pods-ApiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ApiTests/Pods-ApiTests.release.xcconfig"; sourceTree = "<group>"; };
 		920E926BD468CBC593349A36 /* Pods-FirebaseAuthUnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseAuthUnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseAuthUnitTests/Pods-FirebaseAuthUnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		94E3B3EB70D34E55CFF2E45D /* Pods-EarlGreyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EarlGreyTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-EarlGreyTests/Pods-EarlGreyTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -551,6 +555,8 @@
 				DE5371B01EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.h */,
 				DE5371B11EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m */,
 				DE5371B21EA7E89D000DA57F /* Tests-Info.plist */,
+				7E9969EC1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m */,
+				7EEA8ADD1F4E4E840014A23B /* FIRGetProjectConfigResponseTests.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -918,7 +924,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		14D1078EE81275B0906224AE /* [CP] Embed Pods Frameworks */ = {
@@ -966,7 +972,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		31C9CD5738CD8A86F3E29FD4 /* [CP] Check Pods Manifest.lock */ = {
@@ -984,7 +990,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		45E0A7D32BD529EA299F169F /* [CP] Embed Pods Frameworks */ = {
@@ -1046,7 +1052,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		90FD4EF0F0A764C0793CAA62 /* [CP] Embed Pods Frameworks */ = {
@@ -1218,7 +1224,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		DECFE0EC98C60CEE719E03CA /* [CP] Check Pods Manifest.lock */ = {
@@ -1236,7 +1242,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		F2982E8E37D71A5B31C19526 /* [CP] Embed Pods Frameworks */ = {
@@ -1317,6 +1323,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E9969EE1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m in Sources */,
 				DE5371B31EA7E89D000DA57F /* FIRAdditionalUserInfoTests.m in Sources */,
 				DE5371B61EA7E89D000DA57F /* FIRAuthAppDelegateProxyTests.m in Sources */,
 				DE5371DD1EA7E89D000DA57F /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
@@ -1359,6 +1366,7 @@
 				DECEA56C1EBBED1200273585 /* FIRAuthAPNSTokenManagerTests.m in Sources */,
 				DE5371CD1EA7E89D000DA57F /* FIRSendVerificationCodeResponseTests.m in Sources */,
 				DE5371C71EA7E89D000DA57F /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
+				7EEEFEE61F4E4F75000FF966 /* FIRGetProjectConfigResponseTests.m in Sources */,
 				DE5371C21EA7E89D000DA57F /* FIRDeleteAccountResponseTests.m in Sources */,
 				DE5371CB1EA7E89D000DA57F /* FIRResetPasswordResponseTests.m in Sources */,
 				DE5371D21EA7E89D000DA57F /* FIRTwitterAuthProviderTests.m in Sources */,
