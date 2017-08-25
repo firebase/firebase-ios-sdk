@@ -1,3 +1,6 @@
+# v4.1.1
+- Improved method documentation in headers.
+
 # v4.1.0
 - Allows the app to handle continue URL natively, e.g., from password reset
   email.
