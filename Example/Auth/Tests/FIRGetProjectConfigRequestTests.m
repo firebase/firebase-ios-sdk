@@ -21,10 +21,25 @@
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
 
+/** @var kGetProjectConfigEndPoint
+    @brief The "getProjectConfig" endpoint.
+ */
+static NSString *const kGetProjectConfigEndPoint = @"getProjectConfig";
+
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
  */
 static NSString *const kTestAPIKey = @"APIKey";
+
+/** @var kAPIURLFormat
+    @brief URL format for server API calls.
+ */
+static NSString *const kAPIURLFormat = @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
+
+/** @var gAPIHost
+    @brief Host for server API calls.
+ */
+static NSString *gAPIHost = @"www.googleapis.com";
 
 @interface FIRGetProjectConfigRequestTests : XCTestCase
 @end
@@ -68,6 +83,11 @@ static NSString *const kTestAPIKey = @"APIKey";
   XCTAssertFalse([request containsPostBody]);
   // Confirm that the quest has no decoded body as it is get request.
   XCTAssertNil(_RPCIssuer.decodedRequest);
+  NSString *URLString = [NSString stringWithFormat:kAPIURLFormat,
+                                                   gAPIHost,
+                                                   kGetProjectConfigEndPoint,
+                                                   kTestAPIKey];
+  XCTAssertTrue([URLString isEqualToString:[request requestURL]]);
 }
 
 @end
