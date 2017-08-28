@@ -328,7 +328,7 @@ NS_ASSUME_NONNULL_BEGIN
               fetchCompletionHandler:^(UIBackgroundFetchResult result) {
       XCTFail(@"Should not call completion handler.");
     }];
-    if (_isIOS9orLater) {  // iOS 9+
+    if (_isIOS9orLater) {
       XCTAssertFalse([delegate application:_mockApplication openURL:_url options:@{}]);
     } else {
       XCTAssertFalse([delegate application:_mockApplication
@@ -349,7 +349,7 @@ NS_ASSUME_NONNULL_BEGIN
             fetchCompletionHandler:^(UIBackgroundFetchResult result) {
     XCTFail(@"Should not call completion handler.");
   }];
-  if (&_isIOS9orLater) {  // iOS 9+
+  if (_isIOS9orLater) {
     XCTAssertFalse([delegate application:_mockApplication openURL:_url options:@{}]);
   } else {
     XCTAssertFalse([delegate application:_mockApplication
@@ -509,7 +509,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertFalse([delegate respondsToSelector:
                     @selector(application:didReceiveRemoteNotification:)]);
     XCTAssertTrue([delegate respondsToSelector:@selector(application:openURL:options:)]);
-    if (_isIOS9orLater) {  // iOS 9+
+    if (_isIOS9orLater) {
       XCTAssertFalse([delegate respondsToSelector:
                       @selector(application:openURL:sourceApplication:annotation:)]);
     } else {
@@ -547,7 +547,7 @@ NS_ASSUME_NONNULL_BEGIN
 
       // Verify one of the `application:openURL:...` methods is handled.
       OCMExpect([mockHandler canHandleURL:_url]).andReturn(YES);
-      if (_isIOS9orLater) {  // iOS 9+
+      if (_isIOS9orLater) {
         // Verify `application:openURL:options:` is handled.
         XCTAssertTrue([delegate application:_mockApplication openURL:_url options:@{}]);
       } else {
