@@ -166,5 +166,4 @@ static NSTimeInterval kExpectationTimeout = 1;
   [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
-
 @end
