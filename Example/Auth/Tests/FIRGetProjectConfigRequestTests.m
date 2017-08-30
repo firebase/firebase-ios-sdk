@@ -87,7 +87,7 @@ static NSString *gAPIHost = @"www.googleapis.com";
                                                    gAPIHost,
                                                    kGetProjectConfigEndPoint,
                                                    kTestAPIKey];
-  XCTAssertTrue([URLString isEqualToString:[request requestURL]]);
+  XCTAssertTrue([URLString isEqualToString:[request requestURL].absoluteString]);
 }
 
 @end
