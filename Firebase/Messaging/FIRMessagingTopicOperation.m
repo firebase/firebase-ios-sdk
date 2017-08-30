@@ -169,6 +169,14 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];
   NSString *encodedTopic =
       [self.topic stringByAddingPercentEncodingWithAllowedCharacters:characterSet];
+  if (encodedTopic == nil) {
+    // The transformation was somehow not possible, so use the original topic.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicOptionTopicEncodingFailed,
+                           @"Unable to encode the topic '%@' during topic subscription change. "
+                           @"Please ensure that the topic name contains only valid characters.",
+                           self.topic);
+    encodedTopic = self.topic;
+  }
 
   NSMutableString *content = [NSMutableString stringWithFormat:
                               @"sender=%@&app=%@&device=%@&"
