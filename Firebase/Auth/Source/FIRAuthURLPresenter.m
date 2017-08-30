@@ -17,10 +17,19 @@
 #import "FIRAuthURLPresenter.h"
 
 #import "FIRAuthErrorUtils.h"
+#import "FIRAuthUIDelegate.h"
 
 @import SafariServices;
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
+/** @fn defaultUIDelegate
+    @brief Returns a default FIRAuthUIDelegate object.
+    @return The default FIRAuthUIDelegate object.
+ */
++ (id<FIRAuthUIDelegate>)defaultUIDelegate;
+@end
 
 @interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate>
 @end
@@ -51,22 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
   _completion = completion;
   // If a UIDelegate is not provided.
   if (!UIDelegate) {
-    UIViewController *topViewController =
-        [UIApplication sharedApplication].keyWindow.rootViewController;
-    while (true){
-     if (topViewController.presentedViewController) {
-         topViewController = topViewController.presentedViewController;
-     } else if ([topViewController isKindOfClass:[UINavigationController class]]) {
-         UINavigationController *nav = (UINavigationController *)topViewController;
-         topViewController = nav.topViewController;
-     } else if ([topViewController isKindOfClass:[UITabBarController class]]) {
-         UITabBarController *tab = (UITabBarController *)topViewController;
-         topViewController = tab.selectedViewController;
-     } else {
-         break;
-     }
-    }
-    [self presentWebContextWithController:topViewController URL:URL];
+    id<FIRAuthUIDelegate> delegate = [FIRAuthDefaultUIDelegate defaultUIDelegate];
+    [self presentWebContextWithController:delegate URL:URL];
     return;
   }
   // If a valid UIDelegate is provided.

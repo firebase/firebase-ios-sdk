@@ -348,14 +348,14 @@ static NSString *const kFIRAuthErrorMessageCaptchaCheckFailed = @"The reCAPTCHA 
 /** @var kFIRAuthErrorMessageWebContextAlreadyPresented
     @brief Message for @c FIRAuthErrorCodeWebContextAlreadyPresented error code.
  */
-static NSString *const kFIRAuthErrorMessageWebContextAlreadyPresented = @"More than one URL "
-    "cannot be presented at the same time.";
+static NSString *const kFIRAuthErrorMessageWebContextAlreadyPresented = @"User interaction is "
+    "still ongoing, another view cannot be presented.";
 
 /** @var kFIRAuthErrorMessageWebContextCancelled
     @brief Message for @c FIRAuthErrorCodeWebContextCancelled error code.
  */
-static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The presented URL was "
-    "prematurely closed by the user.";
+static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The user cancelled the sign-in "
+    "flow.";
 
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.

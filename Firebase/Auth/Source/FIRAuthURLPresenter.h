@@ -23,6 +23,8 @@
 #define HAS_SAFARI_VIEW_CONTROLLER 1
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @typedef FIRAuthURLPresentationCompletion
     @brief The type of block invoked when the URLPresentation completes.
     @param callbackURL The callback URL if the presentation ends with a matching callback.
@@ -37,8 +39,6 @@ typedef void (^FIRAuthURLPresentationCompletion)(NSURL *_Nullable callbackURL,
     @return Whether or not the specific callback URL matches or not.
  */
 typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL * _Nullable callbackURL);
-
-NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthURLPresenter : NSObject
 
