@@ -165,6 +165,19 @@ NSString *FIRMessagingSubscriptionsServer() {
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
   [request setValue:self.checkinService.versionInfo forHTTPHeaderField:@"info"];
 
+  // Topic can contain special characters (like `%`) so encode the value.
+  NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];
+  NSString *encodedTopic =
+      [self.topic stringByAddingPercentEncodingWithAllowedCharacters:characterSet];
+  if (encodedTopic == nil) {
+    // The transformation was somehow not possible, so use the original topic.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicOptionTopicEncodingFailed,
+                           @"Unable to encode the topic '%@' during topic subscription change. "
+                           @"Please ensure that the topic name contains only valid characters.",
+                           self.topic);
+    encodedTopic = self.topic;
+  }
+
   NSMutableString *content = [NSMutableString stringWithFormat:
                               @"sender=%@&app=%@&device=%@&"
                               @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
@@ -172,8 +185,8 @@ NSString *FIRMessagingSubscriptionsServer() {
                               appIdentifier,
                               deviceAuthID,
                               FIRMessagingCurrentAppVersion(),
-                              self.topic,
-                              self.topic];
+                              encodedTopic,
+                              encodedTopic];
 
   if (self.action == FIRMessagingTopicActionUnsubscribe) {
     [content appendString:@"&delete=true"];
