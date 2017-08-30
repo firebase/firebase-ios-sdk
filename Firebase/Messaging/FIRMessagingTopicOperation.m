@@ -165,6 +165,11 @@ NSString *FIRMessagingSubscriptionsServer() {
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
   [request setValue:self.checkinService.versionInfo forHTTPHeaderField:@"info"];
 
+  // Topic can contain special characters (like `%`) so encode the value.
+  NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];
+  NSString *encodedTopic =
+      [self.topic stringByAddingPercentEncodingWithAllowedCharacters:characterSet];
+
   NSMutableString *content = [NSMutableString stringWithFormat:
                               @"sender=%@&app=%@&device=%@&"
                               @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
@@ -172,8 +177,8 @@ NSString *FIRMessagingSubscriptionsServer() {
                               appIdentifier,
                               deviceAuthID,
                               FIRMessagingCurrentAppVersion(),
-                              self.topic,
-                              self.topic];
+                              encodedTopic,
+                              encodedTopic];
 
   if (self.action == FIRMessagingTopicActionUnsubscribe) {
     [content appendString:@"&delete=true"];
