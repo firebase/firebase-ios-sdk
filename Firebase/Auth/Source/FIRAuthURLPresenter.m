@@ -84,18 +84,18 @@ NS_ASSUME_NONNULL_BEGIN
     @param URL The URL to display in the SFSafariViewController or WKWebView.
  */
 - (void)presentWebContextWithController:(id)controller URL:(NSURL *)URL {
-#if HAS_SAFARI_VIEW_CONTROLLER
-   if (_safariViewController) {
-    // Unable to start a new presentation on top of modal SFSVC presentation.
-    _completion(nil, [FIRAuthErrorUtils webContextAlreadyPresentedErrorWithMessage:nil]);
+  if ([SFSafariViewController class]) {
+    if (_safariViewController) {
+      // Unable to start a new presentation on top of modal SFSVC presentation.
+      _completion(nil, [FIRAuthErrorUtils webContextAlreadyPresentedErrorWithMessage:nil]);
+      return;
+    }
+    SFSafariViewController *safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
+    _safariViewController = safariViewController;
+    _safariViewController.delegate = self;
+    [controller presentViewController:safariViewController animated:YES completion:nil];
     return;
   }
-  SFSafariViewController *safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
-  _safariViewController = safariViewController;
-  _safariViewController.delegate = self;
-  [controller presentViewController:safariViewController animated:YES completion:nil];
-  return;
-#endif
 }
 
 #pragma mark - SFSafariViewControllerDelegate
@@ -118,17 +118,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)finishPresentationWithURL:(nullable NSURL *)URL
                             error:(nullable NSError *)error {
   FIRAuthURLPresentationCompletion completion = _completion;
-    void (^finishBlock)() = ^() {
-      completion(URL, nil);
-    };
-    _completion = nil;
-#if HAS_SAFARI_VIEW_CONTROLLER
+  void (^finishBlock)() = ^() {
+    completion(URL, nil);
+  };
+  _completion = nil;
+  if ([SFSafariViewController class]) {
     SFSafariViewController *safariViewController = _safariViewController;
     _safariViewController = nil;
     if (safariViewController) {
       [safariViewController dismissViewControllerAnimated:YES completion:finishBlock];
     }
-#endif
+  }
 }
 
 @end
