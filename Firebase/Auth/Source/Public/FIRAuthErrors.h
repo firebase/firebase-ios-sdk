@@ -272,6 +272,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeAppNotVerified = 17055,
 
+    /** Indicates that the reCAPTCHA token is not valid.
+     */
+    FIRAuthErrorCodeCaptchaCheckFailed = 17056,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,

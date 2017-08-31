@@ -43,6 +43,10 @@ static NSString *gAPIHost = @"www.googleapis.com";
   return self;
 }
 
+- (BOOL)containsPostBody {
+  return YES;
+}
+
 - (NSURL *)requestURL {
   NSString *URLString = [NSString stringWithFormat:kAPIURLFormat, gAPIHost, _endpoint, _APIKey];
   NSURL *URL = [NSURL URLWithString:URLString];

@@ -33,7 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** @property appCredential
     @brief The credential to prove the identity of the app in order to send the verification code.
  */
-@property(nonatomic, strong, readonly) FIRAuthAppCredential *appCredential;
+@property(nonatomic, strong, readonly, nullable) FIRAuthAppCredential *appCredential;
+
+/** @property reCAPTCHAToken
+    @brief The reCAPTCHA token to prove the identity of the app in order to send the verification
+        code.
+ */
+@property(nonatomic, strong, readonly, nullable) NSString *reCAPTCHAToken;
 
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithPhoneNumber:appCredentials:requestConfiguration: instead.
@@ -46,10 +52,12 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Designated initializer.
     @param phoneNumber The phone number to which the verification code is to be sent.
     @param appCredential The credential that proves the identity of the app.
+    @param reCAPTCHAToken The reCAPTCHA token that proves the identity of the app.
     @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithPhoneNumber:(NSString *)phoneNumber
-                               appCredential:(FIRAuthAppCredential *)appCredential
+                               appCredential:(nullable FIRAuthAppCredential *)appCredential
+                              reCAPTCHAToken:(nullable NSString *)reCAPTCHAToken
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                             NS_DESIGNATED_INITIALIZER;
 

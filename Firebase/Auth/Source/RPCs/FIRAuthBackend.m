@@ -31,6 +31,8 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRGetProjectConfigRequest.h"
+#import "FIRGetProjectConfigResponse.h"
 #import "FIRResetPasswordRequest.h"
 #import "FIRResetPasswordResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
@@ -341,6 +343,12 @@ static NSString *const kQuoutaExceededErrorMessage = @"QUOTA_EXCEEDED";
  */
 static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
 
+/** @var kCaptchaCheckFailedErrorMessage
+    @brief This is the error message the server will respond with if the reCAPTCHA token provided is
+        invalid.
+ */
+static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
+
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
  */
@@ -390,6 +398,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 + (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   [[self implementation] getAccountInfo:request callback:callback];
+}
+
++ (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback {
+  [[self implementation] getProjectConfig:request callback:callback];
 }
 
 + (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
@@ -529,6 +542,18 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   FIRGetAccountInfoResponse *response = [[FIRGetAccountInfoResponse alloc] init];
+  [self postWithRequest:request response:response callback:^(NSError *error) {
+    if (error) {
+      callback(nil, error);
+    } else {
+      callback(response, nil);
+    }
+  }];
+}
+
+- (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback {
+  FIRGetProjectConfigResponse *response = [[FIRGetProjectConfigResponse alloc] init];
   [self postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
@@ -707,33 +732,36 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                response:(id<FIRAuthRPCResponse>)response
                callback:(void (^)(NSError *error))callback {
   NSError *error;
-  id postBody = [request unencodedHTTPRequestBodyWithError:&error];
-  if (!postBody) {
-    callback([FIRAuthErrorUtils RPCRequestEncodingErrorWithUnderlyingError:error]);
-    return;
-  }
-  NSJSONWritingOptions JSONWritingOptions = 0;
-  #if DEBUG
-    JSONWritingOptions |= NSJSONWritingPrettyPrinted;
-  #endif
-
   NSData *bodyData;
-  if ([NSJSONSerialization isValidJSONObject:postBody]) {
-    bodyData = [NSJSONSerialization dataWithJSONObject:postBody
-                                               options:JSONWritingOptions
-                                                 error:&error];
-    if (!bodyData) {
-      // This is an untested case. This happens exclusively when there is an error in the framework
-      // implementation of dataWithJSONObject:options:error:. This shouldn't normally occur as
-      // isValidJSONObject: should return NO in any case we should encounter an error.
-      error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:error];
+  if ([request containsPostBody]) {
+    id postBody = [request unencodedHTTPRequestBodyWithError:&error];
+    if (!postBody) {
+      callback([FIRAuthErrorUtils RPCRequestEncodingErrorWithUnderlyingError:error]);
+      return;
     }
-  } else {
-    error = [FIRAuthErrorUtils JSONSerializationErrorForUnencodableType];
-  }
-  if (!bodyData) {
-    callback(error);
-    return;
+
+    NSJSONWritingOptions JSONWritingOptions = 0;
+    #if DEBUG
+      JSONWritingOptions |= NSJSONWritingPrettyPrinted;
+    #endif
+
+    if ([NSJSONSerialization isValidJSONObject:postBody]) {
+      bodyData = [NSJSONSerialization dataWithJSONObject:postBody
+                                                 options:JSONWritingOptions
+                                                   error:&error];
+      if (!bodyData) {
+        // This is an untested case. This happens exclusively when there is an error in the framework
+        // implementation of dataWithJSONObject:options:error:. This shouldn't normally occur as
+        // isValidJSONObject: should return NO in any case we should encounter an error.
+        error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:error];
+      }
+    } else {
+      error = [FIRAuthErrorUtils JSONSerializationErrorForUnencodableType];
+    }
+    if (!bodyData) {
+      callback(error);
+      return;
+    }
   }
 
   [_RPCIssuer asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
@@ -1012,6 +1040,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage]) {
     return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kCaptchaCheckFailedErrorMessage]) {
+    return [FIRAuthErrorUtils captchaCheckFailedErrorWithMessage:serverErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

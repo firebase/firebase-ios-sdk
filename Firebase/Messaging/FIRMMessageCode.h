@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeFIRApp000 = 1000,  // I-FCM001000
   kFIRMessagingMessageCodeFIRApp001 = 1001,  // I-FCM001001
   // FIRMessaging.m
-  kFIRMessagingMessageCodeMessaging000 = 2000,  // I-FCM002000
+  kFIRMessagingMessageCodeMessagingPrintLibraryVersion = 2000,  // I-FCM002000
   kFIRMessagingMessageCodeMessaging001 = 2001,  // I-FCM002001
   kFIRMessagingMessageCodeMessaging002 = 2002,  // I-FCM002002 - no longer used
   kFIRMessagingMessageCodeMessaging003 = 2003,  // I-FCM002003
@@ -166,6 +166,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTopicOption000 = 17000,  // I-FCM017000
   kFIRMessagingMessageCodeTopicOption001 = 17001,  // I-FCM017001
   kFIRMessagingMessageCodeTopicOption002 = 17002,  // I-FCM017002
+  kFIRMessagingMessageCodeTopicOptionTopicEncodingFailed = 17003,  // I-FCM017003
   // FIRMessagingUtilities.m
   kFIRMessagingMessageCodeUtilities000 = 18000,  // I-FCM018000
   kFIRMessagingMessageCodeUtilities001 = 18001,  // I-FCM018001
