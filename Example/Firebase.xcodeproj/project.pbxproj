@@ -285,6 +285,10 @@
 		D0FE8A951ED9CAAE003F6722 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1C1ED9C6D2003F6722 /* FIRViewController.m */; };
 		D0FE8A961ED9CAAE003F6722 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1D1ED9C6D2003F6722 /* main.m */; };
 		D22080FB4B7F4238FAC548D6 /* Pods_Auth_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CECEF04E3B788FA2FA9B29F1 /* Pods_Auth_Tests_iOS.framework */; };
+		D9B0D41E1F578F6D00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */; };
+		D9B0D41F1F578F6E00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */; };
+		D9B0D4201F578F7200A567C2 /* FIRGetProjectConfigResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */; };
+		D9B0D4211F578F7300A567C2 /* FIRGetProjectConfigResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */; };
 		DE0E5BBB1EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */; };
 		DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */; };
 		DE0E5BBD1EA7D93100FAA825 /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */; };
@@ -825,6 +829,8 @@
 		D0FE8A8C1ED9C87B003F6722 /* Database_IntegrationTests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_IntegrationTests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4E15AD159B5F9FD595AD761 /* Pods-Auth_Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Example_macOS/Pods-Auth_Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D8324AEFAEEF81EEDE114E33 /* Pods-Auth_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetProjectConfigResponseTests.m; sourceTree = "<group>"; };
+		D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetProjectConfigRequestTests.m; sourceTree = "<group>"; };
 		DAEC0C3CA3C043F584C0D281 /* Pods-Database_IntegrationTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_IntegrationTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Database_IntegrationTests_iOS/Pods-Database_IntegrationTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppCredentialTests.m; sourceTree = "<group>"; };
 		DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppDelegateProxyTests.m; sourceTree = "<group>"; };
@@ -1715,6 +1721,8 @@
 				DE93150C1E86C6FF0083EDBF /* FIRGetAccountInfoResponseTests.m */,
 				DE93150D1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeRequestTests.m */,
 				DE93150E1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeResponseTests.m */,
+				D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */,
+				D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */,
 				DE93150F1E86C6FF0083EDBF /* FIRGitHubAuthProviderTests.m */,
 				DE9315111E86C6FF0083EDBF /* FIRResetPasswordRequestTests.m */,
 				DE9315121E86C6FF0083EDBF /* FIRResetPasswordResponseTests.m */,
@@ -3918,8 +3926,10 @@
 				D01853B11EDAD364003A645C /* FIRSignUpNewUserRequestTests.m in Sources */,
 				D01853B21EDAD364003A645C /* FIRGetAccountInfoResponseTests.m in Sources */,
 				D01853B31EDAD364003A645C /* FIRSetAccountInfoRequestTests.m in Sources */,
+				D9B0D41F1F578F6E00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */,
 				D01853B41EDAD364003A645C /* FIRAuthAppCredentialTests.m in Sources */,
 				D01853B51EDAD364003A645C /* FIRAuthSerialTaskQueueTests.m in Sources */,
+				D9B0D4211F578F7300A567C2 /* FIRGetProjectConfigResponseTests.m in Sources */,
 				D01853B61EDAD364003A645C /* FIRApp+FIRAuthUnitTests.m in Sources */,
 				D01853B71EDAD364003A645C /* FIRSetAccountInfoResponseTests.m in Sources */,
 				D01853B81EDAD364003A645C /* FIRAuthTests.m in Sources */,
@@ -4131,6 +4141,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9B0D41E1F578F6D00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */,
 				DE9315691E86C71C0083EDBF /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
 				DE9315661E86C71C0083EDBF /* FIRGetAccountInfoRequestTests.m in Sources */,
 				DE9315731E86C71C0083EDBF /* FIRSignUpNewUserResponseTests.m in Sources */,
@@ -4173,6 +4184,7 @@
 				DE0E5BBD1EA7D93100FAA825 /* FIRAuthAppCredentialTests.m in Sources */,
 				DE93155E1E86C71C0083EDBF /* FIRAuthSerialTaskQueueTests.m in Sources */,
 				DE9315581E86C71C0083EDBF /* FIRApp+FIRAuthUnitTests.m in Sources */,
+				D9B0D4201F578F7200A567C2 /* FIRGetProjectConfigResponseTests.m in Sources */,
 				DE9315711E86C71C0083EDBF /* FIRSetAccountInfoResponseTests.m in Sources */,
 				DE93155F1E86C71C0083EDBF /* FIRAuthTests.m in Sources */,
 				DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */,
