@@ -27,6 +27,14 @@
  */
 static NSTimeInterval kExpectationTimeout = 1;
 
+@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
+/** @fn defaultUIDelegate
+    @brief Returns a default FIRAuthUIDelegate object.
+    @return The default FIRAuthUIDelegate object.
+ */
++ (id<FIRAuthUIDelegate>)defaultUIDelegate;
+@end
+
 @interface FIRAuthURLPresenterTests : XCTestCase
 
 @end
@@ -70,31 +78,26 @@ static NSTimeInterval kExpectationTimeout = 1;
 
       SFSafariViewController *viewController = unretainedArgument;
       XCTAssertEqual(viewController.delegate, presenter);
-      id mockedViewController = OCMPartialMock(viewController);
-      OCMExpect([mockedViewController dismissViewControllerAnimated:OCMOCK_ANY
-                                                         completion:OCMOCK_ANY]).
-          andDo(^(NSInvocation *invocation) {
-        __unsafe_unretained id unretainedArgument;
-        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-        // `completion` is at index 3.
-        [invocation getArgument:&unretainedArgument atIndex:3];
-
-        void (^finishBlock)() = unretainedArgument;
-        finishBlock();
-      });
-
-      dispatch_async(dispatch_get_main_queue(), ^{
-        [presenter canHandleURL:presenterURL];
-        OCMVerifyAll(mockedViewController);
-      });
+      XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
     });
-
     [presenter presentURL:presenterURL
                UIDelegate:mockUIDelegate
           callbackMatcher:callbackMatcher
                completion:completionBlock];
     OCMVerifyAll(mockUIDelegate);
-    [self waitForExpectationsWithTimeout:3 handler:nil];
+    OCMExpect([mockUIDelegate dismissViewControllerAnimated:OCMOCK_ANY
+                                                 completion:OCMOCK_ANY]).
+          andDo(^(NSInvocation *invocation) {
+      __unsafe_unretained id unretainedArgument;
+      // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+      // `completion` is at index 3.
+      [invocation getArgument:&unretainedArgument atIndex:3];
+      void (^finishBlock)() = unretainedArgument;
+      finishBlock();
+    });
+    [presenter canHandleURL:presenterURL];
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(mockUIDelegate);
   }
 }
 
@@ -113,7 +116,6 @@ static NSTimeInterval kExpectationTimeout = 1;
       [callbackMatcherExpectation fulfill];
       return YES;
     };
-
     XCTestExpectation *completionBlockExpectation =
         [self expectationWithDescription:@"completion callback"];
     FIRAuthURLPresentationCompletion completionBlock = ^(NSURL *_Nullable callbackURL,
@@ -122,13 +124,22 @@ static NSTimeInterval kExpectationTimeout = 1;
       XCTAssertNil(error);
       [completionBlockExpectation fulfill];
     };
-    id mockViewController =
-        OCMPartialMock([UIApplication sharedApplication].keyWindow.rootViewController);
+
+    id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
+
+    // Swizzle default UIDelegate
+    Method method = class_getClassMethod([FIRAuthDefaultUIDelegate class],
+                                         @selector(defaultUIDelegate));
+    __block IMP originalImplementation;
+    IMP newImplmentation = imp_implementationWithBlock(^id(id object) {
+      return mockUIDelegate;
+    });
+    originalImplementation = method_setImplementation(method, newImplmentation);
     if ([SFSafariViewController class]) {
       id presenterArg = [OCMArg isKindOfClass:[SFSafariViewController class]];
-      OCMExpect([mockViewController presentViewController:presenterArg
-                                                 animated:[OCMArg any]
-                                               completion:[OCMArg any]]).
+      OCMExpect([mockUIDelegate presentViewController:presenterArg
+                                       animated:[OCMArg any]
+                                     completion:[OCMArg any]]).
           andDo(^(NSInvocation *invocation) {
         __unsafe_unretained id unretainedArgument;
         // Indices 0 and 1 indicate the hidden arguments self and _cmd.
@@ -136,34 +147,37 @@ static NSTimeInterval kExpectationTimeout = 1;
         [invocation getArgument:&unretainedArgument atIndex:2];
         SFSafariViewController *viewController = unretainedArgument;
         XCTAssertEqual(viewController.delegate, presenter);
-        id mockedViewController = OCMPartialMock(viewController);
-        OCMExpect([mockedViewController dismissViewControllerAnimated:OCMOCK_ANY
-                                                           completion:OCMOCK_ANY]).
-            andDo(^(NSInvocation *invocation) {
-          __unsafe_unretained id unretainedArgument;
-          // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-          // `completion` is at index 3.
-          [invocation getArgument:&unretainedArgument atIndex:3];
-
-          void (^finishBlock)() = unretainedArgument;
-          finishBlock();
-        });
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-          [presenter canHandleURL:presenterURL];
-          OCMVerifyAll(mockedViewController);
-        });
+        XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
       });
     }
-
     [presenter presentURL:presenterURL
                UIDelegate:nil
           callbackMatcher:callbackMatcher
                completion:completionBlock];
+    OCMVerifyAll(mockUIDelegate);
 
-    OCMVerifyAll(mockViewController);
+    OCMExpect([mockUIDelegate dismissViewControllerAnimated:OCMOCK_ANY
+                                                 completion:OCMOCK_ANY]).
+        andDo(^(NSInvocation *invocation) {
+      __unsafe_unretained id unretainedArgument;
+      // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+      // `completion` is at index 3.
+      [invocation getArgument:&unretainedArgument atIndex:3];
+      void (^finishBlock)() = unretainedArgument;
+      finishBlock();
+    });
+    [presenter canHandleURL:presenterURL];
     [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(mockUIDelegate);
+    // Unswizzle.
+    imp_removeBlock(method_setImplementation(method, originalImplementation));
   }
+}
+
+#pragma mark - Method Swizzling
+
++ (id)mockDefaultUIDelegate {
+  return OCMProtocolMock(@protocol(FIRAuthUIDelegate));
 }
 
 @end
