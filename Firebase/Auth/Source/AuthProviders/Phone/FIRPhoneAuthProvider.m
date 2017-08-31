@@ -169,7 +169,12 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
     completion(_auth.appCredentialManager.credential, nil);
     return;
   }
-  [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token) {
+  [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token,
+                                             NSError *_Nullable error) {
+    if (!token) {
+      completion(nil, [FIRAuthErrorUtils missingAppTokenErrorWithUnderlyingError:error]);
+      return;
+    }
     FIRVerifyClientRequest *request =
         [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
                                                isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox

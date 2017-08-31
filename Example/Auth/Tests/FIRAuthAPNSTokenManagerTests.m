@@ -118,18 +118,20 @@ static const NSTimeInterval kExpectationTimeout = 1;
   // Add first callback, which is yet to be called.
   OCMExpect([_mockApplication registerForRemoteNotifications]);
   __block BOOL firstCallbackCalled = NO;
-  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token) {
+  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertEqualObjects(token.data, _data);
     XCTAssertEqual(token.type, FIRAuthAPNSTokenTypeSandbox);
+    XCTAssertNil(error);
     firstCallbackCalled = YES;
   }];
   XCTAssertFalse(firstCallbackCalled);
 
   // Add second callback, which is yet to be called either.
   __block BOOL secondCallbackCalled = NO;
-  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token) {
+  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertEqualObjects(token.data, _data);
     XCTAssertEqual(token.type, FIRAuthAPNSTokenTypeSandbox);
+    XCTAssertNil(error);
     secondCallbackCalled = YES;
   }];
   XCTAssertFalse(secondCallbackCalled);
@@ -149,9 +151,10 @@ static const NSTimeInterval kExpectationTimeout = 1;
 
   // Add third callback, which should be called back immediately.
   __block BOOL thirdCallbackCalled = NO;
-  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token) {
+  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertEqualObjects(token.data, _data);
     XCTAssertEqual(token.type, FIRAuthAPNSTokenTypeSandbox);
+    XCTAssertNil(error);
     thirdCallbackCalled = YES;
   }];
   XCTAssertTrue(thirdCallbackCalled);
@@ -176,8 +179,9 @@ static const NSTimeInterval kExpectationTimeout = 1;
   // Add callback to time out.
   OCMExpect([_mockApplication registerForRemoteNotifications]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token) {
+  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertNil(token);
+    XCTAssertNil(error);
     [expectation fulfill];
   }];
 
@@ -200,9 +204,10 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [[[_mockApplication expect] ignoringNonObjectArgs] registerForRemoteNotificationTypes:0];
 #pragma clang diagnostic pop
   __block BOOL callbackCalled = NO;
-  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token) {
+  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertEqualObjects(token.data, _data);
     XCTAssertNotEqual(token.type, FIRAuthAPNSTokenTypeUnknown);
+    XCTAssertNil(error);
     callbackCalled = YES;
   }];
   XCTAssertFalse(callbackCalled);

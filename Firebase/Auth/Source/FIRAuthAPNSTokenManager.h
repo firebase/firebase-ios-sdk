@@ -24,8 +24,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** @typedef FIRAuthAPNSTokenCallback
     @brief The type of block to receive an APNs token.
     @param token The APNs token if one is available.
+    @param error The error happened if any.
+    @remarks Both `token` and `error` being `nil` means the request timed-out.
  */
-typedef void (^FIRAuthAPNSTokenCallback)(FIRAuthAPNSToken *_Nullable token);
+typedef void (^FIRAuthAPNSTokenCallback)(FIRAuthAPNSToken *_Nullable token,
+                                         NSError *_Nullable error);
 
 /** @class FIRAuthAPNSTokenManager
     @brief A class to manage APNs token in memory.
@@ -63,6 +66,12 @@ typedef void (^FIRAuthAPNSTokenCallback)(FIRAuthAPNSToken *_Nullable token);
         becomes available, or when timeout occurs, whichever happens earlier.
  */
 - (void)getTokenWithCallback:(FIRAuthAPNSTokenCallback)callback;
+
+/** @fn cancelWithError:
+    @brief Cancels any pending `getTokenWithCallback:` request.
+    @param error The error to return.
+ */
+- (void)cancelWithError:(NSError *)error;
 
 @end
 

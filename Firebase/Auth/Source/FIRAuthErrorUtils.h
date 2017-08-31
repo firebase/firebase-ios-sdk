@@ -425,11 +425,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)quotaExceededErrorWithMessage:(nullable NSString *)message;
 
-/** @fn missingAppTokenError
+/** @fn missingAppTokenErrorWithUnderlyingError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingAppToken code.
+    @param underlyingError The underlying error, if any.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)missingAppTokenError;
++ (NSError *)missingAppTokenErrorWithUnderlyingError:(nullable NSError *)underlyingError;
 
 /** @fn notificationNotForwardedError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeNotificationNotForwarded code.

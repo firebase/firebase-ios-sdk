@@ -274,7 +274,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
       .andCallBlock1(^(FIRAuthNotificationForwardingCallback callback) { callback(YES); });
   OCMExpect([_mockAppCredentialManager credential]).andReturn(nil);
   OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
-      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(nil); });
+      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(nil, nil); });
   // Expect verify client request to the backend wth empty token.
   OCMExpect([_mockBackend verifyClient:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyClientRequest *request,
@@ -314,7 +314,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   FIRAuthAPNSToken *token = [[FIRAuthAPNSToken alloc] initWithData:data
                                                               type:FIRAuthAPNSTokenTypeProd];
   OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
-      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(token); });
+      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(token, nil); });
   // Expect verify client request to the backend.
   OCMExpect([_mockBackend verifyClient:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyClientRequest *request,
@@ -417,7 +417,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   });
 
   OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
-      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(token); });
+      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(token, nil); });
   // Expect verify client request to the backend.
   OCMExpect([_mockBackend verifyClient:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyClientRequest *request,
@@ -509,7 +509,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   });
 
   OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
-      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(token); });
+      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(token, nil); });
   // Expect verify client request to the backend.
   OCMExpect([_mockBackend verifyClient:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyClientRequest *request,
