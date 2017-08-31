@@ -41,25 +41,24 @@ static NSTimeInterval kExpectationTimeout = 1;
   NSURL *presenterURL = [NSURL URLWithString:@"https://presenter.url"];
   FIRAuthURLPresenter *presenter = [[FIRAuthURLPresenter alloc] init];
 
-  XCTestExpectation *callbackMatcherExpectation =
-      [self expectationWithDescription:@"callbackMatcher callback"];
-  FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nonnull callbackURL) {
-    XCTAssertEqualObjects(callbackURL, presenterURL);
-    NSLog(@"callback matcher");
-    [callbackMatcherExpectation fulfill];
-    return YES;
-  };
-
-  XCTestExpectation *completionBlockExpectation =
-      [self expectationWithDescription:@"completion callback"];
-  FIRAuthURLPresentationCompletion completionBlock = ^(NSURL *_Nullable callbackURL,
-                                                       NSError *_Nullable error) {
-    XCTAssertEqualObjects(callbackURL, presenterURL);
-    XCTAssertNil(error);
-    [completionBlockExpectation fulfill];
-  };
-
   if ([SFSafariViewController class]) {
+    XCTestExpectation *callbackMatcherExpectation =
+        [self expectationWithDescription:@"callbackMatcher callback"];
+    FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nonnull callbackURL) {
+      XCTAssertEqualObjects(callbackURL, presenterURL);
+      [callbackMatcherExpectation fulfill];
+      return YES;
+    };
+
+    XCTestExpectation *completionBlockExpectation =
+        [self expectationWithDescription:@"completion callback"];
+    FIRAuthURLPresentationCompletion completionBlock = ^(NSURL *_Nullable callbackURL,
+                                                         NSError *_Nullable error) {
+      XCTAssertEqualObjects(callbackURL, presenterURL);
+      XCTAssertNil(error);
+      [completionBlockExpectation fulfill];
+    };
+
     id presenterArg = [OCMArg isKindOfClass:[SFSafariViewController class]];
     OCMExpect([mockUIDelegate presentViewController:presenterArg
                                            animated:YES
@@ -94,9 +93,8 @@ static NSTimeInterval kExpectationTimeout = 1;
                UIDelegate:mockUIDelegate
           callbackMatcher:callbackMatcher
                completion:completionBlock];
-
     OCMVerifyAll(mockUIDelegate);
-    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
   }
 }
 
@@ -107,63 +105,65 @@ static NSTimeInterval kExpectationTimeout = 1;
   NSURL *presenterURL = [NSURL URLWithString:@"https://presenter.url"];
   FIRAuthURLPresenter *presenter = [[FIRAuthURLPresenter alloc] init];
 
-  XCTestExpectation *callbackMatcherExpectation =
-      [self expectationWithDescription:@"callbackMatcher callback"];
-  FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nonnull callbackURL) {
-    XCTAssertEqualObjects(callbackURL, presenterURL);
-    [callbackMatcherExpectation fulfill];
-    return YES;
-  };
-
-  XCTestExpectation *completionBlockExpectation =
-      [self expectationWithDescription:@"completion callback"];
-  FIRAuthURLPresentationCompletion completionBlock = ^(NSURL *_Nullable callbackURL,
-                                                       NSError *_Nullable error) {
-    XCTAssertEqualObjects(callbackURL, presenterURL);
-    XCTAssertNil(error);
-    [completionBlockExpectation fulfill];
-  };
-  id mockViewController =
-      OCMPartialMock([UIApplication sharedApplication].keyWindow.rootViewController);
   if ([SFSafariViewController class]) {
-    id presenterArg = [OCMArg isKindOfClass:[SFSafariViewController class]];
-    OCMExpect([mockViewController presentViewController:presenterArg
-                                               animated:[OCMArg any]
-                                             completion:[OCMArg any]]).
-        andDo(^(NSInvocation *invocation) {
-      __unsafe_unretained id unretainedArgument;
-      // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-      // `presentViewController` is at index 2.
-      [invocation getArgument:&unretainedArgument atIndex:2];
-      SFSafariViewController *viewController = unretainedArgument;
-      XCTAssertEqual(viewController.delegate, presenter);
-      id mockedViewController = OCMPartialMock(viewController);
-      OCMExpect([mockedViewController dismissViewControllerAnimated:OCMOCK_ANY
-                                                         completion:OCMOCK_ANY]).
+    XCTestExpectation *callbackMatcherExpectation =
+        [self expectationWithDescription:@"callbackMatcher callback"];
+    FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nonnull callbackURL) {
+      XCTAssertEqualObjects(callbackURL, presenterURL);
+      [callbackMatcherExpectation fulfill];
+      return YES;
+    };
+
+    XCTestExpectation *completionBlockExpectation =
+        [self expectationWithDescription:@"completion callback"];
+    FIRAuthURLPresentationCompletion completionBlock = ^(NSURL *_Nullable callbackURL,
+                                                         NSError *_Nullable error) {
+      XCTAssertEqualObjects(callbackURL, presenterURL);
+      XCTAssertNil(error);
+      [completionBlockExpectation fulfill];
+    };
+    id mockViewController =
+        OCMPartialMock([UIApplication sharedApplication].keyWindow.rootViewController);
+    if ([SFSafariViewController class]) {
+      id presenterArg = [OCMArg isKindOfClass:[SFSafariViewController class]];
+      OCMExpect([mockViewController presentViewController:presenterArg
+                                                 animated:[OCMArg any]
+                                               completion:[OCMArg any]]).
           andDo(^(NSInvocation *invocation) {
         __unsafe_unretained id unretainedArgument;
         // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-        // `completion` is at index 3.
-        [invocation getArgument:&unretainedArgument atIndex:3];
+        // `presentViewController` is at index 2.
+        [invocation getArgument:&unretainedArgument atIndex:2];
+        SFSafariViewController *viewController = unretainedArgument;
+        XCTAssertEqual(viewController.delegate, presenter);
+        id mockedViewController = OCMPartialMock(viewController);
+        OCMExpect([mockedViewController dismissViewControllerAnimated:OCMOCK_ANY
+                                                           completion:OCMOCK_ANY]).
+            andDo(^(NSInvocation *invocation) {
+          __unsafe_unretained id unretainedArgument;
+          // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+          // `completion` is at index 3.
+          [invocation getArgument:&unretainedArgument atIndex:3];
 
-        void (^finishBlock)() = unretainedArgument;
-        finishBlock();
-      });
+          void (^finishBlock)() = unretainedArgument;
+          finishBlock();
+        });
 
-      dispatch_async(dispatch_get_main_queue(), ^{
-        [presenter canHandleURL:presenterURL];
-        OCMVerifyAll(mockedViewController);
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [presenter canHandleURL:presenterURL];
+          OCMVerifyAll(mockedViewController);
+        });
       });
-    });
+    }
+
+    [presenter presentURL:presenterURL
+               UIDelegate:nil
+          callbackMatcher:callbackMatcher
+               completion:completionBlock];
+
+    OCMVerifyAll(mockViewController);
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   }
-
-  [presenter presentURL:presenterURL
-             UIDelegate:nil
-        callbackMatcher:callbackMatcher
-             completion:completionBlock];
-
-  OCMVerifyAll(mockViewController);
-  [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 @end

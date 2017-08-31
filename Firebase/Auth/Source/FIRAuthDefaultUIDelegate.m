@@ -49,10 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-id<FIRAuthUIDelegate> FIRAuthUIDelegateWithViewController(UIViewController *viewController) {
-  return [[FIRAuthDefaultUIDelegate alloc] initWithViewController:viewController];
-}
-
 - (void)presentViewController:(UIViewController *)viewControllerToPresent
                      animated:(BOOL)flag
                    completion:(nullable void (^)(void))completion {
@@ -81,7 +77,7 @@ id<FIRAuthUIDelegate> FIRAuthUIDelegateWithViewController(UIViewController *view
       break;
     }
   }
-  return FIRAuthUIDelegateWithViewController(topViewController);
+  return [[FIRAuthDefaultUIDelegate alloc] initWithViewController:topViewController];
 }
 
 @end

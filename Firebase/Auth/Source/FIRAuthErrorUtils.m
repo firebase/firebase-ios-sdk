@@ -354,8 +354,8 @@ static NSString *const kFIRAuthErrorMessageWebContextAlreadyPresented = @"User i
 /** @var kFIRAuthErrorMessageWebContextCancelled
     @brief Message for @c FIRAuthErrorCodeWebContextCancelled error code.
  */
-static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The user cancelled the sign-in "
-    "flow.";
+static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The interaction was cancelled "
+    "by the user.";
 
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.

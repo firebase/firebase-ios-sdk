@@ -16,14 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol FIRAuthUIDelegate;
-
-// SFSafariViewController only exists in iOS 9+ SDKs.
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000
-#define HAS_SAFARI_VIEW_CONTROLLER 1
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol FIRAuthUIDelegate;
 
 /** @typedef FIRAuthURLPresentationCompletion
     @brief The type of block invoked when the URLPresentation completes.
