@@ -63,14 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
         completion:(FIRAuthURLPresentationCompletion)completion {
   _callbackMatcher = callbackMatcher;
   _completion = completion;
-  _UIDelegate = UIDelegate;
-  // If a UIDelegate is not provided.
-  if (!_UIDelegate) {
-    _UIDelegate = [FIRAuthDefaultUIDelegate defaultUIDelegate];
-    [self presentWebContextWithController:_UIDelegate URL:URL];
-    return;
-  }
-  // If a valid UIDelegate is provided.
+  _UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
   [self presentWebContextWithController:_UIDelegate URL:URL];
 }
 
