@@ -45,6 +45,11 @@ NS_ASSUME_NONNULL_BEGIN
    */
   SFSafariViewController *_Nullable _safariViewController;
 
+  /** @var _UIDelegate
+      @brief The UIDelegate used to present the SFSafariViewController.
+   */
+  id<FIRAuthUIDelegate> _UIDelegate;
+
   /** @var _completion
       @brief The completion handler for the current presentaion, if one is active.
       @remarks This variable is also used as a flag to indicate a presentation is active.
@@ -58,14 +63,15 @@ NS_ASSUME_NONNULL_BEGIN
         completion:(FIRAuthURLPresentationCompletion)completion {
   _callbackMatcher = callbackMatcher;
   _completion = completion;
+  _UIDelegate = UIDelegate;
   // If a UIDelegate is not provided.
-  if (!UIDelegate) {
-    id<FIRAuthUIDelegate> delegate = [FIRAuthDefaultUIDelegate defaultUIDelegate];
-    [self presentWebContextWithController:delegate URL:URL];
+  if (!_UIDelegate) {
+    _UIDelegate = [FIRAuthDefaultUIDelegate defaultUIDelegate];
+    [self presentWebContextWithController:_UIDelegate URL:URL];
     return;
   }
   // If a valid UIDelegate is provided.
-  [self presentWebContextWithController:UIDelegate URL:URL];
+  [self presentWebContextWithController:_UIDelegate URL:URL];
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
@@ -103,6 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller {
   if (controller == _safariViewController) {
     _safariViewController = nil;
+    //TODO:Ensure that the SFSafariViewController is actually removed from the screen before
+    //invoking finishPresentationWithURL:error:
     [self finishPresentationWithURL:nil
                               error:[FIRAuthErrorUtils webContextCancelledErrorWithMessage:nil]];
   }
@@ -126,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
     SFSafariViewController *safariViewController = _safariViewController;
     _safariViewController = nil;
     if (safariViewController) {
-      [safariViewController dismissViewControllerAnimated:YES completion:finishBlock];
+      [_UIDelegate dismissViewControllerAnimated:YES completion:finishBlock];
     }
   }
 }
