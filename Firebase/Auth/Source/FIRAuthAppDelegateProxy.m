@@ -219,7 +219,7 @@ static id noop(id object, SEL cmd, ...) {
   }
   IMP originalImplementation = [self originalImplementationForSelector:selector];
   if (originalImplementation && originalImplementation != &noop) {
-    typedef void (*Implmentation)(id, SEL, UIApplication*, NSError *);
+    typedef void (*Implmentation)(id, SEL, UIApplication *, NSError *);
     ((Implmentation)originalImplementation)(object, selector, application, error);
   }
 }
