@@ -345,6 +345,18 @@ static NSString *const kFIRAuthErrorMessageAppNotVerified = @"Firebase could not
 static NSString *const kFIRAuthErrorMessageCaptchaCheckFailed = @"The reCAPTCHA response token "
     "provided is either invalid, expired or already";
 
+/** @var kFIRAuthErrorMessageWebContextAlreadyPresented
+    @brief Message for @c FIRAuthErrorCodeWebContextAlreadyPresented error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebContextAlreadyPresented = @"User interaction is "
+    "still ongoing, another view cannot be presented.";
+
+/** @var kFIRAuthErrorMessageWebContextCancelled
+    @brief Message for @c FIRAuthErrorCodeWebContextCancelled error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The interaction was cancelled "
+    "by the user.";
+
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
@@ -455,6 +467,10 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageAppNotVerified;
     case FIRAuthErrorCodeCaptchaCheckFailed:
       return kFIRAuthErrorMessageCaptchaCheckFailed;
+    case FIRAuthErrorCodeWebContextAlreadyPresented:
+      return kFIRAuthErrorMessageWebContextAlreadyPresented;
+    case FIRAuthErrorCodeWebContextCancelled:
+      return kFIRAuthErrorMessageWebContextCancelled;
   }
 }
 
@@ -562,6 +578,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_APP_NOT_VERIFIED";
     case FIRAuthErrorCodeCaptchaCheckFailed:
       return @"ERROR_CAPTCHA_CHECK_FAILED";
+    case FIRAuthErrorCodeWebContextAlreadyPresented:
+      return @"ERROR_WEB_CONTEXT_ALREADY_PRESENTED";
+    case FIRAuthErrorCodeWebContextCancelled:
+      return @"ERROR_WEB_CONTEXT_CANCELLED";
   }
 }
 
@@ -871,6 +891,14 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeCaptchaCheckFailed message:message];
+}
+
++ (NSError *)webContextAlreadyPresentedErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeWebContextAlreadyPresented message:message];
+}
+
++ (NSError *)webContextCancelledErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeWebContextCancelled message:message];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

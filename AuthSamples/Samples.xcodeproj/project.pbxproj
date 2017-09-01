@@ -26,6 +26,7 @@
 		52C975C71EE10B1304EBBEB2 /* Pods_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC8C39EF1F42A0C750FF5186 /* Pods_SwiftSample.framework */; };
 		569C3F4E18627674CABE02AE /* Pods_EarlGreyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE2E563FADF8C3382956B4F /* Pods_EarlGreyTests.framework */; };
 		67AFFB52FF0FC4668D92F2E4 /* Pods_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FE06BD9AA795DFBA9EFAAD /* Pods_Sample.framework */; };
+		7E04ACA41F565EA900788114 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E04ACA31F565EA900788114 /* FIRAuthURLPresenterTests.m */; };
 		7E9969EE1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E9969EC1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m */; };
 		7EDFD35B1F0EA29200B29DC5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7EDFD35D1F0EA29200B29DC5 /* Localizable.strings */; };
 		7EEEFEE61F4E4F75000FF966 /* FIRGetProjectConfigResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EEA8ADD1F4E4E840014A23B /* FIRGetProjectConfigResponseTests.m */; };
@@ -183,6 +184,7 @@
 		4FFAD3F37BC4D7CEF0CAD579 /* Pods_FirebaseAuthUnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FirebaseAuthUnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57150555A6B03949ECB58AD9 /* Pods-TestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TestApp/Pods-TestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		6EC09307D636721EAAB89BB2 /* Pods_ApiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7E04ACA31F565EA900788114 /* FIRAuthURLPresenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthURLPresenterTests.m; path = ../../Example/Auth/Tests/FIRAuthURLPresenterTests.m; sourceTree = "<group>"; };
 		7E0BC64A1F199D86008BE4E0 /* fr-FR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-FR"; path = "fr-FR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7E0BC64E1F19A77C008BE4E0 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7E9969EC1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRGetProjectConfigRequestTests.m; path = ../../Example/Auth/Tests/FIRGetProjectConfigRequestTests.m; sourceTree = "<group>"; };
@@ -557,6 +559,7 @@
 				DE5371B21EA7E89D000DA57F /* Tests-Info.plist */,
 				7E9969EC1F4E277900627C2B /* FIRGetProjectConfigRequestTests.m */,
 				7EEA8ADD1F4E4E840014A23B /* FIRGetProjectConfigResponseTests.m */,
+				7E04ACA31F565EA900788114 /* FIRAuthURLPresenterTests.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -1332,6 +1335,7 @@
 				DECEA56E1EBBED1200273585 /* FIRAuthAppCredentialManagerTests.m in Sources */,
 				DE5371DE1EA7E89D000DA57F /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
 				DE5371DC1EA7E89D000DA57F /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
+				7E04ACA41F565EA900788114 /* FIRAuthURLPresenterTests.m in Sources */,
 				DE5371B51EA7E89D000DA57F /* FIRAuthAppCredentialTests.m in Sources */,
 				DE5371CE1EA7E89D000DA57F /* FIRSetAccountInfoRequestTests.m in Sources */,
 				DE5371D41EA7E89D000DA57F /* FIRVerifyAssertionRequestTests.m in Sources */,

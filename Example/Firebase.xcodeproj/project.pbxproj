@@ -104,6 +104,7 @@
 		79A15731AA31012CD937CF3A /* Pods_Core_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAD129FFEC477E1129AE6AA1 /* Pods_Core_Example_iOS.framework */; };
 		7A02646DEF386689CCFB9011 /* Pods_Core_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE6C9DD139E1FD21DC0F1082 /* Pods_Core_Tests_iOS.framework */; };
 		7AE9A7433F2BD9A52022AC71 /* Pods_Messaging_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F902A29FA956ADD762F6921 /* Pods_Messaging_Tests_iOS.framework */; };
+		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		960665EC1C5F7A0E843A354F /* Pods_Database_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97768125F45377F35CA86EDC /* Pods_Database_Tests_macOS.framework */; };
 		AFAF36F51EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F61EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -739,6 +740,7 @@
 		6F7376F39846E902979416D4 /* Pods_Database_Example_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_Example_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FAA689FDCBD3261300292D5 /* Pods-Database_IntegrationTests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_IntegrationTests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Database_IntegrationTests_macOS/Pods-Database_IntegrationTests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		73B480AA654FC97FA72C6293 /* Pods_Storage_Example_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Storage_Example_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthURLPresenterTests.m; sourceTree = "<group>"; };
 		81E83B5ABAE219234F213B27 /* Pods_Database_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8496034D8156555C5FCF8F14 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		862CC98282A6123508E8CA49 /* Pods-Database_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Example_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Example_macOS/Pods-Database_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -1690,6 +1692,7 @@
 		DE9314F91E86C6FF0083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */,
 				DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */,
 				DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */,
 				DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */,
@@ -4187,6 +4190,7 @@
 				D9B0D4201F578F7200A567C2 /* FIRGetProjectConfigResponseTests.m in Sources */,
 				DE9315711E86C71C0083EDBF /* FIRSetAccountInfoResponseTests.m in Sources */,
 				DE93155F1E86C71C0083EDBF /* FIRAuthTests.m in Sources */,
+				7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */,
 				DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */,
 				DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */,
 				DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */,
