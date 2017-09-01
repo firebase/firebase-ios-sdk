@@ -16,7 +16,13 @@
 
 #import <XCTest/XCTest.h>
 #import "FDevice.h"
+
+#ifdef FIREBASE_COMMUNITY
 #import "FirebaseCommunity/FIRDatabaseReference.h"
+#else
+#import "FirebaseDatabase/FIRDatabaseReference.h"
+#endif
+
 #import "FRepoManager.h"
 #import "FIRDatabaseReference_Private.h"
 #import "FIRDatabaseConfig_Private.h"

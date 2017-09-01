@@ -18,13 +18,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
-  s.osx.deployment_target = '10.10'
 #  s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
 
-  s.source_files = 'Firebase/Core/**/*.[mh]'
-  s.public_header_files = 'Firebase/Core/Public/*.h','Firebase/Core/Private/*.h'
-  s.private_header_files = 'Firebase/Core/Private/*.h'
+  base_dir = "Firebase/Core/"
+  s.source_files = base_dir + '**/*.[mh]'
+  s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
+  s.private_header_files = base_dir + 'Private/*.h'
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
 
   # TODO - Workaround fill in bug number

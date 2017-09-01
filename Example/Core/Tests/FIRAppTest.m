@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
+//#import "FirebaseAnalytics/FIRAnalytics.h"
+//#import "Root/Firebase.h"
+//#import "FirebaseAnalytics/FIRAnalytics.h"
+
 #import "FIRTestCase.h"
 
 #import "FirebaseCore/FIRAppInternal.h"

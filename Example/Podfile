@@ -4,11 +4,12 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
-  pod 'Firebase', :path => '../'
-  pod 'FirebaseCore', :path => '../'
+#pod 'Firebase'  # , :path => '../'
 
 target 'Core_Example_iOS' do
   platform :ios, '8.0'
+
+  pod 'FirebaseCore', :path => '../'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
@@ -22,6 +23,34 @@ target 'Auth_Example_iOS' do
   pod 'FirebaseAuth', :path => '../'
 
   target 'Auth_Tests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+#
+target 'Database_Example_iOS' do
+  platform :ios, '8.0'
+
+  pod 'FirebaseCore', :path => '../'
+  pod 'FirebaseDatabase', :path => '../'
+
+  target 'Database_Tests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+  target 'Database_IntegrationTests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Messaging_Example_iOS' do
+  platform :ios, '8.0'
+
+  pod 'FirebaseMessaging' , :path => '../'
+
+  target 'Messaging_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
@@ -46,13 +75,14 @@ end
 #target 'Core_Example_macOS' do
 #  platform :osx, '10.10'
 #
-#  pod 'FirebaseCommunity/Core', :path => '../'
+##  pod 'FirebaseCore', :path => '../'
 #
 #  target 'Core_Tests_macOS' do
 #    inherit! :search_paths
 #    pod 'OCMock'
 #  end
 #end
+
 #
 #target 'Auth_Example_iOS' do
 #  platform :ios, '8.0'

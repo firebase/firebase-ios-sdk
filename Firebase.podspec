@@ -29,7 +29,7 @@ Firebase Development CocoaPod including experimental and community supported fea
   #  sp.public_header_files = 'Firebase/Firebase/Firebase.h'
     sp.preserve_paths = 'README.md'
     sp.preserve_paths = 'Firebase/Firebase/Firebase.h'
-    sp.ios.dependency 'FirebaseAnalytics'
+    sp.dependency 'FirebaseAnalytics'
     sp.dependency 'FirebaseCore'
     sp.user_target_xcconfig = { 'HEADER_SEARCH_PATHS' =>
       '$(inherited) ${PODS_ROOT}/Firebase/Firebase/Firebase'

@@ -18,7 +18,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
-  s.osx.deployment_target = '10.10'
   s.static_framework = true
 
   s.source_files = 'Firebase/Auth/**/*.[mh]'
@@ -39,10 +38,9 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     '$(inherited) ' + 'FIRAuth_VERSION=' + s.version.to_s +
     ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }
+  s.framework = 'Security'
   s.dependency 'FirebaseCore'
   s.ios.dependency 'FirebaseAnalytics'
-  s.framework = 'Security'
-#  s.dependency 'FirebaseCommunity/Core'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
 end
