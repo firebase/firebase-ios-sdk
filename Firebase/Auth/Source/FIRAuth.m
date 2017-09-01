@@ -971,6 +971,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)handleAPNSTokenError:(NSError *)error {
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    [_tokenManager cancelWithError:error];
+  });
+}
+
 - (BOOL)canHandleNotification:(NSDictionary *)userInfo {
   __block BOOL result = NO;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{

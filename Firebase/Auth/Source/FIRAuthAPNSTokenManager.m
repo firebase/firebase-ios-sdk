@@ -58,7 +58,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
 - (void)getTokenWithCallback:(FIRAuthAPNSTokenCallback)callback {
   if (_token) {
-    callback(_token);
+    callback(_token, nil);
     return;
   }
   if (_pendingCallbacks) {
@@ -77,9 +77,13 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 #pragma clang diagnostic pop
     }
   });
+  NSArray<FIRAuthAPNSTokenCallback> *applicableCallbacks = _pendingCallbacks;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)),
                                FIRAuthGlobalWorkQueue(), ^{
-    [self callBack];
+    // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
+    if (applicableCallbacks == _pendingCallbacks) {
+      [self callBackWithToken:nil error:nil];
+    }
   });
 }
 
@@ -97,22 +101,28 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     token = [[FIRAuthAPNSToken alloc] initWithData:token.data type:detectedTokenType];
   }
   _token = token;
-  [self callBack];
+  [self callBackWithToken:token error:nil];
+}
+
+- (void)cancelWithError:(NSError *)error {
+  [self callBackWithToken:nil error:error];
 }
 
 #pragma mark - Internal methods
 
 /** @fn callBack
-    @brief Calls back all pending callbacks with the current APNs token, if one is available.
+    @brief Calls back all pending callbacks with APNs token or error.
+    @param token The APNs token if one is available.
+    @param error The error occurred, if any.
  */
-- (void)callBack {
+- (void)callBackWithToken:(nullable FIRAuthAPNSToken *)token error:(nullable NSError *)error {
   if (!_pendingCallbacks) {
     return;
   }
   NSArray<FIRAuthAPNSTokenCallback> *allCallbacks = _pendingCallbacks;
   _pendingCallbacks = nil;
   for (FIRAuthAPNSTokenCallback callback in allCallbacks) {
-    callback(_token);
+    callback(token, error);
   }
 };
 

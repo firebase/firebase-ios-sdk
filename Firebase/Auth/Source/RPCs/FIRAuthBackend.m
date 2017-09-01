@@ -1023,7 +1023,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kMissingAppTokenErrorMessage]) {
-    return [FIRAuthErrorUtils missingAppTokenError];
+    return [FIRAuthErrorUtils missingAppTokenErrorWithUnderlyingError:nil];
   }
 
   if ([shortErrorMessage isEqualToString:kMissingAppCredentialErrorMessage]) {

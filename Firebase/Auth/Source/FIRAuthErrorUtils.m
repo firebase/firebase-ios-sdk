@@ -877,8 +877,9 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeQuotaExceeded message:message];
 }
 
-+ (NSError *)missingAppTokenError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAppToken];
++ (NSError *)missingAppTokenErrorWithUnderlyingError:(nullable NSError *)underlyingError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAppToken
+             underlyingError:underlyingError];
 }
 
 + (NSError *)notificationNotForwardedError {
