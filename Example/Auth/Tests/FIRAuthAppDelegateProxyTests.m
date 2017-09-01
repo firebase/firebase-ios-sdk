@@ -81,6 +81,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSData *deviceTokenReceived;
 
+/** @var tokenErrorReceived
+    @brief The last token error received, if any.
+ */
+@property(nonatomic, copy, nullable) NSError *tokenErrorReceived;
+
 /** @var notificationReceived
     @brief The last notification received, if any.
  */
@@ -98,6 +103,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)application:(UIApplication *)application
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   self.deviceTokenReceived = deviceToken;
+}
+
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error {
+  self.tokenErrorReceived = error;
 }
 
 - (void)application:(UIApplication *)application
@@ -153,6 +163,11 @@ NS_ASSUME_NONNULL_BEGIN
    */
   NSData *_deviceToken;
 
+  /** @var _error
+      @brief The fake error for testing.
+   */
+  NSError *_error;
+
   /** @var _notification
       @brief The fake notification for testing.
    */
@@ -173,6 +188,7 @@ NS_ASSUME_NONNULL_BEGIN
   [super setUp];
   _mockApplication = OCMClassMock([UIApplication class]);
   _deviceToken = [@"asdf" dataUsingEncoding:NSUTF8StringEncoding];
+  _error = [NSError errorWithDomain:@"FakeError" code:12345 userInfo:nil];
   _notification = @{ @"zxcv" : @1234 };
   _url = [NSURL URLWithString:@"https://abc.def/ghi"];
   _isIOS9orLater = [[[UIDevice currentDevice] systemVersion] doubleValue] >= 9.0;
@@ -262,6 +278,8 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertTrue([delegate respondsToSelector:
                    @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
     XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+    XCTAssertTrue([delegate respondsToSelector:
                    @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]);
     XCTAssertFalse([delegate respondsToSelector:
                     @selector(application:didReceiveRemoteNotification:)]);
@@ -286,6 +304,12 @@ NS_ASSUME_NONNULL_BEGIN
       OCMExpect([mockHandler setAPNSToken:_deviceToken]);
       [delegate application:_mockApplication
           didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
+      OCMVerifyAll(mockHandler);
+
+      // Verify `application:didFailToRegisterForRemoteNotificationsWithError:` is handled.
+      OCMExpect([mockHandler handleAPNSTokenError:_error]);
+      [delegate application:_mockApplication
+          didFailToRegisterForRemoteNotificationsWithError:_error];
       OCMVerifyAll(mockHandler);
 
       // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler:` is handled.
@@ -323,6 +347,8 @@ NS_ASSUME_NONNULL_BEGIN
     // Verify nothing bad happens after the handler is released.
     [delegate application:_mockApplication
         didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
+    [delegate application:_mockApplication
+        didFailToRegisterForRemoteNotificationsWithError:_error];
     [delegate application:_mockApplication
         didReceiveRemoteNotification:_notification
               fetchCompletionHandler:^(UIBackgroundFetchResult result) {
@@ -374,6 +400,8 @@ NS_ASSUME_NONNULL_BEGIN
     // Verify certain methods are swizzled while others are not.
     XCTAssertTrue([delegate respondsToSelector:
                    @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+    XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
     XCTAssertFalse([delegate respondsToSelector:
                     @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]);
     XCTAssertTrue([delegate respondsToSelector:
@@ -398,6 +426,14 @@ NS_ASSUME_NONNULL_BEGIN
         OCMExpect([mockHandler2 setAPNSToken:_deviceToken]);
         [delegate application:_mockApplication
             didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
+        OCMVerifyAll(mockHandler1);
+        OCMVerifyAll(mockHandler2);
+
+        // Verify `application:didFailToRegisterForRemoteNotificationsWithError:` is handled.
+        OCMExpect([mockHandler1 handleAPNSTokenError:_error]);
+        OCMExpect([mockHandler2 handleAPNSTokenError:_error]);
+        [delegate application:_mockApplication
+            didFailToRegisterForRemoteNotificationsWithError:_error];
         OCMVerifyAll(mockHandler1);
         OCMVerifyAll(mockHandler2);
 
@@ -431,6 +467,12 @@ NS_ASSUME_NONNULL_BEGIN
           didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
       OCMVerifyAll(mockHandler1);
 
+      // Verify `application:didFailToRegisterForRemoteNotificationsWithError:` is handled.
+      OCMExpect([mockHandler1 handleAPNSTokenError:_error]);
+      [delegate application:_mockApplication
+          didFailToRegisterForRemoteNotificationsWithError:_error];
+      OCMVerifyAll(mockHandler1);
+
       // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler:` is NOT handled.
       OCMExpect([mockHandler1 canHandleNotification:_notification]).andReturn(NO);
       [delegate application:_mockApplication didReceiveRemoteNotification:_notification];
@@ -457,6 +499,8 @@ NS_ASSUME_NONNULL_BEGIN
     // Verify the delegate still works after all handlers are released.
     [delegate application:_mockApplication
         didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
+    [delegate application:_mockApplication
+        didFailToRegisterForRemoteNotificationsWithError:_error];
     [delegate application:_mockApplication didReceiveRemoteNotification:_notification];
     XCTAssertEqualObjects(delegate.notificationReceived, _notification);
     delegate.notificationReceived = nil;
@@ -505,6 +549,8 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertTrue([delegate respondsToSelector:
                    @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
     XCTAssertTrue([delegate respondsToSelector:
+                   @selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+    XCTAssertTrue([delegate respondsToSelector:
                    @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]);
     XCTAssertFalse([delegate respondsToSelector:
                     @selector(application:didReceiveRemoteNotification:)]);
@@ -531,6 +577,14 @@ NS_ASSUME_NONNULL_BEGIN
       OCMVerifyAll(mockHandler);
       XCTAssertEqualObjects(delegate.deviceTokenReceived, _deviceToken);
       delegate.deviceTokenReceived = nil;
+
+      // Verify `application:didFailToRegisterForRemoteNotificationsWithError:` is handled.
+      OCMExpect([mockHandler handleAPNSTokenError:_error]);
+      [delegate application:_mockApplication
+          didFailToRegisterForRemoteNotificationsWithError:_error];
+      OCMVerifyAll(mockHandler);
+      XCTAssertEqualObjects(delegate.tokenErrorReceived, _error);
+      delegate.tokenErrorReceived = nil;
 
       // Verify `application:didReceiveRemoteNotification:fetchCompletionHandler:` is handled.
       OCMExpect([mockHandler canHandleNotification:_notification]).andReturn(YES);
@@ -565,6 +619,10 @@ NS_ASSUME_NONNULL_BEGIN
           didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
       XCTAssertEqualObjects(unaffectedDelegate.deviceTokenReceived, _deviceToken);
       unaffectedDelegate.deviceTokenReceived = nil;
+      [unaffectedDelegate application:_mockApplication
+          didFailToRegisterForRemoteNotificationsWithError:_error];
+      XCTAssertEqualObjects(unaffectedDelegate.tokenErrorReceived, _error);
+      unaffectedDelegate.tokenErrorReceived = nil;
       fetchCompletionHandlerCalled = NO;
       [unaffectedDelegate application:_mockApplication
           didReceiveRemoteNotification:_notification
@@ -590,6 +648,10 @@ NS_ASSUME_NONNULL_BEGIN
         didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
     XCTAssertEqualObjects(delegate.deviceTokenReceived, _deviceToken);
     delegate.deviceTokenReceived = nil;
+    [delegate application:_mockApplication
+        didFailToRegisterForRemoteNotificationsWithError:_error];
+    XCTAssertEqualObjects(delegate.tokenErrorReceived, _error);
+    delegate.tokenErrorReceived = nil;
     __block BOOL fetchCompletionHandlerCalled = NO;
     [delegate application:_mockApplication
         didReceiveRemoteNotification:_notification
@@ -615,7 +677,11 @@ NS_ASSUME_NONNULL_BEGIN
       didRegisterForRemoteNotificationsWithDeviceToken:_deviceToken];
   XCTAssertEqualObjects(delegate.deviceTokenReceived, _deviceToken);
   delegate.deviceTokenReceived = nil;
-    __block BOOL fetchCompletionHandlerCalled = NO;
+  [delegate application:_mockApplication
+      didFailToRegisterForRemoteNotificationsWithError:_error];
+  XCTAssertEqualObjects(delegate.tokenErrorReceived, _error);
+  delegate.tokenErrorReceived = nil;
+  __block BOOL fetchCompletionHandlerCalled = NO;
   [delegate application:_mockApplication
       didReceiveRemoteNotification:_notification
             fetchCompletionHandler:^(UIBackgroundFetchResult result) {

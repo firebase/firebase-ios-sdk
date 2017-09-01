@@ -80,6 +80,11 @@ static const NSTimeInterval kExpectationTimeout = 1;
       @brief Another piece of data used for testing.
    */
   NSData *_otherData;
+
+  /** @var _error
+      @brief The fake error used for testing.
+   */
+  NSError *_error;
 }
 
 - (void)setUp {
@@ -178,6 +183,45 @@ static const NSTimeInterval kExpectationTimeout = 1;
 
   // Add callback to time out.
   OCMExpect([_mockApplication registerForRemoteNotifications]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
+    XCTAssertNil(token);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+
+  // Time out.
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockApplication);
+
+  // Calling cancel afterwards should have no effect.
+  [_manager cancelWithError:_error];
+}
+
+/** @fn testCancel
+    @brief Tests cancelling the pending callbacks.
+ */
+- (void)testCancel {
+  // Set up timeout.
+  XCTAssertGreaterThan(_manager.timeout, 0);
+  _manager.timeout = kRegistrationTimeout;
+
+  // Add callback to cancel.
+  OCMExpect([_mockApplication registerForRemoteNotifications]);
+  __block BOOL callbackCalled = NO;
+  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
+    XCTAssertNil(token);
+    XCTAssertEqualObjects(error, _error);
+    XCTAssertFalse(callbackCalled);  // verify callback is not called twice
+    callbackCalled = YES;
+  }];
+  XCTAssertFalse(callbackCalled);
+
+  // Call cancel.
+  [_manager cancelWithError:_error];
+  XCTAssertTrue(callbackCalled);
+
+  // Add callback to timeout.
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertNil(token);
