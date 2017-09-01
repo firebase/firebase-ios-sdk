@@ -506,6 +506,11 @@ static NSString *const kPhoneAuthSectionTitle = @"Phone Auth";
  */
 static NSString *const kPhoneNumberSignInTitle = @"Sign in With Phone Number";
 
+/** @var kPhoneNumberSignInTitle
+    @brief The title for button to sign in with phone number using reCAPTCHA.
+ */
+static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number (reCAPTCHA)";
+
 /** @typedef showEmailPasswordDialogCompletion
     @brief The type of block which gets called to complete the Email/Password dialog flow.
  */
@@ -644,6 +649,8 @@ typedef enum {
                                            action:^{ [weakSelf presentSettings]; }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
+        [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
+                                           action:^{ [weakSelf signInWithPhoneNumberRecaptcha]; }],
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInTitle
                                            action:^{ [weakSelf signInWithPhoneNumber]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdatePhoneNumber
@@ -2407,6 +2414,59 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     }
     [self showSpinner:^{
       [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                             completion:^(NSString *_Nullable verificationID,
+                                                          NSError *_Nullable error) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"failed to send verification code" error:error];
+            [self showMessagePrompt:error.localizedDescription];
+            return;
+          }
+          [self logSuccess:@"Code sent"];
+
+          [self showTextInputPromptWithMessage:@"Verification code:"
+                                  keyboardType:UIKeyboardTypeNumberPad
+                               completionBlock:^(BOOL userPressedOK,
+                                                 NSString *_Nullable verificationCode) {
+            if (!userPressedOK || !verificationCode.length) {
+              return;
+            }
+            [self showSpinner:^{
+              FIRAuthCredential *credential =
+                  [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
+                                                              verificationCode:verificationCode];
+              [[AppManager auth] signInWithCredential:credential
+                                           completion:^(FIRUser *_Nullable user,
+                                                        NSError *_Nullable error) {
+                [self hideSpinner:^{
+                  if (error) {
+                    [self logFailure:@"failed to verify phone number" error:error];
+                    [self showMessagePrompt:error.localizedDescription];
+                    return;
+                  }
+                }];
+              }];
+            }];
+          }];
+        }];
+      }];
+    }];
+  }];
+}
+
+/** @fn signInWithPhoneNumberRecaptcha
+    @brief Allows sign in with phone number using reCAPTCHA
+ */
+- (void)signInWithPhoneNumberRecaptcha {
+  [self showTextInputPromptWithMessage:@"Phone #:"
+                          keyboardType:UIKeyboardTypePhonePad
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
+    if (!userPressedOK || !phoneNumber.length) {
+      return;
+    }
+    [self showSpinner:^{
+      [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                             UIDelegate:nil
                                              completion:^(NSString *_Nullable verificationID,
                                                           NSError *_Nullable error) {
         [self hideSpinner:^{

@@ -35,6 +35,7 @@
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthRequestConfiguration.h"
+#import "FIRAuthURLPresenter.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
@@ -387,6 +388,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       });
       return uid;
     };
+    _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
   }
   return self;
 }
@@ -986,8 +988,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 #endif
 
-- (BOOL)canHandleURL:(NSURL *)url {
-  return NO;
+- (BOOL)canHandleURL:(NSURL *)URL {
+  return [_authURLPresenter canHandleURL:URL];
 }
 
 #pragma mark - Internal Methods
