@@ -24,6 +24,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
   s.static_framework = true
+  s.dependency 'FirebaseCore'
   s.ios.dependency 'FirebaseAnalytics'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
