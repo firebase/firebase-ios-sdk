@@ -35,7 +35,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'Firebase/Auth/README.md',
     'Firebase/Auth/CHANGELOG.md'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    '$(inherited) ' + 'FIRAuth_VERSION=' + s.version.to_s +
+    'FIRAuth_VERSION=' + s.version.to_s +
     ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }
   s.framework = 'Security'

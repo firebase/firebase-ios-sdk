@@ -30,6 +30,5 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'leveldb-library'
   s.dependency 'FirebaseCore'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    '$(inherited) ' +
     'FIRDatabase_VERSION=' + s.version.to_s }
 end
