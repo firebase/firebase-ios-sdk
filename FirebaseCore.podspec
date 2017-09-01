@@ -27,7 +27,4 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-
-  # TODO - Workaround fill in bug number
-  s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
 end

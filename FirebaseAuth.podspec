@@ -18,6 +18,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
+  s.osx.deployment_target = '10.10'
   s.static_framework = true
 
   s.source_files = 'Firebase/Auth/**/*.[mh]'
@@ -43,4 +44,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.dependency 'FirebaseAnalytics'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
+
+  # Include FirebaseCore's GTM dependency to workaround
+  # https://github.com/CocoaPods/CocoaPods/issues/6967
+  s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
 end

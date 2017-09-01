@@ -13,6 +13,7 @@
 // limitations under the License.
 
 //@import Firebase;
+@import FirebaseCore;
 #import "FirebaseCore/FIRApp.h"
 #import "FIRAppDelegate.h"
 

@@ -9,7 +9,7 @@ use_frameworks!
 target 'Core_Example_iOS' do
   platform :ios, '8.0'
 
-  pod 'FirebaseCore' #, :path => '../'
+  pod 'FirebaseCore', :path => '../'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
@@ -27,7 +27,7 @@ target 'Auth_Example_iOS' do
     pod 'OCMock'
   end
 end
-#
+
 target 'Database_Example_iOS' do
   platform :ios, '8.0'
 
@@ -74,7 +74,7 @@ end
 target 'Core_Example_macOS' do
   platform :osx, '10.10'
 
-  pod 'FirebaseCore'
+  pod 'FirebaseCore', :path => '../'
 
   target 'Core_Tests_macOS' do
     inherit! :search_paths
@@ -82,91 +82,33 @@ target 'Core_Example_macOS' do
   end
 end
 
-#
-#target 'Auth_Example_iOS' do
-#  platform :ios, '8.0'
-#
-#  pod 'FirebaseCommunity/Auth', :path => '../'
-#
-#  target 'Auth_Tests_iOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#end
-#
-#target 'Auth_Example_macOS' do
-#  platform :osx, '10.10'
-#
-#  pod 'FirebaseCommunity/Auth', :path => '../'
-#
-#  target 'Auth_Tests_macOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#end
-#
-#target 'Database_Example_iOS' do
-#  platform :ios, '8.0'
-#
-#  pod 'FirebaseCommunity/Database', :path => '../'
-#
-#  target 'Database_Tests_iOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#
-#  target 'Database_IntegrationTests_iOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#end
-#
-#target 'Database_Example_macOS' do
-#  platform :osx, '10.10'
-#
-#  pod 'FirebaseCommunity/Database', :path => '../'
-#
-#  target 'Database_Tests_macOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#
-#  target 'Database_IntegrationTests_macOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#end
-#
-#target 'Messaging_Example_iOS' do
-#  platform :ios, '8.0'
-#
-#  pod 'FirebaseCommunity/Messaging', :path => '../'
-#  # Lock to the 1.0.9 version of InstanceID since 1.0.10 added a dependency
-#  # to FirebaseCore
-#  pod 'FirebaseInstanceID', '1.0.9'
-#
-#  target 'Messaging_Tests_iOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#end
-#
-#target 'Storage_Example_iOS' do
-#  platform :ios, '8.0'
-#
-#  pod 'FirebaseCommunity/Storage', :path => '../'
-#
-#  target 'Storage_Tests_iOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#
-#  target 'Storage_IntegrationTests_iOS' do
-#    inherit! :search_paths
-#    pod 'OCMock'
-#  end
-#end
-#
+target 'Auth_Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'FirebaseAuth', :path => '../'
+
+  target 'Auth_Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Database_Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'FirebaseDatabase', :path => '../'
+
+  target 'Database_Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+  target 'Database_IntegrationTests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
 target 'Storage_Example_macOS' do
   platform :osx, '10.10'
 
