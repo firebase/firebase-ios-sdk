@@ -42,6 +42,8 @@ Firebase Development CocoaPod including experimental and community supported fea
       'Firebase/Auth/Source/**/FIRAuthAPNSTokenManager.[mh]',
       'Firebase/Auth/Source/**/FIRAuthAPNSTokenType.[mh]',
       'Firebase/Auth/Source/**/FIRAuthAPNSToken.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthDefaultUIDelegate.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthURLPresenter.[mh]',
       'Firebase/Auth/Source/**/FIRPhoneAuthCredential.[mh]',
       'Firebase/Auth/Source/**/FIRPhoneAuthProvider.[mh]'
     sp.public_header_files = 'Firebase/Auth/Source/Public/*.h'
