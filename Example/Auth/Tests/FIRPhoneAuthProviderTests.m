@@ -33,7 +33,6 @@
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthURLPresenter.h"
-#import "FIROptions.h"
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
