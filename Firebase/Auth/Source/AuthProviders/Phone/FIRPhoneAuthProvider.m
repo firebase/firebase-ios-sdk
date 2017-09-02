@@ -75,6 +75,11 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
  */
 static NSString *const kAuthTypeVerifyApp = @"verifyApp";
 
+/** @var kFirebaseAuthHost
+    @brief The host part of the redirect URL after the app verification via reCAPTCHA.
+ */
+static NSString *const kFirebaseAuthHost = @"firebaseauth";
+
 /** @var kReCAPTCHAURLStringFormat
     @brief The format of the URL used to open the reCAPTCHA page during app verification.
  */
@@ -207,14 +212,21 @@ NSString *const kReCAPTCHAURLStringFormat =
 }
 
 #pragma mark - Internal Methods
-
-
 /** @fn isVerifyAppURL:
     @brief Parses a URL into all available query items.
     @param URL The url to be checked against the authType string.
     @return Whether or not the URL matches authType.
  */
 - (BOOL)isVerifyAppURL:(NSURL *)URL {
+  NSArray *strings = [_auth.app.options.clientID componentsSeparatedByString:@"."];
+  NSString *reverseClientID =
+      [[strings reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+  if (![[URL scheme] isEqualToString:reverseClientID]) {
+    return NO;
+  }
+  if (![[URL host] isEqualToString:kFirebaseAuthHost]) {
+    return NO;
+  }
   NSDictionary<NSString *, NSString *> *URLQueryItems =
       [self queryItemsForURLString:URL.absoluteString];
   NSDictionary<NSString *, NSString *> *deeplinkQueryItems;

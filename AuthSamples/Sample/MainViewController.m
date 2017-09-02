@@ -37,6 +37,12 @@
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
 
+
+/*! @typedef textInputCompletionBlock
+    @brief The type of callback used to report text input prompt results.
+ */
+typedef void (^textInputCompletionBlock)(NSString *_Nullable userInput);
+
 /** @var kTokenGetButtonText
     @brief The text of the "Get Token" button.
  */
@@ -2406,14 +2412,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Allows sign in with phone number.
  */
 - (void)signInWithPhoneNumber {
-  [self showTextInputPromptWithMessage:@"Phone #:"
-                          keyboardType:UIKeyboardTypePhonePad
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
-    if (!userPressedOK || !phoneNumber.length) {
-      return;
-    }
+  [self commonPhoneNumberInputWithTitle:@"Phone #" Completion:^(NSString *_Nullable phone) {
     [self showSpinner:^{
-      [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+      [[AppManager phoneAuthProvider] verifyPhoneNumber:phone
                                              completion:^(NSString *_Nullable verificationID,
                                                           NSError *_Nullable error) {
         [self hideSpinner:^{
@@ -2424,29 +2425,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }
           [self logSuccess:@"Code sent"];
 
-          [self showTextInputPromptWithMessage:@"Verification code:"
-                                  keyboardType:UIKeyboardTypeNumberPad
-                               completionBlock:^(BOOL userPressedOK,
-                                                 NSString *_Nullable verificationCode) {
-            if (!userPressedOK || !verificationCode.length) {
-              return;
-            }
-            [self showSpinner:^{
-              FIRAuthCredential *credential =
-                  [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
-                                                              verificationCode:verificationCode];
-              [[AppManager auth] signInWithCredential:credential
-                                           completion:^(FIRUser *_Nullable user,
-                                                        NSError *_Nullable error) {
-                [self hideSpinner:^{
-                  if (error) {
-                    [self logFailure:@"failed to verify phone number" error:error];
-                    [self showMessagePrompt:error.localizedDescription];
-                    return;
-                  }
-                }];
-              }];
-            }];
+          [self commonPhoneNumberInputWithTitle:@"Code"
+                                     Completion:^(NSString *_Nullable verificationCode) {
+            [self commontPhoneVerificationWithVerificationID:verificationID
+                                            verificationCode:verificationCode];
           }];
         }];
       }];
@@ -2458,14 +2440,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Allows sign in with phone number using reCAPTCHA
  */
 - (void)signInWithPhoneNumberRecaptcha {
-  [self showTextInputPromptWithMessage:@"Phone #:"
-                          keyboardType:UIKeyboardTypePhonePad
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
-    if (!userPressedOK || !phoneNumber.length) {
-      return;
-    }
+  [self commonPhoneNumberInputWithTitle:@"Phone #" Completion:^(NSString *_Nullable phone) {
     [self showSpinner:^{
-      [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+      [[AppManager phoneAuthProvider] verifyPhoneNumber:phone
                                              UIDelegate:nil
                                              completion:^(NSString *_Nullable verificationID,
                                                           NSError *_Nullable error) {
@@ -2477,31 +2454,53 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }
           [self logSuccess:@"Code sent"];
 
-          [self showTextInputPromptWithMessage:@"Verification code:"
-                                  keyboardType:UIKeyboardTypeNumberPad
-                               completionBlock:^(BOOL userPressedOK,
-                                                 NSString *_Nullable verificationCode) {
-            if (!userPressedOK || !verificationCode.length) {
-              return;
-            }
-            [self showSpinner:^{
-              FIRAuthCredential *credential =
-                  [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
-                                                              verificationCode:verificationCode];
-              [[AppManager auth] signInWithCredential:credential
-                                           completion:^(FIRUser *_Nullable user,
-                                                        NSError *_Nullable error) {
-                [self hideSpinner:^{
-                  if (error) {
-                    [self logFailure:@"failed to verify phone number" error:error];
-                    [self showMessagePrompt:error.localizedDescription];
-                    return;
-                  }
-                }];
-              }];
-            }];
+          [self commonPhoneNumberInputWithTitle:@"Code"
+                                     Completion:^(NSString *_Nullable verificationCode) {
+            [self commontPhoneVerificationWithVerificationID:verificationID
+                                            verificationCode:verificationCode];
           }];
         }];
+      }];
+    }];
+  }];
+}
+
+/** @fn commonPhoneNumberInputWithLabel:Completion
+    @brief Allows user input into a text field.
+    @param title of the promt.
+ */
+- (void)commonPhoneNumberInputWithTitle:(NSString *)title
+                             Completion:(textInputCompletionBlock)completion {
+  [self showTextInputPromptWithMessage:title
+                          keyboardType:UIKeyboardTypePhonePad
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
+    if (!userPressedOK || !phoneNumber.length) {
+      return;
+    }
+    completion(phoneNumber);
+  }];
+}
+
+/** @fn commonPhoneNumberInputWithLabel:Completion
+    @brief Finishes the phone number verification flow.
+    @param verificationID The verificationID from the backend.
+    @param verificationCode The verificationCode from the SMS message.
+ */
+- (void)commontPhoneVerificationWithVerificationID:(NSString *)verificationID
+                                  verificationCode:(NSString *)verificationCode {
+  [self showSpinner:^{
+    FIRAuthCredential *credential =
+        [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
+                                                    verificationCode:verificationCode];
+    [[AppManager auth] signInWithCredential:credential
+                                 completion:^(FIRUser *_Nullable user,
+                                              NSError *_Nullable error) {
+      [self hideSpinner:^{
+        if (error) {
+          [self logFailure:@"failed to verify phone number" error:error];
+          [self showMessagePrompt:error.localizedDescription];
+          return;
+        }
       }];
     }];
   }];
