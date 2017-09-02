@@ -20,6 +20,8 @@
 #import "FIRPhoneAuthProvider.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "Phone/NSString+FIRAuth.h"
+#import "FIRApp.h"
+#import "FIRApp+FIRAuthUnitTests.h"
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredential.h"
@@ -31,6 +33,7 @@
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthURLPresenter.h"
+#import "FIROptions.h"
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
@@ -271,25 +274,19 @@ static const NSTimeInterval kExpectationTimeout = 1;
  */
 - (void)testVerifyPhoneNumberUIDelegate {
   if ([SFSafariViewController class]) {
+    FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"testApp"];
+    OCMStub([_mockAuth app]).andReturn(app);
     // Simulate missing app token error.
     OCMExpect([_mockNotificationManager checkNotificationForwardingWithCallback:OCMOCK_ANY])
         .andCallBlock1(^(FIRAuthNotificationForwardingCallback callback) { callback(YES); });
     OCMExpect([_mockAppCredentialManager credential]).andReturn(nil);
     OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
-        .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) { callback(nil); });
-    // Expect verify client request to the backend wth empty token.
-    OCMExpect([_mockBackend verifyClient:[OCMArg any] callback:[OCMArg any]])
-        .andCallBlock2(^(FIRVerifyClientRequest *request,
-                         FIRVerifyClientResponseCallback callback) {
-      XCTAssertNil(request.appToken);
-      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-        // The backend is supposed to return an error.
-        callback(nil, [NSError errorWithDomain:FIRAuthErrorDomain
-                                          code:FIRAuthErrorCodeMissingAppToken
-                                      userInfo:nil]);
-      });
+        .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) {
+      NSError *error = [NSError errorWithDomain:FIRAuthErrorDomain
+                                           code:FIRAuthErrorCodeMissingAppToken
+                                       userInfo:nil];
+      callback(nil, error);
     });
-    // Expect get project config backend request.
     OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
         .andCallBlock2(^(FIRGetProjectConfigRequest *request,
                          FIRGetProjectConfigResponseCallback callback) {
