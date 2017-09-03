@@ -990,7 +990,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
-  return [_authURLPresenter canHandleURL:URL];
+  __block BOOL result = NO;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    result = [_authURLPresenter canHandleURL:URL];
+  });
+  return result;
 }
 #endif
 
