@@ -39,7 +39,6 @@
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
 #import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
-#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -77,16 +76,6 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
  */
 static NSString *const kAuthTypeVerifyApp = @"verifyApp";
 
-/** @var kFirebaseAuthURLHost
-    @brief The host part of the redirect URL after the app verification via reCAPTCHA.
- */
-static NSString *const kFirebaseAuthURLHost = @"firebaseauth";
-
-/** @var kFirebaseAuthURLPath
-    @brief The path part of the redirect URL after the app verification via reCAPTCHA.
- */
-static NSString *const kFirebaseAuthURLPath = @"/link";
-
 /** @var kReCAPTCHAURLStringFormat
     @brief The format of the URL used to open the reCAPTCHA page during app verification.
  */
@@ -116,15 +105,14 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                completion:(nullable FIRVerificationResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRVerificationResultCallback callBackOnMainThread = ^(NSString *_Nullable verificationID,
-                                                           NSError *_Nullable error) {
+    [self internalVerifyPhoneNumber:phoneNumber completion:^(NSString *_Nullable verificationID,
+                                                             NSError *_Nullable error) {
       if (completion) {
         dispatch_async(dispatch_get_main_queue(), ^{
           completion(verificationID, error);
         });
       }
-    };
-    [self internalVerifyPhoneNumber:phoneNumber completion:callBackOnMainThread];
+    }];
   });
 }
 
@@ -143,8 +131,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     [self internalVerifyPhoneNumber:phoneNumber completion:^(NSString *_Nullable verificationID,
                                                              NSError *_Nullable error) {
       if (!error) {
-        // Associate the phone number with the verification ID.
-        verificationID.fir_authPhoneNumber = phoneNumber;
         callBackOnMainThread(verificationID, nil);
         return;
       }
@@ -176,7 +162,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
               [NSDictionary gtm_dictionaryWithHttpArgumentsString:callbackURL.query];;
           URLQueryItems =
               [NSDictionary gtm_dictionaryWithHttpArgumentsString:URLQueryItems[@"deep_link_id"]];
-          
           NSString *reCAPTCHA = URLQueryItems[@"recaptchaToken"];
           FIRSendVerificationCodeRequest *request =
             [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
@@ -190,6 +175,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
               callBackOnMainThread(nil, error);
               return;
             }
+            // Associate the phone number with the verification ID.
+            response.verificationID.fir_authPhoneNumber = phoneNumber;
             callBackOnMainThread(response.verificationID, nil);
           }];
         }];
@@ -223,28 +210,26 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   if (!URL) {
     return NO;
   }
-  NSURLComponents *actualURLComponents = [NSURLComponents new];
-  actualURLComponents.scheme = URL.scheme;
-  actualURLComponents.host = URL.host;
-  actualURLComponents.path = URL.path;
-  actualURLComponents.user = URL.user;
-  actualURLComponents.password = URL.password;
+  NSURLComponents *actualURLComponents =
+      [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
+  actualURLComponents.query = nil;
+  actualURLComponents.fragment = nil;
 
   NSURLComponents *expectedURLComponents = [NSURLComponents new];
   NSArray *strings = [_auth.app.options.clientID componentsSeparatedByString:@"."];
   expectedURLComponents.scheme =
       [[strings reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
-  expectedURLComponents.host = kFirebaseAuthURLHost;
-  expectedURLComponents.path = kFirebaseAuthURLPath;
+  expectedURLComponents.host = @"firebaseauth";
+  expectedURLComponents.path = @"/link";
 
   if (!([[expectedURLComponents URL] isEqual:[actualURLComponents URL]])) {
     return NO;
   }
   NSDictionary<NSString *, NSString *> *URLQueryItems =
       [NSDictionary gtm_dictionaryWithHttpArgumentsString:URL.query];
-  NSDictionary<NSString *, NSString *> *deeplinkQueryItems;
   NSURL *deeplinkURL = [NSURL URLWithString:URLQueryItems[@"deep_link_id"]];
-  deeplinkQueryItems = [NSDictionary gtm_dictionaryWithHttpArgumentsString:deeplinkURL.query];
+  NSDictionary<NSString *, NSString *> *deeplinkQueryItems =
+      [NSDictionary gtm_dictionaryWithHttpArgumentsString:deeplinkURL.query];
   if ([deeplinkQueryItems[@"authType"] isEqualToString:kAuthTypeVerifyApp]) {
     return YES;
   }
@@ -380,24 +365,20 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     }
     NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
     NSString *clienID = _auth.app.options.clientID;
-    NSString *apiKey = _auth.requestConfiguration.APIKey;
+    NSString *apiKey = _auth.app.options.APIKey;
     NSMutableDictionary *urlArguments = [[NSMutableDictionary alloc] initWithDictionary: @{
       @"apiKey" : apiKey,
       @"authType" : kAuthTypeVerifyApp,
       @"ibi" : bundleID,
       @"clientId" : clienID,
-      @"v" : [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
-                                        FirebaseAuthVersionString,
-                                        GTMFetcherStandardUserAgentString(nil)]
+      @"v" : [FIRAuthBackend authUserAgent]
     }];
     if (_auth.requestConfiguration.languageCode) {
       urlArguments[@"hl"] = _auth.requestConfiguration.languageCode;
     }
     NSString *argumentsString = [urlArguments gtm_httpArgumentsString];
-
     NSString *URLString =
-        [NSString stringWithFormat:kReCAPTCHAURLStringFormat,authDomain, argumentsString];
-
+        [NSString stringWithFormat:kReCAPTCHAURLStringFormat, authDomain, argumentsString];
     completion([NSURL URLWithString:URLString], nil);
   }];
 }
@@ -417,7 +398,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     for (NSString *domain in response.authorizedDomains) {
       NSInteger index = domain.length - kAuthDomainSuffix.length;
       if (index >= 2) {
-        if ([domain hasSuffix:kAuthDomainSuffix]) {
+        if ([domain hasSuffix:kAuthDomainSuffix] && domain.length >= kAuthDomainSuffix.length + 2) {
           authDomain = domain;
           break;
         }

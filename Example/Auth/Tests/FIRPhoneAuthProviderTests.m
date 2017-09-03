@@ -96,9 +96,9 @@ static NSString *const kFakeReCAPTCHAToken = @"fakeReCAPTCHAToken";
 /** @var kFakeRedirectURLStringFormat
     @brief The format for a fake redirect URL string.
  */
-static NSString *const kFakeRedirectURLStringFormat = @"com.googleusercontent.apps.123456://fireb"
-    "aseauth/link?deep_link_id=https://example.firebaseapp.com/__/auth/callback?authType=verifyApp&"
-    "recaptchaToken=%@";
+static NSString *const kFakeRedirectURLStringWithoutReCAPTCHAToken = @"com.googleusercontent.apps.1"
+    "23456://firebaseauth/link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcal"
+    "lback%3FauthType%3DverifyApp%26recaptchaToken%3D";
 
 /** @var kTestTimeout
     @brief A fake timeout value for waiting for push notification.
@@ -299,8 +299,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
     });
     // Mock UIDelegate.
     id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
-    NSString *fakeRedirectURLString =
-        [NSString stringWithFormat:kFakeRedirectURLStringFormat, kFakeReCAPTCHAToken];
     // Expect view controller presentation by UIDelegate.
     id presenterArg = [OCMArg isKindOfClass:[SFSafariViewController class]];
     OCMExpect([mockUIDelegate presentViewController:presenterArg
@@ -313,6 +311,9 @@ static const NSTimeInterval kExpectationTimeout = 1;
       SFSafariViewController *viewController = unretainedArgument;
       XCTAssertEqual(viewController.delegate, [_mockAuth authURLPresenter]);
       XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
+      NSMutableString *fakeRedirectURLString =
+          [NSMutableString stringWithString:kFakeRedirectURLStringWithoutReCAPTCHAToken];
+      [fakeRedirectURLString appendString:kFakeReCAPTCHAToken];
       [[_mockAuth authURLPresenter] canHandleURL:[NSURL URLWithString:fakeRedirectURLString]];
     });
     // Expect view controller dismissal by UIDelegate.
