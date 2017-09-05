@@ -1034,12 +1034,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       return;
     }
     [auth signOut:NULL];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    FIRAuthCredential *credential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kFakeEmail
-                                                 password:kFakePassword];
-#pragma clang diagnostic pop
+    FIRAuthCredential *credential = [FIREmailAuthProvider credentialWithEmail:kFakeEmail
+                                                                     password:kFakePassword];
     [auth signInWithCredential:credential
                      completion:^(FIRUser *_Nullable user,
                                   NSError *_Nullable error) {
