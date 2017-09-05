@@ -42,6 +42,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     '$(inherited) ' + 'FIRAuth_VERSION=' + s.version.to_s +
     ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }
+  s.framework = 'SafariServices'
   s.framework = 'Security'
 #  s.dependency 'FirebaseCommunity/Core'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
