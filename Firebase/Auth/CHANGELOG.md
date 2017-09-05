@@ -1,5 +1,5 @@
 # v4.2.0
-- Adds web-based reCAPTCHA fallback for phone number auth when APNs is unavailable.
+- Adds new phone number verification API which makes use of an intelligent reCAPTCHA to verify the application.
 
 # v4.1.1
 - Improves some method documentation in headers.
