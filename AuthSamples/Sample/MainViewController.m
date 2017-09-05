@@ -1034,9 +1034,12 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       return;
     }
     [auth signOut:NULL];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRAuthCredential *credential =
         [FIREmailPasswordAuthProvider credentialWithEmail:kFakeEmail
                                                  password:kFakePassword];
+#pragma clang diagnostic pop
     [auth signInWithCredential:credential
                      completion:^(FIRUser *_Nullable user,
                                   NSError *_Nullable error) {
@@ -2414,9 +2417,12 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 - (void)signInWithPhoneNumber {
   [self commonPhoneNumberInputWithTitle:@"Phone #" Completion:^(NSString *_Nullable phone) {
     [self showSpinner:^{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [[AppManager phoneAuthProvider] verifyPhoneNumber:phone
                                              completion:^(NSString *_Nullable verificationID,
                                                           NSError *_Nullable error) {
+#pragma clang diagnostic pop
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"failed to send verification code" error:error];
@@ -2518,6 +2524,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     }
     [self showSpinner:^{
       [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                             UIDelegate:nil
                                              completion:^(NSString *_Nullable verificationID,
                                                           NSError *_Nullable error) {
         if (error) {
@@ -2569,6 +2576,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     }
     [self showSpinner:^{
       [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                             UIDelegate:nil
                                              completion:^(NSString *_Nullable verificationID,
                                                           NSError *_Nullable error) {
         [self hideSpinner:^{
