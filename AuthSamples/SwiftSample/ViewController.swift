@@ -19,7 +19,7 @@ import UIKit
 import FirebaseCommunity.FirebaseAuth
 import GoogleSignIn
 
-final class ViewController: UIViewController, UITextFieldDelegate {
+final class ViewController: UIViewController, UITextFieldDelegate, FIRAuthUIDelegate {
   /// The profile image for the currently signed-in user.
   @IBOutlet weak var profileImage: UIImageView!
 
@@ -158,7 +158,8 @@ final class ViewController: UIViewController, UITextFieldDelegate {
 
   func verify(phoneNumber: String, completion: @escaping (PhoneAuthCredential?, Error?) -> Void) {
     if #available(iOS 8.0, *) {
-      PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber) { verificationID, error in
+      PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate:self) {
+          verificationID, error in
         guard error == nil else {
           completion(nil, error)
           return
