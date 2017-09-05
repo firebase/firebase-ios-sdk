@@ -314,7 +314,9 @@ static const NSTimeInterval kExpectationTimeout = 1;
       NSMutableString *fakeRedirectURLString =
           [NSMutableString stringWithString:kFakeRedirectURLStringWithoutReCAPTCHAToken];
       [fakeRedirectURLString appendString:kFakeReCAPTCHAToken];
-      [[_mockAuth authURLPresenter] canHandleURL:[NSURL URLWithString:fakeRedirectURLString]];
+
+      OCMExpect([_mockAuth canHandleURL:OCMOCK_ANY]).andReturn([[_mockAuth authURLPresenter]
+          canHandleURL:[NSURL URLWithString:fakeRedirectURLString]]);
     });
     // Expect view controller dismissal by UIDelegate.
     OCMExpect([mockUIDelegate dismissViewControllerAnimated:OCMOCK_ANY completion:OCMOCK_ANY]).
