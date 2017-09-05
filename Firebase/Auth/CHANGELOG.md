@@ -1,3 +1,6 @@
+# v4.2.0
+- Adds web-based reCAPTCHA fallback for phone number auth when APNs is unavailable.
+
 # v4.1.1
 - Improves some method documentation in headers.
 
