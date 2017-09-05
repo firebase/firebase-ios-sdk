@@ -42,6 +42,13 @@ NSString *const FIRAuthUpdatedCredentialKey = @"FIRAuthUpdatedCredentialKey";
  */
 static NSString *const kServerErrorDetailMarker = @" : ";
 
+#pragma mark - URL response error codes
+
+/** @var kURLResponseErrorCodeInvalidClientID
+    @brief Error code that indicates that the client ID provided was invalid.
+ */
+static NSString *const kURLResponseErrorCodeInvalidClientID = @"auth/invalid-oauth-client-id";
+
 #pragma mark - Standard Error Messages
 
 /** @var kFIRAuthErrorMessageInvalidCustomToken
@@ -357,6 +364,12 @@ static NSString *const kFIRAuthErrorMessageWebContextAlreadyPresented = @"User i
 static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The interaction was cancelled "
     "by the user.";
 
+/** @var kFIRAuthErrorMessageInvalidClientID
+    @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
+ */
+static NSString *const kFIRAuthErrorMessageInvalidClientID = @"The OAuth client ID provided is "
+    "either invalid or does not match the specified API key.";
+
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
@@ -471,6 +484,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageWebContextAlreadyPresented;
     case FIRAuthErrorCodeWebContextCancelled:
       return kFIRAuthErrorMessageWebContextCancelled;
+    case FIRAuthErrorCodeInvalidClientID:
+      return kFIRAuthErrorMessageInvalidClientID;
   }
 }
 
@@ -582,6 +597,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_WEB_CONTEXT_ALREADY_PRESENTED";
     case FIRAuthErrorCodeWebContextCancelled:
       return @"ERROR_WEB_CONTEXT_CANCELLED";
+    case FIRAuthErrorCodeInvalidClientID:
+      return @"ERROR_INVALID_CLIENT_ID";
   }
 }
 
@@ -900,6 +917,13 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)webContextCancelledErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeWebContextCancelled message:message];
+}
+
++ (NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message {
+  if ([code isEqualToString:kURLResponseErrorCodeInvalidClientID]) {
+    return [self errorWithCode:FIRAuthInternalErrorCodeInvalidClientID message:message];
+  }
+  return nil;
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {
