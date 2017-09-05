@@ -465,6 +465,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] resetPassword:request callback:callback];
 }
 
++ (NSString *)authUserAgent {
+  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
+      FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+}
+
 @end
 
 @interface FIRAuthBackendRPCIssuerImplementation : NSObject <FIRAuthBackendRPCIssuer>
@@ -480,8 +485,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   self = [super init];
   if (self) {
     _fetcherService = [[GTMSessionFetcherService alloc] init];
-    _fetcherService.userAgent = [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
-        FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+    _fetcherService.userAgent = [FIRAuthBackend authUserAgent];
     _fetcherService.callbackQueue = FIRAuthGlobalWorkQueue();
   }
   return self;

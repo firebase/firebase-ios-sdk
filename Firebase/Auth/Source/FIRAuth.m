@@ -64,6 +64,7 @@
 #import "FIRAuthAppDelegateProxy.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthNotificationManager.h"
+#import "FIRAuthURLPresenter.h"
 #endif
 
 #pragma mark - Constants
@@ -387,6 +388,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       });
       return uid;
     };
+    #if TARGET_OS_IOS
+    _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
+    #endif
   }
   return self;
 }
@@ -984,11 +988,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
   return result;
 }
-#endif
 
-- (BOOL)canHandleURL:(NSURL *)url {
-  return NO;
+- (BOOL)canHandleURL:(NSURL *)URL {
+  __block BOOL result = NO;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    result = [_authURLPresenter canHandleURL:URL];
+  });
+  return result;
 }
+#endif
 
 #pragma mark - Internal Methods
 

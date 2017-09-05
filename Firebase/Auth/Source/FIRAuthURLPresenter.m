@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
-  if (_callbackMatcher(URL)) {
+  if (_callbackMatcher && _callbackMatcher(URL)) {
     _callbackMatcher = nil;
     [self finishPresentationWithURL:URL error:nil];
     return YES;

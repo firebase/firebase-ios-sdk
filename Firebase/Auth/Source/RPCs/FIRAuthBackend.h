@@ -210,6 +210,12 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 @interface FIRAuthBackend : NSObject
 
+/** @fn authUserAgent
+    @brief Retrieves the Firebase Auth user agent.
+    @return The Firebase Auth user agent.
+ */
++ (NSString *)authUserAgent;
+
 /** @fn setBackendImplementation:
     @brief Changes the default backend implementation to something else.
     @param backendImplementation The backend implementation to use.

@@ -24,11 +24,19 @@
 @class FIRAuthAPNSTokenManager;
 @class FIRAuthAppCredentialManager;
 @class FIRAuthNotificationManager;
+@class FIRAuthURLPresenter;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuth ()
+
+#if TARGET_OS_IOS
+/** @property authURLPresenter
+    @brief An object that takes care of presenting URLs via the auth instance.
+ */
+@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
+#endif
 
 /** @property requestConfiguration
     @brief The configuration object comprising of paramters needed to make a request to Firebase

@@ -28,7 +28,8 @@
   return [[FIROptions alloc] initInternalWithOptionsDictionary:@{
     @"GOOGLE_APP_ID" : @"1:1085102361755:ios:f790a919483d5bdf",
     @"API_KEY" : @"FAKE_API_KEY",
-    @"GCM_SENDER_ID": @"217397612173"
+    @"GCM_SENDER_ID": @"217397612173",
+    @"CLIENT_ID" : @"123456.apps.googleusercontent.com",
   }];
 }
 
