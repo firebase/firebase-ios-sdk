@@ -63,16 +63,20 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 }
 
 /**
- * A static NSMutableDictionary of FirebaseApp names to FirebaseDatabase instance. To ensure thread-
- * safety, it should only be accessed in databaseForApp, which is synchronized.
+ * A static NSMutableDictionary of FirebaseApp name and Database URLs to
+ * FirebaseDatabase instance. To ensure thread-safety, it should only be
+ * accessed in databaseForApp, which is synchronized.
  *
  * TODO: This serves a duplicate purpose as RepoManager.  We should clean up.
- * TODO: We should maybe be conscious of leaks and make this a weak map or similar
- * but we have a lot of work to do to allow FirebaseDatabase/Repo etc. to be GC'd.
+ * TODO: We should maybe be conscious of leaks and make this a weak map or
+ * similar but we have a lot of work to do to allow FirebaseDatabase/Repo etc.
+ * to be GC'd.
  */
 + (NSMutableDictionary *)instances {
     static dispatch_once_t pred = 0;
-    static NSMutableDictionary *instances;
+    static NSMutableDictionary<
+        NSString *, NSMutableDictionary<FRepoInfo *, FIRDatabase *> *>
+        *instances;
     dispatch_once(&pred, ^{
         instances = [NSMutableDictionary dictionary];
     });
@@ -90,13 +94,72 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     return [FIRDatabase databaseForApp:app];
 }
 
++ (FIRDatabase *)databaseWithURL:(NSString *)url {
+    FIRApp *app = [FIRApp defaultApp];
+    if (app == nil) {
+        [NSException raise:@"FIRAppNotConfigured"
+                    format:@"Failed to get default Firebase Database instance. "
+                           @"Must call `[FIRApp "
+                           @"configure]` (`FirebaseApp.configure()` in Swift) "
+                           @"before using "
+                           @"Firebase Database."];
+    }
+    return [FIRDatabase databaseForApp:app URL:url];
+}
+
 + (FIRDatabase *)databaseForApp:(FIRApp *)app {
     if (app == nil) {
         [NSException raise:@"InvalidFIRApp" format:@"nil FIRApp instance passed to databaseForApp."];
     }
-    NSMutableDictionary *instances = [self instances];
+
+    return [FIRDatabase databaseForApp:app URL:app.options.databaseURL];
+}
+
++ (FIRDatabase *)databaseForApp:(FIRApp *)app URL:(NSString *)url {
+    if (app == nil) {
+        [NSException raise:@"InvalidFIRApp"
+                    format:@"nil FIRApp instance passed to databaseForApp."];
+    }
+
+    if (url == nil) {
+        [NSException raise:@"MissingDatabaseURL"
+                    format:@"Failed to get FirebaseDatabase instance: "
+                            "Specify DatabaseURL within FIRApp or from your "
+                            "databaseForApp: call."];
+    }
+
+    NSURL *databaseUrl = [NSURL URLWithString:url];
+    if (databaseUrl == nil) {
+        [NSException raise:@"InvalidDatabaseURL"
+                    format:@"The Database URL '%@' cannot be parsed. "
+                            "Specify a valid DatabaseURL within FIRApp or from "
+                            "your databaseForApp: call.",
+                           databaseUrl];
+    } else if (![databaseUrl.path isEqualToString:@""] &&
+               ![databaseUrl.path isEqualToString:@"/"]) {
+        [NSException
+             raise:@"InvalidDatabaseURL"
+            format:@"Configured Database URL '%@' is invalid. It should "
+                    "point to the root of a Firebase Database but it includes "
+                    "a path: %@",
+                   databaseUrl, databaseUrl.path];
+    }
+
+    NSMutableDictionary<NSString *,
+                        NSMutableDictionary<FRepoInfo *, FIRDatabase *> *>
+        *instances = [self instances];
+
     @synchronized (instances) {
-        FIRDatabase *database = instances[app.name];
+        NSMutableDictionary<FRepoInfo *, FIRDatabase *> *urlInstanceMap =
+            instances[app.name];
+        if (!urlInstanceMap) {
+            urlInstanceMap = [NSMutableDictionary dictionary];
+            instances[app.name] = urlInstanceMap;
+        }
+
+        FParsedUrl *parsedUrl =
+            [FUtilities parseUrl:databaseUrl.absoluteString];
+        FIRDatabase *database = urlInstanceMap[parsedUrl.repoInfo];
         if (!database) {
             NSString *databaseUrl = app.options.databaseURL;
             if (databaseUrl == nil) {
@@ -123,8 +186,10 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 
             FIRDatabaseConfig *config = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier
                                                                            authTokenProvider:authTokenProvider];
-            database = [[FIRDatabase alloc] initWithApp:app repoInfo:parsedUrl.repoInfo config:config];
-            instances[app.name] = database;
+            database = [[FIRDatabase alloc] initWithApp:app
+                                               repoInfo:parsedUrl.repoInfo
+                                                 config:config];
+            urlInstanceMap[parsedUrl.repoInfo] = database;
         }
 
         return database;

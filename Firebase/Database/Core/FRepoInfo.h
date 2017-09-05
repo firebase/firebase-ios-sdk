@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface FRepoInfo : NSObject
+@interface FRepoInfo : NSObject <NSCopying>
 
 @property (nonatomic, readonly, strong) NSString* host;
 @property (nonatomic, readonly, strong) NSString* namespace;
@@ -30,5 +30,9 @@
 - (void) clearInternalHostCache;
 - (BOOL) isDemoHost;
 - (BOOL) isCustomHost;
+
+- (id)copyWithZone:(NSZone *)zone;
+- (NSUInteger)hash;
+- (BOOL)isEqual:(id)anObject;
 
 @end
