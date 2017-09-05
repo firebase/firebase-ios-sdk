@@ -90,8 +90,7 @@ FIR_SWIFT_NAME(PhoneAuthProvider)
     @brief Starts the phone number authentication flow by sending a verifcation code to the
         specified phone number.
     @param phoneNumber The phone number to be verified.
-    @param UIDelegate A view controller object used to present the SFSafariViewController or
-        WKWebview.
+    @param UIDelegate An object used to present the SFSafariViewController.
     @param completion The callback to be invoked when the verification flow is finished.
     @remarks Possible error codes:
     <ul>

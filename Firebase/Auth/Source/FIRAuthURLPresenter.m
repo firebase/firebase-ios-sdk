@@ -16,10 +16,10 @@
 
 #import "FIRAuthURLPresenter.h"
 
+#import <SafariServices/SafariServices.h>
+
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthUIDelegate.h"
-
-@import SafariServices;
 
 NS_ASSUME_NONNULL_BEGIN
 

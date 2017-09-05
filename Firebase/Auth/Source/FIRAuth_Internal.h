@@ -31,13 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuth ()
 
-#if TARGET_OS_IOS
-/** @property authURLPresenter
-    @brief An object that takes care of presenting URLs via the auth instance.
- */
-@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
-#endif
-
 /** @property requestConfiguration
     @brief The configuration object comprising of paramters needed to make a request to Firebase
         Auth's backend.
@@ -45,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly) FIRAuthRequestConfiguration *requestConfiguration;
 
 #if TARGET_OS_IOS
+
 /** @property tokenManager
     @brief The manager for APNs tokens used by phone number auth.
  */
@@ -59,7 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The manager for remote notifications used by phone number auth.
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
-#endif
+
+/** @property authURLPresenter
+    @brief An object that takes care of presenting URLs via the auth instance.
+ */
+@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
+
+#endif // TARGET_OS_IOS
 
 /** @fn initWithAPIKey:appName:
     @brief Designated initializer.
