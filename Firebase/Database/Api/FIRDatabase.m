@@ -129,26 +129,17 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     }
 
     NSURL *databaseUrl = [NSURL URLWithString:url];
-    if (databaseUrl == nil) {
-        [NSException raise:@"InvalidDatabaseURL"
-                    format:@"The Database URL '%@' cannot be parsed. "
-                            "Specify a valid DatabaseURL within FIRApp or from "
-                            "your databaseForApp: call.",
-                           databaseUrl];
-    } else if (![databaseUrl.path isEqualToString:@""] &&
-               ![databaseUrl.path isEqualToString:@"/"]) {
-        [NSException
-             raise:@"InvalidDatabaseURL"
-            format:@"Configured Database URL '%@' is invalid. It should "
-                    "point to the root of a Firebase Database but it includes "
-                    "a path: %@",
-                   databaseUrl, databaseUrl.path];
-    }
 
-    NSMutableDictionary<NSString *,
-                        NSMutableDictionary<FRepoInfo *, FIRDatabase *> *>
-        *instances = [self instances];
+  if (databaseUrl == nil) {
+            [NSException raise:@"InvalidDatabaseURL" format:@"The Database URL '%@' cannot be parsed. "
+                         "Specify a valid DatabaseURL within FIRApp or from your databaseForApp: call.", databaseUrl];
+        } else if (![databaseUrl.path isEqualToString:@""] && ![databaseUrl.path isEqualToString:@"/"]) {
+             [NSException raise:@"InvalidDatabaseURL" format:@"Configured Database URL '%@' is invalid. It should "
+                            "point to the root of a Firebase Database but it includes a path: %@",
+                          databaseUrl, databaseUrl.path];
+          }
 
+    NSMutableDictionary<NSString*, NSMutableDictionary<FRepoInfo*, FIRDatabase*>*> *instances = [self instances];
     @synchronized (instances) {
         NSMutableDictionary<FRepoInfo *, FIRDatabase *> *urlInstanceMap =
             instances[app.name];
@@ -161,19 +152,6 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
             [FUtilities parseUrl:databaseUrl.absoluteString];
         FIRDatabase *database = urlInstanceMap[parsedUrl.repoInfo];
         if (!database) {
-            NSString *databaseUrl = app.options.databaseURL;
-            if (databaseUrl == nil) {
-                [NSException raise:@"MissingDatabaseURL" format:@"Failed to get FIRDatabase instance: FIRApp object has no "
-                        "databaseURL in its FirebaseOptions object."];
-            }
-
-            FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl];
-            if (![parsedUrl.path isEmpty]) {
-                [NSException raise:@"InvalidDatabaseURL" format:@"Configured Database URL '%@' is invalid. It should "
-                                                                        "point to the root of a Firebase Database but it includes a path: %@",
-                                                                databaseUrl, [parsedUrl.path toString]];
-            }
-
             id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:app];
 
             // If this is the default app, don't set the session persistence key so that we use our
