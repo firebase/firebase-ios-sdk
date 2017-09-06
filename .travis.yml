@@ -15,3 +15,8 @@ script:
   - "! git grep ' $'" # Fail on trailing whitespace
   - ./test.sh
   - pod lib lint FirebaseCommunity.podspec --verbose | tail -40
+
+branches:
+  only:
+    - master
+
