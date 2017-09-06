@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "FIRStorageMetadata_Private.h"
 #import "FIRStorageTestHelpers.h"
 #import "FIRStorageUpdateMetadataTask.h"
 
@@ -63,7 +64,7 @@
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
     XCTAssertEqualObjects(fetcher.request.URL, [FIRStorageTestHelpers objectURL]);
     XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"PATCH");
-    NSData *bodyData = [NSData frs_dataFromJSONDictionary:[self.metadata dictionaryRepresentation]];
+    NSData *bodyData = [NSData frs_dataFromJSONDictionary:[self.metadata updatedMetadata]];
     XCTAssertEqualObjects(fetcher.request.HTTPBody, bodyData);
     NSDictionary *HTTPHeaders = fetcher.request.allHTTPHeaderFields;
     XCTAssertEqualObjects(HTTPHeaders[@"Content-Type"], @"application/json; charset=UTF-8");
@@ -75,6 +76,7 @@
                                    HTTPVersion:kHTTPVersion
                                   headerFields:nil];
     response(httpResponse, nil, nil);
+    self.fetcherService.testBlock = nil;
   };
 
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];

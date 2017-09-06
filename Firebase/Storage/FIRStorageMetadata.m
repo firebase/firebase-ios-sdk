@@ -31,6 +31,8 @@
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
   self = [super init];
   if (self) {
+    _initialMetadata = [dictionary copy];
+
     _bucket = dictionary[kFIRStorageMetadataBucket];
     _cacheControl = dictionary[kFIRStorageMetadataCacheControl];
     _contentDisposition = dictionary[kFIRStorageMetadataContentDisposition];
@@ -73,7 +75,10 @@
 #pragma mark - NSObject overrides
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  return [[[self class] allocWithZone:zone] initWithDictionary:[self dictionaryRepresentation]];
+  FIRStorageMetadata *clone =
+      [[[self class] allocWithZone:zone] initWithDictionary:[self dictionaryRepresentation]];
+  clone.initialMetadata = [self.initialMetadata copy];
+  return clone;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -198,6 +203,36 @@
 
 - (nullable NSURL *)downloadURL {
   return [_downloadURLs firstObject];
+}
+
+#pragma mark - Private methods
+
++ (void)removeMatchingMetadata:(NSMutableDictionary *)metadata
+                   oldMetadata:(NSDictionary *)oldMetadata {
+  for (NSString* metadataKey in [oldMetadata allKeys]) {
+    id oldValue = [oldMetadata objectForKey:metadataKey];
+    id newValue = [metadata objectForKey:metadataKey];
+
+    if (oldValue && !newValue) {
+      [metadata setObject:[NSNull null] forKey:metadataKey];
+    } else if ([oldValue isKindOfClass:[NSString class]] &&
+               [newValue isKindOfClass:[NSString class]]) {
+      if ([oldValue isEqualToString:newValue]) {
+        [metadata removeObjectForKey:metadataKey];
+      }
+    } else if ([oldValue isKindOfClass:[NSDictionary class]] &&
+               [newValue isKindOfClass:[NSDictionary class]]) {
+      NSMutableDictionary *nestedMetadata = [newValue mutableCopy];
+      [self removeMatchingMetadata:nestedMetadata oldMetadata:oldValue];
+      [metadata setObject:[nestedMetadata copy] forKey:metadataKey];
+    }
+  }
+}
+
+- (NSDictionary *)updatedMetadata {
+  NSMutableDictionary *metadataUpdate = [[self dictionaryRepresentation] mutableCopy];
+  [FIRStorageMetadata removeMatchingMetadata:metadataUpdate oldMetadata:_initialMetadata];
+  return [metadataUpdate copy];
 }
 
 #pragma mark - RFC 3339 conversions

@@ -45,7 +45,7 @@
 
 - (void)enqueue {
   NSMutableURLRequest *request = [self.baseRequest mutableCopy];
-  NSDictionary *updateDictionary = [_updateMetadata dictionaryRepresentation];
+  NSDictionary *updateDictionary = [_updateMetadata updatedMetadata];
   NSData *updateData = [NSData frs_dataFromJSONDictionary:updateDictionary];
   request.HTTPMethod = @"PATCH";
   request.timeoutInterval = self.reference.storage.maxUploadRetryTime;
