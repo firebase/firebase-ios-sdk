@@ -35,6 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRAuthURLPresenter {
+  /** @var _isPresenting
+      @brief Whether or not some web-based content is being presented.
+   */
+  BOOL _isPresenting;
+
   /** @var _callbackMatcher
       @brief The callback URL matcher for the current presentation, if one is active.
    */
@@ -61,40 +66,33 @@ NS_ASSUME_NONNULL_BEGIN
         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
    callbackMatcher:(FIRAuthURLCallbackMatcher)callbackMatcher
         completion:(FIRAuthURLPresentationCompletion)completion {
+  if (_isPresenting) {
+    // Unable to start a new presentation on top of another.
+    _completion(nil, [FIRAuthErrorUtils webContextAlreadyPresentedErrorWithMessage:nil]);
+    return;
+  }
+  _isPresenting = YES;
   _callbackMatcher = callbackMatcher;
   _completion = completion;
   _UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
-  [self presentWebContextWithController:_UIDelegate URL:URL];
+  if ([SFSafariViewController class]) {
+    SFSafariViewController *safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
+    _safariViewController = safariViewController;
+    _safariViewController.delegate = self;
+    [_UIDelegate presentViewController:safariViewController animated:YES completion:nil];
+    return;
+  } else {
+    // TODO: Use web view instead.
+    [[UIApplication sharedApplication] openURL:URL];
+  }
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
-  if (_callbackMatcher && _callbackMatcher(URL)) {
-    _callbackMatcher = nil;
+  if (_isPresenting && _callbackMatcher && _callbackMatcher(URL)) {
     [self finishPresentationWithURL:URL error:nil];
     return YES;
   }
   return NO;
-}
-
-/** @fn presentWebContextWithController:URL:
-    @brief Presents a SFSafariViewController or WKWebView to display the contents of the URL
-        provided.
-    @param controller The controller used to present the SFSafariViewController or WKWebView.
-    @param URL The URL to display in the SFSafariViewController or WKWebView.
- */
-- (void)presentWebContextWithController:(id)controller URL:(NSURL *)URL {
-  if ([SFSafariViewController class]) {
-    if (_safariViewController) {
-      // Unable to start a new presentation on top of modal SFSVC presentation.
-      _completion(nil, [FIRAuthErrorUtils webContextAlreadyPresentedErrorWithMessage:nil]);
-      return;
-    }
-    SFSafariViewController *safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
-    _safariViewController = safariViewController;
-    _safariViewController.delegate = self;
-    [controller presentViewController:safariViewController animated:YES completion:nil];
-    return;
-  }
 }
 
 #pragma mark - SFSafariViewControllerDelegate
@@ -118,17 +116,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)finishPresentationWithURL:(nullable NSURL *)URL
                             error:(nullable NSError *)error {
+  _callbackMatcher = nil;
+  id<FIRAuthUIDelegate> UIDelegate = _UIDelegate;
+  _UIDelegate = nil;
   FIRAuthURLPresentationCompletion completion = _completion;
-  void (^finishBlock)() = ^() {
-    completion(URL, nil);
-  };
   _completion = nil;
-  if ([SFSafariViewController class]) {
-    SFSafariViewController *safariViewController = _safariViewController;
-    _safariViewController = nil;
-    if (safariViewController) {
-      [_UIDelegate dismissViewControllerAnimated:YES completion:finishBlock];
-    }
+  void (^finishBlock)() = ^() {
+    _isPresenting = NO;
+    completion(URL, error);
+  };
+  SFSafariViewController *safariViewController = _safariViewController;
+  _safariViewController = nil;
+  if (safariViewController) {
+    [UIDelegate dismissViewControllerAnimated:YES completion:finishBlock];
+  } else {
+    finishBlock();
   }
 }
 
