@@ -18,7 +18,7 @@
 
 @interface NSString (FURLUtils)
 
-- (NSString *) urlEncoded;
-- (NSString *) urlDecoded;
+- (NSString *)urlEncoded;
+- (NSString *)urlDecoded;
 
 @end

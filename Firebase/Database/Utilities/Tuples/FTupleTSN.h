@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FTupleStringNode.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleTSN : NSObject
 
-@property (nonatomic, strong) FTupleStringNode* from;
-@property (nonatomic, strong) FTupleStringNode* to;
+@property(nonatomic, strong) FTupleStringNode *from;
+@property(nonatomic, strong) FTupleStringNode *to;
 
 @end

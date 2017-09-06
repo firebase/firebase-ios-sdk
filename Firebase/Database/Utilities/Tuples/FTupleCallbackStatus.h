@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FTypedefs_Private.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleCallbackStatus : NSObject
-@property (nonatomic, copy) fbt_void_nsstring_nsstring block;
-@property (nonatomic) NSString* status;
-@property (nonatomic) NSString* errorReason;
+@property(nonatomic, copy) fbt_void_nsstring_nsstring block;
+@property(nonatomic) NSString *status;
+@property(nonatomic) NSString *errorReason;
 @end

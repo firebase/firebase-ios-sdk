@@ -16,21 +16,26 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FNode.h"
+#import "FCacheNode.h"
+#import "FCachePolicy.h"
 #import "FCompoundWrite.h"
+#import "FNode.h"
 #import "FQuerySpec.h"
 #import "FRepoInfo.h"
 #import "FStorageEngine.h"
-#import "FCachePolicy.h"
-#import "FCacheNode.h"
 
 @interface FPersistenceManager : NSObject
 
-- (id)initWithStorageEngine:(id<FStorageEngine>)storageEngine cachePolicy:(id<FCachePolicy>)cachePolicy;
+- (id)initWithStorageEngine:(id<FStorageEngine>)storageEngine
+                cachePolicy:(id<FCachePolicy>)cachePolicy;
 - (void)close;
 
-- (void)saveUserOverwrite:(id<FNode>)node atPath:(FPath *)path writeId:(NSUInteger)writeId;
-- (void)saveUserMerge:(FCompoundWrite *)merge atPath:(FPath *)path writeId:(NSUInteger)writeId;
+- (void)saveUserOverwrite:(id<FNode>)node
+                   atPath:(FPath *)path
+                  writeId:(NSUInteger)writeId;
+- (void)saveUserMerge:(FCompoundWrite *)merge
+               atPath:(FPath *)path
+              writeId:(NSUInteger)writeId;
 - (void)removeUserWrite:(NSUInteger)writeId;
 - (void)removeAllUserWrites;
 - (NSArray *)userWrites;
@@ -40,13 +45,16 @@
 - (void)updateServerCacheWithMerge:(FCompoundWrite *)merge atPath:(FPath *)path;
 
 - (void)applyUserWrite:(id<FNode>)write toServerCacheAtPath:(FPath *)path;
-- (void)applyUserMerge:(FCompoundWrite *)merge toServerCacheAtPath:(FPath *)path;
+- (void)applyUserMerge:(FCompoundWrite *)merge
+    toServerCacheAtPath:(FPath *)path;
 
 - (void)setQueryComplete:(FQuerySpec *)spec;
 - (void)setQueryActive:(FQuerySpec *)spec;
 - (void)setQueryInactive:(FQuerySpec *)spec;
 
 - (void)setTrackedQueryKeys:(NSSet *)keys forQuery:(FQuerySpec *)query;
-- (void)updateTrackedQueryKeysWithAddedKeys:(NSSet *)added removedKeys:(NSSet *)removed forQuery:(FQuerySpec *)query;
+- (void)updateTrackedQueryKeysWithAddedKeys:(NSSet *)added
+                                removedKeys:(NSSet *)removed
+                                   forQuery:(FQuerySpec *)query;
 
 @end

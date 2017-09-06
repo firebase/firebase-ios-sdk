@@ -18,7 +18,7 @@
 
 @interface FLRUCachePolicy ()
 
-@property (nonatomic, readwrite) NSUInteger maxSize;
+@property(nonatomic, readwrite) NSUInteger maxSize;
 
 @end
 
@@ -36,8 +36,10 @@ static const float kFPercentOfQueriesToPruneAtOnce = 0.2f;
     return self;
 }
 
-- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize numberOfTrackedQueries:(NSUInteger)numTrackedQueries {
-    return cacheSize > self.maxSize || numTrackedQueries > kFMaxNumberOfPrunableQueriesToKeep;
+- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize
+          numberOfTrackedQueries:(NSUInteger)numTrackedQueries {
+    return cacheSize > self.maxSize ||
+           numTrackedQueries > kFMaxNumberOfPrunableQueriesToKeep;
 }
 
 - (BOOL)shouldCheckCacheSize:(NSUInteger)serverUpdatesSinceLastCheck {
@@ -60,7 +62,8 @@ static const float kFPercentOfQueriesToPruneAtOnce = 0.2f;
     return [[FNoCachePolicy alloc] init];
 }
 
-- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize numberOfTrackedQueries:(NSUInteger)numTrackedQueries {
+- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize
+          numberOfTrackedQueries:(NSUInteger)numTrackedQueries {
     return NO;
 }
 

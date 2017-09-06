@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNode.h"
+#import <Foundation/Foundation.h>
 
 @class FImmutableSortedDictionary;
 @class FCompoundWrite;
@@ -29,16 +29,20 @@ typedef NS_ENUM(NSInteger, FDataHashVersion) {
 
 @interface FSnapshotUtilities : NSObject
 
-+ (id<FNode>) nodeFrom:(id)val;
-+ (id<FNode>) nodeFrom:(id)val priority:(id)priority;
-+ (id<FNode>) nodeFrom:(id)val withValidationFrom:(NSString *)fn;
-+ (id<FNode>) nodeFrom:(id)val priority:(id)priority withValidationFrom:(NSString *)fn;
-+ (FCompoundWrite *) compoundWriteFromDictionary:(NSDictionary *)values withValidationFrom:(NSString *)fn;
-+ (void) validatePriorityNode:(id<FNode>)priorityNode;
++ (id<FNode>)nodeFrom:(id)val;
++ (id<FNode>)nodeFrom:(id)val priority:(id)priority;
++ (id<FNode>)nodeFrom:(id)val withValidationFrom:(NSString *)fn;
++ (id<FNode>)nodeFrom:(id)val
+              priority:(id)priority
+    withValidationFrom:(NSString *)fn;
++ (FCompoundWrite *)compoundWriteFromDictionary:(NSDictionary *)values
+                             withValidationFrom:(NSString *)fn;
++ (void)validatePriorityNode:(id<FNode>)priorityNode;
 + (void)appendHashRepresentationForLeafNode:(FLeafNode *)val
                                    toString:(NSMutableString *)string
                                 hashVersion:(FDataHashVersion)hashVersion;
-+ (void)appendHashV2RepresentationForString:(NSString *)string toString:(NSMutableString *)mutableString;
++ (void)appendHashV2RepresentationForString:(NSString *)string
+                                   toString:(NSMutableString *)mutableString;
 
 + (NSUInteger)estimateSerializedNodeSize:(id<FNode>)node;
 

@@ -19,14 +19,14 @@
 
 @interface FSparseSnapshotTree () {
     id<FNode> value;
-    NSMutableDictionary* children;
+    NSMutableDictionary *children;
 }
 
 @end
 
 @implementation FSparseSnapshotTree
 
-- (id) init {
+- (id)init {
     self = [super init];
     if (self) {
         value = nil;
@@ -35,13 +35,13 @@
     return self;
 }
 
-- (id<FNode>) findPath:(FPath *)path {
+- (id<FNode>)findPath:(FPath *)path {
     if (value != nil) {
         return [value getChild:path];
     } else if (![path isEmpty] && children != nil) {
-        NSString* childKey = [path getFront];
+        NSString *childKey = [path getFront];
         path = [path popFront];
-        FSparseSnapshotTree* childTree = children[childKey];
+        FSparseSnapshotTree *childTree = children[childKey];
         if (childTree != nil) {
             return [childTree findPath:path];
         } else {
@@ -52,7 +52,7 @@
     }
 }
 
-- (void) rememberData:(id<FNode>)data onPath:(FPath *)path {
+- (void)rememberData:(id<FNode>)data onPath:(FPath *)path {
     if ([path isEmpty]) {
         value = data;
         children = nil;
@@ -63,18 +63,18 @@
             children = [[NSMutableDictionary alloc] init];
         }
 
-        NSString* childKey = [path getFront];
+        NSString *childKey = [path getFront];
         if (children[childKey] == nil) {
             children[childKey] = [[FSparseSnapshotTree alloc] init];
         }
 
-        FSparseSnapshotTree* child = children[childKey];
+        FSparseSnapshotTree *child = children[childKey];
         path = [path popFront];
         [child rememberData:data onPath:path];
     }
 }
 
-- (BOOL) forgetPath:(FPath *)path {
+- (BOOL)forgetPath:(FPath *)path {
     if ([path isEmpty]) {
         value = nil;
         children = nil;
@@ -88,19 +88,21 @@
                 id<FNode> tmp = value;
                 value = nil;
 
-                [tmp enumerateChildrenUsingBlock:^(NSString *key, id<FNode> node, BOOL *stop) {
-                    [self rememberData:node onPath:[[FPath alloc] initWith:key]];
+                [tmp enumerateChildrenUsingBlock:^(NSString *key,
+                                                   id<FNode> node, BOOL *stop) {
+                  [self rememberData:node onPath:[[FPath alloc] initWith:key]];
                 }];
 
-                // we've cleared out the value and set children. Call ourself again to hit the next case
+                // we've cleared out the value and set children. Call ourself
+                // again to hit the next case
                 return [self forgetPath:path];
             }
         } else if (children != nil) {
-            NSString* childKey = [path getFront];
+            NSString *childKey = [path getFront];
             path = [path popFront];
 
             if (children[childKey] != nil) {
-                FSparseSnapshotTree* child = children[childKey];
+                FSparseSnapshotTree *child = children[childKey];
                 BOOL safeToRemove = [child forgetPath:path];
                 if (safeToRemove) {
                     [children removeObjectForKey:childKey];
@@ -119,26 +121,24 @@
     }
 }
 
-- (void) forEachTreeAtPath:(FPath *)prefixPath do:(fbt_void_path_node)func {
+- (void)forEachTreeAtPath:(FPath *)prefixPath do:(fbt_void_path_node)func {
     if (value != nil) {
         func(prefixPath, value);
     } else {
-        [self forEachChild:^(NSString* key, FSparseSnapshotTree* tree) {
-            FPath* path = [prefixPath childFromString:key];
-            [tree forEachTreeAtPath:path do:func];
+        [self forEachChild:^(NSString *key, FSparseSnapshotTree *tree) {
+          FPath *path = [prefixPath childFromString:key];
+          [tree forEachTreeAtPath:path do:func];
         }];
     }
 }
 
-
-- (void) forEachChild:(fbt_void_nsstring_sstree)func {
+- (void)forEachChild:(fbt_void_nsstring_sstree)func {
     if (children != nil) {
-        for (NSString* key in children) {
-            FSparseSnapshotTree* tree = [children objectForKey:key];
+        for (NSString *key in children) {
+            FSparseSnapshotTree *tree = [children objectForKey:key];
             func(key, tree);
         }
     }
 }
-
 
 @end

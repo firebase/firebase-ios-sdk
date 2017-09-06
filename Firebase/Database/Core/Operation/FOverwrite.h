@@ -20,11 +20,13 @@
 
 @interface FOverwrite : NSObject <FOperation>
 
-- (id) initWithSource:(FOperationSource *)aSource path:(FPath *)aPath snap:(id<FNode>)aSnap;
+- (id)initWithSource:(FOperationSource *)aSource
+                path:(FPath *)aPath
+                snap:(id<FNode>)aSnap;
 
-@property (nonatomic, strong, readonly) FOperationSource *source;
-@property (nonatomic, readonly) FOperationType type;
-@property (nonatomic, strong, readonly) FPath *path;
-@property (nonatomic, strong, readonly) id<FNode> snap;
+@property(nonatomic, strong, readonly) FOperationSource *source;
+@property(nonatomic, readonly) FOperationType type;
+@property(nonatomic, strong, readonly) FPath *path;
+@property(nonatomic, strong, readonly) id<FNode> snap;
 
 @end

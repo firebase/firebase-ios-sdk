@@ -15,22 +15,21 @@
  */
 
 #import "FCacheNode.h"
-#import "FNode.h"
-#import "FPath.h"
 #import "FEmptyNode.h"
 #import "FIndexedNode.h"
+#import "FNode.h"
+#import "FPath.h"
 
 @interface FCacheNode ()
-@property (nonatomic, readwrite) BOOL isFullyInitialized;
-@property (nonatomic, readwrite) BOOL isFiltered;
-@property (nonatomic, strong, readwrite) FIndexedNode *indexedNode;
+@property(nonatomic, readwrite) BOOL isFullyInitialized;
+@property(nonatomic, readwrite) BOOL isFiltered;
+@property(nonatomic, strong, readwrite) FIndexedNode *indexedNode;
 @end
 
 @implementation FCacheNode
-- (id) initWithIndexedNode:(FIndexedNode *)indexedNode
-        isFullyInitialized:(BOOL)fullyInitialized
-                isFiltered:(BOOL)filtered
-{
+- (id)initWithIndexedNode:(FIndexedNode *)indexedNode
+       isFullyInitialized:(BOOL)fullyInitialized
+               isFiltered:(BOOL)filtered {
     self = [super init];
     if (self) {
         self.indexedNode = indexedNode;
@@ -50,7 +49,8 @@
 }
 
 - (BOOL)isCompleteForChild:(NSString *)childKey {
-    return (self.isFullyInitialized && !self.isFiltered) || [self.node hasChild:childKey];
+    return (self.isFullyInitialized && !self.isFiltered) ||
+           [self.node hasChild:childKey];
 }
 
 - (id<FNode>)node {

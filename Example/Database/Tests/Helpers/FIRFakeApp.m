@@ -16,33 +16,35 @@
 
 #import "FIRFakeApp.h"
 
-@interface FIRFakeOptions: NSObject
+@interface FIRFakeOptions : NSObject
 @property(nonatomic, readonly, copy) NSString *databaseURL;
-- (instancetype) initWithURL:(NSString *)url;
+- (instancetype)initWithURL:(NSString *)url;
 @end
 
 @implementation FIRFakeOptions
-- (instancetype) initWithURL:(NSString *)url {
-    self = [super init];
-    if (self) {
-        self->_databaseURL = url;
-    }
-    return self;
+- (instancetype)initWithURL:(NSString *)url {
+  self = [super init];
+  if (self) {
+    self->_databaseURL = url;
+  }
+  return self;
 }
 @end
 
 @implementation FIRFakeApp
 
-- (instancetype) initWithName:(NSString *)name URL:(NSString *)url {
-    self = [super init];
-    if (self) {
-        self->_name = name;
-        self->_options = [[FIRFakeOptions alloc] initWithURL:url];
-    }
-    return self;
+- (instancetype)initWithName:(NSString *)name URL:(NSString *)url {
+  self = [super init];
+  if (self) {
+    self->_name = name;
+    self->_options = [[FIRFakeOptions alloc] initWithURL:url];
+  }
+  return self;
 }
 
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(void (^)(NSString *_Nullable token, NSError *_Nullable error))callback {
-    callback(nil, nil);
+- (void)getTokenForcingRefresh:(BOOL)forceRefresh
+                  withCallback:
+                      (void (^)(NSString *_Nullable token, NSError *_Nullable error))callback {
+  callback(nil, nil);
 }
 @end

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FTreeSortedDictionary.h"
+#import <Foundation/Foundation.h>
 
 @interface FTreeSortedDictionaryEnumerator : NSEnumerator
 
-- (id)initWithImmutableSortedDictionary:(FTreeSortedDictionary *)aDict startKey:(id)startKey isReverse:(BOOL)reverse;
+- (id)initWithImmutableSortedDictionary:(FTreeSortedDictionary *)aDict
+                               startKey:(id)startKey
+                              isReverse:(BOOL)reverse;
 - (id)nextObject;
 
 @end

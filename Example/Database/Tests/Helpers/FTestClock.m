@@ -19,15 +19,15 @@
 @implementation FTestClock
 
 - (id)init {
-    self = [super init];
-    if (self != nil) {
-        self->_currentTime = 0.001;
-    }
-    return self;
+  self = [super init];
+  if (self != nil) {
+    self->_currentTime = 0.001;
+  }
+  return self;
 }
 
 - (void)tick {
-    self->_currentTime = self->_currentTime + 0.001;
+  self->_currentTime = self->_currentTime + 0.001;
 }
 
 @end

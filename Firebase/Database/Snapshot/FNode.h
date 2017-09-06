@@ -14,32 +14,36 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FPath.h"
 #import "FTypedefs_Private.h"
+#import <Foundation/Foundation.h>
 
 @protocol FIndex;
 
 @protocol FNode <NSObject>
 
-- (BOOL) isLeafNode;
-- (id<FNode>) getPriority;
-- (id<FNode>) updatePriority:(id<FNode>)priority;
-- (id<FNode>) getImmediateChild:(NSString *)childKey;
-- (id<FNode>) getChild:(FPath *)path;
-- (NSString *) predecessorChildKey:(NSString *)childKey;
-- (id<FNode>) updateImmediateChild:(NSString *)childKey withNewChild:(id<FNode>)newChildNode;
-- (id<FNode>) updateChild:(FPath *)path withNewChild:(id<FNode>)newChildNode;
-- (BOOL) hasChild:(NSString*)childKey;
-- (BOOL) isEmpty;
-- (int) numChildren;
-- (id) val;
-- (id) valForExport:(BOOL)exp;
-- (NSString *) dataHash;
-- (NSComparisonResult) compare:(id<FNode>)other;
-- (BOOL) isEqual:(id<FNode>)other;
-- (void)enumerateChildrenUsingBlock:(void (^)(NSString *key, id<FNode> node, BOOL *stop))block;
-- (void)enumerateChildrenReverse:(BOOL)reverse usingBlock:(void (^)(NSString *key, id<FNode> node, BOOL *stop))block;
+- (BOOL)isLeafNode;
+- (id<FNode>)getPriority;
+- (id<FNode>)updatePriority:(id<FNode>)priority;
+- (id<FNode>)getImmediateChild:(NSString *)childKey;
+- (id<FNode>)getChild:(FPath *)path;
+- (NSString *)predecessorChildKey:(NSString *)childKey;
+- (id<FNode>)updateImmediateChild:(NSString *)childKey
+                     withNewChild:(id<FNode>)newChildNode;
+- (id<FNode>)updateChild:(FPath *)path withNewChild:(id<FNode>)newChildNode;
+- (BOOL)hasChild:(NSString *)childKey;
+- (BOOL)isEmpty;
+- (int)numChildren;
+- (id)val;
+- (id)valForExport:(BOOL)exp;
+- (NSString *)dataHash;
+- (NSComparisonResult)compare:(id<FNode>)other;
+- (BOOL)isEqual:(id<FNode>)other;
+- (void)enumerateChildrenUsingBlock:(void (^)(NSString *key, id<FNode> node,
+                                              BOOL *stop))block;
+- (void)enumerateChildrenReverse:(BOOL)reverse
+                      usingBlock:(void (^)(NSString *key, id<FNode> node,
+                                           BOOL *stop))block;
 
 - (NSEnumerator *)childEnumerator;
 

@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseQuery.h"
 #import "FIRDatabaseConfig.h"
+#import "FIRDatabaseQuery.h"
 #import "FTypedefs_Private.h"
 
 @interface FEventEmitter : NSObject
 
-- (id) initWithAllowedEvents:(NSArray *)theAllowedEvents queue:(dispatch_queue_t)queue;
+- (id)initWithAllowedEvents:(NSArray *)theAllowedEvents
+                      queue:(dispatch_queue_t)queue;
 
-- (id) getInitialEventForType:(NSString *)eventType;
-- (void) triggerEventType:(NSString *)eventType data:(id)data;
+- (id)getInitialEventForType:(NSString *)eventType;
+- (void)triggerEventType:(NSString *)eventType data:(id)data;
 
-- (FIRDatabaseHandle)observeEventType:(NSString *)eventType withBlock:(fbt_void_id)block;
-- (void) removeObserverForEventType:(NSString *)eventType withHandle:(FIRDatabaseHandle)handle;
+- (FIRDatabaseHandle)observeEventType:(NSString *)eventType
+                            withBlock:(fbt_void_id)block;
+- (void)removeObserverForEventType:(NSString *)eventType
+                        withHandle:(FIRDatabaseHandle)handle;
 
-- (void) validateEventType:(NSString *)eventType;
+- (void)validateEventType:(NSString *)eventType;
 
 @end

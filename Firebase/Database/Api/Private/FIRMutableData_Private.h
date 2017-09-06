@@ -19,8 +19,8 @@
 
 @interface FIRMutableData ()
 
-- (id) initWithNode:(id<FNode>)node;
-- (id<FNode>) nodeValue;
-- (BOOL) isEqualToData:(FIRMutableData *)other;
+- (id)initWithNode:(id<FNode>)node;
+- (id<FNode>)nodeValue;
+- (BOOL)isEqualToData:(FIRMutableData *)other;
 
 @end

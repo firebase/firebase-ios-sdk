@@ -18,7 +18,7 @@
 
 @interface FTupleObjects : NSObject
 
-@property (nonatomic, strong) id objA;
-@property (nonatomic, strong) id objB;
+@property(nonatomic, strong) id objA;
+@property(nonatomic, strong) id objB;
 
 @end

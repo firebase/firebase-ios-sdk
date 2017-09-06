@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FImmutableSortedDictionary.h"
 #import "FNode.h"
 #import "FTypedefs.h"
 #import "FTypedefs_Private.h"
-#import "FImmutableSortedDictionary.h"
+#import <Foundation/Foundation.h>
 
 @class FNamedNode;
 
 @interface FChildrenNode : NSObject <FNode>
 
 - (id)initWithChildren:(FImmutableSortedDictionary *)someChildren;
-- (id)initWithPriority:(id<FNode>)aPriority children:(FImmutableSortedDictionary *)someChildren;
+- (id)initWithPriority:(id<FNode>)aPriority
+              children:(FImmutableSortedDictionary *)someChildren;
 
 // FChildrenNode specific methods
 
-- (void) enumerateChildrenAndPriorityUsingBlock:(void (^)(NSString *, id<FNode>, BOOL *))block;
+- (void)enumerateChildrenAndPriorityUsingBlock:(void (^)(NSString *, id<FNode>,
+                                                         BOOL *))block;
 
-- (FNamedNode *) firstChild;
-- (FNamedNode *) lastChild;
+- (FNamedNode *)firstChild;
+- (FNamedNode *)lastChild;
 
-@property (nonatomic, strong) FImmutableSortedDictionary* children;
-@property (nonatomic, strong) id<FNode> priorityNode;
+@property(nonatomic, strong) FImmutableSortedDictionary *children;
+@property(nonatomic, strong) id<FNode> priorityNode;
 
 @end

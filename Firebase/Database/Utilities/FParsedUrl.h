@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FRepoInfo.h"
 #import "FPath.h"
+#import "FRepoInfo.h"
 
 @interface FParsedUrl : NSObject
 
-@property (nonatomic, strong) FRepoInfo* repoInfo;
-@property (nonatomic, strong) FPath* path;
+@property(nonatomic, strong) FRepoInfo *repoInfo;
+@property(nonatomic, strong) FPath *path;
 
 @end

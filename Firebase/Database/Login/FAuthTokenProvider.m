@@ -15,66 +15,68 @@
  */
 
 #import "FAuthTokenProvider.h"
-#import "FUtilities.h"
 #import "FIRAppInternal.h"
-#import "FIRLogger.h"
 #import "FIRDatabaseQuery_Private.h"
+#import "FIRLogger.h"
 #import "FIRNoopAuthTokenProvider.h"
+#import "FUtilities.h"
 
 @interface FAuthStateListenerWrapper : NSObject
 
-@property (nonatomic, copy) fbt_void_nsstring listener;
+@property(nonatomic, copy) fbt_void_nsstring listener;
 
-@property (nonatomic, weak) FIRApp *app;
+@property(nonatomic, weak) FIRApp *app;
 
 @end
 
 @implementation FAuthStateListenerWrapper
 
-- (instancetype) initWithListener:(fbt_void_nsstring)listener app:(FIRApp *)app {
+- (instancetype)initWithListener:(fbt_void_nsstring)listener app:(FIRApp *)app {
     self = [super init];
     if (self != nil) {
         self->_listener = listener;
         self->_app = app;
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(authStateDidChangeNotification:)
-                                                     name:FIRAuthStateDidChangeInternalNotification
-                                                   object:nil];
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(authStateDidChangeNotification:)
+                   name:FIRAuthStateDidChangeInternalNotification
+                 object:nil];
     }
     return self;
 }
 
-- (void) authStateDidChangeNotification:(NSNotification *)notification {
+- (void)authStateDidChangeNotification:(NSNotification *)notification {
     NSDictionary *userInfo = notification.userInfo;
     FIRApp *authApp = userInfo[FIRAuthStateDidChangeInternalNotificationAppKey];
     if (authApp == self.app) {
-        NSString *token = userInfo[FIRAuthStateDidChangeInternalNotificationTokenKey];
+        NSString *token =
+            userInfo[FIRAuthStateDidChangeInternalNotificationTokenKey];
         dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-            self.listener(token);
+          self.listener(token);
         });
     }
 }
 
-- (void) dealloc {
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
 
-
 @interface FIRFirebaseAuthTokenProvider : NSObject <FAuthTokenProvider>
 
-@property (nonatomic, strong) FIRApp *app;
-/** Strong references to the auth listeners as they are only weak in FIRFirebaseApp */
-@property (nonatomic, strong) NSMutableArray *authListeners;
+@property(nonatomic, strong) FIRApp *app;
+/** Strong references to the auth listeners as they are only weak in
+ * FIRFirebaseApp */
+@property(nonatomic, strong) NSMutableArray *authListeners;
 
-- (instancetype) initWithFirebaseApp:(FIRApp *)app;
+- (instancetype)initWithFirebaseApp:(FIRApp *)app;
 
 @end
 
 @implementation FIRFirebaseAuthTokenProvider
 
-- (instancetype) initWithFirebaseApp:(FIRApp *)app {
+- (instancetype)initWithFirebaseApp:(FIRApp *)app {
     self = [super init];
     if (self != nil) {
         self->_app = app;
@@ -83,17 +85,22 @@
     return self;
 }
 
-- (void) fetchTokenForcingRefresh:(BOOL)forceRefresh withCallback:(fbt_void_nsstring_nserror)callback {
+- (void)fetchTokenForcingRefresh:(BOOL)forceRefresh
+                    withCallback:(fbt_void_nsstring_nserror)callback {
     // TODO: Don't fetch token if there is no current user
-    [self.app getTokenForcingRefresh:forceRefresh withCallback:^(NSString * _Nullable token, NSError * _Nullable error) {
-        dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-            callback(token, error);
-        });
-    }];
+    [self.app getTokenForcingRefresh:forceRefresh
+                        withCallback:^(NSString *_Nullable token,
+                                       NSError *_Nullable error) {
+                          dispatch_async([FIRDatabaseQuery sharedQueue], ^{
+                            callback(token, error);
+                          });
+                        }];
 }
 
-- (void) listenForTokenChanges:(_Nonnull fbt_void_nsstring)listener {
-    FAuthStateListenerWrapper *wrapper = [[FAuthStateListenerWrapper alloc] initWithListener:listener app:self.app];
+- (void)listenForTokenChanges:(_Nonnull fbt_void_nsstring)listener {
+    FAuthStateListenerWrapper *wrapper =
+        [[FAuthStateListenerWrapper alloc] initWithListener:listener
+                                                        app:self.app];
     [self.authListeners addObject:wrapper];
 }
 
@@ -101,7 +108,7 @@
 
 @implementation FAuthTokenProvider
 
-+ (id<FAuthTokenProvider>) authTokenProviderForApp:(id)app {
++ (id<FAuthTokenProvider>)authTokenProviderForApp:(id)app {
     return [[FIRFirebaseAuthTokenProvider alloc] initWithFirebaseApp:app];
 }
 

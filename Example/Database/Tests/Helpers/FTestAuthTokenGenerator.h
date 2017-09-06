@@ -18,6 +18,8 @@
 
 @interface FTestAuthTokenGenerator : NSObject
 
-+ (NSString *) tokenWithSecret:(NSString *)secret authData:(NSDictionary *)data andOptions:(NSDictionary *)options;
++ (NSString *)tokenWithSecret:(NSString *)secret
+                     authData:(NSDictionary *)data
+                   andOptions:(NSDictionary *)options;
 
 @end

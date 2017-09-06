@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseConfig.h"
 #import "FAuthTokenProvider.h"
+#import "FIRDatabaseConfig.h"
 
 @protocol FStorageEngine;
 
 @interface FIRDatabaseConfig ()
 
-@property (nonatomic, readonly) BOOL isFrozen;
-@property (nonatomic, strong, readonly) NSString *sessionIdentifier;
-@property (nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
-@property (nonatomic, strong) id<FStorageEngine> forceStorageEngine;
+@property(nonatomic, readonly) BOOL isFrozen;
+@property(nonatomic, strong, readonly) NSString *sessionIdentifier;
+@property(nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
+@property(nonatomic, strong) id<FStorageEngine> forceStorageEngine;
 
 - (void)freeze;
 

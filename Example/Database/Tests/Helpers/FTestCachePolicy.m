@@ -18,48 +18,48 @@
 
 @interface FTestCachePolicy ()
 
-
-@property (nonatomic) float percentOfQueries;
-@property (nonatomic) NSUInteger maxTrackedQueries;
-@property (nonatomic) BOOL pruneNext;
+@property(nonatomic) float percentOfQueries;
+@property(nonatomic) NSUInteger maxTrackedQueries;
+@property(nonatomic) BOOL pruneNext;
 
 @end
 
 @implementation FTestCachePolicy
 
 - (id)initWithPercent:(float)percent maxQueries:(NSUInteger)maxQueries {
-    self = [super init];
-    if (self != nil) {
-        self->_maxTrackedQueries = maxQueries;
-        self->_percentOfQueries = percent;
-        self->_pruneNext = NO;
-    }
-    return self;
+  self = [super init];
+  if (self != nil) {
+    self->_maxTrackedQueries = maxQueries;
+    self->_percentOfQueries = percent;
+    self->_pruneNext = NO;
+  }
+  return self;
 }
 
 - (void)pruneOnNextCheck {
-    self.pruneNext = YES;
+  self.pruneNext = YES;
 }
 
-- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize numberOfTrackedQueries:(NSUInteger)numTrackedQueries {
-    if (self.pruneNext) {
-        self.pruneNext = NO;
-        return YES;
-    } else {
-        return NO;
-    }
+- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize
+          numberOfTrackedQueries:(NSUInteger)numTrackedQueries {
+  if (self.pruneNext) {
+    self.pruneNext = NO;
+    return YES;
+  } else {
+    return NO;
+  }
 }
 
 - (BOOL)shouldCheckCacheSize:(NSUInteger)serverUpdatesSinceLastCheck {
-    return YES;
+  return YES;
 }
 
 - (float)percentOfQueriesToPruneAtOnce {
-    return self.percentOfQueries;
+  return self.percentOfQueries;
 }
 
 - (NSUInteger)maxNumberOfQueriesToKeep {
-    return self.maxTrackedQueries;
+  return self.maxTrackedQueries;
 }
 
 @end

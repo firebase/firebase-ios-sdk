@@ -21,13 +21,15 @@
 
 @interface FTupleEventTypeString : NSObject
 
-- (id)initWithFirebase:(FIRDatabaseReference *)f withEvent:(FIRDataEventType)evt withString:(NSString *)str;
-- (BOOL) isEqualTo:(FTupleEventTypeString *)other;
+- (id)initWithFirebase:(FIRDatabaseReference *)f
+             withEvent:(FIRDataEventType)evt
+            withString:(NSString *)str;
+- (BOOL)isEqualTo:(FTupleEventTypeString *)other;
 
-@property (nonatomic, strong) FIRDatabaseReference * firebase;
-@property (readwrite) FIRDataEventType eventType;
-@property (nonatomic, strong) NSString* string;
-@property (nonatomic, copy) fbt_void_void vvcallback;
-@property (nonatomic) BOOL initialized;
+@property(nonatomic, strong) FIRDatabaseReference *firebase;
+@property(readwrite) FIRDataEventType eventType;
+@property(nonatomic, strong) NSString *string;
+@property(nonatomic, copy) fbt_void_void vvcallback;
+@property(nonatomic) BOOL initialized;
 
 @end

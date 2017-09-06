@@ -20,15 +20,19 @@
 
 /**
  * Applies a merge of a snap for a given interval of paths.
- * Each leaf in the current node which the relative path lies *after* (the optional) start and lies *before or at*
- * (the optional) end will be deleted. Each leaf in snap that lies in the interval will be added to the resulting node.
- * Nodes outside of the range are ignored. nil for start and end are sentinel values that represent -infinity and
- * +infinity respectively (aka includes any path).
- * Priorities of children nodes are treated as leaf children of that node.
+ * Each leaf in the current node which the relative path lies *after* (the
+ * optional) start and lies *before or at* (the optional) end will be deleted.
+ * Each leaf in snap that lies in the interval will be added to the resulting
+ * node. Nodes outside of the range are ignored. nil for start and end are
+ * sentinel values that represent -infinity and +infinity respectively (aka
+ * includes any path). Priorities of children nodes are treated as leaf children
+ * of that node.
  */
 @interface FRangeMerge : NSObject
 
-- (instancetype)initWithStart:(FPath *)start end:(FPath *)end updates:(id<FNode>)updates;
+- (instancetype)initWithStart:(FPath *)start
+                          end:(FPath *)end
+                      updates:(id<FNode>)updates;
 
 - (id<FNode>)applyToNode:(id<FNode>)node;
 

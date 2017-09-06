@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FIRDatabaseReference.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleFirebase : NSObject
 
-@property (nonatomic, strong) FIRDatabaseReference * one;
-@property (nonatomic, strong) FIRDatabaseReference * two;
-@property (nonatomic, strong) FIRDatabaseReference * three;
+@property(nonatomic, strong) FIRDatabaseReference *one;
+@property(nonatomic, strong) FIRDatabaseReference *two;
+@property(nonatomic, strong) FIRDatabaseReference *three;
 
 @end

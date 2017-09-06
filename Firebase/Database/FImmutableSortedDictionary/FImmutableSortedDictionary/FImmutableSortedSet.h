@@ -18,7 +18,8 @@
 
 @interface FImmutableSortedSet : NSObject
 
-+ (FImmutableSortedSet *)setWithKeysFromDictionary:(NSDictionary *)array comparator:(NSComparator)comparator;
++ (FImmutableSortedSet *)setWithKeysFromDictionary:(NSDictionary *)array
+                                        comparator:(NSComparator)comparator;
 
 - (BOOL)containsObject:(id)object;
 - (FImmutableSortedSet *)addObject:(id)object;
@@ -31,7 +32,8 @@
 - (id)predecessorEntry:(id)entry;
 
 - (void)enumerateObjectsUsingBlock:(void (^)(id obj, BOOL *stop))block;
-- (void)enumerateObjectsReverse:(BOOL)reverse usingBlock:(void (^)(id obj, BOOL *stop))block;
+- (void)enumerateObjectsReverse:(BOOL)reverse
+                     usingBlock:(void (^)(id obj, BOOL *stop))block;
 
 - (NSEnumerator *)objectEnumerator;
 

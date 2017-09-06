@@ -28,8 +28,8 @@
 - (void)goOnline;
 - (void)restartOnline;
 - (void)restartOffline;
-- (void)waitForIdleUsingWaiter:(XCTest*)waiter;
-- (void)do:(void (^)(FIRDatabaseReference *))action;
+- (void)waitForIdleUsingWaiter:(XCTest *)waiter;
+- (void) do:(void (^)(FIRDatabaseReference *))action;
 
 - (void)dispose;
 

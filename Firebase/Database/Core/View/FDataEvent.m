@@ -16,14 +16,15 @@
 
 #import "FDataEvent.h"
 #import "FEventRegistration.h"
-#import "FIndex.h"
 #import "FIRDatabaseQuery_Private.h"
+#import "FIndex.h"
 
 @interface FDataEvent ()
-@property (nonatomic, strong, readwrite) id<FEventRegistration> eventRegistration;
-@property (nonatomic, strong, readwrite) FIRDataSnapshot *snapshot;
-@property (nonatomic, strong, readwrite) NSString *prevName;
-@property (nonatomic, readwrite) FIRDataEventType eventType;
+@property(nonatomic, strong, readwrite) id<FEventRegistration>
+    eventRegistration;
+@property(nonatomic, strong, readwrite) FIRDataSnapshot *snapshot;
+@property(nonatomic, strong, readwrite) NSString *prevName;
+@property(nonatomic, readwrite) FIRDataEventType eventType;
 @end
 
 @implementation FDataEvent
@@ -33,11 +34,19 @@
 @synthesize prevName;
 @synthesize eventType;
 
-- (id)initWithEventType:(FIRDataEventType)type eventRegistration:(id <FEventRegistration>)registration dataSnapshot:(FIRDataSnapshot *)dataSnapshot {
-    return [self initWithEventType:type eventRegistration:registration dataSnapshot:dataSnapshot prevName:nil];
+- (id)initWithEventType:(FIRDataEventType)type
+      eventRegistration:(id<FEventRegistration>)registration
+           dataSnapshot:(FIRDataSnapshot *)dataSnapshot {
+    return [self initWithEventType:type
+                 eventRegistration:registration
+                      dataSnapshot:dataSnapshot
+                          prevName:nil];
 }
 
-- (id)initWithEventType:(FIRDataEventType)type eventRegistration:(id <FEventRegistration>)registration dataSnapshot:(FIRDataSnapshot *)dataSnapshot prevName:(NSString *)previousName {
+- (id)initWithEventType:(FIRDataEventType)type
+      eventRegistration:(id<FEventRegistration>)registration
+           dataSnapshot:(FIRDataSnapshot *)dataSnapshot
+               prevName:(NSString *)previousName {
     self = [super init];
     if (self) {
         self.eventRegistration = registration;
@@ -48,7 +57,7 @@
     return self;
 }
 
-- (FPath *) path {
+- (FPath *)path {
     // Used for logging, so delay calculation
     FIRDatabaseReference *ref = self.snapshot.ref;
     if (self.eventType == FIRDataEventTypeValue) {
@@ -58,17 +67,17 @@
     }
 }
 
-- (void) fireEventOnQueue:(dispatch_queue_t)queue {
+- (void)fireEventOnQueue:(dispatch_queue_t)queue {
     [self.eventRegistration fireEvent:self queue:queue];
 }
 
-- (BOOL) isCancelEvent {
+- (BOOL)isCancelEvent {
     return NO;
 }
 
-
-- (NSString *) description {
-    return [NSString stringWithFormat:@"event %d, data: %@", (int) eventType, [snapshot value]];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"event %d, data: %@", (int)eventType,
+                                      [snapshot value]];
 }
 
 @end

@@ -19,8 +19,8 @@
 
 @implementation FEmptyNode
 
-+ (id<FNode>) emptyNode {
-    static FChildrenNode* empty = nil;
++ (id<FNode>)emptyNode {
+    static FChildrenNode *empty = nil;
     if (empty == nil) {
         empty = [[FChildrenNode alloc] init];
     }

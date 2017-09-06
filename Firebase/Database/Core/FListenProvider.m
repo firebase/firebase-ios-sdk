@@ -17,7 +17,6 @@
 #import "FListenProvider.h"
 #import "FIRDatabaseQuery.h"
 
-
 @implementation FListenProvider
 
 @synthesize startListening;

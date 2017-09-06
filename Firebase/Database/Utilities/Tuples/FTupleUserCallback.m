@@ -24,7 +24,7 @@
 @synthesize queryParams;
 @synthesize handle;
 
-- (id) initWithHandle:(NSUInteger)theHandle {
+- (id)initWithHandle:(NSUInteger)theHandle {
     self = [super init];
     if (self) {
         self.handle = theHandle;

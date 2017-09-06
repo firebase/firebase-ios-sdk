@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNode.h"
-
+#import <Foundation/Foundation.h>
 
 @interface FLeafNode : NSObject <FNode>
 
 - (id)initWithValue:(id)aValue;
 - (id)initWithValue:(id)aValue withPriority:(id<FNode>)aPriority;
 
-@property (nonatomic, strong) id value;
+@property(nonatomic, strong) id value;
 
 @end

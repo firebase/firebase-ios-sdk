@@ -21,7 +21,7 @@
 @synthesize path;
 @synthesize node;
 
-- (id) initWithNode:(id<FNode>)aNode andPath:(FPath *)aPath {
+- (id)initWithNode:(id<FNode>)aNode andPath:(FPath *)aPath {
     self = [super init];
     if (self) {
         self.path = aPath;
