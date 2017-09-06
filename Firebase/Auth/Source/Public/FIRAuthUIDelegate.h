@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+#import "FIRAuthSwiftNameSupport.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @protocol FIRAuthUIDelegate
@@ -44,7 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param completion The block to execute after the presentation finishes. This block has no return
         value and takes no parameters.
 */
-- (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^ _Nullable)(void))completion;
+- (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^ _Nullable)(void))completion
+    FIR_SWIFT_NAME(dismiss(animated:completion:));
 
 @end
 
