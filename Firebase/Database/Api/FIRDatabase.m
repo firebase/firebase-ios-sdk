@@ -117,7 +117,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
             // default ("default") instead of the FIRApp default ("[DEFAULT]") so that we
             // preserve the default location used by the legacy Firebase SDK.
             NSString *sessionIdentifier = @"default";
-            if ([FIRApp isDefaultAppConfigured] && app == [FIRApp defaultApp]) {
+            if (![FIRApp isDefaultAppConfigured] || app != [FIRApp defaultApp]) {
                 sessionIdentifier = app.name;
             }
 
