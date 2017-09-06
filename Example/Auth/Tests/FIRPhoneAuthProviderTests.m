@@ -168,6 +168,10 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [super tearDown];
 }
 
+// We're still testing deprecated `verifyPhoneNumber:completion:` extensively.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 /** @fn testCredentialWithVerificationID
     @brief Tests the @c credentialWithToken method to make sure that it returns a valid
         FIRAuthCredential instance.
@@ -664,6 +668,8 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMVerifyAll(_mockAppCredentialManager);
   OCMVerifyAll(_mockAPNSTokenManager);
 }
+
+#pragma clang diagnostic pop // ignored "-Wdeprecated-declarations"
 
 @end
 
