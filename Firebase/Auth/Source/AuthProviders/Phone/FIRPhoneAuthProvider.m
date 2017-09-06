@@ -216,7 +216,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   if (URLQueryItems[@"recaptchaToken"]) {
     return URLQueryItems[@"recaptchaToken"];
   }
-  NSData *errorData = [URLQueryItems[@"firebaseError"] dataUsingEncoding:NSUTF8StringEncoding];\
+  NSData *errorData = [URLQueryItems[@"firebaseError"] dataUsingEncoding:NSUTF8StringEncoding];
   NSError *jsonError;
   NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
                                                             options:0
@@ -227,6 +227,13 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   }
   *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
                                                message:errorDict[@"message"]];
+  if (!*error) {
+    NSString *reason;
+    if(errorDict[@"code"] && errorDict[@"message"]) {
+      reason = [NSString stringWithFormat:@"[%@] - %@",errorDict[@"code"], errorDict[@"message"]];
+    }
+    *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
+  }
   return nil;
 }
 
