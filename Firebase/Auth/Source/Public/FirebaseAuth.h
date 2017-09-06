@@ -29,12 +29,12 @@
 #import "FIRAuthDataResult.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthSwiftNameSupport.h"
-#import "FIRAuthUIDelegate.h"
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
 #import "FirebaseAuthVersion.h"
 
 #if TARGET_OS_IOS
+#import "FIRAuthUIDelegate.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FIRAuthAPNSTokenType.h"
