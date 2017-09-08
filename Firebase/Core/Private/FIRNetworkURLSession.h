@@ -18,15 +18,18 @@
 
 #import "FIRNetworkLoggerProtocol.h"
 
-typedef void (^FIRNetworkCompletionHandler)(NSHTTPURLResponse *response, NSData *data,
+typedef void (^FIRNetworkCompletionHandler)(NSHTTPURLResponse *response,
+                                            NSData *data,
                                             NSError *error);
-typedef void (^FIRNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *response, NSData *data,
-                                                      NSString *sessionID, NSError *error);
+typedef void (^FIRNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *response,
+                                                      NSData *data,
+                                                      NSString *sessionID,
+                                                      NSError *error);
 typedef void (^FIRNetworkSystemCompletionHandler)(void);
 
 /// The protocol that uses NSURLSession for iOS >= 7.0 to handle requests and responses.
 @interface FIRNetworkURLSession
-    : NSObject<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
+    : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
 
 /// Indicates whether the background network is enabled. Default value is NO.
 @property(nonatomic, getter=isBackgroundNetworkEnabled) BOOL backgroundNetworkEnabled;

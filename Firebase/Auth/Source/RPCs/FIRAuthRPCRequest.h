@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAuthRequestConfiguration;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @protocol FIRAuthRPCRequest
@@ -28,12 +30,27 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSURL *)requestURL;
 
+@optional
+
+/** @fn containsPostBody
+    @brief Returns whether the request contains a post body or not. Requests without a post body
+        are get requests.
+    @remarks The default implementation returns YES.
+ */
+- (BOOL)containsPostBody;
+
 /** @fn UnencodedHTTPRequestBodyWithError:
     @brief Creates unencoded HTTP body representing the request.
     @param error An out field for an error which occurred constructing the request.
     @return The HTTP body data representing the request before any encoding, or nil for error.
  */
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error;
+
+/** @fn requestConfiguration
+    @brief Obtains the request configurations if available.
+    @return Returns the request configurations.
+ */
+- (FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
 

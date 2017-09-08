@@ -30,3 +30,4 @@ to obtain such an id.
 */
 
 #define KFACEBOOK_APP_ID $KFACEBOOK_APP_ID
+#define KCONTINUE_URL $KCONTINUE_URL

@@ -18,6 +18,8 @@
 
 #import <objc/runtime.h>
 
+#import "AppManager.h"
+#import "AuthCredentials.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FirebaseCommunity/FIRApp.h"
 #import "FirebaseCommunity/FIRAppInternal.h"
@@ -34,6 +36,12 @@
 #import "UIViewController+Alerts.h"
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
+
+
+/*! @typedef textInputCompletionBlock
+    @brief The type of callback used to report text input prompt results.
+ */
+typedef void (^textInputCompletionBlock)(NSString *_Nullable userInput);
 
 /** @var kTokenGetButtonText
     @brief The text of the "Get Token" button.
@@ -55,10 +63,11 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
  */
 static NSString *const kTokenRefreshErrorAlertTitle = @"Get Token Error";
 
-/** @var kSettingsButtonText
-    @brief The text of the "Settings" button.
+/** @var kSettingsButtonTextDesription
+    @brief The description for the text of the "Settings" button.
  */
-static NSString *const kSettingsButtonText = @"[Sample App Settings]";
+static NSString *const kSettingsButtonTextDesription =
+    @"The button text to open sample app settings";
 
 /** @var kUserInfoButtonText
     @brief The text of the "Show User Info" button.
@@ -250,6 +259,16 @@ static NSString *const kUnlinkFromEmailPassword = @"Unlink from Email/Password";
  */
 static NSString *const kGetProvidersForEmail = @"Get Provider IDs for Email";
 
+/** @var kActionCodeTypeDescription
+    @brief The description of the "Action Type" entry.
+ */
+static NSString *const kActionCodeTypeDescription = @"Action Type";
+
+/** @var kContinueURLDescription
+    @brief The description of the "Continue URL" entry.
+ */
+static NSString *const kContinueURLDescription = @"Continue URL";
+
 /** @var kRequestVerifyEmail
     @brief The text of the "Request Verify Email Link" button.
  */
@@ -314,6 +333,11 @@ static NSString *const kSectionTitleLinkUnlinkAccounts = @"LINK/UNLINK ACCOUNT";
     @brief The text for the title of the "User Actions" section.
  */
 static NSString *const kSectionTitleUserActions = @"USER ACTIONS";
+
+/** @var kSectionTitleOOBAction
+    @brief The text for the title of the "OOB Actions" section.
+ */
+static NSString *const kSectionTitleOOBActions = @"OOB ACTIONS";
 
 /** @var kSectionTitleUserDetails
     @brief The text for the title of the "User Details" section.
@@ -465,6 +489,16 @@ static NSString *const kSafariFacebookSignOutMessagePrompt = @"This automated te
 static NSString *const kUnlinkAccountMessagePrompt = @"Sign into gmail with an email address "
     "that has not been linked to this sample application before. Delete account if necessary.";
 
+/** @var kPasswordResetAction
+    @brief The value for password reset mode in the action code URL.
+ */
+static NSString *const kPasswordResetAction = @"resetPassword";
+
+/** @var kVerifyEmailAction
+    @brief The value for verify email mode in the action code URL.
+ */
+static NSString *const kVerifyEmailAction = @"verifyEmail";
+
 // Declared extern in .h file.
 NSString *const kCreateUserAccessibilityID = @"CreateUserAccessibilityID";
 
@@ -478,6 +512,11 @@ static NSString *const kPhoneAuthSectionTitle = @"Phone Auth";
  */
 static NSString *const kPhoneNumberSignInTitle = @"Sign in With Phone Number";
 
+/** @var kPhoneNumberSignInTitle
+    @brief The title for button to sign in with phone number using reCAPTCHA.
+ */
+static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number (reCAPTCHA)";
+
 /** @typedef showEmailPasswordDialogCompletion
     @brief The type of block which gets called to complete the Email/Password dialog flow.
  */
@@ -487,6 +526,17 @@ typedef void (^ShowEmailPasswordDialogCompletion)(FIRAuthCredential *credential)
     @brief The type of block which gets called when a token is ready.
  */
 typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error);
+
+/** @brief The request type for OOB action codes.
+ */
+typedef enum {
+  /** No action code settings. */
+  ActionCodeRequestTypeEmail,
+  /** With continue URL but not handled in-app. */
+  ActionCodeRequestTypeContinue,
+  /** Handled in-app. */
+  ActionCodeRequestTypeInApp,
+} ActionCodeRequestType;
 
 /** @category FIRAppAssociationRegistration(Deregistration)
     @brief The category for the deregistration method.
@@ -539,6 +589,16 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           is non-nil (do to a subsequent sign-in.)
    */
   BOOL _useUserInMemory;
+
+  /** @var _actionCodeRequestType
+      @brief The type for the next action code request.
+   */
+  ActionCodeRequestType _actionCodeRequestType;
+
+  /** @var _actionCodeContinueURL
+      @brief The continue URL to be used in the next action code request.
+   */
+  NSURL *_actionCodeContinueURL;
 }
 
 /** @fn initWithNibName:bundle:
@@ -547,6 +607,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (id)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
+    _actionCodeRequestType = ActionCodeRequestTypeInApp;
+    _actionCodeContinueURL = [NSURL URLWithString:KCONTINUE_URL];
     _authStateDidChangeListeners = [NSMutableArray array];
     _IDTokenDidChangeListeners = [NSMutableArray array];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -566,6 +628,10 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   _userInMemoryInfoTableViewCell.userInfoProfileURLImageView.layer.cornerRadius =
       _userInMemoryInfoTableViewCell.userInfoProfileURLImageView.frame.size.width / 2.0f;
   _userInMemoryInfoTableViewCell.userInfoProfileURLImageView.layer.masksToBounds = YES;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
   [self updateTable];
   [self updateUserInfo];
 }
@@ -584,10 +650,13 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSettings cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSettingsButtonText
+        [StaticContentTableViewCell cellWithTitle:NSLocalizedString(@"SETTINGSKEY",
+                                                                    kSettingsButtonTextDesription)
                                            action:^{ [weakSelf presentSettings]; }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
+        [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
+                                           action:^{ [weakSelf signInWithPhoneNumberRecaptcha]; }],
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInTitle
                                            action:^{ [weakSelf signInWithPhoneNumber]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdatePhoneNumber
@@ -632,6 +701,20 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                            action:^{ [weakSelf reloadUser]; }],
         [StaticContentTableViewCell cellWithTitle:kGetProvidersForEmail
                                            action:^{ [weakSelf getProvidersForEmail]; }],
+        [StaticContentTableViewCell cellWithTitle:kUpdateEmailText
+                                           action:^{ [weakSelf updateEmail]; }],
+        [StaticContentTableViewCell cellWithTitle:kUpdatePasswordText
+                                           action:^{ [weakSelf updatePassword]; }],
+        [StaticContentTableViewCell cellWithTitle:kDeleteUserText
+                                           action:^{ [weakSelf deleteAccount]; }],
+      ]],
+      [StaticContentTableViewSection sectionWithTitle:kSectionTitleOOBActions cells:@[
+        [StaticContentTableViewCell cellWithTitle:kActionCodeTypeDescription
+                                            value:[self actionCodeRequestTypeString]
+                                           action:^{ [weakSelf toggleActionCodeRequestType]; }],
+        [StaticContentTableViewCell cellWithTitle:kContinueURLDescription
+                                            value:_actionCodeContinueURL.absoluteString ?: @"(nil)"
+                                           action:^{ [weakSelf changeActionCodeContinueURL]; }],
         [StaticContentTableViewCell cellWithTitle:kRequestVerifyEmail
                                            action:^{ [weakSelf requestVerifyEmail]; }],
         [StaticContentTableViewCell cellWithTitle:kRequestPasswordReset
@@ -644,12 +727,6 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                                            action:^{ [weakSelf applyActionCode]; }],
         [StaticContentTableViewCell cellWithTitle:kVerifyPasswordResetCode
                                            action:^{ [weakSelf verifyPasswordResetCode]; }],
-        [StaticContentTableViewCell cellWithTitle:kUpdateEmailText
-                                           action:^{ [weakSelf updateEmail]; }],
-        [StaticContentTableViewCell cellWithTitle:kUpdatePasswordText
-                                           action:^{ [weakSelf updatePassword]; }],
-        [StaticContentTableViewCell cellWithTitle:kDeleteUserText
-                                           action:^{ [weakSelf deleteAccount]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleReauthenticate cells:@[
         [StaticContentTableViewCell cellWithTitle:kReauthenticateGoogleText
@@ -738,13 +815,104 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 }
 
 - (IBAction)memoryPlus {
-  _userInMemory = [FIRAuth auth].currentUser;
+  _userInMemory = [AppManager auth].currentUser;
   [self updateUserInfo];
 }
 
 - (IBAction)memoryClear {
   _userInMemory = nil;
   [self updateUserInfo];
+}
+
+/** @fn parseURL
+    @brief Parses an incoming URL into all available query items.
+    @param urlString The url to be parsed.
+    @return A dictionary of available query items in the target URL.
+ */
+static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
+  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
+  NSMutableDictionary<NSString *, NSString *> *queryItems =
+      [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
+  for (NSString *component in URLComponents) {
+    NSRange equalRange = [component rangeOfString:@"="];
+    if (equalRange.location != NSNotFound) {
+      NSString *queryItemKey =
+          [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
+      NSString *queryItemValue =
+          [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
+      if (queryItemKey && queryItemValue) {
+        queryItems[queryItemKey] = queryItemValue;
+      }
+    }
+  }
+  return queryItems;
+}
+
+#pragma mark public methods
+
+- (BOOL)handleIncomingLinkWithURL:(NSURL *)URL {
+  // Parse the query portion of the incoming URL.
+  NSDictionary<NSString *, NSString *> *queryItems =
+      parseURL([NSURLComponents componentsWithString:URL.absoluteString].query);
+
+  // Check that all necessary query items are available.
+  NSString *actionCode = queryItems[@"oobCode"];
+  NSString *mode = queryItems[@"mode"];
+  if (!actionCode || !mode) {
+    return NO;
+  }
+  // Handle Password Reset action.
+  if ([mode isEqualToString:kPasswordResetAction]) {
+    [self showTextInputPromptWithMessage:@"New Password:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable newPassword) {
+      if (!userPressedOK || !newPassword.length) {
+        [UIPasteboard generalPasteboard].string = actionCode;
+        return;
+      }
+      [self showSpinner:^() {
+        [[AppManager auth] confirmPasswordResetWithCode:actionCode
+                                            newPassword:newPassword
+                                             completion:^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Password reset in app failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Password reset in app succeeded."];
+            [self showMessagePrompt:@"Password reset in app succeeded."];
+          }];
+        }];
+      }];
+    }];
+    return YES;
+  }
+  if ([mode isEqualToString:kVerifyEmailAction]) {
+    [self showMessagePromptWithTitle:@"Tap OK to verify email"
+                             message:actionCode
+                    showCancelButton:YES
+                          completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+      if (!userPressedOK) {
+        return;
+      }
+      [self showSpinner:^() {
+        [[AppManager auth] applyActionCode:actionCode completion:^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Verify email in app failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Verify email in app succeeded."];
+            [self showMessagePrompt:@"Verify email in app succeeded."];
+          }];
+        }];
+      }];
+    }];
+    return YES;
+  }
+  return NO;
 }
 
 #pragma mark - Actions
@@ -766,8 +934,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       [self logFailedTest:@"The test needs a valid credential to continue."];
       return;
     }
-    [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
-                                                                 NSError *_Nullable error) {
+    [[AppManager auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
+                                                                    NSError *_Nullable error) {
       if (error) {
         [self logFailure:@"sign-in with provider failed" error:error];
         [self logFailedTest:@"Sign-in should succeed"];
@@ -788,7 +956,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                            message:kSafariGoogleSignOutMessagePrompt
                   showCancelButton:NO
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-    FIRAuth *auth = [FIRAuth auth];
+    FIRAuth *auth = [AppManager auth];
     if (!auth) {
       [self logFailedTest:@"Could not obtain auth object."];
       return;
@@ -829,7 +997,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                            message:kSafariFacebookSignOutMessagePrompt
                   showCancelButton:NO
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-    FIRAuth *auth = [FIRAuth auth];
+    FIRAuth *auth = [AppManager auth];
     if (!auth) {
       [self logFailedTest:@"Could not obtain auth object."];
       return;
@@ -854,7 +1022,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)automatedEmailSignUp {
   [self log:@"INITIATING AUTOMATED MANUAL TEST FOR FACEBOOK SIGN IN:"];
-  FIRAuth *auth = [FIRAuth auth];
+  FIRAuth *auth = [AppManager auth];
   if (!auth) {
     [self logFailedTest:@"Could not obtain auth object."];
     return;
@@ -866,9 +1034,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       return;
     }
     [auth signOut:NULL];
-    FIRAuthCredential *credential =
-        [FIREmailPasswordAuthProvider credentialWithEmail:kFakeEmail
-                                                 password:kFakePassword];
+    FIRAuthCredential *credential = [FIREmailAuthProvider credentialWithEmail:kFakeEmail
+                                                                     password:kFakePassword];
     [auth signInWithCredential:credential
                      completion:^(FIRUser *_Nullable user,
                                   NSError *_Nullable error) {
@@ -897,7 +1064,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)automatedAnonymousSignIn {
   [self log:@"INITIATING AUTOMATED MANUAL TEST FOR ANONYMOUS SIGN IN:"];
-  FIRAuth *auth = [FIRAuth auth];
+  FIRAuth *auth = [AppManager auth];
   if (!auth) {
     [self logFailedTest:@"Could not obtain auth object."];
     return;
@@ -922,7 +1089,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @param callback The callback to be executed.
  */
 - (void)signInAnonymouslyWithCallback:(nullable FIRAuthResultCallback)callback {
-  FIRAuth *auth = [FIRAuth auth];
+  FIRAuth *auth = [AppManager auth];
   if (!auth) {
     [self logFailedTest:@"Could not obtain auth object."];
     return;
@@ -946,7 +1113,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)automatedAccountLinking {
   [self log:@"INITIATING AUTOMATED MANUAL TEST FOR ACCOUNT LINKING:"];
-  FIRAuth *auth = [FIRAuth auth];
+  FIRAuth *auth = [AppManager auth];
   if (!auth) {
     [self logFailedTest:@"Could not obtain auth object."];
     return;
@@ -1021,7 +1188,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self log:@"There was an error retrieving the custom token."];
         return;
       }
-      FIRAuth *auth = [FIRAuth auth];
+      FIRAuth *auth = [AppManager auth];
       [auth signInWithCustomToken:customToken
                        completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
         if (error) {
@@ -1081,8 +1248,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self log:@"There was an error retrieving the custom token."];
         return;
       }
-      [[FIRAuth auth] signInWithCustomToken:customToken
-                                 completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+      [[AppManager auth] signInWithCustomToken:customToken
+                                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"sign-in with custom token failed" error:error];
           [self logFailedTest:@"A fresh custom token should succeed in signing-in."];
@@ -1111,8 +1278,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self log:@"There was an error retrieving the custom token."];
         return;
       }
-      [[FIRAuth auth] signInWithCustomToken:customToken
-                                 completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+      [[AppManager auth] signInWithCustomToken:customToken
+                                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"sign-in with custom token failed" error:error];
           [self logFailedTest:@"A fresh custom token should succeed in signing-in."];
@@ -1134,7 +1301,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @param completion The completion block to continue the automatic test flow.
  */
 - (void)updateEmailPasswordWithCompletion:(void(^)(void))completion {
-  FIRAuth *auth = [FIRAuth auth];
+  FIRAuth *auth = [AppManager auth];
   [auth.currentUser updateEmail:kFakeEmail completion:^(NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"update email failed" error:error];
@@ -1181,7 +1348,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @param completion The completion block to continue the automatic test flow.
  */
 - (void)updateDisplayNameAndPhotoURlWithCompletion:(void(^)(void))completion {
-  FIRAuth *auth = [FIRAuth auth];
+  FIRAuth *auth = [AppManager auth];
   FIRUserProfileChangeRequest *changeRequest = [auth.currentUser profileChangeRequest];
   changeRequest.photoURL = [NSURL URLWithString:kFakeDisplayPhotoUrl];
   [changeRequest commitChangesWithCompletion:^(NSError *_Nullable error) {
@@ -1214,8 +1381,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   [self log:[NSString stringWithFormat:@"Auth State Did Change Listener #%lu was added.",
                                        (unsigned long)index]];
   FIRAuthStateDidChangeListenerHandle handle =
-      [[FIRAuth auth] addAuthStateDidChangeListener:^(FIRAuth *_Nonnull auth,
-                                                      FIRUser *_Nullable user) {
+      [[AppManager auth] addAuthStateDidChangeListener:^(FIRAuth *_Nonnull auth,
+                                                         FIRUser *_Nullable user) {
         [weakSelf log:[NSString stringWithFormat:
             @"Auth State Did Change Listener #%lu was invoked on user '%@'.",
             (unsigned long)index, user.uid]];
@@ -1233,7 +1400,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   }
   NSUInteger index = _authStateDidChangeListeners.count - 1;
   FIRAuthStateDidChangeListenerHandle handle = _authStateDidChangeListeners.lastObject;
-  [[FIRAuth auth] removeAuthStateDidChangeListener:handle];
+  [[AppManager auth] removeAuthStateDidChangeListener:handle];
   [_authStateDidChangeListeners removeObject:handle];
   NSString *logString =
       [NSString stringWithFormat:@"Auth State Did Change Listener #%lu was removed.",
@@ -1250,8 +1417,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   [self log:[NSString stringWithFormat:@"ID Token Did Change Listener #%lu was added.",
                                        (unsigned long)index]];
   FIRIDTokenDidChangeListenerHandle handle =
-      [[FIRAuth auth] addIDTokenDidChangeListener:^(FIRAuth *_Nonnull auth,
-                                                    FIRUser *_Nullable user) {
+      [[AppManager auth] addIDTokenDidChangeListener:^(FIRAuth *_Nonnull auth,
+                                                       FIRUser *_Nullable user) {
         [weakSelf log:[NSString stringWithFormat:
             @"ID Token Did Change Listener #%lu was invoked on user '%@'.",
             (unsigned long)index, user.uid]];
@@ -1269,7 +1436,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   }
   NSUInteger index = _IDTokenDidChangeListeners.count - 1;
   FIRIDTokenDidChangeListenerHandle handle = _IDTokenDidChangeListeners.lastObject;
-  [[FIRAuth auth] removeIDTokenDidChangeListener:handle];
+  [[AppManager auth] removeIDTokenDidChangeListener:handle];
   [_IDTokenDidChangeListeners removeObject:handle];
   NSString *logString =
       [NSString stringWithFormat:@"ID Token Did Change Listener #%lu was removed.",
@@ -1343,7 +1510,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
  */
 - (void)presentUserInfo {
   UserInfoViewController *userInfoViewController =
-      [[UserInfoViewController alloc] initWithUser:[FIRAuth auth].currentUser];
+      [[UserInfoViewController alloc] initWithUser:[AppManager auth].currentUser];
   [self presentViewController:userInfoViewController animated:YES completion:nil];
 }
 
@@ -1403,8 +1570,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           [FIREmailAuthProvider credentialWithEmail:email
                                                    password:password];
       [self showSpinner:^{
-        [[FIRAuth auth] signInWithCredential:credential
-                                  completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+        [[AppManager auth] signInWithCredential:credential
+                                     completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
           [self hideSpinner:^{
             if (error) {
               [self logFailure:@"sign-in with Email/Password failed" error:error];
@@ -1427,9 +1594,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)signUpNewEmail:(NSString *)email
               password:(NSString *)password
               callback:(nullable FIRAuthResultCallback)callback {
-  [[FIRAuth auth] createUserWithEmail:email
-                             password:password
-                           completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+  [[AppManager auth] createUserWithEmail:email
+                                password:password
+                              completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-up with Email/Password failed" error:error];
       if (callback) {
@@ -1469,7 +1636,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 - (void)signOut {
   [[AuthProviders google] signOut];
   [[AuthProviders facebook] signOut];
-  [[FIRAuth auth] signOut:NULL];
+  [[AppManager auth] signOut:NULL];
 }
 
 /** @fn deleteAccount
@@ -1596,7 +1763,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @param retrieveData Defines if additional provider data should be read.
  */
 - (void)signinWithProvider:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData {
-  FIRAuth *auth = [FIRAuth auth];
+  FIRAuth *auth = [AppManager auth];
   if (!auth) {
     return;
   }
@@ -1888,9 +2055,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     }
 
     [self showSpinner:^{
-      [[FIRAuth auth] fetchProvidersForEmail:userInput
-                                  completion:^(NSArray<NSString *> *_Nullable providers,
-                                               NSError *_Nullable error) {
+      [[AppManager auth] fetchProvidersForEmail:userInput
+                                     completion:^(NSArray<NSString *> *_Nullable providers,
+                                                  NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"get providers for email failed" error:error];
         } else {
@@ -1909,12 +2076,62 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   }];
 }
 
+/** @fn actionCodeRequestTypeString
+    @brief Returns a string description for the type of the next action code request.
+ */
+- (NSString *)actionCodeRequestTypeString {
+  switch (_actionCodeRequestType) {
+    case ActionCodeRequestTypeInApp:
+      return @"In-App + Continue URL";
+    case ActionCodeRequestTypeContinue:
+      return @"Continue URL";
+    case ActionCodeRequestTypeEmail:
+      return @"Email Only";
+  }
+}
+
+/** @fn toggleActionCodeRequestType
+    @brief Toggle the next action code request type.
+ */
+- (void)toggleActionCodeRequestType {
+  switch (_actionCodeRequestType) {
+    case ActionCodeRequestTypeInApp:
+      _actionCodeRequestType = ActionCodeRequestTypeContinue;
+      break;
+    case ActionCodeRequestTypeContinue:
+      _actionCodeRequestType = ActionCodeRequestTypeEmail;
+      break;
+    case ActionCodeRequestTypeEmail:
+      _actionCodeRequestType = ActionCodeRequestTypeInApp;
+      break;
+  }
+  [self updateTable];
+}
+
+- (void)changeActionCodeContinueURL {
+  [self showTextInputPromptWithMessage:kContinueURLDescription
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+    if (userPressedOK) {
+      _actionCodeContinueURL = userInput.length ? [NSURL URLWithString:userInput] : nil;
+      [self updateTable];
+    }
+  }];
+}
+
 /** @fn requestVerifyEmail
     @brief Requests a "verify email" email be sent.
  */
 - (void)requestVerifyEmail {
   [self showSpinner:^{
-    [[self user] sendEmailVerificationWithCompletion:^(NSError *_Nullable error) {
+    void (^sendEmailVerification)(void (^)(NSError *)) = ^(void (^completion)(NSError *)) {
+      if (_actionCodeRequestType == ActionCodeRequestTypeEmail) {
+        [[self user] sendEmailVerificationWithCompletion:completion];
+      } else {
+        [[self user] sendEmailVerificationWithActionCodeSettings:[self actionCodeSettings]
+                                                      completion:completion];
+      }
+    };
+    sendEmailVerification(^(NSError *_Nullable error) {
       [self hideSpinner:^{
         if (error) {
           [self logFailure:@"request verify email failed" error:error];
@@ -1924,7 +2141,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         [self logSuccess:@"request verify email succeeded."];
         [self showMessagePrompt:@"Sent"];
       }];
-    }];
+    });
   }];
 }
 
@@ -1938,7 +2155,16 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       return;
     }
     [self showSpinner:^{
-      [[FIRAuth auth] sendPasswordResetWithEmail:userInput completion:^(NSError *_Nullable error) {
+      void (^requestPasswordReset)(void (^)(NSError *)) = ^(void (^completion)(NSError *)) {
+        if (_actionCodeRequestType == ActionCodeRequestTypeEmail) {
+          [[AppManager auth] sendPasswordResetWithEmail:userInput completion:completion];
+        } else {
+          [[AppManager auth] sendPasswordResetWithEmail:userInput
+                                     actionCodeSettings:[self actionCodeSettings]
+                                             completion:completion];
+        }
+      };
+      requestPasswordReset(^(NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"request password reset failed" error:error];
@@ -1948,7 +2174,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           [self logSuccess:@"request password reset succeeded."];
           [self showMessagePrompt:@"Sent"];
         }];
-      }];
+      });
     }];
   }];
 }
@@ -1971,9 +2197,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       }
 
       [self showSpinner:^{
-        [[FIRAuth auth] confirmPasswordResetWithCode:code
-                                         newPassword:userInput
-                                          completion:^(NSError *_Nullable error) {
+        [[AppManager auth] confirmPasswordResetWithCode:code
+                                            newPassword:userInput
+                                             completion:^(NSError *_Nullable error) {
           [self hideSpinner:^{
             if (error) {
               [self logFailure:@"Password reset failed" error:error];
@@ -1999,8 +2225,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       return;
     }
     [self showSpinner:^{
-      [[FIRAuth auth] checkActionCode:userInput completion:^(FIRActionCodeInfo *_Nullable info,
-                                                             NSError *_Nullable error) {
+      [[AppManager auth] checkActionCode:userInput completion:^(FIRActionCodeInfo *_Nullable info,
+                                                                NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"Check action code failed" error:error];
@@ -2009,10 +2235,14 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           }
           [self logSuccess:@"Check action code succeeded."];
           NSString *email = [info dataForKey:FIRActionCodeEmailKey];
+          NSString *fromEmail = [info dataForKey:FIRActionCodeFromEmailKey];
+          NSString *message =
+              fromEmail ? [NSString stringWithFormat:@"%@ -> %@", fromEmail, email] : email;
           NSString *operation = [self nameForActionCodeOperation:info.operation];
-          NSString *infoMessage =
-            [[NSString alloc] initWithFormat:@"Email: %@\n Operation: %@", email, operation];
-          [self showMessagePrompt:infoMessage];
+          [self showMessagePromptWithTitle:operation
+                                   message:message
+                          showCancelButton:NO
+                                completion:nil];
         }];
       }];
     }];
@@ -2030,7 +2260,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     }
     [self showSpinner:^{
 
-      [[FIRAuth auth] applyActionCode:userInput completion:^(NSError *_Nullable error) {
+      [[AppManager auth] applyActionCode:userInput completion:^(NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"Apply action code failed" error:error];
@@ -2055,8 +2285,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       return;
     }
     [self showSpinner:^{
-      [[FIRAuth auth] verifyPasswordResetCode:userInput completion:^(NSString *_Nullable email,
-                                                                     NSError *_Nullable error) {
+      [[AppManager auth] verifyPasswordResetCode:userInput completion:^(NSString *_Nullable email,
+                                                                        NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"Verify password reset code failed" error:error];
@@ -2083,6 +2313,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   switch (operation) {
   case FIRActionCodeOperationVerifyEmail:
     return @"Verify Email";
+  case FIRActionCodeOperationRecoverEmail:
+    return @"Recover Email";
   case FIRActionCodeOperationPasswordReset:
     return @"Password Reset";
   case FIRActionCodeOperationUnknown:
@@ -2158,9 +2390,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       }
 
       [self showSpinner:^{
-        [[FIRAuth auth] createUserWithEmail:email
-                                   password:password
-                                 completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+        [[AppManager auth] createUserWithEmail:email
+                                      password:password
+                                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
           if (error) {
             [self logFailure:@"create user failed" error:error];
           } else {
@@ -2179,16 +2411,14 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @brief Allows sign in with phone number.
  */
 - (void)signInWithPhoneNumber {
-  [self showTextInputPromptWithMessage:@"Phone #:"
-                          keyboardType:UIKeyboardTypePhonePad
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
-    if (!userPressedOK || !phoneNumber.length) {
-      return;
-    }
+  [self commonPhoneNumberInputWithTitle:@"Phone #" Completion:^(NSString *_Nullable phone) {
     [self showSpinner:^{
-      [[FIRPhoneAuthProvider provider] verifyPhoneNumber:phoneNumber
-                                              completion:^(NSString *_Nullable verificationID,
-                                                           NSError *_Nullable error) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      [[AppManager phoneAuthProvider] verifyPhoneNumber:phone
+                                             completion:^(NSString *_Nullable verificationID,
+                                                          NSError *_Nullable error) {
+#pragma clang diagnostic pop
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"failed to send verification code" error:error];
@@ -2197,31 +2427,82 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           }
           [self logSuccess:@"Code sent"];
 
-          [self showTextInputPromptWithMessage:@"Verification code:"
-                                  keyboardType:UIKeyboardTypeNumberPad
-                               completionBlock:^(BOOL userPressedOK,
-                                                 NSString *_Nullable verificationCode) {
-            if (!userPressedOK || !verificationCode.length) {
-              return;
-            }
-            [self showSpinner:^{
-              FIRAuthCredential *credential =
-                  [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                               verificationCode:verificationCode];
-              [[FIRAuth auth] signInWithCredential:credential
-                                        completion:^(FIRUser *_Nullable user,
-                                                    NSError *_Nullable error) {
-                [self hideSpinner:^{
-                  if (error) {
-                    [self logFailure:@"failed to verify phone number" error:error];
-                    [self showMessagePrompt:error.localizedDescription];
-                    return;
-                  }
-                }];
-              }];
-            }];
+          [self commonPhoneNumberInputWithTitle:@"Code"
+                                     Completion:^(NSString *_Nullable verificationCode) {
+            [self commontPhoneVerificationWithVerificationID:verificationID
+                                            verificationCode:verificationCode];
           }];
         }];
+      }];
+    }];
+  }];
+}
+
+/** @fn signInWithPhoneNumberRecaptcha
+    @brief Allows sign in with phone number using reCAPTCHA
+ */
+- (void)signInWithPhoneNumberRecaptcha {
+  [self commonPhoneNumberInputWithTitle:@"Phone #" Completion:^(NSString *_Nullable phone) {
+    [self showSpinner:^{
+      [[AppManager phoneAuthProvider] verifyPhoneNumber:phone
+                                             UIDelegate:nil
+                                             completion:^(NSString *_Nullable verificationID,
+                                                          NSError *_Nullable error) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"failed to send verification code" error:error];
+            [self showMessagePrompt:error.localizedDescription];
+            return;
+          }
+          [self logSuccess:@"Code sent"];
+
+          [self commonPhoneNumberInputWithTitle:@"Code"
+                                     Completion:^(NSString *_Nullable verificationCode) {
+            [self commontPhoneVerificationWithVerificationID:verificationID
+                                            verificationCode:verificationCode];
+          }];
+        }];
+      }];
+    }];
+  }];
+}
+
+/** @fn commonPhoneNumberInputWithLabel:Completion
+    @brief Allows user input into a text field.
+    @param title of the promt.
+ */
+- (void)commonPhoneNumberInputWithTitle:(NSString *)title
+                             Completion:(textInputCompletionBlock)completion {
+  [self showTextInputPromptWithMessage:title
+                          keyboardType:UIKeyboardTypePhonePad
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
+    if (!userPressedOK || !phoneNumber.length) {
+      return;
+    }
+    completion(phoneNumber);
+  }];
+}
+
+/** @fn commonPhoneNumberInputWithLabel:Completion
+    @brief Finishes the phone number verification flow.
+    @param verificationID The verificationID from the backend.
+    @param verificationCode The verificationCode from the SMS message.
+ */
+- (void)commontPhoneVerificationWithVerificationID:(NSString *)verificationID
+                                  verificationCode:(NSString *)verificationCode {
+  [self showSpinner:^{
+    FIRAuthCredential *credential =
+        [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
+                                                    verificationCode:verificationCode];
+    [[AppManager auth] signInWithCredential:credential
+                                 completion:^(FIRUser *_Nullable user,
+                                              NSError *_Nullable error) {
+      [self hideSpinner:^{
+        if (error) {
+          [self logFailure:@"failed to verify phone number" error:error];
+          [self showMessagePrompt:error.localizedDescription];
+          return;
+        }
       }];
     }];
   }];
@@ -2238,9 +2519,10 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       return;
     }
     [self showSpinner:^{
-      [[FIRPhoneAuthProvider provider] verifyPhoneNumber:phoneNumber
-                                              completion:^(NSString *_Nullable verificationID,
-                                                           NSError *_Nullable error) {
+      [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                             UIDelegate:nil
+                                             completion:^(NSString *_Nullable verificationID,
+                                                          NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
           [self showMessagePrompt:error.localizedDescription];
@@ -2257,8 +2539,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
           }
           [self showSpinner:^{
             FIRPhoneAuthCredential *credential =
-                [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                             verificationCode:verificationCode];
+                [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
+                                                            verificationCode:verificationCode];
             [[self user] updatePhoneNumberCredential:credential
                                           completion:^(NSError *_Nullable error) {
               if (error) {
@@ -2289,9 +2571,10 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
       return;
     }
     [self showSpinner:^{
-      [[FIRPhoneAuthProvider provider] verifyPhoneNumber:phoneNumber
-                                              completion:^(NSString *_Nullable verificationID,
-                                                           NSError *_Nullable error) {
+      [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                             UIDelegate:nil
+                                             completion:^(NSString *_Nullable verificationID,
+                                                          NSError *_Nullable error) {
         [self hideSpinner:^{
           if (error) {
             [self logFailure:@"failed to send verification code" error:error];
@@ -2309,8 +2592,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
             }
             [self showSpinner:^{
               FIRPhoneAuthCredential *credential =
-                  [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                               verificationCode:verificationCode];
+                  [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
+                                                              verificationCode:verificationCode];
               [[self user] linkWithCredential:credential
                                    completion:^(FIRUser *_Nullable user,
                                                 NSError *_Nullable error) {
@@ -2329,9 +2612,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                           [self showSpinner:^{
                             FIRPhoneAuthCredential *credential =
                                 error.userInfo[FIRAuthUpdatedCredentialKey];
-                            [[FIRAuth auth] signInWithCredential:credential
-                                                      completion:^(FIRUser *_Nullable user,
-                                                                   NSError *_Nullable error) {
+                            [[AppManager auth] signInWithCredential:credential
+                                                         completion:^(FIRUser *_Nullable user,
+                                                                      NSError *_Nullable error) {
                               [self hideSpinner:^{
                                 if (error) {
                                   [self logFailure:@"failed to verify phone number" error:error];
@@ -2364,8 +2647,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     @brief Signs in as an anonymous user.
  */
 - (void)signInAnonymously {
-  [[FIRAuth auth] signInAnonymouslyWithCompletion:^(FIRUser *_Nullable user,
-                                                    NSError *_Nullable error) {
+  [[AppManager auth] signInAnonymouslyWithCompletion:^(FIRUser *_Nullable user,
+                                                       NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-in anonymously failed" error:error];
     } else {
@@ -2388,8 +2671,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     FIRAuthCredential *credential =
         [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProviderID accessToken:accessToken];
     if (credential) {
-        [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
-                                                                     NSError *_Nullable error) {
+        [[AppManager auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
+                                                                        NSError *_Nullable error) {
           if (error) {
             [self logFailure:@"sign-in with provider failed" error:error];
           } else {
@@ -2459,7 +2742,17 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
         user in memory" setting.
  */
 - (FIRUser *)user {
-  return _useUserInMemory ? _userInMemory : [FIRAuth auth].currentUser;
+  return _useUserInMemory ? _userInMemory : [AppManager auth].currentUser;
+}
+
+/** @fn actionCodeSettings
+    @brief Returns the action code settings for this app.
+ */
+- (FIRActionCodeSettings *)actionCodeSettings {
+  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc] init];
+  actionCodeSettings.URL = _actionCodeContinueURL;
+  actionCodeSettings.handleCodeInApp = _actionCodeRequestType == ActionCodeRequestTypeInApp;
+  return actionCodeSettings;
 }
 
 /** @fn showTypicalUIForUserUpdateResultsWithTitle:error:
@@ -2514,8 +2807,8 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 }
 
 - (void)doSignInWithCustomToken:(NSString *_Nullable)userEnteredTokenText {
-  [[FIRAuth auth] signInWithCustomToken:userEnteredTokenText
-                             completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+  [[AppManager auth] signInWithCustomToken:userEnteredTokenText
+                                completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-in with custom token failed" error:error];
       [self showMessagePromptWithTitle:kSignInErrorAlertTitle
@@ -2533,7 +2826,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 }
 
 - (void)updateUserInfo {
-  [_userInfoTableViewCell updateContentsWithUser:[FIRAuth auth].currentUser];
+  [_userInfoTableViewCell updateContentsWithUser:[AppManager auth].currentUser];
   [_userInMemoryInfoTableViewCell updateContentsWithUser:_userInMemory];
 }
 

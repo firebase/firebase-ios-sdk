@@ -53,6 +53,38 @@ static const NSInteger kFErrorCodeWriteCanceled = 3;
     XCTAssertThrows([self databaseForURL:@"http://x.example.com/paths/are/bad"]);
 }
 
+- (void) testDeleteDatabase {
+    // Set up a custom FIRApp with a custom database based on it.
+    FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
+                                                      GCMSenderID:@"gcm_sender_id"];
+    options.databaseURL = self.databaseURL;
+    NSString *customAppName = @"MyCustomApp";
+    [FIRApp configureWithName:customAppName options:options];
+    FIRApp *customApp = [FIRApp appNamed:customAppName];
+    FIRDatabase *customDatabase = [FIRDatabase databaseForApp:customApp];
+    XCTAssertNotNil(customDatabase);
+
+    // Delete the custom app and wait for it to be done.
+    XCTestExpectation *customAppDeletedExpectation =
+        [self expectationWithDescription:@"Deleting the custom app should be successful."];
+    [customApp deleteApp:^(BOOL success) {
+        // The app shouldn't exist anymore, ensure that the databaseForApp throws.
+        XCTAssertThrows([FIRDatabase databaseForApp:[FIRApp appNamed:customAppName]]);
+
+        [customAppDeletedExpectation fulfill];
+    }];
+
+    // Wait for the custom app to be deleted.
+    [self waitForExpectations:@[customAppDeletedExpectation] timeout:2];
+
+    // Configure the app again, then grab a reference to the database. Assert it's different.
+    [FIRApp configureWithName:customAppName options:options];
+    FIRApp *secondCustomApp = [FIRApp appNamed:customAppName];
+    FIRDatabase *secondCustomDatabase = [FIRDatabase databaseForApp:secondCustomApp];
+    XCTAssertNotNil(secondCustomDatabase);
+    XCTAssertNotEqualObjects(customDatabase, secondCustomDatabase);
+}
+
 - (void) testReferenceWithPath {
     FIRDatabase *db = [self defaultDatabase];
     NSString *expectedURL = [NSString stringWithFormat:@"%@/foo", self.databaseURL];

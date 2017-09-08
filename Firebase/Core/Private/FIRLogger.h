@@ -86,7 +86,11 @@ extern void FIRLogBasic(FIRLoggerLevel level,
 #else
                         va_list _Nullable args_ptr
 #endif
-                        );
+);
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 
 /**
  * The following functions accept the following parameters in order:
@@ -111,5 +115,9 @@ extern void FIRLogInfo(FIRLoggerService service, NSString *messageCode, NSString
     NS_FORMAT_FUNCTION(3, 4);
 extern void FIRLogDebug(FIRLoggerService service, NSString *messageCode, NSString *message, ...)
     NS_FORMAT_FUNCTION(3, 4);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
 NS_ASSUME_NONNULL_END

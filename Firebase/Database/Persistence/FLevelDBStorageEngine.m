@@ -180,17 +180,21 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     self.writesDB = [self createDB:kFWritesDBPath];
 }
 
+- (void)purgeDatabase:(NSString*) dbPath {
+    NSString *path = [self.basePath stringByAppendingPathComponent:dbPath];
+    NSError *error;
+    FFWarn(@"I-RDB076009", @"Deleting database at path %@", path);
+    BOOL success = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
+    if (!success) {
+        [NSException raise:NSInternalInconsistencyException format:@"Failed to delete database files: %@", error];
+    }
+}
+
 - (void)purgeEverything {
     [self close];
     [@[kFServerDBPath, kFWritesDBPath]
      enumerateObjectsUsingBlock:^(NSString *dbPath, NSUInteger idx, BOOL *stop) {
-         NSString *path = [self.basePath stringByAppendingPathComponent:dbPath];
-         NSError *error;
-         FFDebug(@"I-RDB076009", @"Deleting database at path %@", path);
-         BOOL success = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
-         if (!success) {
-             [NSException raise:NSInternalInconsistencyException format:@"Failed to delete database files: %@", error];
-         }
+         [self purgeDatabase:dbPath];
     }];
 
     [self openDatabases];
@@ -216,14 +220,26 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     #endif
 }
 
-- (APLevelDB *)createDB:(NSString *)name {
+- (APLevelDB *)createDB:(NSString *)dbName {
     NSError *err = nil;
-    NSString *path = [self.basePath stringByAppendingPathComponent:name];
+    NSString *path = [self.basePath stringByAppendingPathComponent:dbName];
     APLevelDB *db = [APLevelDB levelDBWithPath:path error:&err];
-    if(err) {
-        NSString *reason = [NSString stringWithFormat:@"Error initializing persistence: %@", [err description]];
-        @throw [NSException exceptionWithName:@"FirebaseDatabasePersistenceFailure" reason:reason userInfo:nil];
+
+    if (err) {
+        FFWarn(@"I-RDB076036", @"Failed to read database persistence file '%@': %@",
+               dbName, [err localizedDescription]);
+        err = nil;
+
+        // Delete the database and try again.
+        [self purgeDatabase:dbName];
+        db = [APLevelDB levelDBWithPath:path error:&err];
+
+        if (err) {
+            NSString *reason = [NSString stringWithFormat:@"Error initializing persistence: %@", [err description]];
+            @throw [NSException exceptionWithName:@"FirebaseDatabasePersistenceFailure" reason:reason userInfo:nil];
+        }
     }
+
     return db;
 }
 

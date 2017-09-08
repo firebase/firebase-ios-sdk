@@ -703,7 +703,8 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
             if ([warningsArr containsObject:@"no_index"]) {
                 NSString *indexSpec = [NSString stringWithFormat:@"\".indexOn\": \"%@\"", [query.params.index queryDefinition]];
                 NSString *indexPath = [query.path description];
-                FFWarn(@"I-RDB034028", @"Using an unspecified index. Consider adding %@ at %@ to your security rules for better performance", indexSpec, indexPath);
+                FFWarn(@"I-RDB034028", @"Using an unspecified index. Your data will be downloaded and filtered on the client. "
+                       "Consider adding %@ at %@ to your security rules for better performance", indexSpec, indexPath);
             }
         }
     }

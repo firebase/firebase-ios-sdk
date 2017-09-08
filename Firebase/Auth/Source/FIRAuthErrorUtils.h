@@ -313,11 +313,47 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)invalidRecipientEmailErrorWithMessage:(nullable NSString *)message;
 
-/** @fn missingEmail
-    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingEmail code.
+/** @fn missingIosBundleIDErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingIosBundleID code.
+    @param message Error message from the backend, if any.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)missingEmail;
++ (NSError *)missingIosBundleIDErrorWithMessage:(nullable NSString *)message;
+
+/** @fn missingAndroidPackageNameErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingAndroidPackageName code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingAndroidPackageNameErrorWithMessage:(nullable NSString *)message;
+
+/** @fn unauthorizedDomainErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeUnauthorizedDomain code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)unauthorizedDomainErrorWithMessage:(nullable NSString *)message;
+
+/** @fn invalidContinueURIErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeInvalidContinueURI code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)invalidContinueURIErrorWithMessage:(nullable NSString *)message;
+
+/** @fn missingContinueURIErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingContinueURI code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingContinueURIErrorWithMessage:(nullable NSString *)message;
+
+/** @fn missingEmailErrorWithMessage
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingEmail code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingEmailErrorWithMessage:(nullable NSString *)message;
 
 /** @fn missingPhoneNumberErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingPhoneNumber code.
@@ -389,11 +425,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)quotaExceededErrorWithMessage:(nullable NSString *)message;
 
-/** @fn missingAppTokenError
+/** @fn missingAppTokenErrorWithUnderlyingError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingAppToken code.
+    @param underlyingError The underlying error, if any.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)missingAppTokenError;
++ (NSError *)missingAppTokenErrorWithUnderlyingError:(nullable NSError *)underlyingError;
 
 /** @fn notificationNotForwardedError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeNotificationNotForwarded code.
@@ -407,6 +444,27 @@ NS_ASSUME_NONNULL_BEGIN
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message;
+
+/** @fn captchaCheckFailedErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCaptchaCheckFailed code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message;
+
+/** @fn webContextAlreadyPresentedErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeWebContextAlreadyPresented code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)webContextAlreadyPresentedErrorWithMessage:(nullable NSString *)message;
+
+/** @fn webContextCancelledErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeWebContextCancelledcode.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)webContextCancelledErrorWithMessage:(nullable NSString *)message;
 
 /** @fn keychainErrorWithFunction:status:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeKeychainError code.

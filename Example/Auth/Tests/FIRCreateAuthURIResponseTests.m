@@ -69,10 +69,15 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
 @end
 @implementation FIRCreateAuthURIResponseTests{
   /** @var _RPCIssuer
-     @brief This backend RPC issuer is used to fake network responses for each test in the suite.
+      @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -80,9 +85,11 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
+  _requestConfiguration = nil;
   _RPCIssuer = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
@@ -95,7 +102,7 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc]initWithIdentifier:kTestIdentifier
                                              continueURI:kTestContinueURI
-                                                  APIKey:kTestAPIKey];
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRCreateAuthURIResponse *RPCResponse;
@@ -112,7 +119,7 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
-  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInternalError);
+  XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingContinueURI);
   XCTAssertNil(RPCResponse);
 }
 
@@ -123,7 +130,7 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc]initWithIdentifier:kTestIdentifier
                                              continueURI:kTestContinueURI
-                                                  APIKey:kTestAPIKey];
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRCreateAuthURIResponse *RPCResponse;
@@ -151,7 +158,7 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc]initWithIdentifier:kTestIdentifier
                                              continueURI:kTestContinueURI
-                                                  APIKey:kTestAPIKey];
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRCreateAuthURIResponse *RPCResponse;
@@ -179,7 +186,7 @@ static NSString *const kInvalidEmailErrorMessage = @"INVALID_EMAIL:";
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc]initWithIdentifier:kTestIdentifier
                                              continueURI:kTestContinueURI
-                                                  APIKey:kTestAPIKey];
+                                    requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRCreateAuthURIResponse *RPCResponse;

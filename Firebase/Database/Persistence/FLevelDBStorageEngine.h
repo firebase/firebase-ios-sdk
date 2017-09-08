@@ -29,6 +29,8 @@
 
 @interface FLevelDBStorageEngine : NSObject<FStorageEngine>
 
++ (NSString *) firebaseDir;
+
 - (id)initWithPath:(NSString *)path;
 
 - (void)runLegacyMigration:(FRepoInfo *)info;

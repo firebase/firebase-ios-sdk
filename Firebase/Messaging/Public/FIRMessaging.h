@@ -367,12 +367,17 @@ FIR_SWIFT_NAME(Messaging)
 
 
 /**
- *  Retrieves an FCM registration token for a particular Sender ID. This registration token is
- *  not cached by FIRMessaging. FIRMessaging should have an APNS token set before calling this
- *  to ensure that notifications can be delivered via APNS using this FCM token. You may
- *  re-retrieve the FCM token once you have the APNS token set, to associate it with the FCM
- *  token. The default FCM token is automatically associated with the APNS token, if the APNS
- *  token data is available.
+ *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
+ *  multiple senders to send notifications to the same device. By providing a different Sender
+ *  ID than your default when fetching a token, you can create a new FCM token which you can
+ *  give to a different sender. Both tokens will deliver notifications to your device, and you
+ *  can revoke a token when you need to.
+ *
+ *  This registration token is not cached by FIRMessaging. FIRMessaging should have an APNS
+ *  token set before calling this to ensure that notifications can be delivered via APNS using
+ *  this FCM token. You may re-retrieve the FCM token once you have the APNS token set, to
+ *  associate it with the FCM token. The default FCM token is automatically associated with
+ *  the APNS token, if the APNS token data is available.
  *
  *  @param senderID The Sender ID for a particular Firebase project.
  *  @param completion The completion handler to handle the token request.

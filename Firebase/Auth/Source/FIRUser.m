@@ -20,7 +20,6 @@
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIREmailAuthProvider.h"
-#import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
 #import "FIRAuthCredential_Internal.h"
@@ -32,6 +31,7 @@
 #import "FIRSecureTokenService.h"
 #import "FIRUserInfoImpl.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthRequestConfiguration.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
 #import "FIRGetAccountInfoRequest.h"
@@ -51,6 +51,7 @@
 
 #if TARGET_OS_IOS
 #import "FIRPhoneAuthProvider.h"
+#import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -194,16 +195,6 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 @end
 
-@interface FIRUser ()
-
-/** @fn initWithAPIKey:
-    @brief Designated initializer
-    @param APIKey The client API key for making RPCs.
- */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
-
-@end
-
 @implementation FIRUser {
   /** @var _hasEmailPasswordCredential
       @brief Whether or not the user can be authenticated by using Firebase email and password.
@@ -214,11 +205,6 @@ static void callInMainThreadWithAuthDataResultAndError(
       @brief Provider specific user data.
    */
   NSDictionary<NSString *, FIRUserInfoImpl *> *_providerData;
-
-  /** @var _APIKey
-      @brief The application's API Key.
-   */
-  NSString *_APIKey;
 
   /** @var _taskQueue
       @brief Used to serialize the update profile calls.
@@ -243,26 +229,27 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 #pragma mark -
 
-+ (void)retrieveUserWithAPIKey:(NSString *)APIKey
-                   accessToken:(NSString *)accessToken
-     accessTokenExpirationDate:(NSDate *)accessTokenExpirationDate
-                  refreshToken:(NSString *)refreshToken
-                     anonymous:(BOOL)anonymous
-                      callback:(FIRRetrieveUserCallback)callback {
++ (void)retrieveUserWithAuth:(FIRAuth *)auth
+                 accessToken:(NSString *)accessToken
+   accessTokenExpirationDate:(NSDate *)accessTokenExpirationDate
+                refreshToken:(NSString *)refreshToken
+                   anonymous:(BOOL)anonymous
+                    callback:(FIRRetrieveUserCallback)callback {
   FIRSecureTokenService *tokenService =
-      [[FIRSecureTokenService alloc] initWithAPIKey:APIKey
-                                        accessToken:accessToken
-                          accessTokenExpirationDate:accessTokenExpirationDate
-                                       refreshToken:refreshToken];
-  FIRUser *user = [[self alloc] initWithAPIKey:APIKey
-                                  tokenService:tokenService];
+      [[FIRSecureTokenService alloc] initWithRequestConfiguration:auth.requestConfiguration
+                                                      accessToken:accessToken
+                                        accessTokenExpirationDate:accessTokenExpirationDate
+                                                     refreshToken:refreshToken];
+  FIRUser *user = [[self alloc] initWithTokenService:tokenService];
+  user.auth = auth;
   [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
     if (error) {
       callback(nil, error);
       return;
     }
     FIRGetAccountInfoRequest *getAccountInfoRequest =
-        [[FIRGetAccountInfoRequest alloc] initWithAPIKey:APIKey accessToken:accessToken];
+        [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                         requestConfiguration:auth.requestConfiguration];
     [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                           callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                      NSError *_Nullable error) {
@@ -277,20 +264,11 @@ static void callInMainThreadWithAuthDataResultAndError(
   }];
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
+- (instancetype)initWithTokenService:(FIRSecureTokenService *)tokenService {
   self = [super init];
   if (self) {
-    _APIKey = [APIKey copy];
     _providerData = @{ };
     _taskQueue = [[FIRAuthSerialTaskQueue alloc] init];
-  }
-  return self;
-}
-
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                           tokenService:(FIRSecureTokenService *)tokenService {
-  self = [self initWithAPIKey:APIKey];
-  if (self) {
     _tokenService = tokenService;
   }
   return self;
@@ -324,16 +302,13 @@ static void callInMainThreadWithAuthDataResultAndError(
   ]];
   NSDictionary<NSString *, FIRUserInfoImpl *> *providerData =
       [aDecoder decodeObjectOfClasses:providerDataClasses forKey:kProviderDataKey];
-  NSString *APIKey =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey];
   FIRSecureTokenService *tokenService =
       [aDecoder decodeObjectOfClass:[FIRSecureTokenService class] forKey:kTokenServiceCodingKey];
-  if (!userID || !APIKey || !tokenService) {
+  if (!userID || !tokenService) {
     return nil;
   }
-  self = [self initWithAPIKey:APIKey];
+  self = [self initWithTokenService:tokenService];
   if (self) {
-    _tokenService = tokenService;
     _userID = userID;
     // Previous version of this code didn't save 'anonymous' bit directly but deduced it from
     // 'hasEmailPasswordCredential' and 'providerData' instead, so here backward compatibility is
@@ -360,11 +335,18 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeBool:_emailVerified forKey:kEmailVerifiedCodingKey];
   [aCoder encodeObject:_photoURL forKey:kPhotoURLCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
-  [aCoder encodeObject:_APIKey forKey:kAPIKeyCodingKey];
+  // The API key is encoded even it is not used in decoding to be compatible with previous versions
+  // of the library.
+  [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   [aCoder encodeObject:_tokenService forKey:kTokenServiceCodingKey];
 }
 
 #pragma mark -
+
+- (void)setAuth:(nullable FIRAuth *)auth {
+  _auth = auth;
+  _tokenService.requestConfiguration = auth.requestConfiguration;
+}
 
 - (NSString *)providerID {
   return @"Firebase";
@@ -387,7 +369,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
     FIRGetAccountInfoRequest *getAccountInfoRequest =
-        [[FIRGetAccountInfoRequest alloc] initWithAPIKey:_APIKey accessToken:accessToken];
+        [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                         requestConfiguration:_auth.requestConfiguration];
     [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                           callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                      NSError *_Nullable error) {
@@ -452,9 +435,10 @@ static void callInMainThreadWithAuthDataResultAndError(
           callback(error);
           return;
         }
+        FIRAuthRequestConfiguration *configuration = _auth.requestConfiguration;
         // Mutate setAccountInfoRequest in block:
         FIRSetAccountInfoRequest *setAccountInfoRequest =
-            [[FIRSetAccountInfoRequest alloc] initWithAPIKey:_APIKey];
+            [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:configuration];
         setAccountInfoRequest.accessToken = accessToken;
         changeBlock(user, setAccountInfoRequest);
         // Execute request:
@@ -467,11 +451,11 @@ static void callInMainThreadWithAuthDataResultAndError(
             return;
           }
           if (response.IDToken && response.refreshToken) {
-            FIRSecureTokenService *tokenService =
-                [[FIRSecureTokenService alloc] initWithAPIKey:_APIKey
-                                                  accessToken:response.IDToken
-                                    accessTokenExpirationDate:response.approximateExpirationDate
-                                                 refreshToken:response.refreshToken];
+            FIRSecureTokenService *tokenService = [[FIRSecureTokenService alloc]
+                initWithRequestConfiguration:configuration
+                                 accessToken:response.IDToken
+                   accessTokenExpirationDate:response.approximateExpirationDate
+                                refreshToken:response.refreshToken];
             [self setTokenService:tokenService callback:^(NSError *_Nullable error) {
               complete();
               callback(error);
@@ -489,10 +473,10 @@ static void callInMainThreadWithAuthDataResultAndError(
 /** @fn updateKeychain:
     @brief Updates the keychain for user token or info changes.
     @param error The error if NO is returned.
-    @return Wether the operation is successful.
+    @return Whether the operation is successful.
  */
 - (BOOL)updateKeychain:(NSError *_Nullable *_Nullable)error {
-  return !_auth || [_auth updateKeychainWithUser:self error:error];
+  return [_auth updateKeychainWithUser:self error:error];
 }
 
 /** @fn setTokenService:callback:
@@ -571,8 +555,10 @@ static void callInMainThreadWithAuthDataResultAndError(
             callback(error);
             return;
           }
+          FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
           FIRGetAccountInfoRequest *getAccountInfoRequest =
-              [[FIRGetAccountInfoRequest alloc] initWithAPIKey:_APIKey accessToken:accessToken];
+              [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                               requestConfiguration:requestConfiguration];
           [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                                 callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                            NSError *_Nullable error) {
@@ -638,7 +624,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     FIRVerifyPhoneNumberRequest *request = [[FIRVerifyPhoneNumberRequest alloc]
         initWithVerificationID:phoneAuthCredential.verificationID
               verificationCode:phoneAuthCredential.verificationCode
-                        APIKey:_APIKey];
+          requestConfiguration:_auth.requestConfiguration];
     request.accessToken = accessToken;
     [FIRAuthBackend verifyPhoneNumber:request
                              callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
@@ -882,8 +868,10 @@ static void callInMainThreadWithAuthDataResultAndError(
           completeWithError(nil, error);
           return;
         }
+        FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
         FIRVerifyAssertionRequest *request =
-          [[FIRVerifyAssertionRequest alloc] initWithAPIKey:_APIKey providerID:credential.provider];
+            [[FIRVerifyAssertionRequest alloc] initWithProviderID:credential.provider
+                                             requestConfiguration:requestConfiguration];
         [credential prepareVerifyAssertionRequest:request];
         request.accessToken = accessToken;
         [FIRAuthBackend verifyAssertion:request
@@ -897,11 +885,11 @@ static void callInMainThreadWithAuthDataResultAndError(
           FIRAuthDataResult *result =
               [[FIRAuthDataResult alloc] initWithUser:self additionalUserInfo:additionalUserInfo];
           // Update the new token and refresh user info again.
-          _tokenService =
-              [[FIRSecureTokenService alloc] initWithAPIKey:_APIKey
-                                                accessToken:response.IDToken
-                                  accessTokenExpirationDate:response.approximateExpirationDate
-                                               refreshToken:response.refreshToken];
+          _tokenService = [[FIRSecureTokenService alloc]
+              initWithRequestConfiguration:requestConfiguration
+                               accessToken:response.IDToken
+                 accessTokenExpirationDate:response.approximateExpirationDate
+                              refreshToken:response.refreshToken];
           [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                NSError *_Nullable error) {
             if (error) {
@@ -909,7 +897,8 @@ static void callInMainThreadWithAuthDataResultAndError(
               return;
             }
             FIRGetAccountInfoRequest *getAccountInfoRequest =
-                [[FIRGetAccountInfoRequest alloc] initWithAPIKey:_APIKey accessToken:accessToken];
+                [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                                 requestConfiguration:requestConfiguration];
             [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                                   callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                              NSError *_Nullable error) {
@@ -945,8 +934,9 @@ static void callInMainThreadWithAuthDataResultAndError(
         completeAndCallbackWithError(error);
         return;
       }
+      FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
       FIRSetAccountInfoRequest *setAccountInfoRequest =
-          [[FIRSetAccountInfoRequest alloc] initWithAPIKey:_APIKey];
+          [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:requestConfiguration];
       setAccountInfoRequest.accessToken = accessToken;
       BOOL isEmailPasswordProvider = [provider isEqualToString:FIREmailAuthProviderID];
       if (isEmailPasswordProvider) {
@@ -987,11 +977,11 @@ static void callInMainThreadWithAuthDataResultAndError(
           #endif
         }
         if (response.IDToken && response.refreshToken) {
-          FIRSecureTokenService *tokenService =
-              [[FIRSecureTokenService alloc] initWithAPIKey:_APIKey
-                                                accessToken:response.IDToken
-                                  accessTokenExpirationDate:response.approximateExpirationDate
-                                               refreshToken:response.refreshToken];
+          FIRSecureTokenService *tokenService = [[FIRSecureTokenService alloc]
+              initWithRequestConfiguration:requestConfiguration
+                               accessToken:response.IDToken
+                 accessTokenExpirationDate:response.approximateExpirationDate
+                              refreshToken:response.refreshToken];
           [self setTokenService:tokenService callback:^(NSError *_Nullable error) {
             completeAndCallbackWithError(error);
           }];
@@ -1008,6 +998,27 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (void)sendEmailVerificationWithCompletion:(nullable FIRSendEmailVerificationCallback)completion {
+  [self sendEmailVerificationWithNullableActionCodeSettings:nil completion:completion];
+}
+
+- (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
+                                         completion:(nullable FIRSendEmailVerificationCallback)
+                                                    completion {
+  [self sendEmailVerificationWithNullableActionCodeSettings:actionCodeSettings
+                                                 completion:completion];
+}
+
+/** @fn sendEmailVerificationWithNullableActionCodeSettings:completion:
+    @brief Initiates email verification for the user.
+
+    @param actionCodeSettings Optionally, a @c FIRActionCodeSettings object containing settings
+        related to the handling action codes.
+ */
+- (void)sendEmailVerificationWithNullableActionCodeSettings:(nullable FIRActionCodeSettings *)
+                                                            actionCodeSettings
+                                                 completion:
+                                                         (nullable FIRSendEmailVerificationCallback)
+                                                            completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                          NSError *_Nullable error) {
@@ -1015,9 +1026,11 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithError(completion, error);
         return;
       }
+      FIRAuthRequestConfiguration *configuration = _auth.requestConfiguration;
       FIRGetOOBConfirmationCodeRequest *request =
           [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:accessToken
-                                                                       APIKey:_APIKey];
+                                                           actionCodeSettings:actionCodeSettings
+                                                         requestConfiguration:configuration];
       [FIRAuthBackend getOOBConfirmationCode:request
                                     callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable
                                                    response,
@@ -1037,15 +1050,15 @@ static void callInMainThreadWithAuthDataResultAndError(
         return;
       }
       FIRDeleteAccountRequest *deleteUserRequest =
-        [[FIRDeleteAccountRequest alloc] initWithAPIKey:_APIKey
-                                                localID:_userID
-                                            accessToken:accessToken];
+        [[FIRDeleteAccountRequest alloc] initWitLocalID:_userID
+                                            accessToken:accessToken
+                                   requestConfiguration:_auth.requestConfiguration];
       [FIRAuthBackend deleteAccount:deleteUserRequest callback:^(NSError *_Nullable error) {
         if (error) {
           callInMainThreadWithError(completion, error);
           return;
         }
-        if (![[FIRAuth auth] signOutByForceWithUserID:_userID error:&error]) {
+        if (![_auth signOutByForceWithUserID:_userID error:&error]) {
           callInMainThreadWithError(completion, error);
           return;
         }

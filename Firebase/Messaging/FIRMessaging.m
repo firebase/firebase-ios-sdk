@@ -187,8 +187,12 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 #pragma mark - Config
 
 - (void)start {
+  // Print the library version for logging.
+  NSString *currentLibraryVersion = FIRMessagingCurrentLibraryVersion();
+  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
+                         @"FIRMessaging library version %@",
+                         currentLibraryVersion);
 
-  [self saveLibraryVersion];
   [self setupReceiver];
 
   NSString *hostname = kFIRMessagingReachabilityHostname;
@@ -242,14 +246,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
              selector:@selector(applicationStateChanged)
                  name:UIApplicationDidEnterBackgroundNotification
                object:nil];
-}
-
-- (void)saveLibraryVersion {
-  NSString *currentLibraryVersion = FIRMessagingCurrentLibraryVersion();
-  [[NSUserDefaults standardUserDefaults] setObject:currentLibraryVersion
-                                            forKey:kFIRMessagingLibraryVersion];
-  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging000, @"FIRMessaging library version %@",
-                         currentLibraryVersion);
 }
 
 - (void)setupReceiver {
@@ -545,6 +541,13 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 - (void)updateAutomaticClientConnection {
+  if (![NSThread isMainThread]) {
+    // Call this method from the main thread
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self updateAutomaticClientConnection];
+    });
+    return;
+  }
   BOOL shouldBeConnected = [self shouldBeConnectedAutomatically];
   if (shouldBeConnected && !self.client.isConnected) {
     [self.client connectWithHandler:^(NSError *error) {

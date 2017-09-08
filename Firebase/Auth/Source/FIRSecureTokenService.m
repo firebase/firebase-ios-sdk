@@ -20,6 +20,7 @@
 #import "FIRAuthKeychain.h"
 #import "FIRAuthSerialTaskQueue.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthRequestConfiguration.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 
@@ -49,19 +50,10 @@ static NSString *const kAccessTokenExpirationDateKey = @"accessTokenExpirationDa
 static const NSTimeInterval kFiveMinutes = 5 * 60;
 
 @interface FIRSecureTokenService ()
-/** @fn initWithAPIKey:
-    @brief Creates a @c FIRSecureTokenService without a credential.
-    @param APIKey A Google API key for making STS requests.
- */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FIRSecureTokenService {
-  /** @var _APIKey
-      @brief A Google API key for making Secure Token Service requests.
-   */
-  NSString *_APIKey;
-
   /** @var _taskQueue
       @brief Used to serialize all requests for access tokens.
    */
@@ -79,34 +71,30 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (instancetype)init {
-  [self doesNotRecognizeSelector:_cmd];
-  return nil;
-}
-
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
   self = [super init];
   if (self) {
-    _APIKey = [APIKey copy];
     _taskQueue = [[FIRAuthSerialTaskQueue alloc] init];
   }
   return self;
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                      authorizationCode:(NSString *)authorizationCode {
-  self = [self initWithAPIKey:APIKey];
+- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                           authorizationCode:(NSString *)authorizationCode {
+  self = [self init];
   if (self) {
+    _requestConfiguration = requestConfiguration;
     _authorizationCode = [authorizationCode copy];
   }
   return self;
 }
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                            accessToken:(nullable NSString *)accessToken
-              accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                           refreshToken:(NSString *)refreshToken {
-  self = [self initWithAPIKey:APIKey];
+- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                 accessToken:(nullable NSString *)accessToken
+                   accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                                refreshToken:(NSString *)refreshToken {
+  self = [self init];
   if (self) {
+    _requestConfiguration = requestConfiguration;
     _accessToken = [accessToken copy];
     _accessTokenExpirationDate = [accessTokenExpirationDate copy];
     _refreshToken = [refreshToken copy];
@@ -142,15 +130,14 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *APIKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey];
   NSString *refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kRefreshTokenKey];
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAccessTokenKey];
   NSDate *accessTokenExpirationDate =
       [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAccessTokenExpirationDateKey];
-  if (!APIKey || !refreshToken) {
+  if (!refreshToken) {
     return nil;
   }
-  self = [self initWithAPIKey:APIKey];
+  self = [self init];
   if (self) {
     _refreshToken = refreshToken;
     _accessToken = accessToken;
@@ -160,7 +147,9 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:_APIKey forKey:kAPIKeyCodingKey];
+  // The API key is encoded even it is not used in decoding to be compatible with previous versions
+  // of the library.
+  [aCoder encodeObject:_requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   // Authorization code is not encoded because it is not long-lived.
   [aCoder encodeObject:_refreshToken forKey:kRefreshTokenKey];
   [aCoder encodeObject:_accessToken forKey:kAccessTokenKey];
@@ -184,9 +173,11 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (void)requestAccessToken:(FIRFetchAccessTokenCallback)callback {
   FIRSecureTokenRequest *request;
   if (_refreshToken.length) {
-    request = [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken APIKey:_APIKey];
+    request = [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
+                                               requestConfiguration:_requestConfiguration];
   } else {
-    request = [FIRSecureTokenRequest authCodeRequestWithCode:_authorizationCode APIKey:_APIKey];
+    request = [FIRSecureTokenRequest authCodeRequestWithCode:_authorizationCode
+                                        requestConfiguration:_requestConfiguration];
   }
   [FIRAuthBackend secureToken:request
                      callback:^(FIRSecureTokenResponse *_Nullable response,

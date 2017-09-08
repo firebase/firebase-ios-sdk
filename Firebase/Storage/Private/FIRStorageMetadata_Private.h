@@ -15,6 +15,7 @@
  */
 
 #import "FIRStorageConstants_Private.h"
+#import "FIRStorageMetadata.h"
 
 @class FIRStorageReference;
 
@@ -32,6 +33,25 @@ NS_ASSUME_NONNULL_BEGIN
  * The type of the object, either a "File" or a "Folder".
  */
 @property(readwrite) FIRStorageMetadataType type;
+
+/**
+ * The original metadata representation received from the server or an empty dictionary
+ * if the metadata object was initialized by the user.
+ */
+@property(copy, nonatomic) NSDictionary *initialMetadata;
+
+/**
+ * Recursively removes entries in 'metadata' that are unmodified from 'oldMetadata'.
+ * Adds 'NSNull' for entries that only exist in oldMetadata.
+ */
++ (void)removeMatchingMetadata:(NSMutableDictionary *)metadata
+                   oldMetadata:(NSDictionary *)oldMetadata;
+
+/**
+ * Computes the updates between the state at initialization and the current state.
+ * Returns a dictionary with only the updated data. Removed keys are set to NSNull.
+ */
+- (NSDictionary *)updatedMetadata;
 
 /**
  * Returns an RFC3339 formatted date from a string.

@@ -18,39 +18,27 @@
 
 #import "FIRAuth.h"
 
+@class FIRAuthRequestConfiguration;
+
 #if TARGET_OS_IOS
 @class FIRAuthAPNSTokenManager;
 @class FIRAuthAppCredentialManager;
 @class FIRAuthNotificationManager;
+@class FIRAuthURLPresenter;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @var FIRAuthStateDidChangeInternalNotification
-    @brief The name of the @c NSNotificationCenter notification which is posted when the auth state
-        changes (e.g. a new token has been produced, a user logs in or out). The object parameter of
-        the notification is a dictionary possibly containing the key:
-        @c FIRAuthStateDidChangeInternalNotificationTokenKey (the new access token.) If it does not
-        contain this key it indicates a sign-out event took place.
- */
-extern NSString *const FIRAuthStateDidChangeInternalNotification;
-
-/** @var FIRAuthStateDidChangeInternalNotificationTokenKey
-    @brief A key present in the dictionary object parameter of the
-        @c FIRAuthStateDidChangeInternalNotification notification. The value associated with this
-        key will contain the new access token.
- */
-extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
-
 @interface FIRAuth ()
 
-/** @property APIKey
-    @brief The Google API key.
-    @remarks Needed for calls to identity toolkit and secure token service.
+/** @property requestConfiguration
+    @brief The configuration object comprising of paramters needed to make a request to Firebase
+        Auth's backend.
  */
-@property(nonatomic, copy, readonly) NSString *APIKey;
+@property(nonatomic, copy, readonly) FIRAuthRequestConfiguration *requestConfiguration;
 
 #if TARGET_OS_IOS
+
 /** @property tokenManager
     @brief The manager for APNs tokens used by phone number auth.
  */
@@ -65,7 +53,13 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey;
     @brief The manager for remote notifications used by phone number auth.
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
-#endif
+
+/** @property authURLPresenter
+    @brief An object that takes care of presenting URLs via the auth instance.
+ */
+@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
+
+#endif // TARGET_OS_IOS
 
 /** @fn initWithAPIKey:appName:
     @brief Designated initializer.

@@ -30,6 +30,9 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'Source/**/FIRAuthAPNSTokenManager.[mh]',
     'Source/**/FIRAuthAPNSTokenType.[mh]',
     'Source/**/FIRAuthAPNSToken.[mh]',
+    'Source/**/FIRAuthDefaultUIDelegate.[mh]',
+    'Source/**/FIRAuthUIDelegate.h',
+    'Source/**/FIRAuthURLPresenter.[mh]',
     'Source/**/FIRPhoneAuthCredential.[mh]',
     'Source/**/FIRPhoneAuthProvider.[mh]'
   s.public_header_files = 'Source/Public/*.h'
@@ -40,6 +43,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     '$(inherited) ' + 'FIRAuth_VERSION=' + s.version.to_s +
     ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }
+  s.framework = 'SafariServices'
   s.framework = 'Security'
 #  s.dependency 'FirebaseCommunity/Core'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'

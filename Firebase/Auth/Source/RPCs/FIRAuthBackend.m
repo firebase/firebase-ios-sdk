@@ -18,7 +18,6 @@
 
 #import "FIRAuthBackend.h"
 
-#import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth.h"
@@ -32,6 +31,8 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRGetProjectConfigRequest.h"
+#import "FIRGetProjectConfigResponse.h"
 #import "FIRResetPasswordRequest.h"
 #import "FIRResetPasswordResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
@@ -56,6 +57,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 #if TARGET_OS_IOS
+#import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRPhoneAuthProvider.h"
 #endif
 
@@ -68,6 +70,11 @@ static NSString *const kClientVersionHeader = @"X-Client-Version";
     @brief HTTP header name for iOS bundle ID.
  */
 static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
+
+/** @var kFirebaseLocalHeader
+    @brief HTTP header name for the firebase locale.
+ */
+static NSString *const kFirebaseLocalHeader = @"X-Firebase-Locale";
 
 /** @var kJSONContentType
     @brief The value of the HTTP content-type header for JSON payloads.
@@ -229,6 +236,12 @@ static NSString *const kExpiredActionCodeErrorMessage = @"EXPIRED_OOB_CODE";
  */
 static NSString *const kInvalidActionCodeErrorMessage = @"INVALID_OOB_CODE";
 
+/** @var kMissingEmailErrorMessage
+    @brief This is the error message the server will respond with if the email address is missing
+        during a "send password reset email" attempt.
+ */
+static NSString *const kMissingEmailErrorMessage = @"MISSING_EMAIL";
+
 /** @var kInvalidSenderEmailErrorMessage
     @brief This is the error message the server will respond with if the sender email is invalid
         during a "send password reset email" attempt.
@@ -245,6 +258,36 @@ static NSString *const kInvalidMessagePayloadErrorMessage = @"INVALID_MESSAGE_PA
     @brief This is the error message the server will respond with if the recipient email is invalid.
  */
 static NSString *const kInvalidRecipientEmailErrorMessage = @"INVALID_RECIPIENT_EMAIL";
+
+/** @var kMissingIosBundleIDErrorMessage
+    @brief This is the error message the server will respond with if iOS bundle ID is missing but
+        the iOS App store ID is provided.
+ */
+static NSString *const kMissingIosBundleIDErrorMessage = @"MISSING_IOS_BUNDLE_ID";
+
+/** @var kMissingAndroidPackageNameErrorMessage
+    @brief This is the error message the server will respond with if Android Package Name is missing
+        but the flag indicating the app should be installed is set to true.
+ */
+static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROID_PACKAGE_NAME";
+
+/** @var kUnauthorizedDomainErrorMessage
+    @brief This is the error message the server will respond with if the domain of the continue URL
+        specified is not whitelisted in the firebase console.
+ */
+static NSString *const kUnauthorizedDomainErrorMessage = @"UNAUTHORIZED_DOMAIN";
+
+/** @var kInvalidContinueURIErrorMessage
+    @brief This is the error message the server will respond with if the continue URL provided in
+        the request is invalid.
+ */
+static NSString *const kInvalidContinueURIErrorMessage = @"INVALID_CONTINUE_URI";
+
+/** @var kMissingContinueURIErrorMessage
+    @brief This is the error message the server will respond with if there was no continue URI
+        present in a request that required one.
+ */
+static NSString *const kMissingContinueURIErrorMessage = @"MISSING_CONTINUE_URI";
 
 /** @var kInvalidPhoneNumberErrorMessage
     @brief This is the error message the server will respond with if an incorrectly formatted phone
@@ -270,15 +313,21 @@ static NSString *const kInvalidSessionInfoErrorMessage = @"INVALID_SESSION_INFO"
  */
 static NSString *const kSessionExpiredErrorMessage = @"SESSION_EXPIRED";
 
-/** @var kMissingAppCredentialErrorMessage
+/** @var kMissingAppTokenErrorMessage
     @brief This is the error message the server will respond with if the APNS token is missing in a
         verifyClient request.
  */
-static NSString *const kMissingAppCredentialErrorMessage = @"MISSING_APP_CREDENTIAL";
+static NSString *const kMissingAppTokenErrorMessage = @"MISSING_IOS_APP_TOKEN";
 
 /** @var kMissingAppCredentialErrorMessage
-    @brief This is the error message the server will respond with if the APNS token in a
-        verifyClient request is invalid.
+    @brief This is the error message the server will respond with if the app token is missing in a
+        sendVerificationCode request.
+ */
+static NSString *const kMissingAppCredentialErrorMessage = @"MISSING_APP_CREDENTIAL";
+
+/** @var kInvalidAppCredentialErrorMessage
+    @brief This is the error message the server will respond with if the app credential in a
+        sendVerificationCode request is invalid.
  */
 static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENTIAL";
 
@@ -293,6 +342,12 @@ static NSString *const kQuoutaExceededErrorMessage = @"QUOTA_EXCEEDED";
         app during a phone authentication flow.
  */
 static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
+
+/** @var kCaptchaCheckFailedErrorMessage
+    @brief This is the error message the server will respond with if the reCAPTCHA token provided is
+        invalid.
+ */
+static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
 
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
@@ -343,6 +398,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 + (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   [[self implementation] getAccountInfo:request callback:callback];
+}
+
++ (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback {
+  [[self implementation] getProjectConfig:request callback:callback];
 }
 
 + (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
@@ -405,6 +465,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] resetPassword:request callback:callback];
 }
 
++ (NSString *)authUserAgent {
+  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
+      FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+}
+
 @end
 
 @interface FIRAuthBackendRPCIssuerImplementation : NSObject <FIRAuthBackendRPCIssuer>
@@ -420,17 +485,18 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   self = [super init];
   if (self) {
     _fetcherService = [[GTMSessionFetcherService alloc] init];
-    _fetcherService.userAgent = [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
-        FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+    _fetcherService.userAgent = [FIRAuthBackend authUserAgent];
     _fetcherService.callbackQueue = FIRAuthGlobalWorkQueue();
   }
   return self;
 }
 
-- (void)asyncPostToURL:(NSURL *)URL
-                  body:(NSData *)body
-           contentType:(NSString *)contentType
-     completionHandler:(void (^)(NSData *_Nullable, NSError *_Nullable))handler {
+- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                           URL:(NSURL *)URL
+                                          body:(NSData *)body
+                                   contentType:(NSString *)contentType
+                             completionHandler:(void (^)(NSData *_Nullable,
+                               NSError *_Nullable))handler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
   NSString *clientVersion =
@@ -444,7 +510,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     NSString *acceptLanguage = preferredLocalizations.firstObject;
     [request setValue:acceptLanguage forHTTPHeaderField:@"Accept-Language"];
   }
-
+  NSString *languageCode = requestConfiguration.languageCode;
+  if (languageCode.length) {
+    [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
+  }
   GTMSessionFetcher* fetcher = [_fetcherService fetcherWithRequest:request];
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
@@ -477,6 +546,18 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   FIRGetAccountInfoResponse *response = [[FIRGetAccountInfoResponse alloc] init];
+  [self postWithRequest:request response:response callback:^(NSError *error) {
+    if (error) {
+      callback(nil, error);
+    } else {
+      callback(response, nil);
+    }
+  }];
+}
+
+- (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback {
+  FIRGetProjectConfigResponse *response = [[FIRGetProjectConfigResponse alloc] init];
   [self postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);
@@ -655,39 +736,43 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                response:(id<FIRAuthRPCResponse>)response
                callback:(void (^)(NSError *error))callback {
   NSError *error;
-  id postBody = [request unencodedHTTPRequestBodyWithError:&error];
-  if (!postBody) {
-    callback([FIRAuthErrorUtils RPCRequestEncodingErrorWithUnderlyingError:error]);
-    return;
-  }
-  NSJSONWritingOptions JSONWritingOptions = 0;
-  #if DEBUG
-    JSONWritingOptions |= NSJSONWritingPrettyPrinted;
-  #endif
-
   NSData *bodyData;
-  if ([NSJSONSerialization isValidJSONObject:postBody]) {
-    bodyData = [NSJSONSerialization dataWithJSONObject:postBody
-                                               options:JSONWritingOptions
-                                                 error:&error];
-    if (!bodyData) {
-      // This is an untested case. This happens exclusively when there is an error in the framework
-      // implementation of dataWithJSONObject:options:error:. This shouldn't normally occur as
-      // isValidJSONObject: should return NO in any case we should encounter an error.
-      error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:error];
+  if ([request containsPostBody]) {
+    id postBody = [request unencodedHTTPRequestBodyWithError:&error];
+    if (!postBody) {
+      callback([FIRAuthErrorUtils RPCRequestEncodingErrorWithUnderlyingError:error]);
+      return;
     }
-  } else {
-    error = [FIRAuthErrorUtils JSONSerializationErrorForUnencodableType];
-  }
-  if (!bodyData) {
-    callback(error);
-    return;
+
+    NSJSONWritingOptions JSONWritingOptions = 0;
+    #if DEBUG
+      JSONWritingOptions |= NSJSONWritingPrettyPrinted;
+    #endif
+
+    if ([NSJSONSerialization isValidJSONObject:postBody]) {
+      bodyData = [NSJSONSerialization dataWithJSONObject:postBody
+                                                 options:JSONWritingOptions
+                                                   error:&error];
+      if (!bodyData) {
+        // This is an untested case. This happens exclusively when there is an error in the framework
+        // implementation of dataWithJSONObject:options:error:. This shouldn't normally occur as
+        // isValidJSONObject: should return NO in any case we should encounter an error.
+        error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:error];
+      }
+    } else {
+      error = [FIRAuthErrorUtils JSONSerializationErrorForUnencodableType];
+    }
+    if (!bodyData) {
+      callback(error);
+      return;
+    }
   }
 
-  [_RPCIssuer asyncPostToURL:[request requestURL]
-                        body:bodyData
-                 contentType:kJSONContentType
-           completionHandler:^(NSData *data, NSError *error) {
+  [_RPCIssuer asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
+                                                 URL:[request requestURL]
+                                                body:bodyData
+                                         contentType:kJSONContentType
+                                   completionHandler:^(NSData *data, NSError *error) {
     // If there is an error with no body data at all, then this must be a network error.
     if (error && !data) {
       callback([FIRAuthErrorUtils networkErrorWithUnderlyingError:error]);
@@ -889,6 +974,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return [FIRAuthErrorUtils invalidActionCodeErrorWithMessage:serverDetailErrorMessage];
   }
 
+  if ([shortErrorMessage isEqualToString:kMissingEmailErrorMessage]) {
+    return [FIRAuthErrorUtils missingEmailErrorWithMessage:serverDetailErrorMessage];
+  }
+
   if ([shortErrorMessage isEqualToString:kInvalidSenderEmailErrorMessage]) {
     return [FIRAuthErrorUtils invalidSenderErrorWithMessage:serverDetailErrorMessage];
   }
@@ -899,6 +988,26 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kInvalidRecipientEmailErrorMessage]) {
     return [FIRAuthErrorUtils invalidRecipientEmailErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingIosBundleIDErrorMessage]) {
+    return [FIRAuthErrorUtils missingIosBundleIDErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingAndroidPackageNameErrorMessage]) {
+    return [FIRAuthErrorUtils missingAndroidPackageNameErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnauthorizedDomainErrorMessage]) {
+    return [FIRAuthErrorUtils unauthorizedDomainErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kInvalidContinueURIErrorMessage]) {
+    return [FIRAuthErrorUtils invalidContinueURIErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingContinueURIErrorMessage]) {
+    return [FIRAuthErrorUtils missingContinueURIErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidPhoneNumberErrorMessage]) {
@@ -917,6 +1026,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return [FIRAuthErrorUtils sessionExpiredErrorWithMessage:serverDetailErrorMessage];
   }
 
+  if ([shortErrorMessage isEqualToString:kMissingAppTokenErrorMessage]) {
+    return [FIRAuthErrorUtils missingAppTokenErrorWithUnderlyingError:nil];
+  }
+
   if ([shortErrorMessage isEqualToString:kMissingAppCredentialErrorMessage]) {
     return [FIRAuthErrorUtils missingAppCredentialWithMessage:serverDetailErrorMessage];
   }
@@ -931,6 +1044,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage]) {
     return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kCaptchaCheckFailedErrorMessage]) {
+    return [FIRAuthErrorUtils captchaCheckFailedErrorWithMessage:serverErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

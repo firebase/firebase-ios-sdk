@@ -42,8 +42,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncViaMCSKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncMessageTTLKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageLinkKey;
 
-FOUNDATION_EXPORT NSString *const kFIRMessagingLibraryVersion;
-
 FOUNDATION_EXPORT NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey;
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingApplicationSupportSubDirectory;

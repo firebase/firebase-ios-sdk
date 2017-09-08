@@ -45,14 +45,6 @@
   return result;
 }
 
-+ (NSSet *)relevantBundleIdentifiers {
-  NSMutableSet *result = [[NSMutableSet alloc] init];
-  for (NSBundle *bundle in [[self class] relevantBundles]) {
-    [result addObject:[bundle bundleIdentifier]];
-  }
-  return result;
-}
-
 + (BOOL)hasBundleIdentifier:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles {
   for (NSBundle *bundle in bundles) {
     if ([bundle.bundleIdentifier isEqualToString:bundleIdentifier]) {

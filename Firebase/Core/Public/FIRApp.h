@@ -75,8 +75,10 @@ FIR_SWIFT_NAME(FirebaseApp)
                Letters, Numbers and Underscore.
  * @param options The Firebase application options used to configure the services.
  */
-+ (void)configureWithName:(NSString *)name options:(FIROptions *)options
-    FIR_SWIFT_NAME(configure(name:options:));
+// clang-format off
++ (void)configureWithName:(NSString *)name
+                  options:(FIROptions *)options FIR_SWIFT_NAME(configure(name:options:));
+// clang-format on
 
 /**
  * Returns the default app, or nil if the default app does not exist.
@@ -94,13 +96,13 @@ FIR_SWIFT_NAME(FirebaseApp)
  * Returns the set of all extant FIRApp instances, or nil if there are no FIRApp instances. This
  * method is thread safe.
  */
-@property(class, readonly, nullable) NSDictionary <NSString *, FIRApp *> *allApps;
+@property(class, readonly, nullable) NSDictionary<NSString *, FIRApp *> *allApps;
 #else
 /**
  * Returns the set of all extant FIRApp instances, or nil if there are no FIRApp instances. This
  * method is thread safe.
  */
-+ (nullable NSDictionary <NSString *, FIRApp *> *)allApps FIR_SWIFT_NAME(allApps());
++ (nullable NSDictionary<NSString *, FIRApp *> *)allApps FIR_SWIFT_NAME(allApps());
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /**

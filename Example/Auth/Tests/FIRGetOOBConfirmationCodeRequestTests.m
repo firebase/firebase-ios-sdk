@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRActionCodeSettings.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
@@ -68,17 +69,74 @@ static NSString *const kAccessTokenKey = @"idToken";
  */
 static NSString *const kTestAccessToken = @"ACCESS_TOKEN";
 
+/** @var kIosBundleID
+    @brief Fake iOS bundle ID for testing.
+ */
+static NSString *const kIosBundleID = @"testBundleID";
+
+/** @var kAndroidPackageName
+    @brief Fake android package name for testing.
+ */
+static NSString *const kAndroidPackageName = @"adroidpackagename";
+
+/** @var kContinueURL
+    @brief Fake string value of continue url.
+ */
+static NSString *const kContinueURL = @"continueURL";
+
+/** @var kAndroidMinimumVersion
+    @brief Fake android minimum version for testing.
+ */
+static NSString *const kAndroidMinimumVersion = @"3.0";
+
+/** @var kContinueURLKey
+    @brief The key for the "continue URL" value in the request.
+ */
+static NSString *const kContinueURLKey = @"continueUrl";
+
+/** @var kIosBundeIDKey
+    @brief The key for the "iOS Bundle Identifier" value in the request.
+ */
+static NSString *const kIosBundleIDKey = @"iOSBundleId";
+
+/** @var kAndroidPackageNameKey
+    @brief The key for the "Android Package Name" value in the request.
+ */
+static NSString *const kAndroidPackageNameKey = @"androidPackageName";
+
+/** @var kAndroidInstallAppKey
+    @brief The key for the request parameter indicating whether the android app should be installed
+        or not.
+ */
+static NSString *const kAndroidInstallAppKey = @"androidInstallApp";
+
+/** @var kAndroidMinimumVersionKey
+    @brief The key for the "minimum Android version supported" value in the request.
+ */
+static NSString *const kAndroidMinimumVersionKey = @"androidMinimumVersion";
+
+/** @var kCanHandleCodeInAppKey
+    @brief The key for the request parameter indicating whether the action code can be handled in
+        the app or not.
+ */
+static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
+
 /** @class FIRGetOOBConfirmationCodeRequestTests
     @brief Tests for @c FIRGetOOBConfirmationCodeRequest.
  */
 @interface FIRGetOOBConfirmationCodeRequestTests : XCTestCase
 @end
 @implementation FIRGetOOBConfirmationCodeRequestTests {
-  /** @var _RPCIssuer
+   /** @var _RPCIssuer
       @brief This backend RPC issuer is used to fake network responses for each test in the suite.
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -86,9 +144,11 @@ static NSString *const kTestAccessToken = @"ACCESS_TOKEN";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
+  _requestConfiguration = nil;
   _RPCIssuer = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
@@ -100,7 +160,8 @@ static NSString *const kTestAccessToken = @"ACCESS_TOKEN";
 - (void)testPasswordResetRequest {
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
-                                                               APIKey:kTestAPIKey];
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
+                                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -118,15 +179,26 @@ static NSString *const kTestAccessToken = @"ACCESS_TOKEN";
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kPasswordResetRequestTypeValue);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
+                        kAndroidMinimumVersion);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidInstallAppKey],
+                        [NSNumber numberWithBool:YES]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
+                        [NSNumber numberWithBool:YES]);
 }
 
 /** @fn testEmailVerificationRequest
     @brief Tests the encoding of an email verification request.
  */
 - (void)testEmailVerificationRequest {
+  FIRActionCodeSettings *testSettings = [self fakeActionCodeSettings];
   FIRGetOOBConfirmationCodeRequest *request =
       [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:kTestAccessToken
-                                                                   APIKey:kTestAPIKey];
+                                                       actionCodeSettings:testSettings
+                                                     requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
@@ -144,6 +216,32 @@ static NSString *const kTestAccessToken = @"ACCESS_TOKEN";
   XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAccessTokenKey], kTestAccessToken);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kVerifyEmailRequestTypeValue);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
+                        kAndroidMinimumVersion);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidInstallAppKey],
+                        [NSNumber numberWithBool:YES]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
+                        [NSNumber numberWithBool:YES]);
+}
+
+#pragma mark - Helpers
+
+/** @fn fakeActionCodeSettings
+    @brief Constructs and returns a fake instance of @c FIRActionCodeSettings for testing.
+    @return An instance of @c FIRActionCodeSettings for testing.
+ */
+- (FIRActionCodeSettings *)fakeActionCodeSettings {
+  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc]init];
+  [actionCodeSettings setIOSBundleID:kIosBundleID];
+  [actionCodeSettings setAndroidPackageName:kAndroidPackageName
+                      installIfNotAvailable:YES
+                             minimumVersion:kAndroidMinimumVersion];
+  actionCodeSettings.handleCodeInApp = YES;
+  actionCodeSettings.URL = [NSURL URLWithString:kContinueURL];
+  return actionCodeSettings;
 }
 
 @end

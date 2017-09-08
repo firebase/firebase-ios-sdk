@@ -19,7 +19,7 @@
  * Regular expression to match the URL scheme for Google sign-in.
  */
 static NSString *const kFIRGoogleSignInURLSchemePattern =
-@"^com\\.googleusercontent\\.apps\\.\\d+-\\w+$";
+    @"^com\\.googleusercontent\\.apps\\.\\d+-\\w+$";
 
 BOOL fir_areURLSchemesValidForGoogleSignIn(NSArray *urlSchemes) {
   BOOL hasReversedClientID = NO;
@@ -36,8 +36,9 @@ BOOL fir_areURLSchemesValidForGoogleSignIn(NSArray *urlSchemes) {
     return YES;
   }
   if (!hasReversedClientID) {
-    FIRLogInfo(kFIRLoggerCore, @"I-COR000021", @"A reversed client ID should be added as a URL "
-              @"scheme to enable Google sign-in.");
+    FIRLogInfo(kFIRLoggerCore, @"I-COR000021",
+               @"A reversed client ID should be added as a URL "
+               @"scheme to enable Google sign-in.");
   }
   return NO;
 }

@@ -38,7 +38,7 @@ typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullab
 @property(nonatomic, copy, readonly) NSString *rawAccessToken;
 
 /** @property auth
-    @brief A weak reference to a FIRAuth instance which is used to notify auth of token changes.
+    @brief A weak reference to a FIRAuth instance associated with this instance.
  */
 @property(nonatomic, weak) FIRAuth *auth;
 
@@ -47,10 +47,10 @@ typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullab
  */
 @property(nonatomic, copy, readonly) NSDate *accessTokenExpirationDate;
 
-/** @fn retrieveUserWithAPIKey:accessToken:accessTokenExpirationDate:refreshToken:callback:
+/** @fn retrieveUserWithAuth:accessToken:accessTokenExpirationDate:refreshToken:callback:
     @brief Constructs a user with Secure Token Service tokens, and obtains user details from the
         getAccountInfo endpoint.
-    @param APIKey The client API key for making RPCs.
+    @param auth The associated FIRAuth instance.
     @param accessToken The Secure Token Service access token.
     @param accessTokenExpirationDate The approximate expiration date of the access token.
     @param refreshToken The Secure Token Service refresh token.
@@ -58,12 +58,12 @@ typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullab
     @param callback A block which is invoked when the construction succeeds or fails. Invoked
         asynchronously on the auth global work queue in the future.
  */
-+ (void)retrieveUserWithAPIKey:(NSString *)APIKey
-                   accessToken:(NSString *)accessToken
-     accessTokenExpirationDate:(NSDate *)accessTokenExpirationDate
-                  refreshToken:(NSString *)refreshToken
-                     anonymous:(BOOL)anonymous
-                      callback:(FIRRetrieveUserCallback)callback;
++ (void)retrieveUserWithAuth:(FIRAuth *)auth
+                 accessToken:(NSString *)accessToken
+   accessTokenExpirationDate:(NSDate *)accessTokenExpirationDate
+                refreshToken:(NSString *)refreshToken
+                   anonymous:(BOOL)anonymous
+                    callback:(FIRRetrieveUserCallback)callback;
 
 /** @fn internalGetTokenForcingRefresh:callback:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.

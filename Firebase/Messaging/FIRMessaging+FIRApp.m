@@ -44,6 +44,14 @@
 
 + (void)didReceiveConfigureSDKNotification:(NSNotification *)notification {
   NSDictionary *appInfoDict = notification.userInfo;
+  NSNumber *isDefaultApp = appInfoDict[kFIRAppIsDefaultAppKey];
+  if (![isDefaultApp boolValue]) {
+    // Only configure for the default FIRApp.
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
+                            @"Firebase Messaging only works with the default app.");
+    return;
+  }
+
   NSString *appName = appInfoDict[kFIRAppNameKey];
   FIRApp *app = [FIRApp appNamed:appName];
   [[FIRMessaging messaging] configureMessaging:app];

@@ -124,7 +124,7 @@ func buildThin(framework: String, multiplatform: Bool, arch: String, multisdk: B
   if !multiplatform {
     schemeSuffix = ""
   } else if sdk.hasPrefix("mac") {
-    schemeSuffix = "-OSX"
+    schemeSuffix = "-macOS"
   } else if sdk.hasPrefix("iphone") {
     schemeSuffix = "-iOS"
   } else {

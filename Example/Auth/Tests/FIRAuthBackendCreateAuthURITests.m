@@ -68,11 +68,12 @@ static NSString *const kTestProviderID2 = @"facebook.com";
 - (void)testRequestAndResponseEncoding {
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
-
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc] initWithIdentifier:kTestIdentifier
                                               continueURI:kTestContinueURI
-                                                   APIKey:kTestAPIKey];
+                                     requestConfiguration:requestConfiguration];
 
   __block FIRCreateAuthURIResponse *createAuthURIResponse;
   __block NSError *createAuthURIError;

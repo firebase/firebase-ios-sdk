@@ -113,8 +113,9 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
 @implementation FIRSetAccountInfoRequest
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
-  self = [super initWithEndpoint:kSetAccountInfoEndpoint APIKey:APIKey];
+- (nullable instancetype)initWithRequestConfiguration:
+    (FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kSetAccountInfoEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _returnSecureToken = YES;
   }

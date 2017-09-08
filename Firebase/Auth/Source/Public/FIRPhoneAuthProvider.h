@@ -20,6 +20,7 @@
 
 @class FIRAuth;
 @class FIRPhoneAuthCredential;
+@protocol FIRAuthUIDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,8 +58,7 @@ FIR_SWIFT_NAME(PhoneAuthProvider)
 + (instancetype)providerWithAuth:(FIRAuth *)auth FIR_SWIFT_NAME(provider(auth:));
 
 /** @fn verifyPhoneNumber:completion:
-    @brief Starts the phone number authentication flow by sending a verifcation code to the
-        specified phone number.
+    @brief Please use @c verifyPhoneNumber:UIDelegate:completion: instead.
 
     @param phoneNumber The phone number to be verified.
     @param completion The callback to be invoked when the verification flow is finished.
@@ -83,6 +83,30 @@ FIR_SWIFT_NAME(PhoneAuthProvider)
     </ul>
  */
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
+               completion:(nullable FIRVerificationResultCallback)completion
+    __attribute__((deprecated));
+
+/** @fn verifyPhoneNumber:UIDelegate:completion:
+    @brief Starts the phone number authentication flow by sending a verifcation code to the
+        specified phone number.
+    @param phoneNumber The phone number to be verified.
+    @param UIDelegate An object used to present the SFSafariViewController. The object is retained
+        by this method until the completion block is executed.
+    @param completion The callback to be invoked when the verification flow is finished.
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeCaptchaCheckFailed - Indicates that the reCAPTCHA token obtained by
+            the Firebase Auth is invalid or has expired.</li>
+        <li>@c FIRAuthErrorCodeQuotaExceeded - Indicates that the phone verification quota for this
+            project has been exceeded.</li>
+        <li>@c FIRAuthErrorCodeInvalidPhoneNumber - Indicates that the phone number provided is
+            invalid.</li>
+        <li>@c FIRAuthErrorCodeMissingPhoneNumber - Indicates that a phone number was not provided.
+        </li>
+    </ul>
+ */
+- (void)verifyPhoneNumber:(NSString *)phoneNumber
+               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                completion:(nullable FIRVerificationResultCallback)completion;
 
 /** @fn credentialWithVerificationID:verificationCode:

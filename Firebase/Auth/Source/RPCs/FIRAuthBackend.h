@@ -16,10 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;
 @class FIRCreateAuthURIResponse;
 @class FIRGetAccountInfoRequest;
 @class FIRGetAccountInfoResponse;
+@class FIRGetProjectConfigRequest;
+@class FIRGetProjectConfigResponse;
 @class FIRGetOOBConfirmationCodeRequest;
 @class FIRGetOOBConfirmationCodeResponse;
 @class FIRResetPasswordRequest;
@@ -77,6 +80,16 @@ typedef void (^FIRCreateAuthURIResponseCallback)
  */
 typedef void (^FIRGetAccountInfoResponseCallback)
     (FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error);
+
+/** @typedef FIRGetProjectConfigResponseCallback
+    @brief The type of block used to return the result of a call to the getProjectInfo
+        endpoint.
+    @param response The received response, if any.
+    @param error The error which occurred, if any.
+    @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRGetProjectConfigResponseCallback)
+    (FIRGetProjectConfigResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRSetAccountInfoResponseCallback
     @brief The type of block used to return the result of a call to the setAccountInfo
@@ -197,6 +210,12 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 @interface FIRAuthBackend : NSObject
 
+/** @fn authUserAgent
+    @brief Retrieves the Firebase Auth user agent.
+    @return The Firebase Auth user agent.
+ */
++ (NSString *)authUserAgent;
+
 /** @fn setBackendImplementation:
     @brief Changes the default backend implementation to something else.
     @param backendImplementation The backend implementation to use.
@@ -231,6 +250,15 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 + (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback;
+
+/** @fn getProjectConfig:callback:
+    @brief Calls the getProjectConfig endpoint, which returns configuration information for a given
+        project.
+    @param request An object wrapping the backend get request.
+    @param callback The callback.
+ */
++ (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback;
 
 /** @fn setAccountInfo:callback:
     @brief Calls the setAccountInfo endpoint, which is responsible for setting account info for a
@@ -348,18 +376,20 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 @protocol FIRAuthBackendRPCIssuer <NSObject>
 
-/** @fn asyncPostToURL:body:contentType:completionHandler:
-    @brief Asynchronously sends a POST request.
-    @param URL URL of the request.
+/** @fn asyncPostToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
+    @brief Asynchronously seXnds a POST request.
+    @param requestConfiguration The request to be made.
+    @param URL The request URL.
     @param body Request body.
     @param contentType Content type of the body.
     @param handler provided that handles POST response. Invoked asynchronously on the auth global
         work queue in the future.
  */
-- (void)asyncPostToURL:(NSURL *)URL
-                  body:(NSData *)body
-           contentType:(NSString *)contentType
-     completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler;
+- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                           URL:(NSURL *)URL
+                                          body:(NSData *)body
+                                   contentType:(NSString *)contentType
+                             completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler;
 
 @end
 
@@ -385,6 +415,15 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 - (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback;
+
+/** @fn getProjectConfig:callback:
+    @brief Calls the getProjectInfo endpoint, which returns configuration information for a given
+        project.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
+                callback:(FIRGetProjectConfigResponseCallback)callback;
 
 /** @fn setAccountInfo:callback:
     @brief Calls the setAccountInfo endpoint, which is responsible for setting account info for a

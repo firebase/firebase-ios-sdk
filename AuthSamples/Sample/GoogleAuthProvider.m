@@ -18,6 +18,7 @@
 
 #import <GoogleSignIn/GoogleSignIn.h>
 
+#import "AppManager.h"
 #import "FIRApp.h"
 #import "FIROptions.h"
 #import "FIRGoogleAuthProvider.h"
@@ -123,7 +124,7 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
 }
 
 - (NSString *)googleClientID {
-  return [FIRApp defaultApp].options.clientID;
+  return [AppManager app].options.clientID;
 }
 
 @end

@@ -16,8 +16,8 @@
 
 @import Foundation;
 
-#import "FIRNetworkMessageCode.h"
 #import "FIRLoggerLevel.h"
+#import "FIRNetworkMessageCode.h"
 
 /// The log levels used by FIRNetworkLogger.
 typedef NS_ENUM(NSInteger, FIRNetworkLogLevel) {
@@ -27,7 +27,7 @@ typedef NS_ENUM(NSInteger, FIRNetworkLogLevel) {
   kFIRNetworkLogLevelDebug = FIRLoggerLevelDebug,
 };
 
-@protocol FIRNetworkLoggerDelegate<NSObject>
+@protocol FIRNetworkLoggerDelegate <NSObject>
 
 @required
 /// Tells the delegate to log a message with an array of contexts and the log level.

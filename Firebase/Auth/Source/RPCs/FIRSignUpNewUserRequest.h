@@ -44,23 +44,28 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign) BOOL returnSecureToken;
 
-/** @fn initWithEndpoint:APIKey:
-    @brief Please use initWithEmail:password:APIKey:
+/** @fn initWithEndpoint:requestConfiguration:
+    @brief Please use initWithAPIKey:email:password:displayName:requestConfiguration instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                                   APIKey:(NSString *)APIKey NS_UNAVAILABLE;
-/** @fn initWithAPIKey:
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                         NS_UNAVAILABLE;
+
+/** @fn initWithEndpoint:requestConfiguration:
     @brief initializer for anonymous sign-in.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey;
+- (nullable instancetype)initWithRequestConfiguration:
+    (FIRAuthRequestConfiguration *)requestConfiguration;
 
-/** @fn initWithAPIKey:email:password:
+/** @fn initWithAPIKey:email:password:displayName:requestConfiguration
     @brief Designated initializer.
+    @param requestConfiguration An object containing configurations to be added to the request.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                  email:(nullable NSString *)email
-                               password:(nullable NSString *)password
-                            displayName:(nullable NSString *)displayName NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithEmail:(nullable NSString *)email
+                              password:(nullable NSString *)password
+                           displayName:(nullable NSString *)displayName
+                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                      NS_DESIGNATED_INITIALIZER;
 
 @end
 

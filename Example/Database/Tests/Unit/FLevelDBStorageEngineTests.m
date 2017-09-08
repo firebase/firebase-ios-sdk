@@ -70,6 +70,16 @@
 #define MERGE_RECORD(__path, __merge, __writeId) \
     ([[FWriteRecord alloc] initWithPath:[FPath pathWithString:__path] merge:__merge writeId:__writeId])
 
+- (void)testRecocversFromBadCache {
+    NSString *dbPath = @"corrupted-db";
+    NSString *serverData = [[FLevelDBStorageEngine firebaseDir] stringByAppendingPathComponent:@"corrupted-db/server_data/CURRENT"];
+    [@"Corrupted" writeToFile:serverData atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    NSString *userData = [[FLevelDBStorageEngine firebaseDir] stringByAppendingPathComponent:@"corrupted-db/writes/CURRENT"];
+    [@"Corrupted" writeToFile:userData atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    FLevelDBStorageEngine *db = [[FLevelDBStorageEngine alloc] initWithPath:dbPath];
+    XCTAssertNotNil(db);
+}
+
 - (void)testUserWriteIsPersisted {
     FLevelDBStorageEngine *engine = [self cleanStorageEngine];
     [engine saveUserOverwrite:SAMPLE_NODE atPath:[FPath pathWithString:@"foo/bar"] writeId:1];
@@ -426,6 +436,13 @@
 // Well this is awkward, but NSJSONSerialization fails to deserialize JSON with tiny/huge doubles
 // It is kind of bad we raise "invalid" data, but at least we don't crash *trollface*
 - (void)testExtremeDoublesAsServerCache {
+#ifdef TARGET_OS_IOS
+    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
+        // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
+        return;
+    }
+#endif
+
     FLevelDBStorageEngine *engine = [self cleanStorageEngine];
     [engine updateServerCache:NODE((@{@"works": @"value", @"fails": @(2.225073858507201e-308)})) atPath:PATH(@"foo") merge:NO];
 
@@ -435,6 +452,13 @@
 }
 
 - (void)testExtremeDoublesAsTrackedQuery {
+#ifdef TARGET_OS_IOS
+    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
+        // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
+        return;
+    }
+#endif
+
     FLevelDBStorageEngine *engine = [self cleanStorageEngine];
     id<FNode> tinyDouble = NODE(@(2.225073858507201e-308));
 
@@ -454,6 +478,12 @@
 }
 
 - (void)testExtremeDoublesAsUserWrites {
+#ifdef TARGET_OS_IOS
+    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
+        // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
+        return;
+    }
+#endif
     FLevelDBStorageEngine *engine = [self cleanStorageEngine];
     id<FNode> tinyDouble = NODE(@(2.225073858507201e-308));
 

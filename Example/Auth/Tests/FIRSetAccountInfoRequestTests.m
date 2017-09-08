@@ -190,6 +190,11 @@ static NSString *const kExpectedAPIURL =
           In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
   */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
+
+  /** @var _requestConfiguration
+      @brief This is the request configuration used for testing.
+   */
+  FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 - (void)setUp {
@@ -197,10 +202,12 @@ static NSString *const kExpectedAPIURL =
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
 }
 
 - (void)tearDown {
   _RPCIssuer = nil;
+  _requestConfiguration = nil;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [super tearDown];
 }
@@ -209,7 +216,8 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the set account info request.
  */
 - (void)testSetAccountInfoRequest {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
   request.returnSecureToken = NO;
   [FIRAuthBackend setAccountInfo:request
                          callback:^(FIRSetAccountInfoResponse *_Nullable response,
@@ -240,7 +248,8 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the set account info request with optional fields.
  */
 - (void)testSetAccountInfoRequestOptionalFields {
-  FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc] initWithAPIKey:kTestAPIKey];
+  FIRSetAccountInfoRequest *request =
+      [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:_requestConfiguration];
   request.accessToken = kTestAccessToken;
   request.displayName = kTestDisplayName;
   request.localID = kTestLocalID;

@@ -28,14 +28,17 @@ static NSString *const kFakeErrorDomain = @"fake domain";
   FIRAuthBackendRPCIssuerCompletionHandler _handler;
 }
 
-- (void)asyncPostToURL:(NSURL *)URL
-                  body:(NSData *)body
-           contentType:(NSString *)contentType
-     completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler {
+- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                                           URL:(NSURL *)URL
+                                          body:(NSData *)body
+                                   contentType:(NSString *)contentType
+                             completionHandler:(FIRAuthBackendRPCIssuerCompletionHandler)handler {
   _requestURL = [URL copy];
-  _requestData = body;
-  NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:body options:0 error:nil];
-  _decodedRequest = JSON;
+  if (body) {
+    _requestData = body;
+    NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:body options:0 error:nil];
+    _decodedRequest = JSON;
+  }
   _contentType = contentType;
   _handler = handler;
 }

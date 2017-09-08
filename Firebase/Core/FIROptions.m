@@ -42,7 +42,7 @@ NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 NSString *const kFIRLibraryVersionID =
     @"4"     // Major version (one or more digits)
     @"00"    // Minor version (exactly 2 digits)
-    @"04"    // Build number (exactly 2 digits)
+    @"06"    // Build number (exactly 2 digits)
     @"000";  // Fixed "000"
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
@@ -62,10 +62,15 @@ NSString *const kFIRExceptionBadModification =
 @property(nonatomic, readwrite) NSMutableDictionary *optionsDictionary;
 
 /**
- * Combination of analytics options from both the main plist and the GoogleService-info.plist.
- * Values which are present in the main plist override values from the GoogleService-info.plist.
+ * Combination of analytics options from both the main plist and the GoogleService-Info.plist.
+ * Values which are present in the main plist override values from the GoogleService-Info.plist.
  */
 @property(nonatomic, readonly) NSDictionary *analyticsOptionsDictionary;
+
+/**
+ * Throw exception if editing is locked when attempting to modify an option.
+ */
+- (void)checkEditingLocked;
 
 @end
 
@@ -90,8 +95,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     return nil;
   }
 
-  sDefaultOptions =
-      [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
+  sDefaultOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
   return sDefaultOptions;
 }
 
@@ -107,8 +111,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   }
   sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
   if (sDefaultOptionsDictionary == nil) {
-    FIRLogError(kFIRLoggerCore, @"I-COR000011", @"The configuration file is not a dictionary: "
-                @"'%@.%@'.", kServiceInfoFileName, kServiceInfoFileType);
+    FIRLogError(kFIRLoggerCore, @"I-COR000011",
+                @"The configuration file is not a dictionary: "
+                @"'%@.%@'.",
+                kServiceInfoFileName, kServiceInfoFileType);
   }
   return sDefaultOptionsDictionary;
 }
@@ -204,8 +210,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     }
     _optionsDictionary = [[NSDictionary dictionaryWithContentsOfFile:plistPath] mutableCopy];
     if (_optionsDictionary == nil) {
-      FIRLogError(kFIRLoggerCore, @"I-COR000014", @"The configuration file at %@ does not exist or "
-                  @"is not a well-formed plist file.", plistPath);
+      FIRLogError(kFIRLoggerCore, @"I-COR000014",
+                  @"The configuration file at %@ does not exist or "
+                  @"is not a well-formed plist file.",
+                  plistPath);
       return nil;
     }
     // TODO: Do we want to validate the dictionary here? It says we do that already in
@@ -214,8 +222,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   return self;
 }
 
-- (instancetype)initWithGoogleAppID:(NSString *)googleAppID
-                        GCMSenderID:(NSString *)GCMSenderID {
+- (instancetype)initWithGoogleAppID:(NSString *)googleAppID GCMSenderID:(NSString *)GCMSenderID {
   self = [super init];
   if (self) {
     NSMutableDictionary *mutableOptionsDict = [NSMutableDictionary dictionary];
@@ -231,11 +238,14 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   return self.optionsDictionary[kFIRAPIKey];
 }
 
-- (void)setAPIKey:(NSString *)APIKey {
+- (void)checkEditingLocked {
   if (self.isEditingLocked) {
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
+}
 
+- (void)setAPIKey:(NSString *)APIKey {
+  [self checkEditingLocked];
   _optionsDictionary[kFIRAPIKey] = [APIKey copy];
 }
 
@@ -244,10 +254,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setClientID:(NSString *)clientID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRClientID] = [clientID copy];
 }
 
@@ -256,10 +263,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setTrackingID:(NSString *)trackingID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRTrackingID] = [trackingID copy];
 }
 
@@ -268,10 +272,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setGCMSenderID:(NSString *)GCMSenderID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRGCMSenderID] = [GCMSenderID copy];
 }
 
@@ -280,10 +281,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setProjectID:(NSString *)projectID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRProjectID] = [projectID copy];
 }
 
@@ -292,10 +290,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setAndroidClientID:(NSString *)androidClientID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRAndroidClientID] = [androidClientID copy];
 }
 
@@ -304,10 +299,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setGoogleAppID:(NSString *)googleAppID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRGoogleAppID] = [googleAppID copy];
 }
 
@@ -324,9 +316,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setDatabaseURL:(NSString *)databaseURL {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
+  [self checkEditingLocked];
 
   _optionsDictionary[kFIRDatabaseURL] = [databaseURL copy];
 }
@@ -336,18 +326,12 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setStorageBucket:(NSString *)storageBucket {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
 }
 
 - (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _deepLinkURLScheme = [deepLinkURLScheme copy];
 }
 
@@ -356,10 +340,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setBundleID:(NSString *)bundleID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRBundleID] = [bundleID copy];
 }
 
@@ -369,9 +350,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   dispatch_once(&_createAnalyticsOptionsDictionaryOnce, ^{
     NSMutableDictionary *tempAnalyticsOptions = [[NSMutableDictionary alloc] init];
     NSDictionary *mainInfoDictionary = [NSBundle mainBundle].infoDictionary;
-    NSArray *measurementKeys = @[ kFIRIsMeasurementEnabled,
-                                  kFIRIsAnalyticsCollectionEnabled,
-                                  kFIRIsAnalyticsCollectionDeactivated ];
+    NSArray *measurementKeys = @[
+      kFIRIsMeasurementEnabled, kFIRIsAnalyticsCollectionEnabled,
+      kFIRIsAnalyticsCollectionDeactivated
+    ];
     for (NSString *key in measurementKeys) {
       id value = mainInfoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
       if (!value) {
