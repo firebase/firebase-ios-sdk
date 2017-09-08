@@ -159,7 +159,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
           }
           NSError *reCAPTCHAError;
           NSString *reCAPTCHAToken = [self reCAPTCHATokenForURL:callbackURL error:&reCAPTCHAError];
-          if (reCAPTCHAError) {
+          if (!reCAPTCHAToken) {
             callBackOnMainThread(nil, reCAPTCHAError);
             return;
           }

@@ -474,10 +474,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)appVerificationUserInteractionFailureWithReason:(nullable NSString *)reason;
 
-/** @fn reCAPTCHAResponseErrorWithCode:message:
+/** @fn URLResponseErrorWithCode:message:
     @brief Constructs an @c NSError with the code and message provided.
     @param message Error message from the backend, if any.
-    @return The NSError instance associated with the given FIRAuthError.
+    @return The nullable NSError instance associated with the given error message, if one is found.
  */
 + (NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message;
 
