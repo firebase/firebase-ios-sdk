@@ -67,6 +67,11 @@ NSString *const kFIRExceptionBadModification =
  */
 @property(nonatomic, readonly) NSDictionary *analyticsOptionsDictionary;
 
+/**
+ * Throw exception if editing is locked when attempting to modify an option.
+ */
+- (void)checkEditingLocked;
+
 @end
 
 @implementation FIROptions {
@@ -233,11 +238,14 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   return self.optionsDictionary[kFIRAPIKey];
 }
 
-- (void)setAPIKey:(NSString *)APIKey {
+- (void)checkEditingLocked {
   if (self.isEditingLocked) {
     [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
   }
+}
 
+- (void)setAPIKey:(NSString *)APIKey {
+  [self checkEditingLocked];
   _optionsDictionary[kFIRAPIKey] = [APIKey copy];
 }
 
@@ -246,10 +254,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setClientID:(NSString *)clientID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRClientID] = [clientID copy];
 }
 
@@ -258,10 +263,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setTrackingID:(NSString *)trackingID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRTrackingID] = [trackingID copy];
 }
 
@@ -270,10 +272,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setGCMSenderID:(NSString *)GCMSenderID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRGCMSenderID] = [GCMSenderID copy];
 }
 
@@ -282,10 +281,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setProjectID:(NSString *)projectID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRProjectID] = [projectID copy];
 }
 
@@ -294,10 +290,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setAndroidClientID:(NSString *)androidClientID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRAndroidClientID] = [androidClientID copy];
 }
 
@@ -306,10 +299,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setGoogleAppID:(NSString *)googleAppID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRGoogleAppID] = [googleAppID copy];
 }
 
@@ -326,9 +316,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setDatabaseURL:(NSString *)databaseURL {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
+  [self checkEditingLocked];
 
   _optionsDictionary[kFIRDatabaseURL] = [databaseURL copy];
 }
@@ -338,18 +326,12 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setStorageBucket:(NSString *)storageBucket {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
 }
 
 - (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _deepLinkURLScheme = [deepLinkURLScheme copy];
 }
 
@@ -358,10 +340,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setBundleID:(NSString *)bundleID {
-  if (self.isEditingLocked) {
-    [NSException raise:kFirebaseCoreErrorDomain format:kFIRExceptionBadModification];
-  }
-
+  [self checkEditingLocked];
   _optionsDictionary[kFIRBundleID] = [bundleID copy];
 }
 
