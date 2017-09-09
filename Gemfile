@@ -1,3 +1,4 @@
+# use 'bundle update' to update to latest gems
 source 'https://rubygems.org'
 
 gem 'cocoapods', :git => 'https://github.com/CocoaPods/CocoaPods.git'
