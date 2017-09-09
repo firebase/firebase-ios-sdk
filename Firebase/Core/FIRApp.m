@@ -158,11 +158,10 @@ static FIRApp *sDefaultApp;
   if ([name isEqualToString:kFIRDefaultAppName]) {
     [NSException raise:kFirebaseCoreErrorDomain format:@"Name cannot be __FIRAPP_DEFAULT."];
   }
-  NSString *lowerCaseName = [name lowercaseString];
-  for (NSInteger charIndex = 0; charIndex < lowerCaseName.length; charIndex++) {
-    char character = [lowerCaseName characterAtIndex:charIndex];
-    if (!((character >= 'a' && character <= 'z') || (character >= '0' && character <= '9') ||
-          character == '_' || character == '-')) {
+  for (NSInteger charIndex = 0; charIndex < name.length; charIndex++) {
+    char character = [name characterAtIndex:charIndex];
+    if (!((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') ||
+          (character >= '0' && character <= '9') || character == '_' || character == '-')) {
       [NSException raise:kFirebaseCoreErrorDomain
                   format:
                       @"App name should only contain Letters, "
