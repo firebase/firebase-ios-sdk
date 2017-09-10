@@ -22,7 +22,8 @@
 
 @interface FIRDatabase ()
 
-+ (NSString *) buildVersion;
-+ (FIRDatabase *) createDatabaseForTests:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config;
++ (NSString *)buildVersion;
++ (FIRDatabase *)createDatabaseForTests:(FRepoInfo *)repoInfo
+                                 config:(FIRDatabaseConfig *)config;
 
 @end

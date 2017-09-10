@@ -27,8 +27,8 @@ typedef NS_ENUM(NSInteger, FOperationType) {
 };
 
 @protocol FOperation <NSObject>
-@property (nonatomic, strong, readonly) FOperationSource *source;
-@property (nonatomic, readonly) FOperationType type;
-@property (nonatomic, strong, readonly) FPath *path;
-- (id<FOperation>) operationForChild:(NSString *)childKey;
+@property(nonatomic, strong, readonly) FOperationSource *source;
+@property(nonatomic, readonly) FOperationType type;
+@property(nonatomic, strong, readonly) FPath *path;
+- (id<FOperation>)operationForChild:(NSString *)childKey;
 @end

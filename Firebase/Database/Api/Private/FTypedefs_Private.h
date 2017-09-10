@@ -20,12 +20,12 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, FTransactionStatus) {
-    FTransactionInitializing,       // 0
-    FTransactionRun,                // 1
-    FTransactionSent,               // 2
-    FTransactionCompleted,          // 3
-    FTransactionSentNeedsAbort,     // 4
-    FTransactionNeedsAbort          // 5
+    FTransactionInitializing,   // 0
+    FTransactionRun,            // 1
+    FTransactionSent,           // 2
+    FTransactionCompleted,      // 3
+    FTransactionSentNeedsAbort, // 4
+    FTransactionNeedsAbort      // 5
 };
 
 @protocol FNode;
@@ -35,22 +35,26 @@ typedef NS_ENUM(NSInteger, FTransactionStatus) {
 @class FIRDataSnapshot;
 @class FCompoundHash;
 
-typedef void (^fbt_void_nserror_bool_datasnapshot) (NSError* error, BOOL committed, FIRDataSnapshot * snapshot);
-typedef FIRTransactionResult * (^fbt_transactionresult_mutabledata) (FIRMutableData * currentData);
-typedef void (^fbt_void_path_node) (FPath*, id<FNode>);
-typedef void (^fbt_void_nsstring) (NSString *);
-typedef BOOL (^fbt_bool_nsstring_node) (NSString *, id<FNode>);
-typedef void (^fbt_void_path_node_marray) (FPath *, id<FNode>, NSMutableArray *);
-typedef BOOL (^fbt_bool_void) (void);
-typedef void (^fbt_void_nsstring_nsstring)(NSString *str1, NSString* str2);
-typedef void (^fbt_void_nsstring_nserror)(NSString *str, NSError* error);
+typedef void (^fbt_void_nserror_bool_datasnapshot)(NSError *error,
+                                                   BOOL committed,
+                                                   FIRDataSnapshot *snapshot);
+typedef FIRTransactionResult * (^fbt_transactionresult_mutabledata)(
+    FIRMutableData *currentData);
+typedef void (^fbt_void_path_node)(FPath *, id<FNode>);
+typedef void (^fbt_void_nsstring)(NSString *);
+typedef BOOL (^fbt_bool_nsstring_node)(NSString *, id<FNode>);
+typedef void (^fbt_void_path_node_marray)(FPath *, id<FNode>, NSMutableArray *);
+typedef BOOL (^fbt_bool_void)(void);
+typedef void (^fbt_void_nsstring_nsstring)(NSString *str1, NSString *str2);
+typedef void (^fbt_void_nsstring_nserror)(NSString *str, NSError *error);
 typedef BOOL (^fbt_bool_path)(FPath *str);
 typedef void (^fbt_void_id)(id data);
-typedef NSString* (^fbt_nsstring_void) (void);
-typedef FCompoundHash* (^fbt_compoundhash_void) (void);
-typedef NSArray* (^fbt_nsarray_nsstring_id)(NSString *status, id Data);
-typedef NSArray* (^fbt_nsarray_nsstring)(NSString *status);
+typedef NSString * (^fbt_nsstring_void)(void);
+typedef FCompoundHash * (^fbt_compoundhash_void)(void);
+typedef NSArray * (^fbt_nsarray_nsstring_id)(NSString *status, id Data);
+typedef NSArray * (^fbt_nsarray_nsstring)(NSString *status);
 
-// WWDC 2012 session 712 starting in page 83 for saving blocks in properties (use @property (strong) type name).
+// WWDC 2012 session 712 starting in page 83 for saving blocks in properties
+// (use @property (strong) type name).
 
 #endif

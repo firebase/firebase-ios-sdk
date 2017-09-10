@@ -15,29 +15,32 @@
  */
 
 #import "FCompoundHash.h"
-#import "FLeafNode.h"
-#import "FStringUtilities.h"
-#import "FSnapshotUtilities.h"
 #import "FChildrenNode.h"
+#import "FLeafNode.h"
+#import "FSnapshotUtilities.h"
+#import "FStringUtilities.h"
 
 @interface FCompoundHashBuilder ()
 
-@property (nonatomic, strong) FCompoundHashSplitStrategy splitStrategy;
+@property(nonatomic, strong) FCompoundHashSplitStrategy splitStrategy;
 
-@property (nonatomic, strong) NSMutableArray *currentPaths;
-@property (nonatomic, strong) NSMutableArray *currentHashes;
+@property(nonatomic, strong) NSMutableArray *currentPaths;
+@property(nonatomic, strong) NSMutableArray *currentHashes;
 
 @end
 
 @implementation FCompoundHashBuilder {
 
-    // NOTE: We use the existence of this to know if we've started building a range (i.e. encountered a leaf node).
+    // NOTE: We use the existence of this to know if we've started building a
+    // range (i.e. encountered a leaf node).
     NSMutableString *optHashValueBuilder;
 
-    // The current path as a stack. This is used in combination with currentPathDepth to simultaneously store the
-    // last leaf node path. The depth is changed when descending and ascending, at the same time the current key
-    // is set for the current depth. Because the keys are left unchanged for ascending the path will also contain
-    // the path of the last visited leaf node (using lastLeafDepth elements)
+    // The current path as a stack. This is used in combination with
+    // currentPathDepth to simultaneously store the last leaf node path. The
+    // depth is changed when descending and ascending, at the same time the
+    // current key is set for the current depth. Because the keys are left
+    // unchanged for ascending the path will also contain the path of the last
+    // visited leaf node (using lastLeafDepth elements)
     NSMutableArray *currentPath;
     NSInteger lastLeafDepth;
     NSInteger currentPathDepth;
@@ -73,28 +76,34 @@
 }
 
 - (FPath *)currentPathWithDepth:(NSInteger)depth {
-    NSArray *pieces = [self->currentPath subarrayWithRange:NSMakeRange(0, depth)];
+    NSArray *pieces =
+        [self->currentPath subarrayWithRange:NSMakeRange(0, depth)];
     return [[FPath alloc] initWithPieces:pieces andPieceNum:0];
 }
 
-- (void)enumerateCurrentPathToDepth:(NSInteger)depth withBlock:(void (^) (NSString *key))block {
+- (void)enumerateCurrentPathToDepth:(NSInteger)depth
+                          withBlock:(void (^)(NSString *key))block {
     for (NSInteger i = 0; i < depth; i++) {
         block(self->currentPath[i]);
     }
 }
 
 - (void)appendKey:(NSString *)key toString:(NSMutableString *)string {
-    [FSnapshotUtilities appendHashV2RepresentationForString:key toString:string];
+    [FSnapshotUtilities appendHashV2RepresentationForString:key
+                                                   toString:string];
 }
 
 - (void)ensureRange {
     if (![self isBuildingRange]) {
         optHashValueBuilder = [NSMutableString string];
         [optHashValueBuilder appendString:@"("];
-        [self enumerateCurrentPathToDepth:self->currentPathDepth withBlock:^(NSString *key) {
-            [self appendKey:key toString:self->optHashValueBuilder];
-            [self->optHashValueBuilder appendString:@":("];
-        }];
+        [self
+            enumerateCurrentPathToDepth:self->currentPathDepth
+                              withBlock:^(NSString *key) {
+                                [self appendKey:key
+                                       toString:self->optHashValueBuilder];
+                                [self->optHashValueBuilder appendString:@":("];
+                              }];
         self->needsComma = NO;
     }
 }
@@ -103,9 +112,10 @@
     [self ensureRange];
 
     self->lastLeafDepth = self->currentPathDepth;
-    [FSnapshotUtilities appendHashRepresentationForLeafNode:leafNode
-                                                   toString:self->optHashValueBuilder
-                                                hashVersion:FDataHashVersionV2];
+    [FSnapshotUtilities
+        appendHashRepresentationForLeafNode:leafNode
+                                   toString:self->optHashValueBuilder
+                                hashVersion:FDataHashVersionV2];
     self->needsComma = YES;
     if (self.splitStrategy(self)) {
         [self endRange];
@@ -138,17 +148,20 @@
 }
 
 - (void)finishHashing {
-    NSAssert(self->currentPathDepth == 0, @"Can't finish hashing in the middle of processing a child");
-    if ([self isBuildingRange] ) {
+    NSAssert(self->currentPathDepth == 0,
+             @"Can't finish hashing in the middle of processing a child");
+    if ([self isBuildingRange]) {
         [self endRange];
     }
 
-    // Always close with the empty hash for the remaining range to allow simple appending
+    // Always close with the empty hash for the remaining range to allow simple
+    // appending
     [self.currentHashes addObject:@""];
 }
 
 - (void)endRange {
-    NSAssert([self isBuildingRange], @"Can't end range without starting a range!");
+    NSAssert([self isBuildingRange],
+             @"Can't end range without starting a range!");
     // Add closing parenthesis for current depth
     for (NSUInteger i = 0; i < currentPathDepth; i++) {
         [self->optHashValueBuilder appendString:@")"];
@@ -156,7 +169,8 @@
     [self->optHashValueBuilder appendString:@")"];
 
     FPath *lastLeafPath = [self currentPathWithDepth:self->lastLeafDepth];
-    NSString *hash = [FStringUtilities base64EncodedSha1:self->optHashValueBuilder];
+    NSString *hash =
+        [FStringUtilities base64EncodedSha1:self->optHashValueBuilder];
     [self.currentHashes addObject:hash];
     [self.currentPaths addObject:lastLeafPath];
 
@@ -165,11 +179,10 @@
 
 @end
 
-
 @interface FCompoundHash ()
 
-@property (nonatomic, strong, readwrite) NSArray *posts;
-@property (nonatomic, strong, readwrite) NSArray *hashes;
+@property(nonatomic, strong, readwrite) NSArray *posts;
+@property(nonatomic, strong, readwrite) NSArray *hashes;
 
 @end
 
@@ -179,7 +192,9 @@
     self = [super init];
     if (self != nil) {
         if (posts.count != hashes.count - 1) {
-            [NSException raise:NSInvalidArgumentException format:@"Number of posts need to be n-1 for n hashes in FCompoundHash"];
+            [NSException raise:NSInvalidArgumentException
+                        format:@"Number of posts need to be n-1 for n hashes "
+                               @"in FCompoundHash"];
         }
         self.posts = posts;
         self.hashes = hashes;
@@ -188,7 +203,8 @@
 }
 
 + (FCompoundHashSplitStrategy)simpleSizeSplitStrategyForNode:(id<FNode>)node {
-    NSUInteger estimatedSize = [FSnapshotUtilities estimateSerializedNodeSize:node];
+    NSUInteger estimatedSize =
+        [FSnapshotUtilities estimateSerializedNodeSize:node];
 
     // Splits for
     // 1k -> 512 (2 parts)
@@ -199,23 +215,29 @@
     NSUInteger splitThreshold = MAX(512, (NSUInteger)sqrt(estimatedSize * 100));
 
     return ^BOOL(FCompoundHashBuilder *builder) {
-        // Never split on priorities
-        return [builder currentHashLength] > splitThreshold && ![[[builder currentPath] getBack] isEqualToString:@".priority"];
+      // Never split on priorities
+      return [builder currentHashLength] > splitThreshold &&
+             ![[[builder currentPath] getBack] isEqualToString:@".priority"];
     };
 }
 
 + (FCompoundHash *)fromNode:(id<FNode>)node {
-    return [FCompoundHash fromNode:node splitStrategy:[FCompoundHash simpleSizeSplitStrategyForNode:node]];
+    return [FCompoundHash
+             fromNode:node
+        splitStrategy:[FCompoundHash simpleSizeSplitStrategyForNode:node]];
 }
 
-+ (FCompoundHash *)fromNode:(id<FNode>)node splitStrategy:(FCompoundHashSplitStrategy)strategy {
++ (FCompoundHash *)fromNode:(id<FNode>)node
+              splitStrategy:(FCompoundHashSplitStrategy)strategy {
     if ([node isEmpty]) {
-        return [[FCompoundHash alloc] initWithPosts:@[] hashes:@[@""]];
+        return [[FCompoundHash alloc] initWithPosts:@[] hashes:@[ @"" ]];
     } else {
-        FCompoundHashBuilder *builder = [[FCompoundHashBuilder alloc] initWithSplitStrategy:strategy];
+        FCompoundHashBuilder *builder =
+            [[FCompoundHashBuilder alloc] initWithSplitStrategy:strategy];
         [FCompoundHash processNode:node builder:builder];
         [builder finishHashing];
-        return [[FCompoundHash alloc] initWithPosts:builder.currentPaths hashes:builder.currentHashes];
+        return [[FCompoundHash alloc] initWithPosts:builder.currentPaths
+                                             hashes:builder.currentHashes];
     }
 }
 
@@ -225,10 +247,11 @@
     } else {
         NSAssert(![node isEmpty], @"Can't calculate hash on empty node!");
         FChildrenNode *childrenNode = (FChildrenNode *)node;
-        [childrenNode enumerateChildrenAndPriorityUsingBlock:^(NSString *key, id<FNode> node, BOOL *stop) {
-            [builder startChild:key];
-            [self processNode:node builder:builder];
-            [builder endChild];
+        [childrenNode enumerateChildrenAndPriorityUsingBlock:^(
+                          NSString *key, id<FNode> node, BOOL *stop) {
+          [builder startChild:key];
+          [self processNode:node builder:builder];
+          [builder endChild];
         }];
     }
 }

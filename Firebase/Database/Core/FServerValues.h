@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "FSparseSnapshotTree.h"
-#import "FNode.h"
-#import "FCompoundWrite.h"
 #import "FClock.h"
+#import "FCompoundWrite.h"
+#import "FNode.h"
+#import "FSparseSnapshotTree.h"
+#import <Foundation/Foundation.h>
 
 @interface FServerValues : NSObject
 
-+ (NSDictionary*) generateServerValues:(id<FClock>)clock;
-+ (id) resolveDeferredValueCompoundWrite:(FCompoundWrite*)write withServerValues:(NSDictionary*)serverValues;
-+ (id<FNode>) resolveDeferredValueSnapshot:(id<FNode>)node withServerValues:(NSDictionary*)serverValues;
-+ (id) resolveDeferredValueTree:(FSparseSnapshotTree*)tree withServerValues:(NSDictionary*)serverValues;
++ (NSDictionary *)generateServerValues:(id<FClock>)clock;
++ (id)resolveDeferredValueCompoundWrite:(FCompoundWrite *)write
+                       withServerValues:(NSDictionary *)serverValues;
++ (id<FNode>)resolveDeferredValueSnapshot:(id<FNode>)node
+                         withServerValues:(NSDictionary *)serverValues;
++ (id)resolveDeferredValueTree:(FSparseSnapshotTree *)tree
+              withServerValues:(NSDictionary *)serverValues;
 
 @end

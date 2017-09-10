@@ -14,32 +14,42 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "FPath.h"
 #import "FIRDataEventType.h"
 #import "FParsedUrl.h"
+#import "FPath.h"
 #import "FTypedefs.h"
+#import <Foundation/Foundation.h>
 
 @interface FValidation : NSObject
 
-+ (void) validateFrom:(NSString *)fn writablePath:(FPath *)path;
-+ (void) validateFrom:(NSString *)fn knownEventType:(FIRDataEventType)event;
-+ (void) validateFrom:(NSString *)fn validPathString:(NSString *)pathString;
-+ (void) validateFrom:(NSString *)fn validRootPathString:(NSString *)pathString;
-+ (void) validateFrom:(NSString *)fn validKey:(NSString *)key;
-+ (void) validateFrom:(NSString *)fn validURL:(FParsedUrl *)parsedUrl;
++ (void)validateFrom:(NSString *)fn writablePath:(FPath *)path;
++ (void)validateFrom:(NSString *)fn knownEventType:(FIRDataEventType)event;
++ (void)validateFrom:(NSString *)fn validPathString:(NSString *)pathString;
++ (void)validateFrom:(NSString *)fn validRootPathString:(NSString *)pathString;
++ (void)validateFrom:(NSString *)fn validKey:(NSString *)key;
++ (void)validateFrom:(NSString *)fn validURL:(FParsedUrl *)parsedUrl;
 
-+ (void) validateToken:(NSString *)token;
++ (void)validateToken:(NSString *)token;
 
 // Functions for handling passing errors back
-+ (void) handleError:(NSError *)error withUserCallback:(fbt_void_nserror_id)userCallback;
-+ (void) handleError:(NSError *)error withSuccessCallback:(fbt_void_nserror)userCallback;
++ (void)handleError:(NSError *)error
+    withUserCallback:(fbt_void_nserror_id)userCallback;
++ (void)handleError:(NSError *)error
+    withSuccessCallback:(fbt_void_nserror)userCallback;
 
 // Functions used for validating while creating snapshots in FSnapshotUtilities
-+ (BOOL) validateFrom:(NSString*)fn isValidLeafValue:(id)value withPath:(NSArray*)path;
-+ (void) validateFrom:(NSString*)fn validDictionaryKey:(id)keyId withPath:(NSArray*)path;
-+ (void) validateFrom:(NSString*)fn validUpdateDictionaryKey:(id)keyId withValue:(id)value;
-+ (void) validateFrom:(NSString*)fn isValidPriorityValue:(id)value withPath:(NSArray*)path;
-+ (BOOL) validatePriorityValue:value;
++ (BOOL)validateFrom:(NSString *)fn
+    isValidLeafValue:(id)value
+            withPath:(NSArray *)path;
++ (void)validateFrom:(NSString *)fn
+    validDictionaryKey:(id)keyId
+              withPath:(NSArray *)path;
++ (void)validateFrom:(NSString *)fn
+    validUpdateDictionaryKey:(id)keyId
+                   withValue:(id)value;
++ (void)validateFrom:(NSString *)fn
+    isValidPriorityValue:(id)value
+                withPath:(NSArray *)path;
++ (BOOL)validatePriorityValue:value;
 
 @end

@@ -21,7 +21,7 @@
 @synthesize path;
 @synthesize setId;
 
-- (id) initWithSetId:(NSNumber *)aSetId andPath:(FPath *)aPath {
+- (id)initWithSetId:(NSNumber *)aSetId andPath:(FPath *)aPath {
     self = [super init];
     if (self) {
         self.setId = aSetId;

@@ -18,85 +18,95 @@
 #import "FArraySortedDictionary.h"
 #import "FTreeSortedDictionary.h"
 
-#define THROW_ABSTRACT_METHOD_EXCEPTION(sel) do { \
-  @throw [NSException exceptionWithName:NSInternalInconsistencyException \
-  reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(sel)] \
-  userInfo:nil]; \
-} while(0)
+#define THROW_ABSTRACT_METHOD_EXCEPTION(sel)                                   \
+    do {                                                                       \
+        @throw [NSException                                                    \
+            exceptionWithName:NSInternalInconsistencyException                 \
+                       reason:[NSString                                        \
+                                  stringWithFormat:                            \
+                                      @"You must override %@ in a subclass",   \
+                                      NSStringFromSelector(sel)]               \
+                     userInfo:nil];                                            \
+    } while (0)
 
 @implementation FImmutableSortedDictionary
 
-+ (FImmutableSortedDictionary *)dictionaryWithComparator:(NSComparator)comparator
-{
++ (FImmutableSortedDictionary *)dictionaryWithComparator:
+    (NSComparator)comparator {
     return [[FArraySortedDictionary alloc] initWithComparator:comparator];
 }
 
-+ (FImmutableSortedDictionary *)fromDictionary:(NSDictionary *)dictionary withComparator:(NSComparator)comparator
-{
++ (FImmutableSortedDictionary *)fromDictionary:(NSDictionary *)dictionary
+                                withComparator:(NSComparator)comparator {
     if (dictionary.count <= SORTED_DICTIONARY_ARRAY_TO_RB_TREE_SIZE_THRESHOLD) {
-        return [FArraySortedDictionary fromDictionary:dictionary withComparator:comparator];
+        return [FArraySortedDictionary fromDictionary:dictionary
+                                       withComparator:comparator];
     } else {
-        return [FTreeSortedDictionary fromDictionary:dictionary withComparator:comparator];
+        return [FTreeSortedDictionary fromDictionary:dictionary
+                                      withComparator:comparator];
     }
 }
 
-- (FImmutableSortedDictionary *) insertKey:(id)aKey withValue:(id)aValue {
+- (FImmutableSortedDictionary *)insertKey:(id)aKey withValue:(id)aValue {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(insertKey:withValue:));
 }
 
-- (FImmutableSortedDictionary *) removeKey:(id)aKey {
+- (FImmutableSortedDictionary *)removeKey:(id)aKey {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(removeKey:));
 }
 
-- (id) get:(id) key {
+- (id)get:(id)key {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(get:));
 }
 
-- (id) getPredecessorKey:(id) key {
+- (id)getPredecessorKey:(id)key {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(getPredecessorKey:));
 }
 
-- (BOOL) isEmpty {
+- (BOOL)isEmpty {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(isEmpty));
 }
 
-- (int) count {
+- (int)count {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector((count)));
 }
 
-- (id) minKey {
+- (id)minKey {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(minKey));
 }
 
-- (id) maxKey {
+- (id)maxKey {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(maxKey));
 }
 
-- (void) enumerateKeysAndObjectsUsingBlock:(void (^)(id, id, BOOL *))block {
-    THROW_ABSTRACT_METHOD_EXCEPTION(@selector(enumerateKeysAndObjectsUsingBlock:));
+- (void)enumerateKeysAndObjectsUsingBlock:(void (^)(id, id, BOOL *))block {
+    THROW_ABSTRACT_METHOD_EXCEPTION(@selector
+                                    (enumerateKeysAndObjectsUsingBlock:));
 }
 
-- (void) enumerateKeysAndObjectsReverse:(BOOL)reverse usingBlock:(void (^)(id, id, BOOL *))block {
-    THROW_ABSTRACT_METHOD_EXCEPTION(@selector(enumerateKeysAndObjectsReverse:usingBlock:));
+- (void)enumerateKeysAndObjectsReverse:(BOOL)reverse
+                            usingBlock:(void (^)(id, id, BOOL *))block {
+    THROW_ABSTRACT_METHOD_EXCEPTION(
+        @selector(enumerateKeysAndObjectsReverse:usingBlock:));
 }
 
-- (BOOL) contains:(id)key {
+- (BOOL)contains:(id)key {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(contains:));
 }
 
-- (NSEnumerator *) keyEnumerator {
+- (NSEnumerator *)keyEnumerator {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(keyEnumerator));
 }
 
-- (NSEnumerator *) keyEnumeratorFrom:(id)startKey {
+- (NSEnumerator *)keyEnumeratorFrom:(id)startKey {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(keyEnumeratorFrom:));
 }
 
-- (NSEnumerator *) reverseKeyEnumerator {
+- (NSEnumerator *)reverseKeyEnumerator {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(reverseKeyEnumerator));
 }
 
-- (NSEnumerator *) reverseKeyEnumeratorFrom:(id)startKey {
+- (NSEnumerator *)reverseKeyEnumeratorFrom:(id)startKey {
     THROW_ABSTRACT_METHOD_EXCEPTION(@selector(reverseKeyEnumeratorFrom:));
 }
 
@@ -110,9 +120,9 @@
     }
     __block BOOL isEqual = YES;
     [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-        id otherValue = [other objectForKey:key];
-        isEqual = isEqual && (value == otherValue || [value isEqual:otherValue]);
-        *stop = !isEqual;
+      id otherValue = [other objectForKey:key];
+      isEqual = isEqual && (value == otherValue || [value isEqual:otherValue]);
+      *stop = !isEqual;
     }];
     return isEqual;
 }
@@ -120,7 +130,7 @@
 - (NSUInteger)hash {
     __block NSUInteger hash = 0;
     [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-        hash = (hash * 31 + [key hash]) * 17 + [value hash];
+      hash = (hash * 31 + [key hash]) * 17 + [value hash];
     }];
     return hash;
 }
@@ -130,11 +140,11 @@
     __block BOOL first = YES;
     [str appendString:@"{ "];
     [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-        if (!first) {
-            [str appendString:@", "];
-        }
-        first = NO;
-        [str appendString:[NSString stringWithFormat:@"%@: %@", key, value]];
+      if (!first) {
+          [str appendString:@", "];
+      }
+      first = NO;
+      [str appendString:[NSString stringWithFormat:@"%@: %@", key, value]];
     }];
     [str appendString:@" }"];
     return str;
@@ -143,15 +153,17 @@
 #pragma mark -
 #pragma mark Methods similar to NSMutableDictionary
 
-- (FImmutableSortedDictionary *) setObject:(__unsafe_unretained id)anObject forKey:(__unsafe_unretained id)aKey {
+- (FImmutableSortedDictionary *)setObject:(__unsafe_unretained id)anObject
+                                   forKey:(__unsafe_unretained id)aKey {
     return [self insertKey:aKey withValue:anObject];
 }
 
-- (FImmutableSortedDictionary *) removeObjectForKey:(__unsafe_unretained id)aKey {
+- (FImmutableSortedDictionary *)removeObjectForKey:
+    (__unsafe_unretained id)aKey {
     return [self removeKey:aKey];
 }
 
-- (id) objectForKey:(__unsafe_unretained id)key {
+- (id)objectForKey:(__unsafe_unretained id)key {
     return [self get:key];
 }
 

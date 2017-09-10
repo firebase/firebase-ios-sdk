@@ -18,23 +18,21 @@
 
 #import "FNode.h"
 
-
 @interface FCompoundHashBuilder : NSObject
 
 - (FPath *)currentPath;
 
 @end
 
-
-typedef BOOL (^FCompoundHashSplitStrategy) (FCompoundHashBuilder *builder);
-
+typedef BOOL (^FCompoundHashSplitStrategy)(FCompoundHashBuilder *builder);
 
 @interface FCompoundHash : NSObject
 
-@property (nonatomic, strong, readonly) NSArray *posts;
-@property (nonatomic, strong, readonly) NSArray *hashes;
+@property(nonatomic, strong, readonly) NSArray *posts;
+@property(nonatomic, strong, readonly) NSArray *hashes;
 
 + (FCompoundHash *)fromNode:(id<FNode>)node;
-+ (FCompoundHash *)fromNode:(id<FNode>)node splitStrategy:(FCompoundHashSplitStrategy)strategy;
++ (FCompoundHash *)fromNode:(id<FNode>)node
+              splitStrategy:(FCompoundHashSplitStrategy)strategy;
 
 @end

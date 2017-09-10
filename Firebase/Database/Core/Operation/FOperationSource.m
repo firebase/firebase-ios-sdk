@@ -19,10 +19,10 @@
 #import "FQueryParams.h"
 
 @interface FOperationSource ()
-@property (nonatomic, readwrite) BOOL fromUser;
-@property (nonatomic, readwrite) BOOL fromServer;
-@property (nonatomic, readwrite) BOOL isTagged;
-@property (nonatomic, strong, readwrite) FQueryParams *queryParams;
+@property(nonatomic, readwrite) BOOL fromUser;
+@property(nonatomic, readwrite) BOOL fromServer;
+@property(nonatomic, readwrite) BOOL isTagged;
+@property(nonatomic, strong, readwrite) FQueryParams *queryParams;
 @end
 
 @implementation FOperationSource
@@ -31,7 +31,10 @@
 @synthesize fromServer;
 @synthesize queryParams;
 
-- (id) initWithFromUser:(BOOL)isFromUser fromServer:(BOOL)isFromServer queryParams:(FQueryParams *)params tagged:(BOOL)tagged {
+- (id)initWithFromUser:(BOOL)isFromUser
+            fromServer:(BOOL)isFromServer
+           queryParams:(FQueryParams *)params
+                tagged:(BOOL)tagged {
     self = [super init];
     if (self) {
         self.fromUser = isFromUser;
@@ -42,32 +45,42 @@
     return self;
 }
 
-+ (FOperationSource *) userInstance {
++ (FOperationSource *)userInstance {
     static FOperationSource *user = nil;
     static dispatch_once_t userToken;
     dispatch_once(&userToken, ^{
-        user = [[FOperationSource alloc] initWithFromUser:YES fromServer:NO queryParams:nil tagged:NO];
+      user = [[FOperationSource alloc] initWithFromUser:YES
+                                             fromServer:NO
+                                            queryParams:nil
+                                                 tagged:NO];
     });
     return user;
 }
 
-+ (FOperationSource *) serverInstance {
++ (FOperationSource *)serverInstance {
     static FOperationSource *server = nil;
     static dispatch_once_t serverToken;
     dispatch_once(&serverToken, ^{
-        server = [[FOperationSource alloc] initWithFromUser:NO fromServer:YES queryParams:nil tagged:NO];
+      server = [[FOperationSource alloc] initWithFromUser:NO
+                                               fromServer:YES
+                                              queryParams:nil
+                                                   tagged:NO];
     });
     return server;
 }
 
-+ (FOperationSource *) forServerTaggedQuery:(FQueryParams *)params {
-    return [[FOperationSource alloc] initWithFromUser:NO fromServer:YES queryParams:params tagged:YES];
++ (FOperationSource *)forServerTaggedQuery:(FQueryParams *)params {
+    return [[FOperationSource alloc] initWithFromUser:NO
+                                           fromServer:YES
+                                          queryParams:params
+                                               tagged:YES];
 }
 
-- (NSString *) description {
-    return [NSString stringWithFormat:@"FOperationSource { fromUser=%d, fromServer=%d, queryId=%@, tagged=%d }",
-                    self.fromUser, self.fromServer, self.queryParams, self.isTagged];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"FOperationSource { fromUser=%d, "
+                                      @"fromServer=%d, queryId=%@, tagged=%d }",
+                                      self.fromUser, self.fromServer,
+                                      self.queryParams, self.isTagged];
 }
-
 
 @end

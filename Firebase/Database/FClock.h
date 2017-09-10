@@ -22,13 +22,13 @@
 
 @end
 
-@interface FSystemClock : NSObject<FClock>
+@interface FSystemClock : NSObject <FClock>
 
 + (FSystemClock *)clock;
 
 @end
 
-@interface FOffsetClock : NSObject<FClock>
+@interface FOffsetClock : NSObject <FClock>
 
 - (id)initWithClock:(id<FClock>)clock offset:(NSTimeInterval)offset;
 

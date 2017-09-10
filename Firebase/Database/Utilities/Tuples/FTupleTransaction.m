@@ -19,8 +19,8 @@
 
 @interface FTupleTransaction ()
 
-@property (nonatomic, strong) NSString *abortStatus;
-@property (nonatomic, strong) NSString *abortReason;
+@property(nonatomic, strong) NSString *abortStatus;
+@property(nonatomic, strong) NSString *abortReason;
 
 @end
 
@@ -32,7 +32,10 @@
 }
 
 - (NSError *)abortError {
-    return (self.abortStatus != nil) ? [FUtilities errorForStatus:self.abortStatus andReason:self.abortReason] : nil;
+    return (self.abortStatus != nil)
+               ? [FUtilities errorForStatus:self.abortStatus
+                                  andReason:self.abortReason]
+               : nil;
 }
 
 @end

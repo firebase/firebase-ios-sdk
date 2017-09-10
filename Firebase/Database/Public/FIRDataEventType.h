@@ -17,11 +17,12 @@
 #ifndef Firebase_FIRDataEventType_h
 #define Firebase_FIRDataEventType_h
 
-#import <Foundation/Foundation.h>
 #import "FIRDatabaseSwiftNameSupport.h"
+#import <Foundation/Foundation.h>
 
 /**
- * This enum is the set of events that you can observe at a Firebase Database location.
+ * This enum is the set of events that you can observe at a Firebase Database
+ * location.
  */
 typedef NS_ENUM(NSInteger, FIRDataEventType) {
     /// A new child node is added to a location.

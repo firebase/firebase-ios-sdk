@@ -19,8 +19,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Placeholder values you may write into Firebase Database as a value or priority
- * that will automatically be populated by the Firebase Database server.
+ * Placeholder values you may write into Firebase Database as a value or
+ * priority that will automatically be populated by the Firebase Database
+ * server.
  */
 FIR_SWIFT_NAME(ServerValue)
 @interface FIRServerValue : NSObject
@@ -28,7 +29,7 @@ FIR_SWIFT_NAME(ServerValue)
 /**
  * Placeholder value for the number of milliseconds since the Unix epoch
  */
-+ (NSDictionary *) timestamp;
++ (NSDictionary *)timestamp;
 
 @end
 

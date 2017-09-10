@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-
 #import "FEventEmitter.h"
-#import "FUtilities.h"
-#import "FRepoManager.h"
 #import "FIRDatabaseQuery_Private.h"
+#import "FRepoManager.h"
+#import "FUtilities.h"
 
 @interface FEventListener : NSObject
 
-@property (nonatomic, copy) fbt_void_id userCallback;
-@property (nonatomic) FIRDatabaseHandle handle;
+@property(nonatomic, copy) fbt_void_id userCallback;
+@property(nonatomic) FIRDatabaseHandle handle;
 
 @end
 
@@ -34,24 +33,27 @@
 
 @end
 
-
 @interface FEventEmitter ()
 
-@property (nonatomic, strong) NSArray *allowedEvents;
-@property (nonatomic, strong) NSMutableDictionary *listeners;
-@property (nonatomic, strong) dispatch_queue_t queue;
+@property(nonatomic, strong) NSArray *allowedEvents;
+@property(nonatomic, strong) NSMutableDictionary *listeners;
+@property(nonatomic, strong) dispatch_queue_t queue;
 
 @end
-
 
 @implementation FEventEmitter
 
 @synthesize allowedEvents;
 @synthesize listeners;
 
-- (id) initWithAllowedEvents:(NSArray *)theAllowedEvents queue:(dispatch_queue_t)queue {
+- (id)initWithAllowedEvents:(NSArray *)theAllowedEvents
+                      queue:(dispatch_queue_t)queue {
     if (theAllowedEvents == nil || [theAllowedEvents count] == 0) {
-        @throw [NSException exceptionWithName:@"AllowedEventsValidation" reason:@"FEventEmitters must be initialized with at least one valid event." userInfo:nil];
+        @throw [NSException
+            exceptionWithName:@"AllowedEventsValidation"
+                       reason:@"FEventEmitters must be initialized with at "
+                              @"least one valid event."
+                     userInfo:nil];
     }
 
     self = [super init];
@@ -65,28 +67,34 @@
     return self;
 }
 
-- (id) getInitialEventForType:(NSString *)eventType {
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"You must override getInitialEvent: when subclassing FEventEmitter" userInfo:nil];
+- (id)getInitialEventForType:(NSString *)eventType {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:@"You must override getInitialEvent: "
+                                          @"when subclassing FEventEmitter"
+                                 userInfo:nil];
 }
 
-- (void) triggerEventType:(NSString *)eventType data:(id)data {
+- (void)triggerEventType:(NSString *)eventType data:(id)data {
     [self validateEventType:eventType];
-    NSMutableDictionary *eventTypeListeners = [self.listeners objectForKey:eventType];
+    NSMutableDictionary *eventTypeListeners =
+        [self.listeners objectForKey:eventType];
     for (FEventListener *listener in eventTypeListeners) {
         [self triggerListener:listener withData:data];
     }
 }
 
-- (void) triggerListener:(FEventListener *)listener withData:(id)data {
-    // TODO, should probably get this from FRepo or something although it ends up being the same. (Except maybe for testing)
+- (void)triggerListener:(FEventListener *)listener withData:(id)data {
+    // TODO, should probably get this from FRepo or something although it ends
+    // up being the same. (Except maybe for testing)
     if (listener.userCallback) {
         dispatch_async(self.queue, ^{
-            listener.userCallback(data);
+          listener.userCallback(data);
         });
     }
 }
 
-- (FIRDatabaseHandle)observeEventType:(NSString *)eventType withBlock:(fbt_void_id)block {
+- (FIRDatabaseHandle)observeEventType:(NSString *)eventType
+                            withBlock:(fbt_void_id)block {
     [self validateEventType:eventType];
 
     // Create listener
@@ -95,15 +103,18 @@
     listener.userCallback = block; // copies block automatically
 
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        [self addEventListener:listener forEventType:eventType];
+      [self addEventListener:listener forEventType:eventType];
     });
 
     return listener.handle;
 }
 
-- (void) addEventListener:(FEventListener *)listener forEventType:(NSString *)eventType {
-    // Get or initializer listeners map [FIRDatabaseHandle -> callback block] for eventType
-    NSMutableArray *eventTypeListeners = [self.listeners objectForKey:eventType];
+- (void)addEventListener:(FEventListener *)listener
+            forEventType:(NSString *)eventType {
+    // Get or initializer listeners map [FIRDatabaseHandle -> callback block]
+    // for eventType
+    NSMutableArray *eventTypeListeners =
+        [self.listeners objectForKey:eventType];
     if (eventTypeListeners == nil) {
         eventTypeListeners = [[NSMutableArray alloc] init];
         [self.listeners setObject:eventTypeListeners forKey:eventType];
@@ -115,16 +126,19 @@
     [self triggerListener:listener withData:initialData];
 }
 
-- (void) removeObserverForEventType:(NSString *)eventType withHandle:(FIRDatabaseHandle)handle {
+- (void)removeObserverForEventType:(NSString *)eventType
+                        withHandle:(FIRDatabaseHandle)handle {
     [self validateEventType:eventType];
 
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        [self removeEventListenerWithHandle:handle forEventType:eventType];
+      [self removeEventListenerWithHandle:handle forEventType:eventType];
     });
 }
 
-- (void)removeEventListenerWithHandle:(FIRDatabaseHandle)handle forEventType:(NSString *)eventType {
-    NSMutableArray *eventTypeListeners = [self.listeners objectForKey:eventType];
+- (void)removeEventListenerWithHandle:(FIRDatabaseHandle)handle
+                         forEventType:(NSString *)eventType {
+    NSMutableArray *eventTypeListeners =
+        [self.listeners objectForKey:eventType];
     for (FEventListener *listener in [eventTypeListeners copy]) {
         if (handle == NSNotFound || handle == listener.handle) {
             [eventTypeListeners removeObject:listener];
@@ -132,13 +146,15 @@
     }
 }
 
-
-- (void) validateEventType:(NSString *)eventType {
+- (void)validateEventType:(NSString *)eventType {
     if ([self.allowedEvents indexOfObject:eventType] == NSNotFound) {
-        @throw [NSException exceptionWithName:@"InvalidEventType"
-                                         reason:[NSString stringWithFormat:@"%@ is not a valid event type. %@ is the list of valid events.",
-                                                         eventType, self.allowedEvents]
-                                       userInfo:nil];
+        @throw [NSException
+            exceptionWithName:@"InvalidEventType"
+                       reason:[NSString stringWithFormat:
+                                            @"%@ is not a valid event type. %@ "
+                                            @"is the list of valid events.",
+                                            eventType, self.allowedEvents]
+                     userInfo:nil];
     }
 }
 

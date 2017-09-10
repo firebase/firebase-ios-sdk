@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "FPath.h"
 #import "FNode.h"
+#import "FPath.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleNodePath : NSObject
 
-@property (nonatomic, strong) FPath* path;
-@property (nonatomic, strong) id<FNode> node;
+@property(nonatomic, strong) FPath *path;
+@property(nonatomic, strong) id<FNode> node;
 
-- (id) initWithNode:(id<FNode>)aNode andPath:(FPath *)aPath;
+- (id)initWithNode:(id<FNode>)aNode andPath:(FPath *)aPath;
 
 @end

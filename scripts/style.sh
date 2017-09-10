@@ -3,7 +3,6 @@ find . \
     -name 'third_party' -prune -o \
     -name 'Auth' -prune -o \
     -name 'AuthSamples' -prune -o \
-    -name 'Database' -prune -o \
     -name 'FirebaseCommunity.h' -prune -o \
     -name 'Messaging' -prune -o \
     -name 'Storage' -prune -o \

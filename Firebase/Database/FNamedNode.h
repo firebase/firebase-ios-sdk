@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNode.h"
+#import <Foundation/Foundation.h>
 
-@interface FNamedNode : NSObject<NSCopying>
+@interface FNamedNode : NSObject <NSCopying>
 
-@property (nonatomic, strong, readonly) NSString* name;
-@property (nonatomic, strong, readonly) id<FNode> node;
+@property(nonatomic, strong, readonly) NSString *name;
+@property(nonatomic, strong, readonly) id<FNode> node;
 
-
--(id)initWithName:(NSString*)name andNode:(id<FNode>)node;
+- (id)initWithName:(NSString *)name andNode:(id<FNode>)node;
 
 + (FNamedNode *)nodeWithName:(NSString *)name node:(id<FNode>)node;
 
-+ (FNamedNode*) min;
-+ (FNamedNode*) max;
++ (FNamedNode *)min;
++ (FNamedNode *)max;
 @end

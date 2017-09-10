@@ -15,14 +15,15 @@
  */
 
 #import "FAckUserWrite.h"
-#import "FPath.h"
-#import "FOperationSource.h"
 #import "FImmutableTree.h"
-
+#import "FOperationSource.h"
+#import "FPath.h"
 
 @implementation FAckUserWrite
 
-- (id) initWithPath:(FPath *)operationPath affectedTree:(FImmutableTree *)tree revert:(BOOL)shouldRevert {
+- (id)initWithPath:(FPath *)operationPath
+      affectedTree:(FImmutableTree *)tree
+            revert:(BOOL)shouldRevert {
     self = [super init];
     if (self) {
         self->_source = [FOperationSource userInstance];
@@ -34,22 +35,32 @@
     return self;
 }
 
-- (FAckUserWrite *) operationForChild:(NSString *)childKey {
+- (FAckUserWrite *)operationForChild:(NSString *)childKey {
     if (![self.path isEmpty]) {
-        NSAssert([self.path.getFront isEqualToString:childKey], @"operationForChild called for unrelated child.");
-        return [[FAckUserWrite alloc] initWithPath:[self.path popFront] affectedTree:self.affectedTree revert:self.revert];
+        NSAssert([self.path.getFront isEqualToString:childKey],
+                 @"operationForChild called for unrelated child.");
+        return [[FAckUserWrite alloc] initWithPath:[self.path popFront]
+                                      affectedTree:self.affectedTree
+                                            revert:self.revert];
     } else if (self.affectedTree.value != nil) {
-        NSAssert(self.affectedTree.children.isEmpty, @"affectedTree should not have overlapping affected paths.");
+        NSAssert(self.affectedTree.children.isEmpty,
+                 @"affectedTree should not have overlapping affected paths.");
         // All child locations are affected as well; just return same operation.
         return self;
     } else {
-        FImmutableTree *childTree = [self.affectedTree subtreeAtPath:[[FPath alloc] initWith:childKey]];
-        return [[FAckUserWrite alloc] initWithPath:[FPath empty] affectedTree:childTree revert:self.revert];
+        FImmutableTree *childTree =
+            [self.affectedTree subtreeAtPath:[[FPath alloc] initWith:childKey]];
+        return [[FAckUserWrite alloc] initWithPath:[FPath empty]
+                                      affectedTree:childTree
+                                            revert:self.revert];
     }
 }
 
-- (NSString *) description {
-    return [NSString stringWithFormat:@"FAckUserWrite { path=%@, revert=%d, affectedTree=%@ }", self.path, self.revert, self.affectedTree];
+- (NSString *)description {
+    return
+        [NSString stringWithFormat:
+                      @"FAckUserWrite { path=%@, revert=%d, affectedTree=%@ }",
+                      self.path, self.revert, self.affectedTree];
 }
 
 @end

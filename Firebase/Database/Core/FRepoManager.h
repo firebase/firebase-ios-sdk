@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "FRepoInfo.h"
-#import "FRepo.h"
 #import "FIRDatabaseConfig.h"
+#import "FRepo.h"
+#import "FRepoInfo.h"
+#import <Foundation/Foundation.h>
 
 @interface FRepoManager : NSObject
 
-+ (FRepo *) getRepo:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config;
-+ (FRepo *) createRepo:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config database:(FIRDatabase *)database;
-+ (void) interruptAll;
-+ (void) interrupt:(FIRDatabaseConfig *)config;
-+ (void) resumeAll;
-+ (void) resume:(FIRDatabaseConfig *)config;
-+ (void) disposeRepos:(FIRDatabaseConfig *)config;
++ (FRepo *)getRepo:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config;
++ (FRepo *)createRepo:(FRepoInfo *)repoInfo
+               config:(FIRDatabaseConfig *)config
+             database:(FIRDatabase *)database;
++ (void)interruptAll;
++ (void)interrupt:(FIRDatabaseConfig *)config;
++ (void)resumeAll;
++ (void)resume:(FIRDatabaseConfig *)config;
++ (void)disposeRepos:(FIRDatabaseConfig *)config;
 
 @end

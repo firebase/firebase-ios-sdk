@@ -18,13 +18,13 @@
 
 @interface FTupleRemovedQueriesEvents : NSObject
 /**
-* `FIRDatabaseQuery`s removed with [SyncPoint removeEventRegistration:]
-*/
-@property (nonatomic, strong, readonly) NSArray *removedQueries;
+ * `FIRDatabaseQuery`s removed with [SyncPoint removeEventRegistration:]
+ */
+@property(nonatomic, strong, readonly) NSArray *removedQueries;
 /**
-* cancel events as FEvent
-*/
-@property (nonatomic, strong, readonly) NSArray *cancelEvents;
+ * cancel events as FEvent
+ */
+@property(nonatomic, strong, readonly) NSArray *cancelEvents;
 
-- (id) initWithRemovedQueries:(NSArray *)removed cancelEvents:(NSArray *)events;
+- (id)initWithRemovedQueries:(NSArray *)removed cancelEvents:(NSArray *)events;
 @end

@@ -18,6 +18,6 @@
 
 #import "FStorageEngine.h"
 
-@interface FMockStorageEngine : NSObject<FStorageEngine>
+@interface FMockStorageEngine : NSObject <FStorageEngine>
 
 @end
