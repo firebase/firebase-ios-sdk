@@ -5165,7 +5165,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
 					"\"${PODS_ROOT}/../../Firebase/Database\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
@@ -5204,7 +5204,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
 					"\"${PODS_ROOT}/../../Firebase/Database\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
@@ -5241,7 +5241,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
 					"\"${PODS_ROOT}/../../Firebase/Database\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
@@ -5280,7 +5280,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Constants\"",
 					"\"${PODS_ROOT}/../../Firebase/Database\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
-					"\"${PODS_ROOT}/../../Firebase/Database/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
+					"\"${PODS_ROOT}/../../Firebase/Database/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
