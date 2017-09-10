@@ -333,6 +333,16 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeWebContextCancelled =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebContextCancelled,
 
+  /** Indicates a general failure during the app verification flow.
+   */
+  FIRAuthInternalErrorCodeAppVerificationUserInteractionFailure =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAppVerificationUserInteractionFailure,
+
+  /** Indicates that the clientID used to invoke a web flow is invalid.
+   */
+  FIRAuthInternalErrorCodeInvalidClientID =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidClientID,
+
   // The enum values between 17046 and 17051 are reserved and should NOT be used for new error
   // codes.
 

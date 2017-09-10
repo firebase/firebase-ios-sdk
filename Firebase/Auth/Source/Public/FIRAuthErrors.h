@@ -285,6 +285,14 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeWebContextCancelled = 17058,
 
+    /** Indicates a general failure during the app verification flow.
+     */
+    FIRAuthErrorCodeAppVerificationUserInteractionFailure = 17059,
+
+    /** Indicates that the clientID used to invoke a web flow is invalid.
+     */
+    FIRAuthErrorCodeInvalidClientID = 17060,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,

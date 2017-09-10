@@ -47,8 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param reCAPTCHAURL The reCAPTCHA URL.
     @param error The error that occured while fetching the reCAPTCHAURL, if any.
  */
-typedef void (^FIRReCAPTCHAURLCallBack)(NSURL *_Nullable reCAPTCHAURL,
-                                        NSError *_Nullable error);
+typedef void (^FIRReCAPTCHAURLCallBack)(NSURL *_Nullable reCAPTCHAURL, NSError *_Nullable error);
 
 /** @typedef FIRVerifyClientCallback
     @brief The callback invoked at the end of a client verification flow.
@@ -158,15 +157,16 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
             completion(nil, error);
             return;
           }
-          NSDictionary<NSString *, NSString *> *URLQueryItems =
-              [NSDictionary gtm_dictionaryWithHttpArgumentsString:callbackURL.query];;
-          URLQueryItems =
-              [NSDictionary gtm_dictionaryWithHttpArgumentsString:URLQueryItems[@"deep_link_id"]];
-          NSString *reCAPTCHA = URLQueryItems[@"recaptchaToken"];
+          NSError *reCAPTCHAError;
+          NSString *reCAPTCHAToken = [self reCAPTCHATokenForURL:callbackURL error:&reCAPTCHAError];
+          if (!reCAPTCHAToken) {
+            callBackOnMainThread(nil, reCAPTCHAError);
+            return;
+          }
           FIRSendVerificationCodeRequest *request =
             [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
                                                           appCredential:nil
-                                                         reCAPTCHAToken:reCAPTCHA
+                                                         reCAPTCHAToken:reCAPTCHAToken
                                                    requestConfiguration:_auth.requestConfiguration];
           [FIRAuthBackend sendVerificationCode:request
                                       callback:^(FIRSendVerificationCodeResponse
@@ -201,6 +201,42 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 }
 
 #pragma mark - Internal Methods
+/** @fn reCAPTCHATokenForURL:error:
+    @brief Parses the reCAPTCHA URL and returns.
+    @param URL The url to be parsed for a reCAPTCHA token.
+    @param error The error that occurred if any.
+    @return The reCAPTCHA token if successful.
+ */
+- (NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **)error {
+  NSDictionary<NSString *, NSString *> *URLQueryItems =
+      [NSDictionary gtm_dictionaryWithHttpArgumentsString:URL.query];
+  NSURL *deepLinkURL = [NSURL URLWithString:URLQueryItems[@"deep_link_id"]];
+  URLQueryItems =
+      [NSDictionary gtm_dictionaryWithHttpArgumentsString:deepLinkURL.query];
+  if (URLQueryItems[@"recaptchaToken"]) {
+    return URLQueryItems[@"recaptchaToken"];
+  }
+  NSData *errorData = [URLQueryItems[@"firebaseError"] dataUsingEncoding:NSUTF8StringEncoding];
+  NSError *jsonError;
+  NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
+                                                            options:0
+                                                              error:&jsonError];
+  if (jsonError) {
+    *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
+    return nil;
+  }
+  *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
+                                               message:errorDict[@"message"]];
+  if (!*error) {
+    NSString *reason;
+    if(errorDict[@"code"] && errorDict[@"message"]) {
+      reason = [NSString stringWithFormat:@"[%@] - %@",errorDict[@"code"], errorDict[@"message"]];
+    }
+    *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
+  }
+  return nil;
+}
+
 /** @fn isVerifyAppURL:
     @brief Parses a URL into all available query items.
     @param URL The url to be checked against the authType string.
