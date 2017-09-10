@@ -375,27 +375,30 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   if (self.isAnalyticsCollectionDeactivated) {
     return NO;
   }
-  if (!self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled]) {
+  NSNumber *value = self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled];
+  if (!value) {
     return YES;  // Enable Measurement by default when the key is not in the dictionary.
   }
-  return [self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled] boolValue];
+  return [value boolValue];
 }
 
 - (BOOL)isAnalyticsCollectionEnabled {
   if (self.isAnalyticsCollectionDeactivated) {
     return NO;
   }
-  if (!self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionEnabled]) {
+  NSNumber *value = self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionEnabled];
+  if (!value) {
     return self.isMeasurementEnabled;  // Fall back to older plist flag.
   }
-  return [self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionEnabled] boolValue];
+  return [value boolValue];
 }
 
 - (BOOL)isAnalyticsCollectionDeactivated {
-  if (!self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionDeactivated]) {
+  NSNumber *value = self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionDeactivated];
+  if (!value) {
     return NO;  // Analytics Collection is not deactivated when the key is not in the dictionary.
   }
-  return [self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionDeactivated] boolValue];
+  return [value boolValue];
 }
 
 - (BOOL)isAnalyticsEnabled {

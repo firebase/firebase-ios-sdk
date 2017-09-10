@@ -50,9 +50,10 @@
   // Persist the measurementEnabledState. Use FIRAnalyticsEnabledState values instead of YES/NO.
   FIRAnalyticsEnabledState analyticsEnabledState =
       analyticsCollectionEnabled ? kFIRAnalyticsEnabledStateSetYes : kFIRAnalyticsEnabledStateSetNo;
-  [[NSUserDefaults standardUserDefaults] setObject:@(analyticsEnabledState)
-                                            forKey:kFIRAPersistedConfigMeasurementEnabledStateKey];
-  [[NSUserDefaults standardUserDefaults] synchronize];
+  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+  [userDefaults setObject:@(analyticsEnabledState)
+                   forKey:kFIRAPersistedConfigMeasurementEnabledStateKey];
+  [userDefaults synchronize];
 
   [self postNotificationName:kFIRAnalyticsConfigurationSetEnabledNotification
                        value:@(analyticsCollectionEnabled)];
