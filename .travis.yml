@@ -6,10 +6,10 @@ cache:
 
 rvm: 2.3.1
 before_install:
-  - gem uninstall cocoapods -a
-  - gem install cocoapods -v 1.3.1 # Since Travis is not always on latest version
+  - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+  - bundle install
   - gem install xcpretty
-  - pod install --project-directory=Example --repo-update
+  - bundle exec pod install --project-directory=Example --repo-update
 
 script:
   - "! git grep ' $'" # Fail on trailing whitespace
