@@ -76,6 +76,16 @@ static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
  */
 static NSString *const kFirebaseLocalHeader = @"X-Firebase-Locale";
 
+/** @var kFirebaseAuthCoreFrameworkMarker
+    @brief The marker in the HTTP header that indicates the request comes from Firebase Auth Core.
+ */
+static NSString *const kFirebaseAuthCoreFrameworkMarker = @"FirebaseCore-iOS";
+
+/** @var kFirebaseAuthUIFrameworkMarker
+    @brief The marker in the HTTP header that indicates the request comes from Firebase Auth UI.
+ */
+static NSString *const kFirebaseAuthUIFrameworkMarker = @"FirebaseUI-iOS";
+
 /** @var kJSONContentType
     @brief The value of the HTTP content-type header for JSON payloads.
  */
@@ -499,8 +509,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                NSError *_Nullable))handler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
-  NSString *clientVersion =
-      [NSString stringWithFormat:@"iOS/FirebaseSDK/%s", FirebaseAuthVersionString];
+  NSString *authFramework = requestConfiguration.isFirebaseAuthUIRequest ?
+      kFirebaseAuthUIFrameworkMarker : kFirebaseAuthCoreFrameworkMarker;
+  NSString *clientVersion = [NSString stringWithFormat:@"iOS/FirebaseSDK/%s/%@",
+                                                       FirebaseAuthVersionString,
+                                                       authFramework];
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];

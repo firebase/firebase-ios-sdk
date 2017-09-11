@@ -35,6 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *languageCode;
 
+/** @property isFirebaseAuthUIRequest
+    @brief Indicates whether the request is being made by Firebase Auth Core or Firebase Auth UI.
+ */
+@property(nonatomic, assign) BOOL isFirebaseAuthUIRequest;
+
 - (nullable instancetype)init NS_UNAVAILABLE;
 
 /** @fn initWithRequestClass:APIKey:authLanguage:

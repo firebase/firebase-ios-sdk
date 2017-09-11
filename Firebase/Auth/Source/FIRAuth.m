@@ -1058,6 +1058,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 #endif
 
+/** @fn enableAuthUILogging
+    @brief Sets the isFirebaseAuthUIRequest flag to YES on the request configuration object.
+ */
+- (void)enableAuthUILogging {
+  _requestConfiguration.isFirebaseAuthUIRequest = YES;
+}
+
 - (void)notifyListenersOfAuthStateChangeWithUser:(FIRUser *)user token:(NSString *)token {
   if (user != _currentUser) {
     return;
