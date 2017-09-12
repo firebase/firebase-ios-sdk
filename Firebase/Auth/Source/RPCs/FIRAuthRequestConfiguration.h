@@ -35,10 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *languageCode;
 
-/** @property isFirebaseAuthUIRequest
-    @brief Indicates whether the request is being made by Firebase Auth Core or Firebase Auth UI.
+/** @property additionalFrameworkMarker
+    @brief Additional framework marker that will be added as part of the header of every request.
  */
-@property(nonatomic, assign) BOOL isFirebaseAuthUIRequest;
+@property(nonatomic, copy, nullable) NSString *additionalFrameworkMarker;
 
 - (nullable instancetype)init NS_UNAVAILABLE;
 
