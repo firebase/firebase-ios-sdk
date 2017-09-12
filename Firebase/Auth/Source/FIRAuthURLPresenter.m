@@ -81,8 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
   _isPresenting = YES;
   _callbackMatcher = callbackMatcher;
   _completion = completion;
-  _UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
   dispatch_async(dispatch_get_main_queue(), ^() {
+    _UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
     if ([SFSafariViewController class]) {
       _safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
       _safariViewController.delegate = self;
