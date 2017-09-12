@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "FIRAuthUIDelegate.h"
+#import "FIRAuthDefaultUIDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
-/** @fn defaultUIDelegate
-    @brief Unavailable. Please use initWithViewController:
- */
-- (instancetype)init NS_UNAVAILABLE;
+@interface FIRAuthDefaultUIDelegate ()
 
 /** @fn initWithViewController:
     @brief Initializes the instance with a view controller.
-    @param viewController The view controller as the presenting view controller in @c GOIUIDelegate.
+    @param viewController The view controller as the presenting view controller in @c
+        FIRAuthUIDelegate.
     @return The initialized instance.
  */
 - (instancetype)initWithViewController:(UIViewController *)viewController NS_DESIGNATED_INITIALIZER;
+
 @end
 
 @implementation FIRAuthDefaultUIDelegate {

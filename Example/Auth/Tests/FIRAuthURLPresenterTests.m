@@ -21,6 +21,7 @@
 
 #import "FIRAuthUIDelegate.h"
 #import "FIRAuthURLPresenter.h"
+#import "FIRAuthWebViewController.h"
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
@@ -61,7 +62,6 @@ static NSTimeInterval kExpectationTimeout = 1;
  */
 - (void)testFIRAuthURLPresenterUsingDefaultUIDelegate:(BOOL)usesDefaultUIDelegate {
   id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
-  id mockUIApplication = OCMPartialMock([UIApplication sharedApplication]);
   NSURL *presenterURL = [NSURL URLWithString:@"https://presenter.url"];
   FIRAuthURLPresenter *presenter = [[FIRAuthURLPresenter alloc] init];
 
@@ -70,68 +70,70 @@ static NSTimeInterval kExpectationTimeout = 1;
     OCMStub(ClassMethod([mockDefaultUIDelegateClass defaultUIDelegate])).andReturn(mockUIDelegate);
   }
 
-  XCTestExpectation *callbackMatcherExpectation =
-      [self expectationWithDescription:@"callbackMatcher callback"];
+  __block XCTestExpectation *callbackMatcherExpectation;
   FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nonnull callbackURL) {
+    XCTAssertNotNil(callbackMatcherExpectation);
     XCTAssertEqualObjects(callbackURL, presenterURL);
     [callbackMatcherExpectation fulfill];
     return YES;
   };
 
-  XCTestExpectation *completionBlockExpectation =
-      [self expectationWithDescription:@"completion callback"];
+  __block XCTestExpectation *completionBlockExpectation;
   FIRAuthURLPresentationCompletion completionBlock = ^(NSURL *_Nullable callbackURL,
                                                        NSError *_Nullable error) {
+    XCTAssertNotNil(completionBlockExpectation);
     XCTAssertEqualObjects(callbackURL, presenterURL);
     XCTAssertNil(error);
     [completionBlockExpectation fulfill];
   };
 
-  if ([SFSafariViewController class]) {
-    id presenterArg = [OCMArg isKindOfClass:[SFSafariViewController class]];
-    OCMExpect([mockUIDelegate presentViewController:presenterArg
-                                           animated:YES
-                                         completion:nil]).andDo(^(NSInvocation *invocation) {
-      __unsafe_unretained id unretainedArgument;
-      // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-      // `presentViewController` is at index 2.
-      [invocation getArgument:&unretainedArgument atIndex:2];
+  XCTestExpectation *UIPresentationExpectation = [self expectationWithDescription:@"present UI"];
+  OCMExpect([mockUIDelegate presentViewController:[OCMArg any]
+                                         animated:YES
+                                       completion:nil]).andDo(^(NSInvocation *invocation) {
+    XCTAssertTrue([NSThread isMainThread]);
+    __unsafe_unretained id unretainedArgument;
+    // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+    // `presentViewController` is at index 2.
+    [invocation getArgument:&unretainedArgument atIndex:2];
 
-      SFSafariViewController *viewController = unretainedArgument;
-      XCTAssertEqual(viewController.delegate, presenter);
+    id presentViewController = unretainedArgument;
+    if ([SFSafariViewController class]) {
+      SFSafariViewController *viewController = presentViewController;
       XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
-    });
-  } else {
-    id mockUIApplicationClass = OCMClassMock([UIApplication class]);
-    OCMStub(ClassMethod([mockUIApplicationClass sharedApplication])).andReturn(mockUIApplication);
-    OCMExpect([mockUIApplication openURL:OCMOCK_ANY]).andDo(^(NSInvocation *invocation) {
-      __unsafe_unretained id unretainedArgument;
-      // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-      // `openURL` is at index 2.
-      [invocation getArgument:&unretainedArgument atIndex:2];
-      XCTAssertEqualObjects(presenterURL, unretainedArgument);
-    });
-  }
+      XCTAssertEqual(viewController.delegate, presenter);
+    } else {
+      UINavigationController *navigationController = presentViewController;
+      XCTAssertTrue([navigationController isKindOfClass:[UINavigationController class]]);
+      FIRAuthWebViewController *webViewController =
+          navigationController.viewControllers.firstObject;
+      XCTAssertTrue([webViewController isKindOfClass:[FIRAuthWebViewController class]]);
+    }
+    [UIPresentationExpectation fulfill];
+  });
 
   // Present the content.
   [presenter presentURL:presenterURL
              UIDelegate:usesDefaultUIDelegate ? nil : mockUIDelegate
         callbackMatcher:callbackMatcher
              completion:completionBlock];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(mockUIDelegate);
-  OCMVerifyAll(mockUIApplication);
-  if ([SFSafariViewController class]) {
-    OCMExpect([mockUIDelegate dismissViewControllerAnimated:OCMOCK_ANY
-                                                 completion:OCMOCK_ANY])
-        .andDo(^(NSInvocation *invocation) {
-      __unsafe_unretained id unretainedArgument;
-      // Indices 0 and 1 indicate the hidden arguments self and _cmd.
-      // `completion` is at index 3.
-      [invocation getArgument:&unretainedArgument atIndex:3];
-      void (^finishBlock)() = unretainedArgument;
-      finishBlock();
-    });
-  }
+
+  // Pretend dismissing view controller.
+  OCMExpect([mockUIDelegate dismissViewControllerAnimated:OCMOCK_ANY
+                                               completion:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+    XCTAssertTrue([NSThread isMainThread]);
+    __unsafe_unretained id unretainedArgument;
+    // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+    // `completion` is at index 3.
+    [invocation getArgument:&unretainedArgument atIndex:3];
+    void (^completion)() = unretainedArgument;
+    dispatch_async(dispatch_get_main_queue(), completion);
+  });
+  completionBlockExpectation = [self expectationWithDescription:@"completion callback"];
+  callbackMatcherExpectation = [self expectationWithDescription:@"callbackMatcher callback"];
 
   // Close the presented content.
   XCTAssertTrue([presenter canHandleURL:presenterURL]);

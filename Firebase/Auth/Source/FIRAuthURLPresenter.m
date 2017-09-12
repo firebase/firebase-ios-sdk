@@ -18,20 +18,15 @@
 
 #import <SafariServices/SafariServices.h>
 
+#import "FIRAuthDefaultUIDelegate.h"
 #import "FIRAuthErrorUtils.h"
+#import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthUIDelegate.h"
+#import "FIRAuthWebViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
-/** @fn defaultUIDelegate
-    @brief Returns a default FIRAuthUIDelegate object.
-    @return The default FIRAuthUIDelegate object.
- */
-+ (id<FIRAuthUIDelegate>)defaultUIDelegate;
-@end
-
-@interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate>
+@interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate, FIRAuthWebViewDelegate>
 @end
 
 @implementation FIRAuthURLPresenter {
@@ -49,6 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
       @brief The SFSafariViewController used for the current presentation, if any.
    */
   SFSafariViewController *_Nullable _safariViewController;
+
+  /** @var _webViewController
+      @brief The FIRAuthWebViewController used for the current presentation, if any.
+   */
+  FIRAuthWebViewController *_Nullable _webViewController;
 
   /** @var _UIDelegate
       @brief The UIDelegate used to present the SFSafariViewController.
@@ -74,17 +74,20 @@ NS_ASSUME_NONNULL_BEGIN
   _isPresenting = YES;
   _callbackMatcher = callbackMatcher;
   _completion = completion;
-  _UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
-  if ([SFSafariViewController class]) {
-    SFSafariViewController *safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
-    _safariViewController = safariViewController;
-    _safariViewController.delegate = self;
-    [_UIDelegate presentViewController:safariViewController animated:YES completion:nil];
-    return;
-  } else {
-    // TODO: Use web view instead.
-    [[UIApplication sharedApplication] openURL:URL];
-  }
+  dispatch_async(dispatch_get_main_queue(), ^() {
+    _UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
+    if ([SFSafariViewController class]) {
+      _safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
+      _safariViewController.delegate = self;
+      [_UIDelegate presentViewController:_safariViewController animated:YES completion:nil];
+      return;
+    } else {
+      _webViewController = [[FIRAuthWebViewController alloc] initWithURL:URL delegate:self];
+      UINavigationController *navController =
+          [[UINavigationController alloc] initWithRootViewController:_webViewController];
+      [_UIDelegate presentViewController:navController animated:YES completion:nil];
+    }
+  });
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
@@ -98,13 +101,45 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - SFSafariViewControllerDelegate
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller {
-  if (controller == _safariViewController) {
-    _safariViewController = nil;
-    //TODO:Ensure that the SFSafariViewController is actually removed from the screen before
-    //invoking finishPresentationWithURL:error:
-    [self finishPresentationWithURL:nil
-                              error:[FIRAuthErrorUtils webContextCancelledErrorWithMessage:nil]];
-  }
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+    if (controller == _safariViewController) {
+      _safariViewController = nil;
+      //TODO:Ensure that the SFSafariViewController is actually removed from the screen before
+      //invoking finishPresentationWithURL:error:
+      [self finishPresentationWithURL:nil
+                                error:[FIRAuthErrorUtils webContextCancelledErrorWithMessage:nil]];
+    }
+  });
+}
+
+#pragma mark - FIRAuthwebViewControllerDelegate
+
+- (BOOL)webViewController:(FIRAuthWebViewController *)webViewController canHandleURL:(NSURL *)URL {
+  __block BOOL result = NO;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^() {
+    if (webViewController == _webViewController) {
+      result = [self canHandleURL:URL];
+    }
+  });
+  return result;
+}
+
+- (void)webViewControllerDidCancel:(FIRAuthWebViewController *)webViewController {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+    if (webViewController == _webViewController) {
+      [self finishPresentationWithURL:nil
+                                error:[FIRAuthErrorUtils webContextCancelledErrorWithMessage:nil]];
+    }
+  });
+}
+
+- (void)webViewController:(FIRAuthWebViewController *)webViewController
+         didFailWithError:(NSError *)error {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+    if (webViewController == _webViewController) {
+      [self finishPresentationWithURL:nil error:error];
+    }
+  });
 }
 
 #pragma mark - Private methods
@@ -127,8 +162,14 @@ NS_ASSUME_NONNULL_BEGIN
   };
   SFSafariViewController *safariViewController = _safariViewController;
   _safariViewController = nil;
-  if (safariViewController) {
-    [UIDelegate dismissViewControllerAnimated:YES completion:finishBlock];
+  FIRAuthWebViewController *webViewController = _webViewController;
+  _webViewController = nil;
+  if (safariViewController || webViewController) {
+    dispatch_async(dispatch_get_main_queue(), ^() {
+      [UIDelegate dismissViewControllerAnimated:YES completion:^() {
+        dispatch_async(FIRAuthGlobalWorkQueue(), finishBlock);
+      }];
+    });
   } else {
     finishBlock();
   }
