@@ -146,15 +146,16 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
           callBackOnMainThread(nil, error);
           return;
         }
+        FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nullable callbackURL) {
+          return [self isVerifyAppURL:callbackURL];
+        };
         [_auth.authURLPresenter presentURL:reCAPTCHAURL
                                 UIDelegate:UIDelegate
-                           callbackMatcher:^BOOL(NSURL * _Nullable callbackURL) {
-                             return [self isVerifyAppURL:callbackURL];
-                           }
+                           callbackMatcher:callbackMatcher
                                 completion:^(NSURL *_Nullable callbackURL,
                                              NSError *_Nullable error) {
           if (error) {
-            completion(nil, error);
+            callBackOnMainThread(nil, error);
             return;
           }
           NSError *reCAPTCHAError;

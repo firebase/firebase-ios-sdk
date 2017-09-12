@@ -1302,6 +1302,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
                                             completion:^(FIRAuthDataResult *_Nullable
                                                             linkAuthResult,
                                                          NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeTooManyRequests);
       [expectation fulfill];

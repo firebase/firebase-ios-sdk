@@ -33,6 +33,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'Source/**/FIRAuthDefaultUIDelegate.[mh]',
     'Source/**/FIRAuthUIDelegate.h',
     'Source/**/FIRAuthURLPresenter.[mh]',
+    'Source/**/FIRAuthWebView.[mh]',
+    'Source/**/FIRAuthWebViewController.[mh]',
     'Source/**/FIRPhoneAuthCredential.[mh]',
     'Source/**/FIRPhoneAuthProvider.[mh]'
   s.public_header_files = 'Source/Public/*.h'
