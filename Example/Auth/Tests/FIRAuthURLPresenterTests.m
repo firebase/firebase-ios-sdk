@@ -132,10 +132,10 @@ static NSTimeInterval kExpectationTimeout = 1;
     void (^completion)() = unretainedArgument;
     dispatch_async(dispatch_get_main_queue(), completion);
   });
-
-  // Close the presented content.
   completionBlockExpectation = [self expectationWithDescription:@"completion callback"];
   callbackMatcherExpectation = [self expectationWithDescription:@"callbackMatcher callback"];
+
+  // Close the presented content.
   XCTAssertTrue([presenter canHandleURL:presenterURL]);
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(mockUIDelegate);

@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+/** @fn initializeSubviews
+    @brief Initializes the subviews of this view.
+ */
 - (void)initializeSubviews {
   UIWebView *webView = [self createWebView];
   UIActivityIndicatorView *spinner = [self createSpinner];
@@ -42,7 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
   _spinner = spinner;
 }
 
-// Calculate subview layouts.
 - (void)layoutSubviews {
   CGFloat height = self.bounds.size.height;
   CGFloat width = self.bounds.size.width;
@@ -50,7 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
   _spinner.center = _webView.center;
 }
 
-// Initialize the web view.
+/** @fn createWebView
+    @brief Creates a web view to be used by this view.
+    @return The newly created web view.
+ */
 - (UIWebView *)createWebView {
   UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
   // Trickery to make the web view not do weird things (like showing a black background when
@@ -65,7 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
   return webView;
 }
 
-// Initialize the spinner.
+/** @fn createSpinner
+    @brief Creates a spinner to be used by this view.
+    @return The newly created spinner.
+ */
 - (UIActivityIndicatorView *)createSpinner {
   UIActivityIndicatorViewStyle spinnerStyle = UIActivityIndicatorViewStyleGray;
   UIActivityIndicatorView *spinner =

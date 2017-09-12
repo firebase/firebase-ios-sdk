@@ -23,16 +23,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
 
 /** @fn defaultUIDelegate
-    @brief Unavailable. Please use initWithViewController:
+    @brief Unavailable. Please use @c +defaultUIDelegate:
  */
 - (instancetype)init NS_UNAVAILABLE;
 
-/** @fn initWithViewController:
-    @brief Initializes the instance with a view controller.
-    @param viewController The view controller as the presenting view controller in @c GOIUIDelegate.
-    @return The initialized instance.
+/** @fn defaultUIDelegate
+    @brief Returns a default FIRAuthUIDelegate object.
+    @return The default FIRAuthUIDelegate object.
  */
-- (instancetype)initWithViewController:(UIViewController *)viewController NS_DESIGNATED_INITIALIZER;
++ (id<FIRAuthUIDelegate>)defaultUIDelegate;
 
 @end
 

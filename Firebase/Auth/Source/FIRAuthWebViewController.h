@@ -47,11 +47,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthWebViewController : UIViewController
 
-// Please call initWithURL:delegate:
+/** @fn initWithNibName:bundle:
+ *  @brief Please call initWithURL:delegate:
+ */
 - (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil
                          bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
 
-// Please call initWithURL:delegate:
+/** @fn initWithCoder:
+ *  @brief Please call initWithURL:delegate:
+ */
 - (instancetype)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
 
 - (instancetype)initWithURL:(NSURL *)URL

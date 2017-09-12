@@ -18,20 +18,13 @@
 
 #import <SafariServices/SafariServices.h>
 
+#import "FIRAuthDefaultUIDelegate.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthUIDelegate.h"
 #import "FIRAuthWebViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
-/** @fn defaultUIDelegate
-    @brief Returns a default FIRAuthUIDelegate object.
-    @return The default FIRAuthUIDelegate object.
- */
-+ (id<FIRAuthUIDelegate>)defaultUIDelegate;
-@end
 
 @interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate, FIRAuthWebViewDelegate>
 @end
