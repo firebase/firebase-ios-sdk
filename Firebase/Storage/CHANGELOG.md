@@ -1,3 +1,6 @@
+# v2.0.2
+- [changed] Custom FIRStorageMetadata can now be cleared by setting individual properties to 'nil'. 
+
 # v2.0.1
 - [fixed] Fixed crash in FIRStorageDownloadTask that was caused by invoking callbacks that where no longer active.
 - [changed] Added 'size' to the NSDictionary representation of FIRStorageMetadata.
