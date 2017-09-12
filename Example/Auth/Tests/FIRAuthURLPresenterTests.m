@@ -129,8 +129,8 @@ static NSTimeInterval kExpectationTimeout = 1;
     // Indices 0 and 1 indicate the hidden arguments self and _cmd.
     // `completion` is at index 3.
     [invocation getArgument:&unretainedArgument atIndex:3];
-    void (^finishBlock)() = unretainedArgument;
-    finishBlock();
+    void (^completion)() = unretainedArgument;
+    dispatch_async(dispatch_get_main_queue(), completion);
   });
 
   // Close the presented content.

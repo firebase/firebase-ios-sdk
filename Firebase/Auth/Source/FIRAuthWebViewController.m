@@ -57,10 +57,6 @@ NS_ASSUME_NONNULL_BEGIN
   webView.webView.delegate = self;
   self.view = webView;
   _webView = webView;
-
-  // Set an initial prompt so that there is no animation on first webview navigation.
-  //self.navigationItem.prompt = @" ";
-  //self.navigationItem.title = @"asdf";
   self.navigationItem.leftBarButtonItem =
       [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                     target:self
