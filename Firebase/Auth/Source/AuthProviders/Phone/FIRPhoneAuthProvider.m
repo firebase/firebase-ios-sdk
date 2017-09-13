@@ -16,6 +16,8 @@
 
 #import "FIRPhoneAuthProvider.h"
 
+#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
+
 #import "FIRLogger.h"
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "NSString+FIRAuth.h"
@@ -38,7 +40,6 @@
 #import "FIRSendVerificationCodeResponse.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
-#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,9 +84,14 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 @implementation FIRPhoneAuthProvider {
 
   /** @var _auth
-      @brief The auth instance used to for verifying the phone number.
+      @brief The auth instance used for verifying the phone number.
    */
   FIRAuth *_auth;
+
+  /** @var _callbackScheme
+      @brief The callback URL scheme used for reCAPTCHA fallback.
+   */
+  NSString *_callbackScheme;
 }
 
 /** @fn initWithAuth:
@@ -97,6 +103,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   self = [super init];
   if (self) {
     _auth = auth;
+    _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
+        reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
   }
   return self;
 }
@@ -118,6 +126,11 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                completion:(nullable FIRVerificationResultCallback)completion {
+  if (![self isCallbackSchemeRegistered]) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Please register custom URL scheme '%@' in the app's Info.plist file.",
+                       _callbackScheme];
+  }
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRVerificationResultCallback callBackOnMainThread = ^(NSString *_Nullable verificationID,
                                                            NSError *_Nullable error) {
@@ -202,6 +215,25 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 }
 
 #pragma mark - Internal Methods
+
+/** @fn isCallbackSchemeRegistered
+    @brief Checks whether or not the expected callback scheme has been registered by the app.
+    @remarks This method is thread-safe.
+ */
+- (BOOL)isCallbackSchemeRegistered {
+  NSString *expectedCustomScheme = [_callbackScheme lowercaseString];
+  NSArray *urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
+  for (NSDictionary *urlType in urlTypes) {
+    NSArray *urlTypeSchemes = urlType[@"CFBundleURLSchemes"];
+    for (NSString *urlTypeScheme in urlTypeSchemes) {
+      if ([urlTypeScheme.lowercaseString isEqualToString:expectedCustomScheme]) {
+        return YES;
+      }
+    }
+  }
+  return NO;
+}
+
 /** @fn reCAPTCHATokenForURL:error:
     @brief Parses the reCAPTCHA URL and returns.
     @param URL The url to be parsed for a reCAPTCHA token.
@@ -253,9 +285,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   actualURLComponents.fragment = nil;
 
   NSURLComponents *expectedURLComponents = [NSURLComponents new];
-  NSArray *strings = [_auth.app.options.clientID componentsSeparatedByString:@"."];
-  expectedURLComponents.scheme =
-      [[strings reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+  expectedURLComponents.scheme = _callbackScheme;
   expectedURLComponents.host = @"firebaseauth";
   expectedURLComponents.path = @"/link";
 
@@ -402,11 +432,11 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     }
     NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
     NSString *clienID = _auth.app.options.clientID;
-    NSString *apiKey = _auth.app.options.APIKey;
+    NSString *apiKey = _auth.requestConfiguration.APIKey;
     NSMutableDictionary *urlArguments = [[NSMutableDictionary alloc] initWithDictionary: @{
       @"apiKey" : apiKey,
       @"authType" : kAuthTypeVerifyApp,
-      @"ibi" : bundleID,
+      @"ibi" : bundleID ?: @"",
       @"clientId" : clienID,
       @"v" : [FIRAuthBackend authUserAgent]
     }];
