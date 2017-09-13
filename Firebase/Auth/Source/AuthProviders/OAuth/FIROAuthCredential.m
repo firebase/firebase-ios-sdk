@@ -15,7 +15,7 @@
  */
 
 #import "FIROAuthCredential.h"
-#import "FIRAuthExceptionUtils.h"
+
 #import "FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
                                accessToken:(nullable NSString *)accessToken {
   self = [super initWithProvider:providerID];
   if (self) {
-    _providerID = providerID;
     _IDToken = IDToken;
     _accessToken = accessToken;
   }
