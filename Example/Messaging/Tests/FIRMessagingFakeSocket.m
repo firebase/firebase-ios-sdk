@@ -66,7 +66,7 @@
   self.inStream = CFBridgingRelease(inputStreamRef);
   self.outStream = CFBridgingRelease(outputStreamRef);
   if (!self.inStream || !self.outStream) {
-    FIRMessaging_FAIL(@"cannot create a fake socket");
+    NSAssert(NO, @"Cannot create a fake socket");
     return;
   }
 
