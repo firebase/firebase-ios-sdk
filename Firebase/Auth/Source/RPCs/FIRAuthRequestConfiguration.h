@@ -35,6 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *languageCode;
 
+/** @property additionalFrameworkMarker
+    @brief Additional framework marker that will be added as part of the header of every request.
+ */
+@property(nonatomic, copy, nullable) NSString *additionalFrameworkMarker;
+
 - (nullable instancetype)init NS_UNAVAILABLE;
 
 /** @fn initWithRequestClass:APIKey:authLanguage:
