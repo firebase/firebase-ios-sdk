@@ -26,7 +26,7 @@ Firebase Development CocoaPod including experimental and community supported fea
   end
 
   s.subspec 'Core' do |sp|
-    sp.source_files = 'Firebase/Core/**/*.[mh]'
+    sp.source_files = 'Firebase/Core/**/*.{h,m,mm}'
     sp.public_header_files = 'Firebase/Core/Public/*.h','Firebase/Core/Private/*.h',
     sp.private_header_files = 'Firebase/Core/Private/*.h'
     sp.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
