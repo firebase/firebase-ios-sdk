@@ -42,9 +42,7 @@
 
     // If the method being swizzled has already been swizzled (meaning, it came from a superclass),
     // then it needs to make sure the originalImp points to the actual original IMP, rather than our
-    // swizzled IMP. The swizzled IMP of a superclass can outlast the FIRSelectorInstrumentor that
-    // created it, and when the swizzled IMP tries to weakly reference the selector instrumentor
-    // that made it, it will cause a null pointer dereference.
+    // swizzled IMP.
     if ((*FIRNewToOriginalImp())[originalImp]) {
       originalImp = (*FIRNewToOriginalImp())[originalImp];
     }
