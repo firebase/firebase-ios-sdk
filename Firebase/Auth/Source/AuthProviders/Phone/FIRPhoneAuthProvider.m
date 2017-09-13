@@ -140,8 +140,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         completion(nil, error);
         return;
       }
-      NSInteger idx = 10;
       NSMutableString *eventID = [NSMutableString new];
+      NSUInteger idx = 10;
       while (--idx >= 0) {
         [eventID appendString:[NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a')]];
       }
