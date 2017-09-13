@@ -86,6 +86,11 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
       @brief The auth instance used to for verifying the phone number.
    */
   FIRAuth *_auth;
+
+  /** @var _eventID
+      @brief The event ID associated with the a pending app verification request.
+   */
+  NSString *_eventID;
 }
 
 /** @fn initWithAuth:
@@ -267,7 +272,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   NSURL *deeplinkURL = [NSURL URLWithString:URLQueryItems[@"deep_link_id"]];
   NSDictionary<NSString *, NSString *> *deeplinkQueryItems =
       [NSDictionary gtm_dictionaryWithHttpArgumentsString:deeplinkURL.query];
-  if ([deeplinkQueryItems[@"authType"] isEqualToString:kAuthTypeVerifyApp]) {
+  if ([deeplinkQueryItems[@"authType"] isEqualToString:kAuthTypeVerifyApp] &&
+      [deeplinkQueryItems[@"eventId"] isEqualToString:_eventID]) {
     return YES;
   }
   return NO;
@@ -403,12 +409,16 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
     NSString *clienID = _auth.app.options.clientID;
     NSString *apiKey = _auth.app.options.APIKey;
+    _eventID = [NSString stringWithFormat:@"%c%c", 64 + arc4random_uniform(26), 64 +
+        arc4random_uniform(26)];
+
     NSMutableDictionary *urlArguments = [[NSMutableDictionary alloc] initWithDictionary: @{
       @"apiKey" : apiKey,
       @"authType" : kAuthTypeVerifyApp,
       @"ibi" : bundleID,
       @"clientId" : clienID,
-      @"v" : [FIRAuthBackend authUserAgent]
+      @"v" : [FIRAuthBackend authUserAgent],
+      @"eventId" : _eventID
     }];
     if (_auth.requestConfiguration.languageCode) {
       urlArguments[@"hl"] = _auth.requestConfiguration.languageCode;
