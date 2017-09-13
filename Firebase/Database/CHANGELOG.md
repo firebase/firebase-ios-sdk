@@ -1,5 +1,5 @@
 # v4.0.3
-- [fixed] Fixed an issue that prevented non-default apps from using the persistence.
+- [fixed] Fixed an issue that prevented the RTDB from re-using persistence data from older versions.
 
 # v4.0.2
 - [fixed] Retrieving a Database instance for a specific `FirebaseApp` no longer returns a stale instance if that app was deleted.
