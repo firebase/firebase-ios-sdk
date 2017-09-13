@@ -1,3 +1,6 @@
+# v4.0.3
+- [fixed] Fixed an issue that prevented non-default apps from using the persistence cache.
+
 # v4.0.2
 - [fixed] Retrieving a Database instance for a specific `FirebaseApp` no longer returns a stale instance if that app was deleted.
 - [changed] Added message about bandwidth usage in error for queries without indexes.
