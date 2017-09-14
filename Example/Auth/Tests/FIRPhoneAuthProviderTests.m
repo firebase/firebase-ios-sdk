@@ -156,15 +156,6 @@ static const NSTimeInterval kTestTimeout = 5;
  */
 static const NSTimeInterval kExpectationTimeout = 1;
 
-@interface FIRPhoneAuthProvider ()
-
-/** @var eventIDForTesting
-    @brief Stores the current eventID which is only used for testing.
- */
-@property (nonatomic, copy, nullable) NSString *eventIDForTesting;
-
-@end
-
 /** @class FIRPhoneAuthProviderTests
     @brief Tests for @c FIRPhoneAuthProvider
  */
@@ -405,7 +396,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
     NSMutableString *redirectURL =
         [NSMutableString stringWithString:kFakeRedirectURLStringWithReCAPTCHAToken];
     [redirectURL appendString:@"%26eventId%3D"];
-    [redirectURL appendString:_provider.eventIDForTesting];
+    [redirectURL appendString:params[@"eventId"]];
     NSURLComponents *originalComponents =
         [[NSURLComponents alloc] initWithString:redirectURL];
     XCTAssertTrue(callbackMatcher([originalComponents URL]));
