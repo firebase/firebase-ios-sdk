@@ -102,6 +102,13 @@ static NSString *const kSyncMessageMCSReceivedColumn = @"mcs_recv";
 // table data handlers
 typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSData *data);
 
+// Utility to create an NSString from a sqlite3 result code
+NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
+  const char *errorStr = sqlite3_errstr(result);
+  NSString *errorString = [NSString stringWithFormat:@"%d - %s", result, errorStr];
+  return errorString;
+}
+
 @interface FIRMessagingRmq2PersistentStore () {
   sqlite3 *_database;
 }
@@ -187,6 +194,7 @@ typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
   NSArray *paths;
   NSArray *components;
   NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", dbName];
+  NSString *errorMessage;
 
   switch (directory) {
     case FIRMessagingRmqDirectoryDocuments:
@@ -206,7 +214,11 @@ typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
       break;
 
     default:
-      FIRMessaging_FAIL(@"Invalid directory type %zd", directory);
+      errorMessage = [NSString stringWithFormat:@"Invalid directory type %zd", directory];
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreInvalidRmqDirectory,
+                              @"%@",
+                              errorMessage);
+      NSAssert(NO, errorMessage);
       break;
   }
 
@@ -219,9 +231,13 @@ typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
   if (sqlite3_exec(_database, [createDatabase UTF8String], NULL, NULL, &error) != SQLITE_OK) {
     // remove db before failing
     [self removeDatabase];
-    FIRMessaging_FAIL(@"Couldn't create table: %@ %@",
-             kCreateTableOutgoingRmqMessages,
-             [NSString stringWithCString:error encoding:NSUTF8StringEncoding]);
+    NSString *errorMessage = [NSString stringWithFormat:@"Couldn't create table: %@ %@",
+                              kCreateTableOutgoingRmqMessages,
+                              [NSString stringWithCString:error encoding:NSUTF8StringEncoding]];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable,
+                            @"%@",
+                            errorMessage);
+    NSAssert(NO, errorMessage);
   }
 }
 
@@ -256,8 +272,17 @@ typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
   BOOL didOpenDatabase = YES;
   if (![fileManager fileExistsAtPath:path]) {
     // We've to separate between different versions here because of backwards compatbility issues.
-    if (sqlite3_open([path UTF8String], &_database) != SQLITE_OK) {
-      FIRMessaging_FAIL(@"%@ Could not open rmq database: %@", kFCMRmqStoreTag, path);
+    int result = sqlite3_open([path UTF8String], &_database);
+    if (result != SQLITE_OK) {
+      NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
+      NSString *errorMessage =
+          [NSString stringWithFormat:@"Could not open existing RMQ database at path %@, error: %@",
+                                     path,
+                                     errorString];
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
+                              @"%@",
+                              errorMessage);
+      NSAssert(NO, errorMessage);
       didOpenDatabase = NO;
       return;
     }
@@ -267,8 +292,18 @@ typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
     [self createTableWithName:kTableLastRmqId command:kCreateTableLastRmqId];
     [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
   } else {
-    if (sqlite3_open([path UTF8String], &_database) != SQLITE_OK) {
-      FIRMessaging_FAIL(@"%@ Could not open rmq database: %@", kFCMRmqStoreTag, path);
+    // Calling sqlite3_open should create the database, since the file doesn't exist.
+    int result = sqlite3_open([path UTF8String], &_database);
+    if (result != SQLITE_OK) {
+      NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
+      NSString *errorMessage =
+          [NSString stringWithFormat:@"Could not create RMQ database at path %@, error: %@",
+                                     path,
+                                     errorString];
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingDatabase,
+                              @"%@",
+                              errorMessage);
+      NSAssert(NO, errorMessage);
       didOpenDatabase = NO;
     } else {
       [self updateDbWithStringRmqID];

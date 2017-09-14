@@ -27,18 +27,6 @@
 #endif // FIRMessaging_VERBOSE_LOGGING
 
 
-// FIRMessaging_FAIL
-#ifdef DEBUG
-#define FIRMessaging_FAIL(format, ...) \
-do { \
-  NSLog(format, ##__VA_ARGS__); \
-  __builtin_trap(); \
-} while (false)
-#else
-#define FIRMessaging_FAIL(...) do { } while (0)
-#endif
-
-
 // WEAKIFY & STRONGIFY
 // Helper macro.
 #define _FIRMessaging_WEAKNAME(VAR) VAR ## _weak_
