@@ -11,6 +11,12 @@ CocoaPods](https://cocoapods.org/pods/Firebase) and
 
 ## Usage
 
+The CocoaPods version must be at least 1.3.1.
+
+```
+$ pod --version
+```
+
 ```
 $ ./build.swift -f FirebaseAuth -f FirebaseMessaging ....
 ```
