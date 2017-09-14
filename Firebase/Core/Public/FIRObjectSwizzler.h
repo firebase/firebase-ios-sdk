@@ -19,23 +19,22 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Enums that map to their OBJC-prefixed counterparts. */
-typedef OBJC_ENUM(uintptr_t, FIR_ASSOCIATION) {
+typedef OBJC_ENUM(uintptr_t, FIR_ASSOCIATION){
 
-  // Is a weak association.
-  FIR_ASSOCIATION_ASSIGN,
+    // Is a weak association.
+    FIR_ASSOCIATION_ASSIGN,
 
-  // Is a nonatomic strong association.
-  FIR_ASSOCIATION_RETAIN_NONATOMIC,
+    // Is a nonatomic strong association.
+    FIR_ASSOCIATION_RETAIN_NONATOMIC,
 
-  // Is a nonatomic copy association.
-  FIR_ASSOCIATION_COPY_NONATOMIC,
+    // Is a nonatomic copy association.
+    FIR_ASSOCIATION_COPY_NONATOMIC,
 
-  // Is an atomic strong association.
-  FIR_ASSOCIATION_RETAIN,
+    // Is an atomic strong association.
+    FIR_ASSOCIATION_RETAIN,
 
-  // Is an atomic copy association.
-  FIR_ASSOCIATION_COPY
-};
+    // Is an atomic copy association.
+    FIR_ASSOCIATION_COPY};
 
 /** This class handles swizzling a specific instance of a class by generating a dynamic subclass and
  *  installing selectors and properties onto the dynamic subclass. Then, the instance's class is set
@@ -80,7 +79,6 @@ typedef OBJC_ENUM(uintptr_t, FIR_ASSOCIATION) {
  */
 - (instancetype)initWithObject:(id)object NS_DESIGNATED_INITIALIZER;
 
-
 /** Sets an associated object in the runtime. This mechanism can be used to simulate adding
  *  properties.
  *
@@ -107,9 +105,7 @@ typedef OBJC_ENUM(uintptr_t, FIR_ASSOCIATION) {
  *  @param aClass The class supplying an implementation of the method.
  *  @param isClassSelector A BOOL specifying whether the selector is a class or instance selector.
  */
-- (void)copySelector:(SEL)selector
-           fromClass:(Class)aClass
-     isClassSelector:(BOOL)isClassSelector;
+- (void)copySelector:(SEL)selector fromClass:(Class)aClass isClassSelector:(BOOL)isClassSelector;
 
 /** Swizzles the object, changing its class to the generated class. Registers the class pair. */
 - (void)swizzle;

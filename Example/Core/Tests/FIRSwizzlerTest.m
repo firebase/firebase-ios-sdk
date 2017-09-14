@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <objc/runtime.h>
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
@@ -55,7 +54,7 @@
 - (void)testOriginalImpInstanceMethod {
   Method method = class_getInstanceMethod([NSObject class], @selector(description));
   IMP originalImp = method_getImplementation(method);
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return @"nonsense";
   };
 
@@ -75,10 +74,9 @@
   SEL selector = @selector(description);
   Class aClass = [NSObject class];
   id newDescription = ^NSString *(id object) {
-    IMP originalImp = [FIRSwizzler originalImplementationForClass:aClass
-                                                         selector:selector
-                                                  isClassSelector:NO];
-    typedef NSString * (*OriginalImp)(id, SEL);
+    IMP originalImp =
+        [FIRSwizzler originalImplementationForClass:aClass selector:selector isClassSelector:NO];
+    typedef NSString *(*OriginalImp)(id, SEL);
     NSString *originalDescription = ((OriginalImp)(originalImp))(object, selector);
     return [originalDescription stringByAppendingString:@"SWIZZLED!"];
   };
@@ -94,7 +92,7 @@
 - (void)testOriginalImpClassMethod {
   Method method = class_getInstanceMethod([NSObject class], @selector(description));
   IMP originalImp = method_getImplementation(method);
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return @"nonsense";
   };
 
@@ -118,7 +116,7 @@
   IMP instanceImp = method_getImplementation(instanceMethod);
   IMP classImp = method_getImplementation(classMethod);
 
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return @"nonsense";
   };
 
@@ -147,7 +145,7 @@
 /** Tests swizzling an instance method. */
 - (void)testSwizzleInstanceMethod {
   NSString *expectedDescription = @"Not what you expected!";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -163,7 +161,7 @@
 /** Tests swizzling a class method. */
 - (void)testSwizzleClassMethod {
   NSString *expectedDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -180,7 +178,7 @@
   NSObject *object = [[NSObject alloc] init];
   NSString *originalDescription = [object description];
   NSString *swizzledDescription = @"Swizzled description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -199,7 +197,7 @@
 - (void)testUnswizzleClassMethod {
   NSString *originalDescription = [NSObject description];
   NSString *swizzledDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -215,7 +213,7 @@
 /** Tests swizzling a class method doesn't swizzle an instance method of the same name. */
 - (void)testSwizzlingAClassMethodDoesntSwizzleAnInstanceMethod {
   NSString *expectedDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -231,7 +229,7 @@
 /** Tests swizzling an instance method doesn't swizzle a class method of the same name. */
 - (void)testSwizzlingAnInstanceMethodDoesntSwizzleAClassMethod {
   NSString *expectedDescription = @"Not what you expected!";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -249,7 +247,7 @@
 - (void)testSwizzlingSuperclassInstanceMethod {
   NSObject *generalObject = [[NSObject alloc] init];
   BOOL generalObjectIsProxyValue = [generalObject isProxy];
-  BOOL(^newImplementation)() = ^BOOL() {
+  BOOL (^newImplementation)() = ^BOOL() {
     return !generalObjectIsProxyValue;
   };
 
@@ -264,7 +262,7 @@
 /** Tests swizzling a superclass's class method. */
 - (void)testSwizzlingSuperclassClassMethod {
   NSString *expectedDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -281,7 +279,7 @@
 /** Tests swizzling an instance method that calls into the superclass implementation. */
 - (void)testSwizzlingInstanceMethodThatCallsSuper {
   NSString *expectedDescription = [[[TestObject alloc] init] description];
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -301,9 +299,12 @@
   Class testClass = [NSURL class];
   SEL testSelector = @selector(description);
   IMP baseImp = class_getMethodImplementation(testClass, testSelector);
-  [FIRSwizzler swizzleClass:testClass selector:testSelector isClassSelector:NO withBlock:^{
-    return @"Swizzled Description";
-  }];
+  [FIRSwizzler swizzleClass:testClass
+                   selector:testSelector
+            isClassSelector:NO
+                  withBlock:^{
+                    return @"Swizzled Description";
+                  }];
   IMP origImp = [FIRSwizzler originalImplementationForClass:testClass
                                                    selector:testSelector
                                             isClassSelector:NO];
@@ -315,17 +316,23 @@
 - (void)testSwizzleMultiple {
   Class testClass = [NSURL class];
   SEL testSelector = @selector(description);
-  [FIRSwizzler swizzleClass:testClass selector:testSelector isClassSelector:NO withBlock:^{
-    return @"Swizzled Description";
-  }];
+  [FIRSwizzler swizzleClass:testClass
+                   selector:testSelector
+            isClassSelector:NO
+                  withBlock:^{
+                    return @"Swizzled Description";
+                  }];
   IMP origImp = [FIRSwizzler originalImplementationForClass:testClass
                                                    selector:testSelector
                                             isClassSelector:NO];
   Class testClass2 = [NSURLRequest class];
   SEL testSelector2 = @selector(debugDescription);
-  [FIRSwizzler swizzleClass:testClass2 selector:testSelector2 isClassSelector:NO withBlock:^{
-    return @"Swizzled Debug Description";
-  }];
+  [FIRSwizzler swizzleClass:testClass2
+                   selector:testSelector2
+            isClassSelector:NO
+                  withBlock:^{
+                    return @"Swizzled Debug Description";
+                  }];
   IMP origImp2 = [FIRSwizzler originalImplementationForClass:testClass2
                                                     selector:testSelector2
                                              isClassSelector:NO];
@@ -339,7 +346,7 @@
 /** Tests swizzling a class method that calls into the superclass implementation. */
 - (void)testSwizzlingClassMethodThatCallsSuper {
   NSString *expectedDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -359,7 +366,7 @@
 - (void)testSwizzlingAnInheritedInstanceMethodDoesntAffectTheIMPOfItsSuperclass {
   NSObject *generalObject = [[NSObject alloc] init];
   BOOL expectedGeneralObjectValue = [generalObject isProxy];
-  BOOL(^newImplementation)() = ^BOOL() {
+  BOOL (^newImplementation)() = ^BOOL() {
     return !expectedGeneralObjectValue;
   };
 
@@ -379,7 +386,7 @@
 - (void)testSwizzlingADeeperInheritedInstanceMethodDoesntAffectTheIMPOfItsSuperclass {
   TestObject *testObject = [[TestObject alloc] init];
   BOOL expectedTestObjectValue = [testObject isProxy];
-  BOOL(^newImplementation)() = ^BOOL() {
+  BOOL (^newImplementation)() = ^BOOL() {
     return !expectedTestObjectValue;
   };
 
@@ -400,8 +407,8 @@
  */
 - (void)testSwizzlingAnInheritedClassMethodDoesntAffectTheIMPOfItsSuperclass {
   // Fun fact, this won't work on +new. Swizzling +new causes a retain to not be placed correctly.
-  NSString  *expectedDescription = [TestObject description];
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString *expectedDescription = [TestObject description];
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 
@@ -423,7 +430,7 @@
  */
 - (void)testSwizzlingADeeperInheritedClassMethodDoesntAffectTheIMPOfItsSuperclass {
   NSString *expectedDescription = [TestObjectSubclass description];
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return expectedDescription;
   };
 

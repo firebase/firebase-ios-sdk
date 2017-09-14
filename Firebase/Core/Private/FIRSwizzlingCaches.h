@@ -24,7 +24,7 @@
  *  equal_to<T> template; C++ doesn't know anything about ObjC types.
  */
 struct FIRClassSelectorHasher {
-  size_t operator() (const std::pair<Class, SEL> &obj) const {
+  size_t operator()(const std::pair<Class, SEL> &obj) const {
     return *(size_t *)(void *)(&obj.first) ^ *(size_t *)(void *)(&obj.second);
   }
 };
@@ -45,9 +45,9 @@ extern dispatch_queue_t GetFIRSwizzlingQueue();
 /** Ensures the singleton map of Class/SEL -> IMP is instantiated and returns it.
  *  @return The shared swizzle map.
  */
-extern FIRSwizzleMap * FIRPreviousImpCache();
+extern FIRSwizzleMap *FIRPreviousImpCache();
 
 /** Ensures the singleton map of new IMP -> original IMP is instantiated and returns it.
  *  @return The singleton IMP to IMP map.
  */
-extern FIRNewIMPToOriginalIMPMap * FIRNewToOriginalImp();
+extern FIRNewIMPToOriginalIMPMap *FIRNewToOriginalImp();

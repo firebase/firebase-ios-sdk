@@ -24,7 +24,8 @@
 @implementation FIRObjectSwizzlerTest
 
 /** Exists just as a donor method. */
-- (void)donorMethod {}
+- (void)donorMethod {
+}
 
 - (void)testRetainedAssociatedObjects {
   NSObject *object = [[NSObject alloc] init];
@@ -71,9 +72,7 @@
 - (void)testCopySelectorFromClassIsClassSelectorAndSwizzle {
   NSObject *object = [[NSObject alloc] init];
   FIRObjectSwizzler *objectSwizzler = [[FIRObjectSwizzler alloc] initWithObject:object];
-  [objectSwizzler copySelector:@selector(donorMethod)
-                     fromClass:[self class]
-               isClassSelector:NO];
+  [objectSwizzler copySelector:@selector(donorMethod) fromClass:[self class] isClassSelector:NO];
   XCTAssertFalse([object respondsToSelector:@selector(donorMethod)]);
   XCTAssertFalse([[object class] instancesRespondToSelector:@selector(donorMethod)]);
   [objectSwizzler swizzle];
@@ -96,9 +95,7 @@
 - (void)testRetainCycleDoesntExistAndDeallocCausesUnswizzling {
   NSObject *object = [[NSObject alloc] init];
   FIRObjectSwizzler *objectSwizzler = [[FIRObjectSwizzler alloc] initWithObject:object];
-  [objectSwizzler copySelector:@selector(donorMethod)
-                     fromClass:[self class]
-               isClassSelector:NO];
+  [objectSwizzler copySelector:@selector(donorMethod) fromClass:[self class] isClassSelector:NO];
   [objectSwizzler swizzle];
   // If objectSwizzler were used, the strong reference would make it live to the end of this test.
   // We want to make sure it dies when the object dies, hence the weak reference.
@@ -233,9 +230,7 @@
   NSObject *object = [[NSObject alloc] init];
   NSDictionary *associatedObject = [[NSDictionary alloc] init];
   FIRObjectSwizzler *swizzler = [[FIRObjectSwizzler alloc] initWithObject:object];
-  [swizzler setAssociatedObjectWithKey:@"key"
-                                 value:associatedObject
-                           association:1337];
+  [swizzler setAssociatedObjectWithKey:@"key" value:associatedObject association:1337];
   NSDictionary *returnedObject = [swizzler getAssociatedObjectForKey:@"key"];
   XCTAssertEqualObjects(returnedObject, associatedObject);
 }
