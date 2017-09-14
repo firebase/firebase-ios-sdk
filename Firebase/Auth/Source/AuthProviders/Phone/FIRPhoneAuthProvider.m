@@ -81,6 +81,19 @@ static NSString *const kAuthTypeVerifyApp = @"verifyApp";
  */
 NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 
+#pragma mark unit tests
+
+@interface FIRPhoneAuthProvider ()
+
+/** @var eventIDForTesting
+    @brief Stores the current eventID which is only used for testing.
+ */
+@property (nonatomic, copy, nullable) NSString *eventIDForTesting;
+
+@end
+
+#pragma mark implementation
+
 @implementation FIRPhoneAuthProvider {
 
   /** @var _auth
@@ -158,6 +171,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         [eventID appendString:
             [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
       }
+      _eventIDForTesting = eventID;
       [self reCAPTCHAURLWithEventID:eventID completion:^(NSURL *_Nullable reCAPTCHAURL,
                                                          NSError *_Nullable error) {
         if (error) {

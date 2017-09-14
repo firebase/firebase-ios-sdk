@@ -156,6 +156,15 @@ static const NSTimeInterval kTestTimeout = 5;
  */
 static const NSTimeInterval kExpectationTimeout = 1;
 
+@interface FIRPhoneAuthProvider ()
+
+/** @var eventIDForTesting
+    @brief Stores the current eventID which is only used for testing.
+ */
+@property (nonatomic, copy, nullable) NSString *eventIDForTesting;
+
+@end
+
 /** @class FIRPhoneAuthProviderTests
     @brief Tests for @c FIRPhoneAuthProvider
  */
@@ -393,8 +402,12 @@ static const NSTimeInterval kExpectationTimeout = 1;
     // `callbackMatcher` is at index 4
     [invocation getArgument:&unretainedArgument atIndex:4];
     FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
+    NSMutableString *redirectURL =
+        [NSMutableString stringWithString:kFakeRedirectURLStringWithReCAPTCHAToken];
+    [redirectURL appendString:@"%26eventId%3D"];
+    [redirectURL appendString:_provider.eventIDForTesting];
     NSURLComponents *originalComponents =
-        [[NSURLComponents alloc] initWithString:kFakeRedirectURLStringWithReCAPTCHAToken];
+        [[NSURLComponents alloc] initWithString:redirectURL];
     XCTAssertTrue(callbackMatcher([originalComponents URL]));
     NSURLComponents *components = [originalComponents copy];
     components.query = @"https";
