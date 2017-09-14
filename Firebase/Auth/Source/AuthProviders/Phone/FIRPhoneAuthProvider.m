@@ -140,12 +140,12 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         completion(nil, error);
         return;
       }
-      NSMutableString *eventID = [NSMutableString new];
-      NSUInteger idx = 10;
-      while (--idx >= 0) {
-        [eventID appendString:[NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a')]];
+      NSMutableString *eventID = [[NSMutableString alloc] init];
+      for(int i=0; i<10; i++) {
+        [eventID appendString:
+            [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
       }
-      [self reCAPTCHAURLWithEventID:eventID Completion:^(NSURL *_Nullable reCAPTCHAURL,
+      [self reCAPTCHAURLWithEventID:eventID completion:^(NSURL *_Nullable reCAPTCHAURL,
                                                          NSError *_Nullable error) {
         if (error) {
           callBackOnMainThread(nil, error);
@@ -399,7 +399,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   }];
 }
 
-- (void)reCAPTCHAURLWithEventID:(NSString *)eventID Completion:(FIRReCAPTCHAURLCallBack)completion {
+- (void)reCAPTCHAURLWithEventID:(NSString *)eventID completion:(FIRReCAPTCHAURLCallBack)completion {
   [self fetchAuthDomainWithCompletion:^(NSString *_Nullable authDomain,
                                         NSError *_Nullable error) {
     if (error) {
