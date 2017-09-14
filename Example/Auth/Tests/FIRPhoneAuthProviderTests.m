@@ -395,10 +395,12 @@ static const NSTimeInterval kExpectationTimeout = 1;
     FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
     NSMutableString *redirectURL =
         [NSMutableString stringWithString:kFakeRedirectURLStringWithReCAPTCHAToken];
+    // Verify that the URL is rejected by the callback matcher without the event ID.
+    XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
     [redirectURL appendString:@"%26eventId%3D"];
     [redirectURL appendString:params[@"eventId"]];
-    NSURLComponents *originalComponents =
-        [[NSURLComponents alloc] initWithString:redirectURL];
+    NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
+    // Verify that the URL is accepted by the callback matcher with the matching event ID.
     XCTAssertTrue(callbackMatcher([originalComponents URL]));
     NSURLComponents *components = [originalComponents copy];
     components.query = @"https";
