@@ -18,6 +18,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @class FIRAuthWebView
+    @brief A class reponsible for creating a UIWebview for use within Firebase Auth.
+ */
 @interface FIRAuthWebView : UIView
 
 /** @property webView

@@ -20,7 +20,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRAuthWebViewDelegate <NSObject>
+/** @protocol FIRAuthWebViewControllerDelegate
+    @brief Defines a delegate for FIRAuthWebViewController
+ */
+@protocol FIRAuthWebViewControllerDelegate <NSObject>
 
 /** @fn webViewController:canHandleURL:
     @brief Determines if a URL should be handled by the delegate.
@@ -45,6 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/** @class FIRAuthWebViewController
+    @brief Reponsible for creating a UIViewController for presenting a FIRAutWebView.
+ */
 @interface FIRAuthWebViewController : UIViewController
 
 /** @fn initWithNibName:bundle:
@@ -59,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
 
 - (instancetype)initWithURL:(NSURL *)URL
-                   delegate:(__weak id<FIRAuthWebViewDelegate>)delegate
+                   delegate:(__weak id<FIRAuthWebViewControllerDelegate>)delegate
     NS_DESIGNATED_INITIALIZER;
 
 @end

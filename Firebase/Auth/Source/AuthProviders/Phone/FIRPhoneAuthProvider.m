@@ -429,6 +429,13 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   }];
 }
 
+/** @fn reCAPTCHAURLWithEventID:completion:
+    @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event
+        ID.
+    @param eventID The event ID used for this purpose.
+    @param completion The callback invoked after the URL has been constructed or an error
+        has been encountered.
+ */
 - (void)reCAPTCHAURLWithEventID:(NSString *)eventID completion:(FIRReCAPTCHAURLCallBack)completion {
   [self fetchAuthDomainWithCompletion:^(NSString *_Nullable authDomain,
                                         NSError *_Nullable error) {
@@ -457,6 +464,12 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   }];
 }
 
+
+/** @fn fetchAuthDomainWithCompletion:completion:
+    @brief Fetches the auth domain associated with the Firebase Project.
+    @param completion The callback invoked after the auth domain has been constructed or an error
+        has been encountered.
+ */
 - (void)fetchAuthDomainWithCompletion:(FIRFetchAuthDomainCallback)completion {
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:_auth.requestConfiguration];

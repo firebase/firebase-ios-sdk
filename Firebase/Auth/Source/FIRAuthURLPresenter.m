@@ -26,7 +26,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate, FIRAuthWebViewDelegate>
+@interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate,
+                                   FIRAuthWebViewControllerDelegate>
 @end
 
 @implementation FIRAuthURLPresenter {

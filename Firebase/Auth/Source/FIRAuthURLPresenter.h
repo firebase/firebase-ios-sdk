@@ -35,6 +35,9 @@ typedef void (^FIRAuthURLPresentationCompletion)(NSURL *_Nullable callbackURL,
  */
 typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL * _Nullable callbackURL);
 
+/** @class FIRAuthURLPresenter
+    @brief A Class responsible for presenting URL via SFSafariViewController or UIWebView.
+ */
 @interface FIRAuthURLPresenter : NSObject
 
 /** @fn presentURL:UIDelegate:callbackMatcher:completion:
