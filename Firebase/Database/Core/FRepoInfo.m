@@ -112,4 +112,23 @@
     return url;
 }
 
+- (id)copyWithZone:(NSZone *)zone; {
+    return self; // Immutable
+}
+
+- (NSUInteger)hash {
+    NSUInteger result = host.hash;
+    result = 31 * result + (secure ? 1 : 0);
+    result = 31 * result + namespace.hash;
+    result = 31 * result + host.hash;
+    return result;
+}
+
+- (BOOL)isEqual:(id)anObject {
+    if (![anObject isKindOfClass:[FRepoInfo class]]) return NO;
+    FRepoInfo *other = (FRepoInfo *)anObject;
+    return secure == other.secure && [host isEqualToString:other.host] &&
+           [namespace isEqualToString:other.namespace];
+}
+
 @end

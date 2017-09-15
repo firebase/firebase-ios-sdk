@@ -24,9 +24,13 @@
 
 @implementation FRepoManager
 
-+ (NSMutableDictionary *)configs {
+typedef NSMutableDictionary<NSString *,
+                            NSMutableDictionary<FRepoInfo *, FRepo *> *>
+    FRepoDictionary;
+
++ (FRepoDictionary *)configs {
     static dispatch_once_t pred = 0;
-    static NSMutableDictionary *configs;
+    static FRepoDictionary *configs;
     dispatch_once(&pred, ^{
         configs = [NSMutableDictionary dictionary];
     });
@@ -39,33 +43,32 @@
  */
 + (FRepo *) getRepo:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config {
     [config freeze];
-    NSString* repoHashString = [NSString stringWithFormat:@"%@_%@", repoInfo.host, repoInfo.namespace];
-    NSMutableDictionary *configs = [FRepoManager configs];
+    FRepoDictionary *configs = [FRepoManager configs];
     @synchronized(configs) {
-        NSMutableDictionary *repos = configs[config.sessionIdentifier];
-        if (!repos || repos[repoHashString] == nil) {
+        NSMutableDictionary<FRepoInfo *, FRepo *> *repos = configs[config.sessionIdentifier];
+        if (!repos || repos[repoInfo] == nil) {
             // Calling this should create the repo.
             [FIRDatabase createDatabaseForTests:repoInfo config:config];
         }
 
-        return configs[config.sessionIdentifier][repoHashString];
+        return configs[config.sessionIdentifier][repoInfo];
     }
 }
 
 + (FRepo *) createRepo:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config database:(FIRDatabase *)database {
     [config freeze];
-    NSString* repoHashString = [NSString stringWithFormat:@"%@_%@", repoInfo.host, repoInfo.namespace];
-    NSMutableDictionary *configs = [FRepoManager configs];
+    FRepoDictionary *configs = [FRepoManager configs];
     @synchronized(configs) {
-        NSMutableDictionary *repos = configs[config.sessionIdentifier];
+        NSMutableDictionary<FRepoInfo *, FRepo *> *repos =
+            configs[config.sessionIdentifier];
         if (!repos) {
             repos = [NSMutableDictionary dictionary];
             configs[config.sessionIdentifier] = repos;
         }
-        FRepo *repo = repos[repoHashString];
+        FRepo *repo = repos[repoInfo];
         if (repo == nil) {
             repo = [[FRepo alloc] initWithRepoInfo:repoInfo config:config database:database];
-            repos[repoHashString] = repo;
+            repos[repoInfo] = repo;
             return repo;
         } else {
             [NSException raise:@"RepoExists" format:@"createRepo called for Repo that already exists."];
@@ -76,9 +79,9 @@
 
 + (void) interrupt:(FIRDatabaseConfig *)config {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        NSMutableDictionary *configs = [FRepoManager configs];
-        NSMutableDictionary *repos = configs[config.sessionIdentifier];
-        for (FRepo* repo in [repos allValues]) {
+        FRepoDictionary *configs = [FRepoManager configs];
+        NSMutableDictionary<FRepoInfo *, FRepo *> *repos = configs[config.sessionIdentifier];
+        for (FRepo *repo in [repos allValues]) {
             [repo interrupt];
         }
     });
@@ -86,20 +89,20 @@
 
 + (void) interruptAll {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        NSMutableDictionary *configs = [FRepoManager configs];
-        for (NSMutableDictionary *repos in [configs allValues]) {
-            for (FRepo* repo in [repos allValues]) {
-                [repo interrupt];
-            }
+        FRepoDictionary *configs = [FRepoManager configs];
+        for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in [configs allValues]) {
+              for (FRepo *repo in [repos allValues]) {
+                    [repo interrupt];
+              }
         }
     });
 }
 
 + (void) resume:(FIRDatabaseConfig *)config {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        NSMutableDictionary *configs = [FRepoManager configs];
-        NSMutableDictionary *repos = configs[config.sessionIdentifier];
-        for (FRepo* repo in [repos allValues]) {
+        FRepoDictionary *configs = [FRepoManager configs];
+        NSMutableDictionary<FRepoInfo *, FRepo *> *repos = configs[config.sessionIdentifier];
+        for (FRepo *repo in [repos allValues]) {
             [repo resume];
         }
     });
@@ -107,9 +110,9 @@
 
 + (void) resumeAll {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        NSMutableDictionary *configs = [FRepoManager configs];
-        for (NSMutableDictionary *repos in [configs allValues]) {
-            for (FRepo* repo in [repos allValues]) {
+        FRepoDictionary *configs = [FRepoManager configs];
+        for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in [configs allValues]) {
+            for (FRepo *repo in [repos allValues]) {
                 [repo resume];
             }
         }
