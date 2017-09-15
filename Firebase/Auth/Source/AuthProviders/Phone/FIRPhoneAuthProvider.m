@@ -20,7 +20,6 @@
 
 #import "FIRLogger.h"
 #import "FIRPhoneAuthCredential_Internal.h"
-#import "NSString+FIRAuth.h"
 #import "FIRApp.h"
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
@@ -194,8 +193,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
               callBackOnMainThread(nil, error);
               return;
             }
-            // Associate the phone number with the verification ID.
-            response.verificationID.fir_authPhoneNumber = phoneNumber;
             callBackOnMainThread(response.verificationID, nil);
           }];
         }];
@@ -381,8 +378,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         callback(nil, error);
         return;
       }
-      // Associate the phone number with the verification ID.
-      response.verificationID.fir_authPhoneNumber = phoneNumber;
       callback(response.verificationID, nil);
     }];
   }];

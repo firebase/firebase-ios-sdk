@@ -43,7 +43,6 @@
 #import "FIRVerifyClientResponse.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
-#import "Phone/NSString+FIRAuth.h"
 
 @import SafariServices;
 
@@ -328,7 +327,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(error);
     XCTAssertEqualObjects(verificationID, kTestVerificationID);
-    XCTAssertEqualObjects(verificationID.fir_authPhoneNumber, kTestPhoneNumber);
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -443,7 +441,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(error);
     XCTAssertEqualObjects(verificationID, kTestVerificationID);
-    XCTAssertEqualObjects(verificationID.fir_authPhoneNumber, kTestPhoneNumber);
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -711,7 +708,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(error);
     XCTAssertEqualObjects(verificationID, kTestVerificationID);
-    XCTAssertEqualObjects(verificationID.fir_authPhoneNumber, kTestPhoneNumber);
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -893,7 +889,6 @@ static const NSTimeInterval kExpectationTimeout = 1;
                     completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
     XCTAssertNil(error);
     XCTAssertEqualObjects(verificationID, kTestVerificationID);
-    XCTAssertEqualObjects(verificationID.fir_authPhoneNumber, kTestPhoneNumber);
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
