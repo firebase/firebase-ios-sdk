@@ -54,10 +54,12 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
       NSMutableDictionary *instances = [self instances];
       @synchronized (instances) {
           FIRDatabase *deletedApp = instances[appName];
-          // Clean up the deleted instance in an effort to remove any resources still in use.
-          // Note: Any leftover instances of this exact database will be invalid.
-          [FRepoManager disposeRepos:deletedApp.config];
-          [instances removeObjectForKey:appName];
+          if (deletedApp) {
+              // Clean up the deleted instance in an effort to remove any resources still in use.
+              // Note: Any leftover instances of this exact database will be invalid.
+              [FRepoManager disposeRepos:deletedApp.config];
+              [instances removeObjectForKey:appName];
+          }
       }
   }];
 }
