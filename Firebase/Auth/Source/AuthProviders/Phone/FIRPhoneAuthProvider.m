@@ -430,7 +430,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 }
 
 /** @fn reCAPTCHAURLWithEventID:completion:
-    @brief Constructs a URL used for openning a reCAPTCHA app verification flow for a given event
+    @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event
         ID.
     @param eventID The event ID used for this purpose.
     @param completion The callback invoked after the URL has been constructed or an error
