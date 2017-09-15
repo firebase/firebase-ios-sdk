@@ -112,8 +112,7 @@
     return url;
 }
 
-- (id)copyWithZone:(NSZone *)zone;
-{
+- (id)copyWithZone:(NSZone *)zone; {
     return self; // Immutable
 }
 
@@ -125,8 +124,7 @@
 }
 
 - (BOOL)isEqual:(id)anObject {
-    if (![anObject isKindOfClass:[FRepoInfo class]])
-        return NO;
+    if (![anObject isKindOfClass:[FRepoInfo class]]) return NO;
     FRepoInfo *other = (FRepoInfo *)anObject;
     return secure == other.secure && [host isEqualToString:other.host] &&
            [namespace isEqualToString:other.namespace];

@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 #import "FirebaseCommunity/FIRApp.h"
+#import "FIRDatabaseReference.h"
 #import "FIRDatabaseReference_Private.h"
 #import "FIRDatabase.h"
 #import "FIRDatabaseConfig_Private.h"
@@ -55,46 +56,45 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (void)testDatabaseForAppWithURL {
-  id app =
-      [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithURL" URL:kFirebaseTestAltNamespace];
-  FIRDatabase *database = [FIRDatabase databaseForApp:app URL:@"http://foo.bar.com"];
-  XCTAssertEqualObjects(@"https://foo.bar.com", [database reference].URL);
+    id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithURL" URL:kFirebaseTestAltNamespace];
+    FIRDatabase *database = [FIRDatabase databaseForApp:app URL:@"http://foo.bar.com"];
+    XCTAssertEqualObjects(@"https://foo.bar.com", [database reference].URL);
 }
 
 - (void)testDatabaseForAppWithURLAndPort {
-  id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithURLAndPort"
-                                        URL:kFirebaseTestAltNamespace];
-  FIRDatabase *database = [FIRDatabase databaseForApp:app URL:@"http://foo.bar.com:80"];
-  XCTAssertEqualObjects(@"http://foo.bar.com:80", [database reference].URL);
+    id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithURLAndPort"
+                                          URL:kFirebaseTestAltNamespace];
+    FIRDatabase *database = [FIRDatabase databaseForApp:app URL:@"http://foo.bar.com:80"];
+    XCTAssertEqualObjects(@"http://foo.bar.com:80", [database reference].URL);
 }
 
 - (void)testDatabaseForAppWithHttpsURL {
-  id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithHttpsURL"
-                                        URL:kFirebaseTestAltNamespace];
-  FIRDatabase *database = [FIRDatabase databaseForApp:app URL:@"https://foo.bar.com"];
-  XCTAssertEqualObjects(@"https://foo.bar.com", [database reference].URL);
+    id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithHttpsURL"
+                                          URL:kFirebaseTestAltNamespace];
+    FIRDatabase *database = [FIRDatabase databaseForApp:app URL:@"https://foo.bar.com"];
+    XCTAssertEqualObjects(@"https://foo.bar.com", [database reference].URL);
 }
 
 - (void)testDifferentInstanceForAppWithURL {
-  id app = [[FIRFakeApp alloc] initWithName:@"testDifferentInstanceForAppWithURL"
-                                        URL:kFirebaseTestAltNamespace];
-  FIRDatabase *database1 = [FIRDatabase databaseForApp:app URL:@"https://foo1.bar.com"];
-  FIRDatabase *database2 = [FIRDatabase databaseForApp:app URL:@"https://foo1.bar.com/"];
-  FIRDatabase *database3 = [FIRDatabase databaseForApp:app URL:@"https://foo2.bar.com"];
-  XCTAssertEqual(database1, database2);
-  XCTAssertNotEqual(database1, database3);
+    id app = [[FIRFakeApp alloc] initWithName:@"testDifferentInstanceForAppWithURL"
+                                          URL:kFirebaseTestAltNamespace];
+    FIRDatabase *database1 = [FIRDatabase databaseForApp:app URL:@"https://foo1.bar.com"];
+    FIRDatabase *database2 = [FIRDatabase databaseForApp:app URL:@"https://foo1.bar.com/"];
+    FIRDatabase *database3 = [FIRDatabase databaseForApp:app URL:@"https://foo2.bar.com"];
+    XCTAssertEqual(database1, database2);
+    XCTAssertNotEqual(database1, database3);
 }
 
 - (void)testDatabaseForAppWithInvalidCustomURLs {
-  id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithInvalidCustomURLs"
+    id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithInvalidCustomURLs"
                                         URL:kFirebaseTestAltNamespace];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertThrows([FIRDatabase databaseForApp:app URL:nil]);
+    XCTAssertThrows([FIRDatabase databaseForApp:app URL:nil]);
 #pragma clang diagnostic pop
-  XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"not-a-url"]);
-  XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://fblocal.com"]);
-  XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://x.fblocal.com:9000/paths/are/bad"]);
+    XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"not-a-url"]);
+    XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://fblocal.com"]);
+    XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://x.fblocal.com:9000/paths/are/bad"]);
 }
 
 - (void) testDeleteDatabase {
