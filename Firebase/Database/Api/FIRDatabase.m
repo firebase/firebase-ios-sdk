@@ -72,7 +72,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 /**
  * A static NSMutableDictionary of FirebaseApp name and FRepoInfo to
  * FirebaseDatabase instance. To ensure thread-safety, it should only be
- * accessed in databaseForApp, which is synchronized.
+ * accessed in databaseForApp:URL:, which is synchronized.
  *
  * TODO: This serves a duplicate purpose as RepoManager.  We should clean up.
  * TODO: We should maybe be conscious of leaks and make this a weak map or
@@ -127,14 +127,14 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     if (url == nil) {
         [NSException raise:@"MissingDatabaseURL"
                     format:@"Failed to get FirebaseDatabase instance: "
-                            "Specify DatabaseURL within FIRApp or from your databaseForApp: call."];
+                            "Specify DatabaseURL within FIRApp or from your databaseForApp:URL: call."];
     }
 
     NSURL *databaseUrl = [NSURL URLWithString:url];
 
     if (databaseUrl == nil) {
         [NSException raise:@"InvalidDatabaseURL" format:@"The Database URL '%@' cannot be parsed. "
-            "Specify a valid DatabaseURL within FIRApp or from your databaseForApp: call.", databaseUrl];
+            "Specify a valid DatabaseURL within FIRApp or from your databaseForApp:URL: call.", databaseUrl];
     } else if (![databaseUrl.path isEqualToString:@""] && ![databaseUrl.path isEqualToString:@"/"]) {
         [NSException raise:@"InvalidDatabaseURL" format:@"Configured Database URL '%@' is invalid. It should point "
             "to the root of a Firebase Database but it includes a path: %@",databaseUrl, databaseUrl.path];

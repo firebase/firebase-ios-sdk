@@ -79,43 +79,43 @@ typedef NSMutableDictionary<NSString *,
 
 + (void) interrupt:(FIRDatabaseConfig *)config {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-      FRepoDictionary *configs = [FRepoManager configs];
-      NSMutableDictionary<FRepoInfo *, FRepo *> *repos = configs[config.sessionIdentifier];
-      for (FRepo *repo in [repos allValues]) {
-          [repo interrupt];
-      }
+        FRepoDictionary *configs = [FRepoManager configs];
+        NSMutableDictionary<FRepoInfo *, FRepo *> *repos = configs[config.sessionIdentifier];
+        for (FRepo *repo in [repos allValues]) {
+            [repo interrupt];
+        }
     });
 }
 
 + (void) interruptAll {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-      FRepoDictionary *configs = [FRepoManager configs];
-      for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in [configs allValues]) {
-          for (FRepo *repo in [repos allValues]) {
-              [repo interrupt];
-          }
-      }
+        FRepoDictionary *configs = [FRepoManager configs];
+        for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in [configs allValues]) {
+              for (FRepo *repo in [repos allValues]) {
+                    [repo interrupt];
+              }
+        }
     });
 }
 
 + (void) resume:(FIRDatabaseConfig *)config {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-      FRepoDictionary *configs = [FRepoManager configs];
-      NSMutableDictionary<FRepoInfo *, FRepo *> *repos = configs[config.sessionIdentifier];
-      for (FRepo *repo in [repos allValues]) {
-          [repo resume];
-      }
+        FRepoDictionary *configs = [FRepoManager configs];
+        NSMutableDictionary<FRepoInfo *, FRepo *> *repos = configs[config.sessionIdentifier];
+        for (FRepo *repo in [repos allValues]) {
+            [repo resume];
+        }
     });
 }
 
 + (void) resumeAll {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-      FRepoDictionary *configs = [FRepoManager configs];
-      for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in [configs allValues]) {
-        for (FRepo *repo in [repos allValues]) {
-            [repo resume];
+        FRepoDictionary *configs = [FRepoManager configs];
+        for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in [configs allValues]) {
+            for (FRepo *repo in [repos allValues]) {
+                [repo resume];
+            }
         }
-      }
     });
 }
 
