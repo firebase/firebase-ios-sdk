@@ -23,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @protocol FIRAuthUIDelegate
     @brief A protocol to handle user interface interactions for Firebase Auth.
-*/
-
+ */
 @protocol FIRAuthUIDelegate  <NSObject>
 
 /** @fn presentViewController:animated:completion:

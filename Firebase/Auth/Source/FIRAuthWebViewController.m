@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
   /** @var _delegate
       @brief The delegate to call.
    */
-  __weak id<FIRAuthWebViewDelegate> _delegate;
+  __weak id<FIRAuthWebViewControllerDelegate> _delegate;
 
   /** @var _webView;
       @brief The web view instance for easier access.
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithURL:(NSURL *)URL
-                   delegate:(__weak id<FIRAuthWebViewDelegate>)delegate {
+                   delegate:(__weak id<FIRAuthWebViewControllerDelegate>)delegate {
   self = [super initWithNibName:nil bundle:nil];
   if (self) {
     _URL = URL;
