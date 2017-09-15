@@ -15,7 +15,7 @@
  */
 
 #import "FIROAuthCredential.h"
-#import "FIRAuthExceptionUtils.h"
+
 #import "FIRVerifyAssertionRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,12 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIROAuthCredential
 
-- (nullable instancetype)initWithProvierID:(NSString *)providerID
-                                   IDToken:(nullable NSString *)IDToken
-                               accessToken:(nullable NSString *)accessToken {
+- (nullable instancetype)initWithProviderID:(NSString *)providerID
+                                    IDToken:(nullable NSString *)IDToken
+                                accessToken:(nullable NSString *)accessToken {
   self = [super initWithProvider:providerID];
   if (self) {
-    _providerID = providerID;
     _IDToken = IDToken;
     _accessToken = accessToken;
   }

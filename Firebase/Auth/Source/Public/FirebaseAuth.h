@@ -34,6 +34,7 @@
 #import "FirebaseAuthVersion.h"
 
 #if TARGET_OS_IOS
+#import "FIRAuthUIDelegate.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FIRAuthAPNSTokenType.h"

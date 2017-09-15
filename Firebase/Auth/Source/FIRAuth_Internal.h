@@ -124,18 +124,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)signOutByForceWithUserID:(NSString *)userID error:(NSError *_Nullable *_Nullable)error;
 
-/** @fn canHandleURL:
-    @brief Whether the specific URL is handled by @c FIRAuth .
-    @param url The URL received by the application delegate from any of the openURL method.
-    @return Whether or the URL is handled. YES means the URL is for Firebase Auth
-        so the caller should ignore the URL from further processing, and NO means the
-        the URL is for the app (or another libaray) so the caller should continue handling
-        this URL as usual.
-    @remarks If swizzling is disabled, URLs received by the application delegate must be forwarded
-        to this method for phone number auth to work.
- */
-- (BOOL)canHandleURL:(nonnull NSURL *)url;
-
 @end
 
 NS_ASSUME_NONNULL_END

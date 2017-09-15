@@ -233,3 +233,16 @@ FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
+
+@implementation FIRLoggerWrapper
+
++(void) logWithLevel:(FIRLoggerLevel)level
+         withService:(FIRLoggerService)service
+            withCode:(NSString *)messageCode
+         withMessage:(NSString *)message
+            withArgs:(va_list) args
+{
+  FIRLogBasic(level, service, messageCode, message, args);
+}
+
+@end

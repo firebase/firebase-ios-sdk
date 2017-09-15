@@ -202,6 +202,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 @property(nonatomic, copy, readonly) NSString *firebaseAppId;
 
+/** @property additionalFrameworkMarker
+    @brief Additional framework marker that will be added as part of the header of every request.
+ */
+@property(nonatomic, copy, nullable) NSString *additionalFrameworkMarker;
+
 /** @fn initWithApp:
     @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance.
     @param app The application to associate the auth instance with.
@@ -945,7 +950,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)useAppLanguage {
-  _requestConfiguration.languageCode = [NSBundle mainBundle].preferredLocalizations.firstObject;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    _requestConfiguration.languageCode = [NSBundle mainBundle].preferredLocalizations.firstObject;
+  });
 }
 
 - (nullable NSString *)languageCode {
@@ -953,7 +960,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)setLanguageCode:(nullable NSString *)languageCode {
-  _requestConfiguration.languageCode = [languageCode copy];
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    _requestConfiguration.languageCode = [languageCode copy];
+  });
+}
+
+- (NSString *)additionalFrameworkMarker {
+  return _requestConfiguration.additionalFrameworkMarker;
+}
+
+- (void)setAdditionalFrameworkMarker:(NSString *)additionalFrameworkMarker {
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    _requestConfiguration.additionalFrameworkMarker = [additionalFrameworkMarker copy];
+  });
 }
 
 #if TARGET_OS_IOS

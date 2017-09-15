@@ -25,20 +25,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIROAuthCredential : FIRAuthCredential
 
-/** @property providerID
-    @brief The provider ID associated with this credential.
- */
-@property(nonatomic, readonly) NSString *providerID;
-
 /** @property IDToken
     @brief The ID Token associated with this credential.
  */
-@property(nonatomic, readonly) NSString *IDToken;
+@property(nonatomic, readonly, nullable) NSString *IDToken;
 
 /** @property accessToken
     @brief The access token associated with this credential.
  */
-@property(nonatomic, readonly) NSString *accessToken;
+@property(nonatomic, readonly, nullable) NSString *accessToken;
 
 /** @fn initWithProviderId:IDToken:accessToken:
     @brief Designated initializer.
@@ -46,9 +41,9 @@ NS_ASSUME_NONNULL_BEGIN
     @param IDToken  The ID Token associated with the credential being created.
     @param accessToken The access token associated with the credential being created.
  */
-- (nullable instancetype)initWithProvierID:(NSString *)providerID
-                                   IDToken:(nullable NSString*)IDToken
-                               accessToken:(nullable NSString *)accessToken;
+- (nullable instancetype)initWithProviderID:(NSString *)providerID
+                                    IDToken:(nullable NSString*)IDToken
+                                accessToken:(nullable NSString *)accessToken;
 
 @end
 

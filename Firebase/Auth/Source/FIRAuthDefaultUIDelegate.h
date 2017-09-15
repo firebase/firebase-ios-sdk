@@ -15,11 +15,24 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FTreeSortedDictionary.h"
 
-@interface FTreeSortedDictionaryEnumerator : NSEnumerator
+#import "FIRAuthUIDelegate.h"
 
-- (id)initWithImmutableSortedDictionary:(FTreeSortedDictionary *)aDict startKey:(id)startKey isReverse:(BOOL)reverse;
-- (id)nextObject;
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
+
+/** @fn defaultUIDelegate
+    @brief Unavailable. Please use @c +defaultUIDelegate:
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+/** @fn defaultUIDelegate
+    @brief Returns a default FIRAuthUIDelegate object.
+    @return The default FIRAuthUIDelegate object.
+ */
++ (id<FIRAuthUIDelegate>)defaultUIDelegate;
 
 @end
+
+NS_ASSUME_NONNULL_END
