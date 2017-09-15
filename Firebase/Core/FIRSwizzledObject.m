@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCommunity/FIRSwizzledObject.h"
+#import "Private/FIRSwizzledObject.h"
 
-#import "FirebaseCommunity/FIRObjectSwizzler.h"
-#import "FirebaseCommunity/FIRSwizzledObject.h"
+#import "Private/FIRObjectSwizzler.h"
+#import "Private/FIRSwizzledObject.h"
 
 NSString *kSwizzlerAssociatedObjectKey = @"fpr_objectSwizzler";
 

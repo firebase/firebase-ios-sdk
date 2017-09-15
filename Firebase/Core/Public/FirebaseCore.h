@@ -18,7 +18,4 @@
 #import "FIRApp.h"
 #import "FIRConfiguration.h"
 #import "FIRLoggerLevel.h"
-#import "FIRObjectSwizzler.h"
 #import "FIROptions.h"
-#import "FIRSwizzledObject.h"
-#import "FIRSwizzler.h"

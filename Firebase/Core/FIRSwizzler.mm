@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCommunity/FIRSwizzler.h"
+#import "Private/FIRSwizzler.h"
 
 #import <objc/runtime.h>
 
-#import "FirebaseCommunity/FIRSwizzlingCaches.h"
+#import "Private/FIRSwizzlingCaches.h"
 
 @implementation FIRSwizzler
 
