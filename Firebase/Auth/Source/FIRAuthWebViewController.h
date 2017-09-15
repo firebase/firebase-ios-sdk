@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/** @class FIRAuthWebView
+/** @class FIRAuthWebViewController
     @brief Reponsible for creating a UIViewController for presenting a FIRAutWebView.
  */
 @interface FIRAuthWebViewController : UIViewController
