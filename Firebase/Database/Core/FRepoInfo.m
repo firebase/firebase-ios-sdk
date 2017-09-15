@@ -120,6 +120,7 @@
     NSUInteger result = host.hash;
     result = 31 * result + (secure ? 1 : 0);
     result = 31 * result + namespace.hash;
+    result = 31 * result + host.hash;
     return result;
 }
 
