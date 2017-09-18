@@ -998,7 +998,7 @@
 		DE26D22E1F70398A004AE1D3 /* Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_ApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE26D27D1F705EC7004AE1D3 /* Auth_SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auth_SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		DE4E711A1E953ABC00070092 /* FirebaseCommunity.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = FirebaseCommunity.podspec; path = ../FirebaseCommunity.podspec; sourceTree = "<group>"; };
 		DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAPNSTokenManagerTests.m; sourceTree = "<group>"; };
@@ -1507,7 +1507,7 @@
 				DE26D22E1F70398A004AE1D3 /* Sample.app */,
 				DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */,
 				DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */,
-				DE26D27D1F705EC7004AE1D3 /* Auth_SwiftSample.app */,
+				DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2503,7 +2503,7 @@
 			);
 			name = Auth_SwiftSample;
 			productName = Auth_SwiftSample;
-			productReference = DE26D27D1F705EC7004AE1D3 /* Auth_SwiftSample.app */;
+			productReference = DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */;
 			productType = "com.apple.product-type.application";
 		};
 		DE7B8D041E8EF077009EB6DF /* Database_Example_iOS */ = {
@@ -6323,7 +6323,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental2.dev;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SwiftSample;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -6358,7 +6358,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental2.dev;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SwiftSample;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
