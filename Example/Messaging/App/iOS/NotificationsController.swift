@@ -127,6 +127,9 @@ extension NotificationsController: UNUserNotificationCenterDelegate {
                               withCompletionHandler completionHandler:
     @escaping (UNNotificationPresentationOptions) -> Void) {
     // Always show the incoming notification, even if the app is in foreground
+    print("Received notification in foreground:")
+    let jsonString = notification.request.content.userInfo.jsonString ?? "{}"
+    print("\(jsonString)")
     completionHandler([.alert, .badge, .sound])
   }
 }
