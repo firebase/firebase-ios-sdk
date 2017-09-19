@@ -96,6 +96,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
   }
 
+  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    print("application:didReceiveRemoteNotification:fetchCompletionHandler: called, with notification:")
+    print("\(userInfo.jsonString ?? "{}")")
+    completionHandler(.newData)
+  }
+
   func applicationDidBecomeActive(_ application: UIApplication) {
     // If the app didn't start property due to an invalid GoogleService-Info.plist file, show an
     // alert to the developer.
@@ -119,9 +125,8 @@ extension AppDelegate: MessagingDelegate {
   // arrive.
   func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage) {
     // Convert to pretty-print JSON
-    guard let data =
-        try? JSONSerialization.data(withJSONObject: remoteMessage.appData, options: .prettyPrinted),
-        let prettyPrinted = String(data: data, encoding: .utf8) else {
+    guard let prettyPrinted = remoteMessage.appData.jsonString else {
+      print("Received direct channel message, but could not parse as JSON: \(remoteMessage.appData)")
       return
     }
     print("Received direct channel message:\n\(prettyPrinted)")
@@ -136,4 +141,15 @@ extension AppDelegate {
     func onMessagingDirectChannelStateChanged(_ notification: Notification) {
         print("FCM Direct Channel Established: \(Messaging.messaging().isDirectChannelEstablished)")
     }
+}  
+
+extension Dictionary {
+  /// Utility method for printing Dictionaries as pretty-printed JSON.
+  var jsonString: String? {
+    if let jsonData = try? JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted]),
+       let jsonString = String(data: jsonData, encoding: .utf8) {
+      return jsonString
+    }
+    return nil
+  }
 }
