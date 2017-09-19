@@ -30,7 +30,7 @@ You'll need valid `GoogleService-Info.plist` files for those samples. To get you
 3. For each sample app you want to test, create a new Firebase app with the sample app's bundle
 identifier (e.g. `com.google.FirebaseExperimental1.dev`)
 4. Download the resulting `GoogleService-Info.plist` and place it in
-[Example/Auth/Sample/GoogleService-Info.plist](Example/Auth/Sample/GoogleService-Info.plist)
+[Example/Auth/Sample/GoogleService-Info.plist](../../Example/Auth/Sample/GoogleService-Info.plist)
 
 #### GoogleService-Info_multi.plist files
 
@@ -45,7 +45,7 @@ runtime.
 #### Application.plist file
 
 Please follow the instructions in
-[Example/Auth/Sample/ApplicationTemplate.plist](Example/Auth/Sample/ApplicationTemplate.plist)
+[Example/Auth/Sample/ApplicationTemplate.plist](../../Example/Auth/Sample/ApplicationTemplate.plist)
 to generate the right Application.plist file.
 
 ### Sample.entitlements file
@@ -53,7 +53,7 @@ to generate the right Application.plist file.
 In order to test the "Reset Password In App" feature you will need to create a dynamic link for your
 Firebase project in the Dynamic Links section of the Firebase Console. Once the link is created,
 please copy the contents of
-[Example/Auth/Sample/SampleTemplate.entitlements](Example/Auth/Sample/SampleTemplate.entitlements)
+[Example/Auth/Sample/SampleTemplate.entitlements](../../Example/Auth/Sample/SampleTemplate.entitlements)
 into a file named `Sample/Sample.entitlements` and replace `$KAPP_LINKS_DOMAIN` with your own
 relevant appLinks domain. Your appLinks domains are domains that your app will handle as universal
 links, in this particular case you can obtain this domain from the aforementioned Dynamic Links
@@ -62,7 +62,7 @@ section of the Firebase Console.
 #### Getting your own Credential files
 
 Please follow the instructions in
-[Example/Auth/Sample/AuthCredentialsTemplate.h](Sample/AuthCredentialsTemplate.h)
+[Example/Auth/Sample/AuthCredentialsTemplate.h](../../Example/Auth/Sample/AuthCredentialsTemplate.h)
 to generate the AuthCredentials.h file.
 
 
@@ -79,18 +79,18 @@ You'll need valid `GoogleService-Info.plist` files for those samples. To get you
 3. For each sample app you want to test, create a new Firebase app with the sample app's bundle
 identifier (e.g. `com.google.FirebaseExperimental2.dev`)
 4. Download the resulting `GoogleService-Info.plist` and place it in
-[Example/Auth/SwiftSample/GoogleService-Info.plist](Example/Auth/SwiftSample/GoogleService-Info.plist)
+[Example/Auth/SwiftSample/GoogleService-Info.plist](../../Example/Auth/SwiftSample/GoogleService-Info.plist)
 
 #### Info.plist file
 
 Please follow the instructions in
-[Example/Auth/SwiftSample/InfoTemplate.plist](Example/Auth/SwiftSample/InfoTemplate.plist)
+[Example/Auth/SwiftSample/InfoTemplate.plist](../../Example/Auth/SwiftSample/InfoTemplate.plist)
 to generate the right Info.plist file
 
 #### Getting your own Credential files
 
 Please follow the instructions in
-[Example/Auth/SwiftSample/AuthCredentialsTemplate.swift](Example/Auth/SwiftSample/AuthCredentialsTemplate.swift)
+[Example/Auth/SwiftSample/AuthCredentialsTemplate.swift](../../Example/Auth/SwiftSample/AuthCredentialsTemplate.swift)
 to generate the AuthCredentials.swift file.
 
 ### Running API tests
@@ -100,7 +100,7 @@ In order to run the API tests, you'll need to follow the following steps!
 #### Getting your own Credential files
 
 Please follow the instructions in
-[Example/Auth/ApiTests/AuthCredentialsTemplate.h](Example/Auth/ApiTests/AuthCredentialsTemplate.h)
+[Example/Auth/ApiTests/AuthCredentialsTemplate.h](../../Example/Auth/ApiTests/AuthCredentialsTemplate.h)
 to generate the AuthCredentials.h file.
 
 ## Usage
