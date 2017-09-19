@@ -25,14 +25,15 @@
 #import "FirebaseCommunity/FIRAdditionalUserInfo.h"
 #import "FirebaseCommunity/FIRAuth.h"
 #import "FIRAuthErrorUtils.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRUser_Internal.h"
-#import "FIRUserInfo.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthGlobalWorkQueue.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
+#import "FIRUser_Internal.h"
+#import "FIRUserInfo.h"
+#import "FIRUserMetadata.h"
 #import "FIRVerifyAssertionResponse.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyPasswordRequest.h"
@@ -215,6 +216,16 @@ static NSString *const kVerificationID = @"55432";
  */
 static NSString *const kUserArchiverKey = @"userArchiverKey";
 
+/** @var kCreationDateInSeconds
+    @brief The fake creation date.
+ */
+static NSTimeInterval const kCreationDateTimeIntervalInSeconds = 1505858500;
+
+/** @var kLastSignInDateTimeIntervalInSeconds
+    @brief The fake last sign in date date.
+ */
+static NSTimeInterval const  kLastSignInDateTimeIntervalInSeconds = 1505858583;
+
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
@@ -302,6 +313,10 @@ static const NSTimeInterval kExpectationTimeout = 1;
   OCMStub([mockGetAccountInfoResponseUser emailVerified]).andReturn(YES);
   OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
   OCMStub([mockGetAccountInfoResponseUser photoURL]).andReturn([NSURL URLWithString:kPhotoURL]);
+  OCMStub([mockGetAccountInfoResponseUser creationDate]).
+      andReturn([NSDate dateWithTimeIntervalSince1970:kCreationDateTimeIntervalInSeconds]);
+  OCMStub([mockGetAccountInfoResponseUser lastLoginDate]).
+      andReturn([NSDate dateWithTimeIntervalSince1970:kLastSignInDateTimeIntervalInSeconds]);
   NSArray *providerUserInfos = @[
     #if TARGET_OS_IOS
     mockPhoneUserInfo,
@@ -322,6 +337,10 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertEqualObjects(user.displayName, kGoogleDisplayName);
     XCTAssertEqualObjects(user.photoURL, [NSURL URLWithString:kPhotoURL]);
     XCTAssertEqualObjects(user.email, kEmail);
+    XCTAssertEqualObjects(user.metadata.creationDate,
+                          [NSDate dateWithTimeIntervalSince1970:kCreationDateTimeIntervalInSeconds]);
+    XCTAssertEqualObjects(user.metadata.lastSignInDate,
+                          [NSDate dateWithTimeIntervalSince1970:kLastSignInDateTimeIntervalInSeconds]);
 
     // Verify FIRUser properties besides providerData contents.
     XCTAssertFalse(user.anonymous);

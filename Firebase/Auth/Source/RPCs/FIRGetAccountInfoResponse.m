@@ -65,6 +65,14 @@ static NSString *const kErrorKey = @"error";
     if (photoURL) {
       _photoURL = [NSURL URLWithString:photoURL];
     }
+    if ([dictionary[@"createdAt"] isKindOfClass:[NSString class]]) {
+      NSTimeInterval creationDateTimeInterval = [dictionary[@"createdAt"] doubleValue] / 1000;
+      _creationDate = [NSDate dateWithTimeIntervalSince1970:creationDateTimeInterval];
+    }
+    if ([dictionary[@"lastLoginAt"] isKindOfClass:[NSString class]]) {
+      NSTimeInterval creationDateTimeInterval = [dictionary[@"lastLoginAt"] doubleValue] / 1000;
+      _lastLoginDate = [NSDate dateWithTimeIntervalSince1970:creationDateTimeInterval];
+    }
     _emailVerified = [dictionary[@"emailVerified"] boolValue];
     _passwordHash = [dictionary[@"passwordHash"] copy];
     _phoneNumber = [dictionary[@"phoneNumber"] copy];
