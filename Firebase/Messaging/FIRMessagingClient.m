@@ -118,7 +118,8 @@ static NSUInteger FIRMessagingServerPort() {
     _rmq2Manager = rmq2Manager;
     _registrar = [[FIRMessagingRegistrar alloc] init];
     _connectionTimeoutInterval = kConnectTimeoutInterval;
-    // Listen for checkin fetch notifications, as
+    // Listen for checkin fetch notifications, as connecting to MCS may have failed due to
+    // missing checkin info (while it was being fetched).
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(checkinFetched:)
                                                  name:kFIRMessagingCheckinFetchedNotification
