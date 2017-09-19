@@ -51,6 +51,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     FirebaseApp.configure()
     Messaging.messaging().delegate = self
     Messaging.messaging().shouldEstablishDirectChannel = true
+    // Just for logging to the console when we establish/tear down our socket connection.
+    listenForDirectChannelStateChanges();
 
     NotificationsController.configure()
 
@@ -131,6 +133,15 @@ extension AppDelegate: MessagingDelegate {
   }
 }
 
+extension AppDelegate {
+    func listenForDirectChannelStateChanges() {
+        NotificationCenter.default.addObserver(self, selector: #selector(onMessagingDirectChannelStateChanged(_:)), name: .MessagingConnectionStateChanged, object: nil)
+    }
+
+    func onMessagingDirectChannelStateChanged(_ notification: Notification) {
+        print("FCM Direct Channel Established: \(Messaging.messaging().isDirectChannelEstablished)")
+    }
+}  
 
 extension Dictionary {
   /// Utility method for printing Dictionaries as pretty-printed JSON.
