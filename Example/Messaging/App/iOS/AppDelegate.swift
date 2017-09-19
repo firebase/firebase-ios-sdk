@@ -135,13 +135,7 @@ extension AppDelegate: MessagingDelegate {
 extension Dictionary {
   /// Utility method for printing Dictionaries as pretty-printed JSON.
   var jsonString: String? {
-    let writingOptions: JSONSerialization.WritingOptions
-    if #available(iOS 11.0, *) {
-      writingOptions = [.prettyPrinted, .sortedKeys]
-    } else {
-      writingOptions = [.prettyPrinted]
-    }
-    if let jsonData = try? JSONSerialization.data(withJSONObject: self, options: writingOptions),
+    if let jsonData = try? JSONSerialization.data(withJSONObject: self, options: [.prettyPrinted]),
        let jsonString = String(data: jsonData, encoding: .utf8) {
       return jsonString
     }
