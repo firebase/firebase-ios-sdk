@@ -66,10 +66,12 @@ static NSString *const kErrorKey = @"error";
       _photoURL = [NSURL URLWithString:photoURL];
     }
     if ([dictionary[@"createdAt"] isKindOfClass:[NSString class]]) {
+      // Divide by 1000 in order to convert miliseconds to seconds.
       NSTimeInterval creationDateTimeInterval = [dictionary[@"createdAt"] doubleValue] / 1000;
       _creationDate = [NSDate dateWithTimeIntervalSince1970:creationDateTimeInterval];
     }
     if ([dictionary[@"lastLoginAt"] isKindOfClass:[NSString class]]) {
+      // Divide by 1000 in order to convert miliseconds to seconds
       NSTimeInterval creationDateTimeInterval = [dictionary[@"lastLoginAt"] doubleValue] / 1000;
       _lastLoginDate = [NSDate dateWithTimeIntervalSince1970:creationDateTimeInterval];
     }

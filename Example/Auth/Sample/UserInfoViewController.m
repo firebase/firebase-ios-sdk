@@ -36,7 +36,7 @@ static NSString *stringWithBool(BOOL boolValue) {
     @return The string form of the NSDate instance.
  */
 static NSString *stringFromDate(NSDate *date) {
-  if (!date || ! [date isKindOfClass:[NSDate class]]) {
+  if (!date || ![date isKindOfClass:[NSDate class]]) {
     return @"";
   }
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
