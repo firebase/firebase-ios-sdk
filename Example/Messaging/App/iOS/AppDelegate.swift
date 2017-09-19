@@ -132,7 +132,7 @@ extension AppDelegate {
     func listenForDirectChannelStateChanges() {
         NotificationCenter.default.addObserver(self, selector: #selector(onMessagingDirectChannelStateChanged(_:)), name: .MessagingConnectionStateChanged, object: nil)
     }
-    
+
     func onMessagingDirectChannelStateChanged(_ notification: Notification) {
         print("FCM Direct Channel Established: \(Messaging.messaging().isDirectChannelEstablished)")
     }
