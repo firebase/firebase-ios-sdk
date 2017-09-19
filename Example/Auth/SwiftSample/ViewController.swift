@@ -19,7 +19,7 @@ import UIKit
 import FirebaseCommunity.FirebaseAuth
 import GoogleSignIn
 
-final class ViewController: UIViewController, UITextFieldDelegate, FIRAuthUIDelegate {
+final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegate {
   /// The profile image for the currently signed-in user.
   @IBOutlet weak var profileImage: UIImageView!
 
