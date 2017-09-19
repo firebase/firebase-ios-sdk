@@ -47,6 +47,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingRemoteNotificationsProxyEnabledIn
 FOUNDATION_EXPORT NSString *const kFIRMessagingApplicationSupportSubDirectory;
 
 // Notifications
+FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingAPNSTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingFCMTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDTokenRefreshNotification __deprecated_msg("Use kFIRMessagingRegistrationTokenRefreshNotification instead");
