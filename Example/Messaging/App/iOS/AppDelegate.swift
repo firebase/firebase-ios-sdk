@@ -141,7 +141,7 @@ extension AppDelegate {
     func onMessagingDirectChannelStateChanged(_ notification: Notification) {
         print("FCM Direct Channel Established: \(Messaging.messaging().isDirectChannelEstablished)")
     }
-}  
+}
 
 extension Dictionary {
   /// Utility method for printing Dictionaries as pretty-printed JSON.
