@@ -149,11 +149,11 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
       BOOL isInvalidAppCredential = error.code == FIRAuthErrorCodeInternalError &&
           underlyingError.code == FIRAuthErrorCodeInvalidAppCredential;
       if (error.code != FIRAuthErrorCodeMissingAppToken && !isInvalidAppCredential) {
-        completion(nil, error);
+        callBackOnMainThread(nil, error);
         return;
       }
       NSMutableString *eventID = [[NSMutableString alloc] init];
-      for(int i=0; i<10; i++) {
+      for (int i=0; i<10; i++) {
         [eventID appendString:
             [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
       }
