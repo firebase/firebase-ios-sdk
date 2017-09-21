@@ -75,11 +75,16 @@
 
   // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
   if ([FIRMessagingRemoteNotificationsProxy canSwizzleMethods]) {
+    NSString *docsURLString = @"https://firebase.google.com/docs/cloud-messaging/ios/client"
+                              @"#method_swizzling_in_firebase_messaging";
     FIRMessagingLoggerNotice(kFIRMessagingMessageCodeFIRApp000,
                              @"FIRMessaging Remote Notifications proxy enabled, will swizzle "
-                             @"remote notification receiver handlers. Add \"%@\" to your "
-                             @"Info.plist and set it to NO",
-                             kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey);
+                             @"remote notification receiver handlers. If you'd prefer to manually "
+                             @"integrate Firebase Messaging, add \"%@\" to your Info.plist, "
+                             @"and set it to NO. Follow the instructions at:\n%@\nto ensure "
+                             @"proper integration.",
+                             kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey,
+                             docsURLString);
     [FIRMessagingRemoteNotificationsProxy swizzleMethods];
   }
 }
