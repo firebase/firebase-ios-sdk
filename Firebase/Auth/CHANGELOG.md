@@ -1,3 +1,7 @@
+# v4.3.0
+- Provides account creation and last sign-in dates as metadata to the user object.
+- Indicates whether or not the user is a new user in the additional user info object after signing in.
+
 # v4.2.0
 - Adds new phone number verification API which makes use of an intelligent reCAPTCHA to verify the application.
 
