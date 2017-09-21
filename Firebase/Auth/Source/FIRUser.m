@@ -40,6 +40,7 @@
 #import "FIRGetOOBConfirmationCodeResponse.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
+#import "FIRUserMetadata_Internal.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
 #import "FIRVerifyCustomTokenRequest.h"
@@ -397,7 +398,9 @@ static void callInMainThreadWithAuthDataResultAndError(
   _photoURL = user.photoURL;
   _phoneNumber = user.phoneNumber;
   _hasEmailPasswordCredential = user.passwordHash.length > 0;
-
+  _metadata =
+      [[FIRUserMetadata alloc]initWithCreationDate:user.creationDate
+                                    lastSignInDate:user.lastLoginDate];
   NSMutableDictionary<NSString *, FIRUserInfoImpl *> *providerData =
       [NSMutableDictionary dictionary];
   for (FIRGetAccountInfoResponseProviderUserInfo *providerUserInfo in user.providerUserInfo) {

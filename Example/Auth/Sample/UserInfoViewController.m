@@ -18,6 +18,7 @@
 
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
+#import "FIRUserMetadata.h"
 #import "StaticContentTableViewManager.h"
 
 /** @fn stringWithBool
@@ -27,6 +28,20 @@
  */
 static NSString *stringWithBool(BOOL boolValue) {
   return boolValue ? @"YES" : @"NO";
+}
+
+/** @fn stringFromDate
+    @brief Converts a NSDate va to a string for display.
+    @param date The NSDate instance.
+    @return The string form of the NSDate instance.
+ */
+static NSString *stringFromDate(NSDate *date) {
+  if (!date) {
+    return @"nil";
+  }
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+  return [dateFormatter stringFromDate:date];
 }
 
 @implementation UserInfoViewController {
@@ -50,6 +65,10 @@ static NSString *stringWithBool(BOOL boolValue) {
   NSMutableArray<StaticContentTableViewSection *> *sections = [@[
     [StaticContentTableViewSection sectionWithTitle:@"User" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"anonymous" value:stringWithBool(_user.anonymous)],
+      [StaticContentTableViewCell cellWithTitle:@"Creation date"
+                                          value:stringFromDate(_user.metadata.creationDate)],
+      [StaticContentTableViewCell cellWithTitle:@"Last sign in date"
+                                          value:stringFromDate(_user.metadata.lastSignInDate)],
       [StaticContentTableViewCell cellWithTitle:@"emailVerified"
                                           value:stringWithBool(_user.emailVerified)],
       [StaticContentTableViewCell cellWithTitle:@"refreshToken" value:_user.refreshToken],

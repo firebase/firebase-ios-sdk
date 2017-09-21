@@ -16,27 +16,23 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRActionCodeSettings.h"
-#import "FIRAdditionalUserInfo.h"
-#import "FIRAuth.h"
-#import "FIRAuthCredential.h"
-#import "FIRAuthDataResult.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthSwiftNameSupport.h"
-#import "FirebaseAuthVersion.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIROAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
-#import "FIRUser.h"
-#import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
 
-#if TARGET_OS_IOS
-#import "FIRAuthUIDelegate.h"
-#import "FIRPhoneAuthCredential.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRAuthAPNSTokenType.h"
-#endif
+NS_ASSUME_NONNULL_BEGIN
+
+/** @extension FIRUserMetadata
+    @brief An internal class used to expose internal methods of FIRUserMetadata.
+ */
+@interface FIRUserMetadata () <NSSecureCoding>
+
+/** @fn initWithCreationDate
+    @brief Designated initializer.
+    @param creationDate The creation date of the corresponding user.
+    @param lastSignInDate The date of the last recorded sign-in of the corresponding user.
+ */
+- (nullable instancetype)initWithCreationDate:(NSDate *)creationDate
+                               lastSignInDate:(NSDate *)lastSignInDate NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END

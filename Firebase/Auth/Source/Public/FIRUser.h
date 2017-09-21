@@ -23,6 +23,7 @@
 
 @class FIRPhoneAuthCredential;
 @class FIRUserProfileChangeRequest;
+@class FIRUserMetadata;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,6 +84,11 @@ FIR_SWIFT_NAME(User)
     @remarks This data is cached on sign-in and updated when linking or unlinking.
  */
 @property(nonatomic, readonly, nonnull) NSArray<id<FIRUserInfo>> *providerData;
+
+/** @property metadata
+    @brief Metadata associated with the Firebase user in question.
+ */
+@property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
 
 /** @fn init
     @brief This class should not be instantiated.
