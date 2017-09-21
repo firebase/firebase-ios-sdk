@@ -2476,7 +2476,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   [self showTextInputPromptWithMessage:title
                           keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
-    if (!userPressedOK || !phoneNumber.length) {
+    if (!userPressedOK) {
       return;
     }
     completion(phoneNumber);
