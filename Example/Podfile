@@ -50,9 +50,8 @@ target 'Auth_Sample' do
   pod 'FirebaseCommunity/Auth', :path => '../'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn'
-  # Lock to the 1.0.9 version of InstanceID since 1.0.10 added a dependency
   # to FirebaseCore
-  pod 'FirebaseInstanceID', '1.0.9'
+  pod 'FirebaseInstanceID'
   pod 'GTMSessionFetcher/Core'
 end
 
@@ -60,14 +59,14 @@ target 'Auth_SwiftSample' do
   platform :ios, '8.0'
   pod 'FirebaseCommunity/Auth', :path => '../'
   pod 'GoogleSignIn'
-  pod 'FirebaseInstanceID', '1.0.9'
+  pod 'FirebaseInstanceID'
 end
 
 target 'Auth_ApiTests' do
   platform :ios, '8.0'
   pod 'FirebaseCommunity/Auth', :path => '../'
   pod 'GoogleSignIn'
-  pod 'FirebaseInstanceID', '1.0.9'
+  pod 'FirebaseInstanceID'
   pod 'GTMSessionFetcher/Core'
 end
 
@@ -75,7 +74,7 @@ target 'Auth_EarlGreyTests' do
   platform :ios, '8.0'
   pod 'FirebaseCommunity/Auth', :path => '../'
   pod 'GoogleSignIn'
-  pod 'FirebaseInstanceID', '1.0.9'
+  pod 'FirebaseInstanceID'
   pod 'EarlGrey'
 end
 
