@@ -32,7 +32,6 @@
 #import "FIRTwitterAuthProvider.h"
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
-#import "FIRUserMetadata.h"
 
 #if TARGET_OS_IOS
 #import "FIRAuthUIDelegate.h"
