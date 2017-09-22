@@ -47,6 +47,11 @@ typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullab
  */
 @property(nonatomic, copy, readonly) NSDate *accessTokenExpirationDate;
 
+/** @property metadata
+    @brief Metadata associated with the Firebase user in question.
+ */
+@property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
+
 /** @fn retrieveUserWithAuth:accessToken:accessTokenExpirationDate:refreshToken:callback:
     @brief Constructs a user with Secure Token Service tokens, and obtains user details from the
         getAccountInfo endpoint.
