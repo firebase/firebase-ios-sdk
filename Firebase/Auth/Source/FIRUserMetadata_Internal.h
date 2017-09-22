@@ -25,13 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRUserMetadata () <NSSecureCoding>
 
-/** @fn initWithCreationDate
+/** @fn initWithCreationDate:lastSignInDate:
     @brief Designated initializer.
     @param creationDate The creation date of the corresponding user.
     @param lastSignInDate The date of the last recorded sign-in of the corresponding user.
  */
-- (nullable instancetype)initWithCreationDate:(NSDate *)creationDate
-                               lastSignInDate:(NSDate *)lastSignInDate NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithCreationDate:(nullable NSDate *)creationDate
+                      lastSignInDate:(nullable NSDate *)lastSignInDate NS_DESIGNATED_INITIALIZER;
 
 @end
 

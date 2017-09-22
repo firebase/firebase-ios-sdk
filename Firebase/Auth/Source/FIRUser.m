@@ -112,6 +112,11 @@ static NSString *const kAPIKeyCodingKey = @"APIKey";
  */
 static NSString *const kTokenServiceCodingKey = @"tokenService";
 
+/** @var kMetadataCodingKey
+    @brief The key used to encode the metadata instance variable for NSSecureCoding.
+ */
+static NSString *const kMetadataCodingKey = @"metadata";
+
 /** @var kMissingUsersErrorMessage
     @brief The error message when there is no users array in the getAccountInfo response.
  */
@@ -305,6 +310,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       [aDecoder decodeObjectOfClasses:providerDataClasses forKey:kProviderDataKey];
   FIRSecureTokenService *tokenService =
       [aDecoder decodeObjectOfClass:[FIRSecureTokenService class] forKey:kTokenServiceCodingKey];
+  FIRUserMetadata *metadata =
+      [aDecoder decodeObjectOfClass:[FIRUserMetadata class] forKey:kMetadataCodingKey];
   if (!userID || !tokenService) {
     return nil;
   }
@@ -322,6 +329,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     _photoURL = photoURL;
     _providerData = providerData;
     _phoneNumber = phoneNumber;
+    _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
   }
   return self;
 }
@@ -336,6 +344,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeBool:_emailVerified forKey:kEmailVerifiedCodingKey];
   [aCoder encodeObject:_photoURL forKey:kPhotoURLCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
+  [aCoder encodeObject:_metadata forKey:kMetadataCodingKey];
   // The API key is encoded even it is not used in decoding to be compatible with previous versions
   // of the library.
   [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];

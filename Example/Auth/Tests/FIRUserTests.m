@@ -399,6 +399,8 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertEqual(unarchivedUser.anonymous, user.anonymous);
     XCTAssertEqual(unarchivedUser.emailVerified, user.emailVerified);
     XCTAssertEqualObjects(unarchivedUser.refreshToken, user.refreshToken);
+    XCTAssertEqualObjects(unarchivedUser.metadata.creationDate, user.metadata.creationDate);
+    XCTAssertEqualObjects(unarchivedUser.metadata.lastSignInDate, user.metadata.lastSignInDate);
     XCTAssertEqual(unarchivedUser.providerData.count, user.providerData.count);
 
     NSDictionary<NSString *, id<FIRUserInfo>> *unarchivedProviderMap =
