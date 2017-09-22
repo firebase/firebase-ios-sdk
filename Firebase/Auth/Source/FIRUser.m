@@ -122,6 +122,12 @@ static NSString *const kMetadataCodingKey = @"metadata";
  */
 static NSString *const kMissingUsersErrorMessage = @"users";
 
+/** @var kVerifyPhoneNumberUpdateOperation
+    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
+        initiated by a update operation.
+ */
+static NSString *const kVerifyPhoneNumberUpdateOperation = @"UPDATE";
+
 /** @typedef CallbackWithError
     @brief The type for a callback block that only takes an error parameter.
  */
@@ -636,6 +642,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     FIRVerifyPhoneNumberRequest *request = [[FIRVerifyPhoneNumberRequest alloc]
         initWithVerificationID:phoneAuthCredential.verificationID
               verificationCode:phoneAuthCredential.verificationCode
+                     operation:kVerifyPhoneNumberUpdateOperation
           requestConfiguration:_auth.requestConfiguration];
     request.accessToken = accessToken;
     [FIRAuthBackend verifyPhoneNumber:request

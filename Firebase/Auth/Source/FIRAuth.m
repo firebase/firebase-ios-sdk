@@ -121,6 +121,18 @@ static NSString *const kRecoverEmailRequestType = @"RECOVER_EMAIL";
  */
 static NSString *const kMissingPasswordReason = @"Missing Password";
 
+/** @var kVerifyPhoneNumberReauthOperation
+    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
+        initiated by a reauthentication operation.
+ */
+static NSString *const kVerifyPhoneNumberReauthOperation = @"REAUTH";
+
+/** @var kVerifyPhoneNumberSignInOperation
+    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
+        initiated by a sign in/sign up operation.
+ */
+static NSString *const kVerifyPhoneNumberSignInOperation = @"SIGN_UP_OR_IN";
+
 /** @var gKeychainServiceNameForAppName
     @brief A map from Firebase app name to keychain service names.
     @remarks This map is needed for looking up the keychain service name after the FIRApp instance
@@ -600,8 +612,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credentials
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
-    [self signInWithPhoneCredential:phoneCredential callback:^(FIRUser *_Nullable user,
-                                                               NSError *_Nullable error) {
+    NSString *operation =
+        isReauthentication ? kVerifyPhoneNumberReauthOperation : kVerifyPhoneNumberSignInOperation;
+    [self signInWithPhoneCredential:phoneCredential
+                          operation:operation
+                           callback:^(FIRUser *_Nullable user,
+                                      NSError *_Nullable error) {
       if (callback) {
         FIRAuthDataResult *result = user ?
             [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
@@ -1023,15 +1039,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 /** @fn signInWithPhoneCredential:callback:
     @brief Signs in using a phone credential.
     @param credential The Phone Auth credential used to sign in.
+    @param operation The type of operation for which this sign-in attempt is initiated.
     @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
         asynchronously on the global auth work queue in the future.
  */
 - (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
+                        operation:(NSString *)operation
                          callback:(FIRAuthResultCallback)callback {
   if (credential.temporaryProof.length && credential.phoneNumber.length) {
     FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:credential.temporaryProof
                                                       phoneNumber:credential.phoneNumber
+                                                        operation:operation
                                              requestConfiguration:_requestConfiguration];
     [self phoneNumberSignInWithRequest:request callback:callback];
     return;
@@ -1048,6 +1067,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc]initWithVerificationID:credential.verificationID
                                                 verificationCode:credential.verificationCode
+                                                       operation:operation
                                             requestConfiguration:_requestConfiguration];
   [self phoneNumberSignInWithRequest:request callback:callback];
 }

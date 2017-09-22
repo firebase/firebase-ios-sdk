@@ -91,6 +91,12 @@ static NSString *const kFakeTemporaryProof = @"12345658";
  */
 static const double kAllowedTimeDifference = 0.1;
 
+/** @var kFakeOperation
+    @brief A fake request parameter corresponding to the operation which triggered the verify
+        phone number flow.
+ */
+static NSString *const kFakeOperation = @"FakeOperation";
+
 /** @class FIRVerifyPhoneNumberResponseTests
     @brief Tests for @c FIRVerifyPhoneNumberResponse.
  */
@@ -133,6 +139,7 @@ static const double kAllowedTimeDifference = 0.1;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
+                                                        operation:kFakeOperation
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -161,6 +168,7 @@ static const double kAllowedTimeDifference = 0.1;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
+                                                        operation:kFakeOperation
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -188,6 +196,7 @@ static const double kAllowedTimeDifference = 0.1;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
+                                                        operation:kFakeOperation
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -215,6 +224,7 @@ static const double kAllowedTimeDifference = 0.1;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
+                                                        operation:kFakeOperation
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -252,6 +262,7 @@ static const double kAllowedTimeDifference = 0.1;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:kFakeTemporaryProof
                                                       phoneNumber:kFakePhoneNumber
+                                                        operation:kFakeOperation
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;

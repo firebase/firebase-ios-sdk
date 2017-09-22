@@ -76,6 +76,12 @@ static NSString *const kTemporaryProofKey = @"temporaryProof";
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
 
+/** @var kFakeOperation
+    @brief A fake request parameter corresponding to the operation which triggered the verify
+        phone number flow.
+ */
+static NSString *const kFakeOperation = @"FakeOperation";
+
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.
  */
@@ -123,6 +129,7 @@ static NSString *const kExpectedAPIURL =
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
+                                                        operation:kFakeOperation
                                              requestConfiguration:_requestConfiguration];
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request
@@ -144,6 +151,7 @@ static NSString *const kExpectedAPIURL =
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:kTemporaryProof
                                                       phoneNumber:kPhoneNumber
+                                                        operation:kFakeOperation
                                              requestConfiguration:_requestConfiguration];
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request

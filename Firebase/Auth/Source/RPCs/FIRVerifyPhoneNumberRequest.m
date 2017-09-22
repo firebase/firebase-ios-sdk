@@ -48,10 +48,16 @@ static NSString *const kTemporaryProofKey = @"temporaryProof";
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
 
+/** @var kOperation
+    @brief The key for the operation value in the request.
+ */
+static NSString *const kOperation = @"operation";
+
 @implementation FIRVerifyPhoneNumberRequest
 
 - (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
                                     phoneNumber:(NSString *)phoneNumber
+                                      operation:(NSString *)operation
                            requestConfiguration:
                               (FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
@@ -65,6 +71,7 @@ static NSString *const kPhoneNumberKey = @"phoneNumber";
 
 - (nullable instancetype)initWithVerificationID:(NSString *)verificationID
                                verificationCode:(NSString *)verificationCode
+                                      operation:(NSString *)operation
                            requestConfiguration:
                               (FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
@@ -72,6 +79,7 @@ static NSString *const kPhoneNumberKey = @"phoneNumber";
   if (self) {
     _verificationID = verificationID;
     _verificationCode = verificationCode;
+    _operation = operation;
   }
   return self;
 }
@@ -92,6 +100,9 @@ static NSString *const kPhoneNumberKey = @"phoneNumber";
   }
   if (_phoneNumber) {
     postBody[kPhoneNumberKey] = _phoneNumber;
+  }
+  if (_operation) {
+    postBody[kOperation] = _operation;
   }
   return postBody;
 }
