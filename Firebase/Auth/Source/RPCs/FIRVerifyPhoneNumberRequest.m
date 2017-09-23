@@ -48,10 +48,10 @@ static NSString *const kTemporaryProofKey = @"temporaryProof";
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
 
-/** @var kOperation
+/** @var kOperationKey
     @brief The key for the operation value in the request.
  */
-static NSString *const kOperation = @"operation";
+static NSString *const kOperationKey = @"operation";
 
 @implementation FIRVerifyPhoneNumberRequest
 
@@ -102,7 +102,7 @@ static NSString *const kOperation = @"operation";
     postBody[kPhoneNumberKey] = _phoneNumber;
   }
   if (_operation) {
-    postBody[kOperation] = _operation;
+    postBody[kOperationKey] = _operation;
   }
   return postBody;
 }
