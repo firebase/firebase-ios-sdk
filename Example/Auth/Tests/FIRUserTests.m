@@ -216,6 +216,18 @@ static NSString *const kVerificationID = @"55432";
  */
 static NSString *const kUserArchiverKey = @"userArchiverKey";
 
+/** @var kVerifyPhoneNumberUpdateOperation
+    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
+        initiated by a update operation.
+ */
+static NSString *const kVerifyPhoneNumberUpdateOperation = @"UPDATE";
+
+/** @var kVerifyPhoneNumberLinkOperation
+    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
+        initiated by a link operation.
+ */
+static NSString *const kVerifyPhoneNumberLinkOperation = @"LINK";
+
 /** @var kCreationDateInSeconds
     @brief The fake creation date.
  */
@@ -535,7 +547,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
   [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
                                              completion:^(FIRUser *user) {
-    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber error:nil];
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber isLinkOperation:NO error:nil];
     id userInfoResponseUpdate = mockUserInfoWithPhoneNumber(kPhoneNumber);
     [self expectGetAccountInfoWithMockUserInfoResponse:userInfoResponseUpdate];
 
@@ -1496,7 +1508,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
   [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
                                              completion:^(FIRUser *user) {
-    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber error:nil];
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber isLinkOperation:YES error:nil];
     id userInfoResponseUpdate = mockUserInfoWithPhoneNumber(kPhoneNumber);
     [self expectGetAccountInfoWithMockUserInfoResponse:userInfoResponseUpdate];
 
@@ -1560,7 +1572,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   id userInfoResponse = mockUserInfoWithPhoneNumber(nil);
   [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
                                              completion:^(FIRUser *user) {
-    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber error:nil];
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:kPhoneNumber isLinkOperation:YES error:nil];
     id userInfoResponseUpdate = mockUserInfoWithPhoneNumber(kPhoneNumber);
     [self expectGetAccountInfoWithMockUserInfoResponse:userInfoResponseUpdate];
 
@@ -1610,7 +1622,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [self signInWithEmailPasswordWithMockUserInfoResponse:userInfoResponse
                                              completion:^(FIRUser *user) {
     NSError *error = [FIRAuthErrorUtils providerAlreadyLinkedError];
-    [self expectVerifyPhoneNumberRequestWithPhoneNumber:nil error:error];
+    [self expectVerifyPhoneNumberRequestWithPhoneNumber:nil isLinkOperation:YES error:error];
     FIRPhoneAuthCredential *credential =
         [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                      verificationCode:kVerificationCode];
@@ -1869,15 +1881,23 @@ static const NSTimeInterval kExpectationTimeout = 1;
     @brief Expects a verify phone numner request on the mock backend and calls back with fake
         account data or an error.
     @param phoneNumber Optionally; The phone number to use in the mocked response.
+    @param isLinkOperation Boolean value that indicates whether or not this method is triggered by
+        a link operation.
     @param error Optionally; The error to return in the mocked response.
  */
 - (void)expectVerifyPhoneNumberRequestWithPhoneNumber:(nullable NSString *)phoneNumber
+                                      isLinkOperation:(BOOL)isLinkOperation
                                                 error:(nullable NSError*)error {
   OCMExpect([_mockBackend verifyPhoneNumber:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyPhoneNumberRequest *_Nullable request,
                      FIRVerifyPhoneNumberResponseCallback callback) {
     XCTAssertEqualObjects(request.verificationID, kVerificationID);
     XCTAssertEqualObjects(request.verificationCode, kVerificationCode);
+    if (isLinkOperation) {
+      XCTAssertEqualObjects(request.operation, kVerifyPhoneNumberLinkOperation);
+    } else {
+      XCTAssertEqualObjects(request.operation, kVerifyPhoneNumberUpdateOperation);
+    }
     XCTAssertEqualObjects(request.accessToken, kAccessToken);
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
       if (error) {

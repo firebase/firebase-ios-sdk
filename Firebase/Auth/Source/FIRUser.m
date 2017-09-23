@@ -128,6 +128,12 @@ static NSString *const kMissingUsersErrorMessage = @"users";
  */
 static NSString *const kVerifyPhoneNumberUpdateOperation = @"UPDATE";
 
+/** @var kVerifyPhoneNumberLinkOperation
+    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
+        initiated by a link operation.
+ */
+static NSString *const kVerifyPhoneNumberLinkOperation = @"LINK";
+
 /** @typedef CallbackWithError
     @brief The type for a callback block that only takes an error parameter.
  */
@@ -621,28 +627,32 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 #if TARGET_OS_IOS
-/** @fn internalUpdatePhoneNumberCredential:completion:
+/** @fn internalUpdateOrLinkPhoneNumberCredential:completion:
     @brief Updates the phone number for the user. On success, the cached user profile data is
         updated.
 
     @param phoneAuthCredential The new phone number credential corresponding to the phone number
         to be added to the firebaes account, if a phone number is already linked to the account this
         new phone number will replace it.
+    @param isLinkOperation Boolean value indicating whether or not this is a link operation.
     @param completion Optionally; the block invoked when the user profile change has finished.
         Invoked asynchronously on the global work queue in the future.
  */
-- (void)internalUpdatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneAuthCredential
-                                 completion:(FIRUserProfileChangeCallback)completion {
+- (void)internalUpdateOrLinkPhoneNumberCredential:(FIRPhoneAuthCredential *)phoneAuthCredential
+                                  isLinkOperation:(BOOL)isLinkOperation
+                                       completion:(FIRUserProfileChangeCallback)completion {
   [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                        NSError *_Nullable error) {
     if (error) {
       completion(error);
       return;
     }
+    NSString *operation =
+        isLinkOperation ? kVerifyPhoneNumberLinkOperation : kVerifyPhoneNumberUpdateOperation;
     FIRVerifyPhoneNumberRequest *request = [[FIRVerifyPhoneNumberRequest alloc]
         initWithVerificationID:phoneAuthCredential.verificationID
               verificationCode:phoneAuthCredential.verificationCode
-                     operation:kVerifyPhoneNumberUpdateOperation
+                     operation:operation
           requestConfiguration:_auth.requestConfiguration];
     request.accessToken = accessToken;
     [FIRAuthBackend verifyPhoneNumber:request
@@ -668,8 +678,9 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)updatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneAuthCredential
                          completion:(nullable FIRUserProfileChangeCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self internalUpdatePhoneNumberCredential:phoneAuthCredential
-                                   completion:^(NSError *_Nullable error) {
+    [self internalUpdateOrLinkPhoneNumberCredential:phoneAuthCredential
+                                    isLinkOperation:NO
+                                         completion:^(NSError *_Nullable error) {
        callInMainThreadWithError(completion, error);
     }];
   });
@@ -863,8 +874,9 @@ static void callInMainThreadWithAuthDataResultAndError(
     #if TARGET_OS_IOS
     if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
       FIRPhoneAuthCredential *phoneAuthCredential = (FIRPhoneAuthCredential *)credential;
-      [self internalUpdatePhoneNumberCredential:phoneAuthCredential
-                                     completion:^(NSError *_Nullable error) {
+      [self internalUpdateOrLinkPhoneNumberCredential:phoneAuthCredential
+                                      isLinkOperation:YES
+                                           completion:^(NSError *_Nullable error) {
         if (error){
           callInMainThreadWithAuthDataResultAndError(completion, nil, error);
         } else {
