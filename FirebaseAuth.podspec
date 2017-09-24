@@ -20,6 +20,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
   s.static_framework = true
+#  s.skip_pch = false
 
   s.source_files = 'Firebase/Auth/**/*.[mh]'
   s.osx.exclude_files =
@@ -47,5 +48,5 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   # Include FirebaseCore's GTM dependency to workaround
   # https://github.com/CocoaPods/CocoaPods/issues/6967
-  s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
+  #s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
 end
