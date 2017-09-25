@@ -135,7 +135,7 @@ extern void FIRLogDebug(FIRLoggerService service, NSString *messageCode, NSStrin
  *            string.
  */
 
-+(void) logWithLevel:(FIRLoggerLevel)level
++ (void)logWithLevel:(FIRLoggerLevel)level
          withService:(FIRLoggerService)service
             withCode:(NSString *)messageCode
          withMessage:(NSString *)message

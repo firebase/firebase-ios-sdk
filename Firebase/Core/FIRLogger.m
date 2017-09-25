@@ -254,12 +254,11 @@ FIR_LOGGING_FUNCTION(Debug)
 
 @implementation FIRLoggerWrapper
 
-+(void) logWithLevel:(FIRLoggerLevel)level
++ (void)logWithLevel:(FIRLoggerLevel)level
          withService:(FIRLoggerService)service
             withCode:(NSString *)messageCode
          withMessage:(NSString *)message
-            withArgs:(va_list) args
-{
+            withArgs:(va_list)args {
   FIRLogBasic(level, service, messageCode, message, args);
 }
 
