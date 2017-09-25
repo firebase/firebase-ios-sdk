@@ -423,7 +423,7 @@ static const NSTimeInterval kWaitInterval = .5;
                        FIRVerifyPhoneNumberResponseCallback callback) {
     XCTAssertEqualObjects(request.verificationCode, kVerificationCode);
     XCTAssertEqualObjects(request.verificationID, kVerificationID);
-    XCTAssertEqualObjects(request.operation, @"SIGN_UP_OR_IN");
+    XCTAssertEqualObjects(request.operation, operationType(FIRAuthOperationTypeSignUpOrSignIn));
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
       id mockVerifyPhoneResponse = OCMClassMock([FIRVerifyPhoneNumberResponse class]);
       [self stubTokensWithMockResponse:mockVerifyPhoneResponse];

@@ -31,6 +31,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuth ()
 
+/**
+    @brief Indicates the type of operation performed for RPCs that support the operation
+        parameter.
+ */
+typedef NS_ENUM(NSInteger, FIRAuthOperationType) {
+  /** Indicates that the operation type is uspecified.
+   */
+  FIRAuthOperationTypeUnspecified = 0,
+
+  /** Indicates that the operation type is sign in or sign up.
+   */
+   FIRAuthOperationTypeSignUpOrSignIn = 1,
+
+  /** Indicates that the operation type is reauthentication.
+   */
+  FIRAuthOperationTypeReauth = 2,
+
+  /** Indicates that the operation type is update.
+   */
+  FIRAuthOperationTypeUpdate = 3,
+
+  /** Indicates that the operation type is link.
+   */
+  FIRAuthOperationTypeLink = 4,
+};
+
 /** @property requestConfiguration
     @brief The configuration object comprising of paramters needed to make a request to Firebase
         Auth's backend.
@@ -123,6 +149,13 @@ NS_ASSUME_NONNULL_BEGIN
     @return @YES when the sign out request was successful. @NO otherwise.
  */
 - (BOOL)signOutByForceWithUserID:(NSString *)userID error:(NSError *_Nullable *_Nullable)error;
+
+/** @fn operationType
+    @param operationType The value of the FIRAuthOperationType enum which will be translated to its
+        corresponding string value.
+    @return The string value corresponding to the FIRAuthOperationType argument.
+ */
+NSString *const operationType(FIRAuthOperationType operationType);
 
 @end
 

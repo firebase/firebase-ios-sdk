@@ -121,18 +121,6 @@ static NSString *const kRecoverEmailRequestType = @"RECOVER_EMAIL";
  */
 static NSString *const kMissingPasswordReason = @"Missing Password";
 
-/** @var kVerifyPhoneNumberReauthOperation
-    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
-        initiated by a reauthentication operation.
- */
-static NSString *const kVerifyPhoneNumberReauthOperation = @"REAUTH";
-
-/** @var kVerifyPhoneNumberSignInOperation
-    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
-        initiated by a sign in/sign up operation.
- */
-static NSString *const kVerifyPhoneNumberSignInOperation = @"SIGN_UP_OR_IN";
-
 /** @var gKeychainServiceNameForAppName
     @brief A map from Firebase app name to keychain service names.
     @remarks This map is needed for looking up the keychain service name after the FIRApp instance
@@ -485,6 +473,21 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
 }
 
+NSString *const operationType(FIRAuthOperationType operation) {
+  switch(operation){
+    case FIRAuthOperationTypeUnspecified:
+      return @"VERIFY_OP_UNSPECIFIED";
+    case FIRAuthOperationTypeSignUpOrSignIn:
+      return @"SIGN_UP_OR_IN";
+    case FIRAuthOperationTypeReauth:
+      return @"REAUTH";
+    case FIRAuthOperationTypeLink:
+      return @"LINK";
+    case FIRAuthOperationTypeUpdate:
+      return @"UPDATE";
+  }
+}
+
 #pragma mark - Public API
 
 - (FIRUser *)currentUser {
@@ -612,8 +615,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credentials
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
-    NSString *operation =
-        isReauthentication ? kVerifyPhoneNumberReauthOperation : kVerifyPhoneNumberSignInOperation;
+    NSString *operation = isReauthentication ? operationType(FIRAuthOperationTypeReauth) :
+                                               operationType(FIRAuthOperationTypeSignUpOrSignIn);
     [self signInWithPhoneCredential:phoneCredential
                           operation:operation
                            callback:^(FIRUser *_Nullable user,

@@ -23,7 +23,7 @@
 #import "FirebaseCommunity/FIRFacebookAuthProvider.h"
 #import "FirebaseCommunity/FIRGoogleAuthProvider.h"
 #import "FirebaseCommunity/FIRAdditionalUserInfo.h"
-#import "FirebaseCommunity/FIRAuth.h"
+#import "FIRAuth_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthGlobalWorkQueue.h"
@@ -215,18 +215,6 @@ static NSString *const kVerificationID = @"55432";
     @brief The key used to archive and unarchive the user object for test NSSecureCoding.
  */
 static NSString *const kUserArchiverKey = @"userArchiverKey";
-
-/** @var kVerifyPhoneNumberUpdateOperation
-    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
-        initiated by a update operation.
- */
-static NSString *const kVerifyPhoneNumberUpdateOperation = @"UPDATE";
-
-/** @var kVerifyPhoneNumberLinkOperation
-    @brief String passed to the backend to indicate that the current Phone Number Auth flow is
-        initiated by a link operation.
- */
-static NSString *const kVerifyPhoneNumberLinkOperation = @"LINK";
 
 /** @var kCreationDateInSeconds
     @brief The fake creation date.
@@ -1886,17 +1874,17 @@ static const NSTimeInterval kExpectationTimeout = 1;
     @param error Optionally; The error to return in the mocked response.
  */
 - (void)expectVerifyPhoneNumberRequestWithPhoneNumber:(nullable NSString *)phoneNumber
-                                      isLinkOperation:(BOOL)isLinkOperation
-                                                error:(nullable NSError*)error {
+                                       isLinkOperation:(BOOL)isLinkOperation
+                                                 error:(nullable NSError*)error {
   OCMExpect([_mockBackend verifyPhoneNumber:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyPhoneNumberRequest *_Nullable request,
                      FIRVerifyPhoneNumberResponseCallback callback) {
     XCTAssertEqualObjects(request.verificationID, kVerificationID);
     XCTAssertEqualObjects(request.verificationCode, kVerificationCode);
     if (isLinkOperation) {
-      XCTAssertEqualObjects(request.operation, kVerifyPhoneNumberLinkOperation);
+      XCTAssertEqualObjects(request.operation, operationType(FIRAuthOperationTypeLink));
     } else {
-      XCTAssertEqualObjects(request.operation, kVerifyPhoneNumberUpdateOperation);
+      XCTAssertEqualObjects(request.operation, operationType(FIRAuthOperationTypeUpdate));
     }
     XCTAssertEqualObjects(request.accessToken, kAccessToken);
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
