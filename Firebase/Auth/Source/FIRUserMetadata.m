@@ -30,8 +30,8 @@ static NSString *const kCreationDateCodingKey = @"creationDate";
  */
 static NSString *const kLastSignInDateCodingKey = @"lastSignInDate";
 
-- (nullable instancetype)initWithCreationDate:(NSDate *)creationDate
-                               lastSignInDate:(NSDate *)lastSignInDate {
+- (instancetype)initWithCreationDate:(nullable NSDate *)creationDate
+                      lastSignInDate:(nullable NSDate *)lastSignInDate {
   self = [super init];
   if (self) {
     _creationDate = [creationDate copy];

@@ -40,7 +40,8 @@ static NSString *stringFromDate(NSDate *date) {
     return @"nil";
   }
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+  dateFormatter.dateStyle = NSDateFormatterShortStyle;
+  dateFormatter.timeStyle = NSDateFormatterShortStyle;
   return [dateFormatter stringFromDate:date];
 }
 

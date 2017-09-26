@@ -1740,8 +1740,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logSuccess:@"reauthenticate operation succeeded."];
         }
         if (authResult.additionalUserInfo) {
-          [self logSuccess:
-              [NSString stringWithFormat:@"%@", authResult.additionalUserInfo.profile]];
+          [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
         }
         [self showTypicalUIForUserUpdateResultsWithTitle:@"Reauthenticate" error:error];
       };
@@ -1779,8 +1778,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logSuccess:@"sign-in with provider succeeded."];
         }
         if (authResult.additionalUserInfo) {
-          [self logSuccess:
-              [NSString stringWithFormat:@"%@", authResult.additionalUserInfo.profile]];
+          [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
         }
         [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In" error:error];
       };
@@ -1927,8 +1925,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logSuccess:@"link auth provider succeeded."];
         }
         if (authResult.additionalUserInfo) {
-          [self logSuccess:
-              [NSString stringWithFormat:@"%@", authResult.additionalUserInfo.profile]];
+          [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
         }
         if (retrieveData) {
           [self showUIForAuthDataResultWithResult:authResult error:error];
@@ -2755,6 +2752,19 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   return actionCodeSettings;
 }
 
+/** @fn stringWithAdditionalUserInfo:
+    @brief Gets the string description of the additional user info.
+    @param additionalUserInfo The additional user info in question.
+    @return A string to description the additional user info.
+ */
+- (NSString *)stringWithAdditionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo {
+  if (!additionalUserInfo) {
+    return @"(no additional user info)";
+  }
+  NSString *newUserString = additionalUserInfo.isNewUser ? @"new user" : @"existing user";
+  return [NSString stringWithFormat:@"%@: %@", newUserString, additionalUserInfo.profile];
+}
+
 /** @fn showTypicalUIForUserUpdateResultsWithTitle:error:
     @brief Shows a prompt if error is non-nil with the localized description of the error.
     @param resultsTitle The title of the prompt
@@ -2796,10 +2806,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                   showCancelButton:NO
                         completion:^(BOOL userPressedOK,
                                      NSString *_Nullable userInput) {
-    NSString *profileMessaage =
-        [NSString stringWithFormat:@"%@", result.additionalUserInfo.profile ?: @""];
     [self showMessagePromptWithTitle:@"Profile Info"
-                             message:profileMessaage
+                             message:[self stringWithAdditionalUserInfo:result.additionalUserInfo]
                     showCancelButton:NO
                           completion:nil];
     [self updateUserInfo];
