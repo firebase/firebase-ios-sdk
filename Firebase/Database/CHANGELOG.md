@@ -1,5 +1,5 @@
 # v4.1.0
-- Added [multi resource](https://firebase.google.com/docs/database/usage/sharding) support to the database SDK.
+- Added [multi-resource](https://firebase.google.com/docs/database/usage/sharding) support to the database SDK.
 
 # v4.0.3
 - [fixed] Fixed a regression in v4.0.2 that affected the storage location of the offline persistent cache. This caused v4.0.2 to not see data written with previous versions.
