@@ -18,11 +18,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class FIRAuthOperation
-    @brief A class which provides operation types for RPCs that support the operation parameter.
- */
-@interface FIRAuthOperation : NSObject
-
 /**
     @brief Indicates the type of operation performed for RPCs that support the operation
         parameter.
@@ -48,19 +43,5 @@ typedef NS_ENUM(NSInteger, FIRAuthOperationType) {
    */
   FIRAuthOperationTypeLink = 4,
 };
-
-/** @fn FIRAuthOperationString
-    @param operationType The value of the FIRAuthOperationType enum which will be translated to its
-        corresponding string value.
-    @return The string value corresponding to the FIRAuthOperationType argument.
- */
-NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
-
-/** @fn init
-    @brief This class is not supposed to be instantiated.
- */
-- (nullable instancetype)init NS_UNAVAILABLE;
-
-@end
 
 NS_ASSUME_NONNULL_END

@@ -27,7 +27,7 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthSerialTaskQueue.h"
-#import "FIRAuthOperation.h"
+#import "FIRAuthOperationType.h"
 #import "FIRAuth_Internal.h"
 #import "FIRSecureTokenService.h"
 #import "FIRUserInfoImpl.h"
@@ -636,8 +636,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       completion(error);
       return;
     }
-    NSString *operation = isLinkOperation ? FIRAuthOperationString(FIRAuthOperationTypeLink) :
-                                            FIRAuthOperationString(FIRAuthOperationTypeUpdate);
+    FIRAuthOperationType operation =
+        isLinkOperation ? FIRAuthOperationTypeLink : FIRAuthOperationTypeUpdate;
     FIRVerifyPhoneNumberRequest *request = [[FIRVerifyPhoneNumberRequest alloc]
         initWithVerificationID:phoneAuthCredential.verificationID
               verificationCode:phoneAuthCredential.verificationCode

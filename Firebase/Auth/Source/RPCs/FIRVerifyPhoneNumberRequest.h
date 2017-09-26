@@ -16,6 +16,7 @@
 
 #import "FIRIdentityToolkitRequest.h"
 
+#import "FIRAuthOperationType.h"
 #import "FIRAuthRPCRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @var operation
     @brief The type of operation triggering this verify phone number request.
  */
-@property(nonatomic, readonly, nonnull) NSString *operation;
+@property(nonatomic, assign, readonly) FIRAuthOperationType operation;
 
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithVerificationID:verificationCode:requestConfiguration
@@ -68,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
                                     phoneNumber:(NSString *)phoneNumber
-                                      operation:(NSString *)operation
+                                      operation:(FIRAuthOperationType)operation
                            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                               NS_DESIGNATED_INITIALIZER;
 
@@ -81,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithVerificationID:(NSString *)verificationID
                                verificationCode:(NSString *)verificationCode
-                                      operation:(NSString *)operation
+                                      operation:(FIRAuthOperationType)operation
                            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                               NS_DESIGNATED_INITIALIZER;
 

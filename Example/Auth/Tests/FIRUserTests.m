@@ -27,7 +27,7 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthOperation.h"
+#import "FIRAuthOperationType.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRSetAccountInfoRequest.h"
@@ -1883,9 +1883,9 @@ static const NSTimeInterval kExpectationTimeout = 1;
     XCTAssertEqualObjects(request.verificationID, kVerificationID);
     XCTAssertEqualObjects(request.verificationCode, kVerificationCode);
     if (isLinkOperation) {
-      XCTAssertEqualObjects(request.operation, FIRAuthOperationString(FIRAuthOperationTypeLink));
+      XCTAssertEqual(request.operation, FIRAuthOperationTypeLink);
     } else {
-      XCTAssertEqualObjects(request.operation, FIRAuthOperationString(FIRAuthOperationTypeUpdate));
+      XCTAssertEqual(request.operation, FIRAuthOperationTypeUpdate);
     }
     XCTAssertEqualObjects(request.accessToken, kAccessToken);
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {

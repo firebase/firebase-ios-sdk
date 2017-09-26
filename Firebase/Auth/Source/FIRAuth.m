@@ -31,7 +31,7 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
-#import "FIRAuthOperation.h"
+#import "FIRAuthOperationType.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -601,9 +601,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credentials
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
-    NSString *operation =
-        isReauthentication ? FIRAuthOperationString(FIRAuthOperationTypeReauth) :
-            FIRAuthOperationString(FIRAuthOperationTypeSignUpOrSignIn);
+    FIRAuthOperationType operation =
+        isReauthentication ? FIRAuthOperationTypeReauth : FIRAuthOperationTypeSignUpOrSignIn;
     [self signInWithPhoneCredential:phoneCredential
                           operation:operation
                            callback:^(FIRUser *_Nullable user,
@@ -1034,7 +1033,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         asynchronously on the global auth work queue in the future.
  */
 - (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
-                        operation:(NSString *)operation
+                        operation:(FIRAuthOperationType)operation
                          callback:(FIRAuthResultCallback)callback {
   if (credential.temporaryProof.length && credential.phoneNumber.length) {
     FIRVerifyPhoneNumberRequest *request =

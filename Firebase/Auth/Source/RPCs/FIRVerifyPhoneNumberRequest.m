@@ -57,7 +57,7 @@ static NSString *const kOperationKey = @"operation";
 
 - (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
                                     phoneNumber:(NSString *)phoneNumber
-                                      operation:(NSString *)operation
+                                      operation:(FIRAuthOperationType)operation
                            requestConfiguration:
                               (FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
@@ -65,13 +65,14 @@ static NSString *const kOperationKey = @"operation";
   if (self) {
     _temporaryProof = [temporaryProof copy];
     _phoneNumber = [phoneNumber copy];
+    _operation = operation;
   }
   return self;
 }
 
 - (nullable instancetype)initWithVerificationID:(NSString *)verificationID
                                verificationCode:(NSString *)verificationCode
-                                      operation:(NSString *)operation
+                                      operation:(FIRAuthOperationType)operation
                            requestConfiguration:
                               (FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
@@ -82,6 +83,26 @@ static NSString *const kOperationKey = @"operation";
     _operation = operation;
   }
   return self;
+}
+
+/** @fn FIRAuthOperationString
+    @param operationType The value of the FIRAuthOperationType enum which will be translated to its
+        corresponding string value.
+    @return The string value corresponding to the FIRAuthOperationType argument.
+ */
+NSString *const FIRAuthOperationString(FIRAuthOperationType operationType) {
+  switch(operationType){
+    case FIRAuthOperationTypeUnspecified:
+      return @"VERIFY_OP_UNSPECIFIED";
+    case FIRAuthOperationTypeSignUpOrSignIn:
+      return @"SIGN_UP_OR_IN";
+    case FIRAuthOperationTypeReauth:
+      return @"REAUTH";
+    case FIRAuthOperationTypeLink:
+      return @"LINK";
+    case FIRAuthOperationTypeUpdate:
+      return @"UPDATE";
+  }
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing  _Nullable *)error {
@@ -101,9 +122,8 @@ static NSString *const kOperationKey = @"operation";
   if (_phoneNumber) {
     postBody[kPhoneNumberKey] = _phoneNumber;
   }
-  if (_operation) {
-    postBody[kOperationKey] = _operation;
-  }
+  NSString *operation = FIRAuthOperationString(_operation);
+  postBody[kOperationKey] = operation;
   return postBody;
 }
 
