@@ -31,6 +31,7 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
+#import "FIRAuthOperation.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -473,21 +474,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
 }
 
-NSString *const operationType(FIRAuthOperationType operation) {
-  switch(operation){
-    case FIRAuthOperationTypeUnspecified:
-      return @"VERIFY_OP_UNSPECIFIED";
-    case FIRAuthOperationTypeSignUpOrSignIn:
-      return @"SIGN_UP_OR_IN";
-    case FIRAuthOperationTypeReauth:
-      return @"REAUTH";
-    case FIRAuthOperationTypeLink:
-      return @"LINK";
-    case FIRAuthOperationTypeUpdate:
-      return @"UPDATE";
-  }
-}
-
 #pragma mark - Public API
 
 - (FIRUser *)currentUser {
@@ -615,8 +601,9 @@ NSString *const operationType(FIRAuthOperationType operation) {
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credentials
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
-    NSString *operation = isReauthentication ? operationType(FIRAuthOperationTypeReauth) :
-                                               operationType(FIRAuthOperationTypeSignUpOrSignIn);
+    NSString *operation =
+        isReauthentication ? FIRAuthOperationString(FIRAuthOperationTypeReauth) :
+            FIRAuthOperationString(FIRAuthOperationTypeSignUpOrSignIn);
     [self signInWithPhoneCredential:phoneCredential
                           operation:operation
                            callback:^(FIRUser *_Nullable user,
