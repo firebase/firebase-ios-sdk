@@ -1,8 +1,8 @@
 # Firebase iOS Open Source Development [![Build Status](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
-includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseMessaging, and
-FirebaseStorage.
+includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseMessaging,
+FirebaseStorage, and Firestore.
 
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
@@ -17,6 +17,10 @@ unit tests, integration tests, and reference samples.
 
 Note, however, that the resulting FirebaseCommunity pod is NOT interoperable with the
 official Firebase release pods because of different pod dependency definitions.
+
+Firestore has not yet been integrated with FirebaseCommunity. In the
+meantime, it has a self contained Xcode project. See
+[Firestore/README.md](Firestore/README.md).
 
 Instructions and a script to build replaceable static library
 frameworks at [BuildFrameworks](BuildFrameworks). The
