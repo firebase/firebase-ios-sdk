@@ -31,6 +31,7 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
+#import "FIRAuthOperationType.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -600,8 +601,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credentials
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
-    [self signInWithPhoneCredential:phoneCredential callback:^(FIRUser *_Nullable user,
-                                                               NSError *_Nullable error) {
+    FIRAuthOperationType operation =
+        isReauthentication ? FIRAuthOperationTypeReauth : FIRAuthOperationTypeSignUpOrSignIn;
+    [self signInWithPhoneCredential:phoneCredential
+                          operation:operation
+                           callback:^(FIRUser *_Nullable user,
+                                      NSError *_Nullable error) {
       if (callback) {
         FIRAuthDataResult *result = user ?
             [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
@@ -1023,15 +1028,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 /** @fn signInWithPhoneCredential:callback:
     @brief Signs in using a phone credential.
     @param credential The Phone Auth credential used to sign in.
+    @param operation The type of operation for which this sign-in attempt is initiated.
     @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
         asynchronously on the global auth work queue in the future.
  */
 - (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
+                        operation:(FIRAuthOperationType)operation
                          callback:(FIRAuthResultCallback)callback {
   if (credential.temporaryProof.length && credential.phoneNumber.length) {
     FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:credential.temporaryProof
                                                       phoneNumber:credential.phoneNumber
+                                                        operation:operation
                                              requestConfiguration:_requestConfiguration];
     [self phoneNumberSignInWithRequest:request callback:callback];
     return;
@@ -1048,6 +1056,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc]initWithVerificationID:credential.verificationID
                                                 verificationCode:credential.verificationCode
+                                                       operation:operation
                                             requestConfiguration:_requestConfiguration];
   [self phoneNumberSignInWithRequest:request callback:callback];
 }

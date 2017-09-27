@@ -23,6 +23,7 @@
 #import "FirebaseCommunity/FIRGoogleAuthProvider.h"
 #import "FirebaseCommunity/FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
+#import "FIRAuthOperationType.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthDispatcher.h"
 #import "FIRAuthGlobalWorkQueue.h"
@@ -423,6 +424,7 @@ static const NSTimeInterval kWaitInterval = .5;
                        FIRVerifyPhoneNumberResponseCallback callback) {
     XCTAssertEqualObjects(request.verificationCode, kVerificationCode);
     XCTAssertEqualObjects(request.verificationID, kVerificationID);
+    XCTAssertEqual(request.operation, FIRAuthOperationTypeSignUpOrSignIn);
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
       id mockVerifyPhoneResponse = OCMClassMock([FIRVerifyPhoneNumberResponse class]);
       [self stubTokensWithMockResponse:mockVerifyPhoneResponse];
