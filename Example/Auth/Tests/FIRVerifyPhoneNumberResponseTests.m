@@ -18,6 +18,7 @@
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthErrors.h"
+#import "FIRAuthOperationType.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -91,12 +92,6 @@ static NSString *const kFakeTemporaryProof = @"12345658";
  */
 static const double kAllowedTimeDifference = 0.1;
 
-/** @var kFakeOperation
-    @brief A fake request parameter corresponding to the operation which triggered the verify
-        phone number flow.
- */
-static NSString *const kFakeOperation = @"FakeOperation";
-
 /** @class FIRVerifyPhoneNumberResponseTests
     @brief Tests for @c FIRVerifyPhoneNumberResponse.
  */
@@ -139,7 +134,7 @@ static NSString *const kFakeOperation = @"FakeOperation";
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
-                                                        operation:kFakeOperation
+                                                        operation:FIRAuthOperationTypeSignUpOrSignIn
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -168,7 +163,7 @@ static NSString *const kFakeOperation = @"FakeOperation";
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
-                                                        operation:kFakeOperation
+                                                        operation:FIRAuthOperationTypeSignUpOrSignIn
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -196,7 +191,7 @@ static NSString *const kFakeOperation = @"FakeOperation";
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
-                                                        operation:kFakeOperation
+                                                        operation:FIRAuthOperationTypeSignUpOrSignIn
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -224,7 +219,7 @@ static NSString *const kFakeOperation = @"FakeOperation";
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
-                                                        operation:kFakeOperation
+                                                        operation:FIRAuthOperationTypeSignUpOrSignIn
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;
@@ -262,7 +257,7 @@ static NSString *const kFakeOperation = @"FakeOperation";
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:kFakeTemporaryProof
                                                       phoneNumber:kFakePhoneNumber
-                                                        operation:kFakeOperation
+                                                        operation:FIRAuthOperationTypeSignUpOrSignIn
                                              requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block FIRVerifyPhoneNumberResponse *RPCResponse;

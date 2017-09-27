@@ -17,6 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthBackend.h"
+#import "FIRAuthOperationType.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
@@ -61,6 +62,11 @@ static NSString *const kVerificationIDKey = @"sessionInfo";
  */
 static NSString *const kIDTokenKey = @"idToken";
 
+/** @var kOperationKey
+    @brief The key for the "operation" value in the request.
+ */
+static NSString *const kOperationKey = @"operation";
+
 /** @var kTestAccessToken
     @bried Fake acess token for testing.
  */
@@ -76,17 +82,27 @@ static NSString *const kTemporaryProofKey = @"temporaryProof";
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
 
-/** @var kFakeOperation
-    @brief A fake request parameter corresponding to the operation which triggered the verify
-        phone number flow.
- */
-static NSString *const kFakeOperation = @"FakeOperation";
-
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.
  */
 static NSString *const kExpectedAPIURL =
     @"https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPhoneNumber?key=APIKey";
+
+/** @Extension FIRVerifyPhoneNumberRequest
+    @brief Exposes FIRAuthOperationString from FIRVerifyPhoneNumberRequest to assist testing.
+ */
+@interface FIRVerifyPhoneNumberRequest ()
+
+/** @fn FIRAuthOperationString
+    @brief Exposes FIRAuthOperationString from FIRVerifyPhoneNumberRequest to assist testing.
+    @param operationType The value of the FIRAuthOperationType enum which will be translated to its
+        corresponding string value.
+    @return The string value corresponding to the FIRAuthOperationType argument.
+
+ */
+NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
+
+@end
 
 /** @class FIRVerifyPhoneNumberRequestTests
     @brief Tests for @c FIRVerifyPhoneNumberRequest.
@@ -129,7 +145,7 @@ static NSString *const kExpectedAPIURL =
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithVerificationID:kVerificationID
                                                  verificationCode:kVerificationCode
-                                                        operation:kFakeOperation
+                                                        operation:FIRAuthOperationTypeSignUpOrSignIn
                                              requestConfiguration:_requestConfiguration];
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request
@@ -142,6 +158,8 @@ static NSString *const kExpectedAPIURL =
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kVerificationIDKey], kVerificationID);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kVerificationCodeKey], kVerificationCode);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kTestAccessToken);
+  XCTAssertEqual(_RPCIssuer.decodedRequest[kOperationKey],
+                 FIRAuthOperationString(FIRAuthOperationTypeSignUpOrSignIn));
 }
 
 /** @fn testVerifyPhoneNumberRequestWithTemporaryProof
@@ -151,7 +169,7 @@ static NSString *const kExpectedAPIURL =
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:kTemporaryProof
                                                       phoneNumber:kPhoneNumber
-                                                        operation:kFakeOperation
+                                                        operation:FIRAuthOperationTypeSignUpOrSignIn
                                              requestConfiguration:_requestConfiguration];
   request.accessToken = kTestAccessToken;
   [FIRAuthBackend verifyPhoneNumber:request
@@ -164,6 +182,8 @@ static NSString *const kExpectedAPIURL =
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kTemporaryProofKey], kTemporaryProof);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPhoneNumberKey], kPhoneNumber);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kTestAccessToken);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kOperationKey],
+                        FIRAuthOperationString(FIRAuthOperationTypeSignUpOrSignIn));
 }
 
 @end
