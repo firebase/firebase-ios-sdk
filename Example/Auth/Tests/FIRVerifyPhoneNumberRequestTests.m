@@ -158,7 +158,7 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kVerificationIDKey], kVerificationID);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kVerificationCodeKey], kVerificationCode);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kTestAccessToken);
-  XCTAssertEqual(_RPCIssuer.decodedRequest[kOperationKey],
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kOperationKey],
                  FIRAuthOperationString(FIRAuthOperationTypeSignUpOrSignIn));
 }
 
