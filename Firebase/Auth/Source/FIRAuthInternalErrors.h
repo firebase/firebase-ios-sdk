@@ -343,6 +343,16 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeInvalidClientID =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidClientID,
 
+  /** Indicates that a network request within a SFSafariViewController or UIWebview failed.
+   */
+  FIRAuthInternalErrorCodeWebNetworkRequestFailed =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebNetworkRequestFailed,
+
+  /** Indicates that an internal error occured within a SFSafariViewController or UIWebview.
+   */
+  FIRAuthInternalErrorCodeWebInternalError =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebInternalError,
+
   // The enum values between 17046 and 17051 are reserved and should NOT be used for new error
   // codes.
 
