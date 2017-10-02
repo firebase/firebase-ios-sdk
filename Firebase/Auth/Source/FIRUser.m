@@ -1109,7 +1109,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       errorCode == FIRAuthErrorCodeUserDisabled ||
       errorCode == FIRAuthErrorCodeInvalidUserToken ||
       errorCode == FIRAuthErrorCodeUserTokenExpired) {
-    FIRLogNotice(kFIRLoggerAuth, @"I-AUT000005",
+    FIRLogNotice(kFIRLoggerAuth, @"I-AUT000016",
                  @"Invalid user token detected, user is automatically signed out.");
     [_auth signOutByForceWithUserID:_userID error:NULL];
   }
