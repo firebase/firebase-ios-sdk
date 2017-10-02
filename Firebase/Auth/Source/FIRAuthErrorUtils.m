@@ -386,7 +386,7 @@ static NSString *const kFIRAuthErrorMessageInvalidClientID = @"The OAuth client 
     @brief Message for @c FIRAuthErrorCodeWebRequestFailed error code.
  */
 static NSString *const kFIRAuthErrorMessageWebRequestFailed = @"A network error (such as timeout, "
-    "interrupted connection or ' + 'unreachable host) has occurred within the wb context.";
+    "interrupted connection, or unreachable host) has occurred within the web context.";
 
 /** @var kFIRAuthErrorMessageWebInternalError
     @brief Message for @c FIRAuthErrorCodeWebInternalError error code.
