@@ -49,6 +49,18 @@ static NSString *const kServerErrorDetailMarker = @" : ";
  */
 static NSString *const kURLResponseErrorCodeInvalidClientID = @"auth/invalid-oauth-client-id";
 
+/** @var kURLResponseErrorCodeNetworkRequestFailed
+    @brief Error code that indicates that a network request within the SFSafariViewController or
+        UIWebView failed.
+ */
+static NSString *const kURLResponseErrorCodeNetworkRequestFailed = @"auth/network-request-failed";
+
+/** @var kURLResponseErrorCodeInternalError
+    @brief Error code that indicates that an internal error occured within the
+        SFSafariViewController or UIWebView failed.
+ */
+static NSString *const kURLResponseErrorCodeInternalError = @"auth/internal-error";
+
 #pragma mark - Standard Error Messages
 
 /** @var kFIRAuthErrorMessageInvalidCustomToken
@@ -370,6 +382,18 @@ static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The interacti
 static NSString *const kFIRAuthErrorMessageInvalidClientID = @"The OAuth client ID provided is "
     "either invalid or does not match the specified API key.";
 
+/** @var kFIRAuthErrorMessageWebRequestFailed
+    @brief Message for @c FIRAuthErrorCodeWebRequestFailed error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebRequestFailed = @"A network error (such as timeout, "
+    "interrupted connection, or unreachable host) has occurred within the web context.";
+
+/** @var kFIRAuthErrorMessageWebInternalError
+    @brief Message for @c FIRAuthErrorCodeWebInternalError error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebInternalError = @"An internal error has occurred "
+    "within the SFSafariViewController or UIWebView.";
+
 /** @var kFIRAuthErrorMessageAppVerificationUserInteractionFailure
     @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
  */
@@ -494,6 +518,10 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidClientID;
     case FIRAuthErrorCodeAppVerificationUserInteractionFailure:
       return kFIRAuthErrorMessageAppVerificationUserInteractionFailure;
+    case FIRAuthErrorCodeWebNetworkRequestFailed:
+      return kFIRAuthErrorMessageWebRequestFailed;
+    case FIRAuthErrorCodeWebInternalError:
+      return kFIRAuthErrorMessageWebInternalError;
   }
 }
 
@@ -609,6 +637,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_CLIENT_ID";
     case FIRAuthErrorCodeAppVerificationUserInteractionFailure:
       return @"ERROR_APP_VERIFICATION_FAILED";
+    case FIRAuthErrorCodeWebNetworkRequestFailed:
+      return @"ERROR_WEB_NETWORK_REQUEST_FAILED";
+    case FIRAuthErrorCodeWebInternalError:
+      return @"ERROR_WEB_INTERNAL_ERROR";
   }
 }
 
@@ -939,6 +971,12 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 + (NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message {
   if ([code isEqualToString:kURLResponseErrorCodeInvalidClientID]) {
     return [self errorWithCode:FIRAuthInternalErrorCodeInvalidClientID message:message];
+  }
+  if ([code isEqualToString:kURLResponseErrorCodeNetworkRequestFailed]) {
+    return [self errorWithCode:FIRAuthInternalErrorCodeWebNetworkRequestFailed message:message];
+  }
+  if ([code isEqualToString:kURLResponseErrorCodeInternalError]) {
+    return [self errorWithCode:FIRAuthInternalErrorCodeWebInternalError message:message];
   }
   return nil;
 }
