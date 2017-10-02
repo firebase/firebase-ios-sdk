@@ -1207,13 +1207,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       if (![strongSelf->_currentUser.uid isEqualToString:uid]) {
         return;
       }
-      // If the error is an invalid token, sign the user out.
-      if (error.code == FIRAuthErrorCodeInvalidUserToken) {
-        FIRLogNotice(kFIRLoggerAuth, @"I-AUT000005",
-                     @"Invalid refresh token detected, user is automatically signed out.");
-        [strongSelf signOutByForceWithUserID:uid error:nil];
-        return;
-      }
       if (error) {
         // Kicks off exponential back off logic to retry failed attempt. Starts with one minute
         // delay (60 seconds) if this is the first failed attempt.

@@ -86,7 +86,7 @@ static NSString *const kOperationKey = @"operation";
 }
 
 /** @fn FIRAuthOperationString
-    @brief Returns a string object corresponding to the provided FIRAuthOperationType value. 
+    @brief Returns a string object corresponding to the provided FIRAuthOperationType value.
     @param operationType The value of the FIRAuthOperationType enum which will be translated to its
         corresponding string value.
     @return The string value corresponding to the FIRAuthOperationType argument.

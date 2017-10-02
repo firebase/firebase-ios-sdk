@@ -18,8 +18,6 @@
 
 #import "FIRUser_Internal.h"
 
-#import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
-#import "FIREmailAuthProvider.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
 #import "FIRAuthCredential_Internal.h"
@@ -29,18 +27,21 @@
 #import "FIRAuthSerialTaskQueue.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuth_Internal.h"
-#import "FIRSecureTokenService.h"
-#import "FIRUserInfoImpl.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
+#import "FIREmailAuthProvider.h"
+#import "FIREmailPasswordAuthCredential.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRLogger.h"
+#import "FIRSecureTokenService.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
+#import "FIRUserInfoImpl.h"
 #import "FIRUserMetadata_Internal.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
@@ -261,6 +262,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                           callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                      NSError *_Nullable error) {
       if (error) {
+        // No need to sign out user here for errors because the user hasn't been signed in yet.
         callback(nil, error);
         return;
       }
@@ -386,6 +388,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                           callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                      NSError *_Nullable error) {
       if (error) {
+        [self signOutIfTokenIsInvalidWithError:error];
         callback(nil, error);
         return;
       }
@@ -459,6 +462,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                               callback:^(FIRSetAccountInfoResponse *_Nullable response,
                                          NSError *_Nullable error) {
           if (error) {
+            [self signOutIfTokenIsInvalidWithError:error];
             complete();
             callback(error);
             return;
@@ -576,6 +580,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                            NSError *_Nullable error) {
             if (error) {
+              [self signOutIfTokenIsInvalidWithError:error];
               callback(error);
               return;
             }
@@ -648,7 +653,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                              callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                         NSError *_Nullable error) {
       if (error) {
-        completion(error);;
+        [self signOutIfTokenIsInvalidWithError:error];
+        completion(error);
         return;
       }
       // Get account info to update cached user info.
@@ -805,6 +811,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                   NSError *_Nullable error,
                                                   BOOL tokenUpdated) {
     if (error) {
+      [self signOutIfTokenIsInvalidWithError:error];
       callback(nil, error);
       return;
     }
@@ -897,6 +904,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         [FIRAuthBackend verifyAssertion:request
                                callback:^(FIRVerifyAssertionResponse *response, NSError *error) {
           if (error) {
+            [self signOutIfTokenIsInvalidWithError:error];
             completeWithError(nil, error);
             return;
           }
@@ -923,6 +931,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                   callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                              NSError *_Nullable error) {
               if (error) {
+                [self signOutIfTokenIsInvalidWithError:error];
                 completeWithError(nil, error);
                 return;
               }
@@ -976,6 +985,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                             callback:^(FIRSetAccountInfoResponse *_Nullable response,
                                        NSError *_Nullable error) {
         if (error) {
+          [self signOutIfTokenIsInvalidWithError:error];
           completeAndCallbackWithError(error);
           return;
         }
@@ -1055,6 +1065,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                     callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable
                                                    response,
                                                NSError *_Nullable error) {
+        [self signOutIfTokenIsInvalidWithError:error];
         callInMainThreadWithError(completion, error);
       }];
     }];
@@ -1086,6 +1097,22 @@ static void callInMainThreadWithAuthDataResultAndError(
       }];
     }];
   });
+}
+
+/** @fn signOutIfTokenIsInvalidWithError:
+    @brief Signs out this user if the user or the token is invalid.
+    @param error The error from the server.
+ */
+- (void)signOutIfTokenIsInvalidWithError:(nullable NSError *)error {
+  NSInteger errorCode = error.code;
+  if (errorCode == FIRAuthErrorCodeUserNotFound ||
+      errorCode == FIRAuthErrorCodeUserDisabled ||
+      errorCode == FIRAuthErrorCodeInvalidUserToken ||
+      errorCode == FIRAuthErrorCodeUserTokenExpired) {
+    FIRLogNotice(kFIRLoggerAuth, @"I-AUT000016",
+                 @"Invalid user token detected, user is automatically signed out.");
+    [_auth signOutByForceWithUserID:_userID error:NULL];
+  }
 }
 
 @end
