@@ -28,6 +28,8 @@ static void * UserNotificationObserverContext = &UserNotificationObserverContext
 
 static NSString *kUserNotificationWillPresentSelectorString =
     @"userNotificationCenter:willPresentNotification:withCompletionHandler:";
+static NSString *kUserNotificationDidReceiveResponseSelectorString =
+    @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
 
 @interface FIRMessagingRemoteNotificationsProxy ()
 
@@ -219,10 +221,26 @@ static NSString *kUserNotificationWillPresentSelectorString =
   if ([delegate conformsToProtocol:userNotificationCenterProtocol]) {
     SEL willPresentNotificationSelector =
         NSSelectorFromString(kUserNotificationWillPresentSelectorString);
-    [self swizzleSelector:willPresentNotificationSelector
-                  inClass:[delegate class]
-       withImplementation:(IMP)FCM_swizzle_willPresentNotificationWithHandler
-               inProtocol:userNotificationCenterProtocol];
+    // Swizzle the optional method
+    // "userNotificationCenter:willPresentNotification:withCompletionHandler:", if it is
+    // implemented. Do not swizzle otherwise, as an implementation *will* be created, which will
+    // fool iOS into thinking that this method is implemented, and therefore not send notifications
+    // to the fallback method in the app delegate
+    // "application:didReceiveRemoteNotification:fetchCompletionHandler:".
+    if ([delegate respondsToSelector:willPresentNotificationSelector]) {
+      [self swizzleSelector:willPresentNotificationSelector
+                    inClass:[delegate class]
+         withImplementation:(IMP)FCM_swizzle_willPresentNotificationWithHandler
+                 inProtocol:userNotificationCenterProtocol];
+    }
+    SEL didReceiveNotificationResponseSelector =
+        NSSelectorFromString(kUserNotificationDidReceiveResponseSelectorString);
+    if ([delegate respondsToSelector:didReceiveNotificationResponseSelector]) {
+      [self swizzleSelector:didReceiveNotificationResponseSelector
+                    inClass:[delegate class]
+         withImplementation:(IMP)FCM_swizzle_didReceiveNotificationResponseWithHandler
+                 inProtocol:userNotificationCenterProtocol];
+    }
     self.currentUserNotificationCenterDelegate = delegate;
     self.hasSwizzledUserNotificationDelegate = YES;
   }
@@ -235,6 +253,7 @@ static NSString *kUserNotificationWillPresentSelectorString =
   }
   SEL willPresentNotificationSelector =
       NSSelectorFromString(kUserNotificationWillPresentSelectorString);
+  // Call unswizzle methods, even if the method was not implemented (it will fail gracefully).
   [self unswizzleSelector:willPresentNotificationSelector
                   inClass:[self.currentUserNotificationCenterDelegate class]];
   self.currentUserNotificationCenterDelegate = nil;
@@ -526,14 +545,97 @@ void FCM_swizzle_willPresentNotificationWithHandler(
     return;
   }
 
-  // Valid original method signature, go ahead to swizzle.
+  // Attempt to access the user info
+  id notificationUserInfo = userInfoFromNotification(notification);
+
+  if (!notificationUserInfo) {
+    // Could not access notification.request.content.userInfo.
+    callOriginalMethodIfAvailable();
+    return;
+  }
+
+  [[FIRMessaging messaging] appDidReceiveMessage:notificationUserInfo];
+  // Execute the original implementation.
+  callOriginalMethodIfAvailable();
+}
+
+/**
+ * Swizzle the notification handler for iOS 10+ devices.
+ * Signature of original handler is as below:
+ * - (void)userNotificationCenter:(UNUserNotificationCenter *)center
+ *     didReceiveNotificationResponse:(UNNotificationResponse *)response
+ *     withCompletionHandler:(void (^)(void))completionHandler
+ * In order to make FCM SDK compile and compatible with iOS SDKs before iOS 10, hide the
+ * parameter types from the swizzling implementation.
+ */
+void FCM_swizzle_didReceiveNotificationResponseWithHandler(
+    id self, SEL _cmd, id center, id response, void (^handler)()) {
+
+  FIRMessagingRemoteNotificationsProxy *proxy = [FIRMessagingRemoteNotificationsProxy sharedProxy];
+  IMP original_imp = [proxy originalImplementationForSelector:_cmd];
+
+  void (^callOriginalMethodIfAvailable)() = ^{
+    if (original_imp) {
+      ((void (*)(id, SEL, id, id, void (^)(void)))original_imp)(
+          self, _cmd, center, response, handler);
+    }
+    return;
+  };
+
+  Class notificationCenterClass = NSClassFromString(@"UNUserNotificationCenter");
+  Class responseClass = NSClassFromString(@"UNNotificationResponse");
+  if (!center || ![center isKindOfClass:[notificationCenterClass class]]) {
+    // Invalid parameter type from the original method.
+    // Do not swizzle, just execute the original method.
+    callOriginalMethodIfAvailable();
+    return;
+  }
+
+  if (!response || ![response isKindOfClass:[responseClass class]]) {
+    // Invalid parameter type from the original method.
+    // Do not swizzle, just execute the original method.
+    callOriginalMethodIfAvailable();
+    return;
+  }
+
+  if (!handler) {
+    // Invalid parameter type from the original method.
+    // Do not swizzle, just execute the original method.
+    callOriginalMethodIfAvailable();
+    return;
+  }
+
+  // Try to access the response.notification property
+  SEL notificationSelector = NSSelectorFromString(@"notification");
+  if (![response respondsToSelector:notificationSelector]) {
+    // Cannot access the .notification property.
+    callOriginalMethodIfAvailable();
+    return;
+  }
+  id notificationClass = NSClassFromString(@"UNNotification");
+  id notification = getNamedPropertyFromObject(response, @"notification", notificationClass);
+
+  // With a notification object, use the common code to reach deep into notification
+  // (notification.request.content.userInfo)
+  id notificationUserInfo = userInfoFromNotification(notification);
+  if (!notificationUserInfo) {
+    // Could not access notification.request.content.userInfo.
+    callOriginalMethodIfAvailable();
+    return;
+  }
+
+  [[FIRMessaging messaging] appDidReceiveMessage:notificationUserInfo];
+  // Execute the original implementation.
+  callOriginalMethodIfAvailable();
+}
+
+id userInfoFromNotification(id notification) {
+
   // Select the userInfo field from UNNotification.request.content.userInfo.
   SEL requestSelector = NSSelectorFromString(@"request");
   if (![notification respondsToSelector:requestSelector]) {
-    // This is not the expected notification handler. Do not swizzle, just execute the original
-    // method.
-    callOriginalMethodIfAvailable();
-    return;
+    // Cannot access the request property.
+    return nil;
   }
   Class requestClass = NSClassFromString(@"UNNotificationRequest");
   id notificationRequest = getNamedPropertyFromObject(notification, @"request", requestClass);
@@ -541,10 +643,8 @@ void FCM_swizzle_willPresentNotificationWithHandler(
   SEL notificationContentSelector = NSSelectorFromString(@"content");
   if (!notificationRequest
       || ![notificationRequest respondsToSelector:notificationContentSelector]) {
-    // This is not the expected notification handler. Do not swizzle, just execute the original
-    // method.
-    callOriginalMethodIfAvailable();
-    return;
+    // Cannot access the content property.
+    return nil;
   }
   Class contentClass = NSClassFromString(@"UNNotificationContent");
   id notificationContent = getNamedPropertyFromObject(notificationRequest,
@@ -554,25 +654,19 @@ void FCM_swizzle_willPresentNotificationWithHandler(
   SEL notificationUserInfoSelector = NSSelectorFromString(@"userInfo");
   if (!notificationContent
       || ![notificationContent respondsToSelector:notificationUserInfoSelector]) {
-    // This is not the expected notification handler. Do not swizzle, just execute the original
-    // method.
-    callOriginalMethodIfAvailable();
-    return;
+    // Cannot access the userInfo property.
+    return nil;
   }
   id notificationUserInfo = getNamedPropertyFromObject(notificationContent,
                                                        @"userInfo",
                                                        [NSDictionary class]);
 
   if (!notificationUserInfo) {
-    // This is not the expected notification handler. Do not swizzle, just execute the original
-    // method.
-    callOriginalMethodIfAvailable();
-    return;
+    // This is not the expected notification handler.
+    return nil;
   }
 
-  [[FIRMessaging messaging] appDidReceiveMessage:notificationUserInfo];
-  // Execute the original implementation.
-  callOriginalMethodIfAvailable();
+  return notificationUserInfo;
 }
 
 void FCM_swizzle_applicationReceivedRemoteMessage(
