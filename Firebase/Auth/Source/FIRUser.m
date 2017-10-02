@@ -1101,7 +1101,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 /** @fn signOutIfTokenIsInvalidWithError:
     @brief Signs out this user if the user or the token is invalid.
-    @param error The error frmo the server.
+    @param error The error from the server.
  */
 - (void)signOutIfTokenIsInvalidWithError:(nullable NSError *)error {
   NSInteger errorCode = error.code;
