@@ -119,7 +119,7 @@
     @"desc" : @"Description",
     @"owner.data" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}
   };
-  NSDictionary<NSString *, id> *updateData =
+  NSDictionary<NSString *, id> *mergeData =
       @{ @"updated" : @YES,
          @"owner.data" : @{@"name" : @"Sebastian"} };
   NSDictionary<NSString *, id> *finalData = @{
@@ -133,7 +133,7 @@
   XCTestExpectation *completed =
       [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
 
-  [doc setData:updateData
+  [doc setData:mergeData
          options:[FIRSetOptions merge]
       completion:^(NSError *error) {
         XCTAssertNil(error);
@@ -146,6 +146,34 @@
   XCTAssertEqualObjects(document.data, finalData);
 }
 
+- (void)testCanMergeServerTimestamps {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData = @{
+    @"updated" : @NO,
+  };
+  NSDictionary<NSString *, id> *mergeData =
+      @{@"time" : [FIRFieldValue fieldValueForServerTimestamp]};
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
+
+  [doc setData:mergeData
+         options:[FIRSetOptions merge]
+      completion:^(NSError *error) {
+        XCTAssertNil(error);
+        [completed fulfill];
+      }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqual(@NO, document[@"updated"]);
+  XCTAssertTrue([document[@"time"] isKindOfClass:[NSDate class]]);
+}
+
 - (void)testMergeReplacesArrays {
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
@@ -155,7 +183,7 @@
     @"topLevel" : @[ @"old", @"old" ],
     @"mapInArray" : @[ @{@"data" : @"old"} ]
   };
-  NSDictionary<NSString *, id> *updateData =
+  NSDictionary<NSString *, id> *mergeData =
       @{ @"data" : @"new",
          @"topLevel" : @[ @"new" ],
          @"mapInArray" : @[ @{@"data" : @"new"} ] };
@@ -171,7 +199,7 @@
   XCTestExpectation *completed =
       [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
 
-  [doc setData:updateData
+  [doc setData:mergeData
          options:[FIRSetOptions merge]
       completion:^(NSError *error) {
         XCTAssertNil(error);
