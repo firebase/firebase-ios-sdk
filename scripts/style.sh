@@ -22,4 +22,5 @@ find . \
     -name 'Pods' -prune -o \
     -name '*.[mh]' \
     -not -name '*.pbobjc.*' \
+    -not -name '*.pbrpc.*' \
     -print0 | xargs -0 clang-format -style=file -i

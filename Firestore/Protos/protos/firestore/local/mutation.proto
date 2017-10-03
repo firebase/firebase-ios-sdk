@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+import "google/firestore/v1beta1/write.proto";
+import "google/protobuf/timestamp.proto";
+
+package firestore.client;
+
+option java_multiple_files = true;
+option java_package = "com.google.firebase.firestore.proto";
+
+option objc_class_prefix = "FSTPB";
+
+// Each user gets a single queue of WriteBatches to apply to the server.
+// MutationQueue tracks the metadata about the queue.
+message MutationQueue {
+  // An identifier for the highest numbered batch that has been acknowledged by
+  // the server. All WriteBatches in this queue with batch_ids less than or
+  // equal to this value are considered to have been acknowledged by the
+  // server.
+  int32 last_acknowledged_batch_id = 1;
+
+  // A stream token that was previously sent by the server.
+  //
+  // See StreamingWriteRequest in datastore.proto for more details about usage.
+  //
+  // After sending this token, earlier tokens may not be used anymore so only a
+  // single stream token is retained.
+  bytes last_stream_token = 2;
+}
+
+// Message containing a batch of user-level writes intended to be sent to
+// the server in a single call. Each user-level batch gets a separate
+// WriteBatch with a new batch_id.
+message WriteBatch {
+  // An identifier for this batch, allocated by the mutation queue in a
+  // monotonically increasing manner.
+  int32 batch_id = 1;
+
+  // A list of writes to apply. All writes will be applied atomically.
+  repeated google.firestore.v1beta1.Write writes = 2;
+
+  // The local time at which the write batch was initiated.
+  google.protobuf.Timestamp local_write_time = 3;
+}

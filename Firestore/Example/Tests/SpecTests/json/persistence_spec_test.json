@@ -1,0 +1,858 @@
+{
+  "Local mutations are persisted and re-sent": {
+    "describeName": "Persistence:",
+    "itName": "Local mutations are persisted and re-sent",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/key1",
+          {
+            "foo": "bar"
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "collection/key2",
+          {
+            "baz": "quu"
+          }
+        ]
+      },
+      {
+        "restart": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": [],
+          "numOutstandingWrites": 2
+        }
+      },
+      {
+        "writeAck": {
+          "version": 1,
+          "expectUserCallback": false
+        }
+      },
+      {
+        "writeAck": {
+          "version": 2,
+          "expectUserCallback": false
+        },
+        "stateExpect": {
+          "numOutstandingWrites": 0
+        }
+      }
+    ]
+  },
+  "Persisted local mutations are visible to listeners": {
+    "describeName": "Persistence:",
+    "itName": "Persisted local mutations are visible to listeners",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/key1",
+          {
+            "foo": "bar"
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "collection/key2",
+          {
+            "baz": "quu"
+          }
+        ]
+      },
+      {
+        "restart": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/key1",
+                0,
+                {
+                  "foo": "bar"
+                },
+                "local"
+              ],
+              [
+                "collection/key2",
+                0,
+                {
+                  "baz": "quu"
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ]
+      }
+    ]
+  },
+  "Remote documents are persisted": {
+    "describeName": "Persistence:",
+    "itName": "Remote documents are persisted",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/key",
+              1000,
+              {
+                "foo": "bar"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ],
+        "watchSnapshot": 1000,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/key",
+                1000,
+                {
+                  "foo": "bar"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "restart": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/key",
+                1000,
+                {
+                  "foo": "bar"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Remote documents from watch are not GC'd": {
+    "describeName": "Persistence:",
+    "itName": "Remote documents from watch are not GC'd",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/key",
+              1000,
+              {
+                "foo": "bar"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ],
+        "watchSnapshot": 1000,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/key",
+                1000,
+                {
+                  "foo": "bar"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/key",
+                1000,
+                {
+                  "foo": "bar"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Remote documents from user sets are not GC'd": {
+    "describeName": "Persistence:",
+    "itName": "Remote documents from user sets are not GC'd",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/key",
+          {
+            "foo": "bar"
+          }
+        ]
+      },
+      {
+        "writeAck": {
+          "version": 1000,
+          "expectUserCallback": true
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/key",
+                0,
+                {
+                  "foo": "bar"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Mutation Queue is persisted across uid switches": {
+    "describeName": "Persistence:",
+    "itName": "Mutation Queue is persisted across uid switches",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "users/anon",
+          {
+            "uid": "anon"
+          }
+        ]
+      },
+      {
+        "changeUser": "user1",
+        "stateExpect": {
+          "numOutstandingWrites": 0
+        }
+      },
+      {
+        "userSet": [
+          "users/user1",
+          {
+            "uid": "user1"
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "users/user1",
+          {
+            "uid": "user1",
+            "extra": true
+          }
+        ]
+      },
+      {
+        "changeUser": null,
+        "stateExpect": {
+          "numOutstandingWrites": 1
+        }
+      },
+      {
+        "writeAck": {
+          "version": 1000,
+          "expectUserCallback": true
+        }
+      },
+      {
+        "changeUser": "user1",
+        "stateExpect": {
+          "numOutstandingWrites": 2
+        }
+      },
+      {
+        "writeAck": {
+          "version": 2000,
+          "expectUserCallback": true
+        }
+      },
+      {
+        "writeAck": {
+          "version": 3000,
+          "expectUserCallback": true
+        }
+      }
+    ]
+  },
+  "Mutation Queue is persisted across uid switches (with restarts)": {
+    "describeName": "Persistence:",
+    "itName": "Mutation Queue is persisted across uid switches (with restarts)",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "users/anon",
+          {
+            "uid": "anon"
+          }
+        ]
+      },
+      {
+        "changeUser": "user1",
+        "stateExpect": {
+          "numOutstandingWrites": 0
+        }
+      },
+      {
+        "userSet": [
+          "users/user1",
+          {
+            "uid": "user1"
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "users/user1",
+          {
+            "uid": "user1",
+            "extra": true
+          }
+        ]
+      },
+      {
+        "changeUser": null
+      },
+      {
+        "restart": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": [],
+          "numOutstandingWrites": 1
+        }
+      },
+      {
+        "writeAck": {
+          "version": 1000,
+          "expectUserCallback": false
+        }
+      },
+      {
+        "changeUser": "user1"
+      },
+      {
+        "restart": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": [],
+          "numOutstandingWrites": 2
+        }
+      },
+      {
+        "writeAck": {
+          "version": 2000,
+          "expectUserCallback": false
+        }
+      },
+      {
+        "writeAck": {
+          "version": 3000,
+          "expectUserCallback": false
+        }
+      }
+    ]
+  },
+  "Visible mutations reflect uid switches": {
+    "describeName": "Persistence:",
+    "itName": "Visible mutations reflect uid switches",
+    "tags": [
+      "persistence"
+    ],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "users",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "users",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "users/existing",
+              0,
+              {
+                "uid": "existing"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-500"
+        ],
+        "watchSnapshot": 500,
+        "expect": [
+          {
+            "query": {
+              "path": "users",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "users/existing",
+                0,
+                {
+                  "uid": "existing"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "users/anon",
+          {
+            "uid": "anon"
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "users",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "users/anon",
+                0,
+                {
+                  "uid": "anon"
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ]
+      },
+      {
+        "changeUser": "user1",
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "users",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-500"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "users",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "users/anon",
+                0,
+                {
+                  "uid": "anon"
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "users/user1",
+          {
+            "uid": "user1"
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "users",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "users/user1",
+                0,
+                {
+                  "uid": "user1"
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ]
+      },
+      {
+        "changeUser": null,
+        "expect": [
+          {
+            "query": {
+              "path": "users",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "users/anon",
+                0,
+                {
+                  "uid": "anon"
+                },
+                "local"
+              ]
+            ],
+            "removed": [
+              [
+                "users/user1",
+                0,
+                {
+                  "uid": "user1"
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ]
+      }
+    ]
+  }
+}

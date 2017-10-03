@@ -1,0 +1,129 @@
+/*
+ * Copyright 2017 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import "FIRDocumentChange.h"
+
+#import "FIRDocumentSnapshot+Internal.h"
+#import "FSTAssert.h"
+#import "FSTDocument.h"
+#import "FSTDocumentSet.h"
+#import "FSTQuery.h"
+#import "FSTViewSnapshot.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRDocumentChange ()
+
+- (instancetype)initWithType:(FIRDocumentChangeType)type
+                    document:(FIRDocumentSnapshot *)document
+                    oldIndex:(NSUInteger)oldIndex
+                    newIndex:(NSUInteger)newIndex NS_DESIGNATED_INITIALIZER;
+
+@end
+
+@implementation FIRDocumentChange (Internal)
+
++ (FIRDocumentChangeType)documentChangeTypeForChange:(FSTDocumentViewChange *)change {
+  if (change.type == FSTDocumentViewChangeTypeAdded) {
+    return FIRDocumentChangeTypeAdded;
+  } else if (change.type == FSTDocumentViewChangeTypeModified ||
+             change.type == FSTDocumentViewChangeTypeMetadata) {
+    return FIRDocumentChangeTypeModified;
+  } else if (change.type == FSTDocumentViewChangeTypeRemoved) {
+    return FIRDocumentChangeTypeRemoved;
+  } else {
+    FSTFail(@"Unknown FSTDocumentViewChange: %ld", (long)change.type);
+  }
+}
+
++ (NSArray<FIRDocumentChange *> *)documentChangesForSnapshot:(FSTViewSnapshot *)snapshot
+                                                   firestore:(FIRFirestore *)firestore {
+  if (snapshot.oldDocuments.isEmpty) {
+    // Special case the first snapshot because index calculation is easy and fast
+    FSTDocument *_Nullable lastDocument = nil;
+    NSUInteger index = 0;
+    NSMutableArray<FIRDocumentChange *> *changes = [NSMutableArray array];
+    for (FSTDocumentViewChange *change in snapshot.documentChanges) {
+      FIRDocumentSnapshot *document =
+          [FIRDocumentSnapshot snapshotWithFirestore:firestore
+                                         documentKey:change.document.key
+                                            document:change.document
+                                           fromCache:snapshot.isFromCache];
+      FSTAssert(change.type == FSTDocumentViewChangeTypeAdded,
+                @"Invalid event type for first snapshot");
+      FSTAssert(!lastDocument ||
+                    snapshot.query.comparator(lastDocument, change.document) == NSOrderedAscending,
+                @"Got added events in wrong order");
+      [changes addObject:[[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeAdded
+                                                        document:document
+                                                        oldIndex:NSNotFound
+                                                        newIndex:index++]];
+    }
+    return changes;
+  } else {
+    // A DocumentSet that is updated incrementally as changes are applied to use to lookup the index
+    // of a document.
+    FSTDocumentSet *indexTracker = snapshot.oldDocuments;
+    NSMutableArray<FIRDocumentChange *> *changes = [NSMutableArray array];
+    for (FSTDocumentViewChange *change in snapshot.documentChanges) {
+      FIRDocumentSnapshot *document =
+          [FIRDocumentSnapshot snapshotWithFirestore:firestore
+                                         documentKey:change.document.key
+                                            document:change.document
+                                           fromCache:snapshot.isFromCache];
+
+      NSUInteger oldIndex = NSNotFound;
+      NSUInteger newIndex = NSNotFound;
+      if (change.type != FSTDocumentViewChangeTypeAdded) {
+        oldIndex = [indexTracker indexOfKey:change.document.key];
+        FSTAssert(oldIndex != NSNotFound, @"Index for document not found");
+        indexTracker = [indexTracker documentSetByRemovingKey:change.document.key];
+      }
+      if (change.type != FSTDocumentViewChangeTypeRemoved) {
+        indexTracker = [indexTracker documentSetByAddingDocument:change.document];
+        newIndex = [indexTracker indexOfKey:change.document.key];
+      }
+      [FIRDocumentChange documentChangeTypeForChange:change];
+      FIRDocumentChangeType type = [FIRDocumentChange documentChangeTypeForChange:change];
+      [changes addObject:[[FIRDocumentChange alloc] initWithType:type
+                                                        document:document
+                                                        oldIndex:oldIndex
+                                                        newIndex:newIndex]];
+    }
+    return changes;
+  }
+}
+
+@end
+
+@implementation FIRDocumentChange
+
+- (instancetype)initWithType:(FIRDocumentChangeType)type
+                    document:(FIRDocumentSnapshot *)document
+                    oldIndex:(NSUInteger)oldIndex
+                    newIndex:(NSUInteger)newIndex {
+  if (self = [super init]) {
+    _type = type;
+    _document = document;
+    _oldIndex = oldIndex;
+    _newIndex = newIndex;
+  }
+  return self;
+}
+
+@end
+
+NS_ASSUME_NONNULL_END

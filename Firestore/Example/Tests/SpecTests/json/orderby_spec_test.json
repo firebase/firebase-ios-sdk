@@ -1,0 +1,155 @@
+{
+  "orderBy applies filtering based on local state": {
+    "describeName": "OrderBy:",
+    "itName": "orderBy applies filtering based on local state",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "key": "a",
+            "sort": 1
+          }
+        ]
+      },
+      {
+        "userPatch": [
+          "collection/b",
+          {
+            "sort": 2
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "collection/c",
+          {
+            "key": "b"
+          }
+        ]
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": [
+              [
+                "sort",
+                "asc"
+              ]
+            ]
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": [
+                  [
+                    "sort",
+                    "asc"
+                  ]
+                ]
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ]
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "key": "a",
+                  "sort": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ]
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/b",
+              1001,
+              {
+                "key": "b"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ],
+        "watchSnapshot": 2000,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ]
+            },
+            "added": [
+              [
+                "collection/b",
+                1001,
+                {
+                  "key": "b",
+                  "sort": 2
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ]
+      }
+    ]
+  }
+}

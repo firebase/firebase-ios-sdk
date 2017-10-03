@@ -1,0 +1,151 @@
+/*
+ * Copyright 2017 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import "FSTRemoteDocumentCacheTests.h"
+
+#import "Core/FSTQuery.h"
+#import "Local/FSTPersistence.h"
+#import "Local/FSTWriteGroup.h"
+#import "Model/FSTDocument.h"
+#import "Model/FSTDocumentKey.h"
+#import "Model/FSTDocumentSet.h"
+
+#import "FSTHelpers.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const kDocPath = @"a/b";
+static NSString *const kLongDocPath = @"a/b/c/d/e/f";
+static const int kVersion = 42;
+
+@implementation FSTRemoteDocumentCacheTests {
+  NSDictionary<NSString *, id> *_kDocData;
+}
+
+- (void)setUp {
+  [super setUp];
+
+  // essentially a constant, but can't be a compile-time one.
+  _kDocData = @{ @"a" : @1, @"b" : @2 };
+}
+
+- (void)testReadDocumentNotInCache {
+  if (!self.remoteDocumentCache) return;
+
+  XCTAssertNil([self readEntryAtPath:kDocPath]);
+}
+
+// Helper for next two tests.
+- (void)setAndReadADocumentAtPath:(NSString *)path {
+  FSTDocument *written = [self setTestDocumentAtPath:path];
+  FSTMaybeDocument *read = [self readEntryAtPath:path];
+  XCTAssertEqualObjects(read, written);
+}
+
+- (void)testSetAndReadADocument {
+  if (!self.remoteDocumentCache) return;
+
+  [self setAndReadADocumentAtPath:kDocPath];
+}
+
+- (void)testSetAndReadADocumentAtDeepPath {
+  if (!self.remoteDocumentCache) return;
+
+  [self setAndReadADocumentAtPath:kLongDocPath];
+}
+
+- (void)testSetAndReadDeletedDocument {
+  if (!self.remoteDocumentCache) return;
+
+  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion);
+  [self addEntry:deletedDoc];
+
+  XCTAssertEqualObjects([self readEntryAtPath:kDocPath], deletedDoc);
+}
+
+- (void)testSetDocumentToNewValue {
+  if (!self.remoteDocumentCache) return;
+
+  [self setTestDocumentAtPath:kDocPath];
+  FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{ @"data" : @2 }, NO);
+  [self addEntry:newDoc];
+  XCTAssertEqualObjects([self readEntryAtPath:kDocPath], newDoc);
+}
+
+- (void)testRemoveDocument {
+  if (!self.remoteDocumentCache) return;
+
+  [self setTestDocumentAtPath:kDocPath];
+  [self removeEntryAtPath:kDocPath];
+
+  XCTAssertNil([self readEntryAtPath:kDocPath]);
+}
+
+- (void)testRemoveNonExistentDocument {
+  if (!self.remoteDocumentCache) return;
+
+  // no-op, but make sure it doesn't throw.
+  XCTAssertNoThrow([self removeEntryAtPath:kDocPath]);
+}
+
+// TODO(mikelehen): Write more elaborate tests once we have more elaborate implementations.
+- (void)testDocumentsMatchingQuery {
+  if (!self.remoteDocumentCache) return;
+
+  [self setTestDocumentAtPath:@"a/1"];
+  [self setTestDocumentAtPath:@"b/1"];
+  [self setTestDocumentAtPath:@"b/2"];
+  [self setTestDocumentAtPath:@"c/1"];
+
+  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"b")];
+  FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  NSArray *expected =
+      @[ FSTTestDoc(@"b/1", kVersion, _kDocData, NO), FSTTestDoc(@"b/2", kVersion, _kDocData, NO) ];
+  for (FSTDocument *doc in expected) {
+    XCTAssertEqualObjects([results objectForKey:doc.key], doc);
+  }
+
+  // TODO(mikelehen): Perhaps guard against extra documents in the result set once our
+  // implementations are smarter.
+}
+
+#pragma mark - Helpers
+
+- (FSTDocument *)setTestDocumentAtPath:(NSString *)path {
+  FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, NO);
+  [self addEntry:doc];
+  return doc;
+}
+
+- (void)addEntry:(FSTMaybeDocument *)maybeDoc {
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"addEntry"];
+  [self.remoteDocumentCache addEntry:maybeDoc group:group];
+  [self.persistence commitGroup:group];
+}
+
+- (FSTMaybeDocument *_Nullable)readEntryAtPath:(NSString *)path {
+  return [self.remoteDocumentCache entryForKey:FSTTestDocKey(path)];
+}
+
+- (void)removeEntryAtPath:(NSString *)path {
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeEntryAtPath"];
+  [self.remoteDocumentCache removeEntryForKey:FSTTestDocKey(path) group:group];
+  [self.persistence commitGroup:group];
+}
+
+@end
+
+NS_ASSUME_NONNULL_END

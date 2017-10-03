@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package firestore.client;
+
+option java_multiple_files = true;
+option java_package = "com.google.firebase.firestore.proto";
+
+option objc_class_prefix = "FSTPB";
+
+import "google/firestore/v1beta1/document.proto";
+import "google/protobuf/timestamp.proto";
+
+// A message indicating that the document is known to not exist.
+message NoDocument {
+  // The name of the document that does not exist, in the standard format:
+  // `projects/{project_id}/databases/{database_id}/documents/{document_path}`
+  string name = 1;
+
+  // The time at which we observed that it does not exist.
+  google.protobuf.Timestamp read_time = 2;
+}
+
+// Represents either an existing document or the explicitly known absence of a
+// document.
+message MaybeDocument {
+  oneof document_type {
+    // Used if the document is known to not exist.
+    NoDocument no_document = 1;
+
+    // The document (if it exists).
+    google.firestore.v1beta1.Document document = 2;
+  }
+}

@@ -1,0 +1,11 @@
+# This Podfile and FrameworkMaker.xcodeproj is only here to access the
+# ProtoCompiler plugin.
+
+project 'FrameworkMaker.xcodeproj'
+
+target 'FrameworkMaker_iOS' do
+  platform :ios, '7.0'
+
+  # This should be versioned along with 'gRPC-ProtoRPC' in Firestore.podspec
+  pod '!ProtoCompiler-gRPCPlugin'
+end

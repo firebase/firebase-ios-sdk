@@ -52,4 +52,7 @@ if [ $RESULT == 65 ]; then
   test_macOS; RESULT=$?
 fi
 
-exit $RESULT
+if [ $RESULT != 0 ]; then exit $RESULT; fi
+
+# Also test Firestore
+Firestore/test.sh
