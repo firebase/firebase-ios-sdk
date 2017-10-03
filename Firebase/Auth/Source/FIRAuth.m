@@ -239,6 +239,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
    */
   FIRAuthKeychain *_keychain;
 
+  /** @var _lastNotifiedUserToken
+      @brief The user access (ID) token used last time for posting auth state changed notification.
+   */
+  NSString *_lastNotifiedUserToken;
+
   /** @var _autoRefreshTokens
       @brief This flag denotes whether or not tokens should be automatically refreshed.
       @remarks Will only be set to @YES if the another Firebase service is included (additionally to
@@ -430,6 +435,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       NSError *error;
       if ([strongSelf getUser:&user error:&error]) {
         [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
+        _lastNotifiedUserToken = user.rawAccessToken;
       } else {
         FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                     @"Error loading saved user when starting up: %@", error);
@@ -1086,10 +1092,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 #endif
 
-- (void)notifyListenersOfAuthStateChangeWithUser:(FIRUser *)user token:(NSString *)token {
-  if (user != _currentUser) {
+/** @fn possiblyPostAuthStateChangeNotification
+    @brief Posts the auth state change notificaton if current user's token has been changed.
+ */
+- (void)possiblyPostAuthStateChangeNotification {
+  NSString *token = _currentUser.rawAccessToken;
+  if (_lastNotifiedUserToken == token || [_lastNotifiedUserToken isEqualToString:token]) {
     return;
   }
+  _lastNotifiedUserToken = token;
   if (_autoRefreshTokens) {
     // Shedule new refresh task after successful attempt.
     [self scheduleAutoTokenRefresh];
@@ -1117,7 +1128,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     // whether the user is still current on other callbacks of user operations either.
     return YES;
   }
-  return [self saveUser:user error:error];
+  if ([self saveUser:user error:error]) {
+    [self possiblyPostAuthStateChangeNotification];
+    return YES;
+  }
+  return NO;
 }
 
 /** @fn setKeychainServiceNameForApp
@@ -1336,6 +1351,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
              savingToDisk:(BOOL)saveToDisk
                     error:(NSError *_Nullable *_Nullable)error {
   if (user == _currentUser) {
+    [self possiblyPostAuthStateChangeNotification];
     return YES;
   }
   BOOL success = YES;
@@ -1344,7 +1360,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
   if (success || force) {
     _currentUser = user;
-    [self notifyListenersOfAuthStateChangeWithUser:user token:user.rawAccessToken];
+    [self possiblyPostAuthStateChangeNotification];
   }
   return success;
 }

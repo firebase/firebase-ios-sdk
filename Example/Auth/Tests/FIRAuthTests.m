@@ -1367,10 +1367,10 @@ static const NSTimeInterval kWaitInterval = .5;
   shouldHaveUser = YES;
   [self waitForSignIn];
 
-  // Listener should fire for signing in again as the same user.
+  // Listener should fire for signing in again as the same user with another access token.
   expectation = [self expectationWithDescription:@"sign-in again"];
   shouldHaveUser = YES;
-  [self waitForSignIn];
+  [self waitForSignInWithAccessToken:kNewAccessToken];
 
   // Listener should fire for signing out.
   expectation = [self expectationWithDescription:@"sign-out"];
@@ -1450,7 +1450,7 @@ static const NSTimeInterval kWaitInterval = .5;
   });
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 
-  //Verify that the user is nil after failed attempt to refresh tokens caused signed out.
+  // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
@@ -1619,11 +1619,20 @@ static const NSTimeInterval kWaitInterval = .5;
         data.
  */
 - (void)expectGetAccountInfo {
+  [self expectGetAccountInfoWithAccessToken:kAccessToken];
+}
+
+/** @fn expectGetAccountInfoWithAccessToken
+    @param accessToken The access token for the user to check against.
+    @brief Expects a GetAccountInfo request on the mock backend and calls back with fake account
+        data.
+ */
+- (void)expectGetAccountInfoWithAccessToken:(NSString *)accessToken {
   OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRGetAccountInfoRequest *_Nullable request,
                        FIRGetAccountInfoResponseCallback callback) {
     XCTAssertEqualObjects(request.APIKey, kAPIKey);
-    XCTAssertEqualObjects(request.accessToken, kAccessToken);
+    XCTAssertEqualObjects(request.accessToken, accessToken);
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
       id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
       OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
@@ -1733,16 +1742,28 @@ static const NSTimeInterval kWaitInterval = .5;
     @remarks This method also waits for all other pending @c XCTestExpectation instances.
  */
 - (void)waitForSignIn {
+  [self waitForSignInWithAccessToken:kAccessToken];
+}
+
+/** @fn waitForSignInWithAccessToken:
+    @brief Signs in a user to prepare for tests.
+    @param accessToken The access token for the user to have.
+    @remarks This method also waits for all other pending @c XCTestExpectation instances.
+ */
+- (void)waitForSignInWithAccessToken:(NSString *)accessToken {
   OCMExpect([_mockBackend verifyPassword:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyPasswordRequest *_Nullable request,
                        FIRVerifyPasswordResponseCallback callback) {
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
       id mockVeriyPasswordResponse = OCMClassMock([FIRVerifyPasswordResponse class]);
-      [self stubTokensWithMockResponse:mockVeriyPasswordResponse];
+      OCMStub([mockVeriyPasswordResponse IDToken]).andReturn(accessToken);
+      OCMStub([mockVeriyPasswordResponse approximateExpirationDate])
+          .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+      OCMStub([mockVeriyPasswordResponse refreshToken]).andReturn(kRefreshToken);
       callback(mockVeriyPasswordResponse, nil);
     });
   });
-  [self expectGetAccountInfo];
+  [self expectGetAccountInfoWithAccessToken:accessToken];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
                                                                              NSError *_Nullable error) {

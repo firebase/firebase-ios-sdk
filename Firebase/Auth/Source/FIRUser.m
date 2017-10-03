@@ -518,7 +518,6 @@ static void callInMainThreadWithAuthDataResultAndError(
       callback(error);
       return;
     }
-    [_auth notifyListenersOfAuthStateChangeWithUser:self token:token];
     callback(nil);
   }];
 }
@@ -820,7 +819,6 @@ static void callInMainThreadWithAuthDataResultAndError(
         callback(nil, error);
         return;
       }
-      [_auth notifyListenersOfAuthStateChangeWithUser:self token:token];
     }
     callback(token, nil);
   }];
