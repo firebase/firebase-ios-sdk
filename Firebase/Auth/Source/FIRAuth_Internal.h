@@ -75,15 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSString *)getUID;
 
-/** @fn notifyListenersOfAuthStateChange
-    @brief Posts the @c FIRAuthStateDidChangeNotification notification.
-    @remarks Called by @c FIRUser when token changes occur.
-    @param user The user whose tokens changed.
-    @param token The new access token associated with the user.
- */
-- (void)notifyListenersOfAuthStateChangeWithUser:(nullable FIRUser *)user
-                                           token:(nullable NSString *)token;
-
 /** @fn updateKeychainWithUser:error:
     @brief Updates the keychain for the given user.
     @param user The user to be updated.
