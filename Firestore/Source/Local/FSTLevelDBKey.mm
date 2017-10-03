@@ -43,8 +43,7 @@ static const char *kRemoteDocumentsTable = "remote_document";
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
  *
- * These are intended to sort similarly to keys in the server storage format:
- * http://google3/cloud/datastore/proto/storage_format_internal.proto?l=23&rcl=146525907
+ * These are intended to sort similarly to keys in the server storage format.
  *
  * Note that the server writes component labels using the equivalent to
  * OrderedCode::WriteSignedNumDecreasing. This means that despite the higher numeric value, a

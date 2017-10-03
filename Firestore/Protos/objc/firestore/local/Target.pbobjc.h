@@ -99,7 +99,6 @@ typedef GPB_ENUM(FSTPBTarget_TargetType_OneOfCase) {
  * The last snapshot version received from the Watch Service for this target.
  *
  * This is the same value as TargetChange.read_time
- * http://google3/google/firestore/v1beta1/firestore.proto?l=859&rcl=154775918
  **/
 @property(nonatomic, readwrite, strong, null_resettable) GPBTimestamp *snapshotVersion;
 /** Test to see if @c snapshotVersion has been set. */
@@ -120,7 +119,6 @@ typedef GPB_ENUM(FSTPBTarget_TargetType_OneOfCase) {
  * the client should use the snapshot_version for its own purposes.
  *
  * This is the same value as TargetChange.resume_token
- * http://google3/google/firestore/v1beta1/firestore.proto?l=852&rcl=154775918
  **/
 @property(nonatomic, readwrite, copy, null_resettable) NSData *resumeToken;
 

@@ -22,7 +22,6 @@ message Target {
   // The last snapshot version received from the Watch Service for this target.
   //
   // This is the same value as TargetChange.read_time
-  // http://google3/google/firestore/v1beta1/firestore.proto?l=859&rcl=154775918
   google.protobuf.Timestamp snapshot_version = 2;
 
   // An opaque, server-assigned token that allows watching a query to be
@@ -39,7 +38,6 @@ message Target {
   // the client should use the snapshot_version for its own purposes.
   //
   // This is the same value as TargetChange.resume_token
-  // http://google3/google/firestore/v1beta1/firestore.proto?l=852&rcl=154775918
   bytes resume_token = 3;
 
   // A sequence number representing the last time this query was listened to,

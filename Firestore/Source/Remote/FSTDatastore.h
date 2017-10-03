@@ -237,8 +237,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Once the FSTWatchStream has called the streamDidOpen method, any number of watchQuery and
  * unwatchTargetId calls can be sent to control what changes will be sent from the server for
  * WatchChanges.
- *
- * @see http://google3/google/datastore/v1beta3/datastore_watcher.proto?l=64&rcl=130412721
  */
 @interface FSTWatchStream : FSTStream
 
@@ -316,8 +314,6 @@ NS_ASSUME_NONNULL_BEGIN
  * streamToken is on hand. Once a response to this request is received, all pending mutations may
  * be submitted. When submitting multiple batches of mutations at the same time, it's okay to use
  * the same streamToken for the calls to `writeMutations:`.
- *
- * @see http://google3/google/datastore/v1beta3/datastore.proto?l=72&rcl=134831025
  */
 @interface FSTWriteStream : FSTStream
 

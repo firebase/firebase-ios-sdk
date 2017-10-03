@@ -185,9 +185,7 @@
   } while (0);
 
 /**
- * Tests the transition table documented in memory_local_store.ts.
- *
- * @see http://google3/firebase/datastore/clients/web/src/local/memory_local_store.ts?l=464
+ * Tests the transition table documented in FSTMutation.h.
  */
 - (void)testTransitions {
   FSTDocument *docV0 = FSTTestDoc(@"collection/key", 0, @{}, NO);

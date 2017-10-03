@@ -85,7 +85,7 @@ using leveldb::WriteOptions;
   //   * persistenceKey / projectID . databaseID / name
   //   * persistenceKey / projectID / name
   //
-  // projectIDs are DNS-compatible names and cannot contain dots (go/project-naming-prd) so there's
+  // projectIDs are DNS-compatible names and cannot contain dots so there's
   // no danger of collisions.
   NSString *directory = documentsDirectory;
   directory = [directory stringByAppendingPathComponent:databaseInfo.persistenceKey];
