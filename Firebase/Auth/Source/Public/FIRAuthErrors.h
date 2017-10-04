@@ -55,10 +55,10 @@ extern NSString *const FIRAuthUpdatedCredentialKey FIR_SWIFT_NAME(AuthUpdatedCre
  */
 extern NSString *const FIRAuthErrorNameKey FIR_SWIFT_NAME(AuthErrorNameKey);
 
-/** @var FIRAuthErrorUserInfoEmailKey
-    @brief Errors with the code @c FIRAuthErrorCodeEmailAlreadyInUse may contains an
-        @c NSError.userInfo dictinary which contains this key. The value associated with this key is
-        an NSString of the email address that already exists.
+/**
+    @brief Errors with the code @c FIRAuthErrorCodeAccountExistsWithDifferentCredential may contain
+        an @c NSError.userInfo dictinary object which contains this key. The value associated with
+        this key is an NSString of the email address of the account that already exists.
  */
 extern NSString *const FIRAuthErrorUserInfoEmailKey FIR_SWIFT_NAME(AuthErrorUserInfoEmailKey);
 
