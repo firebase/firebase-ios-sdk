@@ -10,6 +10,7 @@ before_install:
   - bundle install
   - gem install xcpretty
   - bundle exec pod install --project-directory=Example --repo-update
+  - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
 
 script:
   - "! git grep ' $'" # Fail on trailing whitespace
