@@ -15,8 +15,8 @@
 
   * Xcode version: _____
   * Firebase SDK version: _____
-  * Library version: _____
-  * Firebase Product: _____ (auth, database, storage, core, messaging, etc)
+  * Firebase Component: _____ (Auth, Core, Database, Firestore, Messaging, Storage, etc)
+  * Component version: _____
 
 ### [REQUIRED] Step 3: Describe the problem
 
