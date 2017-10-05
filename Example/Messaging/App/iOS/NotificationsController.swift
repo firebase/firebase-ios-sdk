@@ -121,7 +121,6 @@ class NotificationsController: NSObject {
 // MARK: - UNUserNotificationCenterDelegate
 @available(iOS 10.0, *)
 extension NotificationsController: UNUserNotificationCenterDelegate {
-
   func userNotificationCenter(_ center: UNUserNotificationCenter,
                               willPresent notification: UNNotification,
                               withCompletionHandler completionHandler:
@@ -131,5 +130,12 @@ extension NotificationsController: UNUserNotificationCenterDelegate {
     let jsonString = notification.request.content.userInfo.jsonString ?? "{}"
     print("\(jsonString)")
     completionHandler([.alert, .badge, .sound])
+  }
+
+  func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    print("Received notification response")
+    let jsonString = response.notification.request.content.userInfo.jsonString ?? "{}"
+    print("\(jsonString)")
+    completionHandler()
   }
 }
