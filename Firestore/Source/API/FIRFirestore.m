@@ -71,9 +71,9 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 + (instancetype)firestore {
   FIRApp *app = [FIRApp defaultApp];
   if (!app) {
-    FSTThrowInvalidUsage(
-        @"FIRAppNotConfiguredException",
-        @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() before using Firestore");
+    FSTThrowInvalidUsage(@"FIRAppNotConfiguredException",
+                         @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
+                         @"before using Firestore");
   }
   return [self firestoreForApp:app database:kDefaultDatabaseID];
 }
