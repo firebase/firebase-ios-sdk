@@ -71,9 +71,9 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 + (instancetype)firestore {
   FIRApp *app = [FIRApp defaultApp];
   if (!app) {
-    FSTThrowInvalidUsage(
-        @"FIRAppNotConfiguredException",
-        @"Failed to get FIRApp instance. Please call FIRApp.configure() before using FIRFirestore");
+    FSTThrowInvalidUsage(@"FIRAppNotConfiguredException",
+                         @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
+                         @"before using Firestore");
   }
   return [self firestoreForApp:app database:kDefaultDatabaseID];
 }
@@ -102,7 +102,7 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FIRFirestore *firestore = instances[key];
     if (!firestore) {
       NSString *projectID = app.options.projectID;
-      FSTAssert(projectID, @"FIROptions.projectID cannot be nil.");
+      FSTAssert(projectID, @"FirebaseOptions.projectID cannot be nil.");
 
       FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
           queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
@@ -177,8 +177,8 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 - (instancetype)firestoreWithConfiguredClient {
   if (!_client) {
     // These values are validated elsewhere; this is just double-checking:
-    FSTAssert(_settings.host, @"FIRFirestoreSettings.host cannot be nil.");
-    FSTAssert(_settings.dispatchQueue, @"FIRFirestoreSettings.dispatchQueue cannot be nil.");
+    FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
+    FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
     FSTDatabaseInfo *databaseInfo =
         [FSTDatabaseInfo databaseInfoWithDatabaseID:_databaseID
