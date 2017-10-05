@@ -16,9 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRFirestoreSwiftNameSupport.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** Metadata about a snapshot, describing the state of the snapshot. */
+FIR_SWIFT_NAME(SnapshotMetadata)
 @interface FIRSnapshotMetadata : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;

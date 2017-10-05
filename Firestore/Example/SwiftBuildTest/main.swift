@@ -275,10 +275,23 @@ func transactions() {
 
 func types() {
     // Just highlighting the types of everything, though devs can/will often omit them.
-    let _: Firestore;
+    // This list comes from:
+    //
+    //   grep -r ^FIR_SWIFT_NAME Firestore/Source/Public | sed 's/.*(/let _: /; s/)/;/'
     let _: CollectionReference;
+    let _: DocumentChange;
+    let _: DocumentListenOptions;
     let _: DocumentReference;
-    let _: Query;
     let _: DocumentSnapshot;
+    let _: FieldPath;
+    let _: FieldValue;
+    let _: Firestore;
+    let _: FirestoreSettings;
+    let _: GeoPoint;
+    let _: QueryListenOptions;
+    let _: Query;
     let _: QuerySnapshot;
+    let _: SnapshotMetadata;
+    let _: Transaction;
+    let _: WriteBatch;
 }
