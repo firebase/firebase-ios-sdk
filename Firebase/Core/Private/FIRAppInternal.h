@@ -99,7 +99,7 @@ typedef void (^FIRAppGetTokenImplementation)(BOOL forceRefresh, FIRTokenCallback
 /** @typedef FIRAppGetUID
     @brief The type of block which can provide an implementation for the @c getUID method.
  */
-typedef NSString *_Nullable (^FIRAppGetUIDImplementation)();
+typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
 
 @interface FIRApp ()
 
