@@ -16,9 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRFirestoreSwiftNameSupport.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** Represents a listener that can be removed by calling remove. */
+FIR_SWIFT_NAME(ListenerRegistration)
 @protocol FIRListenerRegistration <NSObject>
 
 /**

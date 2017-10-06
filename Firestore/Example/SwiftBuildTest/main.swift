@@ -288,6 +288,7 @@ func types() {
     let _: Firestore;
     let _: FirestoreSettings;
     let _: GeoPoint;
+    let _: ListenerRegistration;
     let _: QueryListenOptions;
     let _: Query;
     let _: QuerySnapshot;
