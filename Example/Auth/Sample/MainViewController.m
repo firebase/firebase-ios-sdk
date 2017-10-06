@@ -1776,6 +1776,12 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logFailure:@"sign-in with provider failed" error:error];
         } else {
           [self logSuccess:@"sign-in with provider succeeded."];
+          NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
+          @"new user" : @"existing user";
+          [self showMessagePromptWithTitle:@"New Or Exisiting"
+                                   message:newUserString
+                          showCancelButton:NO
+                                completion:nil];
         }
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
