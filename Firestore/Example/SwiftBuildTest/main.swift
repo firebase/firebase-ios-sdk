@@ -292,6 +292,7 @@ func types() {
     let _: QueryListenOptions;
     let _: Query;
     let _: QuerySnapshot;
+    let _: SetOptions;
     let _: SnapshotMetadata;
     let _: Transaction;
     let _: WriteBatch;
