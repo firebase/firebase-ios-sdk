@@ -1776,15 +1776,15 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logFailure:@"sign-in with provider failed" error:error];
         } else {
           [self logSuccess:@"sign-in with provider succeeded."];
+        }
+        if (authResult.additionalUserInfo) {
+          [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
           NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
-          @"new user" : @"existing user";
+              @"new user" : @"existing user";
           [self showMessagePromptWithTitle:@"New Or Exisiting"
                                    message:newUserString
                           showCancelButton:NO
                                 completion:nil];
-        }
-        if (authResult.additionalUserInfo) {
-          [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
         }
         [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In" error:error];
       };
