@@ -1780,7 +1780,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
           NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
-              @"new user" : @"existing user";
+              @"New user" : @"Existing user";
           [self showMessagePromptWithTitle:@"New Or Exisiting"
                                    message:newUserString
                           showCancelButton:NO
