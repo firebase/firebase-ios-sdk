@@ -187,6 +187,28 @@ NS_ASSUME_NONNULL_BEGIN
   [self.syncEngine userDidChange:user];
 }
 
+- (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
+  [self.workerDispatchQueue dispatchAsync:^{
+    [self.remoteStore disableNetwork];
+    if (completion) {
+      [self.userDispatchQueue dispatchAsync:^{
+        completion(nil);
+      }];
+    }
+  }];
+}
+
+- (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
+  [self.workerDispatchQueue dispatchAsync:^{
+    [self.remoteStore enableNetwork];
+    if (completion) {
+      [self.userDispatchQueue dispatchAsync:^{
+        completion(nil);
+      }];
+    }
+  }];
+}
+
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
     self.credentialsProvider.userChangeListener = nil;
