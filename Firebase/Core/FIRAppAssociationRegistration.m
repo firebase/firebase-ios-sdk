@@ -20,7 +20,7 @@
 
 + (nullable id)registeredObjectWithHost:(id)host
                                     key:(NSString *)key
-                          creationBlock:(id _Nullable (^)())creationBlock {
+                          creationBlock:(id _Nullable (^)(void))creationBlock {
   @synchronized(self) {
     SEL dictKey = @selector(registeredObjectWithHost:key:creationBlock:);
     NSMutableDictionary<NSString *, id> *objectsByKey = objc_getAssociatedObject(host, dictKey);

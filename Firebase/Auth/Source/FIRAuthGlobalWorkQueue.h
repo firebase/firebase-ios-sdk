@@ -26,6 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
         implementations that may involve contested code shall dispatch to this work queue as the
         first thing they do.
  */
-extern dispatch_queue_t FIRAuthGlobalWorkQueue();
+extern dispatch_queue_t FIRAuthGlobalWorkQueue(void);
 
 NS_ASSUME_NONNULL_END

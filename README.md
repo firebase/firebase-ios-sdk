@@ -71,6 +71,8 @@ To run the Storage Integration tests, follow the instructions in
 
 ### Firebase Messaging
 
+To use Messaging, include `pod 'FirebaseInstanceID'` in your Podfile, in addition to `pod 'FirebaseCommunity/Messaging'`.
+
 #### Push Notifications
 
 Push notifications can only be delivered to specially provisioned App IDs in the developer portal. In order to actually test receiving push notifications, you will need to:

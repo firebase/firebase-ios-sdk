@@ -68,7 +68,7 @@
   _currentBase = _maxDelay;
 }
 
-- (void)backoffAndRunBlock:(void (^)())block {
+- (void)backoffAndRunBlock:(void (^)(void))block {
   // First schedule the block using the current base (which may be 0 and should be honored as such).
   NSTimeInterval delayWithJitter = _currentBase + [self jitterDelay];
   if (_currentBase > 0) {

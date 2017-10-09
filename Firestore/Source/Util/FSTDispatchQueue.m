@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
             [self targetQueueLabel], [self currentQueueLabel]);
 }
 
-- (void)dispatchAsync:(void (^)())block {
+- (void)dispatchAsync:(void (^)(void))block {
   FSTAssert(![self onTargetQueue],
             @"dispatchAsync called when we are already running on target dispatch queue '%@'",
             [self targetQueueLabel]);
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_async(self.queue, block);
 }
 
-- (void)dispatchAsyncAllowingSameQueue:(void (^)())block {
+- (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block {
   dispatch_async(self.queue, block);
 }
 
