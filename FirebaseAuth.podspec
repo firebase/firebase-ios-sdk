@@ -22,7 +22,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Firebase/Auth/**/*.[mh]'
+  s.source_files = 'Firebase/Auth/Source/**/*.[mh]'
   s.osx.exclude_files =
     'Firebase/Auth/Source/**/FIRAuthAppDelegateProxy.[mh]',
     'Firebase/Auth/Source/**/FIRAuthNotificationManager.[mh]',
