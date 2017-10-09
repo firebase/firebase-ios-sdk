@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param block The block to run.
  */
-- (void)backoffAndRunBlock:(void (^)())block;
+- (void)backoffAndRunBlock:(void (^)(void))block;
 
 @end
 

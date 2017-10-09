@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param block The block to run.
  */
-- (void)dispatchAsync:(void (^)())block;
+- (void)dispatchAsync:(void (^)(void))block;
 
 /**
  * Unlike dispatchAsync: this method does not require you to dispatch to a different queue than
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param block The block to run.
  */
-- (void)dispatchAsyncAllowingSameQueue:(void (^)())block;
+- (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block;
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;

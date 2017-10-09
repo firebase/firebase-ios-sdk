@@ -62,7 +62,7 @@ static NSString *const kXGoogAPIClientHeader = @"x-goog-api-client";
 static NSString *const kGoogleCloudResourcePrefix = @"google-cloud-resource-prefix";
 
 /** Function typedef used to create RPCs. */
-typedef GRPCProtoCall * (^RPCFactory)();
+typedef GRPCProtoCall * (^RPCFactory)(void);
 
 #pragma mark - FSTStream
 
@@ -417,7 +417,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
                 }];
 }
 
-- (void)invokeRPCWithFactory:(GRPCProtoCall * (^)())rpcFactory
+- (void)invokeRPCWithFactory:(GRPCProtoCall * (^)(void))rpcFactory
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
