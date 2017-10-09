@@ -30,6 +30,11 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'Firebase/Auth/Source/**/FIRAuthAPNSTokenManager.[mh]',
     'Firebase/Auth/Source/**/FIRAuthAPNSTokenType.[mh]',
     'Firebase/Auth/Source/**/FIRAuthAPNSToken.[mh]',
+    'Firebase/Auth/Source/**/FIRAuthDefaultUIDelegate.[mh]',
+    'Firebase/Auth/Source/**/FIRAuthUIDelegate.h',
+    'Firebase/Auth/Source/**/FIRAuthURLPresenter.[mh]',
+    'Firebase/Auth/Source/**/FIRAuthWebView.[mh]',
+    'Firebase/Auth/Source/**/FIRAuthWebViewController.[mh]',
     'Firebase/Auth/Source/**/FIRPhoneAuthCredential.[mh]',
     'Firebase/Auth/Source/**/FIRPhoneAuthProvider.[mh]'
   s.public_header_files = 'Firebase/Auth/Source/Public/*.h'
