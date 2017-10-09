@@ -85,6 +85,11 @@ FIR_SWIFT_NAME(User)
  */
 @property(nonatomic, readonly, nonnull) NSArray<id<FIRUserInfo>> *providerData;
 
+/** @property metadata
+    @brief Metadata associated with the Firebase user in question.
+ */
+@property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
+
 /** @fn init
     @brief This class should not be instantiated.
     @remarks To retrieve the current user, use @c FIRAuth.currentUser. To sign a user
