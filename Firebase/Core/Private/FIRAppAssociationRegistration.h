@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable ObjectType)registeredObjectWithHost:(id)host
                                             key:(NSString *)key
-                                  creationBlock:(ObjectType _Nullable (^)())creationBlock;
+                                  creationBlock:(ObjectType _Nullable (^)(void))creationBlock;
 
 @end
 
