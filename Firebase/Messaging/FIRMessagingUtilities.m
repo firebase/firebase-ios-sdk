@@ -127,17 +127,17 @@ void FIRMessagingSetLastStreamId(GPBMessage *proto, int sid) {
 
 #pragma mark - Time
 
-int64_t FIRMessagingCurrentTimestampInSeconds() {
+int64_t FIRMessagingCurrentTimestampInSeconds(void) {
   return (int64_t)[[NSDate date] timeIntervalSince1970];
 }
 
-int64_t FIRMessagingCurrentTimestampInMilliseconds() {
+int64_t FIRMessagingCurrentTimestampInMilliseconds(void) {
   return (int64_t)(FIRMessagingCurrentTimestampInSeconds() * 1000.0);
 }
 
 #pragma mark - App Info
 
-NSString *FIRMessagingCurrentAppVersion() {
+NSString *FIRMessagingCurrentAppVersion(void) {
   NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
   if (![version length]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeUtilities000,
@@ -147,11 +147,11 @@ NSString *FIRMessagingCurrentAppVersion() {
   return version;
 }
 
-NSString *FIRMessagingAppIdentifier() {
+NSString *FIRMessagingAppIdentifier(void) {
   return [[NSBundle mainBundle] bundleIdentifier];
 }
 
-uint64_t FIRMessagingGetFreeDiskSpaceInMB() {
+uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {
   NSError *error;
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 
