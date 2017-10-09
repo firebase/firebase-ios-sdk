@@ -517,6 +517,11 @@ static NSString *const kPhoneNumberSignInTitle = @"Sign in With Phone Number";
  */
 static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number (reCAPTCHA)";
 
+/** @var kIsNewUserToggleTitle
+    @brief The title for button to enable new or existing user toggle.
+ */
+static NSString *const kNewOrExistingUserToggleTitle = @"New or Existing User Toggle";
+
 /** @typedef showEmailPasswordDialogCompletion
     @brief The type of block which gets called to complete the Email/Password dialog flow.
  */
@@ -599,6 +604,11 @@ typedef enum {
       @brief The continue URL to be used in the next action code request.
    */
   NSURL *_actionCodeContinueURL;
+
+  /** @var _newUserToggle
+      @brief When enabled allows login popup alert determining new or existing user.
+   */
+  BOOL _isNewUserToggleOn;
 }
 
 /** @fn initWithNibName:bundle:
@@ -652,7 +662,11 @@ typedef enum {
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSettings cells:@[
         [StaticContentTableViewCell cellWithTitle:NSLocalizedString(@"SETTINGSKEY",
                                                                     kSettingsButtonTextDesription)
-                                           action:^{ [weakSelf presentSettings]; }]
+                                           action:^{ [weakSelf presentSettings]; }],
+        [StaticContentTableViewCell cellWithTitle:kNewOrExistingUserToggleTitle
+                                            value: _isNewUserToggleOn ? @"Enabled" : @"Disabled"
+                                           action:^{ _isNewUserToggleOn = !_isNewUserToggleOn;
+                                             [self updateTable]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
@@ -1776,12 +1790,16 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logFailure:@"sign-in with provider failed" error:error];
         } else {
           [self logSuccess:@"sign-in with provider succeeded."];
+          if (_isNewUserToggleOn) {
           NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
-          @"new user" : @"existing user";
-          [self showMessagePromptWithTitle:@"New Or Exisiting"
+          @"New user" : @"Existing user";
+          [self showMessagePromptWithTitle:@"New or Existing"
                                    message:newUserString
                           showCancelButton:NO
                                 completion:nil];
+          } else {
+          //do nothing
+          }
         }
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
