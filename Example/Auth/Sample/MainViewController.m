@@ -1793,14 +1793,12 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
-          if (_isNewUserToggleOn) {
             NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
                 @"New user" : @"Existing user";
             [self showMessagePromptWithTitle:@"New or Existing"
                                    message:newUserString
                           showCancelButton:NO
                                 completion:nil];
-          }
         }
         [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In" error:error];
       };
