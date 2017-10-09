@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
   _UIDelegate = nil;
   FIRAuthURLPresentationCompletion completion = _completion;
   _completion = nil;
-  void (^finishBlock)() = ^() {
+  void (^finishBlock)(void) = ^() {
     _isPresenting = NO;
     completion(URL, error);
   };

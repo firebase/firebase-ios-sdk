@@ -892,7 +892,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
-- (BOOL)signOut:(NSError *_Nullable *_Nullable)error {
+- (BOOL)signOut:(NSError *_Nullable __autoreleasing *_Nullable)error {
   __block BOOL result = YES;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     if (!_currentUser) {
