@@ -50,8 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)remove {
   [self.asyncListener mute];
   [self.client removeListener:self.internalListener];
-    _internalListener = nil;
-    _asyncListener = nil;
+  _internalListener = nil;
+  _asyncListener = nil;
 }
 
 @end
