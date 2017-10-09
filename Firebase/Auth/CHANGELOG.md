@@ -1,3 +1,6 @@
+# v4.3.0
+- Provides account creation and last sign-in dates as metadata to the user object.
+
 # v4.2.1
 - Fixes a threading issue in phone number auth that completion block was not
   executed on the main thread in some error cases.
