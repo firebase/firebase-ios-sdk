@@ -20,13 +20,13 @@
 
 @interface FIRRetryHelperTask : NSObject
 
-@property (nonatomic, strong) void (^block)();
+@property (nonatomic, strong) void (^block)(void);
 
 @end
 
 @implementation FIRRetryHelperTask
 
-- (instancetype) initWithBlock:(void (^)())block {
+- (instancetype) initWithBlock:(void (^)(void))block {
     self = [super init];
     if (self != nil) {
         self->_block = [block copy];
@@ -86,7 +86,7 @@
     return self;
 }
 
-- (void) retry:(void (^)())block {
+- (void) retry:(void (^)(void))block {
     if (self.scheduledRetry != nil) {
         FFLog(@"I-RDB054001", @"Canceling existing retry attempt");
         [self.scheduledRetry cancel];
