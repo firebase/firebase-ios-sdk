@@ -174,7 +174,10 @@ NS_ASSUME_NONNULL_BEGIN
                                        credentials:_credentials];
 
   _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:_datastore];
-  [_remoteStore start];
+
+  [_testWorkerQueue dispatchAsync:^() {
+    [_remoteStore start];
+  }];
 }
 
 - (void)tearDown {
