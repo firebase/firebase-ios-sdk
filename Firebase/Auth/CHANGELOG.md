@@ -1,3 +1,10 @@
+# v4.2.1
+- Fixes a threading issue in phone number auth that completion block was not
+  executed on the main thread in some error cases.
+
+# v4.2.0
+- Adds new phone number verification API which makes use of an intelligent reCAPTCHA to verify the application.
+
 # v4.1.1
 - Improves some method documentation in headers.
 

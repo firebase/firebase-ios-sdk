@@ -16,6 +16,7 @@
 
 #import "FIRIdentityToolkitRequest.h"
 
+#import "FIRAuthOperationType.h"
 #import "FIRAuthRPCRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,14 +39,19 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, nullable) NSString *accessToken;
 
 /** @var temporaryProof
-    @brief The a temporary proof code pertaining to this credentil, returned from the backend.
+    @brief The temporary proof code, previously returned from the backend.
  */
 @property(nonatomic, readonly, nonnull) NSString *temporaryProof;
 
 /** @var phoneNumber
-    @brief The a phone number pertaining to this credential, returned from the backend.
+    @brief The phone number to be verified in the request.
  */
 @property(nonatomic, readonly, nonnull) NSString *phoneNumber;
+
+/** @var operation
+    @brief The type of operation triggering this verify phone number request.
+ */
+@property(nonatomic, assign, readonly) FIRAuthOperationType operation;
 
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithVerificationID:verificationCode:requestConfiguration
@@ -58,10 +64,12 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Designated initializer.
     @param temporaryProof The temporary proof sent by the backed.
     @param phoneNumber The phone number associated with the credential to be signed in.
+    @param operation Indicates what operation triggered the verify phone number request.
     @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithTemporaryProof:(NSString *)temporaryProof
                                     phoneNumber:(NSString *)phoneNumber
+                                      operation:(FIRAuthOperationType)operation
                            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                               NS_DESIGNATED_INITIALIZER;
 
@@ -69,10 +77,12 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Designated initializer.
     @param verificationID The verification ID obtained from the response of @c sendVerificationCode.
     @param verificationCode The verification code provided by the user.
+    @param operation Indicates what operation triggered the verify phone number request.
     @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithVerificationID:(NSString *)verificationID
                                verificationCode:(NSString *)verificationCode
+                                      operation:(FIRAuthOperationType)operation
                            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                               NS_DESIGNATED_INITIALIZER;
 

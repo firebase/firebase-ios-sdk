@@ -1,0 +1,58 @@
+/*
+ * Copyright 2017 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import <Foundation/Foundation.h>
+
+@class FSTDocumentKey;
+@class FSTFieldPath;
+@class FSTFieldValue;
+@class FSTObjectValue;
+@class FSTSnapshotVersion;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * The result of a lookup for a given path may be an existing document or a tombstone that marks
+ * the path deleted.
+ */
+@interface FSTMaybeDocument : NSObject <NSCopying>
+- (id)init __attribute__((unavailable("Abstract base class")));
+
+@property(nonatomic, strong, readonly) FSTDocumentKey *key;
+@property(nonatomic, readonly) FSTSnapshotVersion *version;
+@end
+
+@interface FSTDocument : FSTMaybeDocument
++ (instancetype)documentWithData:(FSTObjectValue *)data
+                             key:(FSTDocumentKey *)key
+                         version:(FSTSnapshotVersion *)version
+               hasLocalMutations:(BOOL)mutations;
+
+- (nullable FSTFieldValue *)fieldForPath:(FSTFieldPath *)path;
+
+@property(nonatomic, strong, readonly) FSTObjectValue *data;
+@property(nonatomic, readonly, getter=hasLocalMutations) BOOL localMutations;
+
+@end
+
+@interface FSTDeletedDocument : FSTMaybeDocument
++ (instancetype)documentWithKey:(FSTDocumentKey *)key version:(FSTSnapshotVersion *)version;
+@end
+
+/** An NSComparator suitable for comparing docs using only their keys. */
+extern const NSComparator FSTDocumentComparatorByKey;
+
+NS_ASSUME_NONNULL_END

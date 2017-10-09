@@ -244,6 +244,55 @@
   XCTAssertEqualObjects(metadata0, metadata1);
 }
 
+- (void)testUpdatedMetadata {
+  NSDictionary *oldMetadata = @{
+    kFIRStorageMetadataContentLanguage : @"old",
+    kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
+  };
+  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+  metadata.contentLanguage = @"new";
+  metadata.customMetadata = @{@"foo" : @"new", @"bar" : @"old"};
+
+  NSDictionary *update = [metadata updatedMetadata];
+
+  NSDictionary *expectedUpdate = @{
+    kFIRStorageMetadataContentLanguage : @"new",
+    kFIRStorageMetadataCustomMetadata : @{@"foo" : @"new"}
+  };
+  XCTAssertEqualObjects(update, expectedUpdate);
+}
+
+- (void)testUpdatedMetadataWithEmptyUpdate {
+    NSDictionary *oldMetadata = @{
+                                  kFIRStorageMetadataContentLanguage : @"old",
+                                  kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
+                                  };
+    FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+
+    NSDictionary *update = [metadata updatedMetadata];
+
+    NSDictionary *expectedUpdate = @{ kFIRStorageMetadataCustomMetadata : @{} };
+    XCTAssertEqualObjects(update, expectedUpdate);
+}
+
+- (void)testUpdatedMetadataWithDelete {
+  NSDictionary *oldMetadata = @{
+    kFIRStorageMetadataContentLanguage : @"old",
+    kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
+  };
+  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+  metadata.contentLanguage = nil;
+  metadata.customMetadata = @{@"foo" : @"old"};
+
+  NSDictionary *update = [metadata updatedMetadata];
+
+  NSDictionary *expectedUpdate = @{
+    kFIRStorageMetadataContentLanguage : [NSNull null],
+    kFIRStorageMetadataCustomMetadata : @{@"bar" : [NSNull null]}
+  };
+  XCTAssertEqualObjects(update, expectedUpdate);
+}
+
 - (void)testMetadataHashEquality {
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",

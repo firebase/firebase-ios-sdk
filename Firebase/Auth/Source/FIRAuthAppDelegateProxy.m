@@ -82,6 +82,15 @@ static id noop(id object, SEL cmd, ...) {
                                                application:application
           didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
     }];
+    SEL failToRegisterRemoteNotificationSelector =
+        @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
+    [self replaceSelector:failToRegisterRemoteNotificationSelector
+                withBlock:^(id object, UIApplication* application, NSError *error) {
+      [weakSelf object:object
+                                                  selector:failToRegisterRemoteNotificationSelector
+                                               application:application
+          didFailToRegisterForRemoteNotificationsWithError:error];
+    }];
     SEL receiveNotificationSelector = @selector(application:didReceiveRemoteNotification:);
     SEL receiveNotificationWithHandlerSelector =
         @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
@@ -196,6 +205,22 @@ static id noop(id object, SEL cmd, ...) {
   if (originalImplementation && originalImplementation != &noop) {
     typedef void (*Implmentation)(id, SEL, UIApplication*, NSData *);
     ((Implmentation)originalImplementation)(object, selector, application, deviceToken);
+  }
+}
+
+- (void)object:(id)object
+                                            selector:(SEL)selector
+                                         application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  if (object == _appDelegate) {
+    for (id<FIRAuthAppDelegateHandler> handler in [self handlers]) {
+      [handler handleAPNSTokenError:error];
+    }
+  }
+  IMP originalImplementation = [self originalImplementationForSelector:selector];
+  if (originalImplementation && originalImplementation != &noop) {
+    typedef void (*Implmentation)(id, SEL, UIApplication *, NSError *);
+    ((Implmentation)originalImplementation)(object, selector, application, error);
   }
 }
 

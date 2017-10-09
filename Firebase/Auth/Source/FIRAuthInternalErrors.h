@@ -322,6 +322,37 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeQuotaExceeded =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeQuotaExceeded,
 
+  /** Indicates that an attempt was made to present a new web context while one was already being
+        presented.
+   */
+  FIRAuthInternalErrorCodeWebContextAlreadyPresented =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebContextAlreadyPresented,
+
+  /** Indicates that the URL presentation was cancelled prematurely by the user.
+   */
+  FIRAuthInternalErrorCodeWebContextCancelled =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebContextCancelled,
+
+  /** Indicates a general failure during the app verification flow.
+   */
+  FIRAuthInternalErrorCodeAppVerificationUserInteractionFailure =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAppVerificationUserInteractionFailure,
+
+  /** Indicates that the clientID used to invoke a web flow is invalid.
+   */
+  FIRAuthInternalErrorCodeInvalidClientID =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidClientID,
+
+  /** Indicates that a network request within a SFSafariViewController or UIWebview failed.
+   */
+  FIRAuthInternalErrorCodeWebNetworkRequestFailed =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebNetworkRequestFailed,
+
+  /** Indicates that an internal error occured within a SFSafariViewController or UIWebview.
+   */
+  FIRAuthInternalErrorCodeWebInternalError =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebInternalError,
+
   // The enum values between 17046 and 17051 are reserved and should NOT be used for new error
   // codes.
 

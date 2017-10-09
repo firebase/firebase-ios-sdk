@@ -48,11 +48,45 @@ target 'Messaging_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseMessaging' , :path => '../'
+  pod 'FirebaseInstanceID'
 
   target 'Messaging_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
+end
+
+target 'Auth_Sample' do
+  platform :ios, '8.0'
+  pod 'FirebaseCommunity/Auth', :path => '../'
+  pod 'FBSDKLoginKit'
+  pod 'GoogleSignIn'
+  # to FirebaseCore
+  pod 'FirebaseInstanceID'
+  pod 'GTMSessionFetcher/Core'
+end
+
+target 'Auth_SwiftSample' do
+  platform :ios, '8.0'
+  pod 'FirebaseCommunity/Auth', :path => '../'
+  pod 'GoogleSignIn'
+  pod 'FirebaseInstanceID'
+end
+
+target 'Auth_ApiTests' do
+  platform :ios, '8.0'
+  pod 'FirebaseCommunity/Auth', :path => '../'
+  pod 'GoogleSignIn'
+  pod 'FirebaseInstanceID'
+  pod 'GTMSessionFetcher/Core'
+end
+
+target 'Auth_EarlGreyTests' do
+  platform :ios, '8.0'
+  pod 'FirebaseCommunity/Auth', :path => '../'
+  pod 'GoogleSignIn'
+  pod 'FirebaseInstanceID'
+  pod 'EarlGrey'
 end
 
 target 'Storage_Example_iOS' do
@@ -85,7 +119,7 @@ end
 target 'Auth_Example_macOS' do
   platform :osx, '10.10'
 
-  pod 'FirebaseAuth', :path => '../'
+  pod 'FirebaseCommunity/Auth', :path => '../'
 
   target 'Auth_Tests_macOS' do
     inherit! :search_paths

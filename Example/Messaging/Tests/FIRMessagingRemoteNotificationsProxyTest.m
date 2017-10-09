@@ -53,6 +53,8 @@ void FCM_swizzle_appDidReceiveRemoteNotificationWithHandler(
     void (^handler)(UIBackgroundFetchResult));
 void FCM_swizzle_willPresentNotificationWithHandler(
     id self, SEL _cmd, id center, id notification, void (^handler)(NSUInteger));
+void FCM_swizzle_didReceiveNotificationResponseWithHandler(
+    id self, SEL _cmd, id center, id response, void (^handler)());
 
 @end
 
@@ -90,6 +92,7 @@ void FCM_swizzle_willPresentNotificationWithHandler(
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 @interface FakeUserNotificationCenterDelegate : NSObject <UNUserNotificationCenterDelegate>
 @property(nonatomic) BOOL willPresentWasCalled;
+@property(nonatomic) BOOL didReceiveResponseWasCalled;
 @end
 @implementation FakeUserNotificationCenterDelegate
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
@@ -97,6 +100,9 @@ void FCM_swizzle_willPresentNotificationWithHandler(
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))
     completionHandler {
   self.willPresentWasCalled = YES;
+}
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+  self.didReceiveResponseWasCalled = YES;
 }
 @end
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
@@ -219,7 +225,7 @@ void FCM_swizzle_willPresentNotificationWithHandler(
 }
 
 // Use a fake delegate that doesn't actually implement the needed delegate method.
-// Our swizzled method should still be called.
+// Our swizzled method should not be called.
 
 - (void)testIncompleteUserNotificationCenterDelegateMethod {
   // Early exit if running on pre iOS 10
@@ -229,20 +235,17 @@ void FCM_swizzle_willPresentNotificationWithHandler(
   IncompleteUserNotificationCenterDelegate *delegate =
       [[IncompleteUserNotificationCenterDelegate alloc] init];
   [self.mockProxy swizzleUserNotificationCenterDelegate:delegate];
-  SEL selector = @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:);
-  XCTAssertTrue([delegate respondsToSelector:selector]);
-  // Invoking delegate method should also invoke our swizzled method
-  // The swizzled method uses the +sharedProxy, which should be
-  // returning our mocked proxy.
-  // Use non-nil, proper classes, otherwise our SDK bails out.
-  [delegate userNotificationCenter:OCMClassMock([UNUserNotificationCenter class])
-           willPresentNotification:[self generateMockNotification]
-             withCompletionHandler:^(NSUInteger options) {}];
-  // Verify our swizzled method was called
-  OCMVerify(FCM_swizzle_willPresentNotificationWithHandler);
+  // Because the incomplete delete does not implement either of the optional delegate methods, we
+  // should swizzle nothing. If we had swizzled them, then respondsToSelector: would return YES
+  // even though the delegate does not implement the methods.
+  SEL willPresentSelector = @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:);
+  XCTAssertFalse([delegate respondsToSelector:willPresentSelector]);
+  SEL didReceiveResponseSelector =
+      @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:);
+  XCTAssertFalse([delegate respondsToSelector:didReceiveResponseSelector]);
 }
 
-// Use an object that does actually implement the needed method. Both should be called.
+// Use an object that does actually implement the optional methods. Both should be called.
 - (void)testSwizzledUserNotificationsCenterDelegate {
   // Early exit if running on pre iOS 10
   if (![UNNotification class]) {
@@ -261,6 +264,14 @@ void FCM_swizzle_willPresentNotificationWithHandler(
   OCMVerify(FCM_swizzle_willPresentNotificationWithHandler);
   // Verify our original method was called
   XCTAssertTrue(delegate.willPresentWasCalled);
+
+  [delegate userNotificationCenter:OCMClassMock([UNUserNotificationCenter class])
+    didReceiveNotificationResponse:[self generateMockNotificationResponse]
+             withCompletionHandler:^{}];
+  // Verify our swizzled method was called
+  OCMVerify(FCM_swizzle_appDidReceiveRemoteNotificationWithHandler);
+  // Verify our original method was called
+  XCTAssertTrue(delegate.didReceiveResponseWasCalled);
 }
 
 - (id)generateMockNotification {
@@ -272,6 +283,14 @@ void FCM_swizzle_willPresentNotificationWithHandler(
   OCMStub([mockRequest content]).andReturn(mockContent);
   OCMStub([mockNotification request]).andReturn(mockRequest);
   return mockNotification;
+}
+
+- (id)generateMockNotificationResponse {
+  // Stub out: response.[mock notification above]
+  id mockNotificationResponse = OCMClassMock([UNNotificationResponse class]);
+  id mockNotification = [self generateMockNotification];
+  OCMStub([mockNotificationResponse notification]).andReturn(mockNotification);
+  return mockNotificationResponse;
 }
 
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0

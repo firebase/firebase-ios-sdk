@@ -31,6 +31,7 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
+#import "FIRAuthOperationType.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -64,6 +65,7 @@
 #import "FIRAuthAppDelegateProxy.h"
 #import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthNotificationManager.h"
+#import "FIRAuthURLPresenter.h"
 #endif
 
 #pragma mark - Constants
@@ -201,6 +203,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 @property(nonatomic, copy, readonly) NSString *firebaseAppId;
 
+/** @property additionalFrameworkMarker
+    @brief Additional framework marker that will be added as part of the header of every request.
+ */
+@property(nonatomic, copy, nullable) NSString *additionalFrameworkMarker;
+
 /** @fn initWithApp:
     @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance.
     @param app The application to associate the auth instance with.
@@ -231,6 +238,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       @brief The keychain service.
    */
   FIRAuthKeychain *_keychain;
+
+  /** @var _lastNotifiedUserToken
+      @brief The user access (ID) token used last time for posting auth state changed notification.
+   */
+  NSString *_lastNotifiedUserToken;
 
   /** @var _autoRefreshTokens
       @brief This flag denotes whether or not tokens should be automatically refreshed.
@@ -387,6 +399,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       });
       return uid;
     };
+    #if TARGET_OS_IOS
+    _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
+    #endif
   }
   return self;
 }
@@ -420,6 +435,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       NSError *error;
       if ([strongSelf getUser:&user error:&error]) {
         [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
+        _lastNotifiedUserToken = user.rawAccessToken;
       } else {
         FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                     @"Error loading saved user when starting up: %@", error);
@@ -591,8 +607,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
     // Special case for phone auth credentials
     FIRPhoneAuthCredential *phoneCredential = (FIRPhoneAuthCredential *)credential;
-    [self signInWithPhoneCredential:phoneCredential callback:^(FIRUser *_Nullable user,
-                                                               NSError *_Nullable error) {
+    FIRAuthOperationType operation =
+        isReauthentication ? FIRAuthOperationTypeReauth : FIRAuthOperationTypeSignUpOrSignIn;
+    [self signInWithPhoneCredential:phoneCredential
+                          operation:operation
+                           callback:^(FIRUser *_Nullable user,
+                                      NSError *_Nullable error) {
       if (callback) {
         FIRAuthDataResult *result = user ?
             [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
@@ -941,7 +961,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)useAppLanguage {
-  _requestConfiguration.languageCode = [NSBundle mainBundle].preferredLocalizations.firstObject;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    _requestConfiguration.languageCode = [NSBundle mainBundle].preferredLocalizations.firstObject;
+  });
 }
 
 - (nullable NSString *)languageCode {
@@ -949,7 +971,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)setLanguageCode:(nullable NSString *)languageCode {
-  _requestConfiguration.languageCode = [languageCode copy];
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    _requestConfiguration.languageCode = [languageCode copy];
+  });
+}
+
+- (NSString *)additionalFrameworkMarker {
+  return _requestConfiguration.additionalFrameworkMarker;
+}
+
+- (void)setAdditionalFrameworkMarker:(NSString *)additionalFrameworkMarker {
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    _requestConfiguration.additionalFrameworkMarker = [additionalFrameworkMarker copy];
+  });
 }
 
 #if TARGET_OS_IOS
@@ -971,6 +1005,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)handleAPNSTokenError:(NSError *)error {
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    [_tokenManager cancelWithError:error];
+  });
+}
+
 - (BOOL)canHandleNotification:(NSDictionary *)userInfo {
   __block BOOL result = NO;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -978,11 +1018,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
   return result;
 }
-#endif
 
-- (BOOL)canHandleURL:(NSURL *)url {
-  return NO;
+- (BOOL)canHandleURL:(NSURL *)URL {
+  __block BOOL result = NO;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    result = [_authURLPresenter canHandleURL:URL];
+  });
+  return result;
 }
+#endif
 
 #pragma mark - Internal Methods
 
@@ -990,15 +1034,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 /** @fn signInWithPhoneCredential:callback:
     @brief Signs in using a phone credential.
     @param credential The Phone Auth credential used to sign in.
+    @param operation The type of operation for which this sign-in attempt is initiated.
     @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
         asynchronously on the global auth work queue in the future.
  */
 - (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
+                        operation:(FIRAuthOperationType)operation
                          callback:(FIRAuthResultCallback)callback {
   if (credential.temporaryProof.length && credential.phoneNumber.length) {
     FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:credential.temporaryProof
                                                       phoneNumber:credential.phoneNumber
+                                                        operation:operation
                                              requestConfiguration:_requestConfiguration];
     [self phoneNumberSignInWithRequest:request callback:callback];
     return;
@@ -1015,6 +1062,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc]initWithVerificationID:credential.verificationID
                                                 verificationCode:credential.verificationCode
+                                                       operation:operation
                                             requestConfiguration:_requestConfiguration];
   [self phoneNumberSignInWithRequest:request callback:callback];
 }
@@ -1044,10 +1092,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 #endif
 
-- (void)notifyListenersOfAuthStateChangeWithUser:(FIRUser *)user token:(NSString *)token {
-  if (user != _currentUser) {
+/** @fn possiblyPostAuthStateChangeNotification
+    @brief Posts the auth state change notificaton if current user's token has been changed.
+ */
+- (void)possiblyPostAuthStateChangeNotification {
+  NSString *token = _currentUser.rawAccessToken;
+  if (_lastNotifiedUserToken == token || [_lastNotifiedUserToken isEqualToString:token]) {
     return;
   }
+  _lastNotifiedUserToken = token;
   if (_autoRefreshTokens) {
     // Shedule new refresh task after successful attempt.
     [self scheduleAutoTokenRefresh];
@@ -1075,7 +1128,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     // whether the user is still current on other callbacks of user operations either.
     return YES;
   }
-  return [self saveUser:user error:error];
+  if ([self saveUser:user error:error]) {
+    [self possiblyPostAuthStateChangeNotification];
+    return YES;
+  }
+  return NO;
 }
 
 /** @fn setKeychainServiceNameForApp
@@ -1163,13 +1220,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                     callback:^(NSString *_Nullable token,
                                                                NSError *_Nullable error) {
       if (![strongSelf->_currentUser.uid isEqualToString:uid]) {
-        return;
-      }
-      // If the error is an invalid token, sign the user out.
-      if (error.code == FIRAuthErrorCodeInvalidUserToken) {
-        FIRLogNotice(kFIRLoggerAuth, @"I-AUT000005",
-                     @"Invalid refresh token detected, user is automatically signed out.");
-        [strongSelf signOutByForceWithUserID:uid error:nil];
         return;
       }
       if (error) {
@@ -1301,6 +1351,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
              savingToDisk:(BOOL)saveToDisk
                     error:(NSError *_Nullable *_Nullable)error {
   if (user == _currentUser) {
+    [self possiblyPostAuthStateChangeNotification];
     return YES;
   }
   BOOL success = YES;
@@ -1309,7 +1360,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
   if (success || force) {
     _currentUser = user;
-    [self notifyListenersOfAuthStateChangeWithUser:user token:user.rawAccessToken];
+    [self possiblyPostAuthStateChangeNotification];
   }
   return success;
 }

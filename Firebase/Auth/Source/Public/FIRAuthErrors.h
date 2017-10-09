@@ -55,10 +55,10 @@ extern NSString *const FIRAuthUpdatedCredentialKey FIR_SWIFT_NAME(AuthUpdatedCre
  */
 extern NSString *const FIRAuthErrorNameKey FIR_SWIFT_NAME(AuthErrorNameKey);
 
-/** @var FIRAuthErrorUserInfoEmailKey
-    @brief Errors with the code @c FIRAuthErrorCodeEmailAlreadyInUse may contains an
-        @c NSError.userInfo dictinary which contains this key. The value associated with this key is
-        an NSString of the email address that already exists.
+/**
+    @brief Errors with the code @c FIRAuthErrorCodeAccountExistsWithDifferentCredential may contain
+        an @c NSError.userInfo dictinary object which contains this key. The value associated with
+        this key is an NSString of the email address of the account that already exists.
  */
 extern NSString *const FIRAuthErrorUserInfoEmailKey FIR_SWIFT_NAME(AuthErrorUserInfoEmailKey);
 
@@ -275,6 +275,31 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates that the reCAPTCHA token is not valid.
      */
     FIRAuthErrorCodeCaptchaCheckFailed = 17056,
+
+    /** Indicates that an attempt was made to present a new web context while one was already being
+        presented.
+     */
+    FIRAuthErrorCodeWebContextAlreadyPresented = 17057,
+
+    /** Indicates that the URL presentation was cancelled prematurely by the user.
+     */
+    FIRAuthErrorCodeWebContextCancelled = 17058,
+
+    /** Indicates a general failure during the app verification flow.
+     */
+    FIRAuthErrorCodeAppVerificationUserInteractionFailure = 17059,
+
+    /** Indicates that the clientID used to invoke a web flow is invalid.
+     */
+    FIRAuthErrorCodeInvalidClientID = 17060,
+
+    /** Indicates that a network request within a SFSafariViewController or UIWebview failed.
+     */
+    FIRAuthErrorCodeWebNetworkRequestFailed = 17061,
+
+    /** Indicates that an internal error occured within a SFSafariViewController or UIWebview.
+     */
+    FIRAuthErrorCodeWebInternalError = 17062,
 
     /** Indicates an error occurred while attempting to access the keychain.
      */

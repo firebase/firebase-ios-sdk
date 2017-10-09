@@ -1,12 +1,12 @@
-AuthSamples/Sample/Sample.entitlements
-AuthSamples/Sample/GoogleService-Info_multi.plist
-AuthSamples/Sample/AuthCredentials.h
-AuthSamples/Sample/GoogleService-Info.plist
-AuthSamples/Sample/Application.plist
-AuthSamples/SwiftSample/GoogleService-Info.plist
-AuthSamples/SwiftSample/Info.plist
-AuthSamples/SwiftSample/AuthCredentials.swift
-AuthSamples/ApiTests/AuthCredentials.h
+Example/Auth/Sample/Sample.entitlements
+Example/Auth/Sample/GoogleService-Info_multi.plist
+Example/Auth/Sample/AuthCredentials.h
+Example/Auth/Sample/GoogleService-Info.plist
+Example/Auth/Sample/Application.plist
+Example/Auth/SwiftSample/GoogleService-Info.plist
+Example/Auth/SwiftSample/Info.plist
+Example/Auth/SwiftSample/AuthCredentials.swift
+Example/Auth/ApiTests/AuthCredentials.h
 
 Example/Database/App/GoogleService-Info.plist
 

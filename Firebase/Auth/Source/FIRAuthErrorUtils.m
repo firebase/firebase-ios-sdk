@@ -42,6 +42,25 @@ NSString *const FIRAuthUpdatedCredentialKey = @"FIRAuthUpdatedCredentialKey";
  */
 static NSString *const kServerErrorDetailMarker = @" : ";
 
+#pragma mark - URL response error codes
+
+/** @var kURLResponseErrorCodeInvalidClientID
+    @brief Error code that indicates that the client ID provided was invalid.
+ */
+static NSString *const kURLResponseErrorCodeInvalidClientID = @"auth/invalid-oauth-client-id";
+
+/** @var kURLResponseErrorCodeNetworkRequestFailed
+    @brief Error code that indicates that a network request within the SFSafariViewController or
+        UIWebView failed.
+ */
+static NSString *const kURLResponseErrorCodeNetworkRequestFailed = @"auth/network-request-failed";
+
+/** @var kURLResponseErrorCodeInternalError
+    @brief Error code that indicates that an internal error occured within the
+        SFSafariViewController or UIWebView failed.
+ */
+static NSString *const kURLResponseErrorCodeInternalError = @"auth/internal-error";
+
 #pragma mark - Standard Error Messages
 
 /** @var kFIRAuthErrorMessageInvalidCustomToken
@@ -345,6 +364,42 @@ static NSString *const kFIRAuthErrorMessageAppNotVerified = @"Firebase could not
 static NSString *const kFIRAuthErrorMessageCaptchaCheckFailed = @"The reCAPTCHA response token "
     "provided is either invalid, expired or already";
 
+/** @var kFIRAuthErrorMessageWebContextAlreadyPresented
+    @brief Message for @c FIRAuthErrorCodeWebContextAlreadyPresented error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebContextAlreadyPresented = @"User interaction is "
+    "still ongoing, another view cannot be presented.";
+
+/** @var kFIRAuthErrorMessageWebContextCancelled
+    @brief Message for @c FIRAuthErrorCodeWebContextCancelled error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The interaction was cancelled "
+    "by the user.";
+
+/** @var kFIRAuthErrorMessageInvalidClientID
+    @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
+ */
+static NSString *const kFIRAuthErrorMessageInvalidClientID = @"The OAuth client ID provided is "
+    "either invalid or does not match the specified API key.";
+
+/** @var kFIRAuthErrorMessageWebRequestFailed
+    @brief Message for @c FIRAuthErrorCodeWebRequestFailed error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebRequestFailed = @"A network error (such as timeout, "
+    "interrupted connection, or unreachable host) has occurred within the web context.";
+
+/** @var kFIRAuthErrorMessageWebInternalError
+    @brief Message for @c FIRAuthErrorCodeWebInternalError error code.
+ */
+static NSString *const kFIRAuthErrorMessageWebInternalError = @"An internal error has occurred "
+    "within the SFSafariViewController or UIWebView.";
+
+/** @var kFIRAuthErrorMessageAppVerificationUserInteractionFailure
+    @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
+ */
+static NSString *const kFIRAuthErrorMessageAppVerificationUserInteractionFailure = @"The app "
+  "verification process has failed, print and inspect the error details for more information";
+
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
@@ -455,6 +510,18 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageAppNotVerified;
     case FIRAuthErrorCodeCaptchaCheckFailed:
       return kFIRAuthErrorMessageCaptchaCheckFailed;
+    case FIRAuthErrorCodeWebContextAlreadyPresented:
+      return kFIRAuthErrorMessageWebContextAlreadyPresented;
+    case FIRAuthErrorCodeWebContextCancelled:
+      return kFIRAuthErrorMessageWebContextCancelled;
+    case FIRAuthErrorCodeInvalidClientID:
+      return kFIRAuthErrorMessageInvalidClientID;
+    case FIRAuthErrorCodeAppVerificationUserInteractionFailure:
+      return kFIRAuthErrorMessageAppVerificationUserInteractionFailure;
+    case FIRAuthErrorCodeWebNetworkRequestFailed:
+      return kFIRAuthErrorMessageWebRequestFailed;
+    case FIRAuthErrorCodeWebInternalError:
+      return kFIRAuthErrorMessageWebInternalError;
   }
 }
 
@@ -562,6 +629,18 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_APP_NOT_VERIFIED";
     case FIRAuthErrorCodeCaptchaCheckFailed:
       return @"ERROR_CAPTCHA_CHECK_FAILED";
+    case FIRAuthErrorCodeWebContextAlreadyPresented:
+      return @"ERROR_WEB_CONTEXT_ALREADY_PRESENTED";
+    case FIRAuthErrorCodeWebContextCancelled:
+      return @"ERROR_WEB_CONTEXT_CANCELLED";
+    case FIRAuthErrorCodeInvalidClientID:
+      return @"ERROR_INVALID_CLIENT_ID";
+    case FIRAuthErrorCodeAppVerificationUserInteractionFailure:
+      return @"ERROR_APP_VERIFICATION_FAILED";
+    case FIRAuthErrorCodeWebNetworkRequestFailed:
+      return @"ERROR_WEB_NETWORK_REQUEST_FAILED";
+    case FIRAuthErrorCodeWebInternalError:
+      return @"ERROR_WEB_INTERNAL_ERROR";
   }
 }
 
@@ -857,8 +936,9 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeQuotaExceeded message:message];
 }
 
-+ (NSError *)missingAppTokenError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAppToken];
++ (NSError *)missingAppTokenErrorWithUnderlyingError:(nullable NSError *)underlyingError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingAppToken
+             underlyingError:underlyingError];
 }
 
 + (NSError *)notificationNotForwardedError {
@@ -871,6 +951,34 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeCaptchaCheckFailed message:message];
+}
+
++ (NSError *)webContextAlreadyPresentedErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeWebContextAlreadyPresented message:message];
+}
+
++ (NSError *)webContextCancelledErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeWebContextCancelled message:message];
+}
+
++ (NSError *)appVerificationUserInteractionFailureWithReason:(nullable NSString *)reason {
+  return [self errorWithCode:FIRAuthInternalErrorCodeAppVerificationUserInteractionFailure
+                    userInfo:@{
+    NSLocalizedFailureReasonErrorKey : reason
+  }];
+}
+
++ (NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message {
+  if ([code isEqualToString:kURLResponseErrorCodeInvalidClientID]) {
+    return [self errorWithCode:FIRAuthInternalErrorCodeInvalidClientID message:message];
+  }
+  if ([code isEqualToString:kURLResponseErrorCodeNetworkRequestFailed]) {
+    return [self errorWithCode:FIRAuthInternalErrorCodeWebNetworkRequestFailed message:message];
+  }
+  if ([code isEqualToString:kURLResponseErrorCodeInternalError]) {
+    return [self errorWithCode:FIRAuthInternalErrorCodeWebInternalError message:message];
+  }
+  return nil;
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

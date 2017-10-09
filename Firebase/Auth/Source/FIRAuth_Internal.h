@@ -24,6 +24,7 @@
 @class FIRAuthAPNSTokenManager;
 @class FIRAuthAppCredentialManager;
 @class FIRAuthNotificationManager;
+@class FIRAuthURLPresenter;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -37,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly) FIRAuthRequestConfiguration *requestConfiguration;
 
 #if TARGET_OS_IOS
+
 /** @property tokenManager
     @brief The manager for APNs tokens used by phone number auth.
  */
@@ -51,7 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The manager for remote notifications used by phone number auth.
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
-#endif
+
+/** @property authURLPresenter
+    @brief An object that takes care of presenting URLs via the auth instance.
+ */
+@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
+
+#endif // TARGET_OS_IOS
 
 /** @fn initWithAPIKey:appName:
     @brief Designated initializer.
@@ -66,15 +74,6 @@ NS_ASSUME_NONNULL_BEGIN
     @return The identifier of the current user, or nil if there is no current user.
  */
 - (nullable NSString *)getUID;
-
-/** @fn notifyListenersOfAuthStateChange
-    @brief Posts the @c FIRAuthStateDidChangeNotification notification.
-    @remarks Called by @c FIRUser when token changes occur.
-    @param user The user whose tokens changed.
-    @param token The new access token associated with the user.
- */
-- (void)notifyListenersOfAuthStateChangeWithUser:(nullable FIRUser *)user
-                                           token:(nullable NSString *)token;
 
 /** @fn updateKeychainWithUser:error:
     @brief Updates the keychain for the given user.
@@ -115,18 +114,6 @@ NS_ASSUME_NONNULL_BEGIN
     @return @YES when the sign out request was successful. @NO otherwise.
  */
 - (BOOL)signOutByForceWithUserID:(NSString *)userID error:(NSError *_Nullable *_Nullable)error;
-
-/** @fn canHandleURL:
-    @brief Whether the specific URL is handled by @c FIRAuth .
-    @param url The URL received by the application delegate from any of the openURL method.
-    @return Whether or the URL is handled. YES means the URL is for Firebase Auth
-        so the caller should ignore the URL from further processing, and NO means the
-        the URL is for the app (or another libaray) so the caller should continue handling
-        this URL as usual.
-    @remarks If swizzling is disabled, URLs received by the application delegate must be forwarded
-        to this method for phone number auth to work.
- */
-- (BOOL)canHandleURL:(nonnull NSURL *)url;
 
 @end
 

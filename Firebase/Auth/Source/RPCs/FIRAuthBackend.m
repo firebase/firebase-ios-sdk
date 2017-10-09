@@ -76,6 +76,11 @@ static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
  */
 static NSString *const kFirebaseLocalHeader = @"X-Firebase-Locale";
 
+/** @var kFirebaseAuthCoreFrameworkMarker
+    @brief The marker in the HTTP header that indicates the request comes from Firebase Auth Core.
+ */
+static NSString *const kFirebaseAuthCoreFrameworkMarker = @"FirebaseCore-iOS";
+
 /** @var kJSONContentType
     @brief The value of the HTTP content-type header for JSON payloads.
  */
@@ -465,6 +470,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] resetPassword:request callback:callback];
 }
 
++ (NSString *)authUserAgent {
+  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
+      FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+}
+
 @end
 
 @interface FIRAuthBackendRPCIssuerImplementation : NSObject <FIRAuthBackendRPCIssuer>
@@ -480,8 +490,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   self = [super init];
   if (self) {
     _fetcherService = [[GTMSessionFetcherService alloc] init];
-    _fetcherService.userAgent = [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
-        FirebaseAuthVersionStr, GTMFetcherStandardUserAgentString(nil)];
+    _fetcherService.userAgent = [FIRAuthBackend authUserAgent];
     _fetcherService.callbackQueue = FIRAuthGlobalWorkQueue();
   }
   return self;
@@ -495,8 +504,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                NSError *_Nullable))handler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
-  NSString *clientVersion =
-      [NSString stringWithFormat:@"iOS/FirebaseSDK/%s", FirebaseAuthVersionStr];
+  NSString *additionalFrameworkMarker = requestConfiguration.additionalFrameworkMarker ?:
+      kFirebaseAuthCoreFrameworkMarker;
+  NSString *clientVersion = [NSString stringWithFormat:@"iOS/FirebaseSDK/%s/%@",
+                                                       FirebaseAuthVersionString,
+                                                       additionalFrameworkMarker];
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
@@ -1023,7 +1035,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kMissingAppTokenErrorMessage]) {
-    return [FIRAuthErrorUtils missingAppTokenError];
+    return [FIRAuthErrorUtils missingAppTokenErrorWithUnderlyingError:nil];
   }
 
   if ([shortErrorMessage isEqualToString:kMissingAppCredentialErrorMessage]) {

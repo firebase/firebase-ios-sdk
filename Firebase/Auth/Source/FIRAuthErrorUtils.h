@@ -425,11 +425,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)quotaExceededErrorWithMessage:(nullable NSString *)message;
 
-/** @fn missingAppTokenError
+/** @fn missingAppTokenErrorWithUnderlyingError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingAppToken code.
+    @param underlyingError The underlying error, if any.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)missingAppTokenError;
++ (NSError *)missingAppTokenErrorWithUnderlyingError:(nullable NSError *)underlyingError;
 
 /** @fn notificationNotForwardedError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeNotificationNotForwarded code.
@@ -450,6 +451,35 @@ NS_ASSUME_NONNULL_BEGIN
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message;
+
+/** @fn webContextAlreadyPresentedErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeWebContextAlreadyPresented code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)webContextAlreadyPresentedErrorWithMessage:(nullable NSString *)message;
+
+/** @fn webContextCancelledErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeWebContextCancelled code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)webContextCancelledErrorWithMessage:(nullable NSString *)message;
+
+/** @fn appVerificationUserInteractionFailureWithReason:
+    @brief Constructs an @c NSError with the @c
+        FIRAuthErrorCodeAppVerificationUserInteractionFailure code.
+    @param reason Reason for error, returned via URL response.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)appVerificationUserInteractionFailureWithReason:(nullable NSString *)reason;
+
+/** @fn URLResponseErrorWithCode:message:
+    @brief Constructs an @c NSError with the code and message provided.
+    @param message Error message from the backend, if any.
+    @return The nullable NSError instance associated with the given error message, if one is found.
+ */
++ (NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message;
 
 /** @fn keychainErrorWithFunction:status:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeKeychainError code.

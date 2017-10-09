@@ -16,12 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIROAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
 #import "FIRActionCodeSettings.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
@@ -29,11 +23,18 @@
 #import "FIRAuthDataResult.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthSwiftNameSupport.h"
+#import "FirebaseAuthVersion.h"
+#import "FIREmailAuthProvider.h"
+#import "FIRFacebookAuthProvider.h"
+#import "FIRGitHubAuthProvider.h"
+#import "FIRGoogleAuthProvider.h"
+#import "FIROAuthProvider.h"
+#import "FIRTwitterAuthProvider.h"
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
-#import "FirebaseAuthVersion.h"
 
 #if TARGET_OS_IOS
+#import "FIRAuthUIDelegate.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FIRAuthAPNSTokenType.h"

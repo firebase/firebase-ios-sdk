@@ -25,16 +25,16 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRAuthCredential *)credentialWithProviderID:(NSString *)providerID
                                         IDToken:(NSString *)IDToken
                                     accessToken:(nullable NSString *)accessToken {
-  return [[FIROAuthCredential alloc] initWithProvierID:providerID
-                                               IDToken:IDToken
-                                           accessToken:accessToken];
+  return [[FIROAuthCredential alloc] initWithProviderID:providerID
+                                                IDToken:IDToken
+                                            accessToken:accessToken];
 }
 
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
                                      accessToken:(NSString *)accessToken {
-  return [[FIROAuthCredential alloc] initWithProvierID:providerID
-                                               IDToken:nil
-                                           accessToken:accessToken];
+  return [[FIROAuthCredential alloc] initWithProviderID:providerID
+                                                IDToken:nil
+                                            accessToken:accessToken];
 }
 
 NS_ASSUME_NONNULL_END

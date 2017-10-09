@@ -1,3 +1,10 @@
+# v4.1.0
+- Added [multi-resource](https://firebase.google.com/docs/database/usage/sharding) support to the database SDK.
+
+# v4.0.3
+- [fixed] Fixed a regression in v4.0.2 that affected the storage location of the offline persistent cache. This caused v4.0.2 to not see data written with previous versions.
+- [fixed] Fixed a crash in `FIRApp deleteApp` for apps that did not have active database instances.
+
 # v4.0.2
 - [fixed] Retrieving a Database instance for a specific `FirebaseApp` no longer returns a stale instance if that app was deleted.
 - [changed] Added message about bandwidth usage in error for queries without indexes.

@@ -33,6 +33,7 @@ extern FIRLoggerService kFIRLoggerCore;
 extern FIRLoggerService kFIRLoggerCrash;
 extern FIRLoggerService kFIRLoggerDatabase;
 extern FIRLoggerService kFIRLoggerDynamicLinks;
+extern FIRLoggerService kFIRLoggerFirestore;
 extern FIRLoggerService kFIRLoggerInstanceID;
 extern FIRLoggerService kFIRLoggerInvites;
 extern FIRLoggerService kFIRLoggerMessaging;
@@ -88,6 +89,10 @@ extern void FIRLogBasic(FIRLoggerLevel level,
 #endif
 );
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 /**
  * The following functions accept the following parameters in order:
  * (required) service name of type FIRLoggerService.
@@ -111,5 +116,32 @@ extern void FIRLogInfo(FIRLoggerService service, NSString *messageCode, NSString
     NS_FORMAT_FUNCTION(3, 4);
 extern void FIRLogDebug(FIRLoggerService service, NSString *messageCode, NSString *message, ...)
     NS_FORMAT_FUNCTION(3, 4);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
+
+@interface FIRLoggerWrapper : NSObject
+
+/**
+ * Objective-C wrapper for FIRLogBasic to allow weak linking to FIRLogger
+ * (required) log level (one of the FIRLoggerLevel enum values).
+ * (required) service name of type FIRLoggerService.
+ * (required) message code starting with "I-" which means iOS, followed by a capitalized
+ *            three-character service identifier and a six digit integer message ID that is unique
+ *            within the service.
+ *            An example of the message code is @"I-COR000001".
+ * (required) message string which can be a format string.
+ * (optional) variable arguments list obtained from calling va_start, used when message is a format
+ *            string.
+ */
+
++ (void)logWithLevel:(FIRLoggerLevel)level
+         withService:(FIRLoggerService)service
+            withCode:(NSString *)messageCode
+         withMessage:(NSString *)message
+            withArgs:(va_list)args;
+
+@end
 
 NS_ASSUME_NONNULL_END

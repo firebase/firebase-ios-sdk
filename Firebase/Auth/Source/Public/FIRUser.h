@@ -23,6 +23,7 @@
 
 @class FIRPhoneAuthCredential;
 @class FIRUserProfileChangeRequest;
+@class FIRUserMetadata;
 
 NS_ASSUME_NONNULL_BEGIN
 

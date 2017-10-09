@@ -663,6 +663,19 @@ FIR_SWIFT_NAME(Auth)
 - (void)useAppLanguage;
 
 #if TARGET_OS_IOS
+
+/** @fn canHandleURL:
+    @brief Whether the specific URL is handled by @c FIRAuth .
+    @param URL The URL received by the application delegate from any of the openURL method.
+    @return Whether or the URL is handled. YES means the URL is for Firebase Auth
+        so the caller should ignore the URL from further processing, and NO means the
+        the URL is for the app (or another libaray) so the caller should continue handling
+        this URL as usual.
+    @remarks If swizzling is disabled, URLs received by the application delegate must be forwarded
+        to this method for phone number auth to work.
+ */
+- (BOOL)canHandleURL:(nonnull NSURL *)URL;
+
 /** @fn setAPNSToken:type:
     @brief Sets the APNs token along with its type.
     @remarks If swizzling is disabled, the APNs Token must be set for phone number auth to work,
@@ -682,7 +695,8 @@ FIR_SWIFT_NAME(Auth)
         for phone number auth to work.
  */
 - (BOOL)canHandleNotification:(NSDictionary *)userInfo;
-#endif
+
+#endif  // TARGET_OS_IOS
 
 @end
 

@@ -100,6 +100,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly, nullable) NSURL *photoURL;
 
+/** @property creationDate
+    @brief The user's creation date.
+ */
+@property(nonatomic, strong, readonly, nullable) NSDate *creationDate;
+
+/** @property lastSignInDate
+    @brief The user's last login date.
+ */
+@property(nonatomic, strong, readonly, nullable) NSDate *lastLoginDate;
+
 /** @property providerUserInfo
     @brief The user's profiles at the associated identity providers.
  */

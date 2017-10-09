@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCommunity'
-  s.version          = '0.1.1'
+  s.version          = '0.1.3'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -42,6 +42,11 @@ Firebase Development CocoaPod including experimental and community supported fea
       'Firebase/Auth/Source/**/FIRAuthAPNSTokenManager.[mh]',
       'Firebase/Auth/Source/**/FIRAuthAPNSTokenType.[mh]',
       'Firebase/Auth/Source/**/FIRAuthAPNSToken.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthDefaultUIDelegate.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthUIDelegate.h',
+      'Firebase/Auth/Source/**/FIRAuthURLPresenter.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthWebView.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthWebViewController.[mh]',
       'Firebase/Auth/Source/**/FIRPhoneAuthCredential.[mh]',
       'Firebase/Auth/Source/**/FIRPhoneAuthProvider.[mh]'
     sp.public_header_files = 'Firebase/Auth/Source/Public/*.h'
@@ -51,6 +56,7 @@ Firebase Development CocoaPod including experimental and community supported fea
     sp.xcconfig = { 'OTHER_CFLAGS' => '-DFIRAuth_VERSION=' + s.version.to_s +
       ' -DFIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
     }
+    sp.framework = 'SafariServices'
     sp.framework = 'Security'
     sp.dependency 'FirebaseCommunity/Core'
     sp.dependency 'GTMSessionFetcher/Core', '~> 1.1'

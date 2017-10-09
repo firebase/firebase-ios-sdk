@@ -32,6 +32,7 @@ FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
 FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
 FIRLoggerService kFIRLoggerDatabase = @"[Firebase/Database]";
 FIRLoggerService kFIRLoggerDynamicLinks = @"[Firebase/DynamicLinks]";
+FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
 FIRLoggerService kFIRLoggerInstanceID = @"[Firebase/InstanceID]";
 FIRLoggerService kFIRLoggerInvites = @"[Firebase/Invites]";
 FIRLoggerService kFIRLoggerMessaging = @"[Firebase/Messaging]";
@@ -77,8 +78,22 @@ static NSRegularExpression *sMessageCodeRegex;
 
 void FIRLoggerInitializeASL() {
   dispatch_once(&sFIRLoggerOnceToken, ^{
+    NSInteger majorOSVersion = [[FIRAppEnvironmentUtil systemVersion] integerValue];
+    uint32_t aslOptions = ASL_OPT_STDERR;
+#if TARGET_OS_SIMULATOR
+    // The iOS 11 simulator doesn't need the ASL_OPT_STDERR flag.
+    if (majorOSVersion >= 11) {
+      aslOptions = 0;
+    }
+#else
+    // Devices running iOS 10 or higher don't need the ASL_OPT_STDERR flag.
+    if (majorOSVersion >= 10) {
+      aslOptions = 0;
+    }
+#endif  // TARGET_OS_SIMULATOR
+
     // Initialize the ASL client handle.
-    sFIRLoggerClient = asl_open(NULL, kFIRLoggerASLClientFacilityName, ASL_OPT_STDERR);
+    sFIRLoggerClient = asl_open(NULL, kFIRLoggerASLClientFacilityName, aslOptions);
 
     // Set the filter used by system/device log. Initialize in default mode.
     asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_NOTICE));
@@ -104,11 +119,15 @@ void FIRLoggerInitializeASL() {
       sFIRLoggerDebugMode = NO;
     }
 
-    // Need to call asl_add_output_file so that the logs can appear in Xcode's console view. Set
-    // the ASL filter mask for this output file up to debug level so that all messages are
-    // viewable in the console.
-    asl_add_output_file(sFIRLoggerClient, STDERR_FILENO, kFIRLoggerCustomASLMessageFormat,
-                        ASL_TIME_FMT_LCL, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG), ASL_ENCODE_SAFE);
+#if TARGET_OS_SIMULATOR
+    // Need to call asl_add_output_file so that the logs can appear in Xcode's console view when
+    // running iOS 7. Set the ASL filter mask for this output file up to debug level so that all
+    // messages are viewable in the console.
+    if (majorOSVersion == 7) {
+      asl_add_output_file(sFIRLoggerClient, STDERR_FILENO, kFIRLoggerCustomASLMessageFormat,
+                          ASL_TIME_FMT_LCL, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG), ASL_ENCODE_SAFE);
+    }
+#endif  // TARGET_OS_SIMULATOR
 
     sFIRClientQueue = dispatch_queue_create("FIRLoggingClientQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_set_target_queue(sFIRClientQueue,
@@ -233,3 +252,15 @@ FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
+
+@implementation FIRLoggerWrapper
+
++ (void)logWithLevel:(FIRLoggerLevel)level
+         withService:(FIRLoggerService)service
+            withCode:(NSString *)messageCode
+         withMessage:(NSString *)message
+            withArgs:(va_list)args {
+  FIRLogBasic(level, service, messageCode, message, args);
+}
+
+@end

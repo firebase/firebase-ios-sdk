@@ -17,6 +17,7 @@
 #import "FIRMessagingClient.h"
 
 #import "FIRMessagingConnection.h"
+#import "FIRMessagingConstants.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
@@ -117,6 +118,12 @@ static NSUInteger FIRMessagingServerPort() {
     _rmq2Manager = rmq2Manager;
     _registrar = [[FIRMessagingRegistrar alloc] init];
     _connectionTimeoutInterval = kConnectTimeoutInterval;
+    // Listen for checkin fetch notifications, as connecting to MCS may have failed due to
+    // missing checkin info (while it was being fetched).
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(checkinFetched:)
+                                                 name:kFIRMessagingCheckinFetchedNotification
+                                               object:nil];
   }
   return self;
 }
@@ -135,6 +142,8 @@ static NSUInteger FIRMessagingServerPort() {
 
   _FIRMessagingDevAssert(self.connection.state == kFIRMessagingConnectionNotConnected, @"Did not disconnect");
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
+
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)cancelAllRequests {
@@ -273,12 +282,15 @@ static NSUInteger FIRMessagingServerPort() {
 
   if (!isRegistrationComplete) {
     if (![self.registrar tryToLoadValidCheckinInfo]) {
+      // Checkin info is not available. This may be due to the checkin still being fetched.
       if (self.connectHandler) {
         NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
         self.connectHandler(error);
       }
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient009,
                               @"Failed to connect to MCS. No deviceID and secret found.");
+      // Return for now. If checkin is, in fact, retrieved, the
+      // |kFIRMessagingCheckinFetchedNotification| will be fired.
       return;
     }
   }
@@ -316,6 +328,14 @@ static NSUInteger FIRMessagingServerPort() {
   self.connectHandler = nil;
 }
 
+#pragma mark - Checkin Notification
+- (void)checkinFetched:(NSNotification *)notification {
+  // A failed checkin may have been the reason for the connection failure. Attempt a connection
+  // if the checkin fetched notification is fired.
+  if (self.stayConnected && !self.isConnected) {
+    [self connect];
+  }
+}
 
 #pragma mark - Messages
 
@@ -465,9 +485,10 @@ static NSUInteger FIRMessagingServerPort() {
     FIRMessagingConnectCompletionHandler handler = [self.connectHandler copy];
     // disconnect before issuing a callback
     [self disconnectWithTryToConnectLater:YES];
-    NSError *error = [NSError errorWithDomain:@"No internet available, cannot connect to FIRMessaging"
-                                         code:kFIRMessagingErrorCodeNetwork
-                                     userInfo:nil];
+    NSError *error =
+        [NSError errorWithDomain:@"No internet available, cannot connect to FIRMessaging"
+                            code:kFIRMessagingErrorCodeNetwork
+                        userInfo:nil];
     if (handler) {
       handler(error);
       self.connectHandler = nil;
