@@ -82,7 +82,7 @@
 
 @end
 
-FIRMessagingLogger *FIRMessagingSharedLogger() {
+FIRMessagingLogger *FIRMessagingSharedLogger(void) {
   static dispatch_once_t onceToken;
   static FIRMessagingLogger *logger;
   dispatch_once(&onceToken, ^{

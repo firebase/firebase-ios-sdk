@@ -31,7 +31,7 @@ static int minorVersion;
 static int patchVersion;
 static int betaVersion;
 
-void FIRMessagingParseCurrentLibraryVersion() {
+void FIRMessagingParseCurrentLibraryVersion(void) {
   static NSArray *allVersions;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -61,27 +61,27 @@ void FIRMessagingParseCurrentLibraryVersion() {
   });
 }
 
-NSString *FIRMessagingCurrentLibraryVersion() {
+NSString *FIRMessagingCurrentLibraryVersion(void) {
   FIRMessagingParseCurrentLibraryVersion();
   return libraryVersion;
 }
 
-int FIRMessagingCurrentLibraryVersionMajor() {
+int FIRMessagingCurrentLibraryVersionMajor(void) {
   FIRMessagingParseCurrentLibraryVersion();
   return majorVersion;
 }
 
-int FIRMessagingCurrentLibraryVersionMinor() {
+int FIRMessagingCurrentLibraryVersionMinor(void) {
   FIRMessagingParseCurrentLibraryVersion();
   return minorVersion;
 }
 
-int FIRMessagingCurrentLibraryVersionPatch() {
+int FIRMessagingCurrentLibraryVersionPatch(void) {
   FIRMessagingParseCurrentLibraryVersion();
   return patchVersion;
 }
 
-BOOL FIRMessagingCurrentLibraryVersionIsBeta() {
+BOOL FIRMessagingCurrentLibraryVersionIsBeta(void) {
   FIRMessagingParseCurrentLibraryVersion();
   return betaVersion > 0;
 }

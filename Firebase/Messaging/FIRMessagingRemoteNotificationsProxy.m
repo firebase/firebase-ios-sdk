@@ -509,7 +509,7 @@ void FCM_swizzle_willPresentNotificationWithHandler(
   FIRMessagingRemoteNotificationsProxy *proxy = [FIRMessagingRemoteNotificationsProxy sharedProxy];
   IMP original_imp = [proxy originalImplementationForSelector:_cmd];
 
-  void (^callOriginalMethodIfAvailable)() = ^{
+  void (^callOriginalMethodIfAvailable)(void) = ^{
     if (original_imp) {
       ((void (*)(id, SEL, id, id, void (^)(NSUInteger)))original_imp)(
           self, _cmd, center, notification, handler);
@@ -569,12 +569,12 @@ void FCM_swizzle_willPresentNotificationWithHandler(
  * parameter types from the swizzling implementation.
  */
 void FCM_swizzle_didReceiveNotificationResponseWithHandler(
-    id self, SEL _cmd, id center, id response, void (^handler)()) {
+    id self, SEL _cmd, id center, id response, void (^handler)(void)) {
 
   FIRMessagingRemoteNotificationsProxy *proxy = [FIRMessagingRemoteNotificationsProxy sharedProxy];
   IMP original_imp = [proxy originalImplementationForSelector:_cmd];
 
-  void (^callOriginalMethodIfAvailable)() = ^{
+  void (^callOriginalMethodIfAvailable)(void) = ^{
     if (original_imp) {
       ((void (*)(id, SEL, id, id, void (^)(void)))original_imp)(
           self, _cmd, center, response, handler);

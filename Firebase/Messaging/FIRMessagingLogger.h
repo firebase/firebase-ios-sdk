@@ -64,4 +64,4 @@
  *
  * @return the shared FIRMessagingLogger instance
  */
-FIRMessagingLogger *FIRMessagingSharedLogger();
+FIRMessagingLogger *FIRMessagingSharedLogger(void);
