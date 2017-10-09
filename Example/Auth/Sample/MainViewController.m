@@ -665,8 +665,9 @@ typedef enum {
                                            action:^{ [weakSelf presentSettings]; }],
         [StaticContentTableViewCell cellWithTitle:kNewOrExistingUserToggleTitle
                                             value: _isNewUserToggleOn ? @"Enabled" : @"Disabled"
-                                           action:^{ _isNewUserToggleOn = !_isNewUserToggleOn;
-                                             [self updateTable]; }],
+                                           action:^{
+                                                 _isNewUserToggleOn = !_isNewUserToggleOn;
+                                                 [self updateTable]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
@@ -1793,9 +1794,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }
         if (authResult.additionalUserInfo) {
           [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
-            NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
-                @"New user" : @"Existing user";
-            [self showMessagePromptWithTitle:@"New or Existing"
+          NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
+              @"New user" : @"Existing user";
+          [self showMessagePromptWithTitle:@"New or Existing"
                                    message:newUserString
                           showCancelButton:NO
                                 completion:nil];
