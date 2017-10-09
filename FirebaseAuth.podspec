@@ -20,7 +20,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
   s.static_framework = true
-#  s.skip_pch = false
+  s.prefix_header_file = false
 
   s.source_files = 'Firebase/Auth/**/*.[mh]'
   s.osx.exclude_files =
