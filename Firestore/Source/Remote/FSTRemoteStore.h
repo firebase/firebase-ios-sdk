@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Shuts down the remote store, tearing down connections and otherwise cleaning up. */
 - (void)shutdown;
 
-/**vTemporarily disables the network. The network can be re-enabled using 'enableNetwork:'. */
+/** Temporarily disables the network. The network can be re-enabled using 'enableNetwork:'. */
 - (void)disableNetwork;
 
 /** Re-enables the network. Only to be called as the counterpart to 'disableNetwork:'. */

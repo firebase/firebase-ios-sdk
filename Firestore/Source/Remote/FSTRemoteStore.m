@@ -154,7 +154,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 
 #pragma mark Online/Offline state
 
-- (BOOL)networkEnabled {
+- (BOOL)isNetworkEnabled {
   FSTAssert((self.watchStream == nil) == (self.writeStream == nil),
             @"WatchStream and WriteStream should both be null or non-null");
   return self.watchStream != nil;
@@ -206,7 +206,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 
   // For now, all shutdown logic is handled by disableNetwork(). We might expand on this in the
   // future.
-  if ([self networkEnabled]) {
+  if ([self isNetworkEnabled]) {
     [self disableNetwork];
   }
 }
@@ -238,7 +238,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 
   if ([self shouldStartWatchStream]) {
     [self.watchStream start];
-  } else if ([self networkEnabled] && [self.watchStream isOpen]) {
+  } else if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
     [self sendWatchRequestWithQueryData:queryData];
   }
 }
@@ -254,7 +254,7 @@ static const NSUInteger kMaxPendingWrites = 10;
   FSTAssert(queryData, @"unlistenToTarget: target not currently watched: %@", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
-  if ([self networkEnabled] && [self.watchStream isOpen]) {
+  if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
     [self sendUnwatchRequestForTargetID:targetKey];
   }
 }
@@ -271,11 +271,11 @@ static const NSUInteger kMaxPendingWrites = 10;
 }
 
 /**
- * Returns true if the network is enabled, the watch stream has not yet been started and there are
+ * Returns YES if the network is enabled, the watch stream has not yet been started and there are
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self networkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
+  return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
 }
 
 - (void)cleanUpWatchStreamState {
@@ -326,8 +326,8 @@ static const NSUInteger kMaxPendingWrites = 10;
 }
 
 - (void)watchStreamDidClose:(NSError *_Nullable)error {
-  FSTAssert([self networkEnabled],
-            @"handleWatchStreamClose should only be called when the network is enabled");
+  FSTAssert([self isNetworkEnabled],
+            @"watchStreamDidClose should only be called when the network is enabled");
 
   [self cleanUpWatchStreamState];
 
@@ -472,11 +472,11 @@ static const NSUInteger kMaxPendingWrites = 10;
 #pragma mark Write Stream
 
 /**
- * Returns true if the network is enabled, the write stream has not yet been started and there are
+ * Returns YES if the network is enabled, the write stream has not yet been started and there are
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return [self networkEnabled] && ![self.writeStream isStarted] && self.pendingWrites.count > 0;
+  return [self isNetworkEnabled] && ![self.writeStream isStarted] && self.pendingWrites.count > 0;
 }
 
 - (void)startWriteStream {
@@ -512,7 +512,7 @@ static const NSUInteger kMaxPendingWrites = 10;
  * to accept more.
  */
 - (BOOL)canWriteMutations {
-  return [self networkEnabled] && self.pendingWrites.count < kMaxPendingWrites;
+  return [self isNetworkEnabled] && self.pendingWrites.count < kMaxPendingWrites;
 }
 
 /** Given mutations to commit, actually commits them to the backend. */
@@ -524,7 +524,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 
   if ([self shouldStartWriteStream]) {
     [self startWriteStream];
-  } else if ([self networkEnabled] && self.writeStream.handshakeComplete) {
+  } else if ([self isNetworkEnabled] && self.writeStream.handshakeComplete) {
     [self.writeStream writeMutations:batch.mutations];
   }
 }
@@ -583,8 +583,8 @@ static const NSUInteger kMaxPendingWrites = 10;
  * has been terminated by the client or the server.
  */
 - (void)writeStreamDidClose:(NSError *_Nullable)error {
-  FSTAssert([self networkEnabled],
-            @"handleWriteStreamClose: should only be called when the network is enabled");
+  FSTAssert([self isNetworkEnabled],
+            @"writeStreamDidClose: should only be called when the network is enabled");
 
   NSMutableArray *pendingWrites = self.pendingWrites;
   // Ignore close if there are no pending writes.
