@@ -774,19 +774,32 @@
 
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
+  NSDictionary<NSString *, id> *data = @{@"a" : @"b"};
 
   [firestore.client disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
 
-    [doc deleteDocumentWithCompletion:^(NSError *error) {
-      XCTAssertNil(error);
-      [writeEpectation fulfill];
-    }];
+    [doc setData:data
+        completion:^(NSError *error) {
+          XCTAssertNil(error);
+          [writeEpectation fulfill];
+        }];
 
     [firestore.client enableNetworkWithCompletion:^(NSError *error) {
       XCTAssertNil(error);
       [networkExpectation fulfill];
     }];
+  }];
+
+  [self awaitExpectations];
+
+  XCTestExpectation *getExpectation = [self expectationWithDescription:@"successfull get"];
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(snapshot.data, data);
+    XCTAssertFalse(snapshot.metadata.isFromCache);
+
+    [getExpectation fulfill];
   }];
 
   [self awaitExpectations];
@@ -812,7 +825,7 @@
             XCTAssertNil(error);
 
             // Verify that we are not reading from cache.
-            XCTAssertFalse(snapshot.metadata.fromCache);
+            XCTAssertFalse(snapshot.metadata.isFromCache);
             [onlineExpectation fulfill];
           }];
         }];
@@ -822,6 +835,7 @@
 
       // Verify that we are reading from cache.
       XCTAssertTrue(snapshot.metadata.fromCache);
+      XCTAssertEqualObjects(snapshot.data, data);
       [firestore.client enableNetworkWithCompletion:^(NSError *error) {
         [networkExpectation fulfill];
       }];
