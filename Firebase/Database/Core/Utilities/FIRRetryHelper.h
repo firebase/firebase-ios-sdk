@@ -24,7 +24,7 @@
                          retryExponent:(double)retryExponent
                           jitterFactor:(double)jitterFactor;
 
-- (void) retry:(void (^)())block;
+- (void) retry:(void (^)(void))block;
 
 - (void) cancel;
 
