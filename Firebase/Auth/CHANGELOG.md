@@ -1,5 +1,10 @@
 # v4.3.0
-- Provides account creation and last sign-in dates as metadata to the user object.
+- Provides account creation and last sign-in dates as metadata to the user
+  object.
+- Returns more descriptive errors for some error cases of the phone number
+  sign-in reCAPTCHA flow.
+- Fixes an issue that invalid users were not automatically signed out earlier.
+- Fixes an issue that ID token listeners were not fired in some cases.
 
 # v4.2.1
 - Fixes a threading issue in phone number auth that completion block was not
