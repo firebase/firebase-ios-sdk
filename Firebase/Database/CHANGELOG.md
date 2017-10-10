@@ -1,5 +1,5 @@
 # v4.1.1
-- [fixed] Fixed warnings for callback types with missing argument specifications in XCode 9.
+- [fixed] Fixed warnings for callback types with missing argument specifications in Xcode 9.
 
 # v4.1.0
 - Added [multi-resource](https://firebase.google.com/docs/database/usage/sharding) support to the database SDK.
