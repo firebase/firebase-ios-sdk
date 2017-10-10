@@ -1,8 +1,7 @@
 {
   "authors": "Google, Inc.",
   "dependencies": {
-    "FirebaseCore": "~> 0.0",
-    "GoogleToolboxForMac/NSData+zlib": "~> 2.1",
+    "FirebaseCore": "~> 4.0",
     "nanopb": "~> 0.3"
   },
   "description": "Firebase Core includes FIRApp and FIROptions which provide central configuration for other Firebase services.",
@@ -19,12 +18,12 @@
     "ios": "7.0"
   },
   "source": {
-    "http": "https://dl.google.com/dl/cpdc/1352a54d8db920af/FirebaseCore-4.0.5.tar.gz"
+    "http": "https://dl.google.com/dl/cpdc/a62ba73f1f65cd7b/FirebaseCore-4.0.8.tar.gz"
   },
   "summary": "Firebase Core for iOS",
   "vendored_frameworks": [
     "Frameworks/FirebaseCoreDiagnostics.framework",
     "Frameworks/FirebaseNanoPB.framework"
   ],
-  "version": "0.0.4"
+  "version": "0.0.5"
 }
