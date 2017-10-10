@@ -170,7 +170,7 @@
   [self awaitExpectations];
 
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
-  XCTAssertEqual(@NO, document[@"updated"]);
+  XCTAssertEqual(document[@"updated"], @NO);
   XCTAssertTrue([document[@"time"] isKindOfClass:[NSDate class]]);
 }
 
