@@ -518,7 +518,7 @@ static NSString *const kPhoneNumberSignInTitle = @"Sign in With Phone Number";
 static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number (reCAPTCHA)";
 
 /** @var kIsNewUserToggleTitle
- @brief The title for button to enable new or existing user toggle.
+    @brief The title for button to enable new or existing user toggle.
  */
 static NSString *const kNewOrExistingUserToggleTitle = @"New or Existing User Toggle";
 
@@ -596,7 +596,7 @@ typedef enum {
   BOOL _useUserInMemory;
 
   /** @var _newUserToggle
-   @brief When enabled allows login popup alert determining new or existing user.
+      @brief When enabled allows login popup alert determining new or existing user.
    */
   BOOL _isNewUserToggleOn;
 
