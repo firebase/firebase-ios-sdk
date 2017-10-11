@@ -57,6 +57,8 @@ static const NSUInteger kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly) FSTDatastore *datastore;
 
 #pragma mark Watch Stream
+// The watchStream is null when the network is disabled. The non-null check is performed by
+// isNetworkEnabled.
 @property(nonatomic, strong, nullable) FSTWatchStream *watchStream;
 
 /**
@@ -97,6 +99,8 @@ static const NSUInteger kMaxPendingWrites = 10;
 @property(nonatomic, assign) FSTOnlineState watchStreamOnlineState;
 
 #pragma mark Write Stream
+// The writeStream is null when the network is disabled. The non-null check is performed by
+// isNetworkEnabled.
 @property(nonatomic, strong, nullable) FSTWriteStream *writeStream;
 
 /**
@@ -136,10 +140,8 @@ static const NSUInteger kMaxPendingWrites = 10;
 }
 
 - (void)start {
-  [self setupStreams];
-
-  // Resume any writes
-  [self fillWritePipeline];
+  // For now, all setup is handled by enableNetwork(). We might expand on this in the future.
+  [self enableNetwork];
 }
 
 - (void)updateAndNotifyAboutOnlineState:(FSTOnlineState)watchStreamOnlineState {
@@ -150,12 +152,48 @@ static const NSUInteger kMaxPendingWrites = 10;
   }
 }
 
-- (void)setupStreams {
+#pragma mark Online/Offline state
+
+- (BOOL)isNetworkEnabled {
+  FSTAssert((self.watchStream == nil) == (self.writeStream == nil),
+            @"WatchStream and WriteStream should both be null or non-null");
+  return self.watchStream != nil;
+}
+
+- (void)enableNetwork {
+  FSTAssert(self.watchStream == nil, @"enableNetwork: called with non-null watchStream.");
+  FSTAssert(self.writeStream == nil, @"enableNetwork: called with non-null writeStream.");
+
+  // Create new streams (but note they're not started yet).
   self.watchStream = [self.datastore createWatchStreamWithDelegate:self];
   self.writeStream = [self.datastore createWriteStreamWithDelegate:self];
 
   // Load any saved stream token from persistent storage
   self.writeStream.lastStreamToken = [self.localStore lastStreamToken];
+
+  if ([self shouldStartWatchStream]) {
+    [self startWatchStream];
+  }
+
+  [self fillWritePipeline];  // This may start the writeStream.
+
+  // We move back to the unknown state because we might not want to re-open the stream
+  [self updateAndNotifyAboutOnlineState:FSTOnlineStateUnknown];
+}
+
+- (void)disableNetwork {
+  [self updateAndNotifyAboutOnlineState:FSTOnlineStateFailed];
+
+  // NOTE: We're guaranteed not to get any further events from these streams (not even a close
+  // event).
+  [self.watchStream stop];
+  [self.writeStream stop];
+
+  [self cleanUpWatchStreamState];
+  [self cleanUpWriteStreamState];
+
+  self.writeStream = nil;
+  self.watchStream = nil;
 }
 
 #pragma mark Shutdown
@@ -163,44 +201,33 @@ static const NSUInteger kMaxPendingWrites = 10;
 - (void)shutdown {
   FSTLog(@"FSTRemoteStore %p shutting down", (__bridge void *)self);
 
-  self.watchStreamOnlineState = FSTOnlineStateUnknown;
-  [self cleanupWatchStreamState];
-  [self.watchStream stop];
-  [self.writeStream stop];
+  // Don't fire initial listener callbacks on shutdown.
+  self.onlineStateDelegate = nil;
+
+  // For now, all shutdown logic is handled by disableNetwork(). We might expand on this in the
+  // future.
+  if ([self isNetworkEnabled]) {
+    [self disableNetwork];
+  }
 }
 
 - (void)userDidChange:(FSTUser *)user {
   FSTLog(@"FSTRemoteStore %p changing users: %@", (__bridge void *)self, user);
 
-  // Clear pending writes because those are per-user. Watched targets persist across users so
-  // don't clear those.
-  _lastBatchSeen = kFSTBatchIDUnknown;
-  [self.pendingWrites removeAllObjects];
-
-  // Stop the streams. They promise not to call us back.
-  [self.watchStream stop];
-  [self.writeStream stop];
-
-  [self cleanupWatchStreamState];
-
-  // Create new streams (but note they're not started yet).
-  [self setupStreams];
-
-  // If there are any watchedTargets properly handle the stream restart now that FSTRemoteStore
-  // is ready to handle them.
-  if ([self shouldStartWatchStream]) {
-    [self.watchStream start];
-  }
-
-  // Resume any writes
-  [self fillWritePipeline];
-
-  // User change moves us back to the unknown state because we might not
-  // want to re-open the stream
-  [self updateAndNotifyAboutOnlineState:FSTOnlineStateUnknown];
+  // Tear down and re-create our network streams. This will ensure we get a fresh auth token
+  // for the new user and re-fill the write pipeline with new mutations from the LocalStore
+  // (since mutations are per-user).
+  [self disableNetwork];
+  [self enableNetwork];
 }
 
 #pragma mark Watch Stream
+
+- (void)startWatchStream {
+  FSTAssert([self shouldStartWatchStream],
+            @"startWatchStream: called when shouldStartWatchStream: is false.");
+  [self.watchStream start];
+}
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
   NSNumber *targetKey = @(queryData.targetID);
@@ -208,10 +235,11 @@ static const NSUInteger kMaxPendingWrites = 10;
             targetKey);
 
   self.listenTargets[targetKey] = queryData;
-  if ([self.watchStream isOpen]) {
-    [self sendWatchRequestWithQueryData:queryData];
-  } else if (![self.watchStream isStarted]) {
+
+  if ([self shouldStartWatchStream]) {
     [self.watchStream start];
+  } else if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
+    [self sendWatchRequestWithQueryData:queryData];
   }
 }
 
@@ -226,7 +254,7 @@ static const NSUInteger kMaxPendingWrites = 10;
   FSTAssert(queryData, @"unlistenToTarget: target not currently watched: %@", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
-  if ([self.watchStream isOpen]) {
+  if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
     [self sendUnwatchRequestForTargetID:targetKey];
   }
 }
@@ -243,14 +271,14 @@ static const NSUInteger kMaxPendingWrites = 10;
 }
 
 /**
- * Returns whether the watch stream should be started because there are active targets trying to
- * be listened to.
+ * Returns YES if the network is enabled, the watch stream has not yet been started and there are
+ * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return self.listenTargets.count > 0;
+  return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
 }
 
-- (void)cleanupWatchStreamState {
+- (void)cleanUpWatchStreamState {
   // If the connection is closed then we'll never get a snapshot version for the accumulated
   // changes and so we'll never be able to complete the batch. When we start up again the server
   // is going to resend these changes anyway, so just toss the accumulated state.
@@ -298,9 +326,13 @@ static const NSUInteger kMaxPendingWrites = 10;
 }
 
 - (void)watchStreamDidClose:(NSError *_Nullable)error {
-  [self cleanupWatchStreamState];
+  FSTAssert([self isNetworkEnabled],
+            @"watchStreamDidClose should only be called when the network is enabled");
 
-  // If there was an error, retry the connection.
+  [self cleanUpWatchStreamState];
+
+  // If the watch stream closed due to an error, retry the connection if there are any active
+  // watch targets.
   if ([self shouldStartWatchStream]) {
     // If the connection fails before the stream has become healthy, consider the online state
     // failed. Otherwise consider the online state unknown and the next connection attempt will
@@ -313,8 +345,8 @@ static const NSUInteger kMaxPendingWrites = 10;
     }
     [self.watchStream start];
   } else {
-    // No need to restart watch stream because there are no active targets. The online state is set
-    // to unknown because there is no active attempt at establishing a connection.
+    // We don't need to restart the watch stream because there are no active targets. The online
+    // state is set to unknown because there is no active attempt at establishing a connection.
     [self updateAndNotifyAboutOnlineState:FSTOnlineStateUnknown];
   }
 }
@@ -439,6 +471,26 @@ static const NSUInteger kMaxPendingWrites = 10;
 
 #pragma mark Write Stream
 
+/**
+ * Returns YES if the network is enabled, the write stream has not yet been started and there are
+ * pending writes.
+ */
+- (BOOL)shouldStartWriteStream {
+  return [self isNetworkEnabled] && ![self.writeStream isStarted] && self.pendingWrites.count > 0;
+}
+
+- (void)startWriteStream {
+  FSTAssert([self shouldStartWriteStream],
+            @"startWriteStream: called when shouldStartWriteStream: is false.");
+
+  [self.writeStream start];
+}
+
+- (void)cleanUpWriteStreamState {
+  self.lastBatchSeen = kFSTBatchIDUnknown;
+  [self.pendingWrites removeAllObjects];
+}
+
 - (void)fillWritePipeline {
   while ([self canWriteMutations]) {
     FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:self.lastBatchSeen];
@@ -460,7 +512,7 @@ static const NSUInteger kMaxPendingWrites = 10;
  * to accept more.
  */
 - (BOOL)canWriteMutations {
-  return self.pendingWrites.count < kMaxPendingWrites;
+  return [self isNetworkEnabled] && self.pendingWrites.count < kMaxPendingWrites;
 }
 
 /** Given mutations to commit, actually commits them to the backend. */
@@ -468,13 +520,11 @@ static const NSUInteger kMaxPendingWrites = 10;
   FSTAssert([self canWriteMutations], @"commitBatch called when mutations can't be written");
   self.lastBatchSeen = batch.batchID;
 
-  if (!self.writeStream.isStarted) {
-    [self.writeStream start];
-  }
-
   [self.pendingWrites addObject:batch];
 
-  if (self.writeStream.handshakeComplete) {
+  if ([self shouldStartWriteStream]) {
+    [self startWriteStream];
+  } else if ([self isNetworkEnabled] && self.writeStream.handshakeComplete) {
     [self.writeStream writeMutations:batch.mutations];
   }
 }
@@ -533,6 +583,9 @@ static const NSUInteger kMaxPendingWrites = 10;
  * has been terminated by the client or the server.
  */
 - (void)writeStreamDidClose:(NSError *_Nullable)error {
+  FSTAssert([self isNetworkEnabled],
+            @"writeStreamDidClose: should only be called when the network is enabled");
+
   NSMutableArray *pendingWrites = self.pendingWrites;
   // Ignore close if there are no pending writes.
   if (pendingWrites.count == 0) {
@@ -552,7 +605,7 @@ static const NSUInteger kMaxPendingWrites = 10;
   }
 
   // The write stream might have been started by refilling the write pipeline for failed writes
-  if (pendingWrites.count > 0 && !self.writeStream.isStarted) {
+  if ([self shouldStartWriteStream]) {
     [self.writeStream start];
   }
 }

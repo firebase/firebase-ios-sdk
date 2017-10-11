@@ -110,6 +110,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** Shuts down the remote store, tearing down connections and otherwise cleaning up. */
 - (void)shutdown;
 
+/** Temporarily disables the network. The network can be re-enabled using 'enableNetwork:'. */
+- (void)disableNetwork;
+
+/** Re-enables the network. Only to be called as the counterpart to 'disableNetwork:'. */
+- (void)enableNetwork;
+
 /**
  * Tells the FSTRemoteStore that the currently authenticated user has changed.
  *

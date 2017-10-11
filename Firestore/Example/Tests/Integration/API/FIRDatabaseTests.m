@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Core/FSTFirestoreClient.h"
+#import "FIRFirestore+Internal.h"
 #import "FSTIntegrationTestCase.h"
 
 @interface FIRDatabaseTests : FSTIntegrationTestCase
@@ -764,6 +766,83 @@
 - (void)testDocumentID {
   XCTAssertEqualObjects([self.db documentWithPath:@"foo/bar"].documentID, @"bar");
   XCTAssertEqualObjects([self.db documentWithPath:@"foo/bar/baz/qux"].documentID, @"qux");
+}
+
+- (void)testCanQueueWritesWhileOffline {
+  XCTestExpectation *writeEpectation = [self expectationWithDescription:@"successfull write"];
+  XCTestExpectation *networkExpectation = [self expectationWithDescription:@"enable network"];
+
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  NSDictionary<NSString *, id> *data = @{@"a" : @"b"};
+
+  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+
+    [doc setData:data
+        completion:^(NSError *error) {
+          XCTAssertNil(error);
+          [writeEpectation fulfill];
+        }];
+
+    [firestore.client enableNetworkWithCompletion:^(NSError *error) {
+      XCTAssertNil(error);
+      [networkExpectation fulfill];
+    }];
+  }];
+
+  [self awaitExpectations];
+
+  XCTestExpectation *getExpectation = [self expectationWithDescription:@"successfull get"];
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(snapshot.data, data);
+    XCTAssertFalse(snapshot.metadata.isFromCache);
+
+    [getExpectation fulfill];
+  }];
+
+  [self awaitExpectations];
+}
+
+- (void)testCantGetDocumentsWhileOffline {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  NSDictionary<NSString *, id> *data = @{@"a" : @"b"};
+
+  XCTestExpectation *onlineExpectation = [self expectationWithDescription:@"online read"];
+  XCTestExpectation *networkExpectation = [self expectationWithDescription:@"network online"];
+
+  __weak FIRDocumentReference *weakDoc = doc;
+
+  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [doc setData:data
+        completion:^(NSError *_Nullable error) {
+          XCTAssertNil(error);
+
+          [weakDoc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+            XCTAssertNil(error);
+
+            // Verify that we are not reading from cache.
+            XCTAssertFalse(snapshot.metadata.isFromCache);
+            [onlineExpectation fulfill];
+          }];
+        }];
+
+    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+      XCTAssertNil(error);
+
+      // Verify that we are reading from cache.
+      XCTAssertTrue(snapshot.metadata.fromCache);
+      XCTAssertEqualObjects(snapshot.data, data);
+      [firestore.client enableNetworkWithCompletion:^(NSError *error) {
+        [networkExpectation fulfill];
+      }];
+    }];
+  }];
+
+  [self awaitExpectations];
 }
 
 @end
