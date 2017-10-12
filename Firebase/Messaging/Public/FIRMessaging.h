@@ -264,7 +264,7 @@ FIR_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(nonnull FIRMessaging *)messaging
     didRefreshRegistrationToken:(nonnull NSString *)fcmToken
     FIR_SWIFT_NAME(messaging(_:didRefreshRegistrationToken:))
-    __deprecated_msg("Please use message:didReceiveRegistrationToken:, which is called for both \
+    __deprecated_msg("Please use messaging:didReceiveRegistrationToken:, which is called for both \
                      current and refreshed tokens.");
 
 /// This method is called on iOS 10 devices to handle data messages received via FCM through its
