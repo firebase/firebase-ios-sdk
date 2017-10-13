@@ -428,6 +428,11 @@ static NSString *const kAutoSignInAnonymously = @"Sign In Anonymously";
  */
 static NSString *const kAutoAccountLinking = @"Link with Google";
 
+/** @var kAutoPhoneNumberSignIn
+ @brief The button title for automated account linking.
+ */
+static NSString *const kAutoPhoneNumberSignIn = @"Sign in With Phone Number";
+
 /** @var kGitHubSignInButtonText
     @brief The button title for signing in with github.
  */
@@ -671,7 +676,7 @@ typedef enum {
       ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
-                                           action:^{ [weakSelf signInWithPhoneNumberRecaptcha]; }],
+                                           action:^{ [weakSelf signInWithPhoneNumberRecaptcha];}],
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInTitle
                                            action:^{ [weakSelf signInWithPhoneNumber]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdatePhoneNumber
@@ -680,7 +685,7 @@ typedef enum {
                                            action:^{ [weakSelf linkPhoneNumber]; }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkPhoneNumber
                                            action:^{
-          [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID];
+                     [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID completion:nil];
         }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSignIn cells:@[
@@ -775,15 +780,15 @@ typedef enum {
                                            action:^{ [weakSelf linkWithEmailPassword]; }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromGoogle
                                            action:^{
-          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID];
+          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil];
         }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromFacebook
                                            action:^{
-          [weakSelf unlinkFromProvider:FIRFacebookAuthProviderID];
+          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil];
         }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromEmailPassword
                                            action:^{
-          [weakSelf unlinkFromProvider:FIREmailAuthProviderID];
+          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil];
         }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleApp cells:@[
@@ -818,7 +823,9 @@ typedef enum {
         [StaticContentTableViewCell cellWithTitle:kAutoSignInAnonymously
                                            action:^{ [weakSelf automatedAnonymousSignIn]; }],
         [StaticContentTableViewCell cellWithTitle:kAutoAccountLinking
-                                           action:^{ [weakSelf automatedAccountLinking]; }]
+                                           action:^{ [weakSelf automatedAccountLinking]; }],
+        [StaticContentTableViewCell cellWithTitle:kAutoPhoneNumberSignIn
+                                           action:^{ [weakSelf automatedPhoneNumberSignIn]; }]
       ]]
     ]];
 }
@@ -1031,6 +1038,56 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     }];
   }];
 }
+
+/** @fn automatedPhoneNumberSignIn
+    @brief Automatically executes the manual test for sign-in with phone number.
+ */
+- (void)automatedPhoneNumberSignIn {
+  [self log:@"Automated phone number sign in"];
+  FIRAuth *auth = [AppManager auth];
+  if (!auth) {
+    [self logFailedTest:@"Could not obtain auth object."];
+    return;
+  }
+  [auth signOut:NULL];
+  [self log:@"INITIATING AUTOMATED MANUAL TEST FOR PHONE NUMBER SIGN IN:"];
+  [self commonPhoneNumberInputWithTitle:@"Phone for automation"
+                             Completion:^(NSString *_Nullable phone) {
+   [self signInWithPhoneNumberRecaptchaWithString:phone completion:^(NSError *error){
+     if (error) {
+       [self logFailedTest:@"Could not sign in with phone number reCAPTCHA."];
+     }
+     [self logSuccess:@"sign-in with phone number reCAPTCHA test succeeded."];
+     [auth signOut:NULL];
+     [self signInWithPhoneNumberRecaptchaWithString:phone completion:^(NSError *error){
+       if (error) {
+         [self logFailedTest:@"Could not sign in with phone number reCAPTCHA."];
+       }
+       [self logSuccess:@"second sign-in with phone number reCAPTCHA test succeeded."];
+       [self updatePhoneNumberWithString:phone completion:^{
+         if (error) {
+           [self logFailedTest:@"Could not update phone number."];
+         }
+         [self logSuccess:@"update phone number test succeeded."];
+         [self unlinkFromProvider:FIRPhoneAuthProviderID completion:^ {
+           if (error) {
+             [self logFailedTest:@"Could not unlink phone number."];
+           }
+           [self logSuccess:@"unlink phone number test succeeded."];
+           [self linkPhoneNumberWithString:phone completion:^{
+             if (error) {
+               [self logFailedTest:@"Could not link phone number."];
+             }
+             [self logSuccess:@"link phone number test succeeded."];
+             [self log:@"FINISHED AUTOMATED MANUAL TEST FOR PHONE NUMBER SIGN IN."];
+           }];
+         }];
+       }];
+     }];
+   }];
+ }];
+}
+
 
 /** @fn automatedEmailSignUp
     @brief Automatically executes the manual test for sign-up with email/password.
@@ -2050,7 +2107,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Unlinks the current user from the provider with the specified provider ID.
     @param provider The provider ID of the provider to unlink the current user's account from.
  */
-- (void)unlinkFromProvider:(NSString *)provider {
+- (void)unlinkFromProvider:(NSString *)provider completion:(void(^)(void))completion {
   [[self user] unlinkFromProvider:provider
                        completion:^(FIRUser *_Nullable user,
                                     NSError *_Nullable error) {
@@ -2058,6 +2115,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [self logFailure:@"unlink auth provider failed" error:error];
     } else {
       [self logSuccess:@"unlink auth provider succeeded."];
+      if (completion) completion();
     }
     [self showTypicalUIForUserUpdateResultsWithTitle:kUnlinkTitle error:error];
   }];
@@ -2458,32 +2516,41 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+/** @fn signInWithPhoneNumberRecaptchaWithString
+    @brief Allows sign in with phone number using reCAPTCHA and completion.
+    @param phoneNumber Number pass in string for automation.
+ */
+- (void)signInWithPhoneNumberRecaptchaWithString:(NSString *_Nullable)phoneNumber
+                                completion:(void(^)(NSError *_Nullable))completion {
+  [self showSpinner:^{
+    [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                           UIDelegate:nil
+                                           completion:^(NSString *_Nullable verificationID,
+                                                        NSError *_Nullable error) {
+      [self hideSpinner:^{
+        if (error) {
+          [self logFailure:@"failed to send verification code" error:error];
+          [self showMessagePrompt:error.localizedDescription];
+          return;
+        }
+        [self logSuccess:@"Code sent"];
+        [self commonPhoneNumberInputWithTitle:@"Code"
+                                   Completion:^(NSString *_Nullable verificationCode) {
+         [self commontPhoneVerificationWithVerificationID:verificationID
+                                         verificationCode:verificationCode];
+         if (completion) completion(nil);
+        }];
+      }];
+    }];
+  }];
+}
+
 /** @fn signInWithPhoneNumberRecaptcha
     @brief Allows sign in with phone number using reCAPTCHA
  */
 - (void)signInWithPhoneNumberRecaptcha {
   [self commonPhoneNumberInputWithTitle:@"Phone #" Completion:^(NSString *_Nullable phone) {
-    [self showSpinner:^{
-      [[AppManager phoneAuthProvider] verifyPhoneNumber:phone
-                                             UIDelegate:nil
-                                             completion:^(NSString *_Nullable verificationID,
-                                                          NSError *_Nullable error) {
-        [self hideSpinner:^{
-          if (error) {
-            [self logFailure:@"failed to send verification code" error:error];
-            [self showMessagePrompt:error.localizedDescription];
-            return;
-          }
-          [self logSuccess:@"Code sent"];
-
-          [self commonPhoneNumberInputWithTitle:@"Code"
-                                     Completion:^(NSString *_Nullable verificationCode) {
-            [self commontPhoneVerificationWithVerificationID:verificationID
-                                            verificationCode:verificationCode];
-          }];
-        }];
-      }];
-    }];
+    [self signInWithPhoneNumberRecaptchaWithString:(phone) completion:nil];
   }];
 }
 
@@ -2502,7 +2569,6 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     completion(phoneNumber);
   }];
 }
-
 /** @fn commonPhoneNumberInputWithLabel:Completion
     @brief Finishes the phone number verification flow.
     @param verificationID The verificationID from the backend.
@@ -2528,69 +2594,75 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
-/** @fn updatePhoneNumber
+/** @fn updatePhoneNumberWithString
     @brief Allows adding a verified phone number to the currently signed user.
+    @param phoneNumber Number pass in string for automation.
  */
-- (void)updatePhoneNumber {
-  [self showTextInputPromptWithMessage:@"Phone #:"
-                          keyboardType:UIKeyboardTypePhonePad
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
-    if (!userPressedOK || !phoneNumber.length) {
-      return;
-    }
-    [self showSpinner:^{
-      [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
-                                             UIDelegate:nil
-                                             completion:^(NSString *_Nullable verificationID,
-                                                          NSError *_Nullable error) {
-        if (error) {
-          [self logFailure:@"failed to send verification code" error:error];
-          [self showMessagePrompt:error.localizedDescription];
-          return;
-        }
-        [self logSuccess:@"Code sent"];
+- (void)updatePhoneNumberWithString:(NSString *_Nullable)phoneNumber
+                         completion:(void(^)(void))completion{
+  [self showSpinner:^{
+    [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
+                                           UIDelegate:nil
+                                           completion:^(NSString *_Nullable verificationID,
+                                                         NSError *_Nullable error) {
+     if (error) {
+       [self logFailure:@"failed to send verification code" error:error];
+       [self showMessagePrompt:error.localizedDescription];
+       return;
+     }
+     [self logSuccess:@"Code sent"];
 
-        [self showTextInputPromptWithMessage:@"Verification code:"
-                                keyboardType:UIKeyboardTypeNumberPad
-                             completionBlock:^(BOOL userPressedOK,
-                                               NSString *_Nullable verificationCode) {
-          if (!userPressedOK || !verificationCode.length) {
-            return;
-          }
-          [self showSpinner:^{
-            FIRPhoneAuthCredential *credential =
-                [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
-                                                            verificationCode:verificationCode];
-            [[self user] updatePhoneNumberCredential:credential
-                                          completion:^(NSError *_Nullable error) {
-              if (error) {
-                [self logFailure:@"update phone number failed" error:error];
-                [self showMessagePrompt:error.localizedDescription];
-              } else {
-                [self logSuccess:@"update phone number succeeded."];
-              }
-            }];
-          }];
-        }];
-        [self hideSpinner:^{
-          [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
+     [self showTextInputPromptWithMessage:@"Verification code:"
+                             keyboardType:UIKeyboardTypeNumberPad
+                          completionBlock:^(BOOL userPressedOK,
+                                            NSString *_Nullable verificationCode) {
+       if (!userPressedOK || !verificationCode.length) {
+         return;
+       }
+       [self showSpinner:^{
+         FIRPhoneAuthCredential *credential =
+         [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
+                                                     verificationCode:verificationCode];
+         [[self user] updatePhoneNumberCredential:credential
+                                       completion:^(NSError *_Nullable error) {
+           if (error) {
+             [self logFailure:@"update phone number failed" error:error];
+             [self showMessagePrompt:error.localizedDescription];
+           } else {
+             [self logSuccess:@"update phone number succeeded."];
+             if (completion) completion();
+           }
         }];
       }];
     }];
+    [self hideSpinner:^{
+      [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
+   }];
   }];
+ }];
 }
 
-/** @fn linkPhoneNumber
-    @brief Allows linking a verified phone number to the currently signed user.
+/** @fn updatePhoneNumber
+    @brief Allows adding a verified phone number to the currently signed user via popup prompt.
  */
-- (void)linkPhoneNumber {
-  [self showTextInputPromptWithMessage:@"Phone #:"
+- (void)updatePhoneNumber {
+  [self showTextInputPromptWithMessage:@"Update Phone #:"
                           keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
     if (!userPressedOK || !phoneNumber.length) {
       return;
     }
-    [self showSpinner:^{
+    [self updatePhoneNumberWithString:phoneNumber completion:nil];
+ }];
+}
+
+/** @fn linkPhoneNumberWithString
+    @brief Allows linking a verified phone number to the currently signed user.
+    @param phoneNumber Number pass in string for automation.
+ */
+- (void)linkPhoneNumberWithString:(NSString *_Nullable)phoneNumber
+             completion:(void(^)(void))completion{
+      [self showSpinner:^{
       [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                              UIDelegate:nil
                                              completion:^(NSString *_Nullable verificationID,
@@ -2653,6 +2725,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                     return;
                   }
                   [self logSuccess:@"link phone number succeeded."];
+                  if (completion) completion();
                 }];
               }];
             }];
@@ -2660,6 +2733,19 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }];
       }];
     }];
+}
+
+/** @fn linkPhoneNumber
+    @brief Allows linking a verified phone number to the currently signed user.
+ */
+- (void)linkPhoneNumber {
+  [self showTextInputPromptWithMessage:@"Phone #:"
+                          keyboardType:UIKeyboardTypePhonePad
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
+    if (!userPressedOK || !phoneNumber.length) {
+      return;
+    }
+    [self linkPhoneNumberWithString:phoneNumber completion:nil];
   }];
 }
 
