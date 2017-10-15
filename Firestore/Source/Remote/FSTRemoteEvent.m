@@ -425,6 +425,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
           // This can happen e.g. when remove and add back a target for existence filter
           // mismatches.
           change.mapping = nil;
+          NSLog(@"TARGET CHANGE NONE");
           change.currentStatusUpdate = FSTCurrentStatusUpdateNone;
           [_existenceFilters removeObjectForKey:targetID];
         }
