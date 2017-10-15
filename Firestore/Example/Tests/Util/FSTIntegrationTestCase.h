@@ -56,6 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRCollectionReference *)collectionRefWithDocuments:
     (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents;
 
+- (void)waitForIdle:(FIRFirestore *)firestore;
+
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection;
 
@@ -67,6 +69,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
 
+- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query online:(BOOL)online;
+
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
@@ -76,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * "Blocks" the current thread/run loop until the block returns YES.
  * Should only be called on the main thread.
- * The block is invoked frequently and in a loop (every couple of millseconds) to ensure fast
+ * The block is invoked frequently and in a loop (every couple of milliseconds) to ensure fast
  * test progress and make sure actions to be run on main thread are not blocked by this method.
  */
 - (void)waitUntil:(BOOL (^)())predicate;

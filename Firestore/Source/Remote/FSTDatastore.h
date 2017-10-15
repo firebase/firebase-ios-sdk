@@ -24,6 +24,7 @@
 @class FSTMutation;
 @class FSTMutationResult;
 @class FSTQueryData;
+@class FSTSerializerBeta;
 @class FSTSnapshotVersion;
 @class FSTWatchChange;
 @class FSTWatchStream;
@@ -32,8 +33,6 @@
 @class GRXWriter;
 
 @protocol FSTCredentialsProvider;
-@protocol FSTWatchStreamDelegate;
-@protocol FSTWriteStreamDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -81,13 +80,32 @@ NS_ASSUME_NONNULL_BEGIN
              completion:(FSTVoidErrorBlock)completion;
 
 /** Creates a new watch stream. */
-- (FSTWatchStream *)createWatchStreamWithDelegate:(id<FSTWatchStreamDelegate>)delegate;
+- (FSTWatchStream *)createWatchStream;
 
 /** Creates a new write stream. */
-- (FSTWriteStream *)createWriteStreamWithDelegate:(id<FSTWriteStreamDelegate>)delegate;
+- (FSTWriteStream *)createWriteStream;
 
 /** The name of the database and the backend. */
 @property(nonatomic, strong, readonly) FSTDatabaseInfo *databaseInfo;
+
+@end
+
+@protocol FSTStreamDelegate <NSObject>
+
+@property(atomic, readwrite) BOOL invokeCallbacks;
+
+/** Called by the FSTStream when it is ready to accept outbound request messages. */
+- (void)streamDidOpen;
+
+/**
+ * Called by the FSTStream when the underlying streaming RPC is closed for whatever reason,
+ * usually because of an error, but possibly due to an idle timeout. The error passed to this
+ * method may be nil, in which case the stream was closed without attributable fault.
+ *
+ * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
+ * on FSTStream for details.
+ */
+- (void)streamDidClose:(NSError *_Nullable)error;
 
 @end
 
@@ -138,7 +156,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * See https://github.com/grpc/grpc/issues/10957 for the kinds of things we're trying to avoid.
  */
-@interface FSTStream : NSObject
+@interface FSTStream <__covariant StreamDelegateType> : NSObject
+
+@property (nonatomic, strong, readonly) StreamDelegateType delegate;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -174,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * When start returns, -isStarted will return YES.
  */
-- (void)start;
+- (void)start:(id<FSTStreamDelegate>)delegate;
 
 /**
  * Stops the RPC. This call is idempotent and allowed regardless of the current isStarted state.
@@ -193,6 +213,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stop;
 
 /**
+ * Initializes the idle timer. If no write takes place within one minute, the GRPC stream will be
+ * closed.
+ */
+- (void)markIdle;
+
+/**
  * After an error the stream will usually back off on the next attempt to start it. If the error
  * warrants an immediate restart of the stream, the sender can use this to indicate that the
  * receiver should not back off.
@@ -207,27 +233,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTWatchStream
 
 /** A protocol defining the events that can be emitted by the FSTWatchStream. */
-@protocol FSTWatchStreamDelegate <NSObject>
-
-/** Called by the FSTWatchStream when it is ready to accept outbound request messages. */
-- (void)watchStreamDidOpen;
+@protocol FSTWatchStreamDelegate <FSTStreamDelegate>
 
 /**
  * Called by the FSTWatchStream with changes and the snapshot versions included in in the
  * WatchChange responses sent back by the server.
  */
-- (void)watchStreamDidChange:(FSTWatchChange *)change
-             snapshotVersion:(FSTSnapshotVersion *)snapshotVersion;
-
-/**
- * Called by the FSTWatchStream when the underlying streaming RPC is closed for whatever reason,
- * usually because of an error, but possibly due to an idle timeout. The error passed to this
- * method may be nil, in which case the stream was closed without attributable fault.
- *
- * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
- * on FSTStream for details.
- */
-- (void)watchStreamDidClose:(NSError *_Nullable)error;
+- (void)streamDidReceiveChange:(FSTWatchChange *)change
+               snapshotVersion:(FSTSnapshotVersion *)snapshotVersion;
 
 @end
 
@@ -246,8 +259,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-            responseMessageClass:(Class)responseMessageClass
-                        delegate:(id<FSTWatchStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+                      serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -266,39 +278,24 @@ NS_ASSUME_NONNULL_BEGIN
 /** Unregisters interest in the results of the query associated with the given target ID. */
 - (void)unwatchTargetID:(FSTTargetID)targetID;
 
-@property(nonatomic, weak, readonly) id<FSTWatchStreamDelegate> delegate;
-
 @end
 
 #pragma mark - FSTWriteStream
 
-@protocol FSTWriteStreamDelegate <NSObject>
-
-/** Called by the FSTWriteStream when it is ready to accept outbound request messages. */
-- (void)writeStreamDidOpen;
+@protocol FSTWriteStreamDelegate <FSTStreamDelegate>
 
 /**
  * Called by the FSTWriteStream upon a successful handshake response from the server, which is the
  * receiver's cue to send any pending writes.
  */
-- (void)writeStreamDidCompleteHandshake;
+- (void)streamDidCompleteHandshake;
 
 /**
  * Called by the FSTWriteStream upon receiving a StreamingWriteResponse from the server that
  * contains mutation results.
  */
-- (void)writeStreamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
-                                 mutationResults:(NSArray<FSTMutationResult *> *)results;
-
-/**
- * Called when the FSTWriteStream's underlying RPC is closed for whatever reason, usually because
- * of an error, but possibly due to an idle timeout. The error passed to this method may be nil, in
- * which case the stream was closed without attributable fault.
- *
- * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
- * on FSTStream for details.
- */
-- (void)writeStreamDidClose:(NSError *_Nullable)error;
+- (void)streamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
+                            mutationResults:(NSArray<FSTMutationResult *> *)results;
 
 @end
 
@@ -323,8 +320,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-            responseMessageClass:(Class)responseMessageClass
-                        delegate:(id<FSTWriteStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+                      serializer:(FSTSerializerBeta *)serializer;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -342,8 +338,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Sends a group of mutations to the Firestore backend to apply. */
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations;
-
-@property(nonatomic, weak, readonly) id<FSTWriteStreamDelegate> delegate;
 
 /**
  * Tracks whether or not a handshake has been successfully exchanged and the stream is ready to
