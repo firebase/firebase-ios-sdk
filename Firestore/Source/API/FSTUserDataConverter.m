@@ -402,7 +402,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       }
       [result addObject:parsedEntry];
     }];
-    // We don't support field mask paths more granular than the top-level array.
+    // If context.path is nil we are already inside an array and we don't support field mask paths
+    // more granular than the top-level array.
     if (context.path) {
       [context.fieldMask addObject:context.path];
     }
