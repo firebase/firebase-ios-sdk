@@ -676,13 +676,13 @@ typedef enum {
       ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
-                                           action:^{ [weakSelf signInWithPhoneNumberPrompt]; }],
+                                           action:^{ [weakSelf signInWithPhoneNumberWithPrompt]; }],
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInTitle
                                            action:^{ [weakSelf signInWithPhoneNumber]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdatePhoneNumber
-                                           action:^{ [weakSelf updatePhoneNumberPrompt]; }],
+                                           action:^{ [weakSelf updatePhoneNumberWithPrompt]; }],
         [StaticContentTableViewCell cellWithTitle:kLinkPhoneNumber
-                                           action:^{ [weakSelf linkPhoneNumberPrompt]; }],
+                                           action:^{ [weakSelf linkPhoneNumberWithPrompt]; }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkPhoneNumber
                                            action:^{
           [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID completion:nil];
@@ -2554,10 +2554,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
-/** @fn signInWithPhoneNumberPrompt
+/** @fn signInWithPhoneNumberWithPrompt
     @brief Allows sign in with phone number via popup prompt.
  */
-- (void)signInWithPhoneNumberPrompt {
+- (void)signInWithPhoneNumberWithPrompt {
   [self commonPhoneNumberInputWithTitle:@"Phone #"
                              Completion:^(NSString *_Nullable phone) {
     [self signInWithPhoneNumber:phone completion:nil];
@@ -2657,10 +2657,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
  }];
 }
 
-/** @fn updatePhoneNumber
+/** @fn updatePhoneNumberWithPrompt
     @brief Allows adding a verified phone number to the currently signed user via popup prompt.
  */
-- (void)updatePhoneNumberPrompt {
+- (void)updatePhoneNumberWithPrompt {
   [self showTextInputPromptWithMessage:@"Update Phone #:"
                           keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
@@ -2756,10 +2756,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
-/** @fn linkPhoneNumber
+/** @fn linkPhoneNumberWithPrompt
     @brief Allows linking a verified phone number to the currently signed user via popup prompt.
  */
-- (void)linkPhoneNumberPrompt {
+- (void)linkPhoneNumberWithPrompt {
   [self showTextInputPromptWithMessage:@"Phone #:"
                           keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
