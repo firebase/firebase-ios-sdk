@@ -680,6 +680,40 @@
   XCTAssertEqual(q.firestore, self.db);
 }
 
+- (void)testDocumentReferenceEquality {
+  FIRFirestore *firestore = self.db;
+  FIRDocumentReference *docRef = [firestore documentWithPath:@"foo/bar"];
+  XCTAssertEqualObjects([firestore documentWithPath:@"foo/bar"], docRef);
+  XCTAssertEqualObjects([docRef collectionWithPath:@"blah"].parent, docRef);
+
+  XCTAssertNotEqualObjects([firestore documentWithPath:@"foo/BAR"], docRef);
+
+  FIRFirestore *otherFirestore = [self firestore];
+  XCTAssertNotEqualObjects([otherFirestore documentWithPath:@"foo/bar"], docRef);
+}
+
+- (void)testQueryReferenceEquality {
+  FIRFirestore *firestore = self.db;
+  FIRQuery *query =
+      [[[firestore collectionWithPath:@"foo"] queryOrderedByField:@"bar"] queryWhereField:@"baz"
+                                                                                isEqualTo:@42];
+  FIRQuery *query2 =
+      [[[firestore collectionWithPath:@"foo"] queryOrderedByField:@"bar"] queryWhereField:@"baz"
+                                                                                isEqualTo:@42];
+  XCTAssertEqualObjects(query, query2);
+
+  FIRQuery *query3 =
+      [[[firestore collectionWithPath:@"foo"] queryOrderedByField:@"BAR"] queryWhereField:@"baz"
+                                                                                isEqualTo:@42];
+  XCTAssertNotEqualObjects(query, query3);
+
+  FIRFirestore *otherFirestore = [self firestore];
+  FIRQuery *query4 = [[[otherFirestore collectionWithPath:@"foo"] queryOrderedByField:@"bar"]
+      queryWhereField:@"baz"
+            isEqualTo:@42];
+  XCTAssertNotEqualObjects(query, query4);
+}
+
 - (void)testCanTraverseCollectionsAndDocuments {
   NSString *expected = @"a/b/c/d";
   // doc path from root Firestore.
