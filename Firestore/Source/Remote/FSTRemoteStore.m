@@ -42,7 +42,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 
 #pragma mark - FSTRemoteStore
 
-@interface FSTRemoteStore () <FSTWatchStreamDelegate, FSTWriteStreamDelegate>
+@interface FSTRemoteStore ()
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore NS_DESIGNATED_INITIALIZER;
@@ -98,6 +98,11 @@ static const NSUInteger kMaxPendingWrites = 10;
  */
 @property(nonatomic, assign) FSTOnlineState watchStreamOnlineState;
 
+- (void)watchStreamDidOpen;
+- (void)watchStreamDidClose:(NSError *_Nullable)error;
+- (void)watchStreamDidChange:(FSTWatchChange *)change
+             snapshotVersion:(FSTSnapshotVersion *)snapshotVersion;
+
 #pragma mark Write Stream
 // The writeStream is null when the network is disabled. The non-null check is performed by
 // isNetworkEnabled.
@@ -115,6 +120,111 @@ static const NSUInteger kMaxPendingWrites = 10;
  * requests may not have been sent to the Datastore server if the write stream is not yet running.
  */
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *pendingWrites;
+
+- (void)writeStreamDidOpen;
+- (void)writeStreamDidClose:(NSError *_Nullable)error;
+- (void)writeStreamDidCompleteHandshake;
+- (void)writeStreamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
+                                 mutationResults:(NSArray<FSTMutationResult *> *)results;
+
+@end
+
+#pragma mark - FSTRemoteStoreWatchStreamDelegate
+
+/** Delegate implementation of FSTWatchStreamDelegate that forwards callbacks to FSTRemoteStore. */
+@interface FSTRemoteStoreWatchStreamDelegate : NSObject <FSTWatchStreamDelegate>
+
+- (instancetype)initWithRemoteStore:(FSTRemoteStore *)delegate NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@property(atomic, readwrite) BOOL invokeCallbacks;
+@property(nonatomic, strong, readonly) FSTRemoteStore *delegate;
+
+@end
+
+@implementation FSTRemoteStoreWatchStreamDelegate
+
+- (instancetype)initWithRemoteStore:(FSTRemoteStore *)delegate {
+  if (self = [super init]) {
+    _invokeCallbacks = YES;
+    _delegate = delegate;
+  }
+
+  return self;
+}
+
+- (void)streamDidOpen {
+  if (self.invokeCallbacks) {
+    [self.delegate watchStreamDidOpen];
+  }
+}
+
+- (void)streamDidClose:(NSError *_Nullable)error {
+  if (self.invokeCallbacks) {
+    [self.delegate watchStreamDidClose:error];
+  }
+}
+
+- (void)streamDidReceiveChange:(FSTWatchChange *)change
+               snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
+  if (self.invokeCallbacks) {
+    [self.delegate watchStreamDidChange:change snapshotVersion:snapshotVersion];
+  }
+}
+
+@end
+
+#pragma mark - FSTRemoteStoreWriteStreamDelegate
+
+/** Delegate implementation of FSTWriteStreamDelegate that forwards callbacks to FSTRemoteStore. */
+
+@interface FSTRemoteStoreWriteStreamDelegate : NSObject <FSTWriteStreamDelegate>
+
+- (instancetype)initWithRemoteStore:(FSTRemoteStore *)delegate NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+
+@property(atomic, readwrite) BOOL invokeCallbacks;
+@property(nonatomic, strong, readonly) FSTRemoteStore *delegate;
+
+@end
+
+@implementation FSTRemoteStoreWriteStreamDelegate
+
+- (instancetype)initWithRemoteStore:(FSTRemoteStore *)delegate {
+  if (self = [super init]) {
+    _invokeCallbacks = YES;
+    _delegate = delegate;
+  }
+
+  return self;
+}
+
+- (void)streamDidOpen {
+  if (self.invokeCallbacks) {
+    [self.delegate writeStreamDidOpen];
+  }
+}
+
+- (void)streamDidClose:(NSError *_Nullable)error {
+  if (self.invokeCallbacks) {
+    [self.delegate writeStreamDidClose:error];
+  }
+}
+
+- (void)streamDidCompleteHandshake {
+  if (self.invokeCallbacks) {
+    [self.delegate writeStreamDidCompleteHandshake];
+  }
+}
+
+- (void)streamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
+                            mutationResults:(NSArray<FSTMutationResult *> *)results {
+  if (self.invokeCallbacks) {
+    [self.delegate writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
+  }
+}
+
 @end
 
 @implementation FSTRemoteStore
@@ -165,8 +275,8 @@ static const NSUInteger kMaxPendingWrites = 10;
   FSTAssert(self.writeStream == nil, @"enableNetwork: called with non-null writeStream.");
 
   // Create new streams (but note they're not started yet).
-  self.watchStream = [self.datastore createWatchStreamWithDelegate:self];
-  self.writeStream = [self.datastore createWriteStreamWithDelegate:self];
+  self.watchStream = [self.datastore createWatchStream];
+  self.writeStream = [self.datastore createWriteStream];
 
   // Load any saved stream token from persistent storage
   self.writeStream.lastStreamToken = [self.localStore lastStreamToken];
@@ -226,7 +336,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 - (void)startWatchStream {
   FSTAssert([self shouldStartWatchStream],
             @"startWatchStream: called when shouldStartWatchStream: is false.");
-  [self.watchStream start];
+  [self.watchStream start:[[FSTRemoteStoreWatchStreamDelegate alloc] initWithRemoteStore:self]];
 }
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
@@ -237,7 +347,7 @@ static const NSUInteger kMaxPendingWrites = 10;
   self.listenTargets[targetKey] = queryData;
 
   if ([self shouldStartWatchStream]) {
-    [self.watchStream start];
+    [self startWatchStream];
   } else if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
     [self sendWatchRequestWithQueryData:queryData];
   }
@@ -256,6 +366,9 @@ static const NSUInteger kMaxPendingWrites = 10;
   [self.listenTargets removeObjectForKey:targetKey];
   if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
     [self sendUnwatchRequestForTargetID:targetKey];
+    if ([self.listenTargets count] == 0) {
+      [self.watchStream markIdle];
+    }
   }
 }
 
@@ -343,7 +456,7 @@ static const NSUInteger kMaxPendingWrites = 10;
     } else {
       [self updateAndNotifyAboutOnlineState:FSTOnlineStateFailed];
     }
-    [self.watchStream start];
+    [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
     // state is set to unknown because there is no active attempt at establishing a connection.
@@ -483,7 +596,7 @@ static const NSUInteger kMaxPendingWrites = 10;
   FSTAssert([self shouldStartWriteStream],
             @"startWriteStream: called when shouldStartWriteStream: is false.");
 
-  [self.writeStream start];
+  [self.writeStream start:[[FSTRemoteStoreWriteStreamDelegate alloc] initWithRemoteStore:self]];
 }
 
 - (void)cleanUpWriteStreamState {
@@ -492,12 +605,18 @@ static const NSUInteger kMaxPendingWrites = 10;
 }
 
 - (void)fillWritePipeline {
-  while ([self canWriteMutations]) {
-    FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:self.lastBatchSeen];
-    if (!batch) {
-      break;
+  if ([self isNetworkEnabled]) {
+    while ([self canWriteMutations]) {
+      FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:self.lastBatchSeen];
+      if (!batch) {
+        break;
+      }
+      [self commitBatch:batch];
     }
-    [self commitBatch:batch];
+  }
+
+  if ([self.pendingWrites count] == 0) {
+    [self.writeStream markIdle];
   }
 }
 
@@ -606,7 +725,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 
   // The write stream might have been started by refilling the write pipeline for failed writes
   if ([self shouldStartWriteStream]) {
-    [self.writeStream start];
+    [self startWriteStream];
   }
 }
 

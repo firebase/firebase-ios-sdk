@@ -52,8 +52,18 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_async(self.queue, block);
 }
 
+- (void)dispatchAsync:(void (^)(void))block after:(NSTimeInterval)delay {
+  dispatch_time_t delayNs = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
+  dispatch_after(delayNs, self.queue, block);
+}
+
 - (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block {
   dispatch_async(self.queue, block);
+}
+
+- (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block after:(NSTimeInterval)delay {
+  dispatch_time_t delayNs = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
+  dispatch_after(delayNs, self.queue, block);
 }
 
 #pragma mark - Private Methods
