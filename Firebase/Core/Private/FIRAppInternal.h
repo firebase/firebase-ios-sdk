@@ -153,12 +153,6 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(FIRTokenCallback)callback;
 
 /**
- * Exposed for use by the Google pod. Configures the default app without sending notifications to
- * other SDKs. Otherwise, behaves exactly like +configure.
- */
-+ (void)configureWithoutSendingNotification;
-
-/**
  * Expose the UID of the current user for Firestore.
  */
 - (nullable NSString *)getUID;
