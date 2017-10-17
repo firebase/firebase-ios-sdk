@@ -2740,7 +2740,6 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                     [self logFailure:@"link phone number failed" error:error];
                     [self showMessagePrompt:error.localizedDescription];
                   }
-                  completion(error);
                   return;
                 }
                 [self logSuccess:@"link phone number succeeded."];
