@@ -108,24 +108,6 @@ static FIRApp *sDefaultApp;
   [FIRApp configureDefaultAppWithOptions:options sendingNotifications:YES];
 }
 
-+ (void)configureWithoutSendingNotification {
-  FIROptions *options = [FIROptions defaultOptions];
-  if (!options) {
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRAppDiagnosticsNotification
-                      object:nil
-                    userInfo:@{
-                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                      kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
-                    }];
-    [NSException raise:kFirebaseCoreErrorDomain
-                format:
-                    @"Please check there is a valid "
-                    @"GoogleService-Info.plist in the project."];
-  }
-  [FIRApp configureDefaultAppWithOptions:options sendingNotifications:NO];
-}
-
 + (void)configureDefaultAppWithOptions:(FIROptions *)options
                   sendingNotifications:(BOOL)sendNotifications {
   if (sDefaultApp) {
