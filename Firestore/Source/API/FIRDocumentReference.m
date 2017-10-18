@@ -112,14 +112,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - NSObject Methods
 
-- (BOOL)isEqual:(id)other {
+- (BOOL)isEqual:(nullable id)other {
   if (other == self) return YES;
   if (!other || ![[other class] isEqual:[self class]]) return NO;
 
   return [self isEqualToReference:other];
 }
 
-- (BOOL)isEqualToReference:(FIRDocumentReference *)reference {
+- (BOOL)isEqualToReference:(nullable FIRDocumentReference *)reference {
   if (self == reference) return YES;
   if (reference == nil) return NO;
   if (self.firestore != reference.firestore && ![self.firestore isEqual:reference.firestore])
