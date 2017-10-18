@@ -2537,7 +2537,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
           [self showMessagePrompt:error.localizedDescription];
-          completion(error);
+          if (completion) {
+            completion(error);
+          }
           return;
         }
         [self logSuccess:@"Code sent"];
