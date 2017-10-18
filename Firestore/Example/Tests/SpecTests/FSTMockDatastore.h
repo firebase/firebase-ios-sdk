@@ -20,6 +20,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FSTDatastore (Testing)
+
+/** Properties implemented in FSTDatastore that are nonpublic. */
+@property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
+@property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentials;
+
+@end
+
 @interface FSTMockDatastore : FSTDatastore
 
 + (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
