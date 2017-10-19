@@ -1,3 +1,6 @@
+# v4.3.1
+- Internal clean up.
+
 # v4.3.0
 - Provides account creation and last sign-in dates as metadata to the user
   object.
