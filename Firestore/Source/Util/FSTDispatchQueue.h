@@ -23,8 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Creates and returns an FSTDispatchQueue wrapping the specified dispatch_queue_t. */
 + (instancetype)queueWith:(dispatch_queue_t)dispatchQueue;
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
-
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 
 /**
@@ -42,17 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dispatchAsync:(void (^)(void))block;
 
 /**
- * Schedules a callback after the specified delay.
- *
- * Same as dispatch_after() except it asserts that we're not already on the queue, since this
- * generally indicates a bug (and can lead to re-ordering of operations, etc).
- *
- * @param block The block to run.
- * @param delay The delay (in seconds) after which to run the block.
- */
-- (void)dispatchAsync:(void (^)(void))block after:(NSTimeInterval)delay;
-
-/**
  * Unlike dispatchAsync: this method does not require you to dispatch to a different queue than
  * the current one (thus it is equivalent to a raw dispatch_async()).
  *
@@ -62,20 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @param block The block to run.
  */
 - (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block;
-
-/**
- * Schedules a callback after the specified delay.
- *
- * Unlike dispatchAsync: this method does not require you to dispatch to a different queue than
- * the current one (thus it is equivalent to a raw dispatch_async()).
- *
- * This is useful, e.g. for dispatching to the user's queue directly from user API call (in which
- * case we don't know if we're already on the user's queue or not).
- *
- * @param block The block to run.
- * @param delay The delay (in seconds) after which to run the block.
- */
-- (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block after:(NSTimeInterval)delay;
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;
