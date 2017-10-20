@@ -250,7 +250,10 @@
     [writeStream stop];
   }];
 
-  [self verifyDelegate:@[ @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamDidReceiveResponseWithVersion" ]];
+  [self verifyDelegate:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
+    @"writeStreamDidReceiveResponseWithVersion"
+  ]];
 }
 
 - (void)testStreamClosesWhenIdle {
@@ -281,7 +284,9 @@
     XCTAssertFalse([writeStream isOpen]);
   });
 
-  [self verifyDelegate:@[ @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamWasInterrupted" ]];
+  [self verifyDelegate:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamWasInterrupted"
+  ]];
 }
 
 - (void)testStreamCancelsIdleOnWrite {
@@ -322,7 +327,10 @@
     [writeStream stop];
   }];
 
-  [self verifyDelegate:@[ @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamDidReceiveResponseWithVersion" ]];
+  [self verifyDelegate:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
+    @"writeStreamDidReceiveResponseWithVersion"
+  ]];
 }
 
 @end

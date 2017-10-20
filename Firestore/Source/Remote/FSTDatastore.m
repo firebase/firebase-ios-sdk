@@ -442,8 +442,8 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @interface GRXFilter : NSObject <GRXWriteable>
 
-- (instancetype) initWithStream:(FSTStream *) stream NS_DESIGNATED_INITIALIZER;
-- (instancetype) init NS_UNAVAILABLE;
+- (instancetype)initWithStream:(FSTStream *)stream NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
 
 @property(atomic, readwrite) BOOL passthrough;
 @property(nonatomic, weak, readonly) FSTStream *stream;
@@ -478,7 +478,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @interface FSTStream ()
 
-@property (nonatomic, strong, readwrite) GRXFilter* grxFilter;
+@property(nonatomic, strong, readwrite) GRXFilter *grxFilter;
 
 @end
 
@@ -687,7 +687,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 - (void)inhibitBackoff {
   FSTAssert(![self isStarted], @"Can only inhibit backoff after an error (was %ld)",
-      (long)self.state);
+            (long)self.state);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   // Clear the error condition.
@@ -777,12 +777,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 /**
- * Called by the stream after the stream has been unexpectedly interrupted, either due to an error or due to idleness.
+ * Called by the stream after the stream has been unexpectedly interrupted, either due to an error
+ * or due to idleness.
  *
- * Subclasses should relay to their stream-specific delegate. Calling [super notifyStreamInterrupted] is
- * not required.
+ * Subclasses should relay to their stream-specific delegate. Calling [super
+ * notifyStreamInterrupted] is not required.
  */
-- (void)notifyStreamInterrupted:(NSError* _Nullable)error {
+- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
 }
 
 /**
