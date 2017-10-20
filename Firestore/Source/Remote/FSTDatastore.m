@@ -440,6 +440,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 #pragma mark - GRXFilter
 
+/** Filter class that allows disabling of GRPC callbacks. */
 @interface GRXFilter : NSObject <GRXWriteable>
 
 - (instancetype)initWithStream:(FSTStream *)stream NS_DESIGNATED_INITIALIZER;
