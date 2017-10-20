@@ -5,11 +5,11 @@ source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
 #pod 'Firebase'  # , :path => '../'
-pod 'FirebaseCore', :path => '../Firebase/Core'
+pod 'FirebaseCore', :path => '../'
 
 target 'Core_Example_iOS' do
   platform :ios, '8.0'
-  pod 'FirebaseCoreDiagnostics', :path => '../Firebase/Core'
+  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
@@ -20,8 +20,8 @@ end
 target 'Auth_Example_iOS' do
   platform :ios, '8.0'
 
-  pod 'FirebaseAuth', :path => '../Firebase/Auth'
-  pod 'FirebaseCoreDiagnostics', :path => '../Firebase/Core'
+  pod 'FirebaseAuth', :path => '../'
+  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Auth_Tests_iOS' do
     inherit! :search_paths
@@ -33,6 +33,7 @@ target 'Database_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDatabase', :path => '../'
+  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Database_Tests_iOS' do
     inherit! :search_paths
@@ -50,6 +51,7 @@ target 'Messaging_Example_iOS' do
 
   pod 'FirebaseMessaging' , :path => '../'
   pod 'FirebaseInstanceID'
+  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Messaging_Tests_iOS' do
     inherit! :search_paths
@@ -59,7 +61,7 @@ end
 
 target 'Auth_Sample' do
   platform :ios, '8.0'
-  pod 'FirebaseAuth', :path => '../Firebase/Auth'
+  pod 'FirebaseAuth', :path => '../'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn'
   # to FirebaseCore
@@ -69,14 +71,14 @@ end
 
 target 'Auth_SwiftSample' do
   platform :ios, '8.0'
-  pod 'FirebaseAuth', :path => '../Firebase/Auth'
+  pod 'FirebaseAuth', :path => '../'
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID'
 end
 
 target 'Auth_ApiTests' do
   platform :ios, '8.0'
-  pod 'FirebaseAuth', :path => '../Firebase/Auth'
+  pod 'FirebaseAuth', :path => '../'
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID'
   pod 'GTMSessionFetcher/Core'
@@ -84,7 +86,7 @@ end
 
 target 'Auth_EarlGreyTests' do
   platform :ios, '8.0'
-  pod 'FirebaseAuth', :path => '../Firebase/Auth'
+  pod 'FirebaseAuth', :path => '../'
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID'
   pod 'EarlGrey'
@@ -94,6 +96,7 @@ target 'Storage_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseStorage', :path => '../'
+  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Storage_Tests_iOS' do
     inherit! :search_paths
@@ -109,7 +112,7 @@ end
 target 'Core_Example_macOS' do
   platform :osx, '10.10'
 
-  pod 'FirebaseCore', :path => '../Firebase/Core'
+  pod 'FirebaseCore', :path => '../'
 
   target 'Core_Tests_macOS' do
     inherit! :search_paths
@@ -120,7 +123,7 @@ end
 target 'Auth_Example_macOS' do
   platform :osx, '10.10'
 
-  pod 'FirebaseAuth', :path => '../Firebase/Auth'
+  pod 'FirebaseAuth', :path => '../'
 
   target 'Auth_Tests_macOS' do
     inherit! :search_paths

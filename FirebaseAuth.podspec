@@ -13,7 +13,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => '../../LICENSE' }
+  s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
@@ -25,25 +25,26 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Source/**/*.[mh]'
+  source = 'Firebase/Auth/Source/'
+  s.source_files = source + '**/*.[mh]'
   s.osx.exclude_files =
-    'Source/**/FIRAuthAppDelegateProxy.[mh]',
-    'Source/**/FIRAuthNotificationManager.[mh]',
-    'Source/**/FIRAuthAppCredentialManager.[mh]',
-    'Source/**/FIRAuthAPNSTokenManager.[mh]',
-    'Source/**/FIRAuthAPNSTokenType.[mh]',
-    'Source/**/FIRAuthAPNSToken.[mh]',
-    'Source/**/FIRAuthDefaultUIDelegate.[mh]',
-    'Source/**/FIRAuthUIDelegate.h',
-    'Source/**/FIRAuthURLPresenter.[mh]',
-    'Source/**/FIRAuthWebView.[mh]',
-    'Source/**/FIRAuthWebViewController.[mh]',
-    'Source/**/FIRPhoneAuthCredential.[mh]',
-    'Source/**/FIRPhoneAuthProvider.[mh]'
-  s.public_header_files = 'Source/Public/*.h'
+    source + '**/FIRAuthAppDelegateProxy.[mh]',
+    source + '**/FIRAuthNotificationManager.[mh]',
+    source + '**/FIRAuthAppCredentialManager.[mh]',
+    source + '**/FIRAuthAPNSTokenManager.[mh]',
+    source + '**/FIRAuthAPNSTokenType.[mh]',
+    source + '**/FIRAuthAPNSToken.[mh]',
+    source + '**/FIRAuthDefaultUIDelegate.[mh]',
+    source + '**/FIRAuthUIDelegate.h',
+    source + '**/FIRAuthURLPresenter.[mh]',
+    source + '**/FIRAuthWebView.[mh]',
+    source + '**/FIRAuthWebViewController.[mh]',
+    source + '**/FIRPhoneAuthCredential.[mh]',
+    source + '**/FIRPhoneAuthProvider.[mh]'
+  s.public_header_files = source + 'Public/*.h'
   s.preserve_paths =
-    'README.md',
-    'CHANGELOG.md'
+    'Firebase/Auth/README.md',
+    'Firebase/Auth/CHANGELOG.md'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'FIRAuth_VERSION=' + s.version.to_s +
     ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]

@@ -36,4 +36,5 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'FirebaseInstanceID'
   s.dependency 'GoogleToolboxForMac/Logger', '~> 2.1'
   s.dependency 'Protobuf', '~> 3.1'
+  s.ios.dependency 'FirebaseCoreDiagnostics'
 end

@@ -27,6 +27,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'FirebaseCore'
   s.ios.dependency 'FirebaseAnalytics'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
+  s.ios.dependency 'FirebaseCoreDiagnostics'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'FIRStorage_VERSION=' + s.version.to_s }
 end

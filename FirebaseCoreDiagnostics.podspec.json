@@ -22,8 +22,8 @@
   },
   "summary": "Firebase Core for iOS",
   "vendored_frameworks": [
-    "Frameworks/FirebaseCoreDiagnostics.framework",
-    "Frameworks/FirebaseNanoPB.framework"
+    "Firebase/Core/Frameworks/FirebaseCoreDiagnostics.framework",
+    "Firebase/Core/Frameworks/FirebaseNanoPB.framework"
   ],
   "version": "0.0.5"
 }

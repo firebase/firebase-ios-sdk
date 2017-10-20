@@ -8,7 +8,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => '../../LICENSE' }
+  s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
@@ -20,9 +20,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = '**/*.[mh]'
-  s.public_header_files = 'Public/*.h', 'Private/*.h'
-  s.private_header_files = 'Private/*.h'
+  s.source_files = 'Firebase/Core/**/*.[mh]'
+  s.public_header_files = 'Firebase/Core/Public/*.h', 'Firebase/Core/Private/*.h'
+  s.private_header_files = 'Firebase/Core/Private/*.h'
   s.ios.vendored_frameworks = [
     "Frameworks/FirebaseCoreDiagnostics.framework",
     "Frameworks/FirebaseNanoPB.framework"
