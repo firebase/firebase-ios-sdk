@@ -56,6 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** Shuts down this client, cancels all writes / listeners, and releases all resources. */
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion;
 
+/** Disables the network connection. Pending operations will not complete. */
+- (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
+
+/** Enables the network connection and requeues all pending operations. */
+- (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
+
 /** Starts listening to a query. */
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
                             options:(FSTListenOptions *)options

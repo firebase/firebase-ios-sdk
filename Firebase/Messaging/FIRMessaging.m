@@ -507,6 +507,42 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
                                                 handler:completion];
 }
 
+#pragma mark - FIRMessagingDelegate helper methods
+- (void)setDelegate:(id<FIRMessagingDelegate>)delegate {
+  _delegate = delegate;
+  [self validateDelegateConformsToTokenAvailabilityMethods];
+}
+
+// Check if the delegate conforms to either |didReceiveRegistrationToken:| or
+// |didRefreshRegistrationToken:|, and display a warning to the developer if not.
+// NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
+// check can be removed.
+- (void)validateDelegateConformsToTokenAvailabilityMethods {
+  if (self.delegate &&
+      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)] &&
+      ![self.delegate respondsToSelector:@selector(messaging:didRefreshRegistrationToken:)]) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
+                           @"The object %@ does not respond to "
+                           @"-messaging:didReceiveRegistrationToken:, nor "
+                           @"-messaging:didRefreshRegistrationToken:. Please implement "
+                           @"-messaging:didReceiveRegistrationToken: to be provided with an FCM "
+                           @"token.", self.delegate.description);
+  }
+}
+
+- (void)notifyDelegateOfFCMTokenAvailability {
+  __weak FIRMessaging *weakSelf = self;
+  if (![NSThread isMainThread]) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [weakSelf notifyDelegateOfFCMTokenAvailability];
+    });
+    return;
+  }
+  if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
+    [self.delegate messaging:self didReceiveRegistrationToken:self.defaultFcmToken];
+  }
+}
+
 #pragma mark - Application State Changes
 
 - (void)applicationStateChanged {
@@ -719,6 +755,17 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 #pragma mark - Network
 
+- (void)onNetworkStatusChanged {
+  if (![self.client isConnected] && [self isNetworkAvailable]) {
+    if (self.client.shouldStayConnected) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging014,
+                              @"Attempting to establish direct channel.");
+      [self.client retryConnectionImmediately:YES];
+    }
+    [self.pubsub scheduleSync:YES];
+  }
+}
+
 - (BOOL)isNetworkAvailable {
   FIRReachabilityStatus status = self.reachability.reachabilityStatus;
   return (status == kFIRReachabilityViaCellular || status == kFIRReachabilityViaWifi);
@@ -737,19 +784,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 #pragma mark - Notifications
 
-- (void)onNetworkStatusChanged {
-  if (![self.client isConnected] && [self isNetworkAvailable]) {
-    if (self.client.shouldStayConnected) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging014,
-                              @"Attempting to establish direct channel.");
-      [self.client retryConnectionImmediately:YES];
-    }
-    [self.pubsub scheduleSync:YES];
-  }
-}
-
-#pragma mark - Notifications
-
 - (void)didReceiveDefaultInstanceIDToken:(NSNotification *)notification {
   if (![notification.object isKindOfClass:[NSString class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
@@ -757,7 +791,11 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
                             NSStringFromClass([notification.object class]));
     return;
   }
+  NSString *oldToken = self.defaultFcmToken;
   self.defaultFcmToken = [(NSString *)notification.object copy];
+  if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
+    [self notifyDelegateOfFCMTokenAvailability];
+  }
   [self.pubsub scheduleSync:YES];
   if (self.shouldEstablishDirectChannel) {
     [self updateAutomaticClientConnection];
@@ -771,8 +809,18 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   // token is fetched, and then notify. This ensures that this token should not
   // be nil when the developer accesses it.
   if (token != nil) {
+    NSString *oldToken = self.defaultFcmToken;
     self.defaultFcmToken = [token copy];
-    [self.delegate messaging:self didRefreshRegistrationToken:token];
+    if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
+      [self notifyDelegateOfFCMTokenAvailability];
+    }
+    // Call deprecated refresh method, because it should still work (until it is removed).
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    if ([self.delegate respondsToSelector:@selector(messaging:didRefreshRegistrationToken:)]) {
+      [self.delegate messaging:self didRefreshRegistrationToken:token];
+    }
+#pragma clang diagnostic pop
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
   }

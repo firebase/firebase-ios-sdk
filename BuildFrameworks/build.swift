@@ -140,7 +140,8 @@ func buildThin(framework: String, multiplatform: Bool, arch: String, multisdk: B
   let bitcode = (sdk == "iphoneos") ? ["OTHER_CFLAGS=\"" + "-fembed-bitcode\""] : []
   let args = standardOptions + ["ARCHS=" + arch, "BUILD_DIR=" + buildDir, "-sdk", sdk] + bitcode
   syncExec(command:"/usr/bin/xcodebuild", args:args)
-  return [buildDir + "/Release" + (multisdk ? "-\(sdk)" : "") + "/" + framework + schemeSuffix + "/lib" + framework + schemeSuffix + ".a"]
+  let sdk = multisdk ? "-\(sdk)" : ""
+  return [buildDir + "/Release" + sdk + "/" + framework + schemeSuffix + "/lib" + framework + schemeSuffix + ".a"]
 }
 
 func createFile(file: String, content: String) {

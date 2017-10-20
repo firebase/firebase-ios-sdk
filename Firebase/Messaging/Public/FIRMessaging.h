@@ -111,9 +111,9 @@ FOUNDATION_EXPORT const NSNotificationName __nonnull FIRMessagingConnectionState
     FIR_SWIFT_NAME(MessagingConnectionStateChanged);
 
 /**
- *  Notification sent when the FCM registration token has been refreshed. You can also
- *  receive the FCM token via the FIRMessagingDelegate method
- *  `-messaging:didRefreshRegistrationToken:`
+ *  Notification sent when the FCM registration token has been refreshed. Please use the
+ *  FIRMessaging delegate method `messaging:didReceiveRegistrationToken:` to receive current and
+ *  updated tokens.
  */
 FOUNDATION_EXPORT const NSNotificationName __nonnull
     FIRMessagingRegistrationTokenRefreshedNotification
@@ -156,9 +156,9 @@ FOUNDATION_EXPORT NSString * __nonnull const FIRMessagingConnectionStateChangedN
     FIR_SWIFT_NAME(MessagingConnectionStateChangedNotification);
 
 /**
- *  Notification sent when the FCM registration token has been refreshed. You can also
- *  receive the FCM token via the FIRMessagingDelegate method
- *  `-messaging:didRefreshRegistrationToken:`
+ *  Notification sent when the FCM registration token has been refreshed. Please use the
+ *  FIRMessaging delegate method `messaging:didReceiveRegistrationToken:` to receive current and
+ *  updated tokens.
  */
 FOUNDATION_EXPORT NSString * __nonnull const FIRMessagingRegistrationTokenRefreshedNotification
     FIR_SWIFT_NAME(MessagingRegistrationTokenRefreshedNotification);
@@ -246,14 +246,27 @@ FIR_SWIFT_NAME(MessagingRemoteMessage)
 FIR_SWIFT_NAME(MessagingDelegate)
 @protocol FIRMessagingDelegate <NSObject>
 
+@optional
+/// This method will be called once a token is available, or has been refreshed. Typically it
+/// will be called once per app start, but may be called more often, if token is invalidated or
+/// updated. In this method, you should perform operations such as:
+///
+/// * Uploading the FCM token to your application server, so targeted notifications can be sent.
+///
+/// * Subscribing to any topics.
+- (void)messaging:(nonnull FIRMessaging *)messaging
+    didReceiveRegistrationToken:(nonnull NSString *)fcmToken
+    FIR_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
+
 /// This method will be called whenever FCM receives a new, default FCM token for your
-/// Firebase project's Sender ID.
-/// You can send this token to your application server to send notifications to this device.
+/// Firebase project's Sender ID. This method is deprecated. Please use
+/// `messaging:didReceiveRegistrationToken:`.
 - (void)messaging:(nonnull FIRMessaging *)messaging
     didRefreshRegistrationToken:(nonnull NSString *)fcmToken
-    FIR_SWIFT_NAME(messaging(_:didRefreshRegistrationToken:));
+    FIR_SWIFT_NAME(messaging(_:didRefreshRegistrationToken:))
+    __deprecated_msg("Please use messaging:didReceiveRegistrationToken:, which is called for both \
+                     current and refreshed tokens.");
 
-@optional
 /// This method is called on iOS 10 devices to handle data messages received via FCM through its
 /// direct channel (not via APNS). For iOS 9 and below, the FCM data message is delivered via the
 /// UIApplicationDelegate's -application:didReceiveRemoteNotification: method.
@@ -356,9 +369,10 @@ FIR_SWIFT_NAME(Messaging)
  *  It is associated with your APNS token when the APNS token is supplied, so that sending
  *  messages to the FCM token will be delivered over APNS.
  *
- *  The FCM token is sometimes refreshed automatically. You can be notified of these changes
- *  via the FIRMessagingDelegate method `-message:didRefreshRegistrationToken:`, or by
- *  listening for the `FIRMessagingRegistrationTokenRefreshedNotification` notification.
+ *  The FCM token is sometimes refreshed automatically. In your FIRMessaging delegate, the
+ *  delegate method `messaging:didReceiveRegistrationToken:` will be called once a token is
+ *  available, or has been refreshed. Typically it should be called once per app start, but
+ *  may be called more often, if token is invalidated or updated.
  *
  *  Once you have an FCM token, you should send it to your application server, so it can use
  *  the FCM token to send notifications to your device.

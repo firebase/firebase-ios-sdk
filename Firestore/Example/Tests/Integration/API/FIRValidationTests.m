@@ -161,11 +161,64 @@
   }
 }
 
-- (void)testWritesWithNestedArraysFail {
+- (void)testWritesWithDirectlyNestedArraysFail {
   [self expectWrite:@{
     @"nested-array" : @[ @1, @[ @2 ] ]
   }
       toFailWithReason:@"Nested arrays are not supported"];
+}
+
+- (void)testWritesWithIndirectlyNestedArraysSucceed {
+  NSDictionary<NSString *, id> *data = @{ @"nested-array" : @[ @1, @{@"foo" : @[ @2 ]} ] };
+
+  FIRDocumentReference *ref = [self documentRef];
+  FIRDocumentReference *ref2 = [self documentRef];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setData"];
+  [ref setData:data
+      completion:^(NSError *_Nullable error) {
+        XCTAssertNil(error);
+        [expectation fulfill];
+      }];
+  [self awaitExpectations];
+
+  expectation = [self expectationWithDescription:@"batch.setData"];
+  [[[ref.firestore batch] setData:data forDocument:ref]
+      commitWithCompletion:^(NSError *_Nullable error) {
+        XCTAssertNil(error);
+        [expectation fulfill];
+      }];
+  [self awaitExpectations];
+
+  expectation = [self expectationWithDescription:@"updateData"];
+  [ref updateData:data
+       completion:^(NSError *_Nullable error) {
+         XCTAssertNil(error);
+         [expectation fulfill];
+       }];
+  [self awaitExpectations];
+
+  expectation = [self expectationWithDescription:@"batch.updateData"];
+  [[[ref.firestore batch] updateData:data forDocument:ref]
+      commitWithCompletion:^(NSError *_Nullable error) {
+        XCTAssertNil(error);
+        [expectation fulfill];
+      }];
+  [self awaitExpectations];
+
+  XCTestExpectation *transactionDone = [self expectationWithDescription:@"transaction done"];
+  [ref.firestore runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+    // Note ref2 does not exist at this point so set that and update ref.
+    [transaction updateData:data forDocument:ref];
+    [transaction setData:data forDocument:ref2];
+    return nil;
+  }
+      completion:^(id result, NSError *error) {
+        // ends up being a no-op transaction.
+        XCTAssertNil(error);
+        [transactionDone fulfill];
+      }];
+  [self awaitExpectations];
 }
 
 - (void)testWritesWithInvalidTypesFail {

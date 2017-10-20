@@ -24,12 +24,12 @@
  *  Some example semantic versions are 1.0.1, 2.1.0, 2.1.1, 2.2.0-alpha1, 2.2.1-beta1
  */
 
-FOUNDATION_EXPORT NSString *FIRMessagingCurrentLibraryVersion();
+FOUNDATION_EXPORT NSString *FIRMessagingCurrentLibraryVersion(void);
 /// Returns the current Major version of FIRMessaging library.
-FOUNDATION_EXPORT int FIRMessagingCurrentLibraryVersionMajor();
+FOUNDATION_EXPORT int FIRMessagingCurrentLibraryVersionMajor(void);
 /// Returns the current Minor version of FIRMessaging library.
-FOUNDATION_EXPORT int FIRMessagingCurrentLibraryVersionMinor();
+FOUNDATION_EXPORT int FIRMessagingCurrentLibraryVersionMinor(void);
 /// Returns the current Patch version of FIRMessaging library.
-FOUNDATION_EXPORT int FIRMessagingCurrentLibraryVersionPatch();
+FOUNDATION_EXPORT int FIRMessagingCurrentLibraryVersionPatch(void);
 /// Returns YES if current library version is `beta` else NO.
-FOUNDATION_EXPORT BOOL FIRMessagingCurrentLibraryVersionIsBeta();
+FOUNDATION_EXPORT BOOL FIRMessagingCurrentLibraryVersionIsBeta(void);

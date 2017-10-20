@@ -16,7 +16,7 @@
 
 #import "UserInfoViewController.h"
 
-#import "FIRUser_Internal.h"
+#import "FIRUser.h"
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
 #import "StaticContentTableViewManager.h"

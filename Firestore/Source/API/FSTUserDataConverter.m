@@ -121,7 +121,10 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 @interface FSTParseContext : NSObject
 /** The current path being parsed. */
 // TODO(b/34871131): path should never be nil, but we don't support array paths right now.
-@property(strong, nonatomic, readonly, nullable) FSTFieldPath *path;
+@property(nonatomic, strong, readonly, nullable) FSTFieldPath *path;
+
+/** Whether or not this context corresponds to an element of an array. */
+@property(nonatomic, assign, readonly, getter=isArrayElement) BOOL arrayElement;
 
 /**
  * What type of API method provided the data being parsed; useful for determining which error
@@ -146,6 +149,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
  */
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
                           path:(nullable FSTFieldPath *)path
+                  arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
                      fieldMask:(NSMutableArray<FSTFieldPath *> *)fieldMask
     NS_DESIGNATED_INITIALIZER;
@@ -161,6 +165,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 + (instancetype)contextWithSource:(FSTUserDataSource)dataSource path:(nullable FSTFieldPath *)path {
   FSTParseContext *context = [[FSTParseContext alloc] initWithSource:dataSource
                                                                 path:path
+                                                        arrayElement:NO
                                                      fieldTransforms:[NSMutableArray array]
                                                            fieldMask:[NSMutableArray array]];
   [context validatePath];
@@ -169,11 +174,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
                           path:(nullable FSTFieldPath *)path
+                  arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
                      fieldMask:(NSMutableArray<FSTFieldPath *> *)fieldMask {
   if (self = [super init]) {
     _dataSource = dataSource;
     _path = path;
+    _arrayElement = arrayElement;
     _fieldTransforms = fieldTransforms;
     _fieldMask = fieldMask;
   }
@@ -184,6 +191,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTParseContext *context =
       [[FSTParseContext alloc] initWithSource:self.dataSource
                                          path:[self.path pathByAppendingSegment:fieldName]
+                                 arrayElement:NO
                               fieldTransforms:self.fieldTransforms
                                     fieldMask:self.fieldMask];
   [context validatePathSegment:fieldName];
@@ -194,6 +202,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTParseContext *context =
       [[FSTParseContext alloc] initWithSource:self.dataSource
                                          path:[self.path pathByAppendingPath:fieldPath]
+                                 arrayElement:NO
                               fieldTransforms:self.fieldTransforms
                                     fieldMask:self.fieldMask];
   [context validatePath];
@@ -204,6 +213,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   // TODO(b/34871131): We don't support array paths right now; so make path nil.
   return [[FSTParseContext alloc] initWithSource:self.dataSource
                                             path:nil
+                                    arrayElement:YES
                                  fieldTransforms:self.fieldTransforms
                                        fieldMask:self.fieldMask];
 }
@@ -377,9 +387,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 - (nullable FSTFieldValue *)parseData:(id)input context:(FSTParseContext *)context {
   input = self.preConverter(input);
   if ([input isKindOfClass:[NSArray class]]) {
-    // TODO(b/34871131): We may need a different way to detect nested arrays once we support array
-    // paths (at which point we should include the path containing the array in the error message).
-    if (!context.path) {
+    // TODO(b/34871131): Include the path containing the array in the error message.
+    if (context.isArrayElement) {
       FSTThrowInvalidArgument(@"Nested arrays are not supported");
     }
     NSArray *array = input;
@@ -393,8 +402,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       }
       [result addObject:parsedEntry];
     }];
-    // We don't support field mask paths more granular than the top-level array.
-    [context.fieldMask addObject:context.path];
+    // If context.path is nil we are already inside an array and we don't support field mask paths
+    // more granular than the top-level array.
+    if (context.path) {
+      [context.fieldMask addObject:context.path];
+    }
     return [[FSTArrayValue alloc] initWithValueNoCopy:result];
 
   } else if ([input isKindOfClass:[NSDictionary class]]) {

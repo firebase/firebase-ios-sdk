@@ -48,5 +48,8 @@ func metadataStubs() {
   let credential = OAuthProvider.credential(withProviderID: "fake", accessToken: "none")
   Auth.auth().signInAndRetrieveData(with: credential) { result, error in
     let _: Bool? = result!.additionalUserInfo!.isNewUser
+    let metadata: UserMetadata = result!.user.metadata
+    let _: Date? = metadata.lastSignInDate
+    let _: Date? = metadata.creationDate
   }
 }

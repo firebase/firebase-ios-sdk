@@ -8,6 +8,10 @@ Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
 [https://firebase.google.com](https://firebase.google.com).
 
+**Note: This page and repo is for those interested in exploring the internals of
+the Firebase iOS SDK. If you're interested in using the Firebase iOS SDK, start at
+[https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).**
+
 ## Context
 
 This repo contains a fully functional development environment for FirebaseCore,

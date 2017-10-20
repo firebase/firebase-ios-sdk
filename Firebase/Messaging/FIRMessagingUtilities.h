@@ -43,12 +43,12 @@ FOUNDATION_EXPORT void FIRMessagingSetLastStreamId(GPBMessage *proto, int sid);
 
 #pragma mark - Time
 
-FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInSeconds();
-FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInMilliseconds();
+FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInSeconds(void);
+FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInMilliseconds(void);
 
 #pragma mark - App Info
 
-FOUNDATION_EXPORT NSString *FIRMessagingCurrentAppVersion();
-FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier();
+FOUNDATION_EXPORT NSString *FIRMessagingCurrentAppVersion(void);
+FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier(void);
 
-FOUNDATION_EXPORT uint64_t FIRMessagingGetFreeDiskSpaceInMB();
+FOUNDATION_EXPORT uint64_t FIRMessagingGetFreeDiskSpaceInMB(void);
