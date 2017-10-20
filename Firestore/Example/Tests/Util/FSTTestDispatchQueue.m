@@ -28,6 +28,8 @@
 
 @implementation FSTTestDispatchQueue
 
+static const NSTimeInterval kMaxDispatchDelay = 1.0;
+
 + (instancetype)queueWith:(dispatch_queue_t)dispatchQueue {
   return [[FSTTestDispatchQueue alloc] initWithQueue:dispatchQueue];
 }
@@ -38,20 +40,20 @@
 
 - (void)dispatchAsync:(void (^)(void))block after:(NSTimeInterval)delay {
   [super dispatchAsyncAllowingSameQueue:^() {
-          block();
-          [_expectation fulfill];
-          _expectation = nil;
-      }
-                                  after:MIN(delay, 1.0)];
+    block();
+    [_expectation fulfill];
+    _expectation = nil;
+  }
+                                  after:MIN(delay, kMaxDispatchDelay)];
 }
 
 - (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block after:(NSTimeInterval)delay {
   [super dispatchAsyncAllowingSameQueue:^() {
-          block();
-          [_expectation fulfill];
-          _expectation = nil;
-      }
-                                  after:MIN(delay, 1.0)];
+    block();
+    [_expectation fulfill];
+    _expectation = nil;
+  }
+                                  after:MIN(delay, kMaxDispatchDelay)];
 }
 
 - (void)fulfillOnExecution:(XCTestExpectation*)expectation {

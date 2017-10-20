@@ -858,9 +858,9 @@
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
 
-  [self readSnapshotForRef:[self documentRef] online:YES];
+  [self readSnapshotForRef:[self documentRef] requireOnline:YES];
   [self waitForIdle:firestore];
-  [self readSnapshotForRef:[self documentRef] online:YES];
+  [self readSnapshotForRef:[self documentRef] requireOnline:YES];
 }
 
 @end

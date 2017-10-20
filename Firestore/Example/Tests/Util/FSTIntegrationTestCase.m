@@ -235,7 +235,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)ref online:(BOOL)online {
+- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)ref requireOnline:(BOOL)online {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"listener"];

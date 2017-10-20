@@ -69,7 +69,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
 
-- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query online:(BOOL)online;
+- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query
+                              requireOnline:(BOOL)online;
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 

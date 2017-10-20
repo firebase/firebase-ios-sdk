@@ -120,7 +120,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-            responseMessageClass:(Class)responseMessageClassNS_UNAVAILABLE;
+            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @end
 
