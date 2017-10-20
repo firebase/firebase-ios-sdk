@@ -56,6 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRCollectionReference *)collectionRefWithDocuments:
     (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents;
 
+- (void)waitForIdle:(FIRFirestore *)firestore;
+
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection;
 
@@ -66,6 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
+
+- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query online:(BOOL)online;
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 

@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTStream <__covariant FSTStreamDelegate> : NSObject
 
-@property (nonatomic, strong, readwrite) FSTStreamDelegate delegate;
+@property (nonatomic, weak, readwrite, nullable) FSTStreamDelegate delegate;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue

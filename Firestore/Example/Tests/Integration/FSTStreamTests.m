@@ -20,7 +20,7 @@
 
 #import "Auth/FSTEmptyCredentialsProvider.h"
 #import "Core/FSTDatabaseInfo.h"
-#import "FIRTestDispatchQueue.h"
+#import "FSTTestDispatchQueue.h"
 #import "FSTHelpers.h"
 #import "FSTIntegrationTestCase.h"
 #import "Model/FSTDatabaseID.h"
