@@ -334,10 +334,8 @@
 		DE26D2561F7040B2004AE1D3 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1F51F70333E004AE1D3 /* UserInfoViewController.xib */; };
 		DE26D2571F7040E0004AE1D3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1DA1F70333E004AE1D3 /* Localizable.strings */; };
 		DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1E41F70333E004AE1D3 /* Images.xcassets */; };
-		DE26D2671F704A08004AE1D3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1CA1F70330A004AE1D3 /* Info.plist */; };
 		DE26D2681F704A0C004AE1D3 /* FirebaseAuthApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1C91F70330A004AE1D3 /* FirebaseAuthApiTests.m */; };
 		DE26D2771F705CB5004AE1D3 /* FirebaseAuthEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FA1F70333E004AE1D3 /* FirebaseAuthEarlGreyTests.m */; };
-		DE26D2781F705CBC004AE1D3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1FB1F70333E004AE1D3 /* Info.plist */; };
 		DE26D28F1F705F34004AE1D3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2001F70333E004AE1D3 /* GoogleService-Info.plist */; };
 		DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2041F70333E004AE1D3 /* Main.storyboard */; };
 		DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2031F70333E004AE1D3 /* LaunchScreen.storyboard */; };
@@ -463,6 +461,8 @@
 		DEE14D921E84468D006FA992 /* FIRLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D791E844677006FA992 /* FIRLoggerTest.m */; };
 		DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7A1E844677006FA992 /* FIROptionsTest.m */; };
 		DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
+		DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
+		DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
 		FFE130CF56C04A4F1F90F58C /* Pods_Core_Example_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491500C8507A3B80D6FE1B61 /* Pods_Core_Example_macOS.framework */; };
 /* End PBXBuildFile section */
 
@@ -1162,6 +1162,7 @@
 		DEE14D7B1E844677006FA992 /* FIRTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRTestCase.h; sourceTree = "<group>"; };
 		DEE14D7C1E844677006FA992 /* FIRTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestCase.m; sourceTree = "<group>"; };
 		DEE14D7D1E844677006FA992 /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		DEF288401F9AB6E100D480CF /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		DF22AB406738B8C54A49A248 /* Pods-Auth_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		E1DB278AD387CAB5D57BF135 /* Pods_Storage_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Storage_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E27502AAA61906D3F236AD2C /* Pods-Storage_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests_macOS/Pods-Storage_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1796,6 +1797,7 @@
 		DE26D1CD1F70333E004AE1D3 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
+				DEF288401F9AB6E100D480CF /* Default-568h@2x.png */,
 				DE26D1EA1F70333E004AE1D3 /* Sample.entitlements */,
 				DE26D1EB1F70333E004AE1D3 /* SampleTemplate.entitlements */,
 				DE26D1CF1F70333E004AE1D3 /* ApplicationDelegate.h */,
@@ -3018,6 +3020,7 @@
 				DE26D2561F7040B2004AE1D3 /* UserInfoViewController.xib in Resources */,
 				DE26D2541F7040B2004AE1D3 /* MainViewController.xib in Resources */,
 				DE26D2571F7040E0004AE1D3 /* Localizable.strings in Resources */,
+				DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
 				DE26D2551F7040B2004AE1D3 /* SettingsViewController.xib in Resources */,
 				DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */,
 			);
@@ -3027,7 +3030,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE26D2671F704A08004AE1D3 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3035,7 +3037,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE26D2781F705CBC004AE1D3 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3044,6 +3045,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE26D28F1F705F34004AE1D3 /* GoogleService-Info.plist in Resources */,
+				DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
 				DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */,
 				DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */,
 			);
