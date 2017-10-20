@@ -438,14 +438,54 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @end
 
+#pragma mark - GRXFilter
+
+@interface GRXFilter : NSObject <GRXWriteable>
+
+- (instancetype) initWithStream:(FSTStream *) stream NS_DESIGNATED_INITIALIZER;
+- (instancetype) init NS_UNAVAILABLE;
+
+@property(atomic, readwrite) BOOL passthrough;
+@property(nonatomic, weak, readonly) FSTStream *stream;
+
+@end
+
+@implementation GRXFilter
+
+- (instancetype)initWithStream:(FSTStream *)stream {
+  if (self = [super init]) {
+    _passthrough = YES;
+    _stream = stream;
+  }
+  return self;
+}
+
+- (void)writeValue:(id)value {
+  if (self.passthrough) {
+    [self.stream writeValue:value];
+  }
+}
+
+- (void)writesFinishedWithError:(NSError *)errorOrNil {
+  if (self.passthrough) {
+    [self.stream writesFinishedWithError:errorOrNil];
+  }
+}
+
+@end
+
 #pragma mark - FSTStream
+
+@interface FSTStream ()
+
+@property (nonatomic, strong, readwrite) GRXFilter* grxFilter;
+
+@end
 
 @implementation FSTStream
 
 /** The time a stream stays open after it is marked idle. */
 static const NSTimeInterval kIdleTimeout = 60.0;
-
-@synthesize delegate = _delegate;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -482,7 +522,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (void)start:(id<FSTStreamDelegate>)delegate {
+- (void)start:(id)delegate {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   if (self.state == FSTStreamStateError) {
@@ -493,9 +533,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTLog(@"%@ %p start", NSStringFromClass([self class]), (__bridge void *)self);
   FSTAssert(self.state == FSTStreamStateInitial, @"Already started");
 
-  FSTAssert(_delegate == nil, @"Delegate must be nil");
   self.state = FSTStreamStateAuth;
-  [_delegate setInvokeCallbacks:NO];
+  FSTAssert(_delegate == nil, @"Delegate must be nil");
   _delegate = delegate;
 
   [self.credentials
@@ -532,14 +571,16 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:self.databaseInfo.databaseID
                                token:token.token];
-  [_rpc startWithWriteable:self.delegate];
+  FSTAssert(_grxFilter == nil, @"GRX Filter must be nil");
+  _grxFilter = [[GRXFilter alloc] initWithStream:self];
+  [_rpc startWithWriteable:_grxFilter];
 
   self.state = FSTStreamStateOpen;
-  [self handleStreamOpen];
+  [self notifyStreamOpen];
 }
 
 /** Backs off after an error. */
-- (void)performBackoff:(id<FSTStreamDelegate>)delegate {
+- (void)performBackoff:(id)delegate {
   FSTLog(@"%@ %p backoff", NSStringFromClass([self class]), (__bridge void *)self);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
@@ -554,7 +595,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 /** Resumes stream start after backing off. */
-- (void)resumeStartFromBackoff:(id<FSTStreamDelegate>)delegate {
+- (void)resumeStartFromBackoff:(id)delegate {
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for backoff to complete.
     return;
@@ -622,12 +663,14 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   // If the caller explicitly requested a stream stop, don't notify them of a closing stream (it
   // could trigger undesirable recovery logic, etc.).
   if (finalState != FSTStreamStateStopped) {
-    [self.delegate streamDidClose:error];
+    [self notifyStreamInterrupted:error];
   }
 
-  // Clear the delegate to avoid any possible bleed through of events from GRPC.
-  FSTAssert(_delegate != nil, @"Delegate should not be nil");
-  [self.delegate setInvokeCallbacks:NO];
+  // Clear the delegates to avoid any possible bleed through of events from GRPC.
+  [self.grxFilter setPassthrough:NO];
+  _grxFilter = nil;
+
+  FSTAssert(_delegate, @"Delegate should not be nil");
   _delegate = nil;
 
   // Clean up remaining state.
@@ -642,12 +685,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   }
 }
 
-- (void)inhibitBackoff:(NSError *)error {
-  // Note: The Android client verifies that the stream is in an error state. We can't do this here
-  // since the GRPC callback `FSTStream writesFinishedWithError:` does not have access to the
-  // internal stream state and cannot set it to FSTStreamStateError. Instead, we verify that we
-  // indeed received an error.
-  FSTAssert(error != nil, @"Can only inhibit backoff after an error");
+- (void)inhibitBackoff {
+  FSTAssert(![self isStarted], @"Can only inhibit backoff after an error (was %ld)",
+      (long)self.state);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   // Clear the error condition.
@@ -729,9 +769,20 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /**
  * Called by the stream after the stream has been successfully connected, authenticated, and is now
  * ready to accept messages.
+ *
+ * Subclasses should relay to their stream-specific delegate. Calling [super notifyStreamOpen] is
+ * not required.
  */
-- (void)handleStreamOpen {
-  [self.delegate streamDidOpen];
+- (void)notifyStreamOpen {
+}
+
+/**
+ * Called by the stream after the stream has been unexpectedly interrupted, either due to an error or due to idleness.
+ *
+ * Subclasses should relay to their stream-specific delegate. Calling [super notifyStreamInterrupted] is
+ * not required.
+ */
+- (void)notifyStreamInterrupted:(NSError* _Nullable)error {
 }
 
 /**
@@ -745,9 +796,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 /**
  * Called by the stream when the underlying RPC has been closed for whatever reason.
- *
- * Subclasses should first call [super handleStreamClose:] and then call to their
- * stream-specific delegate.
  */
 - (void)handleStreamClose:(NSError *_Nullable)error {
   FSTLog(@"%@ %p close: %@", NSStringFromClass([self class]), (__bridge void *)self, error);
@@ -757,6 +805,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   // to happen because if we stop a stream ourselves, this callback will never be called. To
   // prevent cases where we retry without a backoff accidentally, we set the stream to error
   // in all cases.
+
   [self close:FSTStreamStateError error:error];
 }
 
@@ -810,7 +859,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     if (!self || self.state == FSTStreamStateStopped) {
       return;
     }
-    [self.delegate streamDidClose:error];
+    [self handleStreamClose:error];
   }];
 }
 
@@ -818,9 +867,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 #pragma mark - FSTWatchStream
 
-@implementation FSTWatchStream
+@interface FSTWatchStream ()
 
-FSTSerializerBeta *_serializer;
+@property(nonatomic, strong, readonly) FSTSerializerBeta *serializer;
+
+@end
+
+@implementation FSTWatchStream
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -840,6 +893,15 @@ FSTSerializerBeta *_serializer;
   return [[GRPCCall alloc] initWithHost:self.databaseInfo.host
                                    path:@"/google.firestore.v1beta1.Firestore/Listen"
                          requestsWriter:requestsWriter];
+}
+
+- (void)notifyStreamOpen {
+  [self.delegate watchStreamDidOpen];
+}
+
+- (void)handleStreamInterrupted:(NSError *_Nullable)error {
+  [super handleStreamClose:error];
+  [self.delegate watchStreamWasInterrupted:error];
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
@@ -880,18 +942,22 @@ FSTSerializerBeta *_serializer;
 
   FSTWatchChange *change = [_serializer decodedWatchChange:proto];
   FSTSnapshotVersion *snap = [_serializer versionFromListenResponse:proto];
-  [self.delegate streamDidReceiveChange:change snapshotVersion:snap];
+  [self.delegate watchStreamDidChange:change snapshotVersion:snap];
 }
 
 @end
 
 #pragma mark - FSTWriteStream
 
-@implementation FSTWriteStream {
-  FSTSerializerBeta *_serializer;
-}
+@interface FSTWriteStream ()
 
-- (void)start:(id<FSTStreamDelegate>)delegate {
+@property(nonatomic, strong, readonly) FSTSerializerBeta *serializer;
+
+@end
+
+@implementation FSTWriteStream
+
+- (void)start:(id)delegate {
   self.handshakeComplete = NO;
   [super start:delegate];
 }
@@ -914,6 +980,14 @@ FSTSerializerBeta *_serializer;
   return [[GRPCCall alloc] initWithHost:self.databaseInfo.host
                                    path:@"/google.firestore.v1beta1.Firestore/Write"
                          requestsWriter:requestsWriter];
+}
+
+- (void)notifyStreamOpen {
+  [self.delegate writeStreamDidOpen];
+}
+
+- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
+  [self.delegate writeStreamWasInterrupted:error];
 }
 
 - (void)writeHandshake {
@@ -967,7 +1041,7 @@ FSTSerializerBeta *_serializer;
     // The first response is the handshake response
     self.handshakeComplete = YES;
 
-    [self.delegate streamDidCompleteHandshake];
+    [self.delegate writeStreamDidCompleteHandshake];
   } else {
     FSTSnapshotVersion *commitVersion = [_serializer decodedVersion:response.commitTime];
     NSMutableArray<GCFSWriteResult *> *protos = response.writeResultsArray;
@@ -976,7 +1050,7 @@ FSTSerializerBeta *_serializer;
       [results addObject:[_serializer decodedMutationResult:proto]];
     };
 
-    [self.delegate streamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
+    [self.delegate writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
   }
 }
 

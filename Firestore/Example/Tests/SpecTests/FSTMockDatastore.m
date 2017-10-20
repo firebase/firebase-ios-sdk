@@ -51,13 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *activeTargets;
 
-@property(nonatomic, strong, readonly) id<FSTWatchStreamDelegate> delegate;
-
 @end
 
 @implementation FSTMockWatchStream
-
-@synthesize delegate = _delegate;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -79,12 +75,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start:(id<FSTWatchStreamDelegate>)delegate {
   FSTAssert(!self.open, @"Trying to start already started watch stream");
   self.open = YES;
-  _delegate = delegate;
-  [self.delegate streamDidOpen];
+  self.delegate = delegate;
+  [self.delegate watchStreamDidOpen];
 }
 
 - (void)stop {
-  _delegate = nil;
+  self.delegate = nil;
 }
 
 - (BOOL)isOpen {
@@ -95,8 +91,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self.open;
 }
 
-- (void)streamDidOpen {
-  [self.delegate streamDidOpen];
+- (void)notifyWatchStreamDidOpen {
+  [self.delegate watchStreamDidOpen];
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
@@ -115,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self.delegate streamDidClose:error];
+  [self.delegate watchStreamWasInterrupted:error];
 }
 
 #pragma mark - Helper methods.
@@ -135,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }
   }
-  [self.delegate streamDidReceiveChange:change snapshotVersion:snap];
+  [self.delegate watchStreamDidChange:change snapshotVersion:snap];
 }
 
 @end
@@ -156,13 +152,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign) BOOL open;
 @property(nonatomic, strong, readonly) NSMutableArray<NSArray<FSTMutation *> *> *sentMutations;
-@property(nonatomic, strong, readonly) id<FSTWriteStreamDelegate> delegate;
-
 @end
 
 @implementation FSTMockWriteStream
-
-@synthesize delegate = _delegate;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -184,12 +176,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(!self.open, @"Trying to start already started write stream");
   self.open = YES;
   [self.sentMutations removeAllObjects];
-  _delegate = delegate;
-  [self.delegate streamDidOpen];
+  self.delegate = delegate;
+  [self.delegate writeStreamDidOpen];
 }
 
 - (void)stop {
-  _delegate = nil;
+  self.delegate = nil;
 }
 
 - (BOOL)isOpen {
@@ -202,15 +194,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)writeHandshake {
   self.handshakeComplete = YES;
-  [self.delegate streamDidCompleteHandshake];
+  [self.delegate writeStreamDidCompleteHandshake];
 }
 
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations {
   [self.sentMutations addObject:mutations];
 }
 
-- (void)streamDidOpen {
-  [self.delegate streamDidOpen];
+- (void)notifyStreamDidOpen {
+  [self.delegate writeStreamDidOpen];
 }
 
 #pragma mark - Helper methods.
@@ -218,13 +210,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** Injects a write ack as though it had come from the backend in response to a write. */
 - (void)ackWriteWithVersion:(FSTSnapshotVersion *)commitVersion
             mutationResults:(NSArray<FSTMutationResult *> *)results {
-  [self.delegate streamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
+  [self.delegate writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
 }
 
 /** Injects a failed write response as though it had come from the backend. */
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self.delegate streamDidClose:error];
+  [self.delegate writeStreamWasInterrupted:error];
 }
 
 /**

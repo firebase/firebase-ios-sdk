@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCommunity/FIRLogger.h>
 #import <Firestore/FIRFirestoreSettings.h>
 
 #import "Auth/FSTEmptyCredentialsProvider.h"
@@ -42,61 +41,61 @@
 @property(nonatomic, readonly) NSMutableArray<NSString *> *states;
 @property(atomic, readwrite) BOOL invokeCallbacks;
 @property(nonatomic, weak) XCTestExpectation *expectation;
-@property(nonatomic, weak, readonly) FSTStream *stream;
 
-- (instancetype)initWithStream:(FSTStream *)stream NS_DESIGNATED_INITIALIZER;
-- (instancetype)init NS_UNAVAILABLE;
 @end
 
 @implementation FSTStreamStatusDelegate
 
-- (instancetype)initWithStream:(FSTStream *)stream {
+- (instancetype)init {
   if (self = [super init]) {
     _states = [NSMutableArray new];
-    _stream = stream;
   }
 
   return self;
 }
 
-- (void)streamDidReceiveChange:(FSTWatchChange *)change
-               snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
-  [_states addObject:@"didReceiveChange"];
+- (void)watchStreamDidOpen {
+  [_states addObject:@"watchStreamDidOpen"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)streamDidOpen {
-  [_states addObject:@"didOpen"];
+- (void)writeStreamDidOpen {
+  [_states addObject:@"writeStreamDidOpen"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)streamDidClose:(NSError *_Nullable)error {
-  [_states addObject:@"didClose"];
+- (void)writeStreamDidCompleteHandshake {
+  [_states addObject:@"writeStreamDidCompleteHandshake"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)streamDidCompleteHandshake {
-  [_states addObject:@"didCompleteHandshake"];
+- (void)writeStreamWasInterrupted:(NSError *_Nullable)error {
+  [_states addObject:@"writeStreamWasInterrupted"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)streamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
-                            mutationResults:(NSArray<FSTMutationResult *> *)results {
-  [_states addObject:@"didReceiveResponse"];
+- (void)watchStreamWasInterrupted:(NSError *_Nullable)error {
+  [_states addObject:@"watchStreamWasInterrupted"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)writeValue:(id)value {
-  [self.stream writeValue:value];
+- (void)watchStreamDidChange:(FSTWatchChange *)change
+             snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
+  [_states addObject:@"watchStreamDidChange"];
+  [_expectation fulfill];
+  _expectation = nil;
 }
 
-- (void)writesFinishedWithError:(NSError *)errorOrNil {
-  [self.stream writesFinishedWithError:errorOrNil];
+- (void)writeStreamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
+                                 mutationResults:(NSArray<FSTMutationResult *> *)results {
+  [_states addObject:@"writeStreamDidReceiveResponseWithVersion"];
+  [_expectation fulfill];
+  _expectation = nil;
 }
 
 - (void)fulfillOnCallback:(XCTestExpectation *)expectation {
@@ -113,9 +112,9 @@
 @implementation FSTStreamTests {
   dispatch_queue_t _testQueue;
   FSTDatabaseInfo *_databaseInfo;
-  FSTTestDispatchQueue *_workerDispatchQueue;
   FSTEmptyCredentialsProvider *_credentials;
   FSTStreamStatusDelegate *_delegate;
+  FSTTestDispatchQueue *_workerDispatchQueue;
 
   /** Single mutation to send to the write stream. */
   NSArray<FSTMutation *> *_mutations;
@@ -149,20 +148,16 @@
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
 
-  FSTWriteStream *stream = [datastore createWriteStream];
-  _delegate = [[FSTStreamStatusDelegate alloc] initWithStream:stream];
-
-  return stream;
+  _delegate = [FSTStreamStatusDelegate new];
+  return [datastore createWriteStream];
 }
 
 - (FSTWatchStream *)setUpWatchStream {
   FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
-  FSTWatchStream *stream = [datastore createWatchStream];
-  _delegate = [[FSTStreamStatusDelegate alloc] initWithStream:stream];
-
-  return stream;
+  _delegate = [FSTStreamStatusDelegate new];
+  return [datastore createWatchStream];
 }
 
 - (void)verifyDelegate:(NSArray<NSString *> *)expectedStates {
@@ -193,7 +188,7 @@
   // Simulate a final callback from GRPC
   [watchStream writesFinishedWithError:nil];
 
-  [self verifyDelegate:@[ @"didOpen" ]];
+  [self verifyDelegate:@[ @"watchStreamDidOpen" ]];
 }
 
 /** Verifies that the write stream does not issue an onClose callback after a call to stop(). */
@@ -218,7 +213,7 @@
   // Simulate a final callback from GRPC
   [writeStream writesFinishedWithError:nil];
 
-  [self verifyDelegate:@[ @"didOpen" ]];
+  [self verifyDelegate:@[ @"writeStreamDidOpen" ]];
 }
 
 - (void)testWriteStreamStopAfterHandshake {
@@ -255,7 +250,7 @@
     [writeStream stop];
   }];
 
-  [self verifyDelegate:@[ @"didOpen", @"didCompleteHandshake", @"didReceiveResponse" ]];
+  [self verifyDelegate:@[ @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamDidReceiveResponseWithVersion" ]];
 }
 
 - (void)testStreamClosesWhenIdle {
@@ -286,7 +281,7 @@
     XCTAssertFalse([writeStream isOpen]);
   });
 
-  [self verifyDelegate:@[ @"didOpen", @"didCompleteHandshake", @"didClose" ]];
+  [self verifyDelegate:@[ @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamWasInterrupted" ]];
 }
 
 - (void)testStreamCancelsIdleOnWrite {
@@ -327,7 +322,7 @@
     [writeStream stop];
   }];
 
-  [self verifyDelegate:@[ @"didOpen", @"didCompleteHandshake", @"didReceiveResponse" ]];
+  [self verifyDelegate:@[ @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamDidReceiveResponseWithVersion" ]];
 }
 
 @end
