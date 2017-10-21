@@ -310,10 +310,8 @@
 		DE26D2561F7040B2004AE1D3 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1F51F70333E004AE1D3 /* UserInfoViewController.xib */; };
 		DE26D2571F7040E0004AE1D3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1DA1F70333E004AE1D3 /* Localizable.strings */; };
 		DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1E41F70333E004AE1D3 /* Images.xcassets */; };
-		DE26D2671F704A08004AE1D3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1CA1F70330A004AE1D3 /* Info.plist */; };
 		DE26D2681F704A0C004AE1D3 /* FirebaseAuthApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1C91F70330A004AE1D3 /* FirebaseAuthApiTests.m */; };
 		DE26D2771F705CB5004AE1D3 /* FirebaseAuthEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FA1F70333E004AE1D3 /* FirebaseAuthEarlGreyTests.m */; };
-		DE26D2781F705CBC004AE1D3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1FB1F70333E004AE1D3 /* Info.plist */; };
 		DE26D28F1F705F34004AE1D3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2001F70333E004AE1D3 /* GoogleService-Info.plist */; };
 		DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2041F70333E004AE1D3 /* Main.storyboard */; };
 		DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2031F70333E004AE1D3 /* LaunchScreen.storyboard */; };
@@ -444,6 +442,8 @@
 		F3A5CD04028159CD00F0765E /* Pods_Database_IntegrationTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8103186BFDCAC870AD26B192 /* Pods_Database_IntegrationTests_iOS.framework */; };
 		F653AF7DB269A2430D8074E3 /* Pods_Auth_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63E91DC7EB2845C92601E0DB /* Pods_Auth_Tests_macOS.framework */; };
 		F88BE47068406C61520FDB0B /* Pods_Core_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B705EB4CB0D254E435F543FD /* Pods_Core_Tests_macOS.framework */; };
+		DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
+		DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1126,6 +1126,10 @@
 		DEE14D7B1E844677006FA992 /* FIRTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRTestCase.h; sourceTree = "<group>"; };
 		DEE14D7C1E844677006FA992 /* FIRTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestCase.m; sourceTree = "<group>"; };
 		DEE14D7D1E844677006FA992 /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		DEF288401F9AB6E100D480CF /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		DF22AB406738B8C54A49A248 /* Pods-Auth_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		E1DB278AD387CAB5D57BF135 /* Pods_Storage_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Storage_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E27502AAA61906D3F236AD2C /* Pods-Storage_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests_macOS/Pods-Storage_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		E2C2834C90DBAB56D568189F /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		F45F12CE5412FFE2CF9DF815 /* Pods-Storage_IntegrationTests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_IntegrationTests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_IntegrationTests_macOS/Pods-Storage_IntegrationTests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		F475DD6D4AA604511FEA506D /* Pods-Auth_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1675,6 +1679,7 @@
 		DE26D1CD1F70333E004AE1D3 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
+				DEF288401F9AB6E100D480CF /* Default-568h@2x.png */,
 				DE26D1EA1F70333E004AE1D3 /* Sample.entitlements */,
 				DE26D1EB1F70333E004AE1D3 /* SampleTemplate.entitlements */,
 				DE26D1CF1F70333E004AE1D3 /* ApplicationDelegate.h */,
@@ -2956,6 +2961,7 @@
 				DE26D2561F7040B2004AE1D3 /* UserInfoViewController.xib in Resources */,
 				DE26D2541F7040B2004AE1D3 /* MainViewController.xib in Resources */,
 				DE26D2571F7040E0004AE1D3 /* Localizable.strings in Resources */,
+				DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
 				DE26D2551F7040B2004AE1D3 /* SettingsViewController.xib in Resources */,
 				DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */,
 			);
@@ -2965,7 +2971,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE26D2671F704A08004AE1D3 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2973,7 +2978,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE26D2781F705CBC004AE1D3 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2982,6 +2986,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE26D28F1F705F34004AE1D3 /* GoogleService-Info.plist in Resources */,
+				DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
 				DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */,
 				DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */,
 			);
