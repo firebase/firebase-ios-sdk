@@ -51,7 +51,8 @@ static BOOL isIOS9orLater() {
   }
   return NO;
 #else
-  return &UIApplicationOpenURLOptionsAnnotationKey;  // the constant is only available on iOS 9+
+  // UIApplicationOpenURLOptionsAnnotationKey is only available on iOS 9+.
+  return &UIApplicationOpenURLOptionsAnnotationKey != NULL;
 #endif
 }
 
