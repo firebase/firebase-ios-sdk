@@ -5,10 +5,10 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
   s.version          = '0.0.4'
-  s.summary          = 'Firebase Open Source Libraries for iOS.'
+  s.summary          = 'Firebase Storage for iOS'
 
   s.description      = <<-DESC
-Simplify your iOS development, grow your user base, and monetize more effectively with Firebase.
+Firebase Storage provides robust, secure file uploads and downloads from Firebase SDKs, powered by Google Cloud Storage.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -19,15 +19,20 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
+
+  s.cocoapods_version = '>= 1.4.0.beta.1'
+  s.static_framework = true
+  s.prefix_header_file = false
+
   s.source_files = 'Firebase/Storage/**/*.[mh]'
   s.public_header_files = 'Firebase/Storage/Public/*.h'
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
-  s.static_framework = true
-  s.dependency 'FirebaseCore'
-  s.ios.dependency 'FirebaseAnalytics'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
+
+  s.dependency 'FirebaseCore', '~> 4.0'
+  s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
   s.ios.dependency 'FirebaseCoreDiagnostics'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'FIRStorage_VERSION=' + s.version.to_s }
 end

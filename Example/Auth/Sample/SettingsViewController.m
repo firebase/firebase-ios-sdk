@@ -160,7 +160,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     [StaticContentTableViewSection sectionWithTitle:@"Versions" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"FirebaseAuth"
                                           value:versionString(
-          FirebaseAuthVersionString, FirebaseAuthVersionNumber)],
+          FirebaseAuthVersionStr, FirebaseAuthVersionNum)],
     ]],
     [StaticContentTableViewSection sectionWithTitle:@"API Hosts" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Identity Toolkit"

@@ -59,6 +59,23 @@ target 'Messaging_Example_iOS' do
   end
 end
 
+target 'Storage_Example_iOS' do
+  platform :ios, '8.0'
+
+  pod 'FirebaseStorage', :path => '../'
+  pod 'FirebaseCoreDiagnostics', :path => '../'
+
+  target 'Storage_Tests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+  target 'Storage_IntegrationTests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
 target 'Auth_Sample' do
   platform :ios, '8.0'
   pod 'FirebaseAuth', :path => '../'
@@ -90,23 +107,6 @@ target 'Auth_EarlGreyTests' do
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID'
   pod 'EarlGrey'
-end
-
-target 'Storage_Example_iOS' do
-  platform :ios, '8.0'
-
-  pod 'FirebaseStorage', :path => '../'
-  pod 'FirebaseCoreDiagnostics', :path => '../'
-
-  target 'Storage_Tests_iOS' do
-    inherit! :search_paths
-    pod 'OCMock'
-  end
-
-  target 'Storage_IntegrationTests_iOS' do
-    inherit! :search_paths
-    pod 'OCMock'
-  end
 end
 
 target 'Core_Example_macOS' do
