@@ -109,6 +109,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
  */
 typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTUserDataSourceSet,
+  FSTUserDataSourceMergeSet,
   FSTUserDataSourceUpdate,
   FSTUserDataSourceQueryValue,  // from a where clause or cursor bound.
 };
@@ -158,6 +159,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 - (instancetype)contextForField:(NSString *)fieldName;
 - (instancetype)contextForFieldPath:(FSTFieldPath *)fieldPath;
 - (instancetype)contextForArrayIndex:(NSUInteger)index;
+
+/** Returns true for the non-query parse contexts (Set, MergeSet and Update) */
+- (BOOL)isWrite;
 @end
 
 @implementation FSTParseContext
@@ -231,7 +235,16 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (BOOL)isWrite {
-  return _dataSource == FSTUserDataSourceSet || _dataSource == FSTUserDataSourceUpdate;
+  switch (self.dataSource) {
+    case FSTUserDataSourceSet:       // Falls through.
+    case FSTUserDataSourceMergeSet:  // Falls through.
+    case FSTUserDataSourceUpdate:
+      return YES;
+    case FSTUserDataSourceQueryValue:
+      return NO;
+    default:
+      FSTThrowInvalidArgument(@"Unexpected case for FSTUserDataSource: %d", self.dataSource);
+  }
 }
 
 - (void)validatePath {
@@ -288,7 +301,24 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   return self;
 }
 
-- (FSTParsedSetData *)parsedSetData:(id)input options:(FIRSetOptions *)options {
+- (FSTParsedSetData *)parsedMergeData:(id)input {
+  // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
+  // Obj-C to verify the type for us.
+  if (![input isKindOfClass:[NSDictionary class]]) {
+    FSTThrowInvalidArgument(@"Data to be written must be an NSDictionary.");
+  }
+
+  FSTParseContext *context =
+      [FSTParseContext contextWithSource:FSTUserDataSourceMergeSet path:[FSTFieldPath emptyPath]];
+  FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
+
+  return
+      [[FSTParsedSetData alloc] initWithData:updateData
+                                   fieldMask:[[FSTFieldMask alloc] initWithFields:context.fieldMask]
+                             fieldTransforms:context.fieldTransforms];
+}
+
+- (FSTParsedSetData *)parsedSetData:(id)input {
   // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
   // Obj-C to verify the type for us.
   if (![input isKindOfClass:[NSDictionary class]]) {
@@ -297,26 +327,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   FSTParseContext *context =
       [FSTParseContext contextWithSource:FSTUserDataSourceSet path:[FSTFieldPath emptyPath]];
+  FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  __block FSTObjectValue *updateData = [FSTObjectValue objectValue];
-
-  [input enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    // Treat key as a complete field name (don't split on dots, etc.)
-    FSTFieldPath *path = [[FIRFieldPath alloc] initWithFields:@[ key ]].internalValue;
-
-    value = self.preConverter(value);
-
-    FSTFieldValue *_Nullable parsedValue =
-        [self parseData:value context:[context contextForFieldPath:path]];
-    if (parsedValue) {
-      updateData = [updateData objectBySettingValue:parsedValue forPath:path];
-    }
-  }];
-
-  return [[FSTParsedSetData alloc]
-         initWithData:updateData
-            fieldMask:options.merge ? [[FSTFieldMask alloc] initWithFields:context.fieldMask] : nil
-      fieldTransforms:context.fieldTransforms];
+  return [[FSTParsedSetData alloc] initWithData:updateData
+                                      fieldMask:nil
+                                fieldTransforms:context.fieldTransforms];
 }
 
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input {
@@ -536,20 +551,23 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   } else if ([input isKindOfClass:[FIRFieldValue class]]) {
     if ([input isKindOfClass:[FSTDeleteFieldValue class]]) {
-      // We shouldn't encounter delete sentinels here. Provide a good error.
-      if (context.dataSource != FSTUserDataSourceUpdate) {
-        FSTThrowInvalidArgument(@"FieldValue.delete() can only be used with updateData().");
-      } else {
+      if (context.dataSource == FSTUserDataSourceMergeSet) {
+        return nil;
+      } else if (context.dataSource == FSTUserDataSourceUpdate) {
         FSTAssert(context.path.length > 0,
                   @"FieldValue.delete() at the top level should have already been handled.");
         FSTThrowInvalidArgument(
             @"FieldValue.delete() can only appear at the top level of your "
              "update data%@",
             [context fieldDescription]);
+      } else {
+        // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
+        FSTThrowInvalidArgument(
+            @"FieldValue.delete() can only be used with updateData() and setData() with "
+            @"SetOptions.merge().");
       }
     } else if ([input isKindOfClass:[FSTServerTimestampFieldValue class]]) {
-      if (context.dataSource != FSTUserDataSourceSet &&
-          context.dataSource != FSTUserDataSourceUpdate) {
+      if (![context isWrite]) {
         FSTThrowInvalidArgument(
             @"FieldValue.serverTimestamp() can only be used with setData() and updateData().");
       }
