@@ -176,6 +176,40 @@
   XCTAssertTrue([document[@"time"] isKindOfClass:[NSDate class]]);
 }
 
+- (void)testCanDeleteFieldUsingMerge {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData = @{
+    @"untouched" : @YES,
+    @"foo" : @"bar",
+    @"nested" : @{@"untouched" : @YES, @"foo" : @"bar"}
+  };
+  NSDictionary<NSString *, id> *mergeData = @{
+    @"foo" : [FIRFieldValue fieldValueForDelete],
+    @"nested" : @{@"foo" : [FIRFieldValue fieldValueForDelete]}
+  };
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
+
+  [doc setData:mergeData
+         options:[FIRSetOptions merge]
+      completion:^(NSError *error) {
+        XCTAssertNil(error);
+        [completed fulfill];
+      }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqual(document[@"untouched"], @YES);
+  XCTAssertNil(document[@"foo"]);
+  XCTAssertEqual(document[@"nested.untouched"], @YES);
+  XCTAssertNil(document[@"nested.foo"]);
+}
+
 - (void)testMergeReplacesArrays {
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
@@ -678,6 +712,40 @@
 - (void)testExposesFirestoreOnQueries {
   FIRQuery *q = [[self.db collectionWithPath:@"foo"] queryLimitedTo:5];
   XCTAssertEqual(q.firestore, self.db);
+}
+
+- (void)testDocumentReferenceEquality {
+  FIRFirestore *firestore = self.db;
+  FIRDocumentReference *docRef = [firestore documentWithPath:@"foo/bar"];
+  XCTAssertEqualObjects([firestore documentWithPath:@"foo/bar"], docRef);
+  XCTAssertEqualObjects([docRef collectionWithPath:@"blah"].parent, docRef);
+
+  XCTAssertNotEqualObjects([firestore documentWithPath:@"foo/BAR"], docRef);
+
+  FIRFirestore *otherFirestore = [self firestore];
+  XCTAssertNotEqualObjects([otherFirestore documentWithPath:@"foo/bar"], docRef);
+}
+
+- (void)testQueryReferenceEquality {
+  FIRFirestore *firestore = self.db;
+  FIRQuery *query =
+      [[[firestore collectionWithPath:@"foo"] queryOrderedByField:@"bar"] queryWhereField:@"baz"
+                                                                                isEqualTo:@42];
+  FIRQuery *query2 =
+      [[[firestore collectionWithPath:@"foo"] queryOrderedByField:@"bar"] queryWhereField:@"baz"
+                                                                                isEqualTo:@42];
+  XCTAssertEqualObjects(query, query2);
+
+  FIRQuery *query3 =
+      [[[firestore collectionWithPath:@"foo"] queryOrderedByField:@"BAR"] queryWhereField:@"baz"
+                                                                                isEqualTo:@42];
+  XCTAssertNotEqualObjects(query, query3);
+
+  FIRFirestore *otherFirestore = [self firestore];
+  FIRQuery *query4 = [[[otherFirestore collectionWithPath:@"foo"] queryOrderedByField:@"bar"]
+      queryWhereField:@"baz"
+            isEqualTo:@42];
+  XCTAssertNotEqualObjects(query, query4);
 }
 
 - (void)testCanTraverseCollectionsAndDocuments {

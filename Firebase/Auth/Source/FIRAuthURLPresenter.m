@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
                                    FIRAuthWebViewControllerDelegate>
 @end
 
+// Disable unguarded availability warnings because SFSafariViewController is been used throughout
+// the code, including as an iVar, which cannot be simply excluded by @available check.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+
 @implementation FIRAuthURLPresenter {
   /** @var _isPresenting
       @brief Whether or not some web-based content is being presented.
@@ -175,6 +180,8 @@ NS_ASSUME_NONNULL_BEGIN
     finishBlock();
   }
 }
+
+#pragma clang diagnostic pop  // ignored "-Wunguarded-availability"
 
 @end
 

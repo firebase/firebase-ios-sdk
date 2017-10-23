@@ -13,9 +13,9 @@ before_install:
   - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
 
 script:
-  - "! git grep ' $'" # Fail on trailing whitespace
+  - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
   - ./test.sh
-  - pod lib lint FirebaseCommunity.podspec --verbose | tail -40
+  - pod lib lint FirebaseCommunity.podspec
 
 branches:
   only:
