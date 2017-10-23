@@ -38,7 +38,15 @@ NS_ASSUME_NONNULL_BEGIN
  * The maximum number of pending writes to allow.
  * TODO(bjornick): Negotiate this value with the backend.
  */
-static const NSUInteger kMaxPendingWrites = 10;
+static const int kMaxPendingWrites = 10;
+
+/**
+ * The FSTRemoteStore notifies an onlineStateDelegate with FSTOnlineStateFailed if we fail to
+ * connect to the backend. This subsequently triggers get() requests to fail or use cached data,
+ * etc. Unfortunately, our connections have historically been subject to various transient failures.
+ * So we wait for multiple failures before notifying the onlineStateDelegate.
+ */
+static const int kOnlineAttemptsBeforeFailure = 2;
 
 #pragma mark - FSTRemoteStore
 
@@ -98,6 +106,9 @@ static const NSUInteger kMaxPendingWrites = 10;
  */
 @property(nonatomic, assign) FSTOnlineState watchStreamOnlineState;
 
+/** A count of consecutive failures to open the stream. */
+@property(nonatomic, assign) int watchStreamFailures;
+
 #pragma mark Write Stream
 // The writeStream is null when the network is disabled. The non-null check is performed by
 // isNetworkEnabled.
@@ -144,6 +155,34 @@ static const NSUInteger kMaxPendingWrites = 10;
   [self enableNetwork];
 }
 
+- (void)setOnlineStateToHealthy {
+  [self updateAndNotifyAboutOnlineState:FSTOnlineStateHealthy];
+}
+
+- (void)setOnlineStateToUnknown {
+  // The state is set to unknown when a healthy stream is closed (e.g. due to a token timeout) or
+  // when we have no active listens and therefore there's no need to start the stream. Assuming
+  // there is (possibly in the future) an active listen, then we will eventually move to state
+  // Online or Failed, but we always want to make at least kOnlineAttemptsBeforeFailure attempts
+  // before failing, so we reset the count here.
+  self.watchStreamFailures = 0;
+  [self updateAndNotifyAboutOnlineState:FSTOnlineStateUnknown];
+}
+
+- (void)updateOnlineStateAfterFailure {
+  // The first failure after we are successfully connected moves us to the 'Unknown' state. We
+  // then may make multiple attempts (based on kOnlineAttemptsBeforeFailure) before we actually
+  // report failure.
+  if (self.watchStreamOnlineState == FSTOnlineStateHealthy) {
+    [self setOnlineStateToUnknown];
+  } else {
+    self.watchStreamFailures++;
+    if (self.watchStreamFailures >= kOnlineAttemptsBeforeFailure) {
+      [self updateAndNotifyAboutOnlineState:FSTOnlineStateFailed];
+    }
+  }
+}
+
 - (void)updateAndNotifyAboutOnlineState:(FSTOnlineState)watchStreamOnlineState {
   BOOL didChange = (watchStreamOnlineState != self.watchStreamOnlineState);
   self.watchStreamOnlineState = watchStreamOnlineState;
@@ -178,7 +217,7 @@ static const NSUInteger kMaxPendingWrites = 10;
   [self fillWritePipeline];  // This may start the writeStream.
 
   // We move back to the unknown state because we might not want to re-open the stream
-  [self updateAndNotifyAboutOnlineState:FSTOnlineStateUnknown];
+  [self setOnlineStateToUnknown];
 }
 
 - (void)disableNetwork {
@@ -296,7 +335,7 @@ static const NSUInteger kMaxPendingWrites = 10;
 - (void)watchStreamDidChange:(FSTWatchChange *)change
              snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
   // Mark the connection as healthy because we got a message from the server.
-  [self updateAndNotifyAboutOnlineState:FSTOnlineStateHealthy];
+  [self setOnlineStateToHealthy];
 
   FSTWatchTargetChange *watchTargetChange =
       [change isKindOfClass:[FSTWatchTargetChange class]] ? (FSTWatchTargetChange *)change : nil;
@@ -334,20 +373,12 @@ static const NSUInteger kMaxPendingWrites = 10;
   // If the watch stream closed due to an error, retry the connection if there are any active
   // watch targets.
   if ([self shouldStartWatchStream]) {
-    // If the connection fails before the stream has become healthy, consider the online state
-    // failed. Otherwise consider the online state unknown and the next connection attempt will
-    // resolve the online state. For example, if a healthy stream is closed due to an expired token
-    // we want to have one more try at reconnecting before we consider the connection unhealthy.
-    if (self.watchStreamOnlineState == FSTOnlineStateHealthy) {
-      [self updateAndNotifyAboutOnlineState:FSTOnlineStateUnknown];
-    } else {
-      [self updateAndNotifyAboutOnlineState:FSTOnlineStateFailed];
-    }
+    [self updateOnlineStateAfterFailure];
     [self.watchStream start];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
     // state is set to unknown because there is no active attempt at establishing a connection.
-    [self updateAndNotifyAboutOnlineState:FSTOnlineStateUnknown];
+    [self setOnlineStateToUnknown];
   }
 }
 
