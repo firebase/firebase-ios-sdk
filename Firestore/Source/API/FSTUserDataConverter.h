@@ -111,10 +111,10 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
                       preConverter:(FSTPreConverterBlock)preConverter NS_DESIGNATED_INITIALIZER;
 
 /** Parse document data from a non-merge setData call.*/
-- (FSTParsedSetData *)parsedMergeData:(id)input;
+- (FSTParsedSetData *)parsedSetData:(id)input;
 
 /** Parse document data from a setData call with '[FIRSetOptions merge]'. */
-- (FSTParsedSetData *)parsedSetData:(id)input;
+- (FSTParsedSetData *)parsedMergeData:(id)input;
 
 /** Parse update data from an updateData call. */
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input;
