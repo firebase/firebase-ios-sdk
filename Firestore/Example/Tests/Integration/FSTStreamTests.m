@@ -38,22 +38,20 @@
  */
 @interface FSTStreamStatusDelegate : NSObject <FSTWatchStreamDelegate, FSTWriteStreamDelegate>
 
-- (instancetype)initFrom:(XCTestCase *)testCase
-              usingQueue:(FSTDispatchQueue *)dispatchQueue NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithTestCase:(XCTestCase *)testCase
+                           queue:(FSTDispatchQueue *)dispatchQueue NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, readonly) NSMutableArray<NSString *> *states;
-@property(atomic, readwrite) BOOL invokeCallbacks;
-@property(nonatomic, weak) XCTestExpectation *expectation;
-@property(nonatomic, weak, readonly) FSTStream *stream;
 @property(nonatomic, weak, readonly) XCTestCase *testCase;
-@property(nonatomic, weak, readonly) FSTDispatchQueue *dispatchQueue;
+@property(nonatomic, strong, readonly) FSTDispatchQueue *dispatchQueue;
+@property(nonatomic, readonly) NSMutableArray<NSString *> *states;
+@property(nonatomic, strong) XCTestExpectation *expectation;
 
 @end
 
 @implementation FSTStreamStatusDelegate
 
-- (instancetype)initFrom:(XCTestCase *)testCase usingQueue:(FSTDispatchQueue *)dispatchQueue {
+- (instancetype)initWithTestCase:(XCTestCase *)testCase queue:(FSTDispatchQueue *)dispatchQueue {
   if (self = [super init]) {
     _testCase = testCase;
     _dispatchQueue = dispatchQueue;
@@ -161,7 +159,7 @@
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
 
-  _delegate = [[FSTStreamStatusDelegate alloc] initFrom:self usingQueue:_workerDispatchQueue];
+  _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
   return [datastore createWriteStreamWithDelegate:_delegate];
 }
 
@@ -170,7 +168,7 @@
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
 
-  _delegate = [[FSTStreamStatusDelegate alloc] initFrom:self usingQueue:_workerDispatchQueue];
+  _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
   return [datastore createWatchStreamWithDelegate:_delegate];
 }
 
