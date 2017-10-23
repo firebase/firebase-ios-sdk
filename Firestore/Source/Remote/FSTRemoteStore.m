@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The maximum number of pending writes to allow.
  * TODO(bjornick): Negotiate this value with the backend.
  */
-static const NSUInteger kMaxPendingWrites = 10;
+static const int kMaxPendingWrites = 10;
 
 /**
  * The FSTRemoteStore notifies an onlineStateDelegate with FSTOnlineStateFailed if we fail to
@@ -46,7 +46,7 @@ static const NSUInteger kMaxPendingWrites = 10;
  * etc. Unfortunately, our connections have historically been subject to various transient failures.
  * So we wait for multiple failures before notifying the onlineStateDelegate.
  */
-static const NSUInteger kOnlineAttemptsBeforeFailure = 2;
+static const int kOnlineAttemptsBeforeFailure = 2;
 
 #pragma mark - FSTRemoteStore
 
@@ -107,7 +107,7 @@ static const NSUInteger kOnlineAttemptsBeforeFailure = 2;
 @property(nonatomic, assign) FSTOnlineState watchStreamOnlineState;
 
 /** A count of consecutive failures to open the stream. */
-@property(nonatomic, assign) NSUInteger watchStreamFailures;
+@property(nonatomic, assign) int watchStreamFailures;
 
 #pragma mark Write Stream
 // The writeStream is null when the network is disabled. The non-null check is performed by
