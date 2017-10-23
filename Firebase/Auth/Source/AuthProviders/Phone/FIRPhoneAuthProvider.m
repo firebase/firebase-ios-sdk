@@ -267,8 +267,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     if(errorDict[@"code"] && errorDict[@"message"]) {
       reason = [NSString stringWithFormat:@"[%@] - %@",errorDict[@"code"], errorDict[@"message"]];
     } else {
-      reason = [NSString StringWithFormat:@"An unknown error occurred with the following "
-                                "response: %@", deepLinkURL];
+      reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
+          "response: %@", deepLinkURL];
     }
     *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
   }
