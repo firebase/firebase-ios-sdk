@@ -15,7 +15,7 @@ before_install:
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
   - ./test.sh
-  - pod lib lint FirebaseCommunity.podspec --verbose | tail -40
+  - pod lib lint FirebaseCommunity.podspec
 
 branches:
   only:
