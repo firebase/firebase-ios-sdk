@@ -732,8 +732,7 @@ static const NSTimeInterval kExpectationTimeout = 1;
 }
 
 /** @fn testVerifyPhoneNumberUIDelegateUnstructuredError
-    @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
-        invalid client ID.
+    @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an error being surfaced due to an unexpected structure of the error response.
  */
 - (void)testVerifyPhoneNumberUIDelegateUnstructuredError {
   id mockBundle = OCMClassMock([NSBundle class]);
