@@ -280,7 +280,9 @@
 
 - (void)testSetsWithFieldValueDeleteFail {
   [self expectSet:@{@"foo" : [FIRFieldValue fieldValueForDelete]}
-      toFailWithReason:@"FieldValue.delete() can only be used with updateData()."];
+      toFailWithReason:
+          @"FieldValue.delete() can only be used with updateData() and setData() with "
+          @"SetOptions.merge()."];
 }
 
 - (void)testUpdatesWithNestedFieldValueDeleteFail {

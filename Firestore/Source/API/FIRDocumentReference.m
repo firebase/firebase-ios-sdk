@@ -174,8 +174,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
         options:(FIRSetOptions *)options
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed =
-      [self.firestore.dataConverter parsedSetData:documentData options:options];
+  FSTParsedSetData *parsed = options.isMerge
+                                 ? [self.firestore.dataConverter parsedMergeData:documentData]
+                                 : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
       writeMutations:[parsed mutationsWithKey:self.key precondition:[FSTPrecondition none]]
           completion:completion];

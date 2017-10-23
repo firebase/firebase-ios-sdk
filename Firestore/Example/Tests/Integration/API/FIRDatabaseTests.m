@@ -176,6 +176,40 @@
   XCTAssertTrue([document[@"time"] isKindOfClass:[NSDate class]]);
 }
 
+- (void)testCanDeleteFieldUsingMerge {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData = @{
+    @"untouched" : @YES,
+    @"foo" : @"bar",
+    @"nested" : @{@"untouched" : @YES, @"foo" : @"bar"}
+  };
+  NSDictionary<NSString *, id> *mergeData = @{
+    @"foo" : [FIRFieldValue fieldValueForDelete],
+    @"nested" : @{@"foo" : [FIRFieldValue fieldValueForDelete]}
+  };
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
+
+  [doc setData:mergeData
+         options:[FIRSetOptions merge]
+      completion:^(NSError *error) {
+        XCTAssertNil(error);
+        [completed fulfill];
+      }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqual(document[@"untouched"], @YES);
+  XCTAssertNil(document[@"foo"]);
+  XCTAssertEqual(document[@"nested.untouched"], @YES);
+  XCTAssertNil(document[@"nested.foo"]);
+}
+
 - (void)testMergeReplacesArrays {
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 

@@ -69,7 +69,8 @@ NS_ASSUME_NONNULL_BEGIN
                 forDocument:(FIRDocumentReference *)document
                     options:(FIRSetOptions *)options {
   [self validateReference:document];
-  FSTParsedSetData *parsed = [self.firestore.dataConverter parsedSetData:data options:options];
+  FSTParsedSetData *parsed = options.isMerge ? [self.firestore.dataConverter parsedMergeData:data]
+                                             : [self.firestore.dataConverter parsedSetData:data];
   [self.internalTransaction setData:parsed forDocument:document.key];
   return self;
 }
