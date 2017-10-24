@@ -22,6 +22,7 @@
 #import "Local/FSTQueryData.h"
 #import "Model/FSTDatabaseID.h"
 #import "Model/FSTMutation.h"
+#import "Remote/FSTSerializerBeta.h"
 #import "Util/FSTAssert.h"
 #import "Util/FSTLogger.h"
 
@@ -38,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
+                      serializer:(FSTSerializerBeta *)serializer
                         delegate:(id<FSTWatchStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
@@ -58,11 +60,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
+                      serializer:(FSTSerializerBeta *)serializer
                         delegate:(id<FSTWatchStreamDelegate>)delegate {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
                      credentials:credentials
-            responseMessageClass:[FSTWatchChange class]
+                      serializer:serializer
                         delegate:delegate];
   if (self) {
     FSTAssert(database, @"Database must not be nil");
@@ -139,13 +142,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
+                      serializer:(FSTSerializerBeta *)serializer
                         delegate:(id<FSTWriteStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass
-                        delegate:(id<FSTWatchStreamDelegate>)delegate NS_UNAVAILABLE;
+                        delegate:(id<FSTWriteStreamDelegate>)delegate NS_UNAVAILABLE;
 
 @property(nonatomic, assign) BOOL open;
 @property(nonatomic, strong, readonly) NSMutableArray<NSArray<FSTMutation *> *> *sentMutations;
@@ -157,11 +161,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
+                      serializer:(FSTSerializerBeta *)serializer
                         delegate:(id<FSTWriteStreamDelegate>)delegate {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
                      credentials:credentials
-            responseMessageClass:[FSTMutationResult class]
+                      serializer:serializer
                         delegate:delegate];
   if (self) {
     _sentMutations = [NSMutableArray array];
@@ -266,19 +271,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTWatchStream *)createWatchStreamWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
   FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
-  self.watchStream = [[FSTMockWatchStream alloc] initWithDatabase:self.databaseInfo
-                                              workerDispatchQueue:self.workerDispatchQueue
-                                                      credentials:self.credentials
-                                                         delegate:delegate];
+  self.watchStream = [[FSTMockWatchStream alloc]
+         initWithDatabase:self.databaseInfo
+      workerDispatchQueue:self.workerDispatchQueue
+              credentials:self.credentials
+               serializer:[[FSTSerializerBeta alloc]
+                              initWithDatabaseID:self.databaseInfo.databaseID]
+                 delegate:delegate];
   return self.watchStream;
 }
 
 - (FSTWriteStream *)createWriteStreamWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
   FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
-  self.writeStream = [[FSTMockWriteStream alloc] initWithDatabase:self.databaseInfo
-                                              workerDispatchQueue:self.workerDispatchQueue
-                                                      credentials:self.credentials
-                                                         delegate:delegate];
+  self.writeStream = [[FSTMockWriteStream alloc]
+         initWithDatabase:self.databaseInfo
+      workerDispatchQueue:self.workerDispatchQueue
+              credentials:self.credentials
+               serializer:[[FSTSerializerBeta alloc]
+                              initWithDatabaseID:self.databaseInfo.databaseID]
+                 delegate:delegate];
   return self.writeStream;
 }
 
