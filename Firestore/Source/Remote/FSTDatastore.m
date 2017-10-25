@@ -917,9 +917,6 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
   FSTLog(@"FSTWriteStream %p response: %@", (__bridge void *)self, response);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  // A successful response means the stream is healthy.
-  [self.backoff reset];
-
   // Always capture the last stream token.
   self.lastStreamToken = response.streamToken;
 
@@ -929,6 +926,11 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
     [self.delegate writeStreamDidCompleteHandshake];
   } else {
+    // A successful first write response means the stream is healthy.
+    // Note that we could consider a successful handshake healthy, however, the write itself
+    // might be causing an error we want to back off from.
+    [self.backoff reset];
+
     FSTSnapshotVersion *commitVersion = [_serializer decodedVersion:response.commitTime];
     NSMutableArray<GCFSWriteResult *> *protos = response.writeResultsArray;
     NSMutableArray<FSTMutationResult *> *results = [NSMutableArray arrayWithCapacity:protos.count];
