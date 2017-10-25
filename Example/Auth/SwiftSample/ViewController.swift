@@ -277,7 +277,7 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .reauthenticate:
         getCredential() { credential in
-          self.user!.reauthenticateAndRetrieveData(with: credential) {authResult, error in
+          self.user!.reauthenticateAndRetrieveData(with: credential) { authResult, error in
             self.ifNoError(error) {
               if (authResult?.user.uid != self.user?.uid) {
                 let message = "The reauthenticated user must be the same as the original user"
