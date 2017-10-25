@@ -109,6 +109,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
  */
 typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTUserDataSourceSet,
+  FSTUserDataSourceMergeSet,
   FSTUserDataSourceUpdate,
   FSTUserDataSourceQueryValue,  // from a where clause or cursor bound.
 };
@@ -121,7 +122,10 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 @interface FSTParseContext : NSObject
 /** The current path being parsed. */
 // TODO(b/34871131): path should never be nil, but we don't support array paths right now.
-@property(strong, nonatomic, readonly, nullable) FSTFieldPath *path;
+@property(nonatomic, strong, readonly, nullable) FSTFieldPath *path;
+
+/** Whether or not this context corresponds to an element of an array. */
+@property(nonatomic, assign, readonly, getter=isArrayElement) BOOL arrayElement;
 
 /**
  * What type of API method provided the data being parsed; useful for determining which error
@@ -146,6 +150,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
  */
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
                           path:(nullable FSTFieldPath *)path
+                  arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
                      fieldMask:(NSMutableArray<FSTFieldPath *> *)fieldMask
     NS_DESIGNATED_INITIALIZER;
@@ -154,6 +159,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 - (instancetype)contextForField:(NSString *)fieldName;
 - (instancetype)contextForFieldPath:(FSTFieldPath *)fieldPath;
 - (instancetype)contextForArrayIndex:(NSUInteger)index;
+
+/** Returns true for the non-query parse contexts (Set, MergeSet and Update) */
+- (BOOL)isWrite;
 @end
 
 @implementation FSTParseContext
@@ -161,6 +169,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 + (instancetype)contextWithSource:(FSTUserDataSource)dataSource path:(nullable FSTFieldPath *)path {
   FSTParseContext *context = [[FSTParseContext alloc] initWithSource:dataSource
                                                                 path:path
+                                                        arrayElement:NO
                                                      fieldTransforms:[NSMutableArray array]
                                                            fieldMask:[NSMutableArray array]];
   [context validatePath];
@@ -169,11 +178,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
                           path:(nullable FSTFieldPath *)path
+                  arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
                      fieldMask:(NSMutableArray<FSTFieldPath *> *)fieldMask {
   if (self = [super init]) {
     _dataSource = dataSource;
     _path = path;
+    _arrayElement = arrayElement;
     _fieldTransforms = fieldTransforms;
     _fieldMask = fieldMask;
   }
@@ -184,6 +195,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTParseContext *context =
       [[FSTParseContext alloc] initWithSource:self.dataSource
                                          path:[self.path pathByAppendingSegment:fieldName]
+                                 arrayElement:NO
                               fieldTransforms:self.fieldTransforms
                                     fieldMask:self.fieldMask];
   [context validatePathSegment:fieldName];
@@ -194,6 +206,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTParseContext *context =
       [[FSTParseContext alloc] initWithSource:self.dataSource
                                          path:[self.path pathByAppendingPath:fieldPath]
+                                 arrayElement:NO
                               fieldTransforms:self.fieldTransforms
                                     fieldMask:self.fieldMask];
   [context validatePath];
@@ -204,6 +217,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   // TODO(b/34871131): We don't support array paths right now; so make path nil.
   return [[FSTParseContext alloc] initWithSource:self.dataSource
                                             path:nil
+                                    arrayElement:YES
                                  fieldTransforms:self.fieldTransforms
                                        fieldMask:self.fieldMask];
 }
@@ -221,7 +235,16 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (BOOL)isWrite {
-  return _dataSource == FSTUserDataSourceSet || _dataSource == FSTUserDataSourceUpdate;
+  switch (self.dataSource) {
+    case FSTUserDataSourceSet:       // Falls through.
+    case FSTUserDataSourceMergeSet:  // Falls through.
+    case FSTUserDataSourceUpdate:
+      return YES;
+    case FSTUserDataSourceQueryValue:
+      return NO;
+    default:
+      FSTThrowInvalidArgument(@"Unexpected case for FSTUserDataSource: %d", self.dataSource);
+  }
 }
 
 - (void)validatePath {
@@ -278,7 +301,24 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   return self;
 }
 
-- (FSTParsedSetData *)parsedSetData:(id)input options:(FIRSetOptions *)options {
+- (FSTParsedSetData *)parsedMergeData:(id)input {
+  // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
+  // Obj-C to verify the type for us.
+  if (![input isKindOfClass:[NSDictionary class]]) {
+    FSTThrowInvalidArgument(@"Data to be written must be an NSDictionary.");
+  }
+
+  FSTParseContext *context =
+      [FSTParseContext contextWithSource:FSTUserDataSourceMergeSet path:[FSTFieldPath emptyPath]];
+  FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
+
+  return
+      [[FSTParsedSetData alloc] initWithData:updateData
+                                   fieldMask:[[FSTFieldMask alloc] initWithFields:context.fieldMask]
+                             fieldTransforms:context.fieldTransforms];
+}
+
+- (FSTParsedSetData *)parsedSetData:(id)input {
   // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
   // Obj-C to verify the type for us.
   if (![input isKindOfClass:[NSDictionary class]]) {
@@ -287,26 +327,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   FSTParseContext *context =
       [FSTParseContext contextWithSource:FSTUserDataSourceSet path:[FSTFieldPath emptyPath]];
+  FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  __block FSTObjectValue *updateData = [FSTObjectValue objectValue];
-
-  [input enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    // Treat key as a complete field name (don't split on dots, etc.)
-    FSTFieldPath *path = [[FIRFieldPath alloc] initWithFields:@[ key ]].internalValue;
-
-    value = self.preConverter(value);
-
-    FSTFieldValue *_Nullable parsedValue =
-        [self parseData:value context:[context contextForFieldPath:path]];
-    if (parsedValue) {
-      updateData = [updateData objectBySettingValue:parsedValue forPath:path];
-    }
-  }];
-
-  return [[FSTParsedSetData alloc]
-         initWithData:updateData
-            fieldMask:options.merge ? [[FSTFieldMask alloc] initWithFields:context.fieldMask] : nil
-      fieldTransforms:context.fieldTransforms];
+  return [[FSTParsedSetData alloc] initWithData:updateData
+                                      fieldMask:nil
+                                fieldTransforms:context.fieldTransforms];
 }
 
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input {
@@ -377,9 +402,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 - (nullable FSTFieldValue *)parseData:(id)input context:(FSTParseContext *)context {
   input = self.preConverter(input);
   if ([input isKindOfClass:[NSArray class]]) {
-    // TODO(b/34871131): We may need a different way to detect nested arrays once we support array
-    // paths (at which point we should include the path containing the array in the error message).
-    if (!context.path) {
+    // TODO(b/34871131): Include the path containing the array in the error message.
+    if (context.isArrayElement) {
       FSTThrowInvalidArgument(@"Nested arrays are not supported");
     }
     NSArray *array = input;
@@ -393,8 +417,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       }
       [result addObject:parsedEntry];
     }];
-    // We don't support field mask paths more granular than the top-level array.
-    [context.fieldMask addObject:context.path];
+    // If context.path is nil we are already inside an array and we don't support field mask paths
+    // more granular than the top-level array.
+    if (context.path) {
+      [context.fieldMask addObject:context.path];
+    }
     return [[FSTArrayValue alloc] initWithValueNoCopy:result];
 
   } else if ([input isKindOfClass:[NSDictionary class]]) {
@@ -524,20 +551,23 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   } else if ([input isKindOfClass:[FIRFieldValue class]]) {
     if ([input isKindOfClass:[FSTDeleteFieldValue class]]) {
-      // We shouldn't encounter delete sentinels here. Provide a good error.
-      if (context.dataSource != FSTUserDataSourceUpdate) {
-        FSTThrowInvalidArgument(@"FieldValue.delete() can only be used with updateData().");
-      } else {
+      if (context.dataSource == FSTUserDataSourceMergeSet) {
+        return nil;
+      } else if (context.dataSource == FSTUserDataSourceUpdate) {
         FSTAssert(context.path.length > 0,
                   @"FieldValue.delete() at the top level should have already been handled.");
         FSTThrowInvalidArgument(
             @"FieldValue.delete() can only appear at the top level of your "
              "update data%@",
             [context fieldDescription]);
+      } else {
+        // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
+        FSTThrowInvalidArgument(
+            @"FieldValue.delete() can only be used with updateData() and setData() with "
+            @"SetOptions.merge().");
       }
     } else if ([input isKindOfClass:[FSTServerTimestampFieldValue class]]) {
-      if (context.dataSource != FSTUserDataSourceSet &&
-          context.dataSource != FSTUserDataSourceUpdate) {
+      if (![context isWrite]) {
         FSTThrowInvalidArgument(
             @"FieldValue.serverTimestamp() can only be used with setData() and updateData().");
       }

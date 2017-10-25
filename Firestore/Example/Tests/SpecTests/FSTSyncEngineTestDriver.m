@@ -263,8 +263,10 @@ NS_ASSUME_NONNULL_BEGIN
       [NSError errorWithDomain:FIRFirestoreErrorDomain code:errorCode userInfo:userInfo];
 
   [self.datastore failWatchStreamWithError:error];
-  // Unlike web, stream should re-open synchronously
-  FSTAssert(self.datastore.isWatchStreamOpen, @"Watch stream is open");
+  // Unlike web, stream should re-open synchronously (if we have any listeners)
+  if (self.queryListeners.count > 0) {
+    FSTAssert(self.datastore.isWatchStreamOpen, @"Watch stream is open");
+  }
 }
 
 - (NSDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *)currentLimboDocuments {

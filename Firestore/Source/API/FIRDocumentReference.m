@@ -110,6 +110,32 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+#pragma mark - NSObject Methods
+
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (!other || ![[other class] isEqual:[self class]]) return NO;
+
+  return [self isEqualToReference:other];
+}
+
+- (BOOL)isEqualToReference:(nullable FIRDocumentReference *)reference {
+  if (self == reference) return YES;
+  if (reference == nil) return NO;
+  if (self.firestore != reference.firestore && ![self.firestore isEqual:reference.firestore])
+    return NO;
+  if (self.key != reference.key && ![self.key isEqualToKey:reference.key]) return NO;
+  return YES;
+}
+
+- (NSUInteger)hash {
+  NSUInteger hash = [self.firestore hash];
+  hash = hash * 31u + [self.key hash];
+  return hash;
+}
+
+#pragma mark - Public Methods
+
 - (NSString *)documentID {
   return [self.key.path lastSegment];
 }
@@ -148,8 +174,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
         options:(FIRSetOptions *)options
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed =
-      [self.firestore.dataConverter parsedSetData:documentData options:options];
+  FSTParsedSetData *parsed = options.isMerge
+                                 ? [self.firestore.dataConverter parsedMergeData:documentData]
+                                 : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
       writeMutations:[parsed mutationsWithKey:self.key precondition:[FSTPrecondition none]]
           completion:completion];

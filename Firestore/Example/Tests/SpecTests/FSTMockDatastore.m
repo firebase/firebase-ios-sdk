@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(!self.open, @"Trying to start already started watch stream");
   self.open = YES;
   self.delegate = delegate;
-  [self.delegate watchStreamDidOpen];
+  [self notifyStreamOpen];
 }
 
 - (void)stop {
@@ -91,8 +91,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self.open;
 }
 
-- (void)notifyWatchStreamDidOpen {
+- (void)notifyStreamOpen {
   [self.delegate watchStreamDidOpen];
+}
+
+- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
+  [self.delegate watchStreamWasInterrupted:error];
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
@@ -111,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self.delegate watchStreamWasInterrupted:error];
+  [self notifyStreamInterrupted:error];
 }
 
 #pragma mark - Helper methods.
@@ -178,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.open = YES;
   [self.sentMutations removeAllObjects];
   self.delegate = delegate;
-  [self.delegate writeStreamDidOpen];
+  [self notifyStreamOpen];
 }
 
 - (void)stop {
@@ -202,8 +206,12 @@ NS_ASSUME_NONNULL_BEGIN
   [self.sentMutations addObject:mutations];
 }
 
-- (void)notifyStreamDidOpen {
+- (void)notifyStreamOpen {
   [self.delegate writeStreamDidOpen];
+}
+
+- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
+  [self.delegate writeStreamWasInterrupted:error];
 }
 
 #pragma mark - Helper methods.
@@ -217,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Injects a failed write response as though it had come from the backend. */
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self.delegate writeStreamWasInterrupted:error];
+  [self notifyStreamInterrupted:error];
 }
 
 /**

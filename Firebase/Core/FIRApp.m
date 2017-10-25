@@ -27,10 +27,12 @@ NSString *const kFIRServiceAuthUI = @"AuthUI";
 NSString *const kFIRServiceCrash = @"Crash";
 NSString *const kFIRServiceDatabase = @"Database";
 NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";
+NSString *const kFIRServiceFirestore = @"Firestore";
 NSString *const kFIRServiceInstanceID = @"InstanceID";
 NSString *const kFIRServiceInvites = @"Invites";
 NSString *const kFIRServiceMessaging = @"Messaging";
 NSString *const kFIRServiceMeasurement = @"Measurement";
+NSString *const kFIRServicePerformance = @"Performance";
 NSString *const kFIRServiceRemoteConfig = @"RemoteConfig";
 NSString *const kFIRServiceStorage = @"Storage";
 NSString *const kGGLServiceAnalytics = @"Analytics";
@@ -106,24 +108,6 @@ static FIRApp *sDefaultApp;
                 format:@"Options is nil. Please pass a valid options."];
   }
   [FIRApp configureDefaultAppWithOptions:options sendingNotifications:YES];
-}
-
-+ (void)configureWithoutSendingNotification {
-  FIROptions *options = [FIROptions defaultOptions];
-  if (!options) {
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRAppDiagnosticsNotification
-                      object:nil
-                    userInfo:@{
-                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                      kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
-                    }];
-    [NSException raise:kFirebaseCoreErrorDomain
-                format:
-                    @"Please check there is a valid "
-                    @"GoogleService-Info.plist in the project."];
-  }
-  [FIRApp configureDefaultAppWithOptions:options sendingNotifications:NO];
 }
 
 + (void)configureDefaultAppWithOptions:(FIROptions *)options

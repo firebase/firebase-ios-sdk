@@ -961,7 +961,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeWebContextCancelled message:message];
 }
 
-+ (NSError *)appVerificationUserInteractionFailureWithReason:(nullable NSString *)reason {
++ (NSError *)appVerificationUserInteractionFailureWithReason:(NSString *)reason {
   return [self errorWithCode:FIRAuthInternalErrorCodeAppVerificationUserInteractionFailure
                     userInfo:@{
     NSLocalizedFailureReasonErrorKey : reason

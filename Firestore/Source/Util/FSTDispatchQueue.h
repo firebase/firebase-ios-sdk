@@ -44,8 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Schedules a callback after the specified delay.
  *
- * Same as dispatch_after() except it asserts that we're not already on the queue, since this
- * generally indicates a bug (and can lead to re-ordering of operations, etc).
+ * Same as dispatch_after() except it asserts that we're not already on the queue.
  *
  * @param block The block to run.
  * @param delay The delay (in seconds) after which to run the block.
@@ -67,10 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Schedules a callback after the specified delay.
  *
  * Unlike dispatchAsync: this method does not require you to dispatch to a different queue than
- * the current one (thus it is equivalent to a raw dispatch_async()).
- *
- * This is useful, e.g. for dispatching to the user's queue directly from user API call (in which
- * case we don't know if we're already on the user's queue or not).
+ * the current one (thus it is equivalent to a raw dispatch_after()).
  *
  * @param block The block to run.
  * @param delay The delay (in seconds) after which to run the block.

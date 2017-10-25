@@ -62,18 +62,13 @@
 }
 
 - (void)testCanReadAndWriteDocumentReferences {
-  // We can't use assertSuccessfulRoundtrip since FIRDocumentReference doesn't implement isEqual.
-  FIRDocumentReference *docRef = [self.db documentWithPath:@"rooms/eros"];
-  id data = @{ @"a" : @42, @"ref" : docRef };
-  [self writeDocumentRef:docRef data:data];
+  FIRDocumentReference *docRef = [self documentRef];
+  [self assertSuccessfulRoundtrip:@{ @"a" : @42, @"ref" : docRef }];
+}
 
-  FIRDocumentSnapshot *readDoc = [self readDocumentForRef:docRef];
-  XCTAssertTrue(readDoc.exists);
-
-  XCTAssertEqualObjects(readDoc[@"a"], data[@"a"]);
-  FIRDocumentReference *readDocRef = readDoc[@"ref"];
-  XCTAssertTrue([readDocRef isKindOfClass:[FIRDocumentReference class]]);
-  XCTAssertEqualObjects(readDocRef.path, docRef.path);
+- (void)testCanReadAndWriteDocumentReferencesInArrays {
+  FIRDocumentReference *docRef = [self documentRef];
+  [self assertSuccessfulRoundtrip:@{ @"a" : @42, @"refs" : @[ docRef ] }];
 }
 
 @end

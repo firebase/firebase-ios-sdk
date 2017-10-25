@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
   return firestore;
 }
 
-- (void)waitForIdle:(FIRFirestore *)firestore {
+- (void)waitForIdleFirestore:(FIRFirestore *)firestore {
   XCTestExpectation *expectation = [self expectationWithDescription:@"idle"];
   // Note that we wait on any task that is scheduled with a delay. Currently, the idle timeout is
   // the only task that uses delays.
@@ -235,7 +235,8 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)ref requireOnline:(BOOL)online {
+- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)ref
+                              requireOnline:(BOOL)requireOnline {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"listener"];
@@ -243,7 +244,7 @@ NS_ASSUME_NONNULL_BEGIN
       addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
                             listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
                               XCTAssertNil(error);
-                              if (!online || !snapshot.metadata.fromCache) {
+                              if (!requireOnline || !snapshot.metadata.fromCache) {
                                 result = snapshot;
                                 [expectation fulfill];
                               }

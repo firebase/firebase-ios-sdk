@@ -213,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTWatchStreamDelegate
+#pragma mark - FSTWatchStream
 
 /** A protocol defining the events that can be emitted by the FSTWatchStream. */
 @protocol FSTWatchStreamDelegate <NSObject>
@@ -239,8 +239,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)watchStreamWasInterrupted:(NSError *_Nullable)error;
 
 @end
-
-#pragma mark - FSTWatchStream
 
 /**
  * An FSTStream that implements the StreamingWatch RPC.
@@ -278,7 +276,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTWriteStreamDelegate
+#pragma mark - FSTWriteStream
 
 @protocol FSTWriteStreamDelegate <NSObject>
 
@@ -309,8 +307,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)writeStreamWasInterrupted:(NSError *_Nullable)error;
 
 @end
-
-#pragma mark - FSTWriteStream
 
 /**
  * An FSTStream that implements the StreamingWrite RPC.

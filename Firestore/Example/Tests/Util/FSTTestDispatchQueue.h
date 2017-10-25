@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Dispatch queue used in the idle timeout tests that caps delayed executions at 1.0 seconds.
+ * Dispatch queue used in the integration tests that caps delayed executions at 1.0 seconds.
  */
 @interface FSTTestDispatchQueue : FSTDispatchQueue
 

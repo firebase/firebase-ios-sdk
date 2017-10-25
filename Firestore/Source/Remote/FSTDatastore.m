@@ -446,8 +446,8 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 - (instancetype)initWithStream:(FSTStream *)stream NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(atomic, readwrite) BOOL passthrough;
-@property(nonatomic, weak, readonly) FSTStream *stream;
+@property(atomic, readwrite, getter=isPassthrough) BOOL passthrough;
+@property(nonatomic, strong, readonly) FSTStream *stream;
 
 @end
 
@@ -462,13 +462,13 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 }
 
 - (void)writeValue:(id)value {
-  if (self.passthrough) {
+  if (self.isPassthrough) {
     [self.stream writeValue:value];
   }
 }
 
 - (void)writesFinishedWithError:(NSError *)errorOrNil {
-  if (self.passthrough) {
+  if (self.isPassthrough) {
     [self.stream writesFinishedWithError:errorOrNil];
   }
 }
@@ -623,11 +623,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  *   <li>adjusts the backoff timer based on status
  * </ul>
  *
- * A new stream can be opened by calling {@link #start) unless 'finalState' is set to
- * 'State.Stop'.
+ * A new stream can be opened by calling `start` unless `finalState` is set to
+ * `FSTStreamStateStopped`.
  *
  * @param finalState the intended state of the stream after closing.
- * @param grpcCode the NSError the connection was closed with.
+ * @param error the NSError the connection was closed with.
  */
 - (void)close:(FSTStreamState)finalState error:(NSError *_Nullable)error {
   FSTAssert(finalState == FSTStreamStateError || error == nil,
@@ -645,7 +645,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     [self.backoff resetToMax];
   }
 
-  // This state must be assigned before calling receiveListener.onClose to allow the callback to
+  // This state must be assigned before calling `notifyStreamInterrupted` to allow the callback to
   // inhibit backoff or otherwise manipulate the state in its non-started state.
   self.state = finalState;
 
@@ -668,10 +668,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   }
 
   // Clear the delegates to avoid any possible bleed through of events from GRPC.
+  FSTAssert(_delegate, @"Delegate should not be nil");
   [self.grxFilter setPassthrough:NO];
   _grxFilter = nil;
-
-  FSTAssert(_delegate, @"Delegate should not be nil");
   _delegate = nil;
 
   // Clean up remaining state.
@@ -768,8 +767,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 #pragma mark Template methods for subclasses
 
 /**
- * Called by the stream after the stream has been successfully connected, authenticated, and is now
- * ready to accept messages.
+ * Called by the stream after the stream has opened.
  *
  * Subclasses should relay to their stream-specific delegate. Calling [super notifyStreamOpen] is
  * not required.
@@ -807,7 +805,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   // to happen because if we stop a stream ourselves, this callback will never be called. To
   // prevent cases where we retry without a backoff accidentally, we set the stream to error
   // in all cases.
-
   [self close:FSTStreamStateError error:error];
 }
 
@@ -901,8 +898,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.delegate watchStreamDidOpen];
 }
 
-- (void)handleStreamInterrupted:(NSError *_Nullable)error {
-  [super handleStreamClose:error];
+- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
   [self.delegate watchStreamWasInterrupted:error];
 }
 
@@ -959,11 +955,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 @implementation FSTWriteStream
 
-- (void)start:(id)delegate {
-  self.handshakeComplete = NO;
-  [super start:delegate];
-}
-
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
@@ -982,6 +973,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   return [[GRPCCall alloc] initWithHost:self.databaseInfo.host
                                    path:@"/google.firestore.v1beta1.Firestore/Write"
                          requestsWriter:requestsWriter];
+}
+
+- (void)start:(id<FSTWatchStreamDelegate>)delegate {
+  self.handshakeComplete = NO;
+  [super start:delegate];
 }
 
 - (void)notifyStreamOpen {

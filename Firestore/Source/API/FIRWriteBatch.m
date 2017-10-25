@@ -67,7 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
                    options:(FIRSetOptions *)options {
   [self verifyNotCommitted];
   [self validateReference:document];
-  FSTParsedSetData *parsed = [self.firestore.dataConverter parsedSetData:data options:options];
+  FSTParsedSetData *parsed = options.isMerge ? [self.firestore.dataConverter parsedMergeData:data]
+                                             : [self.firestore.dataConverter parsedSetData:data];
   [self.mutations addObjectsFromArray:[parsed mutationsWithKey:document.key
                                                   precondition:[FSTPrecondition none]]];
   return self;

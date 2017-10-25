@@ -4372,6 +4372,76 @@
       }
     ]
   },
+  "Writes that fail with code resource_exhausted are not rejected": {
+    "describeName": "Writes:",
+    "itName": "Writes that fail with code resource_exhausted are not rejected",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection/key",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection/key",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "userSet": [
+          "collection/key",
+          {
+            "foo": "bar"
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection/key",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/key",
+                0,
+                {
+                  "foo": "bar"
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ]
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 8
+          },
+          "expectUserCallback": false
+        }
+      }
+    ]
+  },
   "Writes that fail with code cancelled are retried": {
     "describeName": "Writes:",
     "itName": "Writes that fail with code cancelled are retried",
@@ -4690,133 +4760,6 @@
         "failWrite": {
           "error": {
             "code": 4
-          },
-          "expectUserCallback": false
-        }
-      },
-      {
-        "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
-        }
-      },
-      {
-        "watchAck": [
-          2
-        ]
-      },
-      {
-        "watchEntity": {
-          "docs": [
-            [
-              "collection/key",
-              0,
-              {
-                "foo": "bar"
-              }
-            ]
-          ],
-          "targets": [
-            2
-          ]
-        }
-      },
-      {
-        "watchCurrent": [
-          [
-            2
-          ],
-          "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
-        "expect": [
-          {
-            "query": {
-              "path": "collection/key",
-              "filters": [],
-              "orderBys": []
-            },
-            "metadata": [
-              [
-                "collection/key",
-                0,
-                {
-                  "foo": "bar"
-                }
-              ]
-            ],
-            "errorCode": 0,
-            "fromCache": false,
-            "hasPendingWrites": false
-          }
-        ]
-      }
-    ]
-  },
-  "Writes that fail with code resource-exhausted are retried": {
-    "describeName": "Writes:",
-    "itName": "Writes that fail with code resource-exhausted are retried",
-    "tags": [],
-    "config": {
-      "useGarbageCollection": true
-    },
-    "steps": [
-      {
-        "userListen": [
-          2,
-          {
-            "path": "collection/key",
-            "filters": [],
-            "orderBys": []
-          }
-        ],
-        "stateExpect": {
-          "activeTargets": {
-            "2": {
-              "query": {
-                "path": "collection/key",
-                "filters": [],
-                "orderBys": []
-              },
-              "resumeToken": ""
-            }
-          }
-        }
-      },
-      {
-        "userSet": [
-          "collection/key",
-          {
-            "foo": "bar"
-          }
-        ],
-        "expect": [
-          {
-            "query": {
-              "path": "collection/key",
-              "filters": [],
-              "orderBys": []
-            },
-            "added": [
-              [
-                "collection/key",
-                0,
-                {
-                  "foo": "bar"
-                },
-                "local"
-              ]
-            ],
-            "errorCode": 0,
-            "fromCache": true,
-            "hasPendingWrites": true
-          }
-        ]
-      },
-      {
-        "failWrite": {
-          "error": {
-            "code": 8
           },
           "expectUserCallback": false
         }
