@@ -223,10 +223,10 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .signInWithCredential:
         getCredential() { credential in
-          Auth.auth().signInAndRetrieveData(with: credential) { authResult, error in
+          Auth.auth().signInAndRetrieveData(with: credential) { authData, error in
             self.ifNoError(error) {
               self.showAlert(title: "Signed In With Credential",
-                           message: authResult?.user.textDescription)
+                           message: authData?.user.textDescription)
             }
           }
         }
@@ -277,9 +277,9 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .reauthenticate:
         getCredential() { credential in
-          self.user!.reauthenticateAndRetrieveData(with: credential) { authResult, error in
+          self.user!.reauthenticateAndRetrieveData(with: credential) { authData, error in
             self.ifNoError(error) {
-              if (authResult?.user.uid != self.user?.uid) {
+              if (authData?.user.uid != self.user?.uid) {
                 let message = "The reauthenticated user must be the same as the original user"
                 self.showAlert(title: "Reauthention error",
                              message: message)
@@ -297,10 +297,10 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .linkWithCredential:
         getCredential() { credential in
-          self.user!.linkAndRetrieveData(with: credential) { authResult, error in
+          self.user!.linkAndRetrieveData(with: credential) { authData, error in
             self.ifNoError(error) {
               self.showAlert(title: "Linked With Credential",
-                           message: authResult?.user.textDescription)
+                           message: authData?.user.textDescription)
             }
           }
         }
