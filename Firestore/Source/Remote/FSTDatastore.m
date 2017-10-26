@@ -127,6 +127,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 @interface FSTStream ()
 
 @property(nonatomic, getter=isIdle) BOOL idle;
+@property(nonatomic, weak, readwrite, nullable) id delegate;
 
 @end
 
@@ -438,37 +439,41 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @end
 
-#pragma mark - GRXFilter
+#pragma mark - FSTCallbackFilter
 
 /** Filter class that allows disabling of GRPC callbacks. */
-@interface GRXFilter : NSObject <GRXWriteable>
+@interface FSTCallbackFilter : NSObject <GRXWriteable>
 
 - (instancetype)initWithStream:(FSTStream *)stream NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(atomic, readwrite, getter=isPassthrough) BOOL passthrough;
+@property(atomic, readwrite) BOOL callbacksEnabled;
 @property(nonatomic, strong, readonly) FSTStream *stream;
 
 @end
 
-@implementation GRXFilter
+@implementation FSTCallbackFilter
 
 - (instancetype)initWithStream:(FSTStream *)stream {
   if (self = [super init]) {
-    _passthrough = YES;
+    _callbacksEnabled = YES;
     _stream = stream;
   }
   return self;
 }
 
+- (void)suppressCallbacks {
+  _callbacksEnabled = NO;
+}
+
 - (void)writeValue:(id)value {
-  if (self.isPassthrough) {
+  if (_callbacksEnabled) {
     [self.stream writeValue:value];
   }
 }
 
 - (void)writesFinishedWithError:(NSError *)errorOrNil {
-  if (self.isPassthrough) {
+  if (_callbacksEnabled) {
     [self.stream writesFinishedWithError:errorOrNil];
   }
 }
@@ -479,7 +484,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @interface FSTStream ()
 
-@property(nonatomic, strong, readwrite) GRXFilter *grxFilter;
+@property(nonatomic, strong, readwrite) FSTCallbackFilter *callbackFilter;
 
 @end
 
@@ -523,11 +528,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (void)start:(id)delegate {
+- (void)startWithDelegate:(id)delegate {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   if (self.state == FSTStreamStateError) {
-    [self performBackoff:delegate];
+    [self performBackoffWithDelegate:delegate];
     return;
   }
 
@@ -572,16 +577,16 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:self.databaseInfo.databaseID
                                token:token.token];
-  FSTAssert(_grxFilter == nil, @"GRX Filter must be nil");
-  _grxFilter = [[GRXFilter alloc] initWithStream:self];
-  [_rpc startWithWriteable:_grxFilter];
+  FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
+  _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
+  [_rpc startWithWriteable:_callbackFilter];
 
   self.state = FSTStreamStateOpen;
   [self notifyStreamOpen];
 }
 
 /** Backs off after an error. */
-- (void)performBackoff:(id)delegate {
+- (void)performBackoffWithDelegate:(id)delegate {
   FSTLog(@"%@ %p backoff", NSStringFromClass([self class]), (__bridge void *)self);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
@@ -591,12 +596,12 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTWeakify(self);
   [self.backoff backoffAndRunBlock:^{
     FSTStrongify(self);
-    [self resumeStartFromBackoff:delegate];
+    [self resumeStartFromBackoffWithDelegate:delegate];
   }];
 }
 
 /** Resumes stream start after backing off. */
-- (void)resumeStartFromBackoff:(id)delegate {
+- (void)resumeStartFromBackoffWithDelegate:(id)delegate {
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for backoff to complete.
     return;
@@ -609,7 +614,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   // Momentarily set state to FSTStreamStateInitial as `start` expects it.
   self.state = FSTStreamStateInitial;
-  [self start:delegate];
+  [self startWithDelegate:delegate];
   FSTAssert([self isStarted], @"Stream should have started.");
 }
 
@@ -629,7 +634,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * @param finalState the intended state of the stream after closing.
  * @param error the NSError the connection was closed with.
  */
-- (void)close:(FSTStreamState)finalState error:(NSError *_Nullable)error {
+- (void)closeWithFinalState:(FSTStreamState)finalState error:(nullable NSError *)error {
   FSTAssert(finalState == FSTStreamStateError || error == nil,
             @"Can't provide an error when not in an error state.");
 
@@ -661,27 +666,30 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     _requestsWriter = nil;
   }
 
-  // If the caller explicitly requested a stream stop, don't notify them of a closing stream (it
-  // could trigger undesirable recovery logic, etc.).
-  if (finalState != FSTStreamStateStopped) {
-    [self notifyStreamInterrupted:error];
-  }
-
-  // Clear the delegates to avoid any possible bleed through of events from GRPC.
-  FSTAssert(_delegate, @"Delegate should not be nil");
-  [self.grxFilter setPassthrough:NO];
-  _grxFilter = nil;
-  _delegate = nil;
+  [self.callbackFilter suppressCallbacks];
+  _callbackFilter = nil;
 
   // Clean up remaining state.
   _messageReceived = NO;
   _rpc = nil;
+
+  // If the caller explicitly requested a stream stop, don't notify them of a closing stream (it
+  // could trigger undesirable recovery logic, etc.).
+  if (finalState != FSTStreamStateStopped) {
+    [self notifyStreamInterruptedWithError:error];
+  }
+
+  // Clear the delegates to avoid any possible bleed through of events from GRPC.
+  FSTAssert(_delegate,
+            @"closeWithFinalState should only be called for a started stream that has an active "
+            @"delegate.");
+  _delegate = nil;
 }
 
 - (void)stop {
   FSTLog(@"%@ %p stop", NSStringFromClass([self class]), (__bridge void *)self);
   if ([self isStarted]) {
-    [self close:FSTStreamStateStopped error:nil];
+    [self closeWithFinalState:FSTStreamStateStopped error:nil];
   }
 }
 
@@ -701,7 +709,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   if (self.state == FSTStreamStateOpen && [self isIdle]) {
     // When timing out an idle stream there's no reason to force the stream into backoff when
     // it restarts so set the stream state to Initial instead of Error.
-    [self close:FSTStreamStateInitial error:nil];
+    [self closeWithFinalState:FSTStreamStateInitial error:nil];
   }
 }
 
@@ -709,10 +717,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.workerDispatchQueue verifyIsCurrentQueue];
   if (self.state == FSTStreamStateOpen) {
     self.idle = YES;
-    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^() {
-      [self handleIdleCloseTimer];
-    }
-                                                       after:kIdleTimeout];
+    [self.workerDispatchQueue dispatchAfterDelay:kIdleTimeout
+                                           block:^() {
+                                             [self handleIdleCloseTimer];
+                                           }];
   }
 }
 
@@ -782,7 +790,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * Subclasses should relay to their stream-specific delegate. Calling [super
  * notifyStreamInterrupted] is not required.
  */
-- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
 }
 
 /**
@@ -797,7 +805,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /**
  * Called by the stream when the underlying RPC has been closed for whatever reason.
  */
-- (void)handleStreamClose:(NSError *_Nullable)error {
+- (void)handleStreamClose:(nullable NSError *)error {
   FSTLog(@"%@ %p close: %@", NSStringFromClass([self class]), (__bridge void *)self, error);
   FSTAssert([self isStarted], @"Can't handle server close in non-started state.");
 
@@ -805,7 +813,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   // to happen because if we stop a stream ourselves, this callback will never be called. To
   // prevent cases where we retry without a backoff accidentally, we set the stream to error
   // in all cases.
-  [self close:FSTStreamStateError error:error];
+  [self closeWithFinalState:FSTStreamStateError error:error];
 }
 
 #pragma mark GRXWriteable implementation
@@ -850,7 +858,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * Do not call directly, since it dispatches via the worker queue. Call handleStreamClose to
  * directly inform stream-specific logic, or call stop to tear down the stream.
  */
-- (void)writesFinishedWithError:(NSError *_Nullable)error __used {
+- (void)writesFinishedWithError:(nullable NSError *)error __used {
   error = [FSTDatastore firestoreErrorForError:error];
   FSTWeakify(self);
   [self.workerDispatchQueue dispatchAsync:^{
@@ -898,8 +906,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.delegate watchStreamDidOpen];
 }
 
-- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
-  [self.delegate watchStreamWasInterrupted:error];
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+  [self.delegate watchStreamWasInterruptedWithError:error];
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
@@ -975,17 +983,17 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                          requestsWriter:requestsWriter];
 }
 
-- (void)start:(id<FSTWatchStreamDelegate>)delegate {
+- (void)startWithDelegate:(id)delegate {
   self.handshakeComplete = NO;
-  [super start:delegate];
+  [super startWithDelegate:delegate];
 }
 
 - (void)notifyStreamOpen {
   [self.delegate writeStreamDidOpen];
 }
 
-- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
-  [self.delegate writeStreamWasInterrupted:error];
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+  [self.delegate writeStreamWasInterruptedWithError:error];
 }
 
 - (void)writeHandshake {

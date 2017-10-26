@@ -76,7 +76,7 @@
            _currentBase);
   }
 
-  [self.dispatchQueue dispatchAsyncAllowingSameQueue:block after:delayWithJitter];
+  [self.dispatchQueue dispatchAfterDelay:delayWithJitter block:block];
 
   // Apply backoff factor to determine next delay and ensure it is within bounds.
   _currentBase *= _backoffFactor;

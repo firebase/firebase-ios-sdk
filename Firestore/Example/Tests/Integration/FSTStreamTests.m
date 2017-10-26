@@ -79,13 +79,13 @@
   _expectation = nil;
 }
 
-- (void)writeStreamWasInterrupted:(NSError *_Nullable)error {
+- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
   [_states addObject:@"writeStreamWasInterrupted"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)watchStreamWasInterrupted:(NSError *_Nullable)error {
+- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
   [_states addObject:@"watchStreamWasInterrupted"];
   [_expectation fulfill];
   _expectation = nil;
@@ -189,7 +189,7 @@
   FSTWatchStream *watchStream = [self setUpWatchStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [watchStream start:_delegate];
+    [watchStream startWithDelegate:_delegate];
   }];
 
   // Stop must not call watchStreamDidClose because the full implementation of the delegate could
@@ -209,7 +209,7 @@
   FSTWriteStream *writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [writeStream start:_delegate];
+    [writeStream startWithDelegate:_delegate];
   }];
 
   // Don't start the handshake.
@@ -230,7 +230,7 @@
   FSTWriteStream *writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [writeStream start:_delegate];
+    [writeStream startWithDelegate:_delegate];
   }];
 
   // Writing before the handshake should throw
@@ -261,7 +261,7 @@
   FSTWriteStream *writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [writeStream start:_delegate];
+    [writeStream startWithDelegate:_delegate];
   }];
 
   [_delegate awaitNotificationFromBlock:^{
@@ -285,7 +285,7 @@
   FSTWriteStream *writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [writeStream start:_delegate];
+    [writeStream startWithDelegate:_delegate];
   }];
 
   [_delegate awaitNotificationFromBlock:^{

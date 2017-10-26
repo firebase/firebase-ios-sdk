@@ -265,7 +265,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 - (void)startWatchStream {
   FSTAssert([self shouldStartWatchStream],
             @"startWatchStream: called when shouldStartWatchStream: is false.");
-  [self.watchStream start:self];
+  [self.watchStream startWithDelegate:self];
 }
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
@@ -367,7 +367,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   }
 }
 
-- (void)watchStreamWasInterrupted:(NSError *_Nullable)error {
+- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
   FSTAssert([self isNetworkEnabled],
             @"watchStreamDidClose should only be called when the network is enabled");
 
@@ -517,7 +517,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   FSTAssert([self shouldStartWriteStream],
             @"startWriteStream: called when shouldStartWriteStream: is false.");
 
-  [self.writeStream start:self];
+  [self.writeStream startWithDelegate:self];
 }
 
 - (void)cleanUpWriteStreamState {
@@ -622,7 +622,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
  * Handles the closing of the StreamingWrite RPC, either because of an error or because the RPC
  * has been terminated by the client or the server.
  */
-- (void)writeStreamWasInterrupted:(NSError *_Nullable)error {
+- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
   FSTAssert([self isNetworkEnabled],
             @"writeStreamDidClose: should only be called when the network is enabled");
 

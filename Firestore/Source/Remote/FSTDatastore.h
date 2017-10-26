@@ -141,8 +141,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTStream <__covariant FSTStreamDelegate> : NSObject
 
-@property (nonatomic, weak, readwrite, nullable) FSTStreamDelegate delegate;
-
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
@@ -177,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * When start returns, -isStarted will return YES.
  */
-- (void)start:(FSTStreamDelegate)delegate;
+- (void)startWithDelegate:(id)delegate;
 
 /**
  * Stops the RPC. This call is idempotent and allowed regardless of the current isStarted state.
@@ -236,7 +234,7 @@ NS_ASSUME_NONNULL_BEGIN
  * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
  * on FSTStream for details.
  */
-- (void)watchStreamWasInterrupted:(NSError *_Nullable)error;
+- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error;
 
 @end
 
@@ -304,7 +302,7 @@ NS_ASSUME_NONNULL_BEGIN
  * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
  * on FSTStream for details.
  */
-- (void)writeStreamWasInterrupted:(NSError *_Nullable)error;
+- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error;
 
 @end
 

@@ -42,16 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dispatchAsync:(void (^)(void))block;
 
 /**
- * Schedules a callback after the specified delay.
- *
- * Same as dispatch_after() except it asserts that we're not already on the queue.
- *
- * @param block The block to run.
- * @param delay The delay (in seconds) after which to run the block.
- */
-- (void)dispatchAsync:(void (^)(void))block after:(NSTimeInterval)delay;
-
-/**
  * Unlike dispatchAsync: this method does not require you to dispatch to a different queue than
  * the current one (thus it is equivalent to a raw dispatch_async()).
  *
@@ -71,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param block The block to run.
  * @param delay The delay (in seconds) after which to run the block.
  */
-- (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block after:(NSTimeInterval)delay;
+- (void)dispatchAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block;
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;

@@ -47,9 +47,9 @@ NS_ASSUME_NONNULL_BEGIN
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @property(nonatomic, assign) BOOL open;
-
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *activeTargets;
+@property(nonatomic, weak, readwrite, nullable) id<FSTWatchStreamDelegate> delegate;
 
 @end
 
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Overridden FSTWatchStream methods.
 
-- (void)start:(id<FSTWatchStreamDelegate>)delegate {
+- (void)startWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
   FSTAssert(!self.open, @"Trying to start already started watch stream");
   self.open = YES;
   self.delegate = delegate;
@@ -95,8 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self.delegate watchStreamDidOpen];
 }
 
-- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
-  [self.delegate watchStreamWasInterrupted:error];
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+  [self.delegate watchStreamWasInterruptedWithError:error];
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self notifyStreamInterrupted:error];
+  [self notifyStreamInterruptedWithError:error];
 }
 
 #pragma mark - Helper methods.
@@ -156,6 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign) BOOL open;
 @property(nonatomic, strong, readonly) NSMutableArray<NSArray<FSTMutation *> *> *sentMutations;
+@property(nonatomic, weak, readwrite, nullable) id<FSTWriteStreamDelegate> delegate;
 
 @end
 
@@ -177,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Overridden FSTWriteStream methods.
 
-- (void)start:(id<FSTWriteStreamDelegate>)delegate {
+- (void)startWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
   FSTAssert(!self.open, @"Trying to start already started write stream");
   self.open = YES;
   [self.sentMutations removeAllObjects];
@@ -210,8 +211,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self.delegate writeStreamDidOpen];
 }
 
-- (void)notifyStreamInterrupted:(NSError *_Nullable)error {
-  [self.delegate writeStreamWasInterrupted:error];
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+  [self.delegate writeStreamWasInterruptedWithError:error];
 }
 
 #pragma mark - Helper methods.
@@ -225,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Injects a failed write response as though it had come from the backend. */
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self notifyStreamInterrupted:error];
+  [self notifyStreamInterruptedWithError:error];
 }
 
 /**

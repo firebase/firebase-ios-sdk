@@ -39,26 +39,15 @@ static const NSTimeInterval kTestDispatchDelay = 1.0;
   return (self = [super initWithQueue:dispatchQueue]);
 }
 
-- (void)dispatchAsync:(void (^)(void))block after:(NSTimeInterval)delay {
-  [super dispatchAsyncAllowingSameQueue:^() {
-    block();
-    if (delay == kIdleDispatchDelay) {
-      [_expectation fulfill];
-      _expectation = nil;
-    }
-  }
-                                  after:MIN(delay, kTestDispatchDelay)];
-}
-
-- (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block after:(NSTimeInterval)delay {
-  [super dispatchAsyncAllowingSameQueue:^() {
-    block();
-    if (delay == kIdleDispatchDelay) {
-      [_expectation fulfill];
-      _expectation = nil;
-    }
-  }
-                                  after:MIN(delay, kTestDispatchDelay)];
+- (void)dispatchAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block {
+  [super dispatchAfterDelay:MIN(delay, kTestDispatchDelay)
+                      block:^() {
+                        block();
+                        if (delay == kIdleDispatchDelay) {
+                          [_expectation fulfill];
+                          _expectation = nil;
+                        }
+                      }];
 }
 
 - (void)fulfillOnExecution:(XCTestExpectation*)expectation {
