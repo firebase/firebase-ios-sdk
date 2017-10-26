@@ -149,8 +149,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)waitForIdleFirestore:(FIRFirestore *)firestore {
   XCTestExpectation *expectation = [self expectationWithDescription:@"idle"];
-  // Note that we wait on any task that is scheduled with a delay. Currently, the idle timeout is
-  // the only task that uses delays.
+  // Note that we wait on any task that is scheduled with a delay of 60s. Currently, the idle
+  // timeout is the only task that uses this delay.
   [((FSTTestDispatchQueue *)firestore.workerDispatchQueue) fulfillOnExecution:expectation];
   [self awaitExpectations];
 }
