@@ -8,6 +8,7 @@ target 'Firestore_Example' do
   target 'Firestore_Tests' do
     inherit! :search_paths
     pod 'OCMock'
+    pod 'GoogleTest', :podspec => 'Tests/GoogleTest/GoogleTest.podspec'
     pod 'leveldb-library'
   end
 
