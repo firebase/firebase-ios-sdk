@@ -28,7 +28,10 @@
 
 @implementation FSTTestDispatchQueue
 
+/** The delay used by the idle timeout */
 static const NSTimeInterval kIdleDispatchDelay = 60.0;
+
+/** The maximum delay we use in a test run. */
 static const NSTimeInterval kTestDispatchDelay = 1.0;
 
 + (instancetype)queueWith:(dispatch_queue_t)dispatchQueue {
