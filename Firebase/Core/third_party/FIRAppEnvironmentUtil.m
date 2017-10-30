@@ -130,6 +130,14 @@ static BOOL isAppEncrypted() {
   if ([FIRAppEnvironmentUtil isSimulator]) {
     return NO;
   }
+
+  // If an app contain the sandboxReceipt file, it means its coming from TestFlight
+  // This must be checked before the SCInfo Folder check below since TestFlight apps may
+  // also have an SCInfo folder.
+  if ([FIRAppEnvironmentUtil isAppStoreReceiptSandbox]) {
+    return NO;
+  }
+
   if ([FIRAppEnvironmentUtil hasSCInfoFolder]) {
     // When iTunes downloads a .ipa, it also gets a customized .sinf file which is added to the
     // main SC_Info directory.
@@ -138,11 +146,9 @@ static BOOL isAppEncrypted() {
 
   // For iOS >= 8.0, iTunesMetadata.plist is moved outside of the sandbox. Any attempt to read
   // the iTunesMetadata.plist outside of the sandbox will be rejected by Apple.
-  // If the app does not contain the sandboxReceipt file which means it is a TestFlight beta, and
-  // it does not contain the embedded.mobileprovision which is stripped out by Apple when the
-  // app is submitted to store, then it is highly likely that it is from Apple Store.
-  return isEncrypted && ![FIRAppEnvironmentUtil isAppStoreReceiptSandbox] &&
-      ![FIRAppEnvironmentUtil hasEmbeddedMobileProvision];
+  // If the app does not contain the embedded.mobileprovision which is stripped out by Apple when
+  // the app is submitted to store, then it is highly likely that it is from Apple Store.
+  return isEncrypted && ![FIRAppEnvironmentUtil hasEmbeddedMobileProvision];
 }
 
 + (BOOL)isAppStoreReceiptSandbox {

@@ -110,10 +110,13 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 - (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID
                       preConverter:(FSTPreConverterBlock)preConverter NS_DESIGNATED_INITIALIZER;
 
-/** Parse document data (e.g. from a setData call). */
-- (FSTParsedSetData *)parsedSetData:(id)input options:(FIRSetOptions *)options;
+/** Parse document data from a non-merge setData call.*/
+- (FSTParsedSetData *)parsedSetData:(id)input;
 
-/** Parse "update" data (i.e. from an updateData call). */
+/** Parse document data from a setData call with '[FIRSetOptions merge]'. */
+- (FSTParsedSetData *)parsedMergeData:(id)input;
+
+/** Parse update data from an updateData call. */
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input;
 
 /** Parse a "query value" (e.g. value in a where filter or a value in a cursor bound). */

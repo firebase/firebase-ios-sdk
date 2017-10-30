@@ -489,19 +489,7 @@
             "code": 14,
             "message": "Simulated Backend Error"
           }
-        },
-        "expect": [
-          {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
-            "errorCode": 0,
-            "fromCache": true,
-            "hasPendingWrites": false
-          }
-        ]
+        }
       },
       {
         "watchAck": [

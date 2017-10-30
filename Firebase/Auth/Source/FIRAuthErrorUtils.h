@@ -472,7 +472,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param reason Reason for error, returned via URL response.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)appVerificationUserInteractionFailureWithReason:(nullable NSString *)reason;
++ (NSError *)appVerificationUserInteractionFailureWithReason:(NSString *)reason;
 
 /** @fn URLResponseErrorWithCode:message:
     @brief Constructs an @c NSError with the code and message provided.

@@ -24,6 +24,7 @@
 @class FSTMutation;
 @class FSTMutationResult;
 @class FSTQueryData;
+@class FSTSerializerBeta;
 @class FSTSnapshotVersion;
 @class FSTWatchChange;
 @class FSTWatchStream;
@@ -246,7 +247,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-            responseMessageClass:(Class)responseMessageClass
+                      serializer:(FSTSerializerBeta *)serializer
                         delegate:(id<FSTWatchStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
@@ -323,7 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-            responseMessageClass:(Class)responseMessageClass
+                      serializer:(FSTSerializerBeta *)serializer
                         delegate:(id<FSTWriteStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database

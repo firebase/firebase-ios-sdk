@@ -223,9 +223,10 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .signInWithCredential:
         getCredential() { credential in
-          Auth.auth().signIn(with: credential) { user, error in
+          Auth.auth().signInAndRetrieveData(with: credential) { authData, error in
             self.ifNoError(error) {
-              self.showAlert(title: "Signed In With Credential", message: user?.textDescription)
+              self.showAlert(title: "Signed In With Credential",
+                           message: authData?.user.textDescription)
             }
           }
         }
@@ -276,8 +277,14 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .reauthenticate:
         getCredential() { credential in
-          self.user!.reauthenticate(with: credential) { error in
+          self.user!.reauthenticateAndRetrieveData(with: credential) { authData, error in
             self.ifNoError(error) {
+              if (authData?.user.uid != self.user?.uid) {
+                let message = "The reauthenticated user must be the same as the original user"
+                self.showAlert(title: "Reauthention error",
+                             message: message)
+                return
+              }
               self.showAlert(title: "Reauthenticated", message: self.user?.textDescription)
             }
           }
@@ -290,9 +297,10 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .linkWithCredential:
         getCredential() { credential in
-          self.user!.link(with: credential) { user, error in
+          self.user!.linkAndRetrieveData(with: credential) { authData, error in
             self.ifNoError(error) {
-              self.showAlert(title: "Linked With Credential", message: user?.textDescription)
+              self.showAlert(title: "Linked With Credential",
+                           message: authData?.user.textDescription)
             }
           }
         }
