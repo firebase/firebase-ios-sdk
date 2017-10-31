@@ -56,6 +56,11 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_async(self.queue, block);
 }
 
+- (void)dispatchAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block {
+  dispatch_time_t delayNs = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
+  dispatch_after(delayNs, self.queue, block);
+}
+
 #pragma mark - Private Methods
 
 - (NSString *)currentQueueLabel {

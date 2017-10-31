@@ -22,10 +22,10 @@
 #import "Core/FSTDatabaseInfo.h"
 #import "FSTHelpers.h"
 #import "FSTIntegrationTestCase.h"
+#import "FSTTestDispatchQueue.h"
 #import "Model/FSTDatabaseID.h"
 #import "Remote/FSTDatastore.h"
 #import "Util/FSTAssert.h"
-#import "Util/FSTDispatchQueue.h"
 
 /** Exposes otherwise private methods for testing. */
 @interface FSTStream (Testing)
@@ -79,14 +79,14 @@
   _expectation = nil;
 }
 
-- (void)writeStreamDidClose:(NSError *_Nullable)error {
-  [_states addObject:@"writeStreamDidClose"];
+- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
+  [_states addObject:@"writeStreamWasInterrupted"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)watchStreamDidClose:(NSError *_Nullable)error {
-  [_states addObject:@"watchStreamDidClose"];
+- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
+  [_states addObject:@"watchStreamWasInterrupted"];
   [_expectation fulfill];
   _expectation = nil;
 }
@@ -126,10 +126,10 @@
 
 @implementation FSTStreamTests {
   dispatch_queue_t _testQueue;
+  FSTTestDispatchQueue *_workerDispatchQueue;
   FSTDatabaseInfo *_databaseInfo;
   FSTEmptyCredentialsProvider *_credentials;
   FSTStreamStatusDelegate *_delegate;
-  FSTDispatchQueue *_workerDispatchQueue;
 
   /** Single mutation to send to the write stream. */
   NSArray<FSTMutation *> *_mutations;
@@ -138,38 +138,37 @@
 - (void)setUp {
   [super setUp];
 
-  _mutations = @[ FSTTestSetMutation(@"foo/bar", @{}) ];
-
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
   FSTDatabaseID *databaseID =
       [FSTDatabaseID databaseIDWithProject:[FSTIntegrationTestCase projectID]
                                   database:kDefaultDatabaseID];
 
+  _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
+  _workerDispatchQueue = [[FSTTestDispatchQueue alloc] initWithQueue:_testQueue];
+
   _databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:databaseID
                                                persistenceKey:@"test-key"
                                                          host:settings.host
                                                    sslEnabled:settings.sslEnabled];
-  _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
-  _workerDispatchQueue = [FSTDispatchQueue queueWith:_testQueue];
   _credentials = [[FSTEmptyCredentialsProvider alloc] init];
+
+  _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
+
+  _mutations = @[ FSTTestSetMutation(@"foo/bar", @{}) ];
 }
 
 - (FSTWriteStream *)setUpWriteStream {
   FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
-
-  _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
-  return [datastore createWriteStreamWithDelegate:_delegate];
+  return [datastore createWriteStream];
 }
 
 - (FSTWatchStream *)setUpWatchStream {
   FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
-
-  _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
-  return [datastore createWatchStreamWithDelegate:_delegate];
+  return [datastore createWatchStream];
 }
 
 /**
@@ -190,7 +189,7 @@
   FSTWatchStream *watchStream = [self setUpWatchStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [watchStream start];
+    [watchStream startWithDelegate:_delegate];
   }];
 
   // Stop must not call watchStreamDidClose because the full implementation of the delegate could
@@ -210,7 +209,7 @@
   FSTWriteStream *writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [writeStream start];
+    [writeStream startWithDelegate:_delegate];
   }];
 
   // Don't start the handshake.
@@ -231,7 +230,7 @@
   FSTWriteStream *writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [writeStream start];
+    [writeStream startWithDelegate:_delegate];
   }];
 
   // Writing before the handshake should throw
@@ -251,6 +250,57 @@
   [_workerDispatchQueue dispatchAsync:^{
     [writeStream stop];
   }];
+
+  [self verifyDelegateObservedStates:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
+    @"writeStreamDidReceiveResponseWithVersion"
+  ]];
+}
+
+- (void)testStreamClosesWhenIdle {
+  FSTWriteStream *writeStream = [self setUpWriteStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    [writeStream startWithDelegate:_delegate];
+  }];
+
+  [_delegate awaitNotificationFromBlock:^{
+    [writeStream writeHandshake];
+  }];
+
+  [_delegate awaitNotificationFromBlock:^{
+    [writeStream markIdle];
+  }];
+
+  dispatch_sync(_testQueue, ^{
+    XCTAssertFalse([writeStream isOpen]);
+  });
+
+  [self verifyDelegateObservedStates:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamWasInterrupted"
+  ]];
+}
+
+- (void)testStreamCancelsIdleOnWrite {
+  FSTWriteStream *writeStream = [self setUpWriteStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    [writeStream startWithDelegate:_delegate];
+  }];
+
+  [_delegate awaitNotificationFromBlock:^{
+    [writeStream writeHandshake];
+  }];
+
+  // Mark the stream idle, but immediately cancel the idle timer by issuing another write.
+  [_delegate awaitNotificationFromBlock:^{
+    [writeStream markIdle];
+    [writeStream writeMutations:_mutations];
+  }];
+
+  dispatch_sync(_testQueue, ^{
+    XCTAssertTrue([writeStream isOpen]);
+  });
 
   [self verifyDelegateObservedStates:@[
     @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",

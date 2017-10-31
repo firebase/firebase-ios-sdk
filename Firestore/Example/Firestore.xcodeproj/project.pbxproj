@@ -59,6 +59,8 @@
 		AFE6114F0D4DAECBA7B7C089 /* Pods_Firestore_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */; };
 		C4E749275AD0FBDF9F4716A8 /* Pods_SwiftBuildTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AD40BF6B0E849B07FFD05E /* Pods_SwiftBuildTest.framework */; };
 		D5B2532E4676014F57A7EAB9 /* FSTStreamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B25C0D4AADFCA3ADB883E4 /* FSTStreamTests.m */; };
+		D5B25474286C9800CE42B8C2 /* FSTTestDispatchQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B25292CED31B81FDED0411 /* FSTTestDispatchQueue.m */; };
+		D5B259FDEE8094E8D710C5BF /* FSTTestDispatchQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B25292CED31B81FDED0411 /* FSTTestDispatchQueue.m */; };
 		DE03B2C91F2149D600A30B9C /* FSTTransactionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1C61F0D48AC0013853F /* FSTTransactionTests.m */; };
 		DE03B2D41F2149D600A30B9C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		DE03B2D51F2149D600A30B9C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -222,6 +224,8 @@
 		B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE00BABB5A3AAB44A4C209E2 /* Pods-Firestore_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests/Pods-Firestore_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		D5B25292CED31B81FDED0411 /* FSTTestDispatchQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSTTestDispatchQueue.m; sourceTree = "<group>"; };
+		D5B259DAA9149B80D6245B57 /* FSTTestDispatchQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTTestDispatchQueue.h; sourceTree = "<group>"; };
 		D5B25C0D4AADFCA3ADB883E4 /* FSTStreamTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSTStreamTests.m; sourceTree = "<group>"; };
 		DB17FEDFB80770611A935A60 /* Pods-Firestore_IntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests/Pods-Firestore_IntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_IntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -561,6 +565,8 @@
 				DE51B18A1F0D48AC0013853F /* FSTUtilTests.m */,
 				54E9282A1F339CAD00C1953E /* XCTestCase+Await.h */,
 				54E9282B1F339CAD00C1953E /* XCTestCase+Await.m */,
+				D5B259DAA9149B80D6245B57 /* FSTTestDispatchQueue.h */,
+				D5B25292CED31B81FDED0411 /* FSTTestDispatchQueue.m */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1175,6 +1181,7 @@
 				DE51B1CD1F0D48CD0013853F /* FSTDatabaseInfoTests.m in Sources */,
 				DE51B1F21F0D49140013853F /* FSTPathTests.m in Sources */,
 				DE51B1DD1F0D490D0013853F /* FSTLocalStoreTests.m in Sources */,
+				D5B25474286C9800CE42B8C2 /* FSTTestDispatchQueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1199,6 +1206,7 @@
 				DE03B2C91F2149D600A30B9C /* FSTTransactionTests.m in Sources */,
 				54DA12B11F315F3800DD57A1 /* FIRValidationTests.m in Sources */,
 				D5B2532E4676014F57A7EAB9 /* FSTStreamTests.m in Sources */,
+				D5B259FDEE8094E8D710C5BF /* FSTTestDispatchQueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

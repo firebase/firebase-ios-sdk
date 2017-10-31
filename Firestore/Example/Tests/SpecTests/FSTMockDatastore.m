@@ -39,19 +39,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-                      serializer:(FSTSerializerBeta *)serializer
-                        delegate:(id<FSTWatchStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+                      serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-            responseMessageClass:(Class)responseMessageClass
-                        delegate:(id<FSTWatchStreamDelegate>)delegate NS_UNAVAILABLE;
+            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @property(nonatomic, assign) BOOL open;
-
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *activeTargets;
+@property(nonatomic, weak, readwrite, nullable) id<FSTWatchStreamDelegate> delegate;
 
 @end
 
@@ -60,13 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-                      serializer:(FSTSerializerBeta *)serializer
-                        delegate:(id<FSTWatchStreamDelegate>)delegate {
+                      serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
                      credentials:credentials
-                      serializer:serializer
-                        delegate:delegate];
+                      serializer:serializer];
   if (self) {
     FSTAssert(database, @"Database must not be nil");
     _activeTargets = [NSMutableDictionary dictionary];
@@ -76,10 +72,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Overridden FSTWatchStream methods.
 
-- (void)start {
+- (void)startWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
   FSTAssert(!self.open, @"Trying to start already started watch stream");
   self.open = YES;
-  [self handleStreamOpen];
+  self.delegate = delegate;
+  [self notifyStreamOpen];
+}
+
+- (void)stop {
+  self.delegate = nil;
 }
 
 - (BOOL)isOpen {
@@ -90,8 +91,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self.open;
 }
 
-- (void)handleStreamOpen {
+- (void)notifyStreamOpen {
   [self.delegate watchStreamDidOpen];
+}
+
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+  [self.delegate watchStreamWasInterruptedWithError:error];
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
@@ -110,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self.delegate watchStreamDidClose:error];
+  [self notifyStreamInterruptedWithError:error];
 }
 
 #pragma mark - Helper methods.
@@ -142,17 +147,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-                      serializer:(FSTSerializerBeta *)serializer
-                        delegate:(id<FSTWriteStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+                      serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-            responseMessageClass:(Class)responseMessageClass
-                        delegate:(id<FSTWriteStreamDelegate>)delegate NS_UNAVAILABLE;
+            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @property(nonatomic, assign) BOOL open;
 @property(nonatomic, strong, readonly) NSMutableArray<NSArray<FSTMutation *> *> *sentMutations;
+@property(nonatomic, weak, readwrite, nullable) id<FSTWriteStreamDelegate> delegate;
 
 @end
 
@@ -161,13 +165,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-                      serializer:(FSTSerializerBeta *)serializer
-                        delegate:(id<FSTWriteStreamDelegate>)delegate {
+                      serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
                      credentials:credentials
-                      serializer:serializer
-                        delegate:delegate];
+                      serializer:serializer];
   if (self) {
     _sentMutations = [NSMutableArray array];
   }
@@ -176,11 +178,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Overridden FSTWriteStream methods.
 
-- (void)start {
+- (void)startWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
   FSTAssert(!self.open, @"Trying to start already started write stream");
   self.open = YES;
   [self.sentMutations removeAllObjects];
-  [self handleStreamOpen];
+  self.delegate = delegate;
+  [self notifyStreamOpen];
+}
+
+- (void)stop {
+  self.delegate = nil;
 }
 
 - (BOOL)isOpen {
@@ -200,8 +207,12 @@ NS_ASSUME_NONNULL_BEGIN
   [self.sentMutations addObject:mutations];
 }
 
-- (void)handleStreamOpen {
+- (void)notifyStreamOpen {
   [self.delegate writeStreamDidOpen];
+}
+
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+  [self.delegate writeStreamWasInterruptedWithError:error];
 }
 
 #pragma mark - Helper methods.
@@ -215,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Injects a failed write response as though it had come from the backend. */
 - (void)failStreamWithError:(NSError *)error {
   self.open = NO;
-  [self.delegate writeStreamDidClose:error];
+  [self notifyStreamInterruptedWithError:error];
 }
 
 /**
@@ -269,27 +280,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Overridden FSTDatastore methods.
 
-- (FSTWatchStream *)createWatchStreamWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
+- (FSTWatchStream *)createWatchStream {
   FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
   self.watchStream = [[FSTMockWatchStream alloc]
          initWithDatabase:self.databaseInfo
       workerDispatchQueue:self.workerDispatchQueue
               credentials:self.credentials
                serializer:[[FSTSerializerBeta alloc]
-                              initWithDatabaseID:self.databaseInfo.databaseID]
-                 delegate:delegate];
+                              initWithDatabaseID:self.databaseInfo.databaseID]];
   return self.watchStream;
 }
 
-- (FSTWriteStream *)createWriteStreamWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
+- (FSTWriteStream *)createWriteStream {
   FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
   self.writeStream = [[FSTMockWriteStream alloc]
          initWithDatabase:self.databaseInfo
       workerDispatchQueue:self.workerDispatchQueue
               credentials:self.credentials
                serializer:[[FSTSerializerBeta alloc]
-                              initWithDatabaseID:self.databaseInfo.databaseID]
-                 delegate:delegate];
+                              initWithDatabaseID:self.databaseInfo.databaseID]];
   return self.writeStream;
 }
 

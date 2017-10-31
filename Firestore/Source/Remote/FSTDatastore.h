@@ -82,10 +82,10 @@ NS_ASSUME_NONNULL_BEGIN
              completion:(FSTVoidErrorBlock)completion;
 
 /** Creates a new watch stream. */
-- (FSTWatchStream *)createWatchStreamWithDelegate:(id<FSTWatchStreamDelegate>)delegate;
+- (FSTWatchStream *)createWatchStream;
 
 /** Creates a new write stream. */
-- (FSTWriteStream *)createWriteStreamWithDelegate:(id<FSTWriteStreamDelegate>)delegate;
+- (FSTWriteStream *)createWriteStream;
 
 /** The name of the database and the backend. */
 @property(nonatomic, strong, readonly) FSTDatabaseInfo *databaseInfo;
@@ -122,10 +122,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * An implementation of FSTStream needs to implement the following methods:
  *   - `createRPCWithRequestsWriter`, should create the specific RPC (a GRPCCall object).
- *   - `handleStreamOpen`, should call through to the stream-specific streamDidOpen method.
  *   - `handleStreamMessage`, receives protocol buffer responses from GRPC and must deserialize and
  *     delegate to some stream specific response method.
- *   - `handleStreamClose`, calls through to the stream-specific streamDidClose method.
+ *   - `notifyStreamOpen`, should call through to the stream-specific streamDidOpen method.
+ *   - `notifyStreamInterrupted`, calls through to the stream-specific streamWasInterrupted method.
  *
  * Additionally, beyond these required methods, subclasses will want to implement methods that
  * take request models, serialize them, and write them to using writeRequest:.
@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * See https://github.com/grpc/grpc/issues/10957 for the kinds of things we're trying to avoid.
  */
-@interface FSTStream : NSObject
+@interface FSTStream <__covariant FSTStreamDelegate> : NSObject
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * When start returns, -isStarted will return YES.
  */
-- (void)start;
+- (void)startWithDelegate:(id)delegate;
 
 /**
  * Stops the RPC. This call is idempotent and allowed regardless of the current isStarted state.
@@ -192,6 +192,12 @@ NS_ASSUME_NONNULL_BEGIN
  * When stop returns, -isStarted and -isOpen will both return NO.
  */
 - (void)stop;
+
+/**
+ * Initializes the idle timer. If no write takes place within one minute, the GRPC stream will be
+ * closed.
+ */
+- (void)markIdle;
 
 /**
  * After an error the stream will usually back off on the next attempt to start it. If the error
@@ -221,14 +227,14 @@ NS_ASSUME_NONNULL_BEGIN
              snapshotVersion:(FSTSnapshotVersion *)snapshotVersion;
 
 /**
- * Called by the FSTWatchStream when the underlying streaming RPC is closed for whatever reason,
- * usually because of an error, but possibly due to an idle timeout. The error passed to this
- * method may be nil, in which case the stream was closed without attributable fault.
+ * Called by the FSTWatchStream when the underlying streaming RPC is interrupted for whatever
+ * reason, usually because of an error, but possibly due to an idle timeout. The error passed to
+ * this method may be nil, in which case the stream was closed without attributable fault.
  *
  * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
  * on FSTStream for details.
  */
-- (void)watchStreamDidClose:(NSError *_Nullable)error;
+- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error;
 
 @end
 
@@ -247,8 +253,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-                      serializer:(FSTSerializerBeta *)serializer
-                        delegate:(id<FSTWatchStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+                      serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -266,8 +271,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Unregisters interest in the results of the query associated with the given target ID. */
 - (void)unwatchTargetID:(FSTTargetID)targetID;
-
-@property(nonatomic, weak, readonly) id<FSTWatchStreamDelegate> delegate;
 
 @end
 
@@ -292,14 +295,14 @@ NS_ASSUME_NONNULL_BEGIN
                                  mutationResults:(NSArray<FSTMutationResult *> *)results;
 
 /**
- * Called when the FSTWriteStream's underlying RPC is closed for whatever reason, usually because
- * of an error, but possibly due to an idle timeout. The error passed to this method may be nil, in
- * which case the stream was closed without attributable fault.
+ * Called when the FSTWriteStream's underlying RPC is interrupted for whatever reason, usually
+ * because of an error, but possibly due to an idle timeout. The error passed to this method may be
+ * nil, in which case the stream was closed without attributable fault.
  *
  * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
  * on FSTStream for details.
  */
-- (void)writeStreamDidClose:(NSError *_Nullable)error;
+- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error;
 
 @end
 
@@ -324,8 +327,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
-                      serializer:(FSTSerializerBeta *)serializer
-                        delegate:(id<FSTWriteStreamDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+                      serializer:(FSTSerializerBeta *)serializer;
 
 - (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -343,8 +345,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Sends a group of mutations to the Firestore backend to apply. */
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations;
-
-@property(nonatomic, weak, readonly) id<FSTWriteStreamDelegate> delegate;
 
 /**
  * Tracks whether or not a handshake has been successfully exchanged and the stream is ready to

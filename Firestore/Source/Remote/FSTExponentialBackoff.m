@@ -75,9 +75,8 @@
     FSTLog(@"Backing off for %.2f seconds (base delay: %.2f seconds)", delayWithJitter,
            _currentBase);
   }
-  dispatch_time_t delay =
-      dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayWithJitter * NSEC_PER_SEC));
-  dispatch_after(delay, self.dispatchQueue.queue, block);
+
+  [self.dispatchQueue dispatchAfterDelay:delayWithJitter block:block];
 
   // Apply backoff factor to determine next delay and ensure it is within bounds.
   _currentBase *= _backoffFactor;

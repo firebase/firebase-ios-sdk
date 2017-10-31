@@ -30,8 +30,13 @@
 #import "Util/FSTUtil.h"
 
 #import "FSTEventAccumulator.h"
+#import "FSTTestDispatchQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRFirestore (Testing)
+@property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
+@end
 
 @implementation FSTIntegrationTestCase {
   NSMutableArray<FIRFirestore *> *_firestores;
@@ -121,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
-  FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
+  FSTTestDispatchQueue *workerDispatchQueue = [FSTTestDispatchQueue
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
   FSTEmptyCredentialsProvider *credentialsProvider = [[FSTEmptyCredentialsProvider alloc] init];
@@ -140,6 +145,14 @@ NS_ASSUME_NONNULL_BEGIN
 
   [_firestores addObject:firestore];
   return firestore;
+}
+
+- (void)waitForIdleFirestore:(FIRFirestore *)firestore {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"idle"];
+  // Note that we wait on any task that is scheduled with a delay of 60s. Currently, the idle
+  // timeout is the only task that uses this delay.
+  [((FSTTestDispatchQueue *)firestore.workerDispatchQueue) fulfillOnExecution:expectation];
+  [self awaitExpectations];
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
@@ -218,6 +231,27 @@ NS_ASSUME_NONNULL_BEGIN
     [expectation fulfill];
   }];
   [self awaitExpectations];
+
+  return result;
+}
+
+- (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)ref
+                              requireOnline:(BOOL)requireOnline {
+  __block FIRDocumentSnapshot *result;
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"listener"];
+  id<FIRListenerRegistration> listener = [ref
+      addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
+                            listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                              XCTAssertNil(error);
+                              if (!requireOnline || !snapshot.metadata.fromCache) {
+                                result = snapshot;
+                                [expectation fulfill];
+                              }
+                            }];
+
+  [self awaitExpectations];
+  [listener remove];
 
   return result;
 }
