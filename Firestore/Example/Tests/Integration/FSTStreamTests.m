@@ -25,6 +25,7 @@
 #import "FSTTestDispatchQueue.h"
 #import "Model/FSTDatabaseID.h"
 #import "Remote/FSTDatastore.h"
+#import "Remote/FSTStream.h"
 #import "Util/FSTAssert.h"
 
 /** Exposes otherwise private methods for testing. */
