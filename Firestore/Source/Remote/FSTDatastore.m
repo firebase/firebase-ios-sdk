@@ -621,12 +621,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /**
  * Closes the stream and cleans up as necessary:
  *
- * <ul>
- *   <li>closes the underlying GRPC stream;
- *   <li>calls the onClose handler with the given 'error';
- *   <li>sets internal stream state to 'finalState';
- *   <li>adjusts the backoff timer based on the error
- * </ul>
+ * * closes the underlying GRPC stream;
+ * * calls the onClose handler with the given 'error';
+ * * sets internal stream state to 'finalState';
+ * * adjusts the backoff timer based on the error
  *
  * A new stream can be opened by calling `start` unless `finalState` is set to
  * `FSTStreamStateStopped`.
