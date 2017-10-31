@@ -1402,7 +1402,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../Source\"",
 					"\"${PODS_ROOT}/../../Source/API\"",
 					"\"${PODS_ROOT}/../../Source/Core\"",
@@ -1444,7 +1444,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../Source\"",
 					"\"${PODS_ROOT}/../../Source/API\"",
 					"\"${PODS_ROOT}/../../Source/Core\"",
@@ -1486,7 +1486,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../Source\"",
 					"\"${PODS_ROOT}/../../Source/API\"",
 					"\"${PODS_ROOT}/../../Source/Core\"",
@@ -1536,7 +1536,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../Source\"",
 					"\"${PODS_ROOT}/../../Source/API\"",
 					"\"${PODS_ROOT}/../../Source/Core\"",
