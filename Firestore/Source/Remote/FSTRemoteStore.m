@@ -29,6 +29,7 @@
 #import "FSTQueryData.h"
 #import "FSTRemoteEvent.h"
 #import "FSTSnapshotVersion.h"
+#import "FSTStream.h"
 #import "FSTTransaction.h"
 #import "FSTWatchChange.h"
 

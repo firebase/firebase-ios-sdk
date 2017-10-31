@@ -23,6 +23,7 @@
 #import "Model/FSTDatabaseID.h"
 #import "Model/FSTMutation.h"
 #import "Remote/FSTSerializerBeta.h"
+#import "Remote/FSTStream.h"
 #import "Util/FSTAssert.h"
 #import "Util/FSTLogger.h"
 
