@@ -42,4 +42,11 @@ Google's C++ test framework.
   ]
 
   s.library = 'c++'
+
+  # When building this pod there are headers in googletest/src.
+  s.pod_target_xcconfig = {
+    'HEADER_SEARCH_PATHS' =>
+      '"${PODS_ROOT}/GoogleTest/googletest/include" "${PODS_ROOT}/GoogleTest/googletest"'
+  }
+
 end
