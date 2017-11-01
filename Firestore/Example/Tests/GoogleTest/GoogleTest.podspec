@@ -36,12 +36,25 @@ Google's C++ test framework.
   s.ios.deployment_target = '8.0'
   s.requires_arc = false
 
-  # Exclude include/gtest/internal/custom files from sources. These files cause
-  # problems because they have the same basenames as other headers (e.g.
-  # gtest.h). We don't need them because they're effectively empty: they're
-  # compile-time hooks for third-party customization that we don't use.
+  # Exclude include/gtest/internal/custom files from public headers. These
+  # files cause problems because they have the same basenames as other headers
+  # (e.g. gtest.h). We don't need them because they're effectively empty:
+  # they're compile-time hooks for third-party customization that we don't use.
+  s.public_header_files = [
+    'googletest/include/gtest/*.h',
+    'googletest/include/gtest/internal/*.h'
+  ]
+  s.header_mappings_dir = 'googletest/include'
+
+  # Internal headers accessed only by the implementation. These can't be
+  # mentioned in source_files because header_mappings_dir will complain about
+  # headers outside its directory.
+  s.preserve_paths = [
+    'googletest/src/*.h',
+  ]
+
   s.source_files = [
-    'googletest/src/*.{h,cc}',
+    'googletest/src/*.cc',
     'googletest/include/gtest/*.h',
     'googletest/include/gtest/internal/*.h'
   ]
