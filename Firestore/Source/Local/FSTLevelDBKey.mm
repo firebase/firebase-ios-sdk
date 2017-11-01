@@ -18,10 +18,10 @@
 
 #include <string>
 
-#include "ordered_code.h"
-#include "string_util.h"
 #import "FSTDocumentKey.h"
 #import "FSTPath.h"
+#include "ordered_code.h"
+#include "string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

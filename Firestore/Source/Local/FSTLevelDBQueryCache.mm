@@ -20,14 +20,14 @@
 #include <leveldb/write_batch.h>
 #include <string>
 
-#import "Target.pbobjc.h"
-#import "FSTQuery.h"
+#import "FSTAssert.h"
+#import "FSTDocumentKey.h"
 #import "FSTLevelDBKey.h"
 #import "FSTLocalSerializer.h"
+#import "FSTQuery.h"
 #import "FSTQueryData.h"
 #import "FSTWriteGroup.h"
-#import "FSTDocumentKey.h"
-#import "FSTAssert.h"
+#import "Target.pbobjc.h"
 
 #include "ordered_code.h"
 #include "string_util.h"
@@ -227,10 +227,11 @@ static ReadOptions GetStandardReadOptions() {
       if (targetIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:targetIterator->key()];
       }
-      FSTFail(@"Dangling query-target reference found: "
-              @"%@ points to %@; seeking there found %@",
-              [FSTLevelDBKey descriptionForKey:indexKey],
-              [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
+      FSTFail(
+          @"Dangling query-target reference found: "
+          @"%@ points to %@; seeking there found %@",
+          [FSTLevelDBKey descriptionForKey:indexKey], [FSTLevelDBKey descriptionForKey:targetKey],
+          foundKeyDescription);
     }
 
     // Finally after finding a potential match, check that the query is actually equal to the
