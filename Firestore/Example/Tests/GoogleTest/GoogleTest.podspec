@@ -41,6 +41,12 @@ Google's C++ test framework.
     'googletest/include/**/*.h',
   ]
 
+  s.exclude_files = [
+    # A convenience wrapper that for a simple command-line build. If included in
+    # this build, results in duplicate symbols
+    'googletest/src/gtest-all.cc',
+  ]
+
   s.library = 'c++'
 
   # When building this pod there are headers in googletest/src.
