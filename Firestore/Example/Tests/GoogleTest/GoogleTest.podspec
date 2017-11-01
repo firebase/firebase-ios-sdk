@@ -36,9 +36,14 @@ Google's C++ test framework.
   s.ios.deployment_target = '8.0'
   s.requires_arc = false
 
+  # Exclude include/gtest/internal/custom files from sources. These files cause
+  # problems because they have the same basenames as other headers (e.g.
+  # gtest.h). We don't need them because they're effectively empty: they're
+  # compile-time hooks for third-party customization that we don't use.
   s.source_files = [
     'googletest/src/*.{h,cc}',
-    'googletest/include/**/*.h',
+    'googletest/include/gtest/*.h',
+    'googletest/include/gtest/internal/*.h'
   ]
 
   s.exclude_files = [
@@ -55,4 +60,12 @@ Google's C++ test framework.
       '"${PODS_ROOT}/GoogleTest/googletest/include" "${PODS_ROOT}/GoogleTest/googletest"'
   }
 
+  s.prepare_command = <<-'CMD'
+    # Remove includes of files in internal/custom
+    sed -i.bak -e '/include.*internal\/custom/ d' \
+      googletest/include/gtest/gtest-printers.h \
+      googletest/include/gtest/internal/gtest-port.h \
+      googletest/src/gtest-death-test.cc \
+      googletest/src/gtest.cc
+  CMD
 end
