@@ -221,6 +221,9 @@ Class CreateXCTestCaseClass(const testing::TestCase *testCase,
 
     NSString *selectorName = SelectorNameForTestInfo(testInfo);
     SEL selector = sel_registerName([selectorName UTF8String]);
+
+    // Use the ReportTestResult function as the method implementation. The v@: indicates it is a
+    // void objective-C method; this must continue to match the signature of ReportTestResult.
     IMP method = reinterpret_cast<IMP>(ReportTestResult);
     class_addMethod(testClass, selector, method, "v@:");
 

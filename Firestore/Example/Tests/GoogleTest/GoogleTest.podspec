@@ -60,7 +60,7 @@ Google's C++ test framework.
   ]
 
   s.exclude_files = [
-    # A convenience wrapper that for a simple command-line build. If included in
+    # A convenience wrapper for a simple command-line build. If included in
     # this build, results in duplicate symbols
     'googletest/src/gtest-all.cc',
   ]
