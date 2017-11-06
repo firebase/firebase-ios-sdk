@@ -1,7 +1,7 @@
 # v4.3.2
 - Improves error handling for the phone number sign-in reCAPTCHA flow.
 - Improves error handling for phone number linking flow.
-- Fixes issue after linking an anonymous user to a phone number the user remained
+- Fixes issue where after linking an anonymous user to a phone number the user remained
   anonymous.
 
 # v4.3.1
