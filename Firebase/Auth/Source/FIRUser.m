@@ -659,6 +659,12 @@ static void callInMainThreadWithAuthDataResultAndError(
       // Get account info to update cached user info.
       [self getAccountInfoRefreshingCache:^(FIRGetAccountInfoResponseUser *_Nullable user,
                                             NSError *_Nullable error) {
+        if (error) {
+          [self signOutIfTokenIsInvalidWithError:error];
+          completion(error);
+          return;
+        }
+        _anonymous = NO;
         if (![self updateKeychain:&error]) {
           completion(error);
           return;
