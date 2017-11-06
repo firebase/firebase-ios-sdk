@@ -1,4 +1,4 @@
-osx_image: xcode8.3
+osx_image: xcode9.1
 language: objective-c
 cache:
   - bundler
@@ -6,7 +6,8 @@ cache:
 
 rvm: 2.3.1
 before_install:
-  - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+# Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+#  - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
   - bundle install
   - gem install xcpretty
   - bundle exec pod install --project-directory=Example --repo-update
@@ -15,7 +16,7 @@ before_install:
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
   - ./test.sh
-  - pod lib lint FirebaseCommunity.podspec
+  - bundle exec pod lib lint FirebaseCommunity.podspec --allow-warnings #pending #390 fix
 
 branches:
   only:
