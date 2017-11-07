@@ -732,7 +732,9 @@ static const NSTimeInterval kExpectationTimeout = 1;
 }
 
 /** @fn testVerifyPhoneNumberUIDelegateUnstructuredError
-    @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an error being surfaced due to an unexpected structure of the error response.
+    @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
+        error being surfaced with a default NSLocalizedFailureReasonErrorKey due to an unexpected
+        structure of the error response.
  */
 - (void)testVerifyPhoneNumberUIDelegateUnstructuredError {
   id mockBundle = OCMClassMock([NSBundle class]);
@@ -784,11 +786,11 @@ static const NSTimeInterval kExpectationTimeout = 1;
   [_provider verifyPhoneNumber:kTestPhoneNumber
                     UIDelegate:mockUIDelegate
                     completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
-                      XCTAssertTrue([NSThread isMainThread]);
-                      XCTAssertEqual(error.code, FIRAuthErrorCodeAppVerificationUserInteractionFailure);
-                      XCTAssertNil(verificationID);
-                      [expectation fulfill];
-                    }];
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeAppVerificationUserInteractionFailure);
+    XCTAssertNil(verificationID);
+    [expectation fulfill];
+  }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
   OCMVerifyAll(_mockNotificationManager);
