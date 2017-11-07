@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.9.2
+- [changed] Firestore now retries requests more often before considering a client offline.
+- [changed] You can now use FieldValue.delete() with SetOptions.merge().
+
 # v0.9.1
 - [fixed] Fixed validation of nested arrays to allow indirect nesting.
 
