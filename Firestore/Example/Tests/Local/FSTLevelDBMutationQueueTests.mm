@@ -19,12 +19,12 @@
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
 
-#import "Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Auth/FSTUser.h"
 #import "Local/FSTLevelDB.h"
 #import "Local/FSTLevelDBKey.h"
 #import "Local/FSTWriteGroup.h"
 #include "Port/ordered_code.h"
+#import "Protos/objc/firestore/local/Mutation.pbobjc.h"
 
 #import "FSTMutationQueueTests.h"
 #import "FSTPersistenceTestHelpers.h"

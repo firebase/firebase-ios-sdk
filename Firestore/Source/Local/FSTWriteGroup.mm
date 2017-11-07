@@ -20,8 +20,8 @@
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 
-#import "FSTLevelDBKey.h"
 #import "FSTAssert.h"
+#import "FSTLevelDBKey.h"
 
 #include "ordered_code.h"
 
@@ -43,7 +43,8 @@ namespace Firestore {
  */
 class BatchDescription : public WriteBatch::Handler {
  public:
-  BatchDescription() : ops_(0), size_(0), message_([NSMutableString string]) {}
+  BatchDescription() : ops_(0), size_(0), message_([NSMutableString string]) {
+  }
   virtual ~BatchDescription();
   virtual void Put(const Slice &key, const Slice &value);
   virtual void Delete(const Slice &key);
@@ -66,7 +67,8 @@ class BatchDescription : public WriteBatch::Handler {
   NSMutableString *message_;
 };
 
-BatchDescription::~BatchDescription() {}
+BatchDescription::~BatchDescription() {
+}
 
 void BatchDescription::Put(const Slice &key, const Slice &value) {
   ops_ += 1;
