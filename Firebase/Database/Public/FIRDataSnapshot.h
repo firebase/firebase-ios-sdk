@@ -134,7 +134,7 @@ FIR_SWIFT_NAME(DataSnapshot)
  *
  * @return An NSEnumerator of the children.
  */
-@property (strong, readonly, nonatomic) NSEnumerator* children;
+@property (strong, readonly, nonatomic) NSEnumerator<FIRDataSnapshot *>* children;
 
 /**
  * The priority of the data in this FIRDataSnapshot.
