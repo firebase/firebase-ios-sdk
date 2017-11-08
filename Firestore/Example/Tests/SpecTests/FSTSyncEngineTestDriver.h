@@ -195,6 +195,28 @@ typedef NSDictionary<FSTUser *, NSArray<FSTOutstandingWrite *> *> FSTOutstanding
 @property(nonatomic, readonly) int sentWritesCount;
 
 /**
+ * A count of the total number of requests sent to the write stream since the beginning of the test
+ * case.
+ */
+@property(nonatomic, readonly) int writeStreamRequestCount;
+
+/**
+ * A count of the total number of requests sent to the watch stream since the beginning of the test
+ * case.
+ */
+@property(nonatomic, readonly) int watchStreamRequestCount;
+
+/**
+ * Disables RemoteStore's network connection and shuts down all streams.
+ */
+- (void)disableNetwork;
+
+/**
+ * Enables RemoteStore's network connection.
+ */
+- (void)enableNetwork;
+
+/**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for
  * each user, so future receiveWriteAck/Error operations will validate the write sent to the mock
  * datastore matches the next outstanding write for that user.

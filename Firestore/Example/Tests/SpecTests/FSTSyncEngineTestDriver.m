@@ -171,6 +171,25 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.datastore writesSent];
 }
 
+- (int)writeStreamRequestCount {
+  return [self.datastore writeStreamRequestCount];
+}
+
+- (int)watchStreamRequestCount {
+  return [self.datastore watchStreamRequestCount];
+}
+
+- (void)disableNetwork {
+  // Make sure to execute all writes that are currently queued. This allows us
+  // to assert on the total number of requests sent before shutdown.
+  [self.remoteStore fillWritePipeline];
+  [self.remoteStore disableNetwork];
+}
+
+- (void)enableNetwork {
+  [self.remoteStore enableNetwork];
+}
+
 - (void)changeUser:(FSTUser *)user {
   self.currentUser = user;
   [self.syncEngine userDidChange:user];

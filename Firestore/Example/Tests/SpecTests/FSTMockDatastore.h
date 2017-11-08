@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMockDatastore : FSTDatastore
 
+@property(nonatomic) int watchStreamRequestCount;
+@property(nonatomic) int writeStreamRequestCount;
+
 + (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
 
 #pragma mark - Watch Stream manipulation.
