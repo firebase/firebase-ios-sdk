@@ -16,8 +16,9 @@
 
 #include "string_util.h"
 
-#include "testing/base/public/gunit.h"
-#include <leveldb/db.h>
+#include "leveldb/db.h"
+
+#include "gtest/gtest.h"
 
 using Firestore::PrefixSuccessor;
 using Firestore::ImmediateSuccessor;
@@ -27,7 +28,7 @@ TEST(Util, PrefixSuccessor) {
   EXPECT_EQ(PrefixSuccessor("a"), "b");
   EXPECT_EQ(PrefixSuccessor("aaAA"), "aaAB");
   EXPECT_EQ(PrefixSuccessor("aaa\xff"), "aab");
-  EXPECT_EQ(PrefixSuccessor(string("\x00", 1)), "\x01");
+  EXPECT_EQ(PrefixSuccessor(std::string("\x00", 1)), "\x01");
   EXPECT_EQ(PrefixSuccessor("az\xe0"), "az\xe1");
   EXPECT_EQ(PrefixSuccessor("\xff\xff\xff"), "");
   EXPECT_EQ(PrefixSuccessor(""), "");

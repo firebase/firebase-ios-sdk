@@ -24,6 +24,8 @@
 
 /* Begin PBXBuildFile section */
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
+		54764FAB1FAA0C320085E60A /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAA1FAA0C320085E60A /* string_util_test.cc */; };
+		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
 		54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129C1F315EE100DD57A1 /* collection_spec_test.json */; };
 		54DA12A71F315EE100DD57A1 /* existence_filter_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */; };
 		54DA12A81F315EE100DD57A1 /* limbo_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */; };
@@ -181,6 +183,8 @@
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		42491D7DC8C8CD245CC22B93 /* Pods-SwiftBuildTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBuildTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest.debug.xcconfig"; sourceTree = "<group>"; };
 		4EBC5F5ABE1FD097EFE5E224 /* Pods-Firestore_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example/Pods-Firestore_Example.release.xcconfig"; sourceTree = "<group>"; };
+		54764FAA1FAA0C320085E60A /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_util_test.cc; path = ../../Port/string_util_test.cc; sourceTree = "<group>"; };
+		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
 		54DA129C1F315EE100DD57A1 /* collection_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = collection_spec_test.json; sourceTree = "<group>"; };
 		54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = existence_filter_spec_test.json; sourceTree = "<group>"; };
 		54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = limbo_spec_test.json; sourceTree = "<group>"; };
@@ -360,6 +364,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		54764FAC1FAA0C390085E60A /* GoogleTests */ = {
+			isa = PBXGroup;
+			children = (
+				54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */,
+				54764FAD1FAA0C650085E60A /* Port */,
+			);
+			name = GoogleTests;
+			sourceTree = "<group>";
+		};
+		54764FAD1FAA0C650085E60A /* Port */ = {
+			isa = PBXGroup;
+			children = (
+				54764FAA1FAA0C320085E60A /* string_util_test.cc */,
+			);
+			name = Port;
+			sourceTree = "<group>";
+		};
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
@@ -430,6 +451,7 @@
 			children = (
 				DE51B1831F0D48AC0013853F /* API */,
 				DE51B1A81F0D48AC0013853F /* Core */,
+				54764FAC1FAA0C390085E60A /* GoogleTests */,
 				DE2EF06E1F3D07D7003D0CDC /* Immutable */,
 				DE51B1BB1F0D48AC0013853F /* Integration */,
 				DE51B1621F0D48AC0013853F /* Local */,
@@ -1012,11 +1034,13 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests/Pods-Firestore_Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleTest/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1159,6 +1183,7 @@
 				DE51B1F11F0D49140013853F /* FSTMutationTests.m in Sources */,
 				DE51B1FB1F0D492C0013853F /* FSTMemorySpecTests.m in Sources */,
 				DE51B1DB1F0D490D0013853F /* FSTLevelDBQueryCacheTests.m in Sources */,
+				54764FAB1FAA0C320085E60A /* string_util_test.cc in Sources */,
 				54E9282C1F339CAD00C1953E /* XCTestCase+Await.m in Sources */,
 				DE51B1DF1F0D490D0013853F /* FSTMemoryMutationQueueTests.m in Sources */,
 				DE51B1F31F0D491B0013853F /* FSTDatastoreTests.m in Sources */,
@@ -1166,6 +1191,7 @@
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
 				DE51B1E01F0D490D0013853F /* FSTMemoryQueryCacheTests.m in Sources */,
 				DE51B1E91F0D490D0013853F /* FSTLevelDBMutationQueueTests.mm in Sources */,
+				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
 				DE51B1E61F0D490D0013853F /* FSTRemoteDocumentCacheTests.m in Sources */,
 				DE51B1D91F0D490D0013853F /* FSTEagerGarbageCollectorTests.m in Sources */,
 				DE51B1E21F0D490D0013853F /* FSTMutationQueueTests.m in Sources */,
@@ -1359,7 +1385,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Firebase/Firebase/Firebase\"",
-					"\"${PODS_ROOT}/leveldb-library/\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
@@ -1380,7 +1405,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Firebase/Firebase/Firebase\"",
-					"\"${PODS_ROOT}/leveldb-library/\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
