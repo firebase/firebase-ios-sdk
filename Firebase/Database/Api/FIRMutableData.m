@@ -110,7 +110,7 @@
     return [self.data getNode:self.prefixPath];
 }
 
-- (NSEnumerator *) children {
+- (NSEnumerator<FIRMutableData *> *) children {
     FIndexedNode *indexedNode = [FIndexedNode indexedNodeWithNode:self.nodeValue];
     return [[FTransformedEnumerator alloc] initWithEnumerator:[indexedNode childEnumerator] andTransform:^id(FNamedNode *node) {
         FPath* childPath = [self.prefixPath childFromString:node.name];
