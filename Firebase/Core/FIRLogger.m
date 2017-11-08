@@ -43,6 +43,7 @@ FIRLoggerService kFIRLoggerStorage = @"[Firebase/Storage]";
 /// Arguments passed on launch.
 NSString *const kFIRDisableDebugModeApplicationArgument = @"-FIRDebugDisabled";
 NSString *const kFIREnableDebugModeApplicationArgument = @"-FIRDebugEnabled";
+NSString *const kFIRLoggerForceSDTERRApplicationArgument = @"-FIRLoggerForceSTDERR";
 
 /// Key for the debug mode bit in NSUserDefaults.
 NSString *const kFIRPersistedDebugModeKey = @"/google/firebase/debug_mode";
@@ -92,6 +93,12 @@ void FIRLoggerInitializeASL() {
     }
 #endif  // TARGET_OS_SIMULATOR
 
+    // Override the aslOptions to ASL_OPT_STDERR if the override argument is passed in.
+    NSArray *arguments = [NSProcessInfo processInfo].arguments;
+    if ([arguments containsObject:kFIRLoggerForceSDTERRApplicationArgument]) {
+      aslOptions = ASL_OPT_STDERR;
+    }
+
     // Initialize the ASL client handle.
     sFIRLoggerClient = asl_open(NULL, kFIRLoggerASLClientFacilityName, aslOptions);
 
@@ -101,7 +108,6 @@ void FIRLoggerInitializeASL() {
     sFIRAnalyticsDebugMode = NO;
     sFIRLoggerMaximumLevel = FIRLoggerLevelNotice;
 
-    NSArray *arguments = [NSProcessInfo processInfo].arguments;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     BOOL debugMode = [userDefaults boolForKey:kFIRPersistedDebugModeKey];
 
