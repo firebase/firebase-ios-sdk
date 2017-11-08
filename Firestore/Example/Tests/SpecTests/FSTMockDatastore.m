@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
                      credentials:credentials
                       serializer:serializer];
   if (self) {
-    FSTAssert(datastore, @"Database must not be nil");
+    FSTAssert(datastore, @"Datastore must not be nil");
     _datastore = datastore;
     _activeTargets = [NSMutableDictionary dictionary];
   }
@@ -195,6 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
                      credentials:credentials
                       serializer:serializer];
   if (self) {
+    FSTAssert(datastore, @"Datastore must not be nil");
     _datastore = datastore;
     _sentMutations = [NSMutableArray array];
   }
