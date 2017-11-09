@@ -40,8 +40,10 @@ NSString *const kFIRStorageResponseBody = @"ResponseBody";
 NSString *const FIRStorageErrorDomain = @"FIRStorageErrorDomain";
 
 NSString *const kFIRStorageInvalidDataFormat = @"Invalid data returned from the server: %@";
-NSString *const kFIRStorageInvalidObserverStatus = @"Invalid observer status requested, use one "
-    @"of: FIRStorageTaskStatusPause, Resume, Progress, " @"Complete, or Failure";
+NSString *const kFIRStorageInvalidObserverStatus =
+    @"Invalid observer status requested, use one "
+    @"of: FIRStorageTaskStatusPause, Resume, Progress, "
+    @"Complete, or Failure";
 
 /**
  * String constants mapping GCS Object#resource mappings to metadata fields.
@@ -80,4 +82,4 @@ NSString *const kFIRStorageBundleIdentifier = @"com.google.firebase.storage";
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 const unsigned char *const FIRStorageVersionString =
-    (const unsigned char *const) STR(FIRStorage_VERSION);
+    (const unsigned char *const)STR(FIRStorage_VERSION);

@@ -30,7 +30,7 @@
 - (void)setUp {
   [super setUp];
 
-  NSDictionary *metadataDict = @{ @"bucket" : @"bucket", @"name" : @"path/to/object" };
+  NSDictionary *metadataDict = @{@"bucket" : @"bucket", @"name" : @"path/to/object"};
   self.metadata = [[FIRStorageMetadata alloc] initWithDictionary:metadataDict];
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -58,26 +58,25 @@
 - (void)testFetcherConfiguration {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testSuccessfulFetch"];
 
-  self.fetcherService.testBlock = ^(GTMSessionFetcher *fetcher,
-                                    GTMSessionFetcherTestResponse response) {
+  self.fetcherService.testBlock =
+      ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
-    XCTAssertEqualObjects(fetcher.request.URL, [FIRStorageTestHelpers objectURL]);
-    XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"PATCH");
-    NSData *bodyData = [NSData frs_dataFromJSONDictionary:[self.metadata updatedMetadata]];
-    XCTAssertEqualObjects(fetcher.request.HTTPBody, bodyData);
-    NSDictionary *HTTPHeaders = fetcher.request.allHTTPHeaderFields;
-    XCTAssertEqualObjects(HTTPHeaders[@"Content-Type"], @"application/json; charset=UTF-8");
-    XCTAssertEqualObjects(HTTPHeaders[@"Content-Length"], [@(bodyData.length) stringValue]);
+        XCTAssertEqualObjects(fetcher.request.URL, [FIRStorageTestHelpers objectURL]);
+        XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"PATCH");
+        NSData *bodyData = [NSData frs_dataFromJSONDictionary:[self.metadata updatedMetadata]];
+        XCTAssertEqualObjects(fetcher.request.HTTPBody, bodyData);
+        NSDictionary *HTTPHeaders = fetcher.request.allHTTPHeaderFields;
+        XCTAssertEqualObjects(HTTPHeaders[@"Content-Type"], @"application/json; charset=UTF-8");
+        XCTAssertEqualObjects(HTTPHeaders[@"Content-Length"], [@(bodyData.length) stringValue]);
 #pragma clang diagnostic pop
-    NSHTTPURLResponse *httpResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                    statusCode:200
-                                   HTTPVersion:kHTTPVersion
-                                  headerFields:nil];
-    response(httpResponse, nil, nil);
-    self.fetcherService.testBlock = nil;
-  };
+        NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                      statusCode:200
+                                                                     HTTPVersion:kHTTPVersion
+                                                                    headerFields:nil];
+        response(httpResponse, nil, nil);
+        self.fetcherService.testBlock = nil;
+      };
 
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];

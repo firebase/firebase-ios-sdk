@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Currently all uploads must be initiated and managed on the main queue.
  */
 FIR_SWIFT_NAME(StorageDownloadTask)
-@interface FIRStorageDownloadTask : FIRStorageObservableTask<FIRStorageTaskManagement>
+@interface FIRStorageDownloadTask : FIRStorageObservableTask <FIRStorageTaskManagement>
 
 @end
 

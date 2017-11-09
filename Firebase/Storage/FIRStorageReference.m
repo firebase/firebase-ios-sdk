@@ -266,21 +266,21 @@
                   completion(nil, snapshot.error);
                 });
               }];
-  [task observeStatus:FIRStorageTaskStatusProgress
-              handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
-                FIRStorageDownloadTask *task = snapshot.task;
-                if (task.progress.totalUnitCount > size ||
-                    task.progress.completedUnitCount > size) {
-                  NSDictionary *infoDictionary = @{
-                    @"totalSize" : @(task.progress.totalUnitCount),
-                    @"maxAllowedSize" : @(size)
-                  };
-                  NSError *error =
-                      [FIRStorageErrors errorWithCode:FIRStorageErrorCodeDownloadSizeExceeded
-                                       infoDictionary:infoDictionary];
-                  [task cancelWithError:error];
-                }
-              }];
+  [task
+      observeStatus:FIRStorageTaskStatusProgress
+            handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+              FIRStorageDownloadTask *task = snapshot.task;
+              if (task.progress.totalUnitCount > size || task.progress.completedUnitCount > size) {
+                NSDictionary *infoDictionary = @{
+                  @"totalSize" : @(task.progress.totalUnitCount),
+                  @"maxAllowedSize" : @(size)
+                };
+                NSError *error =
+                    [FIRStorageErrors errorWithCode:FIRStorageErrorCodeDownloadSizeExceeded
+                                     infoDictionary:infoDictionary];
+                [task cancelWithError:error];
+              }
+            }];
   [task enqueue];
   return task;
 }

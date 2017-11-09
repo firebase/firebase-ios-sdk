@@ -47,7 +47,7 @@ FIR_SWIFT_NAME(StorageTask)
  * operations.
  */
 FIR_SWIFT_NAME(StorageTaskManagement)
-@protocol FIRStorageTaskManagement<NSObject>
+@protocol FIRStorageTaskManagement <NSObject>
 
 @required
 /**

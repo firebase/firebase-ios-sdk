@@ -18,7 +18,6 @@ find . \
     -name 'Database' -prune -o \
     -name 'FirebaseCommunity.h' -prune -o \
     -name 'Messaging' -prune -o \
-    -name 'Storage' -prune -o \
     -name 'Pods' -prune -o \
     \( -name '*.[mh]' -o -name '*.mm' \) \
     -not -name '*.pbobjc.*' \
