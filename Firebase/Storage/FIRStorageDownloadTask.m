@@ -36,7 +36,7 @@
   return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
   [_fetcher stopFetching];
 }
 
@@ -45,7 +45,8 @@
 }
 
 - (void)enqueueWithData:(nullable NSData *)resumeData {
-  NSAssert([NSThread isMainThread], @"Download attempting to execute on non main queue! Please "
+  NSAssert([NSThread isMainThread],
+           @"Download attempting to execute on non main queue! Please "
            @"only execute this method on the main queue.");
   self.state = FIRStorageTaskStateQueueing;
   NSMutableURLRequest *request = [self.baseRequest mutableCopy];
@@ -146,7 +147,8 @@
 }
 
 - (void)cancelWithError:(NSError *)error {
-  NSAssert([NSThread isMainThread], @"Cancel attempting to execute on non main queue! Please only "
+  NSAssert([NSThread isMainThread],
+           @"Cancel attempting to execute on non main queue! Please only "
            @"execute this method on the main queue.");
   self.state = FIRStorageTaskStateCancelled;
   [self.fetcher stopFetching];
@@ -155,7 +157,8 @@
 }
 
 - (void)pause {
-  NSAssert([NSThread isMainThread], @"Pause attempting to execute on non main queue! Please only "
+  NSAssert([NSThread isMainThread],
+           @"Pause attempting to execute on non main queue! Please only "
            @"execute this method on the main queue.");
   self.state = FIRStorageTaskStatePausing;
   [self.fetcher stopFetching];
@@ -167,7 +170,8 @@
 }
 
 - (void)resume {
-  NSAssert([NSThread isMainThread], @"Resume attempting to execute on non main queue! Please only "
+  NSAssert([NSThread isMainThread],
+           @"Resume attempting to execute on non main queue! Please only "
            @"execute this method on the main queue.");
   self.state = FIRStorageTaskStateResuming;
   FIRStorageTaskSnapshot *snapshot = self.snapshot;

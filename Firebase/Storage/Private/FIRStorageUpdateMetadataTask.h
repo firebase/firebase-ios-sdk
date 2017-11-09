@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Task which provides the ability update the metadata on an object in Firebase Storage.
  */
-@interface FIRStorageUpdateMetadataTask : FIRStorageTask<FIRStorageTaskManagement>
+@interface FIRStorageUpdateMetadataTask : FIRStorageTask <FIRStorageTaskManagement>
 
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service

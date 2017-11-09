@@ -209,7 +209,7 @@
 
 + (void)removeMatchingMetadata:(NSMutableDictionary *)metadata
                    oldMetadata:(NSDictionary *)oldMetadata {
-  for (NSString* metadataKey in [oldMetadata allKeys]) {
+  for (NSString *metadataKey in [oldMetadata allKeys]) {
     id oldValue = [oldMetadata objectForKey:metadataKey];
     id newValue = [metadata objectForKey:metadataKey];
 

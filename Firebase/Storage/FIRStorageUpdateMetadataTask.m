@@ -39,7 +39,7 @@
   return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
   [_fetcher stopFetching];
 }
 
@@ -63,7 +63,7 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
-  _fetcherCompletion =^(NSData *data, NSError *error) {
+  _fetcherCompletion = ^(NSData *data, NSError *error) {
     if (error) {
       if (!self.error) {
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
@@ -80,7 +80,7 @@
       FIRStorageMetadata *metadata =
           [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
       [metadata setType:FIRStorageMetadataTypeFile];
-      if (callback){
+      if (callback) {
         callback(metadata, nil);
       }
     } else {

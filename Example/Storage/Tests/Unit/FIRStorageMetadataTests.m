@@ -263,16 +263,16 @@
 }
 
 - (void)testUpdatedMetadataWithEmptyUpdate {
-    NSDictionary *oldMetadata = @{
-                                  kFIRStorageMetadataContentLanguage : @"old",
-                                  kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
-                                  };
-    FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+  NSDictionary *oldMetadata = @{
+    kFIRStorageMetadataContentLanguage : @"old",
+    kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
+  };
+  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
 
-    NSDictionary *update = [metadata updatedMetadata];
+  NSDictionary *update = [metadata updatedMetadata];
 
-    NSDictionary *expectedUpdate = @{ kFIRStorageMetadataCustomMetadata : @{} };
-    XCTAssertEqualObjects(update, expectedUpdate);
+  NSDictionary *expectedUpdate = @{ kFIRStorageMetadataCustomMetadata : @{} };
+  XCTAssertEqualObjects(update, expectedUpdate);
 }
 
 - (void)testUpdatedMetadataWithDelete {
@@ -305,31 +305,31 @@
 }
 
 - (void)testZuluTimeOffset {
-  NSDictionary *metaDict = @{ kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108Z" };
+  NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108Z"};
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testZuluZeroTimeOffset {
-  NSDictionary *metaDict = @{ kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108+0000" };
+  NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108+0000"};
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testGoogleStandardTimeOffset {
-  NSDictionary *metaDict = @{ kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108-0700" };
+  NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108-0700"};
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testUnspecifiedTimeOffset {
-  NSDictionary *metaDict = @{ kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108-0000" };
+  NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108-0000"};
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testNoTimeOffset {
-  NSDictionary *metaDict = @{ kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108" };
+  NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108"};
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNil(metadata.timeCreated);
 }
