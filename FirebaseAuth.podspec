@@ -45,7 +45,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.preserve_paths =
     'Firebase/Auth/README.md',
     'Firebase/Auth/CHANGELOG.md'
-  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'FIRAuth_VERSION=' + s.version.to_s +
     ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }

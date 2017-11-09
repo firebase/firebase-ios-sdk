@@ -35,6 +35,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'FirebaseCore', '~> 4.0'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
   s.ios.dependency 'FirebaseCoreDiagnostics'
-  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'FIRDatabase_VERSION=' + s.version.to_s }
 end

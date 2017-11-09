@@ -32,7 +32,7 @@ device, and it is completely free.
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h'
   s.library = 'sqlite3'
-  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
     'FIRMessaging_LIB_VERSION=' + String(s.version)
   }
