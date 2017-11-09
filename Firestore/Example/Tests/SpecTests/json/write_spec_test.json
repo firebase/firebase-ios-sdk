@@ -5376,5 +5376,50 @@
         ]
       }
     ]
+  },
+  "Writes are resent after network disconnect": {
+    "describeName": "Writes:",
+    "itName": "Writes are resent after network disconnect",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/key",
+          {
+            "foo": "bar"
+          }
+        ],
+        "stateExpect": {
+          "numOutstandingWrites": 1
+        }
+      },
+      {
+        "enableNetwork": false,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": [],
+          "writeStreamRequestCount": 3
+        }
+      },
+      {
+        "enableNetwork": true,
+        "stateExpect": {
+          "writeStreamRequestCount": 5,
+          "numOutstandingWrites": 1
+        }
+      },
+      {
+        "writeAck": {
+          "version": 1,
+          "expectUserCallback": false
+        },
+        "stateExpect": {
+          "numOutstandingWrites": 0
+        }
+      }
+    ]
   }
 }

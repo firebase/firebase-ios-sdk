@@ -318,6 +318,14 @@ static NSString *const kNoIOSTag = @"no-ios";
   }
 }
 
+- (void)doDisableNetwork {
+  [self.driver disableNetwork];
+}
+
+- (void)doEnableNetwork {
+  [self.driver enableNetwork];
+}
+
 - (void)doChangeUser:(id)UID {
   FSTUser *user = [UID isEqual:[NSNull null]] ? [FSTUser unauthenticatedUser]
                                               : [[FSTUser alloc] initWithUID:UID];
@@ -376,6 +384,12 @@ static NSString *const kNoIOSTag = @"no-ios";
     [self doWriteAck:step[@"writeAck"]];
   } else if (step[@"failWrite"]) {
     [self doFailWrite:step[@"failWrite"]];
+  } else if (step[@"enableNetwork"]) {
+    if ([step[@"enableNetwork"] boolValue]) {
+      [self doEnableNetwork];
+    } else {
+      [self doDisableNetwork];
+    }
   } else if (step[@"changeUser"]) {
     [self doChangeUser:step[@"changeUser"]];
   } else if (step[@"restart"]) {
@@ -457,6 +471,14 @@ static NSString *const kNoIOSTag = @"no-ios";
   if (expected) {
     if (expected[@"numOutstandingWrites"]) {
       XCTAssertEqual([self.driver sentWritesCount], [expected[@"numOutstandingWrites"] intValue]);
+    }
+    if (expected[@"writeStreamRequestCount"]) {
+      XCTAssertEqual([self.driver writeStreamRequestCount],
+                     [expected[@"writeStreamRequestCount"] intValue]);
+    }
+    if (expected[@"watchStreamRequestCount"]) {
+      XCTAssertEqual([self.driver watchStreamRequestCount],
+                     [expected[@"watchStreamRequestCount"] intValue]);
     }
     if (expected[@"limboDocs"]) {
       NSMutableSet<FSTDocumentKey *> *expectedLimboDocuments = [NSMutableSet set];

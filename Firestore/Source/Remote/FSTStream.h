@@ -74,7 +74,8 @@ NS_ASSUME_NONNULL_BEGIN
  *   - `notifyStreamInterrupted`, calls through to the stream-specific streamWasInterrupted method.
  *
  * Additionally, beyond these required methods, subclasses will want to implement methods that
- * take request models, serialize them, and write them to using writeRequest:.
+ * take request models, serialize them, and write them to using writeRequest:. Implementation
+ * specific cleanup logic can be added to tearDown:.
  *
  * ## RPC Message Type
  *

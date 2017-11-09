@@ -320,6 +320,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 /**
+ * Can be overridden to perform additional cleanup before the stream is closed. Calling
+ * [super tearDown] is not required.
+ */
+- (void)tearDown {
+}
+
+/**
  * Closes the stream and cleans up as necessary:
  *
  * * closes the underlying GRPC stream;
@@ -349,9 +356,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     [self.backoff resetToMax];
   }
 
-  // This state must be assigned before calling `notifyStreamInterrupted` to allow the callback to
-  // inhibit backoff or otherwise manipulate the state in its non-started state.
-  self.state = finalState;
+  [self tearDown];
 
   if (self.requestsWriter) {
     // Clean up the underlying RPC. If this close: is in response to an error, don't attempt to
@@ -364,6 +369,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     }
     _requestsWriter = nil;
   }
+
+  // This state must be assigned before calling `notifyStreamInterrupted` to allow the callback to
+  // inhibit backoff or otherwise manipulate the state in its non-started state.
+  self.state = finalState;
 
   [self.callbackFilter suppressCallbacks];
   _callbackFilter = nil;
@@ -693,6 +702,14 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 - (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
   [self.delegate writeStreamWasInterruptedWithError:error];
+}
+
+- (void)tearDown {
+  if ([self isHandshakeComplete]) {
+    // Send an empty write request to the backend to indicate imminent stream closure. This allows
+    // the backend to clean up resources.
+    [self writeMutations:@[]];
+  }
 }
 
 - (void)writeHandshake {
