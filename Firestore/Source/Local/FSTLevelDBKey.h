@@ -21,7 +21,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FSTTypes.h"
-
 #import "StringView.h"
 
 @class FSTDocumentKey;

@@ -22,7 +22,7 @@
 #import <GRPCClient/GRPCCall.h>
 
 // This is not an exported header so it's not visible via FirebaseCommunity
-#import "FIRAppInternal.h"
+#import "Firebase/Core/Private/FIRAppInternal.h"
 
 #import "FIRFirestoreErrors.h"
 #import "FSTAssert.h"

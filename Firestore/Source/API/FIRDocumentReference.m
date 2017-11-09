@@ -16,6 +16,8 @@
 
 #import "FIRDocumentReference.h"
 
+#import <GRPCClient/GRPCCall.h>
+
 #import "FIRCollectionReference+Internal.h"
 #import "FIRDocumentReference+Internal.h"
 #import "FIRDocumentSnapshot+Internal.h"
@@ -36,8 +38,6 @@
 #import "FSTQuery.h"
 #import "FSTUsageValidation.h"
 #import "FSTUserDataConverter.h"
-
-#import <GRPCClient/GRPCCall.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
