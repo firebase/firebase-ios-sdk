@@ -46,6 +46,7 @@
     _metageneration = [dictionary[kFIRStorageMetadataMetageneration] longLongValue];
     _timeCreated = [self dateFromRFC3339String:dictionary[kFIRStorageMetadataTimeCreated]];
     _updated = [self dateFromRFC3339String:dictionary[kFIRStorageMetadataUpdated]];
+    _md5Hash = dictionary[kFIRStorageMetadataMd5Hash];
     // GCS "name" is our path, our "name" is just the last path component of the path
     _path = dictionary[kFIRStorageMetadataName];
     _name = [_path lastPathComponent];
@@ -135,6 +136,10 @@
 
   if (_contentType) {
     metadataDictionary[kFIRStorageMetadataContentType] = _contentType;
+  }
+
+  if (_md5Hash) {
+    metadataDictionary[kFIRStorageMetadataMd5Hash] = _md5Hash;
   }
 
   if (_customMetadata) {

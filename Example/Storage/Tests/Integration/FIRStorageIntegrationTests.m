@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <FirebaseCommunity/FIRStorageMetadata.h>
 #import <XCTest/XCTest.h>
 #import <math.h>
 
@@ -463,6 +464,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   XCTAssertEqualObjects(actualMetadata.contentEncoding, @"gzip");
   XCTAssertEqualObjects(actualMetadata.contentLanguage, @"de");
   XCTAssertEqualObjects(actualMetadata.contentType, expectedContentType);
+  XCTAssertTrue([actualMetadata.md5Hash length] == 24);
   for (NSString *key in expectedCustomMetadata) {
     XCTAssertEqualObjects([actualMetadata.customMetadata objectForKey:key],
                           [expectedCustomMetadata objectForKey:key]);
@@ -475,6 +477,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   XCTAssertEqualObjects(actualMetadata.contentEncoding, @"identity");
   XCTAssertNil(actualMetadata.contentLanguage);
   XCTAssertNil(actualMetadata.contentType);
+  XCTAssertTrue([actualMetadata.md5Hash length] == 24);
   XCTAssertNil([actualMetadata.customMetadata objectForKey:@"a"]);
   XCTAssertNil([actualMetadata.customMetadata objectForKey:@"c"]);
   XCTAssertNil([actualMetadata.customMetadata objectForKey:@"f"]);
