@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <FirebaseCommunity/FIRStorageMetadata.h>
 #import <XCTest/XCTest.h>
 
 #import "FIRStorageMetadata.h"
@@ -44,6 +45,7 @@
     kFIRStorageMetadataName : @"path/to/object",
     kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108Z",
     kFIRStorageMetadataUpdated : @"2016-03-01T20:16:01.673Z",
+    kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
     kFIRStorageMetadataSize : @1337
   };
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
@@ -55,6 +57,7 @@
   XCTAssertEqualObjects(metadata.contentEncoding, metaDict[kFIRStorageMetadataContentEncoding], );
   XCTAssertEqualObjects(metadata.contentType, metaDict[kFIRStorageMetadataContentType]);
   XCTAssertEqualObjects(metadata.customMetadata, metaDict[kFIRStorageMetadataCustomMetadata]);
+  XCTAssertEqualObjects(metadata.md5Hash, metaDict[kFIRStorageMetadataMd5Hash]);
   NSString *URLFormat = @"https://firebasestorage.googleapis.com/v0/b/%@/o/%@?alt=media&token=%@";
   NSString *URLString = [NSString
       stringWithFormat:URLFormat, metaDict[kFIRStorageMetadataBucket],
@@ -89,6 +92,7 @@
     kFIRStorageMetadataName : @"path/to/object",
     kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108Z",
     kFIRStorageMetadataUpdated : @"2016-03-01T20:16:01.673Z",
+    kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
     kFIRStorageMetadataSize : @1337
   };
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
@@ -122,6 +126,8 @@
                         metaDict[kFIRStorageMetadataUpdated]);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataSize],
                         metaDict[kFIRStorageMetadataSize]);
+  XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataMd5Hash],
+                        metaDict[kFIRStorageMetadataMd5Hash]);
 }
 
 - (void)testInitialzeNoDownloadTokensGetToken {
@@ -226,6 +232,7 @@
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
+    kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
   };
   FIRStorageMetadata *metadata0 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   FIRStorageMetadata *metadata1 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
@@ -233,10 +240,23 @@
   XCTAssertEqualObjects(metadata0, metadata1);
 }
 
+- (void)testMetadataMd5Inequality {
+  NSDictionary *firstDict = @{
+    kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
+  };
+  NSDictionary *secondDict = @{
+    kFIRStorageMetadataMd5Hash : @"foo",
+  };
+  FIRStorageMetadata *firstMetadata = [[FIRStorageMetadata alloc] initWithDictionary:firstDict];
+  FIRStorageMetadata *secondMetadata = [[FIRStorageMetadata alloc] initWithDictionary:secondDict];
+  XCTAssertNotEqualObjects(firstMetadata, secondMetadata);
+}
+
 - (void)testMetadataCopy {
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
+    kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
   };
   FIRStorageMetadata *metadata0 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   FIRStorageMetadata *metadata1 = [metadata0 copy];

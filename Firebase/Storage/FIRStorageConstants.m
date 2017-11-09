@@ -63,6 +63,7 @@ NSString *const kFIRStorageMetadataTimeCreated = @"timeCreated";
 NSString *const kFIRStorageMetadataUpdated = @"updated";
 NSString *const kFIRStorageMetadataName = @"name";
 NSString *const kFIRStorageMetadataDownloadTokens = @"downloadTokens";
+NSString *const kFIRStorageMetadataMd5Hash = @"md5Hash";
 
 // TODO: add notification support
 NSString *const kFIRStorageTaskStatusResumeNotification =
