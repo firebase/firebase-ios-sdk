@@ -63,7 +63,7 @@ FIR_SWIFT_NAME(StorageMetadata)
 @property(copy, nonatomic, nullable) NSString *contentType;
 
 /**
- * The MD5Hash of the StorageReference object.
+ * MD5 hash of the data; encoded using base64.
  */
 @property(copy, nonatomic, nullable, readonly) NSString *md5Hash;
 
