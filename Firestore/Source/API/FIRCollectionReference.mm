@@ -16,6 +16,8 @@
 
 #import "FIRCollectionReference.h"
 
+#include "Firestore/src/core/util/autoid.h"
+
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuery_Init.h"
@@ -24,7 +26,6 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
-#import "Firestore/Source/Util/FSTUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -102,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *)documentWithAutoID {
-  NSString *autoID = [FSTUtil autoID];
+  NSString *autoID = [NSString stringWithUTF8String:firestore::CreateAutoId().c_str()];
   FSTDocumentKey *key =
       [FSTDocumentKey keyWithPath:[self.query.path pathByAppendingSegment:autoID]];
   return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
