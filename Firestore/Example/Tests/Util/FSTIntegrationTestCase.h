@@ -30,6 +30,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if __cplusplus
+extern "C" {
+#endif
+
 @interface FSTIntegrationTestCase : XCTestCase
 
 /** Returns the default Firestore project ID for testing. */
@@ -95,5 +99,9 @@ NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(FIRQuerySnapsho
 
 /** Converts the FIRQuerySnapshot to an NSArray containing the document IDs in order. */
 NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs);
+
+#if __cplusplus
+}  // extern "C"
+#endif
 
 NS_ASSUME_NONNULL_END
