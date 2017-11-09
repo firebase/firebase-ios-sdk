@@ -116,7 +116,7 @@ FIR_SWIFT_NAME(MutableData)
  * Note that this enumerator operates on an immutable copy of the child list. So, you can modify the instance
  * during iteration, but the new additions will not be visible until you get a new enumerator.
  */
-@property (readonly, nonatomic, strong) NSEnumerator* children;
+@property (readonly, nonatomic, strong) NSEnumerator<FIRMutableData *>* children;
 
 
 /**

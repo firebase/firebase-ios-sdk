@@ -87,7 +87,7 @@
     return [self.node.node numChildren];
 }
 
-- (NSEnumerator *) children {
+- (NSEnumerator<FIRDataSnapshot *> *) children {
     return [[FTransformedEnumerator alloc] initWithEnumerator:self.node.childEnumerator andTransform:^id(FNamedNode *node) {
         FIRDatabaseReference *childRef = [self.ref child:node.name];
         return [[FIRDataSnapshot alloc] initWithRef:childRef indexedNode:[FIndexedNode indexedNodeWithNode:node.node]];

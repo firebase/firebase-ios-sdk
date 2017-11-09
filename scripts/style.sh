@@ -20,7 +20,7 @@ find . \
     -name 'Messaging' -prune -o \
     -name 'Storage' -prune -o \
     -name 'Pods' -prune -o \
-    -name '*.[mh]' \
+    \( -name '*.[mh]' -o -name '*.mm' \) \
     -not -name '*.pbobjc.*' \
     -not -name '*.pbrpc.*' \
     -print0 | xargs -0 clang-format -style=file -i

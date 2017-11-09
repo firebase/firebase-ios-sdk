@@ -20,15 +20,15 @@
 #include <leveldb/write_batch.h>
 #include <string>
 
-#import "MaybeDocument.pbobjc.h"
-#import "FSTLevelDBKey.h"
-#import "FSTLocalSerializer.h"
-#import "FSTWriteGroup.h"
+#import "FSTAssert.h"
 #import "FSTDocument.h"
 #import "FSTDocumentDictionary.h"
 #import "FSTDocumentKey.h"
 #import "FSTDocumentSet.h"
-#import "FSTAssert.h"
+#import "FSTLevelDBKey.h"
+#import "FSTLocalSerializer.h"
+#import "FSTWriteGroup.h"
+#import "MaybeDocument.pbobjc.h"
 
 #include "ordered_code.h"
 #include "string_util.h"

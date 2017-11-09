@@ -913,4 +913,22 @@
   [self awaitExpectations];
 }
 
+- (void)testWriteStreamReconnectsAfterIdle {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+  [self waitForIdleFirestore:firestore];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+}
+
+- (void)testWatchStreamReconnectsAfterIdle {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [self readSnapshotForRef:[self documentRef] requireOnline:YES];
+  [self waitForIdleFirestore:firestore];
+  [self readSnapshotForRef:[self documentRef] requireOnline:YES];
+}
+
 @end

@@ -41,6 +41,10 @@ extern FIRLoggerService kFIRLoggerPerf;
 extern FIRLoggerService kFIRLoggerRemoteConfig;
 extern FIRLoggerService kFIRLoggerStorage;
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 /**
  * Enables or disables Analytics debug mode.
  * If set to YES, the logging level for Analytics will be set to FIRLoggerLevelDebug.
@@ -88,10 +92,6 @@ extern void FIRLogBasic(FIRLoggerLevel level,
                         va_list _Nullable args_ptr
 #endif
 );
-
-#ifdef __cplusplus
-extern "C" {
-#endif  // __cplusplus
 
 /**
  * The following functions accept the following parameters in order:

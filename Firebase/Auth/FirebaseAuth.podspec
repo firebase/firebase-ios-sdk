@@ -4,7 +4,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '4.3.1'
+  s.version          = '4.3.2'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC

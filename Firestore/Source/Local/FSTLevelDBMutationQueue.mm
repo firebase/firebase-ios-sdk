@@ -21,18 +21,18 @@
 #include <set>
 #include <string>
 
-#import "Mutation.pbobjc.h"
-#import "FSTUser.h"
-#import "FSTQuery.h"
+#import "FSTAssert.h"
+#import "FSTDocumentKey.h"
 #import "FSTLevelDB.h"
 #import "FSTLevelDBKey.h"
 #import "FSTLocalSerializer.h"
-#import "FSTWriteGroup.h"
-#import "FSTDocumentKey.h"
 #import "FSTMutation.h"
 #import "FSTMutationBatch.h"
 #import "FSTPath.h"
-#import "FSTAssert.h"
+#import "FSTQuery.h"
+#import "FSTUser.h"
+#import "FSTWriteGroup.h"
+#import "Mutation.pbobjc.h"
 
 #include "ordered_code.h"
 #include "string_util.h"
@@ -410,10 +410,11 @@ static ReadOptions StandardReadOptions() {
       if (mutationIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
       }
-      FSTFail(@"Dangling document-mutation reference found: "
-              @"%@ points to %@; seeking there found %@",
-              [FSTLevelDBKey descriptionForKey:indexKey],
-              [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
+      FSTFail(
+          @"Dangling document-mutation reference found: "
+          @"%@ points to %@; seeking there found %@",
+          [FSTLevelDBKey descriptionForKey:indexKey], [FSTLevelDBKey descriptionForKey:mutationKey],
+          foundKeyDescription);
     }
 
     [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
@@ -485,9 +486,10 @@ static ReadOptions StandardReadOptions() {
       if (mutationIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
       }
-      FSTFail(@"Dangling document-mutation reference found: "
-              @"Missing batch %@; seeking there found %@",
-              [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
+      FSTFail(
+          @"Dangling document-mutation reference found: "
+          @"Missing batch %@; seeking there found %@",
+          [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
     [result addObject:[self decodedMutationBatch:mutationIterator->value()]];

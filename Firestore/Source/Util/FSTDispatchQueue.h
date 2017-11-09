@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Creates and returns an FSTDispatchQueue wrapping the specified dispatch_queue_t. */
 + (instancetype)queueWith:(dispatch_queue_t)dispatchQueue;
 
+- (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
+
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 
 /**
@@ -49,6 +51,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @param block The block to run.
  */
 - (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block;
+
+/**
+ * Schedules a callback after the specified delay.
+ *
+ * Unlike dispatchAsync: this method does not require you to dispatch to a different queue than
+ * the current one (thus it is equivalent to a raw dispatch_after()).
+ *
+ * @param block The block to run.
+ * @param delay The delay (in seconds) after which to run the block.
+ */
+- (void)dispatchAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block;
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;
