@@ -1,15 +1,13 @@
-
-source 'sso://user/paulbeusterien/Specs.git'
+source 'sso://cpdc-internal/spec'
 source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
-#pod 'Firebase'  # , :path => '../'
 pod 'FirebaseCore', :path => '../'
 
 target 'Core_Example_iOS' do
   platform :ios, '8.0'
-  pod 'FirebaseCoreDiagnostics', :path => '../'
+  pod 'Firebase/Core', '4.6.0'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
@@ -21,7 +19,6 @@ target 'Auth_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseAuth', :path => '../'
-  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Auth_Tests_iOS' do
     inherit! :search_paths
@@ -33,7 +30,6 @@ target 'Database_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDatabase', :path => '../'
-  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Database_Tests_iOS' do
     inherit! :search_paths
@@ -51,7 +47,6 @@ target 'Messaging_Example_iOS' do
 
   pod 'FirebaseMessaging' , :path => '../'
   pod 'FirebaseInstanceID'
-  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Messaging_Tests_iOS' do
     inherit! :search_paths
@@ -63,7 +58,6 @@ target 'Storage_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseStorage', :path => '../'
-  pod 'FirebaseCoreDiagnostics', :path => '../'
 
   target 'Storage_Tests_iOS' do
     inherit! :search_paths

@@ -1,10 +1,6 @@
-# This podspec is not intended to be deployed. It is solely for the static
-# library framework build process at
-# https://github.com/firebase/firebase-ios-sdk/tree/master/BuildFrameworks
-
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '0.0.4'
+  s.version          = '2.0.2'
   s.summary          = 'Firebase Storage for iOS'
 
   s.description      = <<-DESC
@@ -20,7 +16,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
 
-  s.cocoapods_version = '>= 1.4.0.beta.1'
+  s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true
   s.prefix_header_file = false
 
@@ -31,7 +27,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.dependency 'FirebaseCore', '~> 4.0'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
-  s.ios.dependency 'FirebaseCoreDiagnostics'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'FIRStorage_VERSION=' + s.version.to_s }

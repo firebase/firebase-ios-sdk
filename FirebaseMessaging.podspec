@@ -1,10 +1,6 @@
-# This podspec is not intended to be deployed. It is solely for the static
-# library framework build process at
-# https://github.com/firebase/firebase-ios-sdk/tree/master/BuildFrameworks
-
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '0.0.1'
+  s.version          = '2.0.6'
   s.summary          = 'Firebase Messaging for iOS'
 
   s.description      = <<-DESC
@@ -23,7 +19,7 @@ device, and it is completely free.
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
 
-  s.cocoapods_version = '>= 1.4.0.beta.1'
+  s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true
   s.prefix_header_file = false
 
@@ -40,7 +36,6 @@ device, and it is completely free.
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 4.0'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
-  s.ios.dependency 'FirebaseCoreDiagnostics'
   s.dependency 'FirebaseInstanceID', '~> 2.0'
   s.dependency 'GoogleToolboxForMac/Logger', '~> 2.1'
   s.dependency 'Protobuf', '~> 3.1'

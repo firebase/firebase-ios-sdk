@@ -1,10 +1,6 @@
-# This podspec is not intended to be deployed. It is solely for the static
-# library framework build process at
-# https://github.com/firebase/firebase-ios-sdk/tree/master/BuildFrameworks
-
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '4.3.0'
+  s.version          = '4.3.2'
   s.summary          = 'The official iOS client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -21,7 +17,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
 
-  s.cocoapods_version = '>= 1.4.0.beta.1'
+  s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true
   s.prefix_header_file = false
 
@@ -52,7 +48,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.framework = 'SafariServices'
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 4.0'
-  s.ios.dependency 'FirebaseCoreDiagnostics'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'

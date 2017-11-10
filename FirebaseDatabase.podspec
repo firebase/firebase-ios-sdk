@@ -1,10 +1,6 @@
-# This podspec is not intended to be deployed. It is solely for the static
-# library framework build process at
-# https://github.com/firebase/firebase-ios-sdk/tree/master/BuildFrameworks
-
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '0.0.1'
+  s.version          = '4.0.4'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -20,7 +16,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
 
-  s.cocoapods_version = '>= 1.4.0.beta.1'
+  s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true
   s.prefix_header_file = false
 
@@ -34,7 +30,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'FirebaseCore', '~> 4.0'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
-  s.ios.dependency 'FirebaseCoreDiagnostics'
   s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
     'FIRDatabase_VERSION=' + s.version.to_s }
 end
