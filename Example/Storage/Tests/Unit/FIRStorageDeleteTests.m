@@ -29,7 +29,7 @@
 - (void)setUp {
   [super setUp];
 
-  NSDictionary *metadataDict = @{ @"bucket" : @"bucket", @"name" : @"path/to/object" };
+  NSDictionary *metadataDict = @{@"bucket" : @"bucket", @"name" : @"path/to/object"};
   self.metadata = [[FIRStorageMetadata alloc] initWithDictionary:metadataDict];
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -64,11 +64,10 @@
         XCTAssertEqualObjects(fetcher.request.URL, [FIRStorageTestHelpers objectURL]);
 #pragma clang diagnostic pop
         XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"DELETE");
-        NSHTTPURLResponse *httpResponse =
-            [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                        statusCode:200
-                                       HTTPVersion:kHTTPVersion
-                                      headerFields:nil];
+        NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                      statusCode:200
+                                                                     HTTPVersion:kHTTPVersion
+                                                                    headerFields:nil];
         response(httpResponse, nil, nil);
       };
 
@@ -108,14 +107,13 @@
   self.fetcherService.testBlock = [FIRStorageTestHelpers unauthenticatedBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
-  FIRStorageDeleteTask *task =
-      [[FIRStorageDeleteTask alloc] initWithReference:ref
-                                       fetcherService:self.fetcherService
-                                           completion:^(NSError *error) {
-                                             XCTAssertEqual(error.code,
-                                                            FIRStorageErrorCodeUnauthenticated);
-                                             [expectation fulfill];
-                                           }];
+  FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
+      initWithReference:ref
+         fetcherService:self.fetcherService
+             completion:^(NSError *error) {
+               XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
+               [expectation fulfill];
+             }];
   [task enqueue];
 
   [FIRStorageTestHelpers waitForExpectation:self];
@@ -128,14 +126,13 @@
   self.fetcherService.testBlock = [FIRStorageTestHelpers unauthorizedBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
-  FIRStorageDeleteTask *task =
-      [[FIRStorageDeleteTask alloc] initWithReference:ref
-                                       fetcherService:self.fetcherService
-                                           completion:^(NSError *error) {
-                                             XCTAssertEqual(error.code,
-                                                            FIRStorageErrorCodeUnauthorized);
-                                             [expectation fulfill];
-                                           }];
+  FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
+      initWithReference:ref
+         fetcherService:self.fetcherService
+             completion:^(NSError *error) {
+               XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthorized);
+               [expectation fulfill];
+             }];
   [task enqueue];
 
   [FIRStorageTestHelpers waitForExpectation:self];
@@ -148,14 +145,13 @@
   self.fetcherService.testBlock = [FIRStorageTestHelpers notFoundBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers notFoundPath];
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
-  FIRStorageDeleteTask *task =
-      [[FIRStorageDeleteTask alloc] initWithReference:ref
-                                       fetcherService:self.fetcherService
-                                           completion:^(NSError *error) {
-                                             XCTAssertEqual(error.code,
-                                                            FIRStorageErrorCodeObjectNotFound);
-                                             [expectation fulfill];
-                                           }];
+  FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
+      initWithReference:ref
+         fetcherService:self.fetcherService
+             completion:^(NSError *error) {
+               XCTAssertEqual(error.code, FIRStorageErrorCodeObjectNotFound);
+               [expectation fulfill];
+             }];
   [task enqueue];
 
   [FIRStorageTestHelpers waitForExpectation:self];

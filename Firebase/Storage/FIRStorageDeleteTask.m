@@ -24,7 +24,7 @@
 @synthesize fetcher = _fetcher;
 @synthesize fetcherCompletion = _fetcherCompletion;
 
-- (void) dealloc {
+- (void)dealloc {
   [_fetcher stopFetching];
 }
 
@@ -64,7 +64,7 @@
   };
 #pragma clang diangostic pop
 
-  __weak FIRStorageDeleteTask* weakSelf = self;
+  __weak FIRStorageDeleteTask *weakSelf = self;
   [fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
     weakSelf.fetcherCompletion(data, error);
   }];

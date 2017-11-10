@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://cloud.google.com/storage/docs/json_api/v1/objects#resource
  */
 FIR_SWIFT_NAME(StorageMetadata)
-@interface FIRStorageMetadata : NSObject<NSCopying>
+@interface FIRStorageMetadata : NSObject <NSCopying>
 
 /**
  * The name of the bucket containing this object.
@@ -61,6 +61,11 @@ FIR_SWIFT_NAME(StorageMetadata)
  * Content-Type of the object data.
  */
 @property(copy, nonatomic, nullable) NSString *contentType;
+
+/**
+ * MD5 hash of the data; encoded using base64.
+ */
+@property(copy, nonatomic, nullable, readonly) NSString *md5Hash;
 
 /**
  * The content generation of this object. Used for object versioning.
@@ -118,14 +123,14 @@ FIR_SWIFT_NAME(StorageMetadata)
  * Creates an instanece of FIRStorageMetadata from the contents of a dictionary.
  * @return An instance of FIRStorageMetadata that represents the contents of a dictionary.
  */
-- (nullable instancetype)initWithDictionary:(NSDictionary <NSString *, id>*)dictionary
+- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> *)dictionary
     NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates an NSDictionary from the contents of the metadata.
  * @return An NSDictionary that represents the contents of the metadata.
  */
-- (NSDictionary <NSString *, id>*)dictionaryRepresentation;
+- (NSDictionary<NSString *, id> *)dictionaryRepresentation;
 
 /**
  * Determines if the current metadata represents a "file".

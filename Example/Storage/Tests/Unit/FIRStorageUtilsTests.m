@@ -43,7 +43,7 @@
   NSString *JSONString = @"{\"hello\" : \"world\"}";
   NSData *JSONData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
   NSDictionary *JSONDictionary = [NSDictionary frs_dictionaryFromJSONData:JSONData];
-  NSDictionary *expectedDictionary = @{ @"hello" : @"world" };
+  NSDictionary *expectedDictionary = @{@"hello" : @"world"};
   XCTAssertEqualObjects(JSONDictionary, expectedDictionary);
 }
 
@@ -60,7 +60,7 @@
 }
 
 - (void)testParseGoodDictToData {
-  NSDictionary *JSONDictionary = @{ @"hello" : @"world" };
+  NSDictionary *JSONDictionary = @{@"hello" : @"world"};
   NSData *expectedData = [NSData frs_dataFromJSONDictionary:JSONDictionary];
   NSString *JSONString = [[NSString alloc] initWithData:expectedData encoding:NSUTF8StringEncoding];
   NSString *expectedString = @"{\"hello\":\"world\"}";
@@ -85,13 +85,13 @@
 }
 
 - (void)testSingleItemToQueryString {
-  NSDictionary *params = @{ @"foo" : @"bar" };
+  NSDictionary *params = @{@"foo" : @"bar"};
   NSString *queryString = [FIRStorageUtils queryStringForDictionary:params];
   XCTAssertEqualObjects(queryString, @"foo=bar");
 }
 
 - (void)testMultiItemDictToQueryString {
-  NSDictionary *params = @{ @"foo" : @"bar", @"baz" : @"qux" };
+  NSDictionary *params = @{@"foo" : @"bar", @"baz" : @"qux"};
   NSString *queryString = [FIRStorageUtils queryStringForDictionary:params];
   XCTAssertEqualObjects(queryString, @"foo=bar&baz=qux");
 }
