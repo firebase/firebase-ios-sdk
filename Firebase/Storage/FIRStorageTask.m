@@ -15,12 +15,12 @@
 #import "FIRStorageTask.h"
 
 #import "FIRStorage.h"
-#import "FIRStorage_Private.h"
 #import "FIRStorageReference.h"
 #import "FIRStorageReference_Private.h"
 #import "FIRStorageTaskSnapshot.h"
 #import "FIRStorageTaskSnapshot_Private.h"
 #import "FIRStorageTask_Private.h"
+#import "FIRStorage_Private.h"
 
 #import "GTMSessionFetcherService.h"
 
@@ -48,8 +48,7 @@
 
 - (FIRStorageTaskSnapshot *)snapshot {
   @synchronized(self) {
-    NSProgress *progress =
-        [NSProgress progressWithTotalUnitCount:self.progress.totalUnitCount];
+    NSProgress *progress = [NSProgress progressWithTotalUnitCount:self.progress.totalUnitCount];
     progress.completedUnitCount = self.progress.completedUnitCount;
     FIRStorageTaskSnapshot *snapshot =
         [[FIRStorageTaskSnapshot alloc] initWithTask:self

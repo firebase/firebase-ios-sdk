@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  * If no authentication provider exists or no token is found, no token is added
  * and the request is passed.
  */
-@interface FIRStorageTokenAuthorizer : NSObject<GTMFetcherAuthorizationProtocol>
+@interface FIRStorageTokenAuthorizer : NSObject <GTMFetcherAuthorizationProtocol>
 
 /**
  * Initializes the token authorizer with an instance of FIRApp.

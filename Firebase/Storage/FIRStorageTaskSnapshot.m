@@ -67,20 +67,19 @@
   return self;
 }
 
-
--(NSString *)description {
+- (NSString *)description {
   switch (_status) {
-   case FIRStorageTaskStatusResume:
+    case FIRStorageTaskStatusResume:
       return @"<State: Resume>";
-   case FIRStorageTaskStatusProgress:
+    case FIRStorageTaskStatusProgress:
       return [NSString stringWithFormat:@"<State: Progress, Progress: %@>", _progress];
-   case FIRStorageTaskStatusPause:
+    case FIRStorageTaskStatusPause:
       return @"<State: Paused>";
-   case FIRStorageTaskStatusSuccess:
+    case FIRStorageTaskStatusSuccess:
       return @"<State: Success>";
-   case FIRStorageTaskStatusFailure:
+    case FIRStorageTaskStatusFailure:
       return [NSString stringWithFormat:@"<State: Failed, Error: %@>", _error];
-  default:
+    default:
       return @"<State: Unknown>";
   };
 }

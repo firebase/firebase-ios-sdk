@@ -62,6 +62,7 @@ FOUNDATION_EXPORT NSString *const kFIRStorageMetadataTimeCreated;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataUpdated;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataName;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataDownloadTokens;
+FOUNDATION_EXPORT NSString *const kFIRStorageMetadataMd5Hash;
 
 FOUNDATION_EXPORT NSString *const kFIRStorageInvalidDataFormat;
 FOUNDATION_EXPORT NSString *const kFIRStorageInvalidObserverStatus;

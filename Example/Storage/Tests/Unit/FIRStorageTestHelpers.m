@@ -97,16 +97,15 @@ NSString *const kFIRStorageAppName = @"app";
 + (GTMSessionFetcherTestBlock)blockForData:(nullable NSData *)data statusCode:(NSInteger)code {
   GTMSessionFetcherTestBlock block =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-        NSHTTPURLResponse *httpResponse =
-            [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                        statusCode:code
-                                       HTTPVersion:kHTTPVersion
-                                      headerFields:nil];
+        NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                      statusCode:code
+                                                                     HTTPVersion:kHTTPVersion
+                                                                    headerFields:nil];
         NSError *error;
         if (code >= 400) {
           NSDictionary *userInfo;
           if (data) {
-            userInfo = @{ @"data" : data };
+            userInfo = @{@"data" : data};
           }
           error = [NSError errorWithDomain:kGoogleHTTPErrorDomain code:code userInfo:userInfo];
         }
