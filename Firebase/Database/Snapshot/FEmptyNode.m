@@ -21,9 +21,10 @@
 
 + (id<FNode>) emptyNode {
     static FChildrenNode* empty = nil;
-    if (empty == nil) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         empty = [[FChildrenNode alloc] init];
-    }
+    });
     return empty;
 }
 @end
