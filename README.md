@@ -1,8 +1,8 @@
 # Firebase iOS Open Source Development [![Build Status](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
-includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseMessaging,
-FirebaseStorage, and Firestore.
+includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
+FirebaseMessaging and FirebaseStorage.
 
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
@@ -15,21 +15,37 @@ the Firebase iOS SDK. If you're interested in using the Firebase iOS SDK, start 
 ## Context
 
 This repo contains a fully functional development environment for FirebaseCore,
-FirebaseAuth, FirebaseDatabase, FirebaseMessaging, and FirebaseStorage. By
+FirebaseAuth, FirebaseDatabase, FirebaseFirestore, FirebaseMessaging, and
+FirebaseStorage. By
 following the usage instructions below, they can be developed and debugged with
 unit tests, integration tests, and reference samples.
 
-Note, however, that the resulting FirebaseCommunity pod is NOT interoperable with the
-official Firebase release pods because of different pod dependency definitions.
+## Source pod integration
 
-Firestore has not yet been integrated with FirebaseCommunity. In the
-meantime, it has a self contained Xcode project. See
-[Firestore/README.md](Firestore/README.md).
+While the official Firebase release remains a binary framework distribution,
+we plan to switch to a source CocoaPod distribution for some of the components.
 
-Instructions and a script to build replaceable static library
-frameworks at [BuildFrameworks](BuildFrameworks). The
-resulting frameworks can be used to replace frameworks delivered by CocoaPods or
-the zip distribution for development.
+It is now possible to override the default pod locations with source pod
+locations described via the Podfile syntax documented
+[here](https://guides.cocoapods.org/syntax/podfile.html#pod).
+
+For example, to access FirebaseMessaging via a checked out version of the
+firebase-ios-sdk repo do:
+
+```
+pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
+```
+To access via a branch:
+```
+pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+```
+
+To access via a tag (Release tags will be available starting with Firebase 4.7.0:
+```
+pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
+```
+
+Note that CocoaPods 1.4.0 or later is required.
 
 ## Usage
 
@@ -39,6 +55,10 @@ $ cd firebase-ios-sdk/Example
 $ pod update
 $ open Firebase.xcworkspace
 ```
+
+Firestore has a self contained Xcode project. See
+[Firestore/README.md](Firestore/README.md).
+
 ### Running Unit Tests
 
 Select a scheme and press Command-u to build a component and run its unit tests.
