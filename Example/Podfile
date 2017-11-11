@@ -73,34 +73,28 @@ end
 target 'Auth_Sample' do
   platform :ios, '8.0'
   pod 'FirebaseAuth', :path => '../'
+  pod 'FirebaseCore', :path => '../'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn'
-  # to FirebaseCore
   pod 'FirebaseInstanceID'
   pod 'GTMSessionFetcher/Core'
+
+  target 'Auth_ApiTests' do
+    inherit! :search_paths
+  end
+
+  target 'Auth_EarlGreyTests' do
+    inherit! :search_paths
+    pod 'EarlGrey'
+  end
 end
 
 target 'Auth_SwiftSample' do
   platform :ios, '8.0'
   pod 'FirebaseAuth', :path => '../'
+  pod 'FirebaseCore', :path => '../'
   pod 'GoogleSignIn'
   pod 'FirebaseInstanceID'
-end
-
-target 'Auth_ApiTests' do
-  platform :ios, '8.0'
-  pod 'FirebaseAuth', :path => '../'
-  pod 'GoogleSignIn'
-  pod 'FirebaseInstanceID'
-  pod 'GTMSessionFetcher/Core'
-end
-
-target 'Auth_EarlGreyTests' do
-  platform :ios, '8.0'
-  pod 'FirebaseAuth', :path => '../'
-  pod 'GoogleSignIn'
-  pod 'FirebaseInstanceID'
-  pod 'EarlGrey'
 end
 
 target 'Core_Example_macOS' do
