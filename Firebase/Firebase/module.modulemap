@@ -1,6 +1,0 @@
-// Paul is here
-
-module Firebase {
-  export *
-  header "Fie.h"
-}
