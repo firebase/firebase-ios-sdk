@@ -68,8 +68,7 @@ FIR_SWIFT_NAME(Storage)
  * @param url The gs:// url to your Firebase Storage Bucket.
  * @return the FIRStorage instance, initialized with the custom FIRApp.
  */
-+ (instancetype)storageForApp:(FIRApp *)app
-                          URL:(NSString *)url FIR_SWIFT_NAME(storage(app:url:));
++ (instancetype)storageForApp:(FIRApp *)app URL:(NSString *)url FIR_SWIFT_NAME(storage(app:url:));
 
 /**
  * The Firebase App associated with this Firebase Storage instance.

@@ -63,12 +63,13 @@
   return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
   [_uploadFetcher stopFetching];
 }
 
 - (void)enqueue {
-  NSAssert([NSThread isMainThread], @"Upload attempting to execute on non main queue! Please only "
+  NSAssert([NSThread isMainThread],
+           @"Upload attempting to execute on non main queue! Please only "
            @"execute this method on the main queue.");
   self.state = FIRStorageTaskStateQueueing;
 
@@ -78,8 +79,8 @@
   NSData *bodyData = [NSData frs_dataFromJSONDictionary:[_uploadMetadata dictionaryRepresentation]];
   request.HTTPBody = bodyData;
   [request setValue:@"application/json; charset=UTF-8" forHTTPHeaderField:@"Content-Type"];
-  NSString *contentLengthString = [NSString stringWithFormat:@"%zu",
-                                   (unsigned long)[bodyData length]];
+  NSString *contentLengthString =
+      [NSString stringWithFormat:@"%zu", (unsigned long)[bodyData length]];
   [request setValue:contentLengthString forHTTPHeaderField:@"Content-Length"];
 
   NSURLComponents *components =
@@ -89,7 +90,7 @@
     [components setPercentEncodedPath:[@"/upload" stringByAppendingString:components.path]];
   }
 
-  NSDictionary *queryParams = @{ @"uploadType" : @"resumable", @"name" : self.uploadMetadata.path };
+  NSDictionary *queryParams = @{@"uploadType" : @"resumable", @"name" : self.uploadMetadata.path};
   [components setPercentEncodedQuery:[FIRStorageUtils queryStringForDictionary:queryParams]];
   request.URL = components.URL;
 
@@ -109,7 +110,7 @@
 
   uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryTime;
 
-  __weak FIRStorageUploadTask* weakSelf = self;
+  __weak FIRStorageUploadTask *weakSelf = self;
 
   [uploadFetcher setSendProgressBlock:^(int64_t bytesSent, int64_t totalBytesSent,
                                         int64_t totalBytesExpectedToSend) {
@@ -128,8 +129,7 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
-  _fetcherCompletion = ^(NSData *_Nullable data,
-                         NSError *_Nullable error) {
+  _fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
     // Fire last progress updates
     [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
 
@@ -161,8 +161,7 @@
       if (invalidDataString.length > 0) {
         dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
       }
-      self.error =
-          [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
+      self.error = [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
     }
 
     [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
@@ -171,16 +170,17 @@
   };
 #pragma clang diagnostic pop
 
-  [_uploadFetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
-                                                    NSError *_Nullable error) {
-    weakSelf.fetcherCompletion(data, error);
-  }];
+  [_uploadFetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        weakSelf.fetcherCompletion(data, error);
+      }];
 }
 
 #pragma mark - Upload Management
 
 - (void)cancel {
-  NSAssert([NSThread isMainThread], @"Cancel attempting to execute on non main queue! Please only "
+  NSAssert([NSThread isMainThread],
+           @"Cancel attempting to execute on non main queue! Please only "
            @"execute this method on the main queue.");
   self.state = FIRStorageTaskStateCancelled;
   [_uploadFetcher stopFetching];
@@ -192,7 +192,8 @@
 }
 
 - (void)pause {
-  NSAssert([NSThread isMainThread], @"Pause attempting to execute on non main queue! Please only "
+  NSAssert([NSThread isMainThread],
+           @"Pause attempting to execute on non main queue! Please only "
            @"execute this method on the main queue.");
   self.state = FIRStorageTaskStatePaused;
   [_uploadFetcher pauseFetching];
@@ -203,7 +204,8 @@
 }
 
 - (void)resume {
-  NSAssert([NSThread isMainThread], @"Resume attempting to execute on non main queue! Please only "
+  NSAssert([NSThread isMainThread],
+           @"Resume attempting to execute on non main queue! Please only "
            @"execute this method on the main queue.");
   self.state = FIRStorageTaskStateResuming;
   [_uploadFetcher resumeFetching];

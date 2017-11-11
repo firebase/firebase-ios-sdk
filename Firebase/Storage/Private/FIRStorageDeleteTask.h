@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Task which provides the ability to delete an object in Firebase Storage.
  */
-@interface FIRStorageDeleteTask : FIRStorageTask<FIRStorageTaskManagement>
+@interface FIRStorageDeleteTask : FIRStorageTask <FIRStorageTaskManagement>
 
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service

@@ -43,7 +43,7 @@
 }
 
 - (void)testBucketNotEnforced {
-  FIROptions * mockOptions = OCMClassMock([FIROptions class]);
+  FIROptions *mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"");
   FIRApp *app = OCMClassMock([FIRApp class]);
   OCMStub([app name]).andReturn(kFIRStorageAppName);
@@ -55,40 +55,39 @@
 }
 
 - (void)testBucketEnforced {
-  FIRStorage *storage = [FIRStorage storageForApp:self.app
-                                              URL:@"gs://benwu-test1.storage.firebase.com"];
+  FIRStorage *storage =
+      [FIRStorage storageForApp:self.app URL:@"gs://benwu-test1.storage.firebase.com"];
   [storage referenceForURL:@"gs://benwu-test1.storage.firebase.com/child"];
   storage = [FIRStorage storageForApp:self.app URL:@"gs://benwu-test1.storage.firebase.com/"];
   [storage referenceForURL:@"gs://benwu-test1.storage.firebase.com/child"];
   XCTAssertThrows([storage referenceForURL:@"gs://benwu-test2.storage.firebase.com/child"]);
 }
 
-- (void) testInitWithCustomUrl {
+- (void)testInitWithCustomUrl {
   FIRStorage *storage = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
   XCTAssertEqualObjects(@"gs://foo-bar.appspot.com/", [[storage reference] description]);
   storage = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com/"];
   XCTAssertEqualObjects(@"gs://foo-bar.appspot.com/", [[storage reference] description]);
 }
 
-- (void) testInitWithWrongScheme {
+- (void)testInitWithWrongScheme {
   XCTAssertThrows([FIRStorage storageForApp:self.app URL:@"http://foo-bar.appspot.com"]);
 }
 
-- (void) testInitWithNoScheme {
+- (void)testInitWithNoScheme {
   XCTAssertThrows([FIRStorage storageForApp:self.app URL:@"foo-bar.appspot.com"]);
 }
 
-- (void) testInitWithNilURL {
+- (void)testInitWithNilURL {
   XCTAssertThrows([FIRStorage storageForApp:self.app URL:nil]);
 }
 
-- (void) testInitWithPath {
+- (void)testInitWithPath {
   XCTAssertThrows([FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com/child"]);
 }
 
-- (void) testInitWithDefaultAndCustomUrl {
-  FIRStorage *customInstance = [FIRStorage storageForApp:self.app
-                                                     URL:@"gs://foo-bar.appspot.com"];
+- (void)testInitWithDefaultAndCustomUrl {
+  FIRStorage *customInstance = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
   FIRStorage *defaultInstance = [FIRStorage storageForApp:self.app];
   XCTAssertEqualObjects(@"gs://foo-bar.appspot.com/", [[customInstance reference] description]);
   XCTAssertEqualObjects(@"gs://bucket/", [[defaultInstance reference] description]);

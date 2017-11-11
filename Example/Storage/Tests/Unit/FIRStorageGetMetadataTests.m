@@ -29,7 +29,7 @@
 - (void)setUp {
   [super setUp];
 
-  NSDictionary *metadataDict = @{ @"bucket" : @"bucket", @"name" : @"path/to/object" };
+  NSDictionary *metadataDict = @{@"bucket" : @"bucket", @"name" : @"path/to/object"};
   self.metadata = [[FIRStorageMetadata alloc] initWithDictionary:metadataDict];
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -64,11 +64,10 @@
         XCTAssertEqualObjects(fetcher.request.URL, [FIRStorageTestHelpers objectURL]);
 #pragma clang diagnostic pop
         XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"GET");
-        NSHTTPURLResponse *httpResponse =
-            [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                        statusCode:200
-                                       HTTPVersion:kHTTPVersion
-                                      headerFields:nil];
+        NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                      statusCode:200
+                                                                     HTTPVersion:kHTTPVersion
+                                                                    headerFields:nil];
         response(httpResponse, nil, nil);
       };
 

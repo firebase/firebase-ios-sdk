@@ -56,23 +56,22 @@
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
     XCTAssertTrue([self.fetcher.authorizer isAuthorizedRequest:fetcher.request]);
 #pragma clang diagnostic pop
-    NSHTTPURLResponse *httpResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                    statusCode:200
-                                   HTTPVersion:kHTTPVersion
-                                  headerFields:nil];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                  statusCode:200
+                                                                 HTTPVersion:kHTTPVersion
+                                                                headerFields:nil];
     response(httpResponse, nil, nil);
   };
 
-  [self.fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
-                                                  NSError *_Nullable error) {
-    NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
-    NSString *authHeader = [headers objectForKey:@"Authorization"];
-    NSString *firebaseToken =
-        [NSString stringWithFormat:kFIRStorageAuthTokenFormat, kFIRStorageTestAuthToken];
-    XCTAssertEqualObjects(authHeader, firebaseToken);
-    [expectation fulfill];
-  }];
+  [self.fetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
+        NSString *authHeader = [headers objectForKey:@"Authorization"];
+        NSString *firebaseToken =
+            [NSString stringWithFormat:kFIRStorageAuthTokenFormat, kFIRStorageTestAuthToken];
+        XCTAssertEqualObjects(authHeader, firebaseToken);
+        [expectation fulfill];
+      }];
 
   [FIRStorageTestHelpers waitForExpectation:self];
 }
@@ -98,23 +97,22 @@
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
     XCTAssertEqual([self.fetcher.authorizer isAuthorizedRequest:fetcher.request], NO);
 #pragma cland diagnostic pop
-    NSHTTPURLResponse *httpResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                    statusCode:401
-                                   HTTPVersion:kHTTPVersion
-                                  headerFields:nil];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                  statusCode:401
+                                                                 HTTPVersion:kHTTPVersion
+                                                                headerFields:nil];
     response(httpResponse, nil, authError);
   };
 
-  [self.fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
-                                                  NSError *_Nullable error) {
-    NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
-    NSString *authHeader = [headers objectForKey:@"Authorization"];
-    XCTAssertNil(authHeader);
-    XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
-    XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
-    [expectation fulfill];
-  }];
+  [self.fetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
+        NSString *authHeader = [headers objectForKey:@"Authorization"];
+        XCTAssertNil(authHeader);
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+        XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
+        [expectation fulfill];
+      }];
 
   [FIRStorageTestHelpers waitForExpectation:self];
 }
@@ -134,22 +132,21 @@
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
     XCTAssertFalse([self.fetcher.authorizer isAuthorizedRequest:fetcher.request]);
 #pragma cland diagnostic pop
-    NSHTTPURLResponse *httpResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                    statusCode:200
-                                   HTTPVersion:kHTTPVersion
-                                  headerFields:nil];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                  statusCode:200
+                                                                 HTTPVersion:kHTTPVersion
+                                                                headerFields:nil];
     response(httpResponse, nil, nil);
   };
 
-  [self.fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
-                                                  NSError *_Nullable error) {
-    NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
-    NSString *authHeader = [headers objectForKey:@"Authorization"];
-    XCTAssertNil(authHeader);
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
+  [self.fetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
+        NSString *authHeader = [headers objectForKey:@"Authorization"];
+        XCTAssertNil(authHeader);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      }];
 
   [FIRStorageTestHelpers waitForExpectation:self];
 }
@@ -159,11 +156,10 @@
 
   self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
     XCTAssertFalse([fetcher.authorizer isAuthorizingRequest:fetcher.request]);
-    NSHTTPURLResponse *httpResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                    statusCode:200
-                                   HTTPVersion:kHTTPVersion
-                                  headerFields:nil];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                  statusCode:200
+                                                                 HTTPVersion:kHTTPVersion
+                                                                headerFields:nil];
     response(httpResponse, nil, nil);
   };
 
@@ -183,23 +179,22 @@
     // will still result in successful authentication
     [fetcher.authorizer stopAuthorization];
     [fetcher.authorizer stopAuthorizationForRequest:fetcher.request];
-    NSHTTPURLResponse *httpResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                    statusCode:200
-                                   HTTPVersion:kHTTPVersion
-                                  headerFields:nil];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                  statusCode:200
+                                                                 HTTPVersion:kHTTPVersion
+                                                                headerFields:nil];
     response(httpResponse, nil, nil);
   };
 
-  [self.fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data,
-                                                  NSError *_Nullable error) {
-    NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
-    NSString *authHeader = [headers objectForKey:@"Authorization"];
-    NSString *firebaseToken =
-        [NSString stringWithFormat:kFIRStorageAuthTokenFormat, kFIRStorageTestAuthToken];
-    XCTAssertEqualObjects(authHeader, firebaseToken);
-    [expectation fulfill];
-  }];
+  [self.fetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
+        NSString *authHeader = [headers objectForKey:@"Authorization"];
+        NSString *firebaseToken =
+            [NSString stringWithFormat:kFIRStorageAuthTokenFormat, kFIRStorageTestAuthToken];
+        XCTAssertEqualObjects(authHeader, firebaseToken);
+        [expectation fulfill];
+      }];
 
   [FIRStorageTestHelpers waitForExpectation:self];
 }
@@ -209,11 +204,10 @@
 
   self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
     XCTAssertNil([fetcher.authorizer userEmail]);
-    NSHTTPURLResponse *httpResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                    statusCode:200
-                                   HTTPVersion:kHTTPVersion
-                                  headerFields:nil];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                  statusCode:200
+                                                                 HTTPVersion:kHTTPVersion
+                                                                headerFields:nil];
     response(httpResponse, nil, nil);
   };
 

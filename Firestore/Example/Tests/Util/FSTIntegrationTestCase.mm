@@ -297,8 +297,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-extern "C"
-NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(FIRQuerySnapshot *docs) {
+extern "C" NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(
+    FIRQuerySnapshot *docs) {
   NSMutableArray<NSDictionary<NSString *, id> *> *result = [NSMutableArray array];
   for (FIRDocumentSnapshot *doc in docs.documents) {
     [result addObject:doc.data];
@@ -306,8 +306,7 @@ NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(FIRQuerySnapsho
   return result;
 }
 
-extern "C"
-NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs) {
+extern "C" NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs) {
   NSMutableArray<NSString *> *result = [NSMutableArray array];
   for (FIRDocumentSnapshot *doc in docs.documents) {
     [result addObject:doc.documentID];

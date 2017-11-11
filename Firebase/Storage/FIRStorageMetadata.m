@@ -46,6 +46,7 @@
     _metageneration = [dictionary[kFIRStorageMetadataMetageneration] longLongValue];
     _timeCreated = [self dateFromRFC3339String:dictionary[kFIRStorageMetadataTimeCreated]];
     _updated = [self dateFromRFC3339String:dictionary[kFIRStorageMetadataUpdated]];
+    _md5Hash = dictionary[kFIRStorageMetadataMd5Hash];
     // GCS "name" is our path, our "name" is just the last path component of the path
     _path = dictionary[kFIRStorageMetadataName];
     _name = [_path lastPathComponent];
@@ -137,6 +138,10 @@
     metadataDictionary[kFIRStorageMetadataContentType] = _contentType;
   }
 
+  if (_md5Hash) {
+    metadataDictionary[kFIRStorageMetadataMd5Hash] = _md5Hash;
+  }
+
   if (_customMetadata) {
     metadataDictionary[kFIRStorageMetadataCustomMetadata] = _customMetadata;
   }
@@ -209,7 +214,7 @@
 
 + (void)removeMatchingMetadata:(NSMutableDictionary *)metadata
                    oldMetadata:(NSDictionary *)oldMetadata {
-  for (NSString* metadataKey in [oldMetadata allKeys]) {
+  for (NSString *metadataKey in [oldMetadata allKeys]) {
     id oldValue = [oldMetadata objectForKey:metadataKey];
     id newValue = [metadata objectForKey:metadataKey];
 

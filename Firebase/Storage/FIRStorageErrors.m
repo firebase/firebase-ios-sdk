@@ -72,7 +72,8 @@
     }
 
     case FIRStorageErrorCodeUnauthenticated:
-      errorMessage = @"User is not authenticated, please authenticate using Firebase "
+      errorMessage =
+          @"User is not authenticated, please authenticate using Firebase "
           @"Authentication and try again.";
       break;
 

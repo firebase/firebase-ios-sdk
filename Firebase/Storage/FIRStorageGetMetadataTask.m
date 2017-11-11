@@ -39,7 +39,7 @@
   return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
   [_fetcher stopFetching];
 }
 
