@@ -23,7 +23,8 @@ unit tests, integration tests, and reference samples.
 ## Source pod integration
 
 While the official Firebase release remains a binary framework distribution,
-we plan to switch to a source CocoaPod distribution for some of the components.
+in the future, we plan to switch to a source CocoaPod distribution for the
+Firebase open source components.
 
 It is now possible to override the default pod locations with source pod
 locations described via the Podfile syntax documented
