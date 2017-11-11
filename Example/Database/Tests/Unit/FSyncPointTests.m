@@ -16,11 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#ifdef FIREBASE_COMMUNITY
-#import "FirebaseCommunity/FIRLogger.h"
-#else
 #import "FirebaseCore/FIRLogger.h"
-#endif
 
 #import "FSyncPointTests.h"
 #import "FListenProvider.h"
