@@ -1,3 +1,4 @@
+#remove next two lines after Firebase 4.6.0 release and before merge
 source 'sso://cpdc-internal/spec'
 source 'https://github.com/CocoaPods/Specs.git'
 
