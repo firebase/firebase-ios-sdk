@@ -164,3 +164,20 @@ target 'Storage_Example_macOS' do
     pod 'OCMock'
   end
 end
+
+target 'Storage_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseCommunity/Storage', :path => '../'
+
+  target 'Storage_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+#TODO Storage_IntegrationTests_tvOS
+#  target 'Storage_IntegrationTests_tvOS' do
+#    inherit! :search_paths
+#    pod 'OCMock'
+#  end
+end
