@@ -16,7 +16,7 @@ Firebase Development CocoaPod including experimental and community supported fea
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
-  s.tvos.deployment_target = '11.0'
+  s.tvos.deployment_target = '10.0'
   s.default_subspec  = 'Root'
   s.preserve_paths = 'README.md'
   s.module_map = 'Firebase/Firebase/module.modulemap'

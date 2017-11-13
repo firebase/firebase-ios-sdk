@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
@@ -46,7 +46,7 @@
 /// Indicates whether it is running inside an extension or an app.
 + (BOOL)isAppExtension;
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 /// Returns the [UIApplication sharedApplication] if it is running on an app, not an extension.
 + (UIApplication *)sharedApplication;
 #elif TARGET_OS_OSX

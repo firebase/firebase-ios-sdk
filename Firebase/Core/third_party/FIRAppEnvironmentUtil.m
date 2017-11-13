@@ -158,7 +158,7 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)hasEmbeddedMobileProvision {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
   #elif TARGET_OS_OSX
   return NO;
@@ -166,7 +166,7 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)isSimulator {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   NSString *platform = [FIRAppEnvironmentUtil deviceModel];
   return [platform isEqual:@"x86_64"] || [platform isEqual:@"i386"];
   #elif TARGET_OS_OSX
@@ -188,7 +188,7 @@ static BOOL isAppEncrypted() {
 }
 
 + (NSString *)systemVersion {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   return [UIDevice currentDevice].systemVersion;
   #elif TARGET_OS_OSX
   return [NSProcessInfo processInfo].operatingSystemVersionString;
@@ -196,7 +196,7 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)isAppExtension {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   // Documented by <a href="https://goo.gl/RRB2Up">Apple</a>
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
@@ -205,7 +205,7 @@ static BOOL isAppEncrypted() {
   #endif
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 + (UIApplication *)sharedApplication {
   if ([FIRAppEnvironmentUtil isAppExtension]) {
     return nil;
@@ -227,7 +227,7 @@ static BOOL isAppEncrypted() {
 #pragma mark - Helper methods
 
 + (BOOL)hasSCInfoFolder {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   NSString *bundlePath = [NSBundle mainBundle].bundlePath;
   NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
   return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];
