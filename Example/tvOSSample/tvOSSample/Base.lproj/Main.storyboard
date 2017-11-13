@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="13529" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="13529" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7zF-dN-6Yw">
     <device id="appleTV" orientation="landscape">
         <adaptation id="light"/>
     </device>
@@ -10,10 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Storage-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="tvOSSample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Storage" id="BYZ-38-t0r" customClass="StorageViewController" customModule="tvOSSample" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -22,23 +22,87 @@
                         <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hello, Firebase!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g3G-9d-w9c">
-                                <rect key="frame" x="828" y="517" width="265" height="46"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="G46-SV-2zY">
+                                <rect key="frame" x="90" y="60" width="1740" height="960"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Hello, Firebase!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g3G-9d-w9c">
+                                        <rect key="frame" x="628" y="0.0" width="484" height="91"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1Ht-Xf-hyX">
+                                        <rect key="frame" x="0.0" y="111" width="1740" height="677"/>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="State: Pending download" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4sv-2l-7R6">
+                                        <rect key="frame" x="657" y="808" width="427" height="46"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="253" verticalCompressionResistancePriority="749" distribution="fillEqually" spacing="60" translatesAutoresizingMaskIntoConstraints="NO" id="Pcd-oU-DKI">
+                                        <rect key="frame" x="589" y="874" width="562" height="86"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ERN-SX-QsK">
+                                                <rect key="frame" x="0.0" y="0.0" width="251" height="86"/>
+                                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                                <state key="normal" title="Download"/>
+                                                <connections>
+                                                    <action selector="downloadButtonHit:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="wUX-Vk-IME"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tx1-wP-N8v">
+                                                <rect key="frame" x="311" y="0.0" width="251" height="86"/>
+                                                <color key="backgroundColor" red="1" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                                <state key="normal" title="Clear"/>
+                                                <connections>
+                                                    <action selector="clearButtonHit:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="s8P-pU-T19"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="g3G-9d-w9c" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="UTJ-ow-GXr"/>
-                            <constraint firstItem="g3G-9d-w9c" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="tmC-7O-H28"/>
+                            <constraint firstItem="G46-SV-2zY" firstAttribute="leading" secondItem="wu6-TO-1qx" secondAttribute="leading" id="HA1-L9-mG6"/>
+                            <constraint firstItem="wu6-TO-1qx" firstAttribute="trailing" secondItem="G46-SV-2zY" secondAttribute="trailing" id="f82-FP-nqR"/>
+                            <constraint firstItem="G46-SV-2zY" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="gcN-NC-PDe"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="G46-SV-2zY" secondAttribute="bottom" id="hb7-C3-J4p"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="wu6-TO-1qx"/>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
+                    <tabBarItem key="tabBarItem" title="Storage" id="4mO-Ls-vgJ"/>
+                    <connections>
+                        <outlet property="clearButton" destination="tx1-wP-N8v" id="lQA-AQ-sT6"/>
+                        <outlet property="downloadButton" destination="ERN-SX-QsK" id="2Kf-3u-AxO"/>
+                        <outlet property="imageView" destination="1Ht-Xf-hyX" id="MeV-di-b99"/>
+                        <outlet property="stateLabel" destination="4sv-2l-7R6" id="DKm-L2-aiR"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="-1121" y="1317"/>
+        </scene>
+        <!--Firebase Demo-->
+        <scene sceneID="Cbs-Et-MXF">
+            <objects>
+                <tabBarController title="Firebase Demo" automaticallyAdjustsScrollViewInsets="NO" id="7zF-dN-6Yw" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="yhw-Ot-Uul">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="he8-oR-peB"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="2Mm-5J-pE9" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-814" y="-224"/>
         </scene>
     </scenes>
 </document>
