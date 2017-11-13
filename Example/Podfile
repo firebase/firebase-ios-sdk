@@ -23,6 +23,17 @@ target 'Core_Example_macOS' do
   end
 end
 
+target 'Core_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseCommunity/Core', :path => '../'
+
+  target 'Core_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
 target 'Auth_Example_iOS' do
   platform :ios, '8.0'
 
