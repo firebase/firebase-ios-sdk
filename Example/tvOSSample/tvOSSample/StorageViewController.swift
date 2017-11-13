@@ -138,12 +138,12 @@ class StorageViewController: UIViewController {
 
   /// Internal constants for this class.
   private struct Constants {
-    /// The
+    /// The image name to download. Can comment this out and replace it with the other below it as
+    /// part of the demo.
     static let downloadPath = "yosemite.jpg"
 //    static let downloadPath = "google_io_2017.jpg"
 //    static let downloadPath = "firebase_logo.png"
 
     static let maxSize: Int64 = 1024 * 1024 * 10 // ~10MB
   }
-
 }
