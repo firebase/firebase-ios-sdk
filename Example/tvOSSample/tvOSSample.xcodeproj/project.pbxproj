@@ -13,6 +13,7 @@
 		ED4D5FE41FBA008200501573 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FE31FBA008200501573 /* Assets.xcassets */; };
 		ED4D5FEC1FBA055300501573 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FEB1FBA055300501573 /* GoogleService-Info.plist */; };
 		ED822C851FBA212600B00A2F /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED822C841FBA212600B00A2F /* StorageViewController.swift */; };
+		EDFBCF4C1FBB3ACC0041A9FD /* DatabaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF4B1FBB3ACC0041A9FD /* DatabaseViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		ED4D5FE51FBA008300501573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED4D5FEB1FBA055300501573 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED822C841FBA212600B00A2F /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
+		EDFBCF4B1FBB3ACC0041A9FD /* DatabaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +86,7 @@
 				ED4D5FE31FBA008200501573 /* Assets.xcassets */,
 				ED4D5FE51FBA008300501573 /* Info.plist */,
 				ED822C841FBA212600B00A2F /* StorageViewController.swift */,
+				EDFBCF4B1FBB3ACC0041A9FD /* DatabaseViewController.swift */,
 			);
 			path = tvOSSample;
 			sourceTree = "<group>";
@@ -184,12 +187,14 @@
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -221,6 +226,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDFBCF4C1FBB3ACC0041A9FD /* DatabaseViewController.swift in Sources */,
 				ED4D5FDD1FBA008200501573 /* AppDelegate.swift in Sources */,
 				ED822C851FBA212600B00A2F /* StorageViewController.swift in Sources */,
 			);
