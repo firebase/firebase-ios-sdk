@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/FIRFirestoreErrors.h"
+#import "FirebaseFirestore/FIRFirestoreErrors.h"
 #import "Remote/FSTDatastore.h"
 
 #import <GRPCClient/GRPCCall.h>

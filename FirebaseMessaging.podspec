@@ -14,7 +14,10 @@ device, and it is completely free.
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
+  s.source           = {
+    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+    :tag => s.version.to_s
+  }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
@@ -28,9 +31,10 @@ device, and it is completely free.
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h'
   s.library = 'sqlite3'
-  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
-    'FIRMessaging_LIB_VERSION=' + String(s.version)
+  s.pod_target_xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
+      'FIRMessaging_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'AddressBook'
   s.framework = 'SystemConfiguration'

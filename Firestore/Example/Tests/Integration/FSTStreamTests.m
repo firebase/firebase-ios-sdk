@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <Firestore/FIRFirestoreSettings.h>
+#import <FirebaseFirestore/FIRFirestoreSettings.h>
 
 #import "Auth/FSTEmptyCredentialsProvider.h"
 #import "Core/FSTDatabaseInfo.h"

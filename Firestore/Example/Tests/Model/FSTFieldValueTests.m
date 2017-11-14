@@ -21,7 +21,7 @@
 #import "API/FIRFirestore+Internal.h"
 #import "API/FSTUserDataConverter.h"
 #import "Core/FSTTimestamp.h"
-#import "Firestore/FIRGeoPoint.h"
+#import "FirebaseFirestore/FIRGeoPoint.h"
 #import "Model/FSTDatabaseID.h"
 #import "Model/FSTFieldValue.h"
 #import "Model/FSTPath.h"

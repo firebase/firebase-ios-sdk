@@ -12,7 +12,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
+  s.source           = {
+    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+    :tag => s.version.to_s
+  }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
@@ -23,7 +26,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   source = 'Firebase/Auth/Source/'
   s.source_files = source + '**/*.[mh]'
-  s.osx.exclude_files =
+  s.osx.exclude_files = [
     source + '**/FIRAuthAppDelegateProxy.[mh]',
     source + '**/FIRAuthNotificationManager.[mh]',
     source + '**/FIRAuthAppCredentialManager.[mh]',
@@ -37,13 +40,16 @@ supports email and password accounts, as well as several 3rd party authenticatio
     source + '**/FIRAuthWebViewController.[mh]',
     source + '**/FIRPhoneAuthCredential.[mh]',
     source + '**/FIRPhoneAuthProvider.[mh]'
+  ]
   s.public_header_files = source + 'Public/*.h'
-  s.preserve_paths =
+  s.preserve_paths = [
     'Firebase/Auth/README.md',
     'Firebase/Auth/CHANGELOG.md'
-  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    'FIRAuth_VERSION=' + s.version.to_s +
-    ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
+  ]
+  s.pod_target_xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'FIRAuth_VERSION=' + s.version.to_s +
+      ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }
   s.framework = 'SafariServices'
   s.framework = 'Security'

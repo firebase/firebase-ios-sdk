@@ -1,6 +1,7 @@
-#remove next two lines after Firebase 4.6.0 release and before merge
-source 'sso://cpdc-internal/spec'
-source 'https://github.com/CocoaPods/Specs.git'
+# The next line is the forcing function for the Firebase pod. The Firebase
+# version's subspecs should depend on the component versions in their
+# corresponding podspec's.
+pod 'Firebase/Core', '4.6.0'
 
 use_frameworks!
 platform :ios, '8.0'
@@ -8,7 +9,7 @@ platform :ios, '8.0'
 target 'Firestore_Example' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
-  pod 'Firestore', :path => '../'
+  pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests' do
     inherit! :search_paths
@@ -30,5 +31,5 @@ target 'Firestore_Example' do
 end
 
 target 'SwiftBuildTest' do
-  pod 'Firestore', :path => '../'
+  pod 'FirebaseFirestore', :path => '../../'
 end

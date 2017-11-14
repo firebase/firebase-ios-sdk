@@ -11,7 +11,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
+  s.source           = {
+    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+    :tag => s.version.to_s
+  }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'

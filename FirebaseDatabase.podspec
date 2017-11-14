@@ -11,7 +11,10 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  s.source           = { :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => s.version.to_s }
+  s.source           = {
+    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+    :tag => s.version.to_s
+  }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
@@ -30,6 +33,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'FirebaseCore', '~> 4.0'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
-  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    'FIRDatabase_VERSION=' + s.version.to_s }
+  s.pod_target_xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'FIRDatabase_VERSION=' + s.version.to_s }
 end

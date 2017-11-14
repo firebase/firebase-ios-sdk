@@ -23,7 +23,7 @@
 #import "Core/FSTQuery.h"
 #import "Core/FSTSnapshotVersion.h"
 #import "Core/FSTViewSnapshot.h"
-#import "Firestore/FIRFirestoreErrors.h"
+#import "FirebaseFirestore/FIRFirestoreErrors.h"
 #import "Local/FSTEagerGarbageCollector.h"
 #import "Local/FSTNoOpGarbageCollector.h"
 #import "Local/FSTPersistence.h"
