@@ -139,7 +139,6 @@ target 'Database_Example_macOS' do
   end
 end
 
-
 target 'Messaging_Example_iOS' do
   platform :ios, '8.0'
 
