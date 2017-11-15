@@ -1,7 +1,5 @@
 use_frameworks!
 
-pod 'leveldb-library', :podspec => './'
-
 target 'Core_Example_iOS' do
   platform :ios, '8.0'
 
