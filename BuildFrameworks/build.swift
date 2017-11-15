@@ -188,6 +188,8 @@ func buildFramework(withName framework: String, multiplatform: Bool, platform: P
   syncExec(command:"/bin/mv", args:[NSString(string:thinArchives[0]).deletingLastPathComponent, headersDir])
   syncExec(command:"/bin/rm", args:["-rf", buildDir])
   makeModuleMap(framework:framework, dir:frameworkDir)
+
+  syncExec(command:"./versionify.sh", args:[frameworkDir, platform.rawValue])
 }
 
 let frameworks = processOptions()
