@@ -49,6 +49,19 @@
 			name = AllUnitTests_iOS;
 			productName = AllTests;
 		};
+		DE545C7F1FBCA3F000C637AE /* AllUnitTests_tvOS */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = DE545C821FBCA3F000C637AE /* Build configuration list for PBXAggregateTarget "AllUnitTests_tvOS" */;
+			buildPhases = (
+			);
+			dependencies = (
+				DE545C881FBCA43200C637AE /* PBXTargetDependency */,
+				DE545C861FBCA42C00C637AE /* PBXTargetDependency */,
+				DE545C841FBCA41C00C637AE /* PBXTargetDependency */,
+			);
+			name = AllUnitTests_tvOS;
+			productName = AllUnitTests_tvOS;
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -682,6 +695,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = DEB13A0A1E73507E00AC236D;
 			remoteInfo = Storage_Tests_iOS;
+		};
+		DE545C831FBCA41C00C637AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEAAD3941FBA11270053BF48;
+			remoteInfo = Core_Tests_tvOS;
+		};
+		DE545C851FBCA42C00C637AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEAAD3F41FBA46AB0053BF48;
+			remoteInfo = Storage_Tests_tvOS;
+		};
+		DE545C871FBCA43200C637AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE1EC27E1FBA5E63007D18D8;
+			remoteInfo = Database_Tests_tvOS;
 		};
 		DE6F01B91E957157004AEE01 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3213,6 +3247,11 @@
 						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
 					};
+					DE545C7F1FBCA3F000C637AE = {
+						CreatedOnToolsVersion = 9.1;
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+					};
 					DE7B8D041E8EF077009EB6DF = {
 						CreatedOnToolsVersion = 8.3;
 						ProvisioningStyle = Automatic;
@@ -3324,6 +3363,7 @@
 				DEAAD3F41FBA46AB0053BF48 /* Storage_Tests_tvOS */,
 				DE3373891E73773400881891 /* AllUnitTests_iOS */,
 				D0FE8A041ED9C32C003F6722 /* AllUnitTests_macOS */,
+				DE545C7F1FBCA3F000C637AE /* AllUnitTests_tvOS */,
 				DE26D2971F70668F004AE1D3 /* Auth_AllTests */,
 			);
 		};
@@ -3709,7 +3749,6 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_SwiftSample/Pods-Auth_SwiftSample-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root-iOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-be8a5251/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher.default-Core/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMOAuth2/GTMOAuth2.framework",
 			);
@@ -3717,7 +3756,6 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMOAuth2.framework",
 			);
@@ -3807,14 +3845,12 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Storage_Example_macOS/Pods-Storage_Example_macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root-Storage-macOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib-macOS/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-Core-macOS/GTMSessionFetcher.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3831,14 +3867,12 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Example_iOS/Pods-Auth_Example_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root-iOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-be8a5251/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-Core-iOS/GTMSessionFetcher.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3855,14 +3889,12 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Messaging_Example_iOS/Pods-Messaging_Example_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Messaging-Root/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-Logger-NSData+zlib/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3966,13 +3998,11 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Core_Example_tvOS/Pods-Core_Example_tvOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root-tvOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib-tvOS/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4024,7 +4054,6 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_ApiTests/Pods-Auth_ApiTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root-iOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-be8a5251/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher.default-Core/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMOAuth2/GTMOAuth2.framework",
 			);
@@ -4032,7 +4061,6 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMOAuth2.framework",
 			);
@@ -4140,13 +4168,11 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Core_Example_iOS/Pods-Core_Example_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root-iOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib-iOS/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4195,14 +4221,12 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Example_macOS/Pods-Auth_Example_macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root-macOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-465fce74/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-Core-macOS/GTMSessionFetcher.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4237,14 +4261,12 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Storage_Example_iOS/Pods-Storage_Example_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root-Storage-iOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib-iOS/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-Core-iOS/GTMSessionFetcher.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4375,14 +4397,12 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Storage_Example_tvOS/Pods-Storage_Example_tvOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root-Storage-tvOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib-tvOS/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-Core-tvOS/GTMSessionFetcher.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4399,13 +4419,11 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Core_Example_macOS/Pods-Core_Example_macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root-macOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib-macOS/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5082,7 +5100,6 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_EarlGreyTests/Pods-Auth_EarlGreyTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root-iOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-be8a5251/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher.default-Core/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMOAuth2/GTMOAuth2.framework",
 				"${PODS_ROOT}/EarlGrey/EarlGrey/EarlGrey.framework",
@@ -5091,7 +5108,6 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMOAuth2.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EarlGrey.framework",
@@ -5310,7 +5326,6 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Sample/Pods-Auth_Sample-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root-iOS/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-be8a5251/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher.default-Core/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/Bolts/Bolts.framework",
 				"${BUILT_PRODUCTS_DIR}/FBSDKCoreKit/FBSDKCoreKit.framework",
@@ -5321,7 +5336,6 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Bolts.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKCoreKit.framework",
@@ -6062,6 +6076,21 @@
 			isa = PBXTargetDependency;
 			target = DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */;
 			targetProxy = DE3373971E73776F00881891 /* PBXContainerItemProxy */;
+		};
+		DE545C841FBCA41C00C637AE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEAAD3941FBA11270053BF48 /* Core_Tests_tvOS */;
+			targetProxy = DE545C831FBCA41C00C637AE /* PBXContainerItemProxy */;
+		};
+		DE545C861FBCA42C00C637AE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEAAD3F41FBA46AB0053BF48 /* Storage_Tests_tvOS */;
+			targetProxy = DE545C851FBCA42C00C637AE /* PBXContainerItemProxy */;
+		};
+		DE545C881FBCA43200C637AE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE1EC27E1FBA5E63007D18D8 /* Database_Tests_tvOS */;
+			targetProxy = DE545C871FBCA43200C637AE /* PBXContainerItemProxy */;
 		};
 		DE6F01BA1E957157004AEE01 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -7511,6 +7540,26 @@
 			};
 			name = Release;
 		};
+		DE545C801FBCA3F000C637AE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+			};
+			name = Debug;
+		};
+		DE545C811FBCA3F000C637AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+			};
+			name = Release;
+		};
 		DE7B8D241E8EF078009EB6DF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E70D3079F20C2F7BA6D964D4 /* Pods-Database_Example_iOS.debug.xcconfig */;
@@ -8421,6 +8470,15 @@
 			buildConfigurations = (
 				DE33738B1E73773400881891 /* Debug */,
 				DE33738C1E73773400881891 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE545C821FBCA3F000C637AE /* Build configuration list for PBXAggregateTarget "AllUnitTests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE545C801FBCA3F000C637AE /* Debug */,
+				DE545C811FBCA3F000C637AE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
