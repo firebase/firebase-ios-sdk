@@ -10,6 +10,11 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="HelveticaNeue.ttc">
+            <string>HelveticaNeue</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--Storage-->
         <scene sceneID="tne-QT-ifu">
@@ -41,7 +46,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="253" verticalCompressionResistancePriority="749" distribution="fillEqually" spacing="60" translatesAutoresizingMaskIntoConstraints="NO" id="Pcd-oU-DKI">
+                                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="253" verticalCompressionResistancePriority="749" distribution="fillEqually" spacing="60" translatesAutoresizingMaskIntoConstraints="NO" id="Pcd-oU-DKI" userLabel="Button Stack View">
                                         <rect key="frame" x="589" y="874" width="562" height="86"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ERN-SX-QsK">
@@ -88,6 +93,77 @@
             </objects>
             <point key="canvasLocation" x="-2464" y="1817"/>
         </scene>
+        <!--Database-->
+        <scene sceneID="i8D-25-rvO">
+            <objects>
+                <viewController id="gup-Ft-HnK" customClass="DatabaseViewController" customModule="tvOSSample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="i5o-My-7RI"/>
+                        <viewControllerLayoutGuide type="bottom" id="R20-Wh-bn4"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="1lM-LN-Cey">
+                        <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Bah-Ek-V99">
+                                <rect key="frame" x="90" y="60" width="1740" height="960"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="253" verticalCompressionResistancePriority="1000" text="Magic Syncing Counter" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pjh-c5-D2o">
+                                        <rect key="frame" x="0.0" y="0.0" width="1740" height="91"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalCompressionResistancePriority="900" text="?" textAlignment="center" lineBreakMode="tailTruncation" minimumScaleFactor="0.20000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="gcg-TC-hY4">
+                                        <rect key="frame" x="0.0" y="111" width="1740" height="743"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="700"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="253" verticalCompressionResistancePriority="749" distribution="fillEqually" spacing="60" translatesAutoresizingMaskIntoConstraints="NO" id="1hw-2E-6dg" userLabel="Button Stack View">
+                                        <rect key="frame" x="0.0" y="874" width="1740" height="86"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yc7-OR-WVJ">
+                                                <rect key="frame" x="0.0" y="0.0" width="840" height="86"/>
+                                                <color key="backgroundColor" red="0.25098040700000002" green="0.50196081400000003" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                                <state key="normal" title="+1"/>
+                                                <connections>
+                                                    <action selector="incrementButtonHit:" destination="gup-Ft-HnK" eventType="primaryActionTriggered" id="zR6-AT-sGq"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ams-4H-2D4">
+                                                <rect key="frame" x="900" y="0.0" width="840" height="86"/>
+                                                <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                                <state key="normal" title="-1"/>
+                                                <connections>
+                                                    <action selector="decrementButton:" destination="gup-Ft-HnK" eventType="primaryActionTriggered" id="KTe-Dn-DgZ"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="R20-Wh-bn4" firstAttribute="top" secondItem="Bah-Ek-V99" secondAttribute="bottom" id="ECo-G5-TMU"/>
+                            <constraint firstItem="V8l-aL-U1D" firstAttribute="trailing" secondItem="Bah-Ek-V99" secondAttribute="trailing" id="Ikr-TA-Ejk"/>
+                            <constraint firstItem="Bah-Ek-V99" firstAttribute="leading" secondItem="V8l-aL-U1D" secondAttribute="leading" id="L8R-dY-jge"/>
+                            <constraint firstItem="Bah-Ek-V99" firstAttribute="top" secondItem="i5o-My-7RI" secondAttribute="bottom" id="nvx-MN-rDc"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="V8l-aL-U1D"/>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
+                    <tabBarItem key="tabBarItem" title="Database" id="4ry-Ig-tAU"/>
+                    <connections>
+                        <outlet property="currentValue" destination="gcg-TC-hY4" id="1Cs-5w-yPF"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FDt-0K-Tad" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="868" y="1317"/>
+        </scene>
         <!--Firebase Demo-->
         <scene sceneID="Cbs-Et-MXF">
             <objects>
@@ -101,6 +177,7 @@
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="he8-oR-peB"/>
                         <segue destination="XYg-pc-Kbc" kind="relationship" relationship="viewControllers" id="x6X-oT-xPX"/>
+                        <segue destination="gup-Ft-HnK" kind="relationship" relationship="viewControllers" id="CM1-Uf-Vcz"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Mm-5J-pE9" userLabel="First Responder" sceneMemberID="firstResponder"/>

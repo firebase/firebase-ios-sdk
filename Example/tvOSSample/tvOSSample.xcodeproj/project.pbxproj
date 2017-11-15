@@ -16,6 +16,7 @@
 		EDFBCF511FBC88D20041A9FD /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF501FBC88D20041A9FD /* AuthViewController.swift */; };
 		EDFBCF531FBC89B70041A9FD /* AuthLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF521FBC89B70041A9FD /* AuthLoginViewController.swift */; };
 		EDFBCF551FBC95DD0041A9FD /* EmailLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF541FBC95DD0041A9FD /* EmailLoginViewController.swift */; };
+		EDFBCF4C1FBB3ACC0041A9FD /* DatabaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF4B1FBB3ACC0041A9FD /* DatabaseViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		EDFBCF501FBC88D20041A9FD /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		EDFBCF521FBC89B70041A9FD /* AuthLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthLoginViewController.swift; sourceTree = "<group>"; };
 		EDFBCF541FBC95DD0041A9FD /* EmailLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginViewController.swift; sourceTree = "<group>"; };
+		EDFBCF4B1FBB3ACC0041A9FD /* DatabaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 				EDFBCF501FBC88D20041A9FD /* AuthViewController.swift */,
 				EDFBCF521FBC89B70041A9FD /* AuthLoginViewController.swift */,
 				EDFBCF541FBC95DD0041A9FD /* EmailLoginViewController.swift */,
+				EDFBCF4B1FBB3ACC0041A9FD /* DatabaseViewController.swift */,
 			);
 			path = tvOSSample;
 			sourceTree = "<group>";
@@ -193,12 +196,14 @@
 				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -231,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDFBCF551FBC95DD0041A9FD /* EmailLoginViewController.swift in Sources */,
+				EDFBCF4C1FBB3ACC0041A9FD /* DatabaseViewController.swift in Sources */,
 				ED4D5FDD1FBA008200501573 /* AppDelegate.swift in Sources */,
 				EDFBCF511FBC88D20041A9FD /* AuthViewController.swift in Sources */,
 				EDFBCF531FBC89B70041A9FD /* AuthLoginViewController.swift in Sources */,
