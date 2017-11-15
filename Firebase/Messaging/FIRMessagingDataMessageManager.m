@@ -31,14 +31,10 @@
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
-// The Notification used to send InstanceID messages that FIRMessaging receives.
-static NSString *const NOTIFICATION_IID_MESSAGE = @"com.google.gcm/notification/iid";
-
 static const int kMaxAppDataSizeDefault = 4 * 1024; // 4k
 static const int kMinDelaySeconds = 1; // 1 second
 static const int kMaxDelaySeconds = 60 * 60; // 1 hour
 
-static NSString *const kFromForInstanceIDMessages = @"google.com/iid";
 static NSString *const kFromForFIRMessagingMessages = @"mcs.android.com";
 static NSString *const kGSFMessageCategory = @"com.google.android.gsf.gtalkservice";
 // TODO: Update Gcm to FIRMessaging in the constants below
@@ -125,19 +121,6 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
     return nil;
   } else if ([kFromForFIRMessagingMessages isEqualToString:from]) {
     [self handleMCSDataMessage:dataMessage];
-    return nil;
-  } else if ([kFromForInstanceIDMessages isEqualToString:from]) {
-    // send message to InstanceID library.
-    NSMutableDictionary *message = [NSMutableDictionary dictionary];
-    for (GtalkAppData *item in dataMessage.appDataArray) {
-      _FIRMessagingDevAssert(item.key && item.value, @"Invalid app data item");
-      if (item.key && item.value) {
-        message[item.key] = item.value;
-      }
-    }
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_IID_MESSAGE
-                                                        object:message];
     return nil;
   }
 
