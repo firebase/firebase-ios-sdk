@@ -13,6 +13,9 @@
 		ED4D5FE41FBA008200501573 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FE31FBA008200501573 /* Assets.xcassets */; };
 		ED4D5FEC1FBA055300501573 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FEB1FBA055300501573 /* GoogleService-Info.plist */; };
 		ED822C851FBA212600B00A2F /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED822C841FBA212600B00A2F /* StorageViewController.swift */; };
+		EDFBCF511FBC88D20041A9FD /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF501FBC88D20041A9FD /* AuthViewController.swift */; };
+		EDFBCF531FBC89B70041A9FD /* AuthLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF521FBC89B70041A9FD /* AuthLoginViewController.swift */; };
+		EDFBCF551FBC95DD0041A9FD /* EmailLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF541FBC95DD0041A9FD /* EmailLoginViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +29,9 @@
 		ED4D5FE51FBA008300501573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED4D5FEB1FBA055300501573 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED822C841FBA212600B00A2F /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
+		EDFBCF501FBC88D20041A9FD /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
+		EDFBCF521FBC89B70041A9FD /* AuthLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthLoginViewController.swift; sourceTree = "<group>"; };
+		EDFBCF541FBC95DD0041A9FD /* EmailLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +90,9 @@
 				ED4D5FE31FBA008200501573 /* Assets.xcassets */,
 				ED4D5FE51FBA008300501573 /* Info.plist */,
 				ED822C841FBA212600B00A2F /* StorageViewController.swift */,
+				EDFBCF501FBC88D20041A9FD /* AuthViewController.swift */,
+				EDFBCF521FBC89B70041A9FD /* AuthLoginViewController.swift */,
+				EDFBCF541FBC95DD0041A9FD /* EmailLoginViewController.swift */,
 			);
 			path = tvOSSample;
 			sourceTree = "<group>";
@@ -221,7 +230,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDFBCF551FBC95DD0041A9FD /* EmailLoginViewController.swift in Sources */,
 				ED4D5FDD1FBA008200501573 /* AppDelegate.swift in Sources */,
+				EDFBCF511FBC88D20041A9FD /* AuthViewController.swift in Sources */,
+				EDFBCF531FBC89B70041A9FD /* AuthLoginViewController.swift in Sources */,
 				ED822C851FBA212600B00A2F /* StorageViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

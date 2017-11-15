@@ -7,6 +7,7 @@ target 'tvOSSample' do
 
   # Pods for tvOSSample
   pod 'FirebaseCommunity/Core', :path => '../../'
+  pod 'FirebaseCommunity/Auth', :path => '../../'
   pod 'FirebaseCommunity/Storage', :path => '../../'
 
 end
