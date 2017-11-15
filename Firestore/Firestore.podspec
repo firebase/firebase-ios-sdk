@@ -24,10 +24,23 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.ios.deployment_target = '8.0'
 
-  s.source_files = 'Source/**/*', 'Port/**/*', 'Protos/objc/**/*.[hm]', 'third_party/**/*.[mh]'
-  s.requires_arc = 'Source/**/*', 'third_party/**/*.[mh]'
-  s.exclude_files = 'Port/*test.cc', 'third_party/**/Tests/**'
+  s.source_files = [
+    'Source/**/*',
+    'Port/**/*',
+    'Protos/objc/**/*.[hm]',
+    'src/core/**/*.{h,cc}',
+    'third_party/**/*.[mh]'
+  ]
+  s.requires_arc = [
+    'Source/**/*',
+    'third_party/**/*.[mh]'
+  ]
+  s.exclude_files = [
+    'Port/*test.cc',
+    'third_party/**/Tests/**'
+  ]
   s.public_header_files = 'Source/Public/*.h'
+
   s.frameworks = 'MobileCoreServices'
   s.dependency 'gRPC-ProtoRPC'
   s.dependency 'leveldb-library'
@@ -36,8 +49,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'FirebaseCommunity/Auth'
   s.library = 'c++'
 
-  s.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
-    'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ',
+  s.pod_target_xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ',
     'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s
   }
 end
