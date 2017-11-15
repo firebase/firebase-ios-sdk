@@ -91,7 +91,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2464" y="1817"/>
+            <point key="canvasLocation" x="-3032" y="1936"/>
         </scene>
         <!--Database-->
         <scene sceneID="i8D-25-rvO">
@@ -162,7 +162,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FDt-0K-Tad" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="868" y="1317"/>
+            <point key="canvasLocation" x="-812" y="1936"/>
         </scene>
         <!--Firebase Demo-->
         <scene sceneID="Cbs-Et-MXF">
@@ -206,7 +206,7 @@
                                 <rect key="frame" x="769" y="497" width="383" height="86"/>
                                 <subviews>
                                     <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="60" translatesAutoresizingMaskIntoConstraints="NO" id="ljv-p2-x1f" userLabel="Signed In Stack">
-                                        <rect key="frame" x="0.0" y="-557" width="383" height="60"/>
+                                        <rect key="frame" x="0.0" y="-497" width="383" height="60"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Signed in: (UID)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j4e-N4-2IJ">
                                                 <rect key="frame" x="57" y="0.0" width="269" height="0.0"/>
@@ -259,12 +259,16 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7sk-w5-jZ7" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="787" y="1817"/>
+            <point key="canvasLocation" x="1350" y="1936"/>
         </scene>
         <!--Email Login View Controller-->
         <scene sceneID="QMw-Qt-hDM">
             <objects>
                 <viewController id="64h-nN-haS" customClass="EmailLoginViewController" customModule="tvOSSample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="4fg-KG-aTM"/>
+                        <viewControllerLayoutGuide type="bottom" id="RkR-wX-Tdq"/>
+                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="yhK-2X-Z3p">
                         <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -335,6 +339,7 @@
                             <constraint firstAttribute="bottomMargin" relation="greaterThanOrEqual" secondItem="A1D-vt-Yfv" secondAttribute="bottom" id="b2e-xU-0xq"/>
                             <constraint firstItem="A1D-vt-Yfv" firstAttribute="top" relation="greaterThanOrEqual" secondItem="46l-Z7-4KI" secondAttribute="bottom" id="bj1-cy-X9f"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="mS6-Be-asr"/>
                     </view>
                     <value key="contentSizeForViewInPopover" type="size" width="840" height="385"/>
                     <connections>
@@ -344,7 +349,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="guA-tW-goc" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-314" y="3983"/>
+            <point key="canvasLocation" x="447" y="4052"/>
         </scene>
     </scenes>
 </document>
