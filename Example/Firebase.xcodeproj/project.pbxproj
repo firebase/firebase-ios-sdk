@@ -132,6 +132,7 @@
 		4074B0020765E093DF740653 /* Pods_Core_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED9BBD3B75E19B15261990B4 /* Pods_Core_Example_iOS.framework */; };
 		4DA07B74DD87A5DE68BEEC79 /* Pods_Database_IntegrationTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E10F063D35FF838DAD4FAA7D /* Pods_Database_IntegrationTests_macOS.framework */; };
 		5958DFAB543C1EA2486004FA /* Pods_Database_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 590F7A6E10EF15F1006C8C67 /* Pods_Database_Tests_macOS.framework */; };
+		59C54D5E27EB88998CD71E64 /* Pods_Auth_Tests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A73FC9624CCE8C057BF87C /* Pods_Auth_Tests_tvOS.framework */; };
 		5CAB4A8A8E983F5FFBDA7DC3 /* Pods_Auth_EarlGreyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DC284C512AF32A798BBDE2A /* Pods_Auth_EarlGreyTests.framework */; };
 		5CEA25BB380CBACB62DD1B47 /* Pods_Core_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50DBA6FF51CB037601C411AC /* Pods_Core_Tests_iOS.framework */; };
 		618064B48E0AD13FC51C2897 /* Pods_Core_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 921BDF465FF2C17AEC0AC6B7 /* Pods_Core_Tests_macOS.framework */; };
@@ -143,6 +144,7 @@
 		7EFA2E041F71C93300DD354F /* FIRUserMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */; };
 		817AF4BF4CA452B2CC982E6B /* Pods_Auth_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B764B50AA60E0B58DAF3085F /* Pods_Auth_Example_iOS.framework */; };
 		902891230BDDFB9EE0A916FB /* Pods_Database_Tests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 323417474A7776696E3003AE /* Pods_Database_Tests_tvOS.framework */; };
+		9532DBD7892910E0E8ABDA35 /* Pods_Auth_Example_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0370D0D37D118FD1F6B5D18B /* Pods_Auth_Example_tvOS.framework */; };
 		A0DE4491FC019331EF695E36 /* Pods_Auth_SwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DE05694ABCAD4FE971F004D /* Pods_Auth_SwiftSample.framework */; };
 		AFAF36F51EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F61EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -365,6 +367,65 @@
 		DE26D2931F705F4D004AE1D3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D2071F70333E004AE1D3 /* ViewController.swift */; };
 		DE26D2941F705F51004AE1D3 /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FE1F70333E004AE1D3 /* AuthCredentials.swift */; };
 		DE26D2951F705F53004AE1D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FD1F70333E004AE1D3 /* AppDelegate.swift */; };
+		DE5389541FBB635400199FC2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53894D1FBB635400199FC2 /* AppDelegate.m */; };
+		DE5389551FBB635400199FC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE53894E1FBB635400199FC2 /* Assets.xcassets */; };
+		DE5389561FBB635400199FC2 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE53894F1FBB635400199FC2 /* Info.plist */; };
+		DE5389571FBB635400199FC2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5389501FBB635400199FC2 /* main.m */; };
+		DE5389581FBB635400199FC2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE5389511FBB635400199FC2 /* Main.storyboard */; };
+		DE5389591FBB635400199FC2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5389531FBB635400199FC2 /* ViewController.m */; };
+		DE53895A1FBB636800199FC2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE9314F61E86C6FF0083EDBF /* GoogleService-Info.plist */; };
+		DE53895B1FBB638000199FC2 /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */; };
+		DE53895C1FBB638000199FC2 /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FC1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.m */; };
+		DE53895D1FBB638000199FC2 /* FIRAuthAPNSTokenManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */; };
+		DE53895E1FBB638000199FC2 /* FIRAuthAPNSTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */; };
+		DE53895F1FBB638000199FC2 /* FIRAuthAppCredentialManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */; };
+		DE5389601FBB638000199FC2 /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */; };
+		DE5389611FBB638000199FC2 /* FIRAuthAppDelegateProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */; };
+		DE5389621FBB638000199FC2 /* FIRAuthBackendCreateAuthURITests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FD1E86C6FF0083EDBF /* FIRAuthBackendCreateAuthURITests.m */; };
+		DE5389631FBB638000199FC2 /* FIRAuthBackendRPCImplementationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FE1E86C6FF0083EDBF /* FIRAuthBackendRPCImplementationTests.m */; };
+		DE5389641FBB638000199FC2 /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */; };
+		DE5389651FBB638000199FC2 /* FIRAuthGlobalWorkQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315001E86C6FF0083EDBF /* FIRAuthGlobalWorkQueueTests.m */; };
+		DE5389661FBB638000199FC2 /* FIRAuthKeychainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315011E86C6FF0083EDBF /* FIRAuthKeychainTests.m */; };
+		DE5389671FBB638000199FC2 /* FIRAuthNotificationManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */; };
+		DE5389681FBB638000199FC2 /* FIRAuthSerialTaskQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315021E86C6FF0083EDBF /* FIRAuthSerialTaskQueueTests.m */; };
+		DE5389691FBB638000199FC2 /* FIRAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315031E86C6FF0083EDBF /* FIRAuthTests.m */; };
+		DE53896A1FBB638000199FC2 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
+		DE53896B1FBB638000199FC2 /* FIRAuthUserDefaultsStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315041E86C6FF0083EDBF /* FIRAuthUserDefaultsStorageTests.m */; };
+		DE53896C1FBB638000199FC2 /* FIRCreateAuthURIRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315051E86C6FF0083EDBF /* FIRCreateAuthURIRequestTests.m */; };
+		DE53896D1FBB638000199FC2 /* FIRCreateAuthURIResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315061E86C6FF0083EDBF /* FIRCreateAuthURIResponseTests.m */; };
+		DE53896E1FBB638000199FC2 /* FIRDeleteAccountRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315071E86C6FF0083EDBF /* FIRDeleteAccountRequestTests.m */; };
+		DE53896F1FBB638000199FC2 /* FIRDeleteAccountResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315081E86C6FF0083EDBF /* FIRDeleteAccountResponseTests.m */; };
+		DE5389701FBB638000199FC2 /* FIRFakeBackendRPCIssuer.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150A1E86C6FF0083EDBF /* FIRFakeBackendRPCIssuer.m */; };
+		DE5389711FBB638000199FC2 /* FIRGetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150B1E86C6FF0083EDBF /* FIRGetAccountInfoRequestTests.m */; };
+		DE5389721FBB638000199FC2 /* FIRGetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150C1E86C6FF0083EDBF /* FIRGetAccountInfoResponseTests.m */; };
+		DE5389731FBB638000199FC2 /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150D1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeRequestTests.m */; };
+		DE5389741FBB638000199FC2 /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150E1E86C6FF0083EDBF /* FIRGetOOBConfirmationCodeResponseTests.m */; };
+		DE5389751FBB638000199FC2 /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */; };
+		DE5389761FBB638000199FC2 /* FIRGetProjectConfigResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */; };
+		DE5389771FBB638000199FC2 /* FIRGitHubAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93150F1E86C6FF0083EDBF /* FIRGitHubAuthProviderTests.m */; };
+		DE5389781FBB638000199FC2 /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */; };
+		DE5389791FBB638000199FC2 /* FIRResetPasswordRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315111E86C6FF0083EDBF /* FIRResetPasswordRequestTests.m */; };
+		DE53897A1FBB638000199FC2 /* FIRResetPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315121E86C6FF0083EDBF /* FIRResetPasswordResponseTests.m */; };
+		DE53897B1FBB638000199FC2 /* FIRSendVerificationCodeRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315131E86C6FF0083EDBF /* FIRSendVerificationCodeRequestTests.m */; };
+		DE53897C1FBB638000199FC2 /* FIRSendVerificationCodeResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315141E86C6FF0083EDBF /* FIRSendVerificationCodeResponseTests.m */; };
+		DE53897D1FBB638000199FC2 /* FIRSetAccountInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315151E86C6FF0083EDBF /* FIRSetAccountInfoRequestTests.m */; };
+		DE53897E1FBB638000199FC2 /* FIRSetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315161E86C6FF0083EDBF /* FIRSetAccountInfoResponseTests.m */; };
+		DE53897F1FBB638000199FC2 /* FIRSignUpNewUserRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315171E86C6FF0083EDBF /* FIRSignUpNewUserRequestTests.m */; };
+		DE5389801FBB638000199FC2 /* FIRSignUpNewUserResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315181E86C6FF0083EDBF /* FIRSignUpNewUserResponseTests.m */; };
+		DE5389811FBB638000199FC2 /* FIRTwitterAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315191E86C6FF0083EDBF /* FIRTwitterAuthProviderTests.m */; };
+		DE5389821FBB638000199FC2 /* FIRUserMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */; };
+		DE5389831FBB638000199FC2 /* FIRUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151A1E86C6FF0083EDBF /* FIRUserTests.m */; };
+		DE5389841FBB638000199FC2 /* FIRVerifyAssertionRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151B1E86C6FF0083EDBF /* FIRVerifyAssertionRequestTests.m */; };
+		DE5389851FBB638000199FC2 /* FIRVerifyAssertionResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151C1E86C6FF0083EDBF /* FIRVerifyAssertionResponseTests.m */; };
+		DE5389861FBB638000199FC2 /* FIRVerifyClientRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */; };
+		DE5389871FBB638000199FC2 /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */; };
+		DE5389881FBB638000199FC2 /* FIRVerifyCustomTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151D1E86C6FF0083EDBF /* FIRVerifyCustomTokenRequestTests.m */; };
+		DE5389891FBB638000199FC2 /* FIRVerifyCustomTokenResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151E1E86C6FF0083EDBF /* FIRVerifyCustomTokenResponseTests.m */; };
+		DE53898A1FBB638000199FC2 /* FIRVerifyPasswordRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151F1E86C6FF0083EDBF /* FIRVerifyPasswordRequestTest.m */; };
+		DE53898B1FBB638000199FC2 /* FIRVerifyPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315201E86C6FF0083EDBF /* FIRVerifyPasswordResponseTests.m */; };
+		DE53898C1FBB638000199FC2 /* FIRVerifyPhoneNumberRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315211E86C6FF0083EDBF /* FIRVerifyPhoneNumberRequestTests.m */; };
+		DE53898D1FBB638000199FC2 /* FIRVerifyPhoneNumberResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315221E86C6FF0083EDBF /* FIRVerifyPhoneNumberResponseTests.m */; };
+		DE53898E1FBB638000199FC2 /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */; };
 		DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */; };
 		DE750DBE1EB3DD6800A75E47 /* FIRAuthAPNSTokenManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */; };
 		DE750DBF1EB3DD6C00A75E47 /* FIRAuthAppCredentialManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */; };
@@ -696,6 +757,12 @@
 			remoteGlobalIDString = DEB13A0A1E73507E00AC236D;
 			remoteInfo = Storage_Tests_iOS;
 		};
+		DE53893F1FBB62E100199FC2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE5389291FBB62E100199FC2;
+			remoteInfo = Auth_Example_tvOS;
 		DE545C831FBCA41C00C637AE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -863,6 +930,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0370D0D37D118FD1F6B5D18B /* Pods_Auth_Example_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Auth_Example_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		05F7535CE14BDF70B7A859AC /* Pods-Database_Tests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Tests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Tests_macOS/Pods-Database_Tests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		06121EBC1EC399C50008D70E /* Storage_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageIntegrationTests.m; sourceTree = "<group>"; };
@@ -927,6 +995,7 @@
 		0DE05694ABCAD4FE971F004D /* Pods_Auth_SwiftSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Auth_SwiftSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		10D19D45C5634B01C33310C3 /* Pods-Storage_Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Example_macOS/Pods-Storage_Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		124E338F071B18E478207FCC /* Pods-Core_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests_macOS/Pods-Core_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		13B195F5275F776C09D44FB2 /* Pods-Auth_Example_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Example_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Example_tvOS/Pods-Auth_Example_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		19DABF14DC43EFB60A79A28B /* Pods_Core_Tests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Core_Tests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B69F033B3A4DE3F266FE2BA /* Pods-Auth_ApiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_ApiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_ApiTests/Pods-Auth_ApiTests.release.xcconfig"; sourceTree = "<group>"; };
 		1FD4DF15AAE2590B6E4DB0F3 /* Pods-Auth_ApiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_ApiTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_ApiTests/Pods-Auth_ApiTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -947,11 +1016,13 @@
 		3742FC7F62AEA869C0835745 /* Pods-Storage_Tests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests_tvOS/Pods-Storage_Tests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		379DEB3E56073DE2187EC4F0 /* Pods-Storage_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests_macOS/Pods-Storage_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		38174BDF03AC8492E46BC802 /* Pods-Auth_EarlGreyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_EarlGreyTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_EarlGreyTests/Pods-Auth_EarlGreyTests.release.xcconfig"; sourceTree = "<group>"; };
+		3A20F54868B29A3CC4DDC5C4 /* Pods-Auth_Example_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Example_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Example_tvOS/Pods-Auth_Example_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		3A82E32A3520C319743D6DF4 /* Pods-Auth_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		3B3047D18DCA63F5BB4D5FBD /* Pods_Database_Example_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_Example_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CE0959BD8E8635CCD34966D /* Pods-Database_IntegrationTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_IntegrationTests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_IntegrationTests_iOS/Pods-Database_IntegrationTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		419AE688D98217D01210484B /* Pods-Storage_Example_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Example_tvOS/Pods-Storage_Example_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		4391179EFD189807A1307944 /* Pods-Database_Tests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Tests_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Tests_tvOS/Pods-Database_Tests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		45A73FC9624CCE8C057BF87C /* Pods_Auth_Tests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Auth_Tests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		48F8F730708E551579F2F60F /* Pods-Storage_Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Example_iOS/Pods-Storage_Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		49A9F57E4FE0317F0D5419BC /* Pods_Messaging_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Messaging_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A8D12F7C7C00DF780A7FBE2 /* Pods-Auth_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_macOS/Pods-Auth_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -965,6 +1036,7 @@
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		61BF123E95BD49FA9F2710FF /* Pods-Auth_Tests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_tvOS/Pods-Auth_Tests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		64E7FE74497AFE1A107E2B73 /* Pods_Storage_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Storage_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		654E7328B3C1755686FCE786 /* Pods_Storage_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Storage_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B8968AECB41EF30801E5FD4 /* Pods-Core_Example_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example_tvOS/Pods-Core_Example_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1015,6 +1087,7 @@
 		C0F1640EB5197D138FFA9600 /* Pods-Storage_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Example_iOS/Pods-Storage_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		C5593552F20DA8A389C6FB34 /* Pods-Core_Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example_macOS/Pods-Core_Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		C5FCDA4B1ABC99A9CD1E86C3 /* Pods_Auth_Sample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Auth_Sample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7FA4E0C06F9F9FC82B25E43 /* Pods-Auth_Tests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Tests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Tests_tvOS/Pods-Auth_Tests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		C87E882A4F331DFA102FC061 /* Pods-Database_IntegrationTests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_IntegrationTests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_IntegrationTests_macOS/Pods-Database_IntegrationTests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		CD03519B693086090869DB35 /* Pods-Database_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Tests_macOS/Pods-Database_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		CFDF92898C26AE4408590E6A /* Pods-Auth_Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Auth_Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Auth_Example_macOS/Pods-Auth_Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1154,6 +1227,16 @@
 		DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		DE4E711A1E953ABC00070092 /* FirebaseCommunity.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = FirebaseCommunity.podspec; path = ../FirebaseCommunity.podspec; sourceTree = "<group>"; };
+		DE53892A1FBB62E100199FC2 /* Auth_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auth_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE53894C1FBB635400199FC2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		DE53894D1FBB635400199FC2 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		DE53894E1FBB635400199FC2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DE53894F1FBB635400199FC2 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DE5389501FBB635400199FC2 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DE5389511FBB635400199FC2 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		DE5389521FBB635400199FC2 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		DE5389531FBB635400199FC2 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAPNSTokenManagerTests.m; sourceTree = "<group>"; };
 		DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAPNSTokenTests.m; sourceTree = "<group>"; };
 		DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppCredentialManagerTests.m; sourceTree = "<group>"; };
@@ -1515,6 +1598,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE5389271FBB62E100199FC2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9532DBD7892910E0E8ABDA35 /* Pods_Auth_Example_tvOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE53893B1FBB62E100199FC2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				59C54D5E27EB88998CD71E64 /* Pods_Auth_Tests_tvOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE7B8D021E8EF077009EB6DF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1761,6 +1860,10 @@
 				2430A1AE2AF1BAE385A01660 /* Pods-Storage_Tests_macOS.release.xcconfig */,
 				3072B27630B541A10E9140B1 /* Pods-Storage_Tests_tvOS.debug.xcconfig */,
 				3742FC7F62AEA869C0835745 /* Pods-Storage_Tests_tvOS.release.xcconfig */,
+				3A20F54868B29A3CC4DDC5C4 /* Pods-Auth_Example_tvOS.debug.xcconfig */,
+				13B195F5275F776C09D44FB2 /* Pods-Auth_Example_tvOS.release.xcconfig */,
+				61BF123E95BD49FA9F2710FF /* Pods-Auth_Tests_tvOS.debug.xcconfig */,
+				C7FA4E0C06F9F9FC82B25E43 /* Pods-Auth_Tests_tvOS.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -1816,6 +1919,8 @@
 				DEAAD3F51FBA46AB0053BF48 /* Storage_Tests_tvOS.xctest */,
 				DE1CD5971FBA55AF00FC031E /* Database_Example_tvOS.app */,
 				DE1EC27F1FBA5E63007D18D8 /* Database_Tests_tvOS.xctest */,
+				DE53892A1FBB62E100199FC2 /* Auth_Example_tvOS.app */,
+				DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1871,6 +1976,8 @@
 				654E7328B3C1755686FCE786 /* Pods_Storage_Tests_iOS.framework */,
 				7DACDB8F414B114871BB6BE5 /* Pods_Storage_Tests_macOS.framework */,
 				E259B8E621E5D78D67D77B24 /* Pods_Storage_Tests_tvOS.framework */,
+				0370D0D37D118FD1F6B5D18B /* Pods_Auth_Example_tvOS.framework */,
+				45A73FC9624CCE8C057BF87C /* Pods_Auth_Tests_tvOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2136,6 +2243,21 @@
 			path = SwiftSample;
 			sourceTree = "<group>";
 		};
+		DE53894B1FBB635400199FC2 /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE53894C1FBB635400199FC2 /* AppDelegate.h */,
+				DE53894D1FBB635400199FC2 /* AppDelegate.m */,
+				DE53894E1FBB635400199FC2 /* Assets.xcassets */,
+				DE53894F1FBB635400199FC2 /* Info.plist */,
+				DE5389501FBB635400199FC2 /* main.m */,
+				DE5389511FBB635400199FC2 /* Main.storyboard */,
+				DE5389521FBB635400199FC2 /* ViewController.h */,
+				DE5389531FBB635400199FC2 /* ViewController.m */,
+			);
+			path = tvOS;
+			sourceTree = "<group>";
+		};
 		DE7B8D2A1E8EF202009EB6DF /* Database */ = {
 			isa = PBXGroup;
 			children = (
@@ -2251,6 +2373,7 @@
 		DE9314EC1E86C6FF0083EDBF /* App */ = {
 			isa = PBXGroup;
 			children = (
+				DE53894B1FBB635400199FC2 /* tvOS */,
 				DE9314F61E86C6FF0083EDBF /* GoogleService-Info.plist */,
 				D01853461EDACC10003A645C /* iOS */,
 				D01853471EDACC10003A645C /* macOS */,
@@ -2261,28 +2384,25 @@
 		DE9314F91E86C6FF0083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */,
-				DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */,
-				DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */,
-				DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */,
-				DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */,
-				DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */,
-				DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */,
-				DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */,
-				DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */,
-				DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */,
 				DE9314FB1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.h */,
 				DE9315091E86C6FF0083EDBF /* FIRFakeBackendRPCIssuer.h */,
 				DE9315231E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.h */,
 				DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */,
 				DE9314FC1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.m */,
+				DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */,
+				DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */,
+				DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */,
+				DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */,
+				DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */,
 				DE9314FD1E86C6FF0083EDBF /* FIRAuthBackendCreateAuthURITests.m */,
 				DE9314FE1E86C6FF0083EDBF /* FIRAuthBackendRPCImplementationTests.m */,
 				DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */,
 				DE9315001E86C6FF0083EDBF /* FIRAuthGlobalWorkQueueTests.m */,
 				DE9315011E86C6FF0083EDBF /* FIRAuthKeychainTests.m */,
+				DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */,
 				DE9315021E86C6FF0083EDBF /* FIRAuthSerialTaskQueueTests.m */,
 				DE9315031E86C6FF0083EDBF /* FIRAuthTests.m */,
+				7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */,
 				DE9315041E86C6FF0083EDBF /* FIRAuthUserDefaultsStorageTests.m */,
 				DE9315051E86C6FF0083EDBF /* FIRCreateAuthURIRequestTests.m */,
 				DE9315061E86C6FF0083EDBF /* FIRCreateAuthURIResponseTests.m */,
@@ -2296,6 +2416,7 @@
 				D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */,
 				D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */,
 				DE93150F1E86C6FF0083EDBF /* FIRGitHubAuthProviderTests.m */,
+				DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */,
 				DE9315111E86C6FF0083EDBF /* FIRResetPasswordRequestTests.m */,
 				DE9315121E86C6FF0083EDBF /* FIRResetPasswordResponseTests.m */,
 				DE9315131E86C6FF0083EDBF /* FIRSendVerificationCodeRequestTests.m */,
@@ -2305,9 +2426,12 @@
 				DE9315171E86C6FF0083EDBF /* FIRSignUpNewUserRequestTests.m */,
 				DE9315181E86C6FF0083EDBF /* FIRSignUpNewUserResponseTests.m */,
 				DE9315191E86C6FF0083EDBF /* FIRTwitterAuthProviderTests.m */,
+				7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */,
 				DE93151A1E86C6FF0083EDBF /* FIRUserTests.m */,
 				DE93151B1E86C6FF0083EDBF /* FIRVerifyAssertionRequestTests.m */,
 				DE93151C1E86C6FF0083EDBF /* FIRVerifyAssertionResponseTests.m */,
+				DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */,
+				DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */,
 				DE93151D1E86C6FF0083EDBF /* FIRVerifyCustomTokenRequestTests.m */,
 				DE93151E1E86C6FF0083EDBF /* FIRVerifyCustomTokenResponseTests.m */,
 				DE93151F1E86C6FF0083EDBF /* FIRVerifyPasswordRequestTest.m */,
@@ -2316,7 +2440,6 @@
 				DE9315221E86C6FF0083EDBF /* FIRVerifyPhoneNumberResponseTests.m */,
 				DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */,
 				DE9315251E86C6FF0083EDBF /* Tests-Info.plist */,
-				7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -2853,6 +2976,47 @@
 			productReference = DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DE5389291FBB62E100199FC2 /* Auth_Example_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE5389491FBB62E100199FC2 /* Build configuration list for PBXNativeTarget "Auth_Example_tvOS" */;
+			buildPhases = (
+				73023BA36E4517A3CE91E4E2 /* [CP] Check Pods Manifest.lock */,
+				DE5389261FBB62E100199FC2 /* Sources */,
+				DE5389271FBB62E100199FC2 /* Frameworks */,
+				DE5389281FBB62E100199FC2 /* Resources */,
+				CB3B3D8020E18396AB7FACC5 /* [CP] Embed Pods Frameworks */,
+				9D336E340B7A810C11A81174 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Auth_Example_tvOS;
+			productName = Auth_Example_tvOS;
+			productReference = DE53892A1FBB62E100199FC2 /* Auth_Example_tvOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DE53893D1FBB62E100199FC2 /* Auth_Tests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE53894A1FBB62E100199FC2 /* Build configuration list for PBXNativeTarget "Auth_Tests_tvOS" */;
+			buildPhases = (
+				88FEA8BC2F3101D4063BD61D /* [CP] Check Pods Manifest.lock */,
+				DE53893A1FBB62E100199FC2 /* Sources */,
+				DE53893B1FBB62E100199FC2 /* Frameworks */,
+				DE53893C1FBB62E100199FC2 /* Resources */,
+				44CB94E1B59C3B929B05010C /* [CP] Embed Pods Frameworks */,
+				773FDCDAFB2285480AF55B69 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE5389401FBB62E100199FC2 /* PBXTargetDependency */,
+			);
+			name = Auth_Tests_tvOS;
+			productName = Auth_Example_tvOSTests;
+			productReference = DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DE7B8D041E8EF077009EB6DF /* Database_Example_iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DE7B8D281E8EF078009EB6DF /* Build configuration list for PBXNativeTarget "Database_Example_iOS" */;
@@ -3252,6 +3416,12 @@
 						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
 					};
+					DE53893D1FBB62E100199FC2 = {
+						CreatedOnToolsVersion = 9.1;
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DE5389291FBB62E100199FC2;
+					};
 					DE7B8D041E8EF077009EB6DF = {
 						CreatedOnToolsVersion = 8.3;
 						ProvisioningStyle = Automatic;
@@ -3365,6 +3535,8 @@
 				D0FE8A041ED9C32C003F6722 /* AllUnitTests_macOS */,
 				DE545C7F1FBCA3F000C637AE /* AllUnitTests_tvOS */,
 				DE26D2971F70668F004AE1D3 /* Auth_AllTests */,
+				DE5389291FBB62E100199FC2 /* Auth_Example_tvOS */,
+				DE53893D1FBB62E100199FC2 /* Auth_Tests_tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -3536,6 +3708,24 @@
 				DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
 				DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */,
 				DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE5389281FBB62E100199FC2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE5389561FBB635400199FC2 /* Info.plist in Resources */,
+				DE5389581FBB635400199FC2 /* Main.storyboard in Resources */,
+				DE5389551FBB635400199FC2 /* Assets.xcassets in Resources */,
+				DE53895A1FBB636800199FC2 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE53893C1FBB62E100199FC2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4027,6 +4217,24 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Core_Tests_tvOS/Pods-Core_Tests_tvOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		44CB94E1B59C3B929B05010C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Tests_tvOS/Pods-Auth_Tests_tvOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/OCMock-tvOS/OCMock.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Tests_tvOS/Pods-Auth_Tests_tvOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		46D7877357789C2733BEE18B /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -4340,6 +4548,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		73023BA36E4517A3CE91E4E2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Auth_Example_tvOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		757521139E5F980E73A61BFC /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -4371,6 +4597,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Storage_Example_iOS/Pods-Storage_Example_iOS-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		773FDCDAFB2285480AF55B69 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Tests_tvOS/Pods-Auth_Tests_tvOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		780025F3CB42F61635417DDC /* [CP] Copy Pods Resources */ = {
@@ -4475,6 +4716,24 @@
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-Storage_IntegrationTests_iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		88FEA8BC2F3101D4063BD61D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Auth_Tests_tvOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4647,6 +4906,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Auth_SwiftSample/Pods-Auth_SwiftSample-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9D336E340B7A810C11A81174 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Example_tvOS/Pods-Auth_Example_tvOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A99CD357723D32DB965B81B5 /* [CP] Copy Pods Resources */ = {
@@ -4854,6 +5128,30 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Core_Example_tvOS/Pods-Core_Example_tvOS-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CB3B3D8020E18396AB7FACC5 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Example_tvOS/Pods-Auth_Example_tvOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root-tvOS/FirebaseCommunity.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-f29d6b98/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-Core-tvOS/GTMSessionFetcher.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Auth_Example_tvOS/Pods-Auth_Example_tvOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		CED8E56592F4C90A22B085EE /* [CP] Embed Pods Frameworks */ = {
@@ -5729,6 +6027,75 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE5389261FBB62E100199FC2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE5389641FBB638000199FC2 /* FIRAuthDispatcherTests.m in Sources */,
+				DE5389781FBB638000199FC2 /* FIRPhoneAuthProviderTests.m in Sources */,
+				DE53895D1FBB638000199FC2 /* FIRAuthAPNSTokenManagerTests.m in Sources */,
+				DE5389881FBB638000199FC2 /* FIRVerifyCustomTokenRequestTests.m in Sources */,
+				DE5389731FBB638000199FC2 /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */,
+				DE53897E1FBB638000199FC2 /* FIRSetAccountInfoResponseTests.m in Sources */,
+				DE53896A1FBB638000199FC2 /* FIRAuthURLPresenterTests.m in Sources */,
+				DE53896D1FBB638000199FC2 /* FIRCreateAuthURIResponseTests.m in Sources */,
+				DE5389791FBB638000199FC2 /* FIRResetPasswordRequestTests.m in Sources */,
+				DE5389681FBB638000199FC2 /* FIRAuthSerialTaskQueueTests.m in Sources */,
+				DE53896B1FBB638000199FC2 /* FIRAuthUserDefaultsStorageTests.m in Sources */,
+				DE5389841FBB638000199FC2 /* FIRVerifyAssertionRequestTests.m in Sources */,
+				DE53895E1FBB638000199FC2 /* FIRAuthAPNSTokenTests.m in Sources */,
+				DE5389651FBB638000199FC2 /* FIRAuthGlobalWorkQueueTests.m in Sources */,
+				DE5389701FBB638000199FC2 /* FIRFakeBackendRPCIssuer.m in Sources */,
+				DE5389831FBB638000199FC2 /* FIRUserTests.m in Sources */,
+				DE5389741FBB638000199FC2 /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
+				DE5389761FBB638000199FC2 /* FIRGetProjectConfigResponseTests.m in Sources */,
+				DE53898C1FBB638000199FC2 /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
+				DE5389591FBB635400199FC2 /* ViewController.m in Sources */,
+				DE53897F1FBB638000199FC2 /* FIRSignUpNewUserRequestTests.m in Sources */,
+				DE5389821FBB638000199FC2 /* FIRUserMetadataTests.m in Sources */,
+				DE5389621FBB638000199FC2 /* FIRAuthBackendCreateAuthURITests.m in Sources */,
+				DE5389571FBB635400199FC2 /* main.m in Sources */,
+				DE5389871FBB638000199FC2 /* FIRVerifyClientResponseTests.m in Sources */,
+				DE53898E1FBB638000199FC2 /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
+				DE53898D1FBB638000199FC2 /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
+				DE53897A1FBB638000199FC2 /* FIRResetPasswordResponseTests.m in Sources */,
+				DE5389711FBB638000199FC2 /* FIRGetAccountInfoRequestTests.m in Sources */,
+				DE53897B1FBB638000199FC2 /* FIRSendVerificationCodeRequestTests.m in Sources */,
+				DE53897C1FBB638000199FC2 /* FIRSendVerificationCodeResponseTests.m in Sources */,
+				DE5389811FBB638000199FC2 /* FIRTwitterAuthProviderTests.m in Sources */,
+				DE5389671FBB638000199FC2 /* FIRAuthNotificationManagerTests.m in Sources */,
+				DE5389891FBB638000199FC2 /* FIRVerifyCustomTokenResponseTests.m in Sources */,
+				DE53898B1FBB638000199FC2 /* FIRVerifyPasswordResponseTests.m in Sources */,
+				DE5389601FBB638000199FC2 /* FIRAuthAppCredentialTests.m in Sources */,
+				DE5389541FBB635400199FC2 /* AppDelegate.m in Sources */,
+				DE5389751FBB638000199FC2 /* FIRGetProjectConfigRequestTests.m in Sources */,
+				DE53895B1FBB638000199FC2 /* FIRAdditionalUserInfoTests.m in Sources */,
+				DE53895F1FBB638000199FC2 /* FIRAuthAppCredentialManagerTests.m in Sources */,
+				DE5389691FBB638000199FC2 /* FIRAuthTests.m in Sources */,
+				DE5389631FBB638000199FC2 /* FIRAuthBackendRPCImplementationTests.m in Sources */,
+				DE5389661FBB638000199FC2 /* FIRAuthKeychainTests.m in Sources */,
+				DE53896E1FBB638000199FC2 /* FIRDeleteAccountRequestTests.m in Sources */,
+				DE53898A1FBB638000199FC2 /* FIRVerifyPasswordRequestTest.m in Sources */,
+				DE5389771FBB638000199FC2 /* FIRGitHubAuthProviderTests.m in Sources */,
+				DE5389611FBB638000199FC2 /* FIRAuthAppDelegateProxyTests.m in Sources */,
+				DE5389801FBB638000199FC2 /* FIRSignUpNewUserResponseTests.m in Sources */,
+				DE53896C1FBB638000199FC2 /* FIRCreateAuthURIRequestTests.m in Sources */,
+				DE53896F1FBB638000199FC2 /* FIRDeleteAccountResponseTests.m in Sources */,
+				DE5389721FBB638000199FC2 /* FIRGetAccountInfoResponseTests.m in Sources */,
+				DE5389851FBB638000199FC2 /* FIRVerifyAssertionResponseTests.m in Sources */,
+				DE5389861FBB638000199FC2 /* FIRVerifyClientRequestTest.m in Sources */,
+				DE53897D1FBB638000199FC2 /* FIRSetAccountInfoRequestTests.m in Sources */,
+				DE53895C1FBB638000199FC2 /* FIRApp+FIRAuthUnitTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE53893A1FBB62E100199FC2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE7B8D011E8EF077009EB6DF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -6077,6 +6444,10 @@
 			target = DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */;
 			targetProxy = DE3373971E73776F00881891 /* PBXContainerItemProxy */;
 		};
+		DE5389401FBB62E100199FC2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE5389291FBB62E100199FC2 /* Auth_Example_tvOS */;
+			targetProxy = DE53893F1FBB62E100199FC2 /* PBXContainerItemProxy */;
 		DE545C841FBCA41C00C637AE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DEAAD3941FBA11270053BF48 /* Core_Tests_tvOS */;
@@ -7540,6 +7911,133 @@
 			};
 			name = Release;
 		};
+		DE5389451FBB62E100199FC2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3A20F54868B29A3CC4DDC5C4 /* Pods-Auth_Example_tvOS.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 11.1;
+			};
+			name = Debug;
+		};
+		DE5389461FBB62E100199FC2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 13B195F5275F776C09D44FB2 /* Pods-Auth_Example_tvOS.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 11.1;
+			};
+			name = Release;
+		};
+		DE5389471FBB62E100199FC2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 61BF123E95BD49FA9F2710FF /* Pods-Auth_Tests_tvOS.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auth_Example_tvOS.app/Auth_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 11.1;
+			};
+			name = Debug;
+		};
+		DE5389481FBB62E100199FC2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C7FA4E0C06F9F9FC82B25E43 /* Pods-Auth_Tests_tvOS.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auth_Example_tvOS.app/Auth_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 11.1;
 		DE545C801FBCA3F000C637AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -8474,6 +8972,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		DE5389491FBB62E100199FC2 /* Build configuration list for PBXNativeTarget "Auth_Example_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE5389451FBB62E100199FC2 /* Debug */,
+				DE5389461FBB62E100199FC2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE53894A1FBB62E100199FC2 /* Build configuration list for PBXNativeTarget "Auth_Tests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE5389471FBB62E100199FC2 /* Debug */,
+				DE5389481FBB62E100199FC2 /* Release */,
 		DE545C821FBCA3F000C637AE /* Build configuration list for PBXAggregateTarget "AllUnitTests_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -50,6 +50,12 @@ Firebase Development CocoaPod including experimental and community supported fea
       'Firebase/Auth/Source/**/FIRAuthWebViewController.[mh]',
       'Firebase/Auth/Source/**/FIRPhoneAuthCredential.[mh]',
       'Firebase/Auth/Source/**/FIRPhoneAuthProvider.[mh]'
+    sp.tvos.exclude_files =
+      'Firebase/Auth/Source/**/FIRAuthURLPresenter.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthWebView.[mh]',
+      'Firebase/Auth/Source/**/FIRAuthWebViewController.[mh]',
+      'Firebase/Auth/Source/**/FIRPhoneAuthCredential.[mh]',
+      'Firebase/Auth/Source/**/FIRPhoneAuthProvider.[mh]'
     sp.public_header_files = 'Firebase/Auth/Source/Public/*.h'
     sp.preserve_paths =
       'Firebase/Auth/README.md',
