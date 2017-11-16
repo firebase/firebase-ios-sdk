@@ -79,11 +79,6 @@ static NSString *const kUserInfoButtonText = @"[Show User Info]";
  */
 static NSString *const kSetPhotoURLText = @"Set Photo url";
 
-/** @var kSignInButtonText
-    @brief The text of the "Sign In" button.
- */
-static NSString *const kSignInButtonText = @"Sign In (HEADFUL)";
-
 /** @var kSignInGoogleButtonText
     @brief The text of the "Google SignIn" button.
  */
