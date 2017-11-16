@@ -16,14 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Sentinel values that can be used when writing document fields with setData() or updateData().
  */
-FIR_SWIFT_NAME(FieldValue)
+NS_SWIFT_NAME(FieldValue)
 @interface FIRFieldValue : NSObject
 
 /**   */
@@ -31,14 +29,14 @@ FIR_SWIFT_NAME(FieldValue)
 
 /** Used with updateData() to mark a field for deletion. */
 // clang-format off
-+ (instancetype)fieldValueForDelete FIR_SWIFT_NAME(delete());
++ (instancetype)fieldValueForDelete NS_SWIFT_NAME(delete());
 // clang-format on
 
 /**
  * Used with setData() or updateData() to include a server-generated timestamp in the written
  * data.
  */
-+ (instancetype)fieldValueForServerTimestamp FIR_SWIFT_NAME(serverTimestamp());
++ (instancetype)fieldValueForServerTimestamp NS_SWIFT_NAME(serverTimestamp());
 
 @end
 

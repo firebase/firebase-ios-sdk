@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -25,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  * (referring to a top level field in the document), or a list of field names (referring to a nested
  * field in the document).
  */
-FIR_SWIFT_NAME(FieldPath)
+NS_SWIFT_NAME(FieldPath)
 @interface FIRFieldPath : NSObject <NSCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -37,7 +35,7 @@ FIR_SWIFT_NAME(FieldPath)
  * @param fieldNames A list of field names.
  * @return A `FieldPath` that points to a field location in a document.
  */
-- (instancetype)initWithFields:(NSArray<NSString *> *)fieldNames FIR_SWIFT_NAME(init(_:));
+- (instancetype)initWithFields:(NSArray<NSString *> *)fieldNames NS_SWIFT_NAME(init(_:));
 
 /**
  * A special sentinel `FieldPath` to refer to the ID of a document. It can be used in queries to
