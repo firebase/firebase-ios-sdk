@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
 #ifdef __cplusplus
 #include <memory>

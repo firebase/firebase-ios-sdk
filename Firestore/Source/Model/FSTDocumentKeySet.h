@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTImmutableSortedSet.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 @class FSTDocumentKey;
 

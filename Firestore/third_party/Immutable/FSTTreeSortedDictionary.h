@@ -14,8 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTImmutableSortedDictionary.h"
-#import "FSTLLRBNode.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
+#import "Firestore/third_party/Immutable/FSTLLRBNode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

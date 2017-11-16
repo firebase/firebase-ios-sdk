@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTCredentialsProvider.h"
+#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 
 #import <FirebaseCommunity/FIRApp.h>
 #import <FirebaseCommunity/FIRAuth.h>
@@ -25,10 +25,10 @@
 #import "Firebase/Core/Private/FIRAppInternal.h"
 
 #import "FIRFirestoreErrors.h"
-#import "FSTAssert.h"
-#import "FSTClasses.h"
-#import "FSTDispatchQueue.h"
-#import "FSTUser.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Auth/FSTUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

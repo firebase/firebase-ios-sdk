@@ -15,7 +15,7 @@
  */
 
 #import "Firestore/FIRFirestoreErrors.h"
-#import "Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
 
 #import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>

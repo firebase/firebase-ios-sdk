@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
 
 #import <XCTest/XCTest.h>
 

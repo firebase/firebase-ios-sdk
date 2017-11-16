@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
