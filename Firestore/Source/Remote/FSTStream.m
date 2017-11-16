@@ -19,21 +19,21 @@
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Remote/FSTBufferedWriter.h"
-#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Remote/FSTExponentialBackoff.h"
-#import "Firestore/Source/Util/FSTLogger.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Remote/FSTBufferedWriter.h"
+#import "Firestore/Source/Remote/FSTExponentialBackoff.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 

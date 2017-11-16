@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
+#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 @class FSTQuery;
 @class FSTSyncEngine;

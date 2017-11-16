@@ -18,6 +18,15 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
@@ -29,15 +38,6 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Model/FSTPath.h"
-#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
-#import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"

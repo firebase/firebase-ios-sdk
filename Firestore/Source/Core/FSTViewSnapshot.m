@@ -16,12 +16,12 @@
 
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

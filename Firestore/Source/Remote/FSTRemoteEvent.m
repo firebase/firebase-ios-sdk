@@ -16,13 +16,13 @@
 
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Util/FSTLogger.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -19,9 +19,9 @@
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
 
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 

@@ -16,10 +16,10 @@
 
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

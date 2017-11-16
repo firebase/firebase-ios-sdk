@@ -16,10 +16,10 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/Local/FSTWriteGroupTracker.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

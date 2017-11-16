@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 
-#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

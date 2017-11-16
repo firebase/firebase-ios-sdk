@@ -18,12 +18,12 @@
 
 #import <GRPCClient/GRPCCall.h>
 
+#import "Firestore/FIRFirestoreErrors.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -33,8 +33,8 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
-#import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
+#import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

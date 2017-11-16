@@ -36,11 +36,11 @@
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
+#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
-#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
-#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

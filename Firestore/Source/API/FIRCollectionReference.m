@@ -19,10 +19,10 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuery_Init.h"
-#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
-#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 #import "Firestore/Source/Util/FSTUtil.h"
 

@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Local/FSTDocumentReference.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

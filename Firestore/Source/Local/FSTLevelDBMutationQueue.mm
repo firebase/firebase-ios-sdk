@@ -21,18 +21,18 @@
 #include <set>
 #include <string>
 
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Model/FSTPath.h"
-#import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Auth/FSTUser.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/Port/ordered_code.h"
 #include "Firestore/Port/string_util.h"

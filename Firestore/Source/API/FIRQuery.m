@@ -16,8 +16,8 @@
 
 #import "FIRQuery.h"
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "FIRDocumentReference.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -26,17 +26,17 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery_Init.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/Core/FSTEventManager.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Model/FSTPath.h"
-#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

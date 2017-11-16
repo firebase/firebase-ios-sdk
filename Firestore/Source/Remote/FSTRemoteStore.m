@@ -16,22 +16,22 @@
 
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Local/FSTLocalStore.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
-#import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

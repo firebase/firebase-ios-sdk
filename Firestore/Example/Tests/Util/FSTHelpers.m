@@ -16,14 +16,14 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#import "Firestore/FIRFieldPath.h"
+#import "Firestore/FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/FIRFieldPath.h"
-#import "Firestore/FIRGeoPoint.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"

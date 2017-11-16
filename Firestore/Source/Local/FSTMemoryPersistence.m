@@ -16,13 +16,13 @@
 
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Local/FSTWriteGroupTracker.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

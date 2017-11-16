@@ -20,11 +20,11 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSetOptions+Internal.h"
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Core/FSTTransaction.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

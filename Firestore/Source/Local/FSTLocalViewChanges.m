@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
+#import "Firestore/Source/Model/FSTDocument.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

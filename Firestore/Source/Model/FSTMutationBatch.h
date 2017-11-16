@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
-#import "Firestore/Source/Core/FSTTypes.h"
 
 @class FSTMutation;
 @class FSTTimestamp;

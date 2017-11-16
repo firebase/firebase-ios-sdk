@@ -20,15 +20,15 @@
 #include <leveldb/write_batch.h>
 #include <string>
 
-#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/Port/ordered_code.h"
 #include "Firestore/Port/string_util.h"

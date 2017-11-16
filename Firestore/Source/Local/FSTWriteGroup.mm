@@ -20,8 +20,8 @@
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/Port/ordered_code.h"
 

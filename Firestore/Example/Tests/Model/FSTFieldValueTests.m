@@ -18,10 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
-#import "Firestore/FIRGeoPoint.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"

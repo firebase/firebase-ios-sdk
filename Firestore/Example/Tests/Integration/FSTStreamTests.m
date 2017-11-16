@@ -18,11 +18,11 @@
 
 #import <Firestore/FIRFirestoreSettings.h>
 
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
+#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTStream.h"

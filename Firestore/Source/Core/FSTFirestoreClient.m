@@ -16,24 +16,24 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
+#import "Firestore/Source/Core/FSTSyncEngine.h"
+#import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

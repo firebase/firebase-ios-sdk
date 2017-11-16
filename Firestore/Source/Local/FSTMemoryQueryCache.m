@@ -17,9 +17,9 @@
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

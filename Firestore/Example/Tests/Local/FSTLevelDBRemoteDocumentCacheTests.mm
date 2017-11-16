@@ -18,9 +18,9 @@
 
 #include <leveldb/db.h>
 
+#include "Firestore/Port/ordered_code.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
-#include "Firestore/Port/ordered_code.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
