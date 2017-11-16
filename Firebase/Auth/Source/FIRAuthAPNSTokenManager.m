@@ -73,7 +73,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     } else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#if !defined(TARGET_OS_TV)
+#if !TARGET_OS_TV
       [_application registerForRemoteNotificationTypes:UIRemoteNotificationTypeAlert];
 #endif  // !defined(TARGET_OS_TV)
 #pragma clang diagnostic pop

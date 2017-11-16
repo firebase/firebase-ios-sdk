@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE5389291FBB62E100199FC2"
+               BlueprintIdentifier = "DE1FAE8F1FBCF5E100897AAA"
                BuildableName = "Auth_Example_tvOS.app"
                BlueprintName = "Auth_Example_tvOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
@@ -43,7 +43,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE5389291FBB62E100199FC2"
+            BlueprintIdentifier = "DE1FAE8F1FBCF5E100897AAA"
             BuildableName = "Auth_Example_tvOS.app"
             BlueprintName = "Auth_Example_tvOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
@@ -67,7 +67,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE5389291FBB62E100199FC2"
+            BlueprintIdentifier = "DE1FAE8F1FBCF5E100897AAA"
             BuildableName = "Auth_Example_tvOS.app"
             BlueprintName = "Auth_Example_tvOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
@@ -86,7 +86,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE5389291FBB62E100199FC2"
+            BlueprintIdentifier = "DE1FAE8F1FBCF5E100897AAA"
             BuildableName = "Auth_Example_tvOS.app"
             BlueprintName = "Auth_Example_tvOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
