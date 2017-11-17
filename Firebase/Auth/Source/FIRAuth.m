@@ -709,8 +709,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                    username:nil
                                                   isNewUser:YES];
         FIRAuthDataResult *authDataResult =
-          [[FIRAuthDataResult alloc] initWithUser:user
-                               additionalUserInfo:additionalUserInfo];
+            [[FIRAuthDataResult alloc] initWithUser:user
+                                 additionalUserInfo:additionalUserInfo];
         decoratedCallback(authDataResult, nil);
      }];
     }];
