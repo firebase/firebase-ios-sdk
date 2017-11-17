@@ -128,25 +128,6 @@ We've seen an amazing amount of interest and contributions to improve the Fireba
 very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
 participate in the Firebase community.
 
-Note that if you are using CocoaPods and using the FirebaseCommunity podspec (the one in this repo),
-you cannot bring in Pods from the official Firebase podspec, because of duplicated symbol conflicts.
-If you're not using one of the open-source SDKs in this repo for development purposes, we recommend
-using the regular Firebase pods for the best experience.
-
-To get started using the FirebaseCommunity SDKs, here is a typical Podfile:
-
-```
-use_frameworks!
-
-target 'MyAppTarget' do
-  platform :ios, '8.0'
-  pod 'FirebaseCommunity/Database'
-end
-```
-1. Replace `MyAppTarget` with the name of the target in your Xcode project.
-2. Specify the subspec in the pod specification for each Firebase component wanted. Database is
-used in the example above. Storage, Auth, and Messaging are other options.
-
 ### macOS
 FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and
 work on macOS, thanks to contributions from the community. There are a few tweaks needed, like
