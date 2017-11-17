@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#import "FSTLevelDBQueryCache.h"
+#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 #include <string>
 
-#import "FSTAssert.h"
-#import "FSTDocumentKey.h"
-#import "FSTLevelDBKey.h"
-#import "FSTLocalSerializer.h"
-#import "FSTQuery.h"
-#import "FSTQueryData.h"
-#import "FSTWriteGroup.h"
-#import "Target.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
-#include "ordered_code.h"
-#include "string_util.h"
+#include "Firestore/Port/ordered_code.h"
+#include "Firestore/Port/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

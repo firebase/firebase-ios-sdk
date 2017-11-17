@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-#import "FSTLevelDBMutationQueue.h"
+#import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 #include <set>
 #include <string>
 
-#import "FSTAssert.h"
-#import "FSTDocumentKey.h"
-#import "FSTLevelDB.h"
-#import "FSTLevelDBKey.h"
-#import "FSTLocalSerializer.h"
-#import "FSTMutation.h"
-#import "FSTMutationBatch.h"
-#import "FSTPath.h"
-#import "FSTQuery.h"
-#import "FSTUser.h"
-#import "FSTWriteGroup.h"
-#import "Mutation.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
-#include "ordered_code.h"
-#include "string_util.h"
+#include "Firestore/Port/ordered_code.h"
+#include "Firestore/Port/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

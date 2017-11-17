@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "Local/FSTLevelDBQueryCache.h"
+#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
-#import "Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 
-#import "FSTPersistenceTestHelpers.h"
-#import "FSTQueryCacheTests.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

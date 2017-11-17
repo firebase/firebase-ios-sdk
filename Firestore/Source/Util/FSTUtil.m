@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTUtil.h"
+#import "Firestore/Source/Util/FSTUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FSTRemoteEvent.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
-#import "FSTAssert.h"
-#import "FSTClasses.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTLogger.h"
-#import "FSTSnapshotVersion.h"
-#import "FSTWatchChange.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

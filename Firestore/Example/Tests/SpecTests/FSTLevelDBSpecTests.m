@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FSTSpecTests.h"
+#import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
-#import "Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 
-#import "FSTPersistenceTestHelpers.h"
-#import "FSTSyncEngineTestDriver.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,4 +1,4 @@
-#import "Immutable/FSTLLRBValueNode.h"
+#import "Firestore/third_party/Immutable/FSTLLRBValueNode.h"
 
 #import <Foundation/Foundation.h>
 

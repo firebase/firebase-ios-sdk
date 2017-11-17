@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 #import <XCTest/XCTest.h>
 

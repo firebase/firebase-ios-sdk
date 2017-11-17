@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#import "FIRDocumentReference+Internal.h"
-#import "FIRFieldPath+Internal.h"
-#import "FIRFieldValue+Internal.h"
-#import "FIRFirestore+Internal.h"
 #import "FIRGeoPoint.h"
-#import "FIRSetOptions+Internal.h"
-#import "FSTAssert.h"
-#import "FSTDatabaseID.h"
-#import "FSTDocumentKey.h"
-#import "FSTFieldValue.h"
-#import "FSTMutation.h"
-#import "FSTPath.h"
-#import "FSTTimestamp.h"
-#import "FSTUsageValidation.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRSetOptions+Internal.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

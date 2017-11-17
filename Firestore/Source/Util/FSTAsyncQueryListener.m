@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FSTAsyncQueryListener.h"
+#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
-#import "FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 @implementation FSTAsyncQueryListener {
   volatile BOOL _muted;

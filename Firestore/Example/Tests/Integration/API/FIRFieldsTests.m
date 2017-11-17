@@ -18,9 +18,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#import "FSTIntegrationTestCase.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRFieldsTests : FSTIntegrationTestCase
 @end

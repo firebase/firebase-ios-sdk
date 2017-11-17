@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTComparison.h"
+#import "Firestore/Source/Util/FSTComparison.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

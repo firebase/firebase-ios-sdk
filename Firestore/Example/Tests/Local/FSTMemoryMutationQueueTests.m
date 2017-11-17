@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "Local/FSTMemoryMutationQueue.h"
+#import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 
-#import "Auth/FSTUser.h"
-#import "Local/FSTMemoryPersistence.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
-#import "FSTMutationQueueTests.h"
-#import "FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 @interface FSTMemoryMutationQueueTests : FSTMutationQueueTests
 @end

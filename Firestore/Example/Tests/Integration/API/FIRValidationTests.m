@@ -18,8 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FSTHelpers.h"
-#import "FSTIntegrationTestCase.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"

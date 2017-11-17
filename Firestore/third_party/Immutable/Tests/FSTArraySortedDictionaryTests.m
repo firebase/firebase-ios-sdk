@@ -1,8 +1,8 @@
-#import "Immutable/FSTArraySortedDictionary.h"
+#import "Firestore/third_party/Immutable/FSTArraySortedDictionary.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 @interface FSTArraySortedDictionary (Test)
 // Override methods to return subtype.

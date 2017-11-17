@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTUser.h"
+#import "Firestore/Source/Auth/FSTUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

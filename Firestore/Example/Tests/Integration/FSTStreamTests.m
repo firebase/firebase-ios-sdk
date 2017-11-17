@@ -18,15 +18,15 @@
 
 #import <Firestore/FIRFirestoreSettings.h>
 
-#import "Auth/FSTEmptyCredentialsProvider.h"
-#import "Core/FSTDatabaseInfo.h"
-#import "FSTHelpers.h"
-#import "FSTIntegrationTestCase.h"
-#import "FSTTestDispatchQueue.h"
-#import "Model/FSTDatabaseID.h"
-#import "Remote/FSTDatastore.h"
-#import "Remote/FSTStream.h"
-#import "Util/FSTAssert.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
+#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTStream.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 /** Exposes otherwise private methods for testing. */
 @interface FSTStream (Testing)
