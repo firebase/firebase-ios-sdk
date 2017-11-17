@@ -1029,7 +1029,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 /** @fn testSignInAnonymouslySuccess
-    @brief Tests the flow of a successful @c signInAnonymously:completion: call.
+    @brief Tests the flow of a successful @c signInAnonymouslyWithCompletion: call.
  */
 - (void)testSignInAnonymouslySuccess {
   OCMExpect([_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
@@ -1061,7 +1061,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 /** @fn testSignInAnonymouslyFailure
-    @brief Tests the flow of a failed @c signInAnonymously:completion: call.
+    @brief Tests the flow of a failed @c signInAnonymouslyWithCompletion: call.
  */
 - (void)testSignInAnonymouslyFailure {
   OCMExpect([_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
@@ -1072,6 +1072,59 @@ static const NSTimeInterval kWaitInterval = .5;
                                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(user);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeOperationNotAllowed);
+    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  XCTAssertNil([FIRAuth auth].currentUser);
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInAnonymouslyAndRetrieveDataSuccess
+    @brief Tests the flow of a successful @c signInAnonymouslyAndRetrieveDataWithCompletion: call.
+ */
+- (void)testSignInAnonymouslyAndRetrieveDataSuccess {
+  OCMExpect([_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRSignUpNewUserRequest *_Nullable request,
+                       FIRSignupNewUserCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertNil(request.email);
+    XCTAssertNil(request.password);
+    XCTAssertTrue(request.returnSecureToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockSignUpNewUserResponse = OCMClassMock([FIRSignUpNewUserResponse class]);
+      [self stubTokensWithMockResponse:mockSignUpNewUserResponse];
+      callback(mockSignUpNewUserResponse, nil);
+    });
+  });
+  [self expectGetAccountInfoAnonymous];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInAnonymouslyAndRetrieveDataWithCompletion:
+      ^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    [self assertUserAnonymous:result.user];
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUserAnonymous:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInAnonymouslyAndRetrieveDataFailure
+    @brief Tests the flow of a failed @c signInAnonymouslyAndRetrieveDataWithCompletion: call.
+ */
+- (void)testSignInAnonymouslyAndRetrieveDataFailure {
+  OCMExpect([_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInAnonymouslyAndRetrieveDataWithCompletion:
+      ^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeOperationNotAllowed);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
