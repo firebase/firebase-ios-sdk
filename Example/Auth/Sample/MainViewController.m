@@ -2803,8 +2803,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       ^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-in anonymously failed" error:error];
-    }
-    else {
+    } else {
       [self logSuccess:@"sign-in anonymously succeeded."];
       [self log:[NSString stringWithFormat:@"User ID : %@", authResult.user.uid]];
     }

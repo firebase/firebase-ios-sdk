@@ -686,9 +686,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                     profile:nil
                                                    username:nil
                                                   isNewUser:NO];
-      decoratedCallback([[FIRAuthDataResult alloc] initWithUser:_currentUser
-                                             additionalUserInfo:additionalUserInfo],
-                        nil);
+      FIRAuthDataResult *authDataResult =
+          [[FIRAuthDataResult alloc] initWithUser:_currentUser
+                               additionalUserInfo:additionalUserInfo];
+      decoratedCallback(authDataResult, nil);
       return;
     }
     [self internalSignInAnonymouslyWithCompletion:^(FIRSignUpNewUserResponse *_Nullable response,
@@ -707,9 +708,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                     profile:nil
                                                    username:nil
                                                   isNewUser:YES];
-        decoratedCallback([[FIRAuthDataResult alloc] initWithUser:user
-                                               additionalUserInfo:additionalUserInfo],
-                          nil);
+        FIRAuthDataResult *authDataResult =
+          [[FIRAuthDataResult alloc] initWithUser:user
+                               additionalUserInfo:additionalUserInfo];
+        decoratedCallback(authDataResult, nil);
      }];
     }];
   });
@@ -1135,14 +1137,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRSignUpNewUserRequest *request =
       [[FIRSignUpNewUserRequest alloc]initWithRequestConfiguration:_requestConfiguration];
   [FIRAuthBackend signUpNewUser:request
-                       callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-    if (error) {
-      completion(nil, error);
-      return;
-    }
-    completion(response, nil);
-  }];
+                       callback:completion];
 }
 
 /** @fn possiblyPostAuthStateChangeNotification
