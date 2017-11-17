@@ -16,9 +16,12 @@
 
 #import "Firestore/Source/Remote/FSTExponentialBackoff.h"
 
+#include <random>
+
+#include "Firestore/src/support/secure_random.h"
+
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
-#import "Firestore/Source/Util/FSTUtil.h"
 
 @interface FSTExponentialBackoff ()
 - (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
@@ -33,7 +36,9 @@
 @property(nonatomic) NSTimeInterval currentBase;
 @end
 
-@implementation FSTExponentialBackoff
+@implementation FSTExponentialBackoff {
+  firestore::SecureRandom _secureRandom;
+}
 
 - (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
                          initialDelay:(NSTimeInterval)initialDelay
@@ -90,7 +95,9 @@
 
 /** Returns a random value in the range [-currentBase/2, currentBase/2] */
 - (NSTimeInterval)jitterDelay {
-  return ([FSTUtil randomDouble] - 0.5) * _currentBase;
+  std::uniform_real_distribution<double> dist;
+  double random_double = dist(_secureRandom);
+  return (random_double - 0.5) * _currentBase;
 }
 
 @end

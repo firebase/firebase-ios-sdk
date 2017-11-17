@@ -18,17 +18,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static const double kArc4RandomMax = 0x100000000;
-
 static const int kAutoIDLength = 20;
 static NSString *const kAutoIDAlphabet =
     @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 @implementation FSTUtil
-
-+ (double)randomDouble {
-  return ((double)arc4random() / kArc4RandomMax);
-}
 
 + (NSString *)autoID {
   unichar autoID[kAutoIDLength];
