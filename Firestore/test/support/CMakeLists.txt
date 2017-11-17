@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_executable(
+cc_test(
   firestore_support_test
   secure_random_test.cc
 )
@@ -20,15 +20,3 @@ target_link_libraries(
   firestore_support_test
   firestore_support
 )
-target_link_libraries(
-  firestore_support_test
-  gtest
-  gtest_main
-)
-
-add_test(
-  firestore_support_test
-  firestore_support_test
-)
-
-add_dependencies(check firestore_support_test)

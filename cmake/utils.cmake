@@ -12,22 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 2.8.11)
-project(firebase C CXX)
+# Defines a new test executable and does all the things we want done with
+# tests:
+#
+#   * add_executable (with the given arguments)
+#   * add_Test - defines a test with the same name
+#   * declares that the test links against gtest
+#   * adds the executable as a dependency of the `check` target.
+function(cc_test name)
+  add_executable(${name} ${ARGN})
+  add_test(${name} ${name})
 
-# We use C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+  target_link_libraries(${name} gtest gtest_main)
 
-# Fully qualified imports, project wide
-include_directories("${PROJECT_SOURCE_DIR}")
-
-# CMake's test target does not build tests before running them. This adds a
-# check target that
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
-
-include(cmake/utils.cmake)
-
-enable_testing()
-add_subdirectory(Firestore)
+  add_dependencies(check ${name})
+endfunction()
