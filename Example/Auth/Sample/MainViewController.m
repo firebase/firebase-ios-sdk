@@ -2795,7 +2795,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn signInAnonymouslyAuthDataResult
-    @brief Signs in as an anonymous user, recieveing an auth result containing a signed in user upon
+    @brief Signs in as an anonymous user, receiving an auth result containing a signed in user upon
         success.
  */
 - (void)signInAnonymouslyAuthDataResult {
