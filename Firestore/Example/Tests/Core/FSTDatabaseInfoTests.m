@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

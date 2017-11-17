@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTDocumentDictionary.h"
-#import "FSTDocumentKeySet.h"
-#import "FSTDocumentVersionDictionary.h"
-#import "FSTTypes.h"
+#import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+#import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;

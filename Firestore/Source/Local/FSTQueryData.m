@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FSTQueryData.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
 
-#import "FSTQuery.h"
-#import "FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

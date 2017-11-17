@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "FSTRemoteStore.h"
+#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
-#import "FSTAssert.h"
-#import "FSTDatastore.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTExistenceFilter.h"
-#import "FSTLocalStore.h"
-#import "FSTLogger.h"
-#import "FSTMutation.h"
-#import "FSTMutationBatch.h"
-#import "FSTQuery.h"
-#import "FSTQueryData.h"
-#import "FSTRemoteEvent.h"
-#import "FSTSnapshotVersion.h"
-#import "FSTStream.h"
-#import "FSTTransaction.h"
-#import "FSTWatchChange.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Local/FSTLocalStore.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTExistenceFilter.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
+#import "Firestore/Source/Remote/FSTStream.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

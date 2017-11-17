@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-#import "FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
 
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "FIRFirestore+Internal.h"
 #import "FIRFirestoreErrors.h"
-#import "FSTAssert.h"
-#import "FSTBufferedWriter.h"
-#import "FSTClasses.h"
-#import "FSTCredentialsProvider.h"
-#import "FSTDatabaseID.h"
-#import "FSTDatabaseInfo.h"
-#import "FSTDispatchQueue.h"
-#import "FSTExponentialBackoff.h"
-#import "FSTLogger.h"
-#import "FSTMutation.h"
-#import "FSTQueryData.h"
-#import "FSTSerializerBeta.h"
-#import "FSTStream.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Remote/FSTBufferedWriter.h"
+#import "Firestore/Source/Remote/FSTExponentialBackoff.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Remote/FSTStream.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
-#import "Firestore.pbrpc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
 /**
  * Initial backoff time in seconds after an error.

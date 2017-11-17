@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTTypes.h"
+#import "Firestore/Source/Core/FSTTypes.h"
 
 @class FSTDocumentKey;
 @class FSTDocumentReference;

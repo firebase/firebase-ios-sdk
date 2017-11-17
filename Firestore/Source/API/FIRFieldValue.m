@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFieldValue+Internal.h"
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

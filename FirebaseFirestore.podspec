@@ -32,10 +32,17 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Source/**/*',
     'Firestore/Port/**/*',
     'Firestore/Protos/objc/**/*.[hm]',
+    'Firestore/src/core/**/*.{h,cc}',
     'Firestore/third_party/**/*.[mh]'
   ]
-  s.requires_arc = 'Firestore/Source/**/*', 'Firestore/third_party/**/*.[mh]'
-  s.exclude_files = 'Firestore/Port/*test.cc', 'Firestore/third_party/**/Tests/**'
+  s.requires_arc = [
+    'Firestore/Source/**/*',
+    'Firestore/third_party/**/*.[mh]'
+  ]
+  s.exclude_files = [
+    'Firestore/Port/*test.cc',
+    'Firestore/third_party/**/Tests/**'
+  ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
@@ -50,6 +57,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ',
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
       'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s
   }
 end

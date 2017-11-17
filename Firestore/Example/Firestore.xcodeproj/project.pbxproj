@@ -1331,6 +1331,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1364,6 +1365,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1431,19 +1433,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firestore/local\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
+					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1473,19 +1464,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firebase/datastore/clients/proto\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
-					"\"${PODS_ROOT}/../../\"",
+					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1515,19 +1495,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firestore/local\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
-					"\"${PODS_ROOT}/../../\"",
+					"\"${PODS_ROOT}/../../..\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (
@@ -1565,19 +1533,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firestore/local\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
-					"\"${PODS_ROOT}/../../\"",
+					"\"${PODS_ROOT}/../../..\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (

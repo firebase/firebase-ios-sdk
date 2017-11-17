@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore.pbrpc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriter+Immediate.h>

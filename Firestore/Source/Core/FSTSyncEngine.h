@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTRemoteStore.h"
-#import "FSTTypes.h"
+#import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 @class FSTDispatchQueue;
 @class FSTLocalStore;

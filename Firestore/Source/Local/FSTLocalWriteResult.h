@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTDocumentDictionary.h"
-#import "FSTTypes.h"
+#import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

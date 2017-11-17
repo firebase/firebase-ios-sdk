@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FSTQueryCacheTests.h"
+#import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
-#import "Core/FSTQuery.h"
-#import "Core/FSTSnapshotVersion.h"
-#import "Local/FSTEagerGarbageCollector.h"
-#import "Local/FSTPersistence.h"
-#import "Local/FSTQueryData.h"
-#import "Local/FSTWriteGroup.h"
-#import "Model/FSTDocumentKey.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 
-#import "FSTHelpers.h"
-#import "FSTImmutableSortedSet+Testing.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

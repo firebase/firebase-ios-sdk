@@ -1,6 +1,6 @@
-#import "FSTLLRBEmptyNode.h"
+#import "Firestore/third_party/Immutable/FSTLLRBEmptyNode.h"
 
-#import "FSTLLRBValueNode.h"
+#import "Firestore/third_party/Immutable/FSTLLRBValueNode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FSTEagerGarbageCollector.h"
+#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 
-#import "FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

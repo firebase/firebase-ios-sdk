@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "Local/FSTMemoryRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 
-#import "Local/FSTMemoryPersistence.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
-#import "FSTPersistenceTestHelpers.h"
-#import "FSTRemoteDocumentCacheTests.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
 @interface FSTMemoryRemoteDocumentCacheTests : FSTRemoteDocumentCacheTests
 @end

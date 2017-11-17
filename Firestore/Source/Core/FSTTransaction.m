@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import "FSTTransaction.h"
+#import "Firestore/Source/Core/FSTTransaction.h"
 
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
 #import "FIRSetOptions.h"
-#import "FSTAssert.h"
-#import "FSTDatastore.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTDocumentKeySet.h"
-#import "FSTMutation.h"
-#import "FSTSnapshotVersion.h"
-#import "FSTUsageValidation.h"
-#import "FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

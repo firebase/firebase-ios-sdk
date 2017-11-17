@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTGarbageCollector.h"
+#import "Firestore/Source/Local/FSTGarbageCollector.h"
 
 @class FSTDocumentKey;
 

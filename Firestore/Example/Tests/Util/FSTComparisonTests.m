@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Util/FSTComparison.h"
+#import "Firestore/Source/Util/FSTComparison.h"
 
 #import <XCTest/XCTest.h>
 

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FSTPath.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
-#import "FSTAssert.h"
-#import "FSTClasses.h"
-#import "FSTDocumentKey.h"
-#import "FSTUsageValidation.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

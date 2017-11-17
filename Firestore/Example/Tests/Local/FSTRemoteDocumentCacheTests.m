@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FSTRemoteDocumentCacheTests.h"
+#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
-#import "Core/FSTQuery.h"
-#import "Local/FSTPersistence.h"
-#import "Local/FSTWriteGroup.h"
-#import "Model/FSTDocument.h"
-#import "Model/FSTDocumentKey.h"
-#import "Model/FSTDocumentSet.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
