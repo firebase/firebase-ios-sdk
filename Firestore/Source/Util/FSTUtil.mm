@@ -16,21 +16,15 @@
 
 #import "Firestore/Source/Util/FSTUtil.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#include "Firestore/src/core/util/autoid.h"
 
-static const int kAutoIDLength = 20;
-static NSString *const kAutoIDAlphabet =
-    @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTUtil
 
 + (NSString *)autoID {
-  unichar autoID[kAutoIDLength];
-  for (int i = 0; i < kAutoIDLength; i++) {
-    uint32_t randIndex = arc4random_uniform((uint32_t)kAutoIDAlphabet.length);
-    autoID[i] = [kAutoIDAlphabet characterAtIndex:randIndex];
-  }
-  return [NSString stringWithCharacters:autoID length:kAutoIDLength];
+  std::string result = firestore::CreateAutoId();
+  return [NSString stringWithUTF8String:result.c_str()];
 }
 
 @end
