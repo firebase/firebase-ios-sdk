@@ -18,6 +18,10 @@
 #define FIRESTORE_SRC_SUPPORT_PORT_H_
 
 #if defined(__APPLE__)
+// On Apple platforms we support building via Cocoapods without CMake. When
+// building this way we can't test the presence of features so predefine all
+// the platform-support feature macros to their expected values.
+
 // All supported Apple platforms have arc4random(3).
 #define HAVE_ARC4RANDOM 1
 

@@ -41,11 +41,11 @@ class SecureRandom {
   using result_type = uint32_t;
 
   static constexpr result_type min() {
-    return 0;
+    return std::numeric_limits<uint32_t>::min();
   }
 
   static constexpr result_type max() {
-    return std::numeric_limits<uint32_t>::max() - 1;
+    return std::numeric_limits<uint32_t>::max();
   }
 
 #else
