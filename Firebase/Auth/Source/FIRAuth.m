@@ -676,6 +676,47 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }];
 }
 
+- (void)signInAnonymouslyAndRetrieveDataWithCompletion:(FIRAuthDataResultCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
+    if (_currentUser.anonymous) {
+      FIRAdditionalUserInfo *additionalUserInfo =
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:nil
+                                                    profile:nil
+                                                   username:nil
+                                                  isNewUser:NO];
+      FIRAuthDataResult *authDataResult =
+          [[FIRAuthDataResult alloc] initWithUser:_currentUser
+                               additionalUserInfo:additionalUserInfo];
+      decoratedCallback(authDataResult, nil);
+      return;
+    }
+    [self internalSignInAnonymouslyWithCompletion:^(FIRSignUpNewUserResponse *_Nullable response,
+                                                    NSError *_Nullable error) {
+      if (error) {
+        decoratedCallback(nil, error);
+        return;
+      }
+      [self completeSignInWithAccessToken:response.IDToken
+                accessTokenExpirationDate:response.approximateExpirationDate
+                             refreshToken:response.refreshToken
+                                anonymous:YES
+                                 callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+        FIRAdditionalUserInfo *additionalUserInfo =
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:nil
+                                                    profile:nil
+                                                   username:nil
+                                                  isNewUser:YES];
+        FIRAuthDataResult *authDataResult =
+            [[FIRAuthDataResult alloc] initWithUser:user
+                                 additionalUserInfo:additionalUserInfo];
+        decoratedCallback(authDataResult, nil);
+     }];
+    }];
+  });
+}
+
 - (void)signInAnonymouslyWithCompletion:(FIRAuthResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthResultCallback decoratedCallback =
@@ -684,11 +725,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       decoratedCallback(_currentUser, nil);
       return;
     }
-    FIRSignUpNewUserRequest *request =
-        [[FIRSignUpNewUserRequest alloc]initWithRequestConfiguration:_requestConfiguration];
-    [FIRAuthBackend signUpNewUser:request
-                         callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                    NSError *_Nullable error) {
+    [self internalSignInAnonymouslyWithCompletion:^(FIRSignUpNewUserResponse *_Nullable response,
+                                                    NSError *_Nullable error) {
       if (error) {
         decoratedCallback(nil, error);
         return;
@@ -1091,6 +1129,16 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }];
 }
 #endif
+
+/** @fn internalSignInAnonymouslyWithCompletion:
+    @param completion A block which is invoked when the anonymous sign in request completes.
+ */
+- (void)internalSignInAnonymouslyWithCompletion:(FIRSignupNewUserCallback)completion {
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc]initWithRequestConfiguration:_requestConfiguration];
+  [FIRAuthBackend signUpNewUser:request
+                       callback:completion];
+}
 
 /** @fn possiblyPostAuthStateChangeNotification
     @brief Posts the auth state change notificaton if current user's token has been changed.
