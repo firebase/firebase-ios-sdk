@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(third_party/googletest/CMakeLists.txt)
+include(${PROJECT_SOURCE_DIR}/cmake/external/googletest.cmake)
