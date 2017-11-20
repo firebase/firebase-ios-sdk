@@ -14,5 +14,5 @@
 
 add_library(
   firestore_support
-  secure_random_bsd.cc
+  secure_random_arc4random.cc
 )
