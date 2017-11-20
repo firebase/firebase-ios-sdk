@@ -12,29 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Download and install googletest during configuration rather than at build
-# time. This makes it just a regular target as far as the outer build is
-# concerned.
-#
-# See https://crascit.com/2015/07/25/cmake-gtest/
-configure_file(CMakeLists.txt.download download/CMakeLists.txt)
-execute_process(
-  COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/download"
-)
-execute_process(
-  COMMAND "${CMAKE_COMMAND}" --build .
-  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/download"
+include(ExternalProject)
+ExternalProject_Add(
+  googletest_external
+  PREFIX googletest
+  GIT_REPOSITORY "https://github.com/google/googletest.git"
+  GIT_TAG "release-1.8.0"
+  GIT_SHALLOW ON
+
+  CMAKE_ARGS
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DBUILD_GMOCK:BOOL=OFF
+      -DBUILD_GTEST:BOOL=ON
+
+  # Cut down on scary log output
+  LOG_DOWNLOAD ON
+  LOG_CONFIGURE ON
+
+  INSTALL_COMMAND ""
+  UPDATE_COMMAND ""
+  TEST_COMMAND ""
 )
 
-set(BUILD_GTEST ON)
-set(BUILD_GMOCK OFF)
+ExternalProject_Get_Property(googletest_external source_dir binary_dir)
 
-# Include the downloaded sources as a part of this project, but exclude its
-# targets from "all" since we only need the resulting libraries for building
-# tests.
-add_subdirectory(
-  "${CMAKE_CURRENT_BINARY_DIR}/src"
-  "${CMAKE_CURRENT_BINARY_DIR}/build"
-  EXCLUDE_FROM_ALL
+# CMake requires paths in include_directories to exist at configure time
+file(MAKE_DIRECTORY ${source_dir}/googletest/include)
+
+add_library(gtest STATIC IMPORTED GLBOAL)
+set_target_properties(
+  gtest PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES ${source_dir}/googletest/include
+  IMPORTED_LOCATION ${binary_dir}/googletest/${CMAKE_FIND_LIBRARY_PREFIXES}gtest.a
 )
+add_dependencies(gtest googletest_external)
+
+add_library(gtest_main STATIC IMPORTED GLOBAL)
+set_target_properties(
+  gtest_main PROPERTIES
+  IMPORTED_LOCATION ${binary_dir}/googletest/${CMAKE_FIND_LIBRARY_PREFIXES}gtest_main.a
+)
+add_dependencies(gtest_main googletest_external)
