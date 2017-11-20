@@ -6,26 +6,57 @@ CMake.
 ## Dependencies
 
 You need:
+  * A C++ compiler
   * `cmake`
-  * `ninja` (optional)
 
-Install with your favorite package manager for your platform, e.g. homebrew on
-macOS, chocolatey on Windows, apt-get on Ubuntu, etc.
+### macOS
+
+You need [Xcode](https://developer.apple.com/xcode/), which you can get from
+the Mac App Store.
+
+You can get other development tools via [homebrew](https://brew.sh). Adjust as
+needed for other package managers.
+```
+brew install cmake
+```
+
+### Ubuntu
+
+Ubuntu Trusty includes CMake 2.8.12 which should be sufficient. Newer versions
+are fine too.
+
+```
+sudo apt-get install cmake
+```
+
+### Windows
+
+An easy way to get development tools is via [Chocolatey](https://chocolatey.org/).
+
+Unfortunately, the `cmake.install` package is semi-broken, so use the portable
+version.
+
+```
+choco install cmake.portable
+```
 
 ## Setup
 
-Prepare a working directory
+CMake builds out-of source, so create a separate build directory for the target
+you want to work on.
+
 ```
 mkdir build
 cd build
-```
-
-Configure the build
-```
-cmake -G Ninja ..
+cmake ..
 ```
 
 ## Testing
+
+Once CMake has run once, you can just run `make` repeatedly and it will
+regenerate Makefiles as needed.
+
+To build everything and run tests:
 ```
-ninja test
+make -j all test
 ```
