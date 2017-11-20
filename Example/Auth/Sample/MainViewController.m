@@ -116,6 +116,12 @@ static NSString *const kSignInWithCustomTokenButtonText = @"Sign In (BYOAuth)";
  */
 static NSString *const kSignInAnonymouslyButtonText = @"Sign In Anonymously";
 
+/** @var kSignInAnonymouslyWithAuthResultButtonText
+    @brief The text of the "Sign In Anonymously (AuthDataResult)" button.
+ */
+static NSString *const kSignInAnonymouslyWithAuthResultButtonText =
+    @"Sign In Anonymously (AuthDataResult)";
+
 /** @var kSignedInAlertTitle
     @brief The text of the "Sign In Succeeded" alert.
  */
@@ -702,6 +708,8 @@ typedef enum {
                                            action:^{ [weakSelf signInWithCustomToken]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyButtonText
                                            action:^{ [weakSelf signInAnonymously]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyWithAuthResultButtonText
+                                           action:^{ [weakSelf signInAnonymouslyAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kGitHubSignInButtonText
                                            action:^{ [weakSelf signInWithGitHub]; }],
         [StaticContentTableViewCell cellWithTitle:kSignOutButtonText
@@ -2776,6 +2784,23 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [self logFailure:@"sign-in anonymously failed" error:error];
     } else {
       [self logSuccess:@"sign-in anonymously succeeded."];
+    }
+    [self showTypicalUIForUserUpdateResultsWithTitle:kSignInAnonymouslyButtonText error:error];
+  }];
+}
+
+/** @fn signInAnonymouslyAuthDataResult
+    @brief Signs in as an anonymous user, receiving an auth result containing a signed in user upon
+        success.
+ */
+- (void)signInAnonymouslyAuthDataResult {
+  [[AppManager auth] signInAnonymouslyAndRetrieveDataWithCompletion:
+      ^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+    if (error) {
+      [self logFailure:@"sign-in anonymously failed" error:error];
+    } else {
+      [self logSuccess:@"sign-in anonymously succeeded."];
+      [self log:[NSString stringWithFormat:@"User ID : %@", authResult.user.uid]];
     }
     [self showTypicalUIForUserUpdateResultsWithTitle:kSignInAnonymouslyButtonText error:error];
   }];

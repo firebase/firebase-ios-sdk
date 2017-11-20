@@ -408,6 +408,29 @@ FIR_SWIFT_NAME(Auth)
  */
 - (void)signInAnonymouslyWithCompletion:(nullable FIRAuthResultCallback)completion;
 
+/** @fn signInAnonymouslyAndRetrieveDataWithCompletion:
+    @brief Asynchronously creates and becomes an anonymous user.
+    @param completion Optionally; a block which is invoked when the sign in finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks If there is already an anonymous user signed in, that user will be returned instead.
+        If there is any other existing user signed in, that user will be signed out.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that anonymous accounts are
+            not enabled. Enable them in the Auth section of the Firebase console.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+    @remarks This method will only exist until the next major Firebase release following 4.x.x.
+        After the next major release the method @c signInAnonymouslyWithCompletion will support the
+        @c FIRAuthDataResultCallback.
+ */
+- (void)signInAnonymouslyAndRetrieveDataWithCompletion:
+    (nullable FIRAuthDataResultCallback)completion;
+
 /** @fn signInWithCustomToken:completion:
     @brief Asynchronously signs in to Firebase with the given Auth token.
 
