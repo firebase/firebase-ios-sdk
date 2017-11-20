@@ -54,3 +54,6 @@ Carthage
 Pods/
 Podfile.lock
 *.xcworkspace
+
+# CMake
+.downloads
