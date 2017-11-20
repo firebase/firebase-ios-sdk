@@ -16,6 +16,8 @@
 
 #include "Firestore/src/support/secure_random.h"
 
+#include "Firestore/src/support/port.h"
+
 #if HAVE_ARC4RANDOM
 
 #include <stdlib.h>

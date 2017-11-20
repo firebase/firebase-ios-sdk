@@ -18,8 +18,7 @@
 #define FIRESTORE_SRC_SUPPORT_SECURE_RANDOM_H_
 
 #include <limits>
-
-#include "Firestore/src/support/port.h"
+#include <stdint.h>
 
 namespace firestore {
 
@@ -36,22 +35,16 @@ namespace firestore {
 // quickly with periodic reseeding.
 class SecureRandom {
  public:
-#if HAVE_ARC4RANDOM
-  // If available, use arc4random(3) as found on BSD derived systems.
+  // C++11 UniformRandomBitGenerator interface
   using result_type = uint32_t;
 
   static constexpr result_type min() {
-    return std::numeric_limits<uint32_t>::min();
+    return std::numeric_limits<result_type>::min();
   }
 
   static constexpr result_type max() {
-    return std::numeric_limits<uint32_t>::max();
+    return std::numeric_limits<result_type>::max();
   }
-
-#else
-
-#error "Missing SecureRandom implementation."
-#endif  // HAVE_ARC4RANDOM
 
   result_type operator()();
 };
