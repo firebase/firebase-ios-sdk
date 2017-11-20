@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FSTExponentialBackoff.h"
+#import "Firestore/Source/Remote/FSTExponentialBackoff.h"
 
-#import "FSTDispatchQueue.h"
-#import "FSTLogger.h"
-#import "FSTUtil.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTLogger.h"
+#import "Firestore/Source/Util/FSTUtil.h"
 
 @interface FSTExponentialBackoff ()
 - (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue

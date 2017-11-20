@@ -16,7 +16,7 @@
 
 #import "FIRFirestoreSettings.h"
 
-#import "FSTUsageValidation.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

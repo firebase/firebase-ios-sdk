@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTMutationQueue.h"
+#import "Firestore/Source/Local/FSTMutationQueue.h"
 
 @protocol FSTGarbageCollector;
 

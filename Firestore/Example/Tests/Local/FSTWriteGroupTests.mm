@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "Local/FSTWriteGroup.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
 
-#import "Local/FSTLevelDB.h"
-#import "Local/FSTLevelDBKey.h"
-#import "Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
 
-#import "FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 using leveldb::ReadOptions;
 using leveldb::Status;

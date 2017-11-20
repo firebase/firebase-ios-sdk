@@ -20,9 +20,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTTypes.h"
-
-#import "StringView.h"
+#import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Local/StringView.h"
 
 @class FSTDocumentKey;
 @class FSTResourcePath;

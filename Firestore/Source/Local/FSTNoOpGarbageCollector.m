@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTNoOpGarbageCollector.h"
+#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

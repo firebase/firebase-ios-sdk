@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Core/FSTTargetIDGenerator.h"
+#import "Firestore/Source/Core/FSTTargetIDGenerator.h"
 
 #import <XCTest/XCTest.h>
 

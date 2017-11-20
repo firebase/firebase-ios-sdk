@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 
 #import <XCTest/XCTest.h>
 
-#import "API/FIRFirestore+Internal.h"
-#import "Model/FSTDatabaseID.h"
-#import "Model/FSTDocument.h"
-#import "Model/FSTDocumentKey.h"
-#import "Model/FSTPath.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

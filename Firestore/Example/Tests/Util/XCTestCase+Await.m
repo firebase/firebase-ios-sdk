@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "XCTestCase+Await.h"
+#import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 #import <Foundation/Foundation.h>
 

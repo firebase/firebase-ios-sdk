@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTImmutableSortedDictionary.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
 @class FSTDocumentKey;
 @class FSTSnapshotVersion;

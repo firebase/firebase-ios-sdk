@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "Local/FSTLevelDBMutationQueue.h"
+#import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
 
-#import "Auth/FSTUser.h"
-#import "Local/FSTLevelDB.h"
-#import "Local/FSTLevelDBKey.h"
-#import "Local/FSTWriteGroup.h"
-#include "Port/ordered_code.h"
-#import "Protos/objc/firestore/local/Mutation.pbobjc.h"
+#include "Firestore/Port/ordered_code.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 
-#import "FSTMutationQueueTests.h"
-#import "FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

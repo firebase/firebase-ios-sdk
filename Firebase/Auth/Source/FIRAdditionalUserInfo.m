@@ -50,7 +50,7 @@ static NSString *const kNewUserKey = @"newUser";
                                 isNewUser:verifyAssertionResponse.isNewUser];
 }
 
-- (nullable instancetype)initWithProviderID:(NSString *)providerID
+- (nullable instancetype)initWithProviderID:(nullable NSString *)providerID
                                     profile:(nullable NSDictionary<NSString *, NSObject *> *)profile
                                    username:(nullable NSString *)username
                                   isNewUser:(BOOL)isNewUser {

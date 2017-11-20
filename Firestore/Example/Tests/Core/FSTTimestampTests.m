@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "Core/FSTTimestamp.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

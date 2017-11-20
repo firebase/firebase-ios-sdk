@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
 
-#import "FIRGeoPoint+Internal.h"
-#import "FSTAssert.h"
-#import "FSTClasses.h"
-#import "FSTComparison.h"
-#import "FSTDatabaseID.h"
-#import "FSTDocumentKey.h"
-#import "FSTPath.h"
-#import "FSTTimestamp.h"
+#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTComparison.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

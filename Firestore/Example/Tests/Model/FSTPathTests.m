@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FSTHelpers.h"
-#import "Model/FSTPath.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
 #import <XCTest/XCTest.h>
 
