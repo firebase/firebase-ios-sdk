@@ -30,6 +30,4 @@
 #error "Unknown platform."
 #endif  // defined(__APPLE__)
 
-#include <stdint.h>
-
 #endif  // FIRESTORE_SRC_SUPPORT_PORT_H_

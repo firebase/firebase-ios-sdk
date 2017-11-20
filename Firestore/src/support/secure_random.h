@@ -17,8 +17,9 @@
 #ifndef FIRESTORE_SRC_SUPPORT_SECURE_RANDOM_H_
 #define FIRESTORE_SRC_SUPPORT_SECURE_RANDOM_H_
 
-#include <limits>
 #include <stdint.h>
+
+#include <limits>
 
 namespace firestore {
 
