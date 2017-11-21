@@ -555,13 +555,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           return;
         }
         FIRAdditionalUserInfo *additionalUserInfo =
-          [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
-                                                    profile:nil
-                                                   username:nil
-                                                  isNewUser:NO];
-       FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:user
-                                                        additionalUserInfo:additionalUserInfo];
-       decoratedCallback(result, nil);
+            [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                      profile:nil
+                                                     username:nil
+                                                    isNewUser:NO];
+        FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:user
+                                                         additionalUserInfo:additionalUserInfo];
+        decoratedCallback(result, nil);
       }];
     }];
   });
@@ -1198,15 +1198,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     completion(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
     return;
   }
-  [FIRAuthBackend verifyPassword:request
-                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-    if (error) {
-      completion(nil, error);
-      return;
-    }
-    completion(response, error);
-  }];
+  [FIRAuthBackend verifyPassword:request callback:completion];
 }
 
 /** @fn internalCreateUserWithEmail:password:completion:
