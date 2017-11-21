@@ -1,3 +1,6 @@
+# v4.1.2
+- [fixed] Addresses race condition that can occur during the initialization of empty snapshots.
+
 # v4.1.1
 - [fixed] Fixed warnings for callback types with missing argument specifications in Xcode 9.
 
