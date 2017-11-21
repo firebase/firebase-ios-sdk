@@ -384,6 +384,11 @@ static NSString *const kSectionTitleApp = @"APP";
  */
 static NSString *const kCreateUserTitle = @"Create User";
 
+/** @var kCreateUserAuthDataResultTitle
+    @brief The text of the "Create User (AuthDataResult)" button.
+ */
+static NSString *const kCreateUserAuthDataResultTitle = @"Create User (AuthDataResult)";
+
 /** @var kDeleteAppTitle
     @brief The text of the "Delete App" button.
  */
@@ -694,6 +699,8 @@ typedef enum {
                                             value:nil
                                            action:^{ [weakSelf createUser]; }
                                   accessibilityID:kCreateUserAccessibilityID],
+        [StaticContentTableViewCell cellWithTitle:kCreateUserAuthDataResultTitle
+                                           action:^{ [weakSelf createUserAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleButtonText
                                            action:^{ [weakSelf signInGoogle]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleAndRetrieveDataButtonText
@@ -2483,6 +2490,43 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
             [self logFailure:@"create user failed" error:error];
           } else {
             [self logSuccess:@"create user succeeded."];
+          }
+          [self hideSpinner:^{
+            [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
+          }];
+        }];
+      }];
+    }];
+  }];
+}
+
+/** @fn createUserAuthDataResult
+    @brief Creates a new user.
+ */
+- (void)createUserAuthDataResult {
+  [self showTextInputPromptWithMessage:@"Email:"
+                          keyboardType:UIKeyboardTypeEmailAddress
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+
+    [self showTextInputPromptWithMessage:@"Password:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable password) {
+      if (!userPressedOK) {
+        return;
+      }
+
+      [self showSpinner:^{
+        [[AppManager auth] createUserAndRetrieveDataWithEmail:email
+                                                     password:password
+                                                   completion:^(FIRAuthDataResult *_Nullable result,
+                                                                NSError *_Nullable error) {
+          if (error) {
+            [self logFailure:@"create user failed" error:error];
+          } else {
+            [self logSuccess:@"create user succeeded."];
+            [self log:result.user.uid];
           }
           [self hideSpinner:^{
             [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
