@@ -27,5 +27,7 @@ include_directories("${PROJECT_SOURCE_DIR}")
 # check target that
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 
+include(cmake/utils.cmake)
+
 enable_testing()
 add_subdirectory(Firestore)

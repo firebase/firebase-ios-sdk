@@ -12,7 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${PROJECT_SOURCE_DIR}/cmake/external/googletest.cmake)
+# Defines a new test executable and does all the things we want done with
+# tests:
+#
+#   * add_executable (with the given arguments)
+#   * add_Test - defines a test with the same name
+#   * declares that the test links against gtest
+#   * adds the executable as a dependency of the `check` target.
+function(cc_test name)
+  add_executable(${name} ${ARGN})
+  add_test(${name} ${name})
 
-add_subdirectory(src/support)
-add_subdirectory(test/support)
+  target_link_libraries(${name} gtest gtest_main)
+
+  add_dependencies(check ${name})
+endfunction()
