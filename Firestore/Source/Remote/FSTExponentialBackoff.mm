@@ -18,10 +18,12 @@
 
 #include <random>
 
-#include "Firestore/src/support/secure_random.h"
+#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+
+using firebase::firestore::util::SecureRandom;
 
 @interface FSTExponentialBackoff ()
 - (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
@@ -37,7 +39,7 @@
 @end
 
 @implementation FSTExponentialBackoff {
-  firestore::SecureRandom _secureRandom;
+  SecureRandom _secureRandom;
 }
 
 - (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue

@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_SRC_SUPPORT_SECURE_RANDOM_H_
-#define FIRESTORE_SRC_SUPPORT_SECURE_RANDOM_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_SECURE_RANDOM_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_SECURE_RANDOM_H_
 
 #include <stdint.h>
 
 #include <limits>
 
+namespace firebase {
 namespace firestore {
+namespace util {
 
 // A "secure" pseudorandom number generator, suitable for generating
 // unguessable identifiers. This exists because
@@ -50,6 +52,8 @@ class SecureRandom {
   result_type operator()();
 };
 
+}  // namespace util
 }  // namespace firestore
+}  // namespace firebase
 
-#endif  // FIRESTORE_SRC_SUPPORT_SECURE_RANDOM_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_SECURE_RANDOM_H_

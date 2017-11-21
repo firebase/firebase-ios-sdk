@@ -13,10 +13,11 @@
 # limitations under the License.
 
 cc_test(
-  firestore_core_util_test
+  firebase_firestore_util_test
   autoid_test.cc
+  secure_random_test.cc
 )
 target_link_libraries(
-  firestore_core_util_test
-  firestore_core_util
+  firebase_firestore_util_test
+  firebase_firestore_util
 )
