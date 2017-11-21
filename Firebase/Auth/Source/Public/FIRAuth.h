@@ -484,6 +484,40 @@ FIR_SWIFT_NAME(Auth)
                    password:(NSString *)password
                  completion:(nullable FIRAuthResultCallback)completion;
 
+/** @fn createUserAndRetrieveDataWithEmail:password:completion:
+    @brief Creates and, on success, signs in a user with the given email address and password.
+
+    @param email The user's email address.
+    @param password The user's desired password.
+    @param completion Optionally; a block which is invoked when the sign up flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeInvalidEmail - Indicates the email address is malformed.
+        </li>
+        <li>@c FIRAuthErrorCodeEmailAlreadyInUse - Indicates the email used to attempt sign up
+            already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+            used, and prompt the user to sign in with one of those.
+        </li>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that email and password accounts
+            are not enabled. Enable them in the Auth section of the Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeWeakPassword - Indicates an attempt to set a password that is
+            considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+            dictionary object will contain more detailed explanation that can be shown to the user.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+    @remarks This method will only exist until the next major Firebase release following 4.x.x.
+        After the next major release the method @c createUserWithEmail:password:completion: will
+        support the @c FIRAuthDataResultCallback.
+ */
+- (void)createUserAndRetrieveDataWithEmail:(NSString *)email
+                                  password:(NSString *)password
+                                completion:(nullable FIRAuthDataResultCallback)completion;
+
 /** @fn confirmPasswordResetWithCode:newPassword:completion:
     @brief Resets the password given a code sent to the user outside of the app and a new password
       for the user.

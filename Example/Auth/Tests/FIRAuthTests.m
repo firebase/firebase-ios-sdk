@@ -1243,6 +1243,68 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testCreateUserAndRetrieveDataWithEmailPasswordSuccess
+    @brief Tests the flow of a successful @c createUserAndRetrieveDataWithEmail:password:completion:
+        call.
+ */
+- (void)testCreateUserAndRetrieveDataWithEmailPasswordSuccess {
+  OCMExpect([_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRSignUpNewUserRequest *_Nullable request,
+                       FIRSignupNewUserCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertEqualObjects(request.email, kEmail);
+    XCTAssertEqualObjects(request.password, kFakePassword);
+    XCTAssertTrue(request.returnSecureToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockSignUpNewUserResponse = OCMClassMock([FIRSignUpNewUserResponse class]);
+      [self stubTokensWithMockResponse:mockSignUpNewUserResponse];
+      callback(mockSignUpNewUserResponse, nil);
+    });
+  });
+  [self expectGetAccountInfo];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] createUserAndRetrieveDataWithEmail:kEmail
+                                            password:kFakePassword
+                                          completion:^(FIRAuthDataResult *_Nullable result,
+                                                       NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    [self assertUser:result.user];
+    XCTAssertTrue(result.additionalUserInfo.isNewUser);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUser:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testCreateUserAndRetrieveDataWithEmailPasswordFailure
+    @brief Tests the flow of a failed @c createUserAndRetrieveDataWithEmail:password:completion:
+        call.
+ */
+- (void)testCreateUserAndRetrieveDataWithEmailPasswordFailure {
+  NSString *reason = @"Password shouldn't be a common word.";
+  OCMExpect([_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils weakPasswordErrorWithServerResponseReason:reason]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] createUserAndRetrieveDataWithEmail:kEmail
+                                            password:kFakePassword
+                                          completion:^(FIRAuthDataResult *_Nullable result,
+                                                       NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNil(result);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeWeakPassword);
+    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
+    XCTAssertEqualObjects(error.userInfo[NSLocalizedFailureReasonErrorKey], reason);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  XCTAssertNil([FIRAuth auth].currentUser);
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testCreateUserEmptyPasswordFailure
     @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call due to an
         empty password. This error occurs on the client side, so there is no need to fake an RPC
