@@ -518,10 +518,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                         password:password
                                       completion:^(FIRAuthDataResult *_Nullable authResult,
                                                    NSError *_Nullable error) {
-      if (error) {
-        decoratedCallback(nil, error);
-        return;
-      }
       decoratedCallback(authResult.user, error);
     }];
   });
@@ -571,10 +567,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     [self internalSignInAndRetrieveDataWithEmail:email
                                         password:password
-                                      completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                   NSError *_Nullable error) {
-      decoratedCallback(authResult, error);
-    }];
+                                      completion:decoratedCallback];
   });
 }
 
@@ -630,7 +623,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)internalSignInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                  isReauthentication:(BOOL)isReauthentication
                                            callback:(nullable FIRAuthDataResultCallback)callback {
-    if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
+  if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
     // Special case for email/password credentials
     FIREmailPasswordAuthCredential *emailPasswordCredential =
         (FIREmailPasswordAuthCredential *)credential;
