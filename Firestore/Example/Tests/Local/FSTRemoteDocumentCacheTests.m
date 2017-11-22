@@ -114,6 +114,7 @@ static const int kVersion = 42;
   FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray *expected =
       @[ FSTTestDoc(@"b/1", kVersion, _kDocData, NO), FSTTestDoc(@"b/2", kVersion, _kDocData, NO) ];
+  XCTAssertEqual([results count], [expected count]);
   for (FSTDocument *doc in expected) {
     XCTAssertEqualObjects([results objectForKey:doc.key], doc);
   }
