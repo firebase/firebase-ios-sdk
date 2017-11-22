@@ -14,8 +14,8 @@
 
 #import "FIRTestCase.h"
 
-#import "FirebaseCore/FIRAppInternal.h"
-#import "FirebaseCore/FIROptionsInternal.h"
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
