@@ -18,12 +18,13 @@
 
 #import <objc/runtime.h>
 
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRAppAssociationRegistration.h>
+
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FIRAdditionalUserInfo.h"
-#import "FirebaseCore/FIRApp.h"
-#import "FirebaseCore/FIRAppInternal.h"
-#import "FirebaseCore/FIRAppAssociationRegistration.h"
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"

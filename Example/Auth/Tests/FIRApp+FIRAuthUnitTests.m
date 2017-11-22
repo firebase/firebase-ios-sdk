@@ -16,7 +16,7 @@
 
 #import "FIRApp+FIRAuthUnitTests.h"
 
-#import "FirebaseCore/FIROptionsInternal.h"
+#import <FirebaseCore/FIROptionsInternal.h>
 
 @implementation FIRApp (FIRAuthUnitTests)
 
