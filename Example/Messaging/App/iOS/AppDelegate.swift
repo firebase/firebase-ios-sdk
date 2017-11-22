@@ -15,7 +15,8 @@
  */
 
 import UIKit
-import FirebaseCommunity
+import FirebaseCore
+import FirebaseMessaging
 import UserNotifications
 
 @UIApplicationMain

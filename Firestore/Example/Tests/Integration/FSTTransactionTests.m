@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import Firestore;
+@import FirebaseFirestore;
 
 #import <XCTest/XCTest.h>
 #include <libkern/OSAtomic.h>

@@ -16,13 +16,9 @@
 
 #import "FIRSampleAppUtilities.h"
 
+#import <FirebaseCore/FIROptionsInternal.h>
 #import <SafariServices/SafariServices.h>
 
-// Plist file name.
-NSString *const kServiceInfoFileName = @"GoogleService-Info";
-// Plist file type.
-NSString *const kServiceInfoFileType = @"plist";
-// GOOGLE_APP_ID key
 NSString *const kGoogleAppIDPlistKey = @"GOOGLE_APP_ID";
 // Dummy plist GOOGLE_APP_ID
 NSString *const kDummyGoogleAppID = @"1:123:ios:123abc";

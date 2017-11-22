@@ -16,7 +16,7 @@
 
 import UIKit
 
-import FirebaseCommunity
+import FirebaseMessaging
 
 enum Row: String {
   case apnsToken = "apnsToken"

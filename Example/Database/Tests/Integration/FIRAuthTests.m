@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseCommunity/FIRApp.h"
+#import "FirebaseCore/FIRApp.h"
 #import "FTestHelpers.h"
 #import "FTestAuthTokenGenerator.h"
 #import "FIRTestAuthTokenProvider.h"

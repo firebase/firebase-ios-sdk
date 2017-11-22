@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseCommunity/FIRApp.h"
+#import "FirebaseCore/FIRApp.h"
 #import "FIRDatabaseReference.h"
 #import "FIRDatabaseReference_Private.h"
 #import "FIRDatabase.h"

@@ -18,7 +18,7 @@
 
 #import <GRPCClient/GRPCCall.h>
 
-#import "Firestore/FIRFirestoreErrors.h"
+#import "FirebaseFirestore/FIRFirestoreErrors.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
