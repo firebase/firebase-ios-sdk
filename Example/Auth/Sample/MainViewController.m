@@ -118,6 +118,12 @@ static NSString *const kSignInEmailPasswordAuthDataResultButtonText =
  */
 static NSString *const kSignInWithCustomTokenButtonText = @"Sign In (BYOAuth)";
 
+/** @var kSignInWithCustomAuthResultTokenButtonText
+    @brief The text of the "Sign In with Custom Token (Auth Result)" button.
+ */
+static NSString *const kSignInWithCustomAuthResultTokenButtonText = @"Sign In with Custom Token"
+    " (Auth Result)";
+
 /** @var kSignInAnonymouslyButtonText
     @brief The text of the "Sign In Anonymously" button.
  */
@@ -722,6 +728,8 @@ typedef enum {
                                            action:^{ [weakSelf signInEmailPasswordAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInWithCustomTokenButtonText
                                            action:^{ [weakSelf signInWithCustomToken]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInWithCustomAuthResultTokenButtonText
+                                           action:^{ [weakSelf signInWithCustomTokenAuthResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyButtonText
                                            action:^{ [weakSelf signInAnonymously]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyWithAuthResultButtonText
@@ -1748,6 +1756,24 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }
 
         [self doSignInWithCustomToken:userEnteredTokenText];
+      };
+  CustomTokenDataEntryViewController *dataEntryViewController =
+      [[CustomTokenDataEntryViewController alloc] initWithCompletion:action];
+  [self presentViewController:dataEntryViewController animated:YES completion:nil];
+}
+
+/** @fn signInWithCustomTokenAuthResult
+    @brief Signs the user in using a manually-entered custom token.
+ */
+- (void)signInWithCustomTokenAuthResult {
+  CustomTokenDataEntryViewControllerCompletion action =
+      ^(BOOL cancelled, NSString *_Nullable userEnteredTokenText) {
+        if (cancelled) {
+          [self log:@"CANCELLED:sign-in with custom token cancelled."];
+          return;
+        }
+
+        [self doSignInAndRetrieveDataWithCustomToken:userEnteredTokenText];
       };
   CustomTokenDataEntryViewController *dataEntryViewController =
       [[CustomTokenDataEntryViewController alloc] initWithCompletion:action];
@@ -3065,6 +3091,26 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     [self logSuccess:@"sign-in with custom token succeeded."];
     [self showMessagePromptWithTitle:kSignedInAlertTitle
                              message:user.displayName
+                    showCancelButton:NO
+                          completion:nil];
+  }];
+}
+
+- (void)doSignInAndRetrieveDataWithCustomToken:(NSString *_Nullable)userEnteredTokenText {
+  [[AppManager auth] signInAndRetrieveDataWithCustomToken:userEnteredTokenText
+                                               completion:^(FIRAuthDataResult *_Nullable result,
+                                                            NSError *_Nullable error) {
+    if (error) {
+      [self logFailure:@"sign-in with custom token failed" error:error];
+      [self showMessagePromptWithTitle:kSignInErrorAlertTitle
+                               message:error.localizedDescription
+                      showCancelButton:NO
+                            completion:nil];
+      return;
+    }
+    [self logSuccess:@"sign-in with custom token succeeded."];
+    [self showMessagePromptWithTitle:kSignedInAlertTitle
+                             message:result.user.displayName
                     showCancelButton:NO
                           completion:nil];
   }];
