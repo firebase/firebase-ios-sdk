@@ -105,6 +105,8 @@ static const int kVersion = 42;
 - (void)testDocumentsMatchingQuery {
   if (!self.remoteDocumentCache) return;
 
+  // TODO(rsgowman): This just verifies that we do a prefix scan against the
+  // query path. We'll need more tests once we add index support.
   [self setTestDocumentAtPath:@"a/1"];
   [self setTestDocumentAtPath:@"b/1"];
   [self setTestDocumentAtPath:@"b/2"];
@@ -118,9 +120,6 @@ static const int kVersion = 42;
   for (FSTDocument *doc in expected) {
     XCTAssertEqualObjects([results objectForKey:doc.key], doc);
   }
-
-  // TODO(mikelehen): Perhaps guard against extra documents in the result set once our
-  // implementations are smarter.
 }
 
 #pragma mark - Helpers
