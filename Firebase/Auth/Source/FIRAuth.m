@@ -631,9 +631,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                  password:emailPasswordCredential.password
                  callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
       if (callback) {
-        FIRAuthDataResult *result = user ?
-            [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
-        callback(result, error);
+        if (error) {
+          callback(nil, error);
+          return;
+        }
+        FIRAdditionalUserInfo *additionalUserInfo =
+            [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                      profile:nil
+                                                     username:nil
+                                                    isNewUser:NO];
+        FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:user
+                                                         additionalUserInfo:additionalUserInfo];
+        callback(result, nil);
       }
     }];
     return;
