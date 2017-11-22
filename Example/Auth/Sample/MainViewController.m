@@ -106,6 +106,12 @@ static NSString *const kSignInFacebookAndRetrieveDataButtonText =
  */
 static NSString *const kSignInEmailPasswordButtonText = @"Sign in with Email/Password";
 
+/** @var kSignInEmailPasswordAuthDataResultButtonText
+    @brief The text of the "Email/Password SignIn (AuthDataResult)" button.
+ */
+static NSString *const kSignInEmailPasswordAuthDataResultButtonText =
+    @"Sign in with Email/Password (AuthDataReult)";
+
 /** @var kSignInWithCustomTokenButtonText
     @brief The text of the "Sign In (BYOAuth)" button.
  */
@@ -711,6 +717,8 @@ typedef enum {
                                            action:^{ [weakSelf signInFacebookAndRetrieveData]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInEmailPasswordButtonText
                                            action:^{ [weakSelf signInEmailPassword]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInEmailPasswordAuthDataResultButtonText
+                                           action:^{ [weakSelf signInEmailPasswordAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInWithCustomTokenButtonText
                                            action:^{ [weakSelf signInWithCustomToken]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyButtonText
@@ -1650,15 +1658,48 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       }
       FIRAuthCredential *credential =
           [FIREmailAuthProvider credentialWithEmail:email
-                                                   password:password];
+                                           password:password];
       [self showSpinner:^{
         [[AppManager auth] signInWithCredential:credential
-                                     completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                                     completion:^(FIRUser *_Nullable user,
+                                                  NSError *_Nullable error) {
           [self hideSpinner:^{
             if (error) {
               [self logFailure:@"sign-in with Email/Password failed" error:error];
             } else {
               [self logSuccess:@"sign-in with Email/Password succeeded."];
+            }
+            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+          }];
+        }];
+      }];
+    }];
+  }];
+}
+
+- (void)signInEmailPasswordAuthDataResult {
+  [self showTextInputPromptWithMessage:@"Email Address:"
+                          keyboardType:UIKeyboardTypeEmailAddress
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+    [self showTextInputPromptWithMessage:@"Password:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable password) {
+      if (!userPressedOK) {
+        return;
+      }
+      [self showSpinner:^{
+        [[AppManager auth] signInAndRetrieveDataWithEmail:email
+                                                 password:password
+                                               completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                            NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"sign-in with Email/Password failed" error:error];
+            } else {
+              [self logSuccess:@"sign-in with Email/Password succeeded."];
+              [self log:[NSString stringWithFormat:@"UID: %@",authResult.user.uid]];
             }
             [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
           }];
