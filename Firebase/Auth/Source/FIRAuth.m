@@ -514,57 +514,87 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthResultCallback decoratedCallback =
         [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
-    [self internalSignInWithEmail:email
-                         password:password
-                       completion:^(FIRVerifyPasswordResponse *_Nullable response,
-                                    NSError *_Nullable error) {
+    [self internalSignInAndRetrieveDataWithEmail:email
+                                        password:password
+                                      completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                   NSError *_Nullable error) {
       if (error) {
         decoratedCallback(nil, error);
         return;
       }
-      [self completeSignInWithAccessToken:response.IDToken
+      decoratedCallback(authResult.user, error);
+    }];
+  });
+}
+
+/** @fn signInWithEmail:password:callback:
+    @brief Signs in using an email address and password.
+    @param email The user's email address.
+    @param password The user's password.
+    @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+        asynchronously on the global auth work queue in the future.
+    @remarks This is the internal counterpart of this method, which uses a callback that does not
+        update the current user.
+ */
+- (void)signInWithEmail:(NSString *)email
+               password:(NSString *)password
+               callback:(FIRAuthResultCallback)callback {
+  FIRVerifyPasswordRequest *request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:email
+                                             password:password
+                                 requestConfiguration:_requestConfiguration];
+
+  if (![request.password length]) {
+    callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
+    return;
+  }
+  [FIRAuthBackend verifyPassword:request
+                        callback:^(FIRVerifyPasswordResponse *_Nullable response,
+                                   NSError *_Nullable error) {
+    if (error) {
+      callback(nil, error);
+      return;
+    }
+    [self completeSignInWithAccessToken:response.IDToken
               accessTokenExpirationDate:response.approximateExpirationDate
                            refreshToken:response.refreshToken
                               anonymous:NO
-                               callback:decoratedCallback];
-    }];
-  });
+                               callback:callback];
+  }];
 }
 
 - (void)signInAndRetrieveDataWithEmail:(NSString *)email
                               password:(NSString *)password
                             completion:(FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthDataResultCallback decoratedCallback =
-        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
-    [self internalSignInWithEmail:email
-                         password:password
-                       completion:^(FIRVerifyPasswordResponse *_Nullable response,
-                                    NSError * _Nullable error) {
-      if (error) {
-        decoratedCallback(nil, error);
-        return;
-      }
-      [self completeSignInWithAccessToken:response.IDToken
-                accessTokenExpirationDate:response.approximateExpirationDate
-                             refreshToken:response.refreshToken
-                                anonymous:NO
-                                 callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-        if (error) {
-          decoratedCallback(nil, error);
-          return;
-        }
-        FIRAdditionalUserInfo *additionalUserInfo =
-            [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
-                                                      profile:nil
-                                                     username:nil
-                                                    isNewUser:NO];
-        FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:user
-                                                         additionalUserInfo:additionalUserInfo];
-        decoratedCallback(result, nil);
-      }];
+  FIRAuthDataResultCallback decoratedCallback =
+      [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
+    [self internalSignInAndRetrieveDataWithEmail:email
+                                        password:password
+                                      completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                   NSError *_Nullable error) {
+      decoratedCallback(authResult, error);
     }];
   });
+}
+
+/** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
+    @brief Signs in using an email address and password.
+    @param email The user's email address.
+    @param password The user's password.
+    @param completion A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+        asynchronously on the global auth work queue in the future.
+    @remarks This is the internal counterpart of this method, which uses a callback that does not
+        update the current user.
+ */
+- (void)internalSignInAndRetrieveDataWithEmail:(NSString *)email
+                                      password:(NSString *)password
+                                    completion:(FIRAuthDataResultCallback)completion {
+  FIREmailPasswordAuthCredential *credentail =
+      [[FIREmailPasswordAuthCredential alloc] initWithEmail:email password:password];
+  [self internalSignInAndRetrieveDataWithCredential:credentail
+                                 isReauthentication:NO
+                                           callback:completion];
 }
 
 - (void)signInWithCredential:(FIRAuthCredential *)credential
@@ -600,31 +630,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)internalSignInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                  isReauthentication:(BOOL)isReauthentication
                                            callback:(nullable FIRAuthDataResultCallback)callback {
-  if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
+    if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
     // Special case for email/password credentials
     FIREmailPasswordAuthCredential *emailPasswordCredential =
         (FIREmailPasswordAuthCredential *)credential;
-    [self internalSignInWithEmail:emailPasswordCredential.email
-                         password:emailPasswordCredential.password
-                       completion:^(FIRVerifyPasswordResponse *_Nullable response,
-                                    NSError *_Nullable error) {
-      if (error) {
-        if (callback) {
-          callback(nil, error);
-        }
-        return;
+    [self signInWithEmail:emailPasswordCredential.email
+                 password:emailPasswordCredential.password
+                 callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+      if (callback) {
+        FIRAuthDataResult *result = user ?
+            [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
+        callback(result, error);
       }
-      [self completeSignInWithAccessToken:response.IDToken
-              accessTokenExpirationDate:response.approximateExpirationDate
-                           refreshToken:response.refreshToken
-                              anonymous:NO
-                               callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-        if (callback) {
-          FIRAuthDataResult *result = user ?
-              [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
-          callback(result, error);
-        }
-      }];
     }];
     return;
   }
@@ -1176,30 +1193,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }];
 }
 #endif
-
-/** @fn internalSignInWithEmail:password:callback:
-    @brief Signs in using an email address and password.
-    @param email The user's email address.
-    @param password The user's password.
-    @param completion A block which is invoked when the sign in finishes (or is cancelled.) Invoked
-        asynchronously on the global auth work queue in the future.
-    @remarks This is the internal counterpart of this method, which uses a callback that does not
-        update the current user.
- */
-- (void)internalSignInWithEmail:(NSString *)email
-                       password:(NSString *)password
-                     completion:(FIRVerifyPasswordResponseCallback)completion {
-  FIRVerifyPasswordRequest *request =
-      [[FIRVerifyPasswordRequest alloc] initWithEmail:email
-                                             password:password
-                                 requestConfiguration:_requestConfiguration];
-
-  if (![request.password length]) {
-    completion(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
-    return;
-  }
-  [FIRAuthBackend verifyPassword:request callback:completion];
-}
 
 /** @fn internalCreateUserWithEmail:password:completion:
     @brief Makes a backend request attempting to create a new Firebase user given an email address
