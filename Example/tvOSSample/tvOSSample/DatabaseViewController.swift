@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import UIKit
-import FirebaseCommunity
+import FirebaseDatabase
 
 /// A class to demonstrate the power of the Firebase Realtime Database. This will show a number read
 /// from the Database and increase or decrease it based on the buttons pressed.

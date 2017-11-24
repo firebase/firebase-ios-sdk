@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FSTTestDispatchQueue.h"
+#import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 
 #import <XCTest/XCTestExpectation.h>
 
-#import "Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 @interface FSTTestDispatchQueue ()
 

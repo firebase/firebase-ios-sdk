@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-#import "FSTSpecTests.h"
+#import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
 #import <GRPCClient/GRPCCall.h>
 
-#import "Auth/FSTUser.h"
-#import "Core/FSTEventManager.h"
-#import "Core/FSTQuery.h"
-#import "Core/FSTSnapshotVersion.h"
-#import "Core/FSTViewSnapshot.h"
-#import "Firestore/FIRFirestoreErrors.h"
-#import "Local/FSTEagerGarbageCollector.h"
-#import "Local/FSTNoOpGarbageCollector.h"
-#import "Local/FSTPersistence.h"
-#import "Local/FSTQueryData.h"
-#import "Model/FSTDocument.h"
-#import "Model/FSTDocumentKey.h"
-#import "Model/FSTFieldValue.h"
-#import "Model/FSTMutation.h"
-#import "Model/FSTPath.h"
-#import "Remote/FSTExistenceFilter.h"
-#import "Remote/FSTWatchChange.h"
-#import "Util/FSTAssert.h"
-#import "Util/FSTClasses.h"
-#import "Util/FSTLogger.h"
+#import "FirebaseFirestore/FIRFirestoreErrors.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTEventManager.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTViewSnapshot.h"
+#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
+#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Remote/FSTExistenceFilter.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
-#import "FSTHelpers.h"
-#import "FSTSyncEngineTestDriver.h"
-#import "FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

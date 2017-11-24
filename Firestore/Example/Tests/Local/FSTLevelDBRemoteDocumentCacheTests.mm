@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FSTRemoteDocumentCacheTests.h"
+#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
 #include <leveldb/db.h>
 
-#import "Local/FSTLevelDB.h"
-#import "Local/FSTLevelDBKey.h"
-#include "Port/ordered_code.h"
+#include "Firestore/Port/ordered_code.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
 
-#import "FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

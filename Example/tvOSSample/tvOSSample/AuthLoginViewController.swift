@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import UIKit
-import FirebaseCommunity
+import FirebaseAuth
 
 class AuthLoginViewController: UIViewController {
 

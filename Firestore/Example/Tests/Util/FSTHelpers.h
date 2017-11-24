@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "API/FIRDocumentReference+Internal.h"
-#import "Core/FSTTypes.h"
-#import "Model/FSTDocumentDictionary.h"
-#import "Model/FSTDocumentKeySet.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+#import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 @class FIRGeoPoint;
 @class FSTDeleteMutation;

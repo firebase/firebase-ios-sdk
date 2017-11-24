@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "string_util.h"
+#include "Firestore/Port/string_util.h"
 
 #include <leveldb/db.h>
 

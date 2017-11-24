@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "FSTMockDatastore.h"
+#import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
-#import "Auth/FSTEmptyCredentialsProvider.h"
-#import "Core/FSTDatabaseInfo.h"
-#import "Core/FSTSnapshotVersion.h"
-#import "Local/FSTQueryData.h"
-#import "Model/FSTDatabaseID.h"
-#import "Model/FSTMutation.h"
-#import "Remote/FSTSerializerBeta.h"
-#import "Remote/FSTStream.h"
-#import "Util/FSTAssert.h"
-#import "Util/FSTLogger.h"
+#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Remote/FSTStream.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
-#import "FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
 @class GRPCProtoCall;
 

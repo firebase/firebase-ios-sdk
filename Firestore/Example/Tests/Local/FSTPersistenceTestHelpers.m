@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
-#import "Local/FSTLevelDB.h"
-#import "Local/FSTLocalSerializer.h"
-#import "Local/FSTMemoryPersistence.h"
-#import "Model/FSTDatabaseID.h"
-#import "Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

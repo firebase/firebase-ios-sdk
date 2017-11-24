@@ -6,9 +6,9 @@ target 'tvOSSample' do
   use_frameworks!
 
   # Pods for tvOSSample
-  pod 'FirebaseCommunity/Core', :path => '../../'
-  pod 'FirebaseCommunity/Auth', :path => '../../'
-  pod 'FirebaseCommunity/Database', :path => '../../'
-  pod 'FirebaseCommunity/Storage', :path => '../../'
+  pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseDatabase', :path => '../../'
+  pod 'FirebaseStorage', :path => '../../'
 
 end

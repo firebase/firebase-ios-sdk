@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTAssert.h"
-#import "FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

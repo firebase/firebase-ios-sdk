@@ -41,9 +41,9 @@
 #include <stdlib.h>  // for free()
 #include <string.h>  // for memcpy()
 
-#include "absl_attributes.h"
-#include "absl_config.h"
-#include "absl_integral_types.h"
+#include "Firestore/Port/absl/absl_attributes.h"
+#include "Firestore/Port/absl/absl_config.h"
+#include "Firestore/Port/absl/absl_integral_types.h"
 
 #ifdef SWIG
 %include "attributes.h"

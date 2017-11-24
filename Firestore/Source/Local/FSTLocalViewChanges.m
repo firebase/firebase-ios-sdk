@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FSTLocalViewChanges.h"
+#import "Firestore/Source/Local/FSTLocalViewChanges.h"
 
-#import "FSTDocument.h"
-#import "FSTViewSnapshot.h"
+#import "Firestore/Source/Core/FSTViewSnapshot.h"
+#import "Firestore/Source/Model/FSTDocument.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

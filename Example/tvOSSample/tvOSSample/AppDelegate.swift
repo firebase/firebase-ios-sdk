@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import UIKit
-import FirebaseCommunity
+import FirebaseCore
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

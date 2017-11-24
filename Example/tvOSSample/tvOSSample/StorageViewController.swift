@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import UIKit
-import FirebaseCommunity
+import FirebaseStorage
 
 class StorageViewController: UIViewController {
   /// An enum describing the different states of the view controller.

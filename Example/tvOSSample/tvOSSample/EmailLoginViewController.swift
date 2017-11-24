@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import UIKit
-import FirebaseCommunity
+import FirebaseAuth
 
 protocol EmailLoginDelegate {
   func emailLogin(_ controller: EmailLoginViewController, signedInAs user: User)

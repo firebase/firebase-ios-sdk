@@ -16,7 +16,7 @@
 
 #import <Protobuf/GPBProtocolBuffers.h>
 
-#import "FSTBufferedWriter.h"
+#import "Firestore/Source/Remote/FSTBufferedWriter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

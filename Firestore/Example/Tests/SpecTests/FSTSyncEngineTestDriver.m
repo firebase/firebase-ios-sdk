@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-#import "FSTSyncEngineTestDriver.h"
+#import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
 #import <GRPCClient/GRPCCall.h>
 
-#import "Auth/FSTUser.h"
-#import "Core/FSTEventManager.h"
-#import "Core/FSTQuery.h"
-#import "Core/FSTSnapshotVersion.h"
-#import "Core/FSTSyncEngine.h"
-#import "Firestore/FIRFirestoreErrors.h"
-#import "Local/FSTLocalStore.h"
-#import "Local/FSTPersistence.h"
-#import "Model/FSTMutation.h"
-#import "Remote/FSTDatastore.h"
-#import "Remote/FSTWatchChange.h"
-#import "Util/FSTAssert.h"
-#import "Util/FSTDispatchQueue.h"
-#import "Util/FSTLogger.h"
+#import "FirebaseFirestore/FIRFirestoreErrors.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTEventManager.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTSyncEngine.h"
+#import "Firestore/Source/Local/FSTLocalStore.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
-#import "FSTMockDatastore.h"
-#import "FSTSyncEngine+Testing.h"
+#import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
+#import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

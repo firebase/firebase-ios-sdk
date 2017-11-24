@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param username The name of the user.
     @param isNewUser Indicates whether or not the current user was signed in for the first time.
  */
-- (nullable instancetype)initWithProviderID:(NSString *)providerID
+- (nullable instancetype)initWithProviderID:(nullable NSString *)providerID
                                     profile:(nullable NSDictionary<NSString *, NSObject *> *)profile
                                    username:(nullable NSString *)username
                                   isNewUser:(BOOL)isNewUser NS_DESIGNATED_INITIALIZER;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Local/FSTQueryCache.h"
+#import "Firestore/Source/Local/FSTQueryCache.h"
 
 #import <XCTest/XCTest.h>
 

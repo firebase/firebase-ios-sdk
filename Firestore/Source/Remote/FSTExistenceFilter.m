@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTExistenceFilter.h"
+#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 
 @interface FSTExistenceFilter ()
 

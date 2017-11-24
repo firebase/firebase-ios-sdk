@@ -18,7 +18,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCommunity/FIRAuth.h"
+#import "FIRAuth.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FIRApp.h"
 #import "FIRAuth_Internal.h"

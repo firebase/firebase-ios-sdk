@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTPersistence.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

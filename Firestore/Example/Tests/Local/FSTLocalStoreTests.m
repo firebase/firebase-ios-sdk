@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-#import "Local/FSTLocalStore.h"
+#import "Firestore/Source/Local/FSTLocalStore.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Auth/FSTUser.h"
-#import "Core/FSTQuery.h"
-#import "Core/FSTTimestamp.h"
-#import "Local/FSTEagerGarbageCollector.h"
-#import "Local/FSTLocalWriteResult.h"
-#import "Local/FSTNoOpGarbageCollector.h"
-#import "Local/FSTPersistence.h"
-#import "Local/FSTQueryData.h"
-#import "Model/FSTDocument.h"
-#import "Model/FSTDocumentKey.h"
-#import "Model/FSTDocumentSet.h"
-#import "Model/FSTMutation.h"
-#import "Model/FSTMutationBatch.h"
-#import "Model/FSTPath.h"
-#import "Remote/FSTRemoteEvent.h"
-#import "Remote/FSTWatchChange.h"
-#import "Util/FSTClasses.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
+#import "Firestore/Source/Local/FSTLocalWriteResult.h"
+#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTClasses.h"
 
-#import "FSTHelpers.h"
-#import "FSTImmutableSortedDictionary+Testing.h"
-#import "FSTImmutableSortedSet+Testing.h"
-#import "FSTLocalStoreTests.h"
-#import "FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
+#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"
+#import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

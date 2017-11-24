@@ -1,12 +1,12 @@
 #import <XCTest/XCTest.h>
 
-#import "Immutable/FSTLLRBEmptyNode.h"
-#import "Immutable/FSTLLRBNode.h"
-#import "Immutable/FSTLLRBValueNode.h"
-#import "Immutable/FSTTreeSortedDictionary.h"
-#import "Util/FSTAssert.h"
+#import "Firestore/third_party/Immutable/FSTLLRBEmptyNode.h"
+#import "Firestore/third_party/Immutable/FSTLLRBNode.h"
+#import "Firestore/third_party/Immutable/FSTLLRBValueNode.h"
+#import "Firestore/third_party/Immutable/FSTTreeSortedDictionary.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
-#import "FSTLLRBValueNode+Test.h"
+#import "Firestore/third_party/Immutable/Tests/FSTLLRBValueNode+Test.h"
 
 @interface FSTTreeSortedDictionary (Test)
 // Override methods to return subtype.

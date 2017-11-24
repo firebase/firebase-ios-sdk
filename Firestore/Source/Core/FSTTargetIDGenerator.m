@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTTargetIDGenerator.h"
+#import "Firestore/Source/Core/FSTTargetIDGenerator.h"
 
 #import <libkern/OSAtomic.h>
 
