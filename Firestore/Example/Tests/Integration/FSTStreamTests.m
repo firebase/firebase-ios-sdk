@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <Firestore/FIRFirestoreSettings.h>
+#import <FirebaseFirestore/FIRFirestoreSettings.h>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"

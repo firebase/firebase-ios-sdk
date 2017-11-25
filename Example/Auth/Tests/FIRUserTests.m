@@ -18,11 +18,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCommunity/FIRUser.h"
-#import "FirebaseCommunity/FIREmailAuthProvider.h"
-#import "FirebaseCommunity/FIRFacebookAuthProvider.h"
-#import "FirebaseCommunity/FIRGoogleAuthProvider.h"
-#import "FirebaseCommunity/FIRAdditionalUserInfo.h"
+#import <FirebaseAuth/FIRUser.h>
+#import <FirebaseAuth/FIREmailAuthProvider.h>
+#import <FirebaseAuth/FIRFacebookAuthProvider.h>
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
+#import <FirebaseAuth/FIRAdditionalUserInfo.h>
+
 #import "FIRAuth_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"

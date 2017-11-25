@@ -1,14 +1,20 @@
+# The next line is the forcing function for the Firebase pod. The Firebase
+# version's subspecs should depend on the component versions in their
+# corresponding podspec's.
+pod 'Firebase/Core', '4.6.0'
+
 use_frameworks!
 platform :ios, '8.0'
 
 target 'Firestore_Example' do
-  pod 'FirebaseCommunity/Core', :path => '../../'
-  pod 'Firestore', :path => '../'
+  pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests' do
     inherit! :search_paths
 
-    pod 'FirebaseCommunity/Core', :path => '../../'
+    pod 'FirebaseCore', :path => '../../'
     pod 'leveldb-library'
 
     pod 'OCMock'
@@ -18,12 +24,12 @@ target 'Firestore_Example' do
   target 'Firestore_IntegrationTests' do
     inherit! :search_paths
 
-    pod 'FirebaseCommunity/Core', :path => '../../'
+    pod 'FirebaseCore', :path => '../../'
 
     pod 'OCMock'
   end
 end
 
 target 'SwiftBuildTest' do
-  pod 'Firestore', :path => '../'
+  pod 'FirebaseFirestore', :path => '../../'
 end

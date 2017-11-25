@@ -16,9 +16,9 @@
 
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 
-#import <FirebaseCommunity/FIRApp.h>
-#import <FirebaseCommunity/FIRAuth.h>
-#import <FirebaseCommunity/FIRUser.h>
+#import <FirebaseAuth/FIRAuth.h>
+#import <FirebaseAuth/FIRUser.h>
+#import <FirebaseCore/FIRApp.h>
 #import <GRPCClient/GRPCCall.h>
 
 // This is not an exported header so it's not visible via FirebaseCommunity

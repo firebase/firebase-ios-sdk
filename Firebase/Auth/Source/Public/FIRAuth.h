@@ -329,6 +329,39 @@ FIR_SWIFT_NAME(Auth)
                password:(NSString *)password
              completion:(nullable FIRAuthResultCallback)completion;
 
+/** @fn signInAndRetrieveDataWithEmail:password:completion:
+    @brief Signs in using an email address and password.
+
+    @param email The user's email address.
+    @param password The user's password.
+    @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+
+    <ul>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that email and password
+            accounts are not enabled. Enable them in the Auth section of the
+            Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeUserDisabled - Indicates the user's account is disabled.
+        </li>
+        <li>@c FIRAuthErrorCodeWrongPassword - Indicates the user attempted
+            sign in with an incorrect password.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidEmail - Indicates the email address is malformed.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+    @remarks This method will only exist until the next major Firebase release following 4.x.x.
+        After the next major release the method @c signInWithEmail:password:completion: will support
+        the @c FIRAuthDataResultCallback.
+ */
+- (void)signInAndRetrieveDataWithEmail:(NSString *)email
+                              password:(NSString *)password
+                            completion:(nullable FIRAuthDataResultCallback)completion;
+
 /** @fn signInWithCredential:completion:
     @brief Convenience method for @c signInAndRetrieveDataWithCredential:completion: This method
         doesn't return additional identity provider data.
