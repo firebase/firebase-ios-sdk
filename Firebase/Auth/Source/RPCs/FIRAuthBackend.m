@@ -472,7 +472,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 + (NSString *)authUserAgent {
   return [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@",
-      FirebaseAuthVersionString, GTMFetcherStandardUserAgentString(nil)];
+      FirebaseAuthVersionStr, GTMFetcherStandardUserAgentString(nil)];
 }
 
 @end
@@ -507,7 +507,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   NSString *additionalFrameworkMarker = requestConfiguration.additionalFrameworkMarker ?:
       kFirebaseAuthCoreFrameworkMarker;
   NSString *clientVersion = [NSString stringWithFormat:@"iOS/FirebaseSDK/%s/%@",
-                                                       FirebaseAuthVersionString,
+                                                       FirebaseAuthVersionStr,
                                                        additionalFrameworkMarker];
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];

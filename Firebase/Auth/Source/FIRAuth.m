@@ -512,9 +512,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                password:(NSString *)password
              completion:(FIRAuthResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self signInWithEmail:email
-                 password:password
-                 callback:[self signInFlowAuthResultCallbackByDecoratingCallback:completion]];
+    FIRAuthResultCallback decoratedCallback =
+        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    [self internalSignInAndRetrieveDataWithEmail:email
+                                        password:password
+                                      completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                   NSError *_Nullable error) {
+      decoratedCallback(authResult.user, error);
+    }];
   });
 }
 
@@ -552,6 +557,37 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                               anonymous:NO
                                callback:callback];
   }];
+}
+
+- (void)signInAndRetrieveDataWithEmail:(NSString *)email
+                              password:(NSString *)password
+                            completion:(FIRAuthDataResultCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+  FIRAuthDataResultCallback decoratedCallback =
+      [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
+    [self internalSignInAndRetrieveDataWithEmail:email
+                                        password:password
+                                      completion:decoratedCallback];
+  });
+}
+
+/** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
+    @brief Signs in using an email address and password.
+    @param email The user's email address.
+    @param password The user's password.
+    @param completion A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+        asynchronously on the global auth work queue in the future.
+    @remarks This is the internal counterpart of this method, which uses a callback that does not
+        update the current user.
+ */
+- (void)internalSignInAndRetrieveDataWithEmail:(NSString *)email
+                                      password:(NSString *)password
+                                    completion:(FIRAuthDataResultCallback)completion {
+  FIREmailPasswordAuthCredential *credentail =
+      [[FIREmailPasswordAuthCredential alloc] initWithEmail:email password:password];
+  [self internalSignInAndRetrieveDataWithCredential:credentail
+                                 isReauthentication:NO
+                                           callback:completion];
 }
 
 - (void)signInWithCredential:(FIRAuthCredential *)credential
@@ -595,9 +631,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                  password:emailPasswordCredential.password
                  callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
       if (callback) {
-        FIRAuthDataResult *result = user ?
-            [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
-        callback(result, error);
+        if (error) {
+          callback(nil, error);
+          return;
+        }
+        FIRAdditionalUserInfo *additionalUserInfo =
+            [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                      profile:nil
+                                                     username:nil
+                                                    isNewUser:NO];
+        FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:user
+                                                         additionalUserInfo:additionalUserInfo];
+        callback(result, nil);
       }
     }];
     return;

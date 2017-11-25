@@ -16,9 +16,9 @@
 
 #import "FIRFirestore.h"
 
-#import <FirebaseCommunity/FIRApp.h>
-#import <FirebaseCommunity/FIRLogger.h>
-#import <FirebaseCommunity/FIROptions.h>
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
 
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
