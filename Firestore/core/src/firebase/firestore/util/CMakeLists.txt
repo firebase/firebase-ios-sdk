@@ -67,6 +67,8 @@ cc_library(
   SOURCES
     autoid.cc
     autoid.h
+    comparison.cc
+    comparison.h
     firebase_assert.h
     log.h
   DEPENDS
