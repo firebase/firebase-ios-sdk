@@ -20,9 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTUtil : NSObject
 
-/** Generates a random double between 0 and 1. */
-+ (double)randomDouble;
-
 /** Generates a random ID suitable for use as a document ID. */
 + (NSString *)autoID;
 
