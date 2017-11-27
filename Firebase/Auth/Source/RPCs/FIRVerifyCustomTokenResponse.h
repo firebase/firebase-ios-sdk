@@ -42,6 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly, nullable) NSString *refreshToken;
 
+/** @property isNewUser
+    @brief Flag indicating that the user signing in is a new user and not a returning user.
+ */
+@property(nonatomic, assign) BOOL isNewUser;
+
 @end
 
 NS_ASSUME_NONNULL_END
