@@ -16,28 +16,28 @@
 
 #import "FIRFirestore.h"
 
-#import <FirebaseCommunity/FIRApp.h>
-#import <FirebaseCommunity/FIRLogger.h>
-#import <FirebaseCommunity/FIROptions.h>
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
 
-#import "FIRCollectionReference+Internal.h"
-#import "FIRDocumentReference+Internal.h"
-#import "FIRFirestore+Internal.h"
 #import "FIRFirestoreSettings.h"
-#import "FIRTransaction+Internal.h"
-#import "FIRWriteBatch+Internal.h"
-#import "FSTUserDataConverter.h"
+#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRTransaction+Internal.h"
+#import "Firestore/Source/API/FIRWriteBatch+Internal.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#import "FSTAssert.h"
-#import "FSTCredentialsProvider.h"
-#import "FSTDatabaseID.h"
-#import "FSTDatabaseInfo.h"
-#import "FSTDispatchQueue.h"
-#import "FSTDocumentKey.h"
-#import "FSTFirestoreClient.h"
-#import "FSTLogger.h"
-#import "FSTPath.h"
-#import "FSTUsageValidation.h"
+#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTLogger.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

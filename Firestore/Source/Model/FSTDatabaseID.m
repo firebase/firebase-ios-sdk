@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
 
-#import "FSTAssert.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

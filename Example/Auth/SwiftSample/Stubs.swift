@@ -18,7 +18,7 @@
 /// APIs in Swift for those that are not already covered by other parts of the app.
 /// These functions are never executed, but just for passing compilation.
 
-import FirebaseCommunity.FirebaseAuth
+import FirebaseAuth
 
 func actionCodeSettingsStubs() {
   let actionCodeSettings = ActionCodeSettings()

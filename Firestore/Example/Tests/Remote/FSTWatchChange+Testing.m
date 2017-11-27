@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
-#import "Model/FSTDocument.h"
-#import "Remote/FSTWatchChange.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

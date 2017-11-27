@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FSTDocumentVersionDictionary.h"
+#import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
-#import "FSTDocumentKey.h"
-#import "FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

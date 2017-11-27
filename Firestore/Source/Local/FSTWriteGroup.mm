@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FSTWriteGroup.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 
 #import <Protobuf/GPBProtocolBuffers.h>
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 
-#import "FSTAssert.h"
-#import "FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
-#include "ordered_code.h"
+#include "Firestore/Port/ordered_code.h"
 
 using Firestore::OrderedCode;
 using Firestore::StringView;

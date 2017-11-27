@@ -329,6 +329,39 @@ FIR_SWIFT_NAME(Auth)
                password:(NSString *)password
              completion:(nullable FIRAuthResultCallback)completion;
 
+/** @fn signInAndRetrieveDataWithEmail:password:completion:
+    @brief Signs in using an email address and password.
+
+    @param email The user's email address.
+    @param password The user's password.
+    @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+
+    <ul>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that email and password
+            accounts are not enabled. Enable them in the Auth section of the
+            Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeUserDisabled - Indicates the user's account is disabled.
+        </li>
+        <li>@c FIRAuthErrorCodeWrongPassword - Indicates the user attempted
+            sign in with an incorrect password.
+        </li>
+        <li>@c FIRAuthErrorCodeInvalidEmail - Indicates the email address is malformed.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+    @remarks This method will only exist until the next major Firebase release following 4.x.x.
+        After the next major release the method @c signInWithEmail:password:completion: will support
+        the @c FIRAuthDataResultCallback.
+ */
+- (void)signInAndRetrieveDataWithEmail:(NSString *)email
+                              password:(NSString *)password
+                            completion:(nullable FIRAuthDataResultCallback)completion;
+
 /** @fn signInWithCredential:completion:
     @brief Convenience method for @c signInAndRetrieveDataWithCredential:completion: This method
         doesn't return additional identity provider data.
@@ -408,6 +441,29 @@ FIR_SWIFT_NAME(Auth)
  */
 - (void)signInAnonymouslyWithCompletion:(nullable FIRAuthResultCallback)completion;
 
+/** @fn signInAnonymouslyAndRetrieveDataWithCompletion:
+    @brief Asynchronously creates and becomes an anonymous user.
+    @param completion Optionally; a block which is invoked when the sign in finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks If there is already an anonymous user signed in, that user will be returned instead.
+        If there is any other existing user signed in, that user will be signed out.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that anonymous accounts are
+            not enabled. Enable them in the Auth section of the Firebase console.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+    @remarks This method will only exist until the next major Firebase release following 4.x.x.
+        After the next major release the method @c signInAnonymouslyWithCompletion will support the
+        @c FIRAuthDataResultCallback.
+ */
+- (void)signInAnonymouslyAndRetrieveDataWithCompletion:
+    (nullable FIRAuthDataResultCallback)completion;
+
 /** @fn signInWithCustomToken:completion:
     @brief Asynchronously signs in to Firebase with the given Auth token.
 
@@ -460,6 +516,40 @@ FIR_SWIFT_NAME(Auth)
 - (void)createUserWithEmail:(NSString *)email
                    password:(NSString *)password
                  completion:(nullable FIRAuthResultCallback)completion;
+
+/** @fn createUserAndRetrieveDataWithEmail:password:completion:
+    @brief Creates and, on success, signs in a user with the given email address and password.
+
+    @param email The user's email address.
+    @param password The user's desired password.
+    @param completion Optionally; a block which is invoked when the sign up flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeInvalidEmail - Indicates the email address is malformed.
+        </li>
+        <li>@c FIRAuthErrorCodeEmailAlreadyInUse - Indicates the email used to attempt sign up
+            already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+            used, and prompt the user to sign in with one of those.
+        </li>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that email and password accounts
+            are not enabled. Enable them in the Auth section of the Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeWeakPassword - Indicates an attempt to set a password that is
+            considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+            dictionary object will contain more detailed explanation that can be shown to the user.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+    @remarks This method will only exist until the next major Firebase release following 4.x.x.
+        After the next major release the method @c createUserWithEmail:password:completion: will
+        support the @c FIRAuthDataResultCallback.
+ */
+- (void)createUserAndRetrieveDataWithEmail:(NSString *)email
+                                  password:(NSString *)password
+                                completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn confirmPasswordResetWithCode:newPassword:completion:
     @brief Resets the password given a code sent to the user outside of the app and a new password

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FSTDocumentReference.h"
+#import "Firestore/Source/Local/FSTDocumentReference.h"
 
-#import "FSTComparison.h"
-#import "FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Util/FSTComparison.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

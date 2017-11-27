@@ -16,6 +16,8 @@
 	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>NSPrincipalClass</key>
+	<string>FSTGoogleTestsPrincipal</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 </dict>

@@ -16,9 +16,15 @@ before_install:
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
   - ./test.sh
-  - bundle exec pod lib lint FirebaseCommunity.podspec --allow-warnings #pending #390 fix
+  - bundle exec pod lib lint FirebaseCore.podspec
+
+# TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
+#  - bundle exec pod lib lint FirebaseAuth.podspec
+#  - bundle exec pod lib lint FirebaseDatabase.podspec
+#  - bundle exec pod lib lint FirebaseMessaging.podspec --allow-warnings #pending #390 fix
+#  - bundle exec pod lib lint FirebaseStorage.podspec
+#  - bundle exec pod lib lint Firestore/Firestore.podspec
 
 branches:
   only:
     - master
-

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCommunity/FIRAppInternal.h"
+#import <FirebaseCore/FIRAppInternal.h>
 
 /** @category FIRApp (FIRAuthUnitTests)
     @brief Tests for @c FIRAuth.

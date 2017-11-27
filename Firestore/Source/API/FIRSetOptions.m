@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRSetOptions+Internal.h"
-#import "FSTMutation.h"
+#import "Firestore/Source/API/FIRSetOptions+Internal.h"
+#import "Firestore/Source/Model/FSTMutation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

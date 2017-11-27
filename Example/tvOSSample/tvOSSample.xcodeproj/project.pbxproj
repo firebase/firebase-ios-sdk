@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		63E762032AB89606CF011430 /* Pods_tvOSSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 236713F01E6993CCDF643FED /* Pods_tvOSSample.framework */; };
+		B7F83BACE8E8330E2A5C0861 /* Pods_tvOSSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CCE8CD052953D89D96C9CDC /* Pods_tvOSSample.framework */; };
+		DE397DCB1FC8AD39007CBF0E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FEB1FBA055300501573 /* GoogleService-Info.plist */; };
 		ED4D5FDD1FBA008200501573 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4D5FDC1FBA008200501573 /* AppDelegate.swift */; };
 		ED4D5FE21FBA008200501573 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FE01FBA008200501573 /* Main.storyboard */; };
 		ED4D5FE41FBA008200501573 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FE31FBA008200501573 /* Assets.xcassets */; };
-		ED4D5FEC1FBA055300501573 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ED4D5FEB1FBA055300501573 /* GoogleService-Info.plist */; };
 		ED822C851FBA212600B00A2F /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED822C841FBA212600B00A2F /* StorageViewController.swift */; };
 		EDFBCF4C1FBB3ACC0041A9FD /* DatabaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF4B1FBB3ACC0041A9FD /* DatabaseViewController.swift */; };
 		EDFBCF511FBC88D20041A9FD /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFBCF501FBC88D20041A9FD /* AuthViewController.swift */; };
@@ -20,9 +20,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		236713F01E6993CCDF643FED /* Pods_tvOSSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_tvOSSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		2601D666A3E5E759FA0B5D53 /* Pods-tvOSSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSSample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample.debug.xcconfig"; sourceTree = "<group>"; };
-		DE35D36E007D9A373D759EF3 /* Pods-tvOSSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample.release.xcconfig"; sourceTree = "<group>"; };
+		3F2496EBDAD58301BC9119C5 /* Pods-tvOSSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSSample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample.debug.xcconfig"; sourceTree = "<group>"; };
+		5CCE8CD052953D89D96C9CDC /* Pods_tvOSSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_tvOSSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0A4F4B42E46BAA2DF7A366E /* Pods-tvOSSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSSample.release.xcconfig"; path = "Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample.release.xcconfig"; sourceTree = "<group>"; };
 		ED4D5FD91FBA008200501573 /* tvOSSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tvOSSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED4D5FDC1FBA008200501573 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ED4D5FE11FBA008200501573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -41,26 +41,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63E762032AB89606CF011430 /* Pods_tvOSSample.framework in Frameworks */,
+				B7F83BACE8E8330E2A5C0861 /* Pods_tvOSSample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		26069E80CF858D417AA648D1 /* Pods */ = {
+		A45A5C3CB0C23372780D9FA9 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				2601D666A3E5E759FA0B5D53 /* Pods-tvOSSample.debug.xcconfig */,
-				DE35D36E007D9A373D759EF3 /* Pods-tvOSSample.release.xcconfig */,
+				3F2496EBDAD58301BC9119C5 /* Pods-tvOSSample.debug.xcconfig */,
+				E0A4F4B42E46BAA2DF7A366E /* Pods-tvOSSample.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
 		};
-		7031317E255ACED309669EEC /* Frameworks */ = {
+		BA0B7BD0C775F3B6FDDCCEB5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				236713F01E6993CCDF643FED /* Pods_tvOSSample.framework */,
+				5CCE8CD052953D89D96C9CDC /* Pods_tvOSSample.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -70,8 +70,8 @@
 			children = (
 				ED4D5FDB1FBA008200501573 /* tvOSSample */,
 				ED4D5FDA1FBA008200501573 /* Products */,
-				26069E80CF858D417AA648D1 /* Pods */,
-				7031317E255ACED309669EEC /* Frameworks */,
+				A45A5C3CB0C23372780D9FA9 /* Pods */,
+				BA0B7BD0C775F3B6FDDCCEB5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -107,12 +107,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ED4D5FE81FBA008300501573 /* Build configuration list for PBXNativeTarget "tvOSSample" */;
 			buildPhases = (
-				76ABDCEA07EB7642EE7AF7AF /* [CP] Check Pods Manifest.lock */,
+				D5025FECAC3B7FED5FF1A46A /* [CP] Check Pods Manifest.lock */,
 				ED4D5FD51FBA008200501573 /* Sources */,
 				ED4D5FD61FBA008200501573 /* Frameworks */,
 				ED4D5FD71FBA008200501573 /* Resources */,
-				654C57FC66D688FD5B081688 /* [CP] Embed Pods Frameworks */,
-				33E0210335220C6835172729 /* [CP] Copy Pods Resources */,
+				1D04A7E6AB24B35668030EB4 /* [CP] Embed Pods Frameworks */,
+				3A8B26C16219186ABE0EDF0F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -164,14 +164,36 @@
 			files = (
 				ED4D5FE41FBA008200501573 /* Assets.xcassets in Resources */,
 				ED4D5FE21FBA008200501573 /* Main.storyboard in Resources */,
-				ED4D5FEC1FBA055300501573 /* GoogleService-Info.plist in Resources */,
+				DE397DCB1FC8AD39007CBF0E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		33E0210335220C6835172729 /* [CP] Copy Pods Resources */ = {
+		1D04A7E6AB24B35668030EB4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3A8B26C16219186ABE0EDF0F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -186,31 +208,7 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		654C57FC66D688FD5B081688 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity/FirebaseCommunity.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-tvOSSample/Pods-tvOSSample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		76ABDCEA07EB7642EE7AF7AF /* [CP] Check Pods Manifest.lock */ = {
+		D5025FECAC3B7FED5FF1A46A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -365,7 +363,7 @@
 		};
 		ED4D5FE91FBA008300501573 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2601D666A3E5E759FA0B5D53 /* Pods-tvOSSample.debug.xcconfig */;
+			baseConfigurationReference = 3F2496EBDAD58301BC9119C5 /* Pods-tvOSSample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -383,7 +381,7 @@
 		};
 		ED4D5FEA1FBA008300501573 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE35D36E007D9A373D759EF3 /* Pods-tvOSSample.release.xcconfig */;
+			baseConfigurationReference = E0A4F4B42E46BAA2DF7A366E /* Pods-tvOSSample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;

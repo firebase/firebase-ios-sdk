@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTViewSnapshot.h"
+#import "Firestore/Source/Core/FSTViewSnapshot.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

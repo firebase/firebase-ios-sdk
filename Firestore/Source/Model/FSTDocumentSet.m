@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FSTDocumentSet.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
 
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTImmutableSortedSet.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,3 +1,6 @@
+# v2.1.0
+- [added] Added 'md5Hash' to FIRStorageMetadata.
+
 # v2.0.2
 - [changed] Custom FIRStorageMetadata can now be cleared by setting individual properties to 'nil'.
 

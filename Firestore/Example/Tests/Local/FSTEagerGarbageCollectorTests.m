@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "Local/FSTEagerGarbageCollector.h"
+#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Local/FSTReferenceSet.h"
-#import "Model/FSTDocumentKey.h"
+#import "Firestore/Source/Local/FSTReferenceSet.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

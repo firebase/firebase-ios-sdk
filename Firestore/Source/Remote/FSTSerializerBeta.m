@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-#import "FSTSerializerBeta.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import <GRPCClient/GRPCCall.h>
 
-#import "Common.pbobjc.h"
-#import "Document.pbobjc.h"
-#import "Firestore.pbobjc.h"
-#import "Latlng.pbobjc.h"
-#import "Query.pbobjc.h"
-#import "Status.pbobjc.h"
-#import "Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
+#import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
-#import "FSTAssert.h"
-#import "FSTDatabaseID.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTExistenceFilter.h"
-#import "FSTFieldValue.h"
-#import "FSTMutation.h"
-#import "FSTMutationBatch.h"
-#import "FSTPath.h"
-#import "FSTQuery.h"
-#import "FSTQueryData.h"
-#import "FSTSnapshotVersion.h"
-#import "FSTTimestamp.h"
-#import "FSTWatchChange.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Remote/FSTExistenceFilter.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

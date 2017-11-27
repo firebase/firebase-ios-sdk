@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Core/FSTSyncEngine.h"
+#import "Firestore/Source/Core/FSTSyncEngine.h"
 
 @class FSTDocumentKey;
 

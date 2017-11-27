@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-@import Firestore;
+@import FirebaseFirestore;
 
 #import <XCTest/XCTest.h>
 
-#import "FSTEventAccumulator.h"
-#import "FSTIntegrationTestCase.h"
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FSTSmokeTests : FSTIntegrationTestCase
 @end

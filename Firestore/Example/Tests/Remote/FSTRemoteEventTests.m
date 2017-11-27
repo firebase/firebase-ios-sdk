@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "Remote/FSTRemoteEvent.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Local/FSTQueryData.h"
-#import "Model/FSTDocument.h"
-#import "Model/FSTDocumentKey.h"
-#import "Remote/FSTExistenceFilter.h"
-#import "Remote/FSTWatchChange.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Remote/FSTExistenceFilter.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
 
-#import "FSTHelpers.h"
-#import "FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

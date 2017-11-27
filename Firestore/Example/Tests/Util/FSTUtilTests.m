@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Util/FSTUtil.h"
+#import "Firestore/Source/Util/FSTUtil.h"
 
 #import <XCTest/XCTest.h>
 

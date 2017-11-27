@@ -1,4 +1,4 @@
-#import "FSTImmutableSortedDictionary+Testing.h"
+#import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-@import Firestore;
+@import FirebaseFirestore;
 
 #import <XCTest/XCTest.h>
 #include <libkern/OSAtomic.h>
 
-#import "FSTIntegrationTestCase.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FSTTransactionTests : FSTIntegrationTestCase
 @end

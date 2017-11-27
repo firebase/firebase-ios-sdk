@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FSTMutationQueueTests.h"
+#import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 
-#import "Auth/FSTUser.h"
-#import "Core/FSTQuery.h"
-#import "Core/FSTTimestamp.h"
-#import "Local/FSTEagerGarbageCollector.h"
-#import "Local/FSTMutationQueue.h"
-#import "Local/FSTPersistence.h"
-#import "Local/FSTWriteGroup.h"
-#import "Model/FSTMutation.h"
-#import "Model/FSTMutationBatch.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
+#import "Firestore/Source/Local/FSTMutationQueue.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
