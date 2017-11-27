@@ -792,14 +792,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
     [self internalSignInAndRetrieveDataWithCustomToken:token
                                             completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                         NSError * _Nullable error) {
+                                                         NSError *_Nullable error) {
       decoratedCallback(authResult.user, error);
     }];
   });
 }
 
 - (void)signInAndRetrieveDataWithCustomToken:(NSString *)token
-                                  completion:(FIRAuthDataResultCallback)completion {
+                                  completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback decoratedCallback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
@@ -1196,10 +1196,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 /** @fn internalSignInAndRetrieveDataWithCustomToken:completion:
     @brief Signs in a Firebase user given a custom token.
+    @param token A self-signed custom auth token.
     @param completion A block which is invoked when the custom token sign in request completes.
  */
 - (void)internalSignInAndRetrieveDataWithCustomToken:(NSString *)token
-                           completion:(nullable FIRAuthDataResultCallback)completion {
+                                          completion:(nullable FIRAuthDataResultCallback)
+                                              completion {
   FIRVerifyCustomTokenRequest *request =
     [[FIRVerifyCustomTokenRequest alloc] initWithToken:token
                                   requestConfiguration:_requestConfiguration];
@@ -1207,8 +1209,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                            callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
                                       NSError *_Nullable error) {
     if (error) {
-      completion(nil, error);
-      return;
+      if (completion) {
+        completion(nil, error);
+        return;
+      }
     }
     [self completeSignInWithAccessToken:response.IDToken
               accessTokenExpirationDate:response.approximateExpirationDate
@@ -1216,7 +1220,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                               anonymous:NO
                                callback:^(FIRUser *_Nullable user,
                                           NSError *_Nullable error) {
-      if (error){
+      if (error) {
         if (completion) {
           completion(nil, error);
         }

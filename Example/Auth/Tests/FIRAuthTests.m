@@ -1272,6 +1272,7 @@ static const NSTimeInterval kWaitInterval = .5;
                                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:result.user];
+    XCTAssertFalse(result.additionalUserInfo.isNewUser);
     XCTAssertNil(error);
     [expectation fulfill];
   }];
