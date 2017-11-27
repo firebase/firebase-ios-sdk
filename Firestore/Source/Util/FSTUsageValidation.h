@@ -47,7 +47,7 @@ NSException *FSTInvalidUsage(NSString *exceptionName, NSString *format, ...);
   } while (0)
 
 #if __cplusplus
-}
+}  // extern "C"
 #endif
 
 NS_ASSUME_NONNULL_END

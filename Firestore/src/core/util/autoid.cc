@@ -31,7 +31,6 @@ firestore::SecureRandom shared_random;
 
 }  // namespace
 
-
 namespace firestore {
 
 std::string CreateAutoId() {
