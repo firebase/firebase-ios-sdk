@@ -50,7 +50,7 @@ pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', 
 If your Podfile does not include *use_frameworks!*, you need to workaround
 a build issue with the FirebaseAnalytics umbrella header. Delete the first four lines
 of Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h
-or copy the contents of patch/FirebaseAnalytics.h to
+or copy [patch/FirebaseAnalytics.h](patch/FirebaseAnalytics.h) to
 Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h
 
 ## Usage
