@@ -19,10 +19,8 @@
 #import <FirebaseAuth/FIRAuth.h>
 #import <FirebaseAuth/FIRUser.h>
 #import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import <GRPCClient/GRPCCall.h>
-
-// This is not an exported header so it's not visible via FirebaseCommunity
-#import "Firebase/Core/Private/FIRAppInternal.h"
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Util/FSTAssert.h"

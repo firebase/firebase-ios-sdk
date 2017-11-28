@@ -27,8 +27,7 @@ TEST(AutoId, IsSane) {
     for (int pos = 0; pos < 20; pos++) {
       char c = auto_id[pos];
       EXPECT_TRUE(isalpha(c) || isdigit(c))
-          << "Should be printable ascii character: '" << c << "' in \"" << auto_id
-          << "\"";
+          << "Should be printable ascii character: '" << c << "' in \"" << auto_id << "\"";
     }
   }
 }

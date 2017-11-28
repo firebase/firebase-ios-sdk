@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppInternal.h"
+#import <FirebaseCore/FIRAppInternal.h>
 
 #import "FIRStorageTokenAuthorizer.h"
 

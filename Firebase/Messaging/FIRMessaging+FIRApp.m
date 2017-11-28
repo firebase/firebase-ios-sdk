@@ -16,8 +16,8 @@
 
 #import "FIRMessaging+FIRApp.h"
 
-#import "FIRAppInternal.h"
-#import "FIROptionsInternal.h"
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"

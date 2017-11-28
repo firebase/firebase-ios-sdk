@@ -394,8 +394,7 @@ NS_SWIFT_NAME(Query)
  *
  * @return The created `FIRQuery`.
  */
-- (FIRQuery *)queryEndingAtDocument:(FIRDocumentSnapshot *)document
-    NS_SWIFT_NAME(end(atDocument:));
+- (FIRQuery *)queryEndingAtDocument:(FIRDocumentSnapshot *)document NS_SWIFT_NAME(end(atDocument:));
 
 /**
  * Creates and returns a new `FIRQuery` that ends at the provided fields relative to the order of
