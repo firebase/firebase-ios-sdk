@@ -18,6 +18,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if __cplusplus
+extern "C" {
+#endif
+
 /** Compares two NSStrings. */
 NSComparisonResult FSTCompareStrings(NSString *left, NSString *right);
 
@@ -62,5 +66,9 @@ BOOL FSTDoubleBitwiseEquals(double left, double right);
  * FSTDoublesAreBitwiseEqual for equality.
  */
 NSUInteger FSTDoubleBitwiseHash(double d);
+
+#if __cplusplus
+}  // extern "C"
+#endif
 
 NS_ASSUME_NONNULL_END

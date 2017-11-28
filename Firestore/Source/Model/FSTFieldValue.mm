@@ -243,7 +243,9 @@ NS_ASSUME_NONNULL_BEGIN
         return FSTCompareInt64s(thisInt, ((FSTIntegerValue *)other).internalValue);
       } else {
         FSTAssert([other isKindOfClass:[FSTDoubleValue class]], @"Unknown number value: %@", other);
-        return -1 * FSTCompareMixed(((FSTDoubleValue *)other).internalValue, thisInt);
+        double otherDouble = ((FSTDoubleValue *)other).internalValue;
+        NSComparisonResult result = FSTCompareMixed(otherDouble, thisInt);
+        return static_cast<NSComparisonResult>(-result);
       }
     }
   }
