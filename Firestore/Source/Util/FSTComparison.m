@@ -45,16 +45,6 @@ NSComparisonResult FSTCompareBools(BOOL left, BOOL right) {
   }
 }
 
-NSComparisonResult FSTCompareInts(int left, int right) {
-  if (left > right) {
-    return NSOrderedDescending;
-  }
-  if (right > left) {
-    return NSOrderedAscending;
-  }
-  return NSOrderedSame;
-}
-
 NSComparisonResult FSTCompareInt32s(int32_t left, int32_t right) {
   if (left > right) {
     return NSOrderedDescending;

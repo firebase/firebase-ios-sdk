@@ -28,9 +28,6 @@ NSComparisonResult FSTCompareStrings(NSString *left, NSString *right);
 /** Compares two BOOLs. */
 NSComparisonResult FSTCompareBools(BOOL left, BOOL right);
 
-/** Compares two integers. */
-NSComparisonResult FSTCompareInts(int left, int right);
-
 /** Compares two int32_t. */
 NSComparisonResult FSTCompareInt32s(int32_t left, int32_t right);
 

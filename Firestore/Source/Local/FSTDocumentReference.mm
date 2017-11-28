@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTDocumentReference
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key ID:(int)ID {
+- (instancetype)initWithKey:(FSTDocumentKey *)key ID:(int32_t)ID {
   self = [super init];
   if (self) {
     _key = key;
@@ -67,13 +67,13 @@ const NSComparator FSTDocumentReferenceComparatorByKey =
       if (result != NSOrderedSame) {
         return result;
       }
-      return FSTCompareInts(left.ID, right.ID);
+      return FSTCompareInt32s(left.ID, right.ID);
     };
 
 /** Sorts document references by ID then key. */
 const NSComparator FSTDocumentReferenceComparatorByID =
     ^NSComparisonResult(FSTDocumentReference *left, FSTDocumentReference *right) {
-      NSComparisonResult result = FSTCompareInts(left.ID, right.ID);
+      NSComparisonResult result = FSTCompareInt32s(left.ID, right.ID);
       if (result != NSOrderedSame) {
         return result;
       }
