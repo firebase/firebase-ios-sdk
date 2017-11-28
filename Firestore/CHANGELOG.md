@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.9.3
+- [changed] Improved performance loading documents matching a query.
+- [changed] Cleanly shut down idle write streams.
+
 # v0.9.2
 - [changed] Firestore now retries requests more often before considering a client offline.
 - [changed] You can now use FieldValue.delete() with SetOptions.merge().
