@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${PROJECT_SOURCE_DIR}/cmake/external/googletest.cmake)
-
-add_subdirectory(src/support)
-add_subdirectory(test/support)
-
-add_subdirectory(src/core/util)
-add_subdirectory(test/core/util)
+add_library(
+  firestore_core_util
+  autoid.cc
+)
+target_link_libraries(
+  firestore_core_util
+  firestore_support
+)

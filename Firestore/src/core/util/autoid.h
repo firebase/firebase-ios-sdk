@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_SRC_CORE_UTIL_AUTOID_H_
+#define FIRESTORE_SRC_CORE_UTIL_AUTOID_H_
 
-NS_ASSUME_NONNULL_BEGIN
+#include <string>
 
-@interface FSTUtil : NSObject
+namespace firestore {
 
-/** Generates a random ID suitable for use as a document ID. */
-+ (NSString *)autoID;
+// Generates a random ID suitable for use as a document ID.
+std::string CreateAutoId();
 
-@end
+}  // namespace firestore
 
-NS_ASSUME_NONNULL_END
+#endif  // FIRESTORE_SRC_CORE_UTIL_AUTOID_H_
