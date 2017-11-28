@@ -1,7 +1,7 @@
 # v4.4.0
 - Adds new APIs which return an AuthDataResult object after successfully creating an
-  email/password user, singing in anonymously, signing in with email/password and signing
-  in with custom token. The AuthDataResult object contains the new user and additional
+  Email/Password user, singing in anonymously, signing in with Email/Password and signing
+  in with Custom Token. The AuthDataResult object contains the new user and additional
   information pertaining to the new user.
 
 # v4.3.2
