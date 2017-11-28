@@ -19,7 +19,7 @@
 #import "FIRAuth_Internal.h"
 
 #import "FIRAppAssociationRegistration.h"
-#import "FIRAppInternal.h"
+#import <FirebaseCore/FIRAppInternal.h>
 #import "FIROptions.h"
 #import "FIRLogger.h"
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
