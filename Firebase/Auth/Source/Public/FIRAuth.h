@@ -486,6 +486,32 @@ FIR_SWIFT_NAME(Auth)
 - (void)signInWithCustomToken:(NSString *)token
                    completion:(nullable FIRAuthResultCallback)completion;
 
+/** @fn signInAndRetrieveDataWithCustomToken:completion:
+    @brief Asynchronously signs in to Firebase with the given Auth token.
+
+    @param token A self-signed custom auth token.
+    @param completion Optionally; a block which is invoked when the sign in finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeInvalidCustomToken - Indicates a validation error with
+            the custom token.
+        </li>
+        <li>@c FIRAuthErrorCodeCustomTokenMismatch - Indicates the service account and the API key
+            belong to different projects.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+    @remarks This method will only exist until the next major Firebase release following 4.x.x.
+        After the next major release the method @c createUserWithEmail:password:completion: will
+        support the @c FIRAuthDataResultCallback.
+ */
+- (void)signInAndRetrieveDataWithCustomToken:(NSString *)token
+                                  completion:(nullable FIRAuthDataResultCallback)completion;
+
+
 /** @fn createUserWithEmail:password:completion:
     @brief Creates and, on success, signs in a user with the given email address and password.
 
