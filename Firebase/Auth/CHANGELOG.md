@@ -1,3 +1,9 @@
+# v4.4.0
+- Adds new APIs which return an AuthDataResult object after successfully creating an
+  email/password user, singing in anonymously, signing in with email/password and signing
+  in with custom token. The AuthDataResult object contains the new user and additional
+  information pertaining to the new user.
+
 # v4.3.2
 - Improves error handling for the phone number sign-in reCAPTCHA flow.
 - Improves error handling for phone number linking flow.
