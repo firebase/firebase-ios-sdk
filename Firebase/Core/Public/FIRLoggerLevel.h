@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRCoreSwiftNameSupport.h"
-
 /**
  * The log levels used by internal logging.
  */
@@ -34,4 +32,4 @@ typedef NS_ENUM(NSInteger, FIRLoggerLevel) {
   FIRLoggerLevelMin = FIRLoggerLevelError,
   /** Maximum log level. */
   FIRLoggerLevelMax = FIRLoggerLevelDebug
-} FIR_SWIFT_NAME(FirebaseLoggerLevel);
+} NS_SWIFT_NAME(FirebaseLoggerLevel);

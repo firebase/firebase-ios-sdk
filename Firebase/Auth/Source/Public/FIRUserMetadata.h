@@ -16,14 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRUserMetdata
     @brief A data class representing the metadata corresponding to a Firebase user.
  */
-FIR_SWIFT_NAME(UserMetadata)
+NS_SWIFT_NAME(UserMetadata)
 @interface FIRUserMetadata : NSObject
 
 /** @property lastSignInDate

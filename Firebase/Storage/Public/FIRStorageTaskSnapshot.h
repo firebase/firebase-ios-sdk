@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRStorageConstants.h"
-#import "FIRStorageSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A Snapshot contains a task, storage reference, metadata (if it exists),
  * progress, and an error (if one occurred).
  */
-FIR_SWIFT_NAME(StorageTaskSnapshot)
+NS_SWIFT_NAME(StorageTaskSnapshot)
 @interface FIRStorageTaskSnapshot : NSObject
 
 /**

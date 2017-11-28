@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthSwiftNameSupport.h"
-
 @class FIRAuth;
 @class FIRPhoneAuthCredential;
 @protocol FIRAuthUIDelegate;
@@ -27,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @var FIRPhoneAuthProviderID
     @brief A string constant identifying the phone identity provider.
  */
-extern NSString *const FIRPhoneAuthProviderID FIR_SWIFT_NAME(PhoneAuthProviderID);
+extern NSString *const FIRPhoneAuthProviderID NS_SWIFT_NAME(PhoneAuthProviderID);
 
 /** @typedef FIRVerificationResultCallback
     @brief The type of block invoked when a request to send a verification code has finished.
@@ -37,25 +35,25 @@ extern NSString *const FIRPhoneAuthProviderID FIR_SWIFT_NAME(PhoneAuthProviderID
  */
 typedef void (^FIRVerificationResultCallback)(NSString *_Nullable verificationID,
                                               NSError *_Nullable error)
-    FIR_SWIFT_NAME(VerificationResultCallback);
+    NS_SWIFT_NAME(VerificationResultCallback);
 
 /** @class FIRPhoneAuthProvider
     @brief A concrete implementation of @c FIRAuthProvider for phone auth providers.
  */
-FIR_SWIFT_NAME(PhoneAuthProvider)
+NS_SWIFT_NAME(PhoneAuthProvider)
 @interface FIRPhoneAuthProvider : NSObject
 
 /** @fn provider
     @brief Returns an instance of @c FIRPhoneAuthProvider for the default @c FIRAuth object.
  */
-+ (instancetype)provider FIR_SWIFT_NAME(provider());
++ (instancetype)provider NS_SWIFT_NAME(provider());
 
 /** @fn providerWithAuth:
     @brief Returns an instance of @c FIRPhoneAuthProvider for the provided @c FIRAuth object.
 
     @param auth The auth object to associate with the phone auth provider instance.
  */
-+ (instancetype)providerWithAuth:(FIRAuth *)auth FIR_SWIFT_NAME(provider(auth:));
++ (instancetype)providerWithAuth:(FIRAuth *)auth NS_SWIFT_NAME(provider(auth:));
 
 /** @fn verifyPhoneNumber:completion:
     @brief Please use @c verifyPhoneNumber:UIDelegate:completion: instead.

@@ -18,7 +18,6 @@
 
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
-#import "FIRAuthSwiftNameSupport.h"
 #import "FIRUserInfo.h"
 
 @class FIRPhoneAuthCredential;
@@ -38,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     @remarks One of: @c token or @c error will always be non-nil.
  */
 typedef void (^FIRAuthTokenCallback)(NSString *_Nullable token, NSError *_Nullable error)
-    FIR_SWIFT_NAME(AuthTokenCallback);
+    NS_SWIFT_NAME(AuthTokenCallback);
 
 /** @typedef FIRUserProfileChangeCallback
     @brief The type of block called when a user profile change has finished.
@@ -46,7 +45,7 @@ typedef void (^FIRAuthTokenCallback)(NSString *_Nullable token, NSError *_Nullab
     @param error Optionally; the error which occurred - or nil if the request was successful.
  */
 typedef void (^FIRUserProfileChangeCallback)(NSError *_Nullable error)
-    FIR_SWIFT_NAME(UserProfileChangeCallback);
+    NS_SWIFT_NAME(UserProfileChangeCallback);
 
 /** @typedef FIRSendEmailVerificationCallback
     @brief The type of block called when a request to send an email verification has finished.
@@ -54,13 +53,13 @@ typedef void (^FIRUserProfileChangeCallback)(NSError *_Nullable error)
     @param error Optionally; the error which occurred - or nil if the request was successful.
  */
 typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error)
-    FIR_SWIFT_NAME(SendEmailVerificationCallback);
+    NS_SWIFT_NAME(SendEmailVerificationCallback);
 
 /** @class FIRUser
     @brief Represents a user.
     @remarks This class is thread-safe.
  */
-FIR_SWIFT_NAME(User)
+NS_SWIFT_NAME(User)
 @interface FIRUser : NSObject <FIRUserInfo>
 
 /** @property anonymous
@@ -133,7 +132,7 @@ FIR_SWIFT_NAME(User)
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all FIRUser methods.
  */
 - (void)updateEmail:(NSString *)email completion:(nullable FIRUserProfileChangeCallback)completion
-    FIR_SWIFT_NAME(updateEmail(to:completion:));
+    NS_SWIFT_NAME(updateEmail(to:completion:));
 
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.
@@ -162,7 +161,7 @@ FIR_SWIFT_NAME(User)
  */
 - (void)updatePassword:(NSString *)password
             completion:(nullable FIRUserProfileChangeCallback)completion
-    FIR_SWIFT_NAME(updatePassword(to:completion:));
+    NS_SWIFT_NAME(updatePassword(to:completion:));
 
 #if TARGET_OS_IOS
 /** @fn updatePhoneNumberCredential:completion:
@@ -198,7 +197,7 @@ FIR_SWIFT_NAME(User)
 
     @return An object which may be used to change the user's profile data atomically.
  */
-- (FIRUserProfileChangeRequest *)profileChangeRequest FIR_SWIFT_NAME(createProfileChangeRequest());
+- (FIRUserProfileChangeRequest *)profileChangeRequest NS_SWIFT_NAME(createProfileChangeRequest());
 
 /** @fn reloadWithCompletion:
     @brief Reloads the user's profile data from the server.
@@ -275,7 +274,7 @@ FIR_SWIFT_NAME(User)
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
  */
 - (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
-    FIR_SWIFT_NAME(getIDToken(completion:));
+    NS_SWIFT_NAME(getIDToken(completion:));
 
 /** @fn getTokenWithCompletion:
     @brief Please use @c getIDTokenWithCompletion: instead.
@@ -286,7 +285,7 @@ FIR_SWIFT_NAME(User)
     @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
  */
 - (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
-    FIR_SWIFT_NAME(getToken(completion:)) __attribute__((deprecated));
+    NS_SWIFT_NAME(getToken(completion:)) __attribute__((deprecated));
 
 /** @fn getIDTokenForcingRefresh:completion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -470,7 +469,7 @@ FIR_SWIFT_NAME(User)
     @remarks Properties are marked as being part of a profile update when they are set. Setting a
         property value to nil is not the same as leaving the property unassigned.
  */
-FIR_SWIFT_NAME(UserProfileChangeRequest)
+NS_SWIFT_NAME(UserProfileChangeRequest)
 @interface FIRUserProfileChangeRequest : NSObject
 
 /** @fn init
