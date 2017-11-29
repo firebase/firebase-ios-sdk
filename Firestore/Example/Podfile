@@ -14,6 +14,7 @@ target 'Firestore_Example' do
     inherit! :search_paths
 
     pod 'FirebaseCore', :path => '../../'
+    pod 'FirebaseAuth', :path => '../../'
     pod 'leveldb-library'
 
     pod 'OCMock'

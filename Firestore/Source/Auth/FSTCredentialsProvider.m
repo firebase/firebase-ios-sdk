@@ -80,7 +80,9 @@ NS_ASSUME_NONNULL_BEGIN
                   FSTStrongify(self);
                   if (self) {
                     @synchronized(self) {
-                      FSTUser *newUser = [[FSTUser alloc] initWithUID:[self.app getUID]];
+                      NSDictionary *userInfo = notification.userInfo;
+                      NSString *userID = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
+                      FSTUser *newUser = [[FSTUser alloc] initWithUID:userID];
                       if (![newUser isEqual:self.currentUser]) {
                         self.currentUser = newUser;
                         self.userCounter++;
