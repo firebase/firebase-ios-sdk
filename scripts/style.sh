@@ -11,16 +11,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find . \
-    -name 'third_party' -prune -o \
-    -name 'Auth' -prune -o \
-    -name 'AuthSamples' -prune -o \
-    -name 'Database' -prune -o \
-    -name 'FirebaseCommunity.h' -prune -o \
-    -name 'Messaging' -prune -o \
-    -name 'Pods' -prune -o \
-    -path '*/Firestore/Port/*' -prune -o \
-    \( -name '*.[mh]' -o -name '*.mm' -o -name '*.cc' \) \
-    -not -name '*.pbobjc.*' \
-    -not -name '*.pbrpc.*' \
-    -print0 | xargs -0 clang-format -style=file -i
+find . -type f | sed -E -n '
+# Build outputs
+/\/Pods\// d
+/^.\/build\// d
+
+# Sources controlled outside this tree
+/\/third_party\// d
+/\/Firestore\/Port\// d
+
+# Sources within the tree that are not subject to formatting
+/^.\/(Example|Firebase)\/(Auth|AuthSamples|Database|Messaging)\// d
+
+# Checked-in generated code
+/\.pb(objc|rpc)\./ d
+
+# Format C-ish sources only
+/\.(h|m|mm|cc)$/ p
+' | xargs clang-format -style=file -i
