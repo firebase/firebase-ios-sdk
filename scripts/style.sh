@@ -11,7 +11,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find . -type f | sed -E -n '
+# Usage:
+# ./scripts/style.sh [branch-name | filenames]
+#
+# With no arguments, formats all eligible files in the repo
+# Pass a branch name to format all eligible files changed since that branch
+# Pass a specific file or directory name to format just files found there
+#
+# Commonly
+# ./scripts/style.sh master
+
+set -euo pipefail
+
+(
+  if [[ $# -gt 0 ]]; then
+    if git rev-parse "$1" -- >& /dev/null; then
+      # Argument was a branch name show files changed since that branch
+      git diff --name-only --relative
+    else
+      # Otherwise assume the passed things are files or directories
+      find "$@" -type f
+    fi
+  else
+    # Do everything by default
+    find . -type f
+  fi
+) | sed -E -n '
 # Build outputs
 /\/Pods\// d
 /^.\/build\// d
