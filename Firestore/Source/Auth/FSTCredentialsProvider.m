@@ -81,6 +81,13 @@ NS_ASSUME_NONNULL_BEGIN
                   if (self) {
                     @synchronized(self) {
                       NSDictionary *userInfo = notification.userInfo;
+
+                      // ensure we're only notifiying for the current app.
+                      FIRApp *notifiedApp = userInfo[FIRAuthStateDidChangeInternalNotificationAppKey];
+                      if (![_app isEqual:notifiedApp]) {
+                        return;
+                      }
+
                       NSString *userID = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
                       FSTUser *newUser = [[FSTUser alloc] initWithUID:userID];
                       if (![newUser isEqual:self.currentUser]) {
