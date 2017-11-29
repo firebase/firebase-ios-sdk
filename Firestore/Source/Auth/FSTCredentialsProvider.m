@@ -77,21 +77,21 @@ NS_ASSUME_NONNULL_BEGIN
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-      FSTStrongify(self);
-      if (self) {
-        @synchronized(self) {
-          FSTUser *newUser = [[FSTUser alloc] initWithUID:[self.app getUID]];
-          if (![newUser isEqual:self.currentUser]) {
-            self.currentUser = newUser;
-            self.userCounter++;
-            FSTVoidUserBlock listenerBlock = self.userChangeListener;
-            if (listenerBlock) {
-              listenerBlock(self.currentUser);
-            }
-          }
-        }
-      }
-    }];
+                  FSTStrongify(self);
+                  if (self) {
+                    @synchronized(self) {
+                      FSTUser *newUser = [[FSTUser alloc] initWithUID:[self.app getUID]];
+                      if (![newUser isEqual:self.currentUser]) {
+                        self.currentUser = newUser;
+                        self.userCounter++;
+                        FSTVoidUserBlock listenerBlock = self.userChangeListener;
+                        if (listenerBlock) {
+                          listenerBlock(self.currentUser);
+                        }
+                      }
+                    }
+                  }
+                }];
   }
   return self;
 }
