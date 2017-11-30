@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 #import "FIRDatabaseQuery.h"
 #import "FIRDatabase.h"
-#import "FIRDatabaseSwiftNameSupport.h"
 #import "FIRDataSnapshot.h"
 #import "FIRMutableData.h"
 #import "FIRTransactionResult.h"
@@ -36,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * to read data (ie. observeEventType:withBlock:), write data (ie. setValue:), and to
  * create new FIRDatabaseReferences (ie. child:).
  */
-FIR_SWIFT_NAME(DatabaseReference)
+NS_SWIFT_NAME(DatabaseReference)
 @interface FIRDatabaseReference : FIRDatabaseQuery
 
 

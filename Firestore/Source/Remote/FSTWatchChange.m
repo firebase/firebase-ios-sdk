@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FSTWatchChange.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
 
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTExistenceFilter.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

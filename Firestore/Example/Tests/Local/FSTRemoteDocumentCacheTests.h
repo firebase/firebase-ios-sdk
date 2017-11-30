@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Local/FSTRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
 #import <XCTest/XCTest.h>
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FSTViewSnapshot.h"
+#import "Firestore/Source/Core/FSTViewSnapshot.h"
 
-#import "FSTAssert.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTDocumentSet.h"
-#import "FSTImmutableSortedDictionary.h"
-#import "FSTQuery.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

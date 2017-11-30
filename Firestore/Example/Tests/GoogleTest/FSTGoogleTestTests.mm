@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#include "Util/FSTAssert.h"
+#include "Firestore/Source/Util/FSTAssert.h"
 #include "gtest/gtest.h"
 
 /**
@@ -262,32 +262,10 @@ XCTestSuite *CreateAllTestsTestSuite() {
 }
 
 /**
- * A pseudo-constructor that dynamically generates all the XCTestCase subclasses.
- *
- * For background, the Objective-C runtime and XCTest initialize things in the following order:
- *
- *  1. Objective-C calls +load on every class in the bundle.
- *  2. C++ constructors are called.
- *  3. Any NSPrincipalClass in the test bundle's Info.plist is instantiated.
- *  4. Objective-C calls +initialize on every class that's referenced, lazily.
- *  5. XCTest calls +defaultTestSuite on every class that's a subclass of XCTestCase that matches
- *     its notion of which tests to run.
- *
- * All stages only run on all XCTestCase classes if the user runs all tests. Otherwise:
- *   * When a user is focusing on a test case XCTest only calls +defaultTestSuite (and triggers
- *     +initialize) on that specific test.
- *   * When a user is focusing on a test method XCTest does not call +defaultTestSuite at all
- *     (+initialize still runs).
- *
- * This means that +initialize or +defaultTestSuite on some fixed class like GoogleTests can't be
- * used to bootstrap the generated classes because these steps can be skipped if the user focuses
- * on the wrong thing. NSPrincipalClass would work, but requires frobbing the Info.plist, which is
- * a manual step in project configuration which is error prone.
- *
- * Meanwhile even though __attribute__((constructor)) is a GCC and Clang extension those are the
- * only compilers we care about for Objective-C so it's not that bad.
+ * Finds and runs googletest-based tests based on the XCTestConfiguration of the current test
+ * invocation.
  */
-__attribute__((constructor)) void RegisterGoogleTestTests() {
+void RunGoogleTestTests() {
   NSString *masterTestCaseName = NSStringFromClass([GoogleTests class]);
 
   // Initialize GoogleTest but don't run the tests yet.
@@ -303,9 +281,11 @@ __attribute__((constructor)) void RegisterGoogleTestTests() {
   NSSet<NSString *> *testsToRun = LoadXCTestConfigurationTestsToRun();
   if (testsToRun) {
     if ([allTests isEqual:testsToRun]) {
+      NSLog(@"Forcing all tests to run");
       forceAllTests = YES;
     } else {
       NSString *filters = CreateTestFiltersFromTestsToRun(testsToRun);
+      NSLog(@"Using --gtest_filter=%@", filters);
       if (filters) {
         testing::GTEST_FLAG(filter) = [filters UTF8String];
       }
@@ -353,6 +333,26 @@ __attribute__((constructor)) void RegisterGoogleTestTests() {
   // plumbed this together correctly.
   const testing::UnitTest *master = testing::UnitTest::GetInstance();
   XCTAssertGreaterThan(master->total_test_case_count(), 0);
+}
+
+@end
+
+/**
+ * This class is registered as the NSPrincipalClass in the Firestore_Tests bundle's Info.plist.
+ * XCTest instantiates this class to perform one-time setup for the test bundle, as documented
+ * here:
+ *
+ *   https://developer.apple.com/documentation/xctest/xctestobservationcenter
+ */
+@interface FSTGoogleTestsPrincipal : NSObject
+@end
+
+@implementation FSTGoogleTestsPrincipal
+
+- (instancetype)init {
+  self = [super init];
+  RunGoogleTestTests();
+  return self;
 }
 
 @end

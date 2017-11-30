@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRTransaction+Internal.h"
+#import "Firestore/Source/API/FIRTransaction+Internal.h"
 
-#import "FIRDocumentReference+Internal.h"
-#import "FIRDocumentSnapshot+Internal.h"
-#import "FIRFirestore+Internal.h"
-#import "FIRSetOptions+Internal.h"
-#import "FSTAssert.h"
-#import "FSTDocument.h"
-#import "FSTTransaction.h"
-#import "FSTUsageValidation.h"
-#import "FSTUserDataConverter.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRSetOptions+Internal.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "Local/FSTRemoteDocumentChangeBuffer.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Local/FSTLevelDB.h"
-#import "Local/FSTRemoteDocumentCache.h"
-#import "Model/FSTDocument.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
+#import "Firestore/Source/Model/FSTDocument.h"
 
-#import "FSTHelpers.h"
-#import "FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

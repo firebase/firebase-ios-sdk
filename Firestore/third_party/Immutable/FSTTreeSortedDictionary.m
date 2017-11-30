@@ -1,8 +1,8 @@
-#import "FSTTreeSortedDictionary.h"
+#import "Firestore/third_party/Immutable/FSTTreeSortedDictionary.h"
 
-#import "FSTLLRBEmptyNode.h"
-#import "FSTLLRBValueNode.h"
-#import "FSTTreeSortedDictionaryEnumerator.h"
+#import "Firestore/third_party/Immutable/FSTLLRBEmptyNode.h"
+#import "Firestore/third_party/Immutable/FSTLLRBValueNode.h"
+#import "Firestore/third_party/Immutable/FSTTreeSortedDictionaryEnumerator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

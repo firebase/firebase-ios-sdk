@@ -16,12 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** The Cloud Firestore error domain. */
-FOUNDATION_EXPORT NSString *const FIRFirestoreErrorDomain FIR_SWIFT_NAME(FirestoreErrorDomain);
+FOUNDATION_EXPORT NSString *const FIRFirestoreErrorDomain NS_SWIFT_NAME(FirestoreErrorDomain);
 
 /** Error codes used by Cloud Firestore. */
 typedef NS_ENUM(NSInteger, FIRFirestoreErrorCode) {
@@ -100,6 +98,6 @@ typedef NS_ENUM(NSInteger, FIRFirestoreErrorCode) {
 
   /** The request does not have valid authentication credentials for the operation. */
   FIRFirestoreErrorCodeUnauthenticated = 16
-} FIR_SWIFT_NAME(FirestoreErrorCode);
+} NS_SWIFT_NAME(FirestoreErrorCode);
 
 NS_ASSUME_NONNULL_END

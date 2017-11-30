@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FSTMemoryPersistence.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
-#import "FSTAssert.h"
-#import "FSTMemoryMutationQueue.h"
-#import "FSTMemoryQueryCache.h"
-#import "FSTMemoryRemoteDocumentCache.h"
-#import "FSTUser.h"
-#import "FSTWriteGroup.h"
-#import "FSTWriteGroupTracker.h"
+#import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
+#import "Firestore/Source/Local/FSTMemoryQueryCache.h"
+#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Local/FSTWriteGroupTracker.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -16,16 +16,16 @@
 
 #import "FIRDocumentSnapshot.h"
 
-#import "FIRDocumentReference+Internal.h"
-#import "FIRFieldPath+Internal.h"
-#import "FIRFirestore+Internal.h"
-#import "FIRSnapshotMetadata+Internal.h"
-#import "FSTDatabaseID.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTFieldValue.h"
-#import "FSTPath.h"
-#import "FSTUsageValidation.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

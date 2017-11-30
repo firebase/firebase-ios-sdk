@@ -14,35 +14,34 @@
  * limitations under the License.
  */
 
-@import Firestore;
+@import FirebaseFirestore;
 
 #import <GRPCClient/GRPCCall+ChannelCredentials.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 #import <XCTest/XCTest.h>
 
-#import "API/FIRDocumentReference+Internal.h"
-#import "API/FSTUserDataConverter.h"
-#import "Auth/FSTEmptyCredentialsProvider.h"
-#import "Core/FSTDatabaseInfo.h"
-#import "Core/FSTFirestoreClient.h"
-#import "Core/FSTQuery.h"
-#import "Core/FSTSnapshotVersion.h"
-#import "Core/FSTTimestamp.h"
-#import "Local/FSTQueryData.h"
-#import "Model/FSTDatabaseID.h"
-#import "Model/FSTDocumentKey.h"
-#import "Model/FSTFieldValue.h"
-#import "Model/FSTMutation.h"
-#import "Model/FSTMutationBatch.h"
-#import "Model/FSTPath.h"
-#import "Remote/FSTDatastore.h"
-#import "Remote/FSTRemoteEvent.h"
-#import "Remote/FSTRemoteStore.h"
-#import "Util/FSTAssert.h"
-#import "Util/FSTDispatchQueue.h"
-#import "Util/FSTUtil.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
+#import "Firestore/Source/Remote/FSTRemoteStore.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
-#import "FSTIntegrationTestCase.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

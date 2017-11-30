@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FSTEventAccumulator.h"
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
-#import "XCTestCase+Await.h"
+#import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

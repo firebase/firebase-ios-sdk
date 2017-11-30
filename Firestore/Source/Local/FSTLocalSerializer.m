@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
 
-#import "Document.pbobjc.h"
-#import "FSTAssert.h"
-#import "FSTDocument.h"
-#import "FSTFieldValue.h"
-#import "FSTMutationBatch.h"
-#import "FSTQuery.h"
-#import "FSTQueryData.h"
-#import "FSTSerializerBeta.h"
-#import "MaybeDocument.pbobjc.h"
-#import "Mutation.pbobjc.h"
-#import "Target.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 @interface FSTLocalSerializer ()
 

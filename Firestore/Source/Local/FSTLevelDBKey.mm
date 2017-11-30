@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
 
 #include <string>
 
-#import "FSTDocumentKey.h"
-#import "FSTPath.h"
-#include "ordered_code.h"
-#include "string_util.h"
+#include "Firestore/Port/ordered_code.h"
+#include "Firestore/Port/string_util.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

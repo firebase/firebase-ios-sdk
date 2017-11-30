@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Model/FSTPath.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

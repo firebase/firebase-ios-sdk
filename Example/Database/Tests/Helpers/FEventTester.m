@@ -15,7 +15,9 @@
  */
 
 #import "FEventTester.h"
-#import "FirebaseCommunity/FIRDatabaseReference.h"
+
+#import <FirebaseDatabase/FIRDatabaseReference.h>
+
 #import "FTupleBoolBlock.h"
 #import "FTupleEventTypeString.h"
 #import "FTestHelpers.h"

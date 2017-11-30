@@ -1,4 +1,4 @@
-#import "Immutable/FSTImmutableSortedSet.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

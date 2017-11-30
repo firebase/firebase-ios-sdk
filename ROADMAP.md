@@ -4,18 +4,6 @@
 
 The Firebase team plans to open source more of Firebase components.
 
-## Build Improvements
-
-Even though they're built from the same source, the FirebaseCommunity CocoaPod
-is not currently interoperable with the Firebase CocoaPod.
-
-This is because CocoaPods does not support interdepencies between open source
-and closed source static library CocoaPods.
-
-We'd like to work with CocoaPods to add this capability and update Firebase
-build accordingly. See this
-[CocoaPods Pull Request](https://github.com/CocoaPods/CocoaPods/pull/6811).
-
 ## Continuous Integration
 
 * [Stabilize Travis](https://github.com/firebase/firebase-ios-sdk/issues/102)

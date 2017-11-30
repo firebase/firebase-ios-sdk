@@ -18,12 +18,13 @@
 
 #import <objc/runtime.h>
 
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRAppAssociationRegistration.h>
+
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FIRAdditionalUserInfo.h"
-#import "FirebaseCommunity/FIRApp.h"
-#import "FirebaseCommunity/FIRAppInternal.h"
-#import "FirebaseCommunity/FIRAppAssociationRegistration.h"
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
@@ -79,11 +80,6 @@ static NSString *const kUserInfoButtonText = @"[Show User Info]";
  */
 static NSString *const kSetPhotoURLText = @"Set Photo url";
 
-/** @var kSignInButtonText
-    @brief The text of the "Sign In" button.
- */
-static NSString *const kSignInButtonText = @"Sign In (HEADFUL)";
-
 /** @var kSignInGoogleButtonText
     @brief The text of the "Google SignIn" button.
  */
@@ -111,15 +107,33 @@ static NSString *const kSignInFacebookAndRetrieveDataButtonText =
  */
 static NSString *const kSignInEmailPasswordButtonText = @"Sign in with Email/Password";
 
+/** @var kSignInEmailPasswordAuthDataResultButtonText
+    @brief The text of the "Email/Password SignIn (AuthDataResult)" button.
+ */
+static NSString *const kSignInEmailPasswordAuthDataResultButtonText =
+    @"Sign in with Email/Password (AuthDataReult)";
+
 /** @var kSignInWithCustomTokenButtonText
     @brief The text of the "Sign In (BYOAuth)" button.
  */
 static NSString *const kSignInWithCustomTokenButtonText = @"Sign In (BYOAuth)";
 
+/** @var kSignInWithCustomAuthResultTokenButtonText
+    @brief The text of the "Sign In with Custom Token (Auth Result)" button.
+ */
+static NSString *const kSignInWithCustomAuthResultTokenButtonText = @"Sign In with Custom Token"
+    " (Auth Result)";
+
 /** @var kSignInAnonymouslyButtonText
     @brief The text of the "Sign In Anonymously" button.
  */
 static NSString *const kSignInAnonymouslyButtonText = @"Sign In Anonymously";
+
+/** @var kSignInAnonymouslyWithAuthResultButtonText
+    @brief The text of the "Sign In Anonymously (AuthDataResult)" button.
+ */
+static NSString *const kSignInAnonymouslyWithAuthResultButtonText =
+    @"Sign In Anonymously (AuthDataResult)";
 
 /** @var kSignedInAlertTitle
     @brief The text of the "Sign In Succeeded" alert.
@@ -382,6 +396,11 @@ static NSString *const kSectionTitleApp = @"APP";
     @brief The text of the "Create User" button.
  */
 static NSString *const kCreateUserTitle = @"Create User";
+
+/** @var kCreateUserAuthDataResultTitle
+    @brief The text of the "Create User (AuthDataResult)" button.
+ */
+static NSString *const kCreateUserAuthDataResultTitle = @"Create User (AuthDataResult)";
 
 /** @var kDeleteAppTitle
     @brief The text of the "Delete App" button.
@@ -693,6 +712,8 @@ typedef enum {
                                             value:nil
                                            action:^{ [weakSelf createUser]; }
                                   accessibilityID:kCreateUserAccessibilityID],
+        [StaticContentTableViewCell cellWithTitle:kCreateUserAuthDataResultTitle
+                                           action:^{ [weakSelf createUserAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleButtonText
                                            action:^{ [weakSelf signInGoogle]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleAndRetrieveDataButtonText
@@ -703,10 +724,16 @@ typedef enum {
                                            action:^{ [weakSelf signInFacebookAndRetrieveData]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInEmailPasswordButtonText
                                            action:^{ [weakSelf signInEmailPassword]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInEmailPasswordAuthDataResultButtonText
+                                           action:^{ [weakSelf signInEmailPasswordAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInWithCustomTokenButtonText
                                            action:^{ [weakSelf signInWithCustomToken]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInWithCustomAuthResultTokenButtonText
+                                           action:^{ [weakSelf signInWithCustomTokenAuthResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyButtonText
                                            action:^{ [weakSelf signInAnonymously]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyWithAuthResultButtonText
+                                           action:^{ [weakSelf signInAnonymouslyAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kGitHubSignInButtonText
                                            action:^{ [weakSelf signInWithGitHub]; }],
         [StaticContentTableViewCell cellWithTitle:kSignOutButtonText
@@ -1640,15 +1667,48 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       }
       FIRAuthCredential *credential =
           [FIREmailAuthProvider credentialWithEmail:email
-                                                   password:password];
+                                           password:password];
       [self showSpinner:^{
         [[AppManager auth] signInWithCredential:credential
-                                     completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                                     completion:^(FIRUser *_Nullable user,
+                                                  NSError *_Nullable error) {
           [self hideSpinner:^{
             if (error) {
               [self logFailure:@"sign-in with Email/Password failed" error:error];
             } else {
               [self logSuccess:@"sign-in with Email/Password succeeded."];
+            }
+            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+          }];
+        }];
+      }];
+    }];
+  }];
+}
+
+- (void)signInEmailPasswordAuthDataResult {
+  [self showTextInputPromptWithMessage:@"Email Address:"
+                          keyboardType:UIKeyboardTypeEmailAddress
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+    [self showTextInputPromptWithMessage:@"Password:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable password) {
+      if (!userPressedOK) {
+        return;
+      }
+      [self showSpinner:^{
+        [[AppManager auth] signInAndRetrieveDataWithEmail:email
+                                                 password:password
+                                               completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                            NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"sign-in with Email/Password failed" error:error];
+            } else {
+              [self logSuccess:@"sign-in with Email/Password succeeded."];
+              [self log:[NSString stringWithFormat:@"UID: %@",authResult.user.uid]];
             }
             [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
           }];
@@ -1696,6 +1756,24 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }
 
         [self doSignInWithCustomToken:userEnteredTokenText];
+      };
+  CustomTokenDataEntryViewController *dataEntryViewController =
+      [[CustomTokenDataEntryViewController alloc] initWithCompletion:action];
+  [self presentViewController:dataEntryViewController animated:YES completion:nil];
+}
+
+/** @fn signInWithCustomTokenAuthResult
+    @brief Signs the user in using a manually-entered custom token.
+ */
+- (void)signInWithCustomTokenAuthResult {
+  CustomTokenDataEntryViewControllerCompletion action =
+      ^(BOOL cancelled, NSString *_Nullable userEnteredTokenText) {
+        if (cancelled) {
+          [self log:@"CANCELLED:sign-in with custom token cancelled."];
+          return;
+        }
+
+        [self doSignInAndRetrieveDataWithCustomToken:userEnteredTokenText];
       };
   CustomTokenDataEntryViewController *dataEntryViewController =
       [[CustomTokenDataEntryViewController alloc] initWithCompletion:action];
@@ -2490,6 +2568,43 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+/** @fn createUserAuthDataResult
+    @brief Creates a new user.
+ */
+- (void)createUserAuthDataResult {
+  [self showTextInputPromptWithMessage:@"Email:"
+                          keyboardType:UIKeyboardTypeEmailAddress
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+
+    [self showTextInputPromptWithMessage:@"Password:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable password) {
+      if (!userPressedOK) {
+        return;
+      }
+
+      [self showSpinner:^{
+        [[AppManager auth] createUserAndRetrieveDataWithEmail:email
+                                                     password:password
+                                                   completion:^(FIRAuthDataResult *_Nullable result,
+                                                                NSError *_Nullable error) {
+          if (error) {
+            [self logFailure:@"create user failed" error:error];
+          } else {
+            [self logSuccess:@"create user succeeded."];
+            [self log:result.user.uid];
+          }
+          [self hideSpinner:^{
+            [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
+          }];
+        }];
+      }];
+    }];
+  }];
+}
+
 /** @fn signInWithPhoneNumber
     @brief Allows sign in with phone number.
  */
@@ -2786,6 +2901,23 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+/** @fn signInAnonymouslyAuthDataResult
+    @brief Signs in as an anonymous user, receiving an auth result containing a signed in user upon
+        success.
+ */
+- (void)signInAnonymouslyAuthDataResult {
+  [[AppManager auth] signInAnonymouslyAndRetrieveDataWithCompletion:
+      ^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+    if (error) {
+      [self logFailure:@"sign-in anonymously failed" error:error];
+    } else {
+      [self logSuccess:@"sign-in anonymously succeeded."];
+      [self log:[NSString stringWithFormat:@"User ID : %@", authResult.user.uid]];
+    }
+    [self showTypicalUIForUserUpdateResultsWithTitle:kSignInAnonymouslyButtonText error:error];
+  }];
+}
+
 /** @fn signInWithGitHub
     @brief Signs in as a GitHub user. Prompts the user for an access token and uses this access
         token to create a GitHub (generic) credential for signing in.
@@ -2959,6 +3091,26 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     [self logSuccess:@"sign-in with custom token succeeded."];
     [self showMessagePromptWithTitle:kSignedInAlertTitle
                              message:user.displayName
+                    showCancelButton:NO
+                          completion:nil];
+  }];
+}
+
+- (void)doSignInAndRetrieveDataWithCustomToken:(NSString *_Nullable)userEnteredTokenText {
+  [[AppManager auth] signInAndRetrieveDataWithCustomToken:userEnteredTokenText
+                                               completion:^(FIRAuthDataResult *_Nullable result,
+                                                            NSError *_Nullable error) {
+    if (error) {
+      [self logFailure:@"sign-in with custom token failed" error:error];
+      [self showMessagePromptWithTitle:kSignInErrorAlertTitle
+                               message:error.localizedDescription
+                      showCancelButton:NO
+                            completion:nil];
+      return;
+    }
+    [self logSuccess:@"sign-in with custom token succeeded."];
+    [self showMessagePromptWithTitle:kSignedInAlertTitle
+                             message:result.user.displayName
                     showCancelButton:NO
                           completion:nil];
   }];
