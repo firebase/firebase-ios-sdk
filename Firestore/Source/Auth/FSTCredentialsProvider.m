@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-#import "FSTCredentialsProvider.h"
+#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 
-#import <FirebaseCommunity/FIRApp.h>
-#import <FirebaseCommunity/FIRAuth.h>
-#import <FirebaseCommunity/FIRUser.h>
+#import <FirebaseAuth/FIRAuth.h>
+#import <FirebaseAuth/FIRUser.h>
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import <GRPCClient/GRPCCall.h>
 
-// This is not an exported header so it's not visible via FirebaseCommunity
-#import "FIRAppInternal.h"
-
 #import "FIRFirestoreErrors.h"
-#import "FSTAssert.h"
-#import "FSTClasses.h"
-#import "FSTDispatchQueue.h"
-#import "FSTUser.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Auth/FSTUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

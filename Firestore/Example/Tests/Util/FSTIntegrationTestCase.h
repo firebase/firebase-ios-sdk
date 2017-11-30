@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "XCTestCase+Await.h"
+#import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FSTRemoteDocumentCacheTests.h"
+#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
-#import "Core/FSTQuery.h"
-#import "Local/FSTPersistence.h"
-#import "Local/FSTWriteGroup.h"
-#import "Model/FSTDocument.h"
-#import "Model/FSTDocumentKey.h"
-#import "Model/FSTDocumentSet.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -105,6 +105,8 @@ static const int kVersion = 42;
 - (void)testDocumentsMatchingQuery {
   if (!self.remoteDocumentCache) return;
 
+  // TODO(rsgowman): This just verifies that we do a prefix scan against the
+  // query path. We'll need more tests once we add index support.
   [self setTestDocumentAtPath:@"a/1"];
   [self setTestDocumentAtPath:@"b/1"];
   [self setTestDocumentAtPath:@"b/2"];
@@ -114,12 +116,10 @@ static const int kVersion = 42;
   FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray *expected =
       @[ FSTTestDoc(@"b/1", kVersion, _kDocData, NO), FSTTestDoc(@"b/2", kVersion, _kDocData, NO) ];
+  XCTAssertEqual([results count], [expected count]);
   for (FSTDocument *doc in expected) {
     XCTAssertEqualObjects([results objectForKey:doc.key], doc);
   }
-
-  // TODO(mikelehen): Perhaps guard against extra documents in the result set once our
-  // implementations are smarter.
 }
 
 #pragma mark - Helpers

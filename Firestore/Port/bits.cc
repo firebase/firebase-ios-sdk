@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "bits.h"
+#include "Firestore/Port/bits.h"
 
 #include <assert.h>
 

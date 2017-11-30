@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRGeoPoint+Internal.h"
+#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 
-#import "FSTComparison.h"
-#import "FSTUsageValidation.h"
+#import "Firestore/Source/Util/FSTComparison.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

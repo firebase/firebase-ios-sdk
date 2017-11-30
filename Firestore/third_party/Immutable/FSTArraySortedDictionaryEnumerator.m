@@ -1,4 +1,4 @@
-#import "FSTArraySortedDictionaryEnumerator.h"
+#import "Firestore/third_party/Immutable/FSTArraySortedDictionaryEnumerator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 
-#import "FSTTimestamp.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

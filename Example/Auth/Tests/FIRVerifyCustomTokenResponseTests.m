@@ -47,6 +47,11 @@ static NSString *const kExpiresInKey = @"expiresIn";
  */
 static NSString *const kRefreshTokenKey = @"refreshToken";
 
+/** @var kIsNewUserKey
+    @brief The name of the "isNewUser" property in the response.
+ */
+static NSString *const kIsNewUserKey = @"isNewUser";
+
 /** @var kTestIDToken
     @brief Testing ID token for verifying assertion.
  */
@@ -274,6 +279,7 @@ static const double kAllowedTimeDifference = 0.1;
     kIDTokenKey : kTestIDToken,
     kExpiresInKey : kTestExpiresIn,
     kRefreshTokenKey : kTestRefreshToken,
+    kIsNewUserKey : @YES,
   }];
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCError);
@@ -282,6 +288,7 @@ static const double kAllowedTimeDifference = 0.1;
   NSTimeInterval expiresIn = [RPCResponse.approximateExpirationDate timeIntervalSinceNow];
   XCTAssertEqualWithAccuracy(expiresIn, [kTestExpiresIn doubleValue], kAllowedTimeDifference);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kTestRefreshToken);
+  XCTAssertTrue(RPCResponse.isNewUser);
 }
 
 @end

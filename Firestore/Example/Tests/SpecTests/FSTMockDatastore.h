@@ -16,18 +16,22 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Remote/FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMockDatastore : FSTDatastore
 
-/** A count of the total number of requests sent to the watch stream since the beginning of the test
- * case. */
+/**
+ * A count of the total number of requests sent to the watch stream since the beginning of the test
+ * case.
+ */
 @property(nonatomic) int watchStreamRequestCount;
 
-/** A count of the total number of requests sent to the write stream since the beginning of the test
- * case. */
+/**
+ * A count of the total number of requests sent to the write stream since the beginning of the test
+ * case.
+ */
 @property(nonatomic) int writeStreamRequestCount;
 
 + (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;

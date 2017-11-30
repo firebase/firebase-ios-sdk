@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
-#import "FSTPath.h"
-#import "FSTUsageValidation.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

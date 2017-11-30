@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-#import "FSTLevelDBRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 #include <string>
 
-#import "FSTAssert.h"
-#import "FSTDocument.h"
-#import "FSTDocumentDictionary.h"
-#import "FSTDocumentKey.h"
-#import "FSTDocumentSet.h"
-#import "FSTLevelDBKey.h"
-#import "FSTLocalSerializer.h"
-#import "FSTWriteGroup.h"
-#import "MaybeDocument.pbobjc.h"
+#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
+#import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
-#include "ordered_code.h"
-#include "string_util.h"
+#include "Firestore/Port/ordered_code.h"
+#include "Firestore/Port/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -102,10 +104,11 @@ static ReadOptions StandardReadOptions() {
 }
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  // TODO(mikelehen): PERF: At least filter to the documents that match the path of the query.
   FSTDocumentDictionary *results = [FSTDocumentDictionary documentDictionary];
 
-  std::string startKey = [FSTLevelDBRemoteDocumentKey keyPrefix];
+  // Documents are ordered by key, so we can use a prefix scan to narrow down
+  // the documents we need to match the query against.
+  std::string startKey = [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:query.path];
   std::unique_ptr<Iterator> it(_db->NewIterator(StandardReadOptions()));
   it->Seek(startKey);
 
@@ -113,7 +116,9 @@ static ReadOptions StandardReadOptions() {
   for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
     FSTMaybeDocument *maybeDoc =
         [self decodedMaybeDocument:it->value() withKey:currentKey.documentKey];
-    if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
+    if (![query.path isPrefixOfPath:maybeDoc.key.path]) {
+      break;
+    } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
     }
   }

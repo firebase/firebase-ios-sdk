@@ -1,8 +1,8 @@
-#import "FSTImmutableSortedDictionary.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
-#import "FSTArraySortedDictionary.h"
-#import "FSTClasses.h"
-#import "FSTTreeSortedDictionary.h"
+#import "Firestore/third_party/Immutable/FSTArraySortedDictionary.h"
+#import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/third_party/Immutable/FSTTreeSortedDictionary.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

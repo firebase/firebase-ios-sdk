@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import "FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include <leveldb/db.h>
 
 #import "FIRFirestoreErrors.h"
-#import "FSTAssert.h"
-#import "FSTDatabaseID.h"
-#import "FSTDatabaseInfo.h"
-#import "FSTLevelDBMutationQueue.h"
-#import "FSTLevelDBQueryCache.h"
-#import "FSTLevelDBRemoteDocumentCache.h"
-#import "FSTLogger.h"
-#import "FSTSerializerBeta.h"
-#import "FSTWriteGroup.h"
-#import "FSTWriteGroupTracker.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
+#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
+#import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Local/FSTWriteGroupTracker.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

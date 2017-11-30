@@ -24,6 +24,8 @@
 
 /* Begin PBXBuildFile section */
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
+		5463926E1FBEDE28005031AA /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5463926D1FBEDE28005031AA /* secure_random_test.cc */; };
+		5471DCF91FBF99AC00656CD3 /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5471DCF71FBF99A300656CD3 /* autoid_test.cc */; };
 		54764FAB1FAA0C320085E60A /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAA1FAA0C320085E60A /* string_util_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
 		5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
@@ -134,7 +136,6 @@
 		DE51B1FF1F0D493A0013853F /* FSTAssertTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1861F0D48AC0013853F /* FSTAssertTests.m */; };
 		DE51B2001F0D493A0013853F /* FSTComparisonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */; };
 		DE51B2011F0D493E0013853F /* FSTHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1891F0D48AC0013853F /* FSTHelpers.m */; };
-		DE51B2021F0D493E0013853F /* FSTUtilTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B18A1F0D48AC0013853F /* FSTUtilTests.m */; };
 		F104BBD69BC3F0796E3A77C1 /* Pods_Firestore_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F6A10DBD6187489481CD76 /* Pods_Firestore_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -183,6 +184,8 @@
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		42491D7DC8C8CD245CC22B93 /* Pods-SwiftBuildTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBuildTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest.debug.xcconfig"; sourceTree = "<group>"; };
 		4EBC5F5ABE1FD097EFE5E224 /* Pods-Firestore_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example/Pods-Firestore_Example.release.xcconfig"; sourceTree = "<group>"; };
+		5463926D1FBEDE28005031AA /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = secure_random_test.cc; path = ../../test/support/secure_random_test.cc; sourceTree = "<group>"; };
+		5471DCF71FBF99A300656CD3 /* autoid_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autoid_test.cc; path = ../../test/core/util/autoid_test.cc; sourceTree = "<group>"; };
 		54764FAA1FAA0C320085E60A /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_util_test.cc; path = ../../Port/string_util_test.cc; sourceTree = "<group>"; };
 		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
 		5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTIntegrationTestCase.mm; sourceTree = "<group>"; };
@@ -279,7 +282,6 @@
 		DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTComparisonTests.m; sourceTree = "<group>"; };
 		DE51B1881F0D48AC0013853F /* FSTHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTHelpers.h; sourceTree = "<group>"; };
 		DE51B1891F0D48AC0013853F /* FSTHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTHelpers.m; sourceTree = "<group>"; };
-		DE51B18A1F0D48AC0013853F /* FSTUtilTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTUtilTests.m; sourceTree = "<group>"; };
 		DE51B1941F0D48AC0013853F /* FSTLevelDBSpecTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTLevelDBSpecTests.m; sourceTree = "<group>"; };
 		DE51B1951F0D48AC0013853F /* FSTMemorySpecTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTMemorySpecTests.m; sourceTree = "<group>"; };
 		DE51B1961F0D48AC0013853F /* FSTMockDatastore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTMockDatastore.h; sourceTree = "<group>"; };
@@ -364,11 +366,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5463926F1FBEDE2F005031AA /* support */ = {
+			isa = PBXGroup;
+			children = (
+				5463926D1FBEDE28005031AA /* secure_random_test.cc */,
+			);
+			name = support;
+			sourceTree = "<group>";
+		};
+		5471DCFA1FBF99B100656CD3 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				5471DCFB1FBF99B800656CD3 /* util */,
+			);
+			name = core;
+			sourceTree = "<group>";
+		};
+		5471DCFB1FBF99B800656CD3 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				5471DCF71FBF99A300656CD3 /* autoid_test.cc */,
+			);
+			name = util;
+			sourceTree = "<group>";
+		};
 		54764FAC1FAA0C390085E60A /* GoogleTests */ = {
 			isa = PBXGroup;
 			children = (
-				54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */,
+				5471DCFA1FBF99B100656CD3 /* core */,
 				54764FAD1FAA0C650085E60A /* Port */,
+				5463926F1FBEDE2F005031AA /* support */,
+				54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */,
 			);
 			name = GoogleTests;
 			sourceTree = "<group>";
@@ -584,7 +612,6 @@
 				DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */,
 				DE51B1881F0D48AC0013853F /* FSTHelpers.h */,
 				DE51B1891F0D48AC0013853F /* FSTHelpers.m */,
-				DE51B18A1F0D48AC0013853F /* FSTUtilTests.m */,
 				54E9282A1F339CAD00C1953E /* XCTestCase+Await.h */,
 				54E9282B1F339CAD00C1953E /* XCTestCase+Await.m */,
 				D5B259DAA9149B80D6245B57 /* FSTTestDispatchQueue.h */,
@@ -903,8 +930,6 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root/FirebaseCommunity.framework",
-				"${BUILT_PRODUCTS_DIR}/Firestore/Firestore.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-f0850809/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
@@ -918,8 +943,6 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Firestore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
@@ -943,8 +966,6 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example/Pods-Firestore_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Auth-Core-Root/FirebaseCommunity.framework",
-				"${BUILT_PRODUCTS_DIR}/Firestore/Firestore.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-f0850809/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
@@ -958,8 +979,6 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Firestore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
@@ -1033,7 +1052,6 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests/Pods-Firestore_Tests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest/GoogleTest.framework",
@@ -1041,7 +1059,6 @@
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
@@ -1077,13 +1094,11 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_IntegrationTests/Pods-Firestore_IntegrationTests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/FirebaseCommunity-Core-Root/FirebaseCommunity.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCommunity.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
@@ -1164,11 +1179,11 @@
 				DE51B1E11F0D490D0013853F /* FSTMemoryRemoteDocumentCacheTests.m in Sources */,
 				DE51B1FF1F0D493A0013853F /* FSTAssertTests.m in Sources */,
 				DE51B1D31F0D48CD0013853F /* FSTViewSnapshotTest.m in Sources */,
-				DE51B2021F0D493E0013853F /* FSTUtilTests.m in Sources */,
 				DE51B1F91F0D491F0013853F /* FSTWatchChangeTests.m in Sources */,
 				DE51B1F81F0D491F0013853F /* FSTWatchChange+Testing.m in Sources */,
 				DE51B1EB1F0D490D0013853F /* FSTWriteGroupTests.mm in Sources */,
 				DE51B2011F0D493E0013853F /* FSTHelpers.m in Sources */,
+				5471DCF91FBF99AC00656CD3 /* autoid_test.cc in Sources */,
 				DE51B1F61F0D491B0013853F /* FSTSerializerBetaTests.m in Sources */,
 				DE51B1F01F0D49140013853F /* FSTFieldValueTests.m in Sources */,
 				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
@@ -1204,6 +1219,7 @@
 				DE51B1D91F0D490D0013853F /* FSTEagerGarbageCollectorTests.m in Sources */,
 				DE51B1E21F0D490D0013853F /* FSTMutationQueueTests.m in Sources */,
 				DE51B1E81F0D490D0013853F /* FSTLevelDBKeyTests.mm in Sources */,
+				5463926E1FBEDE28005031AA /* secure_random_test.cc in Sources */,
 				DE51B1E31F0D490D0013853F /* FSTPersistenceTestHelpers.m in Sources */,
 				DE51B1CF1F0D48CD0013853F /* FSTQueryListenerTests.m in Sources */,
 				DE51B1DA1F0D490D0013853F /* FSTLevelDBLocalStoreTests.m in Sources */,
@@ -1343,6 +1359,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1376,6 +1393,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1443,19 +1461,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firestore/local\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
+					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1485,19 +1492,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firebase/datastore/clients/proto\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
-					"\"${PODS_ROOT}/../../\"",
+					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1527,19 +1523,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firestore/local\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
-					"\"${PODS_ROOT}/../../\"",
+					"\"${PODS_ROOT}/../../..\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (
@@ -1577,19 +1561,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Source\"",
-					"\"${PODS_ROOT}/../../Source/API\"",
-					"\"${PODS_ROOT}/../../Source/Core\"",
-					"\"${PODS_ROOT}/../../Source/Remote\"",
-					"\"${PODS_ROOT}/../../Source/Model\"",
-					"\"${PODS_ROOT}/../../third_party\"",
-					"\"${PODS_ROOT}/../../third_party/Immutable\"",
-					"\"${PODS_ROOT}/../../Protos/objc/firestore/local\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/firestore/v1beta1\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/api\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/rpc\"",
-					"\"${PODS_ROOT}/../../Protos/objc/google/type\"",
-					"\"${PODS_ROOT}/../../\"",
+					"\"${PODS_ROOT}/../../..\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (

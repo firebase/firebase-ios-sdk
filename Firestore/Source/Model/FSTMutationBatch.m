@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
 
-#import "FSTAssert.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTMutation.h"
-#import "FSTSnapshotVersion.h"
-#import "FSTTimestamp.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

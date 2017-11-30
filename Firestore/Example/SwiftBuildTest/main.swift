@@ -16,7 +16,7 @@
 
 import Foundation
 
-import Firestore
+import FirebaseFirestore
 
 func main() {
     let db = initializeDb();

@@ -15,8 +15,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRAppInternal.h"
-#import "FIRLogger.h"
+
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRLogger.h>
+
 #import "FIRDatabase.h"
 #import "FIRDatabase_Private.h"
 #import "FIRDatabaseQuery_Private.h"

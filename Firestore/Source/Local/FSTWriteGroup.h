@@ -19,7 +19,7 @@
 #ifdef __cplusplus
 #include <memory>
 
-#include "StringView.h"
+#include "Firestore/Source/Local/StringView.h"
 
 namespace leveldb {
 class DB;

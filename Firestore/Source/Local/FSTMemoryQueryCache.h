@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTQueryCache.h"
+#import "Firestore/Source/Local/FSTQueryCache.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

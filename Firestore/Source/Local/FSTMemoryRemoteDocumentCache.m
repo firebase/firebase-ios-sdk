@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FSTMemoryRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 
-#import "FSTDocument.h"
-#import "FSTDocumentDictionary.h"
-#import "FSTDocumentKey.h"
-#import "FSTPath.h"
-#import "FSTQuery.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

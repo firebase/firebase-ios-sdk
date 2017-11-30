@@ -16,14 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthCredential
     @brief Represents a credential.
  */
-FIR_SWIFT_NAME(AuthCredential)
+NS_SWIFT_NAME(AuthCredential)
 @interface FIRAuthCredential : NSObject
 
 /** @property provider

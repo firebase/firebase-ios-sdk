@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 @class XCTestExpectation;
 

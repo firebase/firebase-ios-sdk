@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRDocumentChange;
@@ -30,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  * using "for ... in documentSet.documents" and its size can be inspected with `isEmpty` and
  * `count`.
  */
-FIR_SWIFT_NAME(QuerySnapshot)
+NS_SWIFT_NAME(QuerySnapshot)
 @interface FIRQuerySnapshot : NSObject
 
 /**   */

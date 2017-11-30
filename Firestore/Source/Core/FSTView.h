@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTDocumentDictionary.h"
-#import "FSTDocumentKeySet.h"
+#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+#import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 @class FSTDocumentKey;
 @class FSTDocumentSet;

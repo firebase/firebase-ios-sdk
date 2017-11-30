@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-#import "FSTDatastore.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
 
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
 
-#import "FIRFirestore+Internal.h"
 #import "FIRFirestoreErrors.h"
-#import "FIRFirestoreVersion.h"
-#import "FSTAssert.h"
-#import "FSTCredentialsProvider.h"
-#import "FSTDatabaseID.h"
-#import "FSTDatabaseInfo.h"
-#import "FSTDispatchQueue.h"
-#import "FSTDocument.h"
-#import "FSTDocumentKey.h"
-#import "FSTLocalStore.h"
-#import "FSTLogger.h"
-#import "FSTMutation.h"
-#import "FSTSerializerBeta.h"
-#import "FSTStream.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRFirestoreVersion.h"
+#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Local/FSTLocalStore.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Remote/FSTStream.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
-#import "Firestore.pbrpc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

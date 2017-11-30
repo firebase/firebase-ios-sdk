@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import "FSTTreeSortedDictionary.h"
+#import "Firestore/third_party/Immutable/FSTTreeSortedDictionary.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

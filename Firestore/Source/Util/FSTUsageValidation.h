@@ -18,6 +18,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if __cplusplus
+extern "C" {
+#endif
+
 /** Helper for creating a general exception for invalid usage of an API. */
 NSException *FSTInvalidUsage(NSString *exceptionName, NSString *format, ...);
 
@@ -41,5 +45,9 @@ NSException *FSTInvalidUsage(NSString *exceptionName, NSString *format, ...);
   do {                                                                             \
     @throw FSTInvalidUsage(@"FIRInvalidArgumentException", format, ##__VA_ARGS__); \
   } while (0)
+
+#if __cplusplus
+}  // extern "C"
+#endif
 
 NS_ASSUME_NONNULL_END

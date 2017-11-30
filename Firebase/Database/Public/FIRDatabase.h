@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 #import "FIRDatabaseReference.h"
-#import "FIRDatabaseSwiftNameSupport.h"
 
 @class FIRApp;
 
@@ -27,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * [FIRDatabase database]. To access a location in the database and read or write data,
  * use [FIRDatabase reference].
  */
-FIR_SWIFT_NAME(Database)
+NS_SWIFT_NAME(Database)
 @interface FIRDatabase : NSObject
 
 /**
@@ -43,7 +42,7 @@ FIR_SWIFT_NAME(Database)
  *
  * @return A FIRDatabase instance.
  */
-+ (FIRDatabase *) database FIR_SWIFT_NAME(database());
++ (FIRDatabase *) database NS_SWIFT_NAME(database());
 
 /**
  * Gets a FirebaseDatabase instance for the specified URL.
@@ -72,7 +71,7 @@ FIR_SWIFT_NAME(Database)
  * @param app The FIRApp to get a FIRDatabase for.
  * @return A FIRDatabase instance.
  */
-+ (FIRDatabase *) databaseForApp:(FIRApp *)app FIR_SWIFT_NAME(database(app:));
++ (FIRDatabase *) databaseForApp:(FIRApp *)app NS_SWIFT_NAME(database(app:));
 
 /** The FIRApp instance to which this FIRDatabase belongs. */
 @property (weak, readonly, nonatomic) FIRApp *app;
@@ -134,7 +133,7 @@ FIR_SWIFT_NAME(Database)
  * application.
  *
  */
-@property (nonatomic) BOOL persistenceEnabled FIR_SWIFT_NAME(isPersistenceEnabled);
+@property (nonatomic) BOOL persistenceEnabled NS_SWIFT_NAME(isPersistenceEnabled);
 
 /**
  * By default the Firebase Database client will use up to 10MB of disk space to cache data. If the cache grows beyond

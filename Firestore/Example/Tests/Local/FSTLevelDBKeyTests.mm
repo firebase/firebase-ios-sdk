@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
 
 #import <XCTest/XCTest.h>
 
-#import "Model/FSTPath.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "ordered_code.h"
+#include "Firestore/Port/ordered_code.h"
 
 #include <assert.h>
 
-#include "bits.h"
+#include "Firestore/Port/bits.h"
 
-#include "absl_endian.h"
-#include "absl_port.h"
+#include "Firestore/Port/absl/absl_endian.h"
+#include "Firestore/Port/absl/absl_port.h"
 #include <leveldb/db.h>  // For Slice
 
 // We encode a string in different ways depending on whether the item

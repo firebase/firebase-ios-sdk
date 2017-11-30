@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import <XCTest/XCTest.h>
 
-#import "API/FIRFirestore+Internal.h"
-#import "API/FSTUserDataConverter.h"
-#import "Core/FSTTimestamp.h"
-#import "Firestore/FIRGeoPoint.h"
-#import "Model/FSTDatabaseID.h"
-#import "Model/FSTFieldValue.h"
-#import "Model/FSTPath.h"
+#import "FirebaseFirestore/FIRGeoPoint.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
-#import "FSTHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 /** Helper to wrap the values in a set of equality groups using FSTTestFieldValue(). */
 NSArray *FSTWrapGroups(NSArray *groups) {

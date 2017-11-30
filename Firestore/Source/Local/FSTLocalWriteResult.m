@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTLocalWriteResult.h"
+#import "Firestore/Source/Local/FSTLocalWriteResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
