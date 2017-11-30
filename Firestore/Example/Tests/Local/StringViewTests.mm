@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import <leveldb/slice.h>
 #import "Firestore/Source/Local/StringView.h"
 
 #import <XCTest/XCTest.h>
+#include <leveldb/slice.h>
 
 using Firestore::StringView;
 
@@ -42,7 +42,7 @@ using Firestore::StringView;
   NSString *afterConversion = [[NSString alloc] initWithBytes:slice.data()
                                                        length:slice.size()
                                                      encoding:NSUTF8StringEncoding];
-  XCTAssertTrue([str isEqualToString:afterConversion]);
+  XCTAssertEqualObjects(afterConversion, str);
 }
 
 @end
