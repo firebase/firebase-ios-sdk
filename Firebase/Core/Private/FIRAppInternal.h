@@ -86,7 +86,7 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationAppKey;
 /** @var FIRAuthStateDidChangeInternalNotificationUIDKey
  @brief A key present in the dictionary object parameter of the
  @c FIRAuthStateDidChangeInternalNotification notification. The value associated with this
- key will contain the new user's UID.
+ key will contain the new user's UID (or nil if there is no longer a user signed in).
  */
 extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 
