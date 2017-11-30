@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Firestore no longer has a direct dependency on FirebaseAuth.
 
 # v0.9.3
 - [changed] Improved performance loading documents matching a query.
