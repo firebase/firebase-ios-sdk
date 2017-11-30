@@ -381,17 +381,17 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _messageReceived = NO;
   _rpc = nil;
 
-  // If the caller explicitly requested a stream stop, don't notify them of a closing stream (it
-  // could trigger undesirable recovery logic, etc.).
-  if (finalState != FSTStreamStateStopped) {
-    [self notifyStreamInterruptedWithError:error];
-  }
-
   // Clear the delegates to avoid any possible bleed through of events from GRPC.
   FSTAssert(_delegate,
             @"closeWithFinalState should only be called for a started stream that has an active "
             @"delegate.");
   _delegate = nil;
+
+  // If the caller explicitly requested a stream stop, don't notify them of a closing stream (it
+  // could trigger undesirable recovery logic, etc.).
+  if (finalState != FSTStreamStateStopped) {
+    [self notifyStreamInterruptedWithError:error];
+  }
 }
 
 - (void)stop {

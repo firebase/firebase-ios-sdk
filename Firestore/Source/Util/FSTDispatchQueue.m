@@ -58,7 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block {
   dispatch_time_t delayNs = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
-  dispatch_after(delayNs, self.queue, block);
+  dispatch_after(delayNs, self.queue, ^() {
+    // Make sure that we prioritize tasks that are already queued for immediate execution.
+    [self dispatchAsyncAllowingSameQueue:block];
+  });
 }
 
 #pragma mark - Private Methods
