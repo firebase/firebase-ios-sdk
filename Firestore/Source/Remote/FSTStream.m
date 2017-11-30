@@ -343,13 +343,12 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 - (void)closeWithFinalState:(FSTStreamState)finalState error:(nullable NSError *)error {
   FSTAssert(finalState == FSTStreamStateError || error == nil,
             @"Can't provide an error when not in an error state.");
-
-  [self.workerDispatchQueue verifyIsCurrentQueue];
-  [self cancelIdleCheck];
-
   FSTAssert(self.delegate,
             @"closeWithFinalState should only be called for a started stream that has an active "
             @"delegate.");
+
+  [self.workerDispatchQueue verifyIsCurrentQueue];
+  [self cancelIdleCheck];
 
   if (finalState != FSTStreamStateError) {
     // If this is an intentional close ensure we don't delay our next connection attempt.
@@ -516,7 +515,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  */
 - (void)handleStreamClose:(nullable NSError *)error {
   FSTLog(@"%@ %p close: %@", NSStringFromClass([self class]), (__bridge void *)self, error);
-  FSTAssert([self isStarted], @"Can't handle server close in non-started state.");
+
+  if (![self isStarted]) {   // The stream could have already been closed by the idle close timer.
+    FSTLog(@"%@ Ignoring server close for already closed stream.", NSStringFromClass([self class]));
+    return;
+  }
 
   // In theory the stream could close cleanly, however, in our current model we never expect this
   // to happen because if we stop a stream ourselves, this callback will never be called. To
