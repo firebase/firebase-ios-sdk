@@ -57,6 +57,7 @@
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
+		61E1D8B11FCF6C5700753285 /* StringViewTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */; };
 		6ED54761B845349D43DB6B78 /* Pods_Firestore_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75A6FE51C1A02DF38F62FAAD /* Pods_Firestore_Example.framework */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
@@ -221,6 +222,7 @@
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringViewTests.mm; sourceTree = "<group>"; };
 		69F6A10DBD6187489481CD76 /* Pods_Firestore_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		75A6FE51C1A02DF38F62FAAD /* Pods_Firestore_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -551,6 +553,7 @@
 		DE51B1621F0D48AC0013853F /* Local */ = {
 			isa = PBXGroup;
 			children = (
+				61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */,
 				DE51B16A1F0D48AC0013853F /* FSTLocalStoreTests.h */,
 				DE51B1701F0D48AC0013853F /* FSTMutationQueueTests.h */,
 				DE51B1721F0D48AC0013853F /* FSTPersistenceTestHelpers.h */,
@@ -1216,6 +1219,7 @@
 				DE51B1E91F0D490D0013853F /* FSTLevelDBMutationQueueTests.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
 				DE51B1E61F0D490D0013853F /* FSTRemoteDocumentCacheTests.m in Sources */,
+				61E1D8B11FCF6C5700753285 /* StringViewTests.mm in Sources */,
 				DE51B1D91F0D490D0013853F /* FSTEagerGarbageCollectorTests.m in Sources */,
 				DE51B1E21F0D490D0013853F /* FSTMutationQueueTests.m in Sources */,
 				DE51B1E81F0D490D0013853F /* FSTLevelDBKeyTests.mm in Sources */,
