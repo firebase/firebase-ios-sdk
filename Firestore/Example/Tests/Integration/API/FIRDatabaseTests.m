@@ -873,6 +873,32 @@
   [self awaitExpectations];
 }
 
+- (void)testCanRunQueriesWhileOffline {
+  NSDictionary<NSString *, id> *initial = @{@"a" : @"old", @"b" : @"old"};
+  NSDictionary<NSString *, id> *updated = @{@"a" : @"new", @"b" : @"new"};
+
+  FIRFirestore *firestore = self.db;
+  FIRDocumentReference *doc = [firestore documentWithPath:[self documentPath]];
+
+  XCTestExpectation *initialReadExpectation = [self expectationWithDescription:@"initial read"];
+  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
+    [doc setData:initial];
+    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+      XCTAssertEqualObjects(snapshot.data, initial);
+      [initialReadExpectation fulfill];
+    }];
+  }];
+  [self awaitExpectations];
+
+  XCTestExpectation *secondReadExpectation = [self expectationWithDescription:@"second read"];
+  [doc updateData:updated];
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertEqualObjects(snapshot.data, updated);
+    [secondReadExpectation fulfill];
+  }];
+  [self awaitExpectations];
+}
+
 - (void)testCantGetDocumentsWhileOffline {
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
