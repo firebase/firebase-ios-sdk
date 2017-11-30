@@ -1297,6 +1297,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (token.length) {
     internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token;
   }
+  internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = _currentUser.uid;
   NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
   dispatch_async(dispatch_get_main_queue(), ^{
     [notifications postNotificationName:FIRAuthStateDidChangeInternalNotification

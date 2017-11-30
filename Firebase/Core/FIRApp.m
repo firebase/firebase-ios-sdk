@@ -60,6 +60,8 @@ NSString *const FIRAuthStateDidChangeInternalNotificationAppKey =
     @"FIRAuthStateDidChangeInternalNotificationAppKey";
 NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey =
     @"FIRAuthStateDidChangeInternalNotificationTokenKey";
+NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
+    @"FIRAuthStateDidChangeInternalNotificationUIDKey";
 
 /**
  * The URL to download plist files.
