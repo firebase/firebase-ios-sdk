@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRStorageSwiftNameSupport.h"
-
 @class FIRStorageDownloadTask;
 @class FIRStorageMetadata;
 @class FIRStorageTaskSnapshot;
@@ -28,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * NSString typedef representing a task listener handle.
  */
-typedef NSString *FIRStorageHandle FIR_SWIFT_NAME(StorageHandle);
+typedef NSString *FIRStorageHandle NS_SWIFT_NAME(StorageHandle);
 
 /**
  * Block typedef typically used when downloading data.
@@ -36,21 +34,21 @@ typedef NSString *FIRStorageHandle FIR_SWIFT_NAME(StorageHandle);
  * @param error The error describing failure, if one occurred.
  */
 typedef void (^FIRStorageVoidDataError)(NSData *_Nullable data, NSError *_Nullable error)
-    FIR_SWIFT_NAME(StorageVoidDataError);
+    NS_SWIFT_NAME(StorageVoidDataError);
 
 /**
  * Block typedef typically used when performing "binary" async operations such as delete,
  * where the operation either succeeds without an error or fails with an error.
  * @param error The error describing failure, if one occurred.
  */
-typedef void (^FIRStorageVoidError)(NSError *_Nullable error) FIR_SWIFT_NAME(StorageVoidError);
+typedef void (^FIRStorageVoidError)(NSError *_Nullable error) NS_SWIFT_NAME(StorageVoidError);
 
 /**
  * Block typedef typically used when retrieving metadata.
  * @param metadata The metadata returned by the operation, if metadata exists.
  */
 typedef void (^FIRStorageVoidMetadata)(FIRStorageMetadata *_Nullable metadata)
-    FIR_SWIFT_NAME(StorageVoidMetadata);
+    NS_SWIFT_NAME(StorageVoidMetadata);
 
 /**
  * Block typedef typically used when retrieving metadata with the possibility of an error.
@@ -59,14 +57,14 @@ typedef void (^FIRStorageVoidMetadata)(FIRStorageMetadata *_Nullable metadata)
  */
 typedef void (^FIRStorageVoidMetadataError)(FIRStorageMetadata *_Nullable metadata,
                                             NSError *_Nullable error)
-    FIR_SWIFT_NAME(StorageVoidMetadataError);
+    NS_SWIFT_NAME(StorageVoidMetadataError);
 
 /**
  * Block typedef typically used to asynchronously return a storage task snapshot.
  * @param snapshot The returned task snapshot.
  */
 typedef void (^FIRStorageVoidSnapshot)(FIRStorageTaskSnapshot *snapshot)
-    FIR_SWIFT_NAME(StorageVoidSnapshot);
+    NS_SWIFT_NAME(StorageVoidSnapshot);
 
 /**
  * Block typedef typically used when retrieving a download URL.
@@ -74,7 +72,7 @@ typedef void (^FIRStorageVoidSnapshot)(FIRStorageTaskSnapshot *snapshot)
  * @param error The error describing failure, if one occurred.
  */
 typedef void (^FIRStorageVoidURLError)(NSURL *_Nullable URL, NSError *_Nullable error)
-    FIR_SWIFT_NAME(StorageVoidURLError);
+    NS_SWIFT_NAME(StorageVoidURLError);
 
 /**
  * Enum representing the upload and download task status.
@@ -109,12 +107,12 @@ typedef NS_ENUM(NSInteger, FIRStorageTaskStatus) {
    * Task has failed and is unrecoverable.
    */
   FIRStorageTaskStatusFailure
-} FIR_SWIFT_NAME(StorageTaskStatus);
+} NS_SWIFT_NAME(StorageTaskStatus);
 
 /**
  * Firebase Storage error domain.
  */
-FOUNDATION_EXPORT NSString *const FIRStorageErrorDomain FIR_SWIFT_NAME(StorageErrorDomain);
+FOUNDATION_EXPORT NSString *const FIRStorageErrorDomain NS_SWIFT_NAME(StorageErrorDomain);
 
 /**
  * Enum representing the errors raised by Firebase Storage.
@@ -168,6 +166,6 @@ typedef NS_ENUM(NSInteger, FIRStorageErrorCode) {
 
   /** User cancelled the operation. */
   FIRStorageErrorCodeCancelled = -13040
-} FIR_SWIFT_NAME(StorageErrorCode);
+} NS_SWIFT_NAME(StorageErrorCode);
 
 NS_ASSUME_NONNULL_END

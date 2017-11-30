@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -26,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * `FIRWriteBatch` and `FIRTransaction` can be configured to perform granular merges instead
  * of overwriting the target documents in their entirety.
  */
-FIR_SWIFT_NAME(SetOptions)
+NS_SWIFT_NAME(SetOptions)
 @interface FIRSetOptions : NSObject
 
 /**   */

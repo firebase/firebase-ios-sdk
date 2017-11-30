@@ -17,14 +17,13 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthCredential.h"
-#import "FIRAuthSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRPhoneAuthCredential
     @brief Implementation of FIRAuthCredential for Phone Auth credentials.
  */
-FIR_SWIFT_NAME(PhoneAuthCredential)
+NS_SWIFT_NAME(PhoneAuthCredential)
 @interface FIRPhoneAuthCredential : FIRAuthCredential
 
 /** @fn init

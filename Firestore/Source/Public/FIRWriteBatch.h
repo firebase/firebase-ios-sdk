@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRDocumentReference;
@@ -33,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Unlike transactions, write batches are persisted offline and therefore are preferable when you
  * don't need to condition your writes on read data.
  */
-FIR_SWIFT_NAME(WriteBatch)
+NS_SWIFT_NAME(WriteBatch)
 @interface FIRWriteBatch : NSObject
 
 /** :nodoc: */
@@ -50,7 +48,7 @@ FIR_SWIFT_NAME(WriteBatch)
  */
 // clang-format off
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
-               forDocument:(FIRDocumentReference *)document FIR_SWIFT_NAME(setData(_:forDocument:));
+               forDocument:(FIRDocumentReference *)document NS_SWIFT_NAME(setData(_:forDocument:));
 // clang-format on
 
 /**
@@ -67,7 +65,7 @@ FIR_SWIFT_NAME(WriteBatch)
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
                forDocument:(FIRDocumentReference *)document
                    options:(FIRSetOptions *)options
-    FIR_SWIFT_NAME(setData(_:forDocument:options:));
+    NS_SWIFT_NAME(setData(_:forDocument:options:));
 // clang-format on
 
 /**
@@ -82,7 +80,7 @@ FIR_SWIFT_NAME(WriteBatch)
 // clang-format off
 - (FIRWriteBatch *)updateData:(NSDictionary<id, id> *)fields
                   forDocument:(FIRDocumentReference *)document
-    FIR_SWIFT_NAME(updateData(_:forDocument:));
+    NS_SWIFT_NAME(updateData(_:forDocument:));
 // clang-format on
 
 /**
@@ -92,7 +90,7 @@ FIR_SWIFT_NAME(WriteBatch)
  * @return This `FIRWriteBatch` instance. Used for chaining method calls.
  */
 - (FIRWriteBatch *)deleteDocument:(FIRDocumentReference *)document
-    FIR_SWIFT_NAME(deleteDocument(_:));
+    NS_SWIFT_NAME(deleteDocument(_:));
 
 /**
  * Commits all of the writes in this write batch as a single atomic unit.

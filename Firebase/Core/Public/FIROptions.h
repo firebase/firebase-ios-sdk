@@ -16,26 +16,24 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This class provides constant fields of Google APIs.
  */
-FIR_SWIFT_NAME(FirebaseOptions)
+NS_SWIFT_NAME(FirebaseOptions)
 @interface FIROptions : NSObject <NSCopying>
 
 /**
  * Returns the default options.
  */
-+ (nullable FIROptions *)defaultOptions FIR_SWIFT_NAME(defaultOptions());
++ (nullable FIROptions *)defaultOptions NS_SWIFT_NAME(defaultOptions());
 
 /**
  * An iOS API key used for authenticating requests from your app, e.g.
  * @"AIzaSyDdVgKwhZl0sTTTLZ7iTmt1r3N2cJLnaDk", used to identify your app to Google servers.
  */
-@property(nonatomic, copy, nullable) NSString *APIKey FIR_SWIFT_NAME(apiKey);
+@property(nonatomic, copy, nullable) NSString *APIKey NS_SWIFT_NAME(apiKey);
 
 /**
  * The bundle ID for the application. Defaults to `[[NSBundle mainBundle] bundleID]` when not set
@@ -58,7 +56,7 @@ FIR_SWIFT_NAME(FirebaseOptions)
  * The Project Number from the Google Developer's console, for example @"012345678901", used to
  * configure Google Cloud Messaging.
  */
-@property(nonatomic, copy) NSString *GCMSenderID FIR_SWIFT_NAME(gcmSenderID);
+@property(nonatomic, copy) NSString *GCMSenderID NS_SWIFT_NAME(gcmSenderID);
 
 /**
  * The Project ID from the Firebase console, for example @"abc-xyz-123".
@@ -127,7 +125,7 @@ FIR_SWIFT_NAME(FirebaseOptions)
 // clang-format off
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                         GCMSenderID:(NSString *)GCMSenderID
-    FIR_SWIFT_NAME(init(googleAppID:gcmSenderID:));
+    NS_SWIFT_NAME(init(googleAppID:gcmSenderID:));
 // clang-format on
 
 @end

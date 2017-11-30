@@ -15,7 +15,6 @@
  */
 
 #import "FIRFirestore.h"
-#import "FIRFirestoreSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param completion A block to execute once everything has shut down.
  */
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
-    FIR_SWIFT_NAME(shutdown(completion:));
+    NS_SWIFT_NAME(shutdown(completion:));
 
 @property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
 @property(nonatomic, strong, readonly) FSTFirestoreClient *client;

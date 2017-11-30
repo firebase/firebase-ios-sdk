@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthSwiftNameSupport.h"
-
 @class FIRAuthCredential;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -25,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIROAuthProvider
     @brief A concrete implementation of @c FIRAuthProvider for generic OAuth Providers.
  */
-FIR_SWIFT_NAME(OAuthProvider)
+NS_SWIFT_NAME(OAuthProvider)
 @interface FIROAuthProvider : NSObject
 
 /** @fn credentialWithProviderID:IDToken:accessToken:
