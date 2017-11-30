@@ -38,19 +38,19 @@ set -euo pipefail
   fi
 ) | sed -E -n '
 # Build outputs
-/\/Pods\// d
-/^.\/build\// d
+\%/Pods/% d
+\%^./build/% d
 
 # Sources controlled outside this tree
-/\/third_party\// d
-/\/Firestore\/Port\// d
+\%/third_party/% d
+\%/Firestore/Port/% d
 
 # Sources within the tree that are not subject to formatting
-/^.\/(Example|Firebase)\/(Auth|AuthSamples|Database|Messaging)\// d
+\%^./(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
 
 # Checked-in generated code
-/\.pb(objc|rpc)\./ d
+\%\.pb(objc|rpc)\.% d
 
 # Format C-ish sources only
-/\.(h|m|mm|cc)$/ p
+\%\.(h|m|mm|cc)$% p
 ' | xargs clang-format -style=file -i
