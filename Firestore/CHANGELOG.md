@@ -1,5 +1,7 @@
 # Unreleased
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
+- [fixed] Fixed a bug that caused the client to crash when path names with
+  unicode characters were present.
 
 # v0.9.3
 - [changed] Improved performance loading documents matching a query.
