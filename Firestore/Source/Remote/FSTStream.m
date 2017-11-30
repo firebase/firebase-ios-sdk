@@ -347,6 +347,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.workerDispatchQueue verifyIsCurrentQueue];
   [self cancelIdleCheck];
 
+  FSTAssert(self.delegate,
+            @"closeWithFinalState should only be called for a started stream that has an active "
+            @"delegate.");
+
   if (finalState != FSTStreamStateError) {
     // If this is an intentional close ensure we don't delay our next connection attempt.
     [self.backoff reset];
@@ -381,17 +385,14 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _messageReceived = NO;
   _rpc = nil;
 
-  // Clear the delegates to avoid any possible bleed through of events from GRPC.
-  FSTAssert(_delegate,
-            @"closeWithFinalState should only be called for a started stream that has an active "
-            @"delegate.");
-  _delegate = nil;
-
   // If the caller explicitly requested a stream stop, don't notify them of a closing stream (it
   // could trigger undesirable recovery logic, etc.).
   if (finalState != FSTStreamStateStopped) {
     [self notifyStreamInterruptedWithError:error];
   }
+
+  // Clear the delegates to avoid any possible bleed through of events from GRPC.
+  _delegate = nil;
 }
 
 - (void)stop {
@@ -615,7 +616,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
-  [self.delegate watchStreamWasInterruptedWithError:error];
+  id<FSTWatchStreamDelegate> delegate = self.delegate;
+  self.delegate = nil;
+  [delegate watchStreamWasInterruptedWithError:error];
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
@@ -701,7 +704,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
-  [self.delegate writeStreamWasInterruptedWithError:error];
+  id<FSTWriteStreamDelegate> delegate = self.delegate;
+  self.delegate = nil;
+  [delegate writeStreamWasInterruptedWithError:error];
 }
 
 - (void)tearDown {
