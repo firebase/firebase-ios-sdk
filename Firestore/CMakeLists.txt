@@ -14,8 +14,5 @@
 
 include(${PROJECT_SOURCE_DIR}/cmake/external/googletest.cmake)
 
-add_subdirectory(src/support)
-add_subdirectory(test/support)
-
-add_subdirectory(src/core/util)
-add_subdirectory(test/core/util)
+add_subdirectory(core/src/firebase/firestore/util)
+add_subdirectory(core/test/firebase/firestore/util)

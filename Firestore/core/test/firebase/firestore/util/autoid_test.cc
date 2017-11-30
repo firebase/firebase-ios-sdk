@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-#include "Firestore/src/support/secure_random.h"
+#include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
-#include "Firestore/src/support/port.h"
+#include <ctype.h>
 
-#if HAVE_ARC4RANDOM
+#include "gtest/gtest.h"
 
-#include <stdlib.h>
+using firebase::firestore::util::CreateAutoId;
 
-namespace firestore {
-
-SecureRandom::result_type SecureRandom::operator()() {
-  return arc4random();
+TEST(AutoId, IsSane) {
+  for (int i = 0; i < 50; i++) {
+    std::string auto_id = CreateAutoId();
+    EXPECT_EQ(20, auto_id.length());
+    for (int pos = 0; pos < 20; pos++) {
+      char c = auto_id[pos];
+      EXPECT_TRUE(isalpha(c) || isdigit(c))
+          << "Should be printable ascii character: '" << c << "' in \""
+          << auto_id << "\"";
+    }
+  }
 }
-
-}  // namespace firestore
-
-#endif  // HAVE_ARC4RANDOM

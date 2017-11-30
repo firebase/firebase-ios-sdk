@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-#include "Firestore/src/core/util/autoid.h"
-
-#include <ctype.h>
+#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 
 #include "gtest/gtest.h"
 
-TEST(AutoId, IsSane) {
-  for (int i = 0; i < 50; i++) {
-    std::string auto_id = firestore::CreateAutoId();
-    EXPECT_EQ(20, auto_id.length());
-    for (int pos = 0; pos < 20; pos++) {
-      char c = auto_id[pos];
-      EXPECT_TRUE(isalpha(c) || isdigit(c))
-          << "Should be printable ascii character: '" << c << "' in \"" << auto_id << "\"";
-    }
+using firebase::firestore::util::SecureRandom;
+
+TEST(SecureRandomTest, ResultsAreBounded) {
+  SecureRandom rng;
+
+  // Verify that values are on the min/max closed interval.
+  for (int i = 0; i < 1000; i++) {
+    SecureRandom::result_type value = rng();
+    EXPECT_GE(value, rng.min());
+    EXPECT_LE(value, rng.max());
   }
 }

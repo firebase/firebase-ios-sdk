@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-#include "Firestore/src/core/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
 #include <random>
 #include <string>
 
-#include "Firestore/src/support/secure_random.h"
+#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
+
+namespace firebase {
+namespace firestore {
+namespace util {
 
 namespace {
 
@@ -27,11 +31,9 @@ const int kAutoIdLength = 20;
 const char kAutoIdAlphabet[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-firestore::SecureRandom shared_random;
+SecureRandom shared_random;
 
 }  // namespace
-
-namespace firestore {
 
 std::string CreateAutoId() {
   std::string auto_id;
@@ -49,4 +51,6 @@ std::string CreateAutoId() {
   return auto_id;
 }
 
+}  // namespace util
 }  // namespace firestore
+}  // namespace firebase
