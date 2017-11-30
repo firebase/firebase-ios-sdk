@@ -21,6 +21,14 @@
 
 using Firestore::StringView;
 
+#define ASSERT_NSSTRING_TO_STRINGVIEW_AND_BACK_OK( nsstr )                           \
+  StringView sv(nsstr);                                                              \
+  leveldb::Slice slice = sv;                                                         \
+  NSString *afterConversion = [[NSString alloc] initWithBytes:slice.data()           \
+                                                       length:slice.size()           \
+                                                     encoding:NSUTF8StringEncoding]; \
+  XCTAssertEqualObjects(afterConversion, nsstr);
+
 @interface StringViewTests : XCTestCase
 @end
 
@@ -28,21 +36,12 @@ using Firestore::StringView;
 
 - (void)testStringViewNSStringToSliceWithUSAscii {
   NSString *usAsciiChars = @"abcdefg ABCDEFG 12345 !@#$%";
-  [self convertNSStringToStringViewAndBackAndEnsureEqual:usAsciiChars];
+  ASSERT_NSSTRING_TO_STRINGVIEW_AND_BACK_OK(usAsciiChars);
 }
 
 - (void)testStringViewNSStringToSliceWithNonUSAscii {
   NSString *nonUsAsciiChars = @"ó¹";
-  [self convertNSStringToStringViewAndBackAndEnsureEqual:nonUsAsciiChars];
-}
-
-- (void)convertNSStringToStringViewAndBackAndEnsureEqual:(NSString *)str {
-  StringView sv(str);
-  leveldb::Slice slice = sv;
-  NSString *afterConversion = [[NSString alloc] initWithBytes:slice.data()
-                                                       length:slice.size()
-                                                     encoding:NSUTF8StringEncoding];
-  XCTAssertEqualObjects(afterConversion, str);
+  ASSERT_NSSTRING_TO_STRINGVIEW_AND_BACK_OK(nonUsAsciiChars);
 }
 
 @end
