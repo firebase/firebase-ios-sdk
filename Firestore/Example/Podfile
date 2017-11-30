@@ -7,6 +7,7 @@ use_frameworks!
 platform :ios, '8.0'
 
 target 'Firestore_Example' do
+  pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
@@ -14,7 +15,6 @@ target 'Firestore_Example' do
     inherit! :search_paths
 
     pod 'FirebaseCore', :path => '../../'
-    pod 'FirebaseAuth', :path => '../../'
     pod 'leveldb-library'
 
     pod 'OCMock'
