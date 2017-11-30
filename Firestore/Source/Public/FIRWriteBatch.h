@@ -73,7 +73,7 @@ NS_SWIFT_NAME(WriteBatch)
  * If document does not exist, the write batch will fail.
  *
  * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- * `FIRFieldPath`) and values with which to update the document.
+ *     `FIRFieldPath`) and values with which to update the document.
  * @param document A reference to the document whose data should be updated.
  * @return This `FIRWriteBatch` instance. Used for chaining method calls.
  */
@@ -96,7 +96,10 @@ NS_SWIFT_NAME(WriteBatch)
  * Commits all of the writes in this write batch as a single atomic unit.
  *
  * @param completion A block to be called once all of the writes in the batch have been
- * successfully written to the backend as an atomic unit.
+ *     successfully written to the backend as an atomic unit. This block will only execute
+ *     when the client is online and the commit has completed against the server. The
+ *     completion handler will not be called when the device is offline, though local
+ *     changes will be visible immediately.
  */
 - (void)commitWithCompletion:(void (^)(NSError *_Nullable error))completion;
 

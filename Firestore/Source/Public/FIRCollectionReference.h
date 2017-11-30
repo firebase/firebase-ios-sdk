@@ -81,7 +81,9 @@ NS_SWIFT_NAME(CollectionReference)
  * automatically.
  *
  * @param data An `NSDictionary` containing the data for the new document.
- * @param completion A block to execute once the document has been successfully written.
+ * @param completion A block to execute once the document has been successfully written to
+ *     the server. This block will not be called while the client is offline, though local
+ *     changes will be visible immediately.
  *
  * @return A `FIRDocumentReference` pointing to the newly created document.
  */
