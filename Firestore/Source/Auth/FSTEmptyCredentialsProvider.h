@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** `FSTEmptyCredentialsProvider` always yields an empty token. */
-@interface FSTEmptyCredentialsProvider : NSObject<FSTCredentialsProvider>
+@interface FSTEmptyCredentialsProvider : NSObject <FSTCredentialsProvider>
 
 @end
 

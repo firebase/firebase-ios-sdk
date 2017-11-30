@@ -23,10 +23,10 @@
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
+#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Auth/FSTUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -108,24 +108,24 @@ NS_ASSUME_NONNULL_BEGIN
   // FIRFirestoreErrorCodeAborted error) if there is a user change while the request is outstanding.
   int initialUserCounter = self.userCounter;
 
-  void (^getTokenCallback)(NSString *, NSError *) = ^(NSString *_Nullable token,
-                                                      NSError *_Nullable error) {
-    @synchronized(self) {
-      if (initialUserCounter != self.userCounter) {
-        // Cancel the request since the user changed while the request was outstanding so the
-        // response is likely for a previous user (which user, we can't be sure).
-        NSDictionary *errorInfo = @{ @"details" : @"getToken aborted due to user change." };
-        NSError *cancelError = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                                   code:FIRFirestoreErrorCodeAborted
-                                               userInfo:errorInfo];
-        completion(nil, cancelError);
-      } else {
-        FSTGetTokenResult *result =
-            [[FSTGetTokenResult alloc] initWithUser:self.currentUser token:token];
-        completion(result, error);
-      }
-    };
-  };
+  void (^getTokenCallback)(NSString *, NSError *) =
+      ^(NSString *_Nullable token, NSError *_Nullable error) {
+        @synchronized(self) {
+          if (initialUserCounter != self.userCounter) {
+            // Cancel the request since the user changed while the request was outstanding so the
+            // response is likely for a previous user (which user, we can't be sure).
+            NSDictionary *errorInfo = @{@"details" : @"getToken aborted due to user change."};
+            NSError *cancelError = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                                       code:FIRFirestoreErrorCodeAborted
+                                                   userInfo:errorInfo];
+            completion(nil, cancelError);
+          } else {
+            FSTGetTokenResult *result =
+                [[FSTGetTokenResult alloc] initWithUser:self.currentUser token:token];
+            completion(result, error);
+          }
+        };
+      };
 
   [self.app getTokenForcingRefresh:forceRefresh withCallback:getTokenCallback];
 }
