@@ -20,6 +20,7 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -177,6 +178,11 @@ NS_ASSUME_NONNULL_BEGIN
   if (self.options.waitForSyncWhenOnline && maybeOnline) {
     FSTAssert(snapshot.fromCache, @"Waiting for sync, but snapshot is not from cache.");
     return NO;
+  }
+
+  // Warn user if we raise initial event with empty documents while we are not actually online.
+  if (snapshot.documents.isEmpty && onlineState != FSTOnlineStateHealthy) {
+    FSTWarn(@"Could not reach Firestore backend.");
   }
 
   // Raise data from cache if we have any documents or we are offline
