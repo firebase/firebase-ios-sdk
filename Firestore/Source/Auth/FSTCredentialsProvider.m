@@ -83,7 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
                       NSDictionary *userInfo = notification.userInfo;
 
                       // ensure we're only notifiying for the current app.
-                      FIRApp *notifiedApp = userInfo[FIRAuthStateDidChangeInternalNotificationAppKey];
+                      FIRApp *notifiedApp =
+                          userInfo[FIRAuthStateDidChangeInternalNotificationAppKey];
                       if (![self.app isEqual:notifiedApp]) {
                         return;
                       }
