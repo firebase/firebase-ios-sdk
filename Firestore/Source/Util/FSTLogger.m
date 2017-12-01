@@ -16,7 +16,12 @@
 
 #import "Firestore/Source/Util/FSTLogger.h"
 
-#import "FIRLogger.h"
+#ifdef COCOAPODS
+#import <FirebaseCore/FIRLogger.h>
+#else
+#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRLogger.h"
+#endif
+
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
