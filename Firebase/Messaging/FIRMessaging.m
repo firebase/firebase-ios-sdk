@@ -710,10 +710,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 #pragma mark - IID dependencies
 
 + (NSString *)FIRMessagingSDKVersion {
-  NSString *semanticVersion = FIRMessagingCurrentLibraryVersion();
-  // Use prefix fcm for all FCM libs. This allows us to differentiate b/w
-  // the new and old FCM registrations.
-  return [NSString stringWithFormat:@"fiid-%@", semanticVersion];
+  return FIRMessagingCurrentLibraryVersion();
 }
 
 + (NSString *)FIRMessagingSDKCurrentLocale {
