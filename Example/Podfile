@@ -14,6 +14,11 @@ target 'Core_Example_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
+
+  target 'Analytics_Tests_iOS' do
+    inherit! :search_paths
+    pod 'FirebaseAnalytics'
+  end
 end
 
 target 'Auth_Example_iOS' do
