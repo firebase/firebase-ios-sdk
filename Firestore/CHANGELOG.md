@@ -1,5 +1,7 @@
 # Unreleased
 
+- [fixed] Addressed race condition during the teardown of idle streams (#490).
+
 # v0.9.3
 - [changed] Improved performance loading documents matching a query.
 - [changed] Cleanly shut down idle write streams.
