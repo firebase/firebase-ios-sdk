@@ -16,11 +16,7 @@
 
 #import "Firestore/Source/Util/FSTLogger.h"
 
-#ifdef COCOAPODS
 #import <FirebaseCore/FIRLogger.h>
-#else
-#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRLogger.h"
-#endif
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
