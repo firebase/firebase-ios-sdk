@@ -542,9 +542,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTWeakify(self);
   [self.workerDispatchQueue dispatchAsync:^{
     FSTStrongify(self);
-    if (!self || self.state == FSTStreamStateStopped) {
-      return;
+    if (!self || ![self isStarted]) {
+      FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
     }
+
     if (!self.messageReceived) {
       self.messageReceived = YES;
       if ([FIRFirestore isLoggingEnabled]) {
