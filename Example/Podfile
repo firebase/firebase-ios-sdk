@@ -156,3 +156,11 @@ target 'Storage_Example_macOS' do
     pod 'OCMock'
   end
 end
+
+# This post_install workaround should be removed when FirebaseAnalytics
+# removes its module includes to FirebaseCore.
+
+post_install do | installer |
+  print "Fix up FirebaseAnalytics module ... \n"
+  system 'cp ../patch/FirebaseAnalytics.h Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/'
+end
