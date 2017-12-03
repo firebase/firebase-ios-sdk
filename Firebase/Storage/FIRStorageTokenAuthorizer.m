@@ -22,8 +22,8 @@
 
 #import "FirebaseStorage.h"
 
-#import "FIRApp.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 
 @implementation FIRStorageTokenAuthorizer {
  @private

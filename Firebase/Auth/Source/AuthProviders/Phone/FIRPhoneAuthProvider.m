@@ -18,9 +18,9 @@
 
 #import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
 #import "FIRPhoneAuthCredential_Internal.h"
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredential.h"
@@ -32,7 +32,7 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
 #import "FirebaseAuthVersion.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIROptions.h>
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRSendVerificationCodeRequest.h"

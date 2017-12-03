@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
 #import "FTrackedQueryManager.h"
 #import "FImmutableTree.h"
 #import "FLevelDBStorageEngine.h"

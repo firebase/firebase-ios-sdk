@@ -16,7 +16,7 @@
 
 #import "FIRAuthNotificationManager.h"
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
 #import "FIRAuthGlobalWorkQueue.h"
