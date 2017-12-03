@@ -516,7 +516,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 - (void)handleStreamClose:(nullable NSError *)error {
   FSTLog(@"%@ %p close: %@", NSStringFromClass([self class]), (__bridge void *)self, error);
 
-  if (![self isStarted]) {   // The stream could have already been closed by the idle close timer.
+  if (![self isStarted]) {  // The stream could have already been closed by the idle close timer.
     FSTLog(@"%@ Ignoring server close for already closed stream.", NSStringFromClass([self class]));
     return;
   }
