@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-#import "FIRQuery.h"
+#import "FirebaseFirestore/FIRQuery.h"
 
-@class FSTQuery;
+#import <XCTest/XCTest.h>
+
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Internal FIRQuery API we don't want exposed in our public header files. */
-@interface FIRQuery (Internal)
-+ (FIRQuery *)referenceWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore;
-@property(nonatomic, strong, readonly) FSTQuery *query;
+@interface FIRQueryTests : XCTestCase
+@end
+
+@implementation FIRQueryTests
+
+- (void)testEquals {
+    FIRQuery *query1 = [FIRQuery alloc];
+    FIRQuery *query2 = [FIRQuery alloc];
+    XCTAssertEqualObjects(query1, query2);
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

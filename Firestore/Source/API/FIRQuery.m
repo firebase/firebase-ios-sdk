@@ -83,7 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRQuery ()
 @property(nonatomic, strong, readonly) FSTQuery *query;
-@property(nonatomic) BOOL usePredicate;
 @end
 
 @implementation FIRQuery (Internal)
@@ -100,7 +99,6 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _query = query;
     _firestore = firestore;
-    _usePredicate = NO;
   }
   return self;
 }
@@ -204,129 +202,127 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorEqual field:field value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorEqual field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isEqualTo:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorEqual
-                               path:path.internalValue
-                              value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorEqual
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isLessThan:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorLessThan field:field value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThan field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isLessThan:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorLessThan
-                               path:path.internalValue
-                              value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThan
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isLessThanOrEqualTo:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
-                              field:field
-                              value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                  field:field
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isLessThanOrEqualTo:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
-                               path:path.internalValue
-                              value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isGreaterThan:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan field:field value:value];
-  }
   return
       [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isGreaterThan:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan
-                               path:path.internalValue
-                              value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isGreaterThanOrEqualTo:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
-                              field:field
-                              value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
                                  field:field
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isGreaterThanOrEqualTo:(id)value {
-  if (_usePredicate) {
-    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                  firestore:_firestore]
-            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
-                               path:path.internalValue
-                              value:value];
-  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate {
-  FIRQuery *query = [[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
-                                          firestore:_firestore];
-  query.usePredicate = YES;
-  return query;
+  if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
+    // Comparison predicate
+    NSComparisonPredicate *comparison = (NSComparisonPredicate *)predicate;
+    if (comparison.comparisonPredicateModifier != NSDirectPredicateModifier) {
+      FSTThrowInvalidArgument(@"Invalid query. Predicate cannot have an "
+                              "aggregate modifier.");
+    }
+    NSString *path;
+    id value = nil;
+    if (comparison.leftExpression.keyPath == nil &&
+        comparison.rightExpression.keyPath == nil) {
+      FSTThrowInvalidArgument(@"Invalid query. Predicate comparison must have "
+                              "a key path on either side of its expression.");
+    } else if (comparison.leftExpression.keyPath == nil) {
+      path = comparison.rightExpression.keyPath;
+      value = comparison.leftExpression.constantValue;
+    } else {
+      path = comparison.leftExpression.keyPath;
+      value = comparison.rightExpression.constantValue;
+    }
+    if (value == nil) {
+      FSTThrowInvalidArgument(@"Invalid query. Predicate comparison must have "
+                              "a constant on its expression.");
+    }
+    switch (comparison.predicateOperatorType) {
+      case NSEqualToPredicateOperatorType:
+        return [self queryWhereField:path isEqualTo:value];
+        break;
+      case NSLessThanPredicateOperatorType:
+        return [self queryWhereField:path isLessThan:value];
+        break;
+      case NSLessThanOrEqualToPredicateOperatorType:
+        return [self queryWhereField:path isLessThanOrEqualTo:value];
+        break;
+      case NSGreaterThanPredicateOperatorType:
+        return [self queryWhereField:path isGreaterThan:value];
+        break;
+      case NSGreaterThanOrEqualToPredicateOperatorType:
+        return [self queryWhereField:path isGreaterThanOrEqualTo:value];
+        break;
+      case NSCustomSelectorPredicateOperatorType:
+        FSTThrowInvalidArgument(@"Invalid query. Custom predicate filters are "
+                                "not supported.");
+        break;
+      default:
+        FSTThrowInvalidArgument(@"Invalid query. Predicate does not support "
+                                "%lu operator type.",
+                                (unsigned long)comparison.predicateOperatorType);
+    }
+  } else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
+    // Compound predicate
+    NSCompoundPredicate *compound = (NSCompoundPredicate *)predicate;
+    if (compound.compoundPredicateType != NSAndPredicateType ||
+        compound.subpredicates.count == 0) {
+      FSTThrowInvalidArgument(@"Invalid query. Predicate only supports "
+                              "AND-compound.");
+    }
+    FIRQuery *query = self;
+    for (NSPredicate *pred in compound.subpredicates) {
+      query = [query queryFilteredUsingPredicate:pred];
+    }
+    return query;
+  } else {
+    FSTThrowInvalidArgument(@"Invalid query. Expect comparison or compound of "
+                            "comparison predicate.");
+  }
 }
 
 - (FIRQuery *)queryOrderedByField:(NSString *)field {

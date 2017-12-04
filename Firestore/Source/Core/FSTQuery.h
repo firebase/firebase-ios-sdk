@@ -197,13 +197,6 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 - (instancetype)queryByAddingFilter:(id<FSTFilter>)filter;
 
 /**
- * Creates a new FSTQuery without any filters.
- *
- * @return the new FSTQuery.
- */
-- (instancetype)queryByRemovingFilters;
-
-/**
  * Creates a new FSTQuery with an additional ordering constraint.
  *
  * @param sortOrder The key and direction to order by.

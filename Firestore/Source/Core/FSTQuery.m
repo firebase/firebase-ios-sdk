@@ -581,15 +581,6 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
                                   endAt:self.endAt];
 }
 
-- (instancetype)queryByRemovingFilters {
-    return [[FSTQuery alloc] initWithPath:self.path
-                                 filterBy:[[NSArray alloc] init]
-                                  orderBy:self.explicitSortOrders
-                                    limit:self.limit
-                                  startAt:self.startAt
-                                    endAt:self.endAt];
-}
-
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
   FSTAssert(![FSTDocumentKey isDocumentKey:self.path],
             @"No ordering is allowed for a document query.");

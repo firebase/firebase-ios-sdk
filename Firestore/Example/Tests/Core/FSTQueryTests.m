@@ -294,17 +294,6 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)testRemovingAllFilters {
-  FSTQuery *query1 = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"collection" ]]];
-  FSTQuery *query2 = [[query1 queryByAddingFilter:FSTTestFilter(@"text", @"==", @"msg1")]
-                      queryByAddingFilter:FSTTestFilter(@"sort", @"<=", @(2))];
-  FSTQuery *query3 = [query2 queryByRemovingFilters];
-
-  XCTAssertNotEqualObjects(query1, query2);
-  XCTAssertNotEqualObjects(query2, query3);
-  XCTAssertEqualObjects(query1, query3);
-}
-
 /**
  * Checks that an ordered array of elements yields the correct pair-wise comparison result for the
  * supplied comparator.
