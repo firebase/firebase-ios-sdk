@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_SRC_SUPPORT_PORT_H_
-#define FIRESTORE_SRC_SUPPORT_PORT_H_
+#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 
-#if defined(__APPLE__)
-// On Apple platforms we support building via Cocoapods without CMake. When
-// building this way we can't test the presence of features so predefine all
-// the platform-support feature macros to their expected values.
+#include "Firestore/core/src/firebase/firestore/base/port.h"
 
-// All supported Apple platforms have arc4random(3).
-#define HAVE_ARC4RANDOM 1
+#if HAVE_ARC4RANDOM
 
-#else
+#include <stdlib.h>
 
-#error "Unknown platform."
-#endif  // defined(__APPLE__)
+namespace firebase {
+namespace firestore {
+namespace util {
 
-#endif  // FIRESTORE_SRC_SUPPORT_PORT_H_
+SecureRandom::result_type SecureRandom::operator()() {
+  return arc4random();
+}
+
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // HAVE_ARC4RANDOM

@@ -13,10 +13,7 @@
 # limitations under the License.
 
 add_library(
-  firestore_core_util
+  firebase_firestore_util
   autoid.cc
-)
-target_link_libraries(
-  firestore_core_util
-  firestore_support
+  secure_random_arc4random.cc
 )

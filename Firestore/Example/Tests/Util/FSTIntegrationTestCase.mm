@@ -21,7 +21,7 @@
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
-#include "Firestore/src/core/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
@@ -31,6 +31,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
+
+using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -165,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)documentPath {
-  std::string autoId = firestore::CreateAutoId();
+  std::string autoId = CreateAutoId();
   return [NSString stringWithFormat:@"test-collection/%s", autoId.c_str()];
 }
 
@@ -174,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRCollectionReference *)collectionRef {
-  std::string autoId = firestore::CreateAutoId();
+  std::string autoId = CreateAutoId();
   NSString *collectionName = [NSString stringWithFormat:@"test-collection-%s", autoId.c_str()];
   return [self.db collectionWithPath:collectionName];
 }

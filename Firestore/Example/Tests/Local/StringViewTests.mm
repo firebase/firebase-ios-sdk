@@ -21,7 +21,7 @@
 
 using Firestore::StringView;
 
-#define ASSERT_NSSTRING_TO_STRINGVIEW_AND_BACK_OK( nsstr )                           \
+#define ASSERT_NSSTRING_TO_STRINGVIEW_AND_BACK_OK(nsstr)                             \
   StringView sv(nsstr);                                                              \
   leveldb::Slice slice = sv;                                                         \
   NSString *afterConversion = [[NSString alloc] initWithBytes:slice.data()           \

@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_SRC_CORE_UTIL_AUTOID_H_
-#define FIRESTORE_SRC_CORE_UTIL_AUTOID_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_AUTOID_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_AUTOID_H_
 
 #include <string>
 
+namespace firebase {
 namespace firestore {
+namespace util {
 
 // Generates a random ID suitable for use as a document ID.
 std::string CreateAutoId();
 
+}  // namespace util
 }  // namespace firestore
+}  // namespace firebase
 
-#endif  // FIRESTORE_SRC_CORE_UTIL_AUTOID_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_AUTOID_H_
