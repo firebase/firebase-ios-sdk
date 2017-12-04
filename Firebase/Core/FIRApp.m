@@ -134,7 +134,7 @@ static FIRApp *sDefaultApp;
 
 #if DEBUG
     // Support for iOS 7 has been deprecated, but will continue to function for the time being. Log
-    // a warning for developers who are still targeting iOS 7 as the minimum OS version supported.
+    // a notice for developers who are still targeting iOS 7 as the minimum OS version supported.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
       NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
 
