@@ -131,6 +131,21 @@ static FIRApp *sDefaultApp;
       [FIRApp sendNotificationsToSDKs:sDefaultApp];
       sDefaultApp.alreadySentConfigureNotification = YES;
     }
+
+#if DEBUG
+    // Support for iOS 7 has been deprecated, but will continue to function for the time being. Log
+    // a warning for developers who are still targeting iOS 7 as the minimum OS version supported.
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+      NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
+
+      NSString *minVersion = info[@"MinimumOSVersion"];
+      if ([minVersion hasPrefix:@"7."]) {
+        FIRLogNotice(kFIRLoggerCore, @"I-COR000026", @"Support for iOS 7 is deprecated and will "
+                     @"stop working in the future. Please upgrade your app to target iOS 8 or "
+                     @"above.");
+      }
+    });
+#endif  // DEBUG
   }
 }
 
