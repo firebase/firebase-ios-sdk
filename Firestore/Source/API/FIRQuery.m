@@ -83,6 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRQuery ()
 @property(nonatomic, strong, readonly) FSTQuery *query;
+@property(nonatomic) BOOL usePredicate;
 @end
 
 @implementation FIRQuery (Internal)
@@ -99,6 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _query = query;
     _firestore = firestore;
+    _usePredicate = NO;
   }
   return self;
 }
@@ -202,58 +204,129 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorEqual field:field value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorEqual field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isEqualTo:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorEqual
+                               path:path.internalValue
+                              value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorEqual
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isLessThan:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorLessThan field:field value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThan field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isLessThan:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorLessThan
+                               path:path.internalValue
+                              value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThan
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isLessThanOrEqualTo:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
+                              field:field
+                              value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                  field:field
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isLessThanOrEqualTo:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
+                               path:path.internalValue
+                              value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isGreaterThan:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan field:field value:value];
+  }
   return
       [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isGreaterThan:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan
+                               path:path.internalValue
+                              value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isGreaterThanOrEqualTo:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
+                              field:field
+                              value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
                                  field:field
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isGreaterThanOrEqualTo:(id)value {
+  if (_usePredicate) {
+    return [[[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                  firestore:_firestore]
+            queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
+                               path:path.internalValue
+                              value:value];
+  }
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
                                   path:path.internalValue
                                  value:value];
+}
+
+- (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate {
+  FIRQuery *query = [[FIRQuery alloc] initWithQuery:[_query queryByRemovingFilters]
+                                          firestore:_firestore];
+  query.usePredicate = YES;
+  return query;
 }
 
 - (FIRQuery *)queryOrderedByField:(NSString *)field {

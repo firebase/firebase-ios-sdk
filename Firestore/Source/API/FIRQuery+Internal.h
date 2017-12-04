@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRQuery (Internal)
 + (FIRQuery *)referenceWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore;
 @property(nonatomic, strong, readonly) FSTQuery *query;
+@property(nonatomic) BOOL usePredicate;
 @end
 
 NS_ASSUME_NONNULL_END
