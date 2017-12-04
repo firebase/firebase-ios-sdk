@@ -37,7 +37,7 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
-#import "FIRReachabilityChecker.h"
+#import <FirebaseCore/FIRReachabilityChecker.h>
 
 #import "NSError+FIRMessaging.h"
 
