@@ -256,7 +256,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                  value:value];
 }
 
-- (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate {
+- (FIRQuery *)queryWherePredicate:(NSPredicate *)predicate {
   if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
     // Comparison predicate
     NSComparisonPredicate *comparison = (NSComparisonPredicate *)predicate;
@@ -316,7 +316,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     }
     FIRQuery *query = self;
     for (NSPredicate *pred in compound.subpredicates) {
-      query = [query queryFilteredUsingPredicate:pred];
+      query = [query queryWherePredicate:pred];
     }
     return query;
   } else {

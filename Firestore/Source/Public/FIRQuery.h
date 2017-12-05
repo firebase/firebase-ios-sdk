@@ -260,12 +260,13 @@ NS_SWIFT_NAME(Query)
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
  * satisfy the specified predicate.
  *
- * @param predicate The predicate the document must satisfy.
+ * @param predicate The predicate the document must satisfy. Can be either comparison
+ *     or compound of comparison.
  *
  * @return The created `FIRQuery`.
  */
 // clang-format off
-- (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate NS_SWIFT_NAME(filter(using:));
+- (FIRQuery *)queryWherePredicate:(NSPredicate *)predicate NS_SWIFT_NAME(wherePredicate(_:));
 // clang-format on
 
 #pragma mark - Sorting Data
