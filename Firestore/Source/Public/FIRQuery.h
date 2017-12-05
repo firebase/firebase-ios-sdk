@@ -266,7 +266,7 @@ NS_SWIFT_NAME(Query)
  * @return The created `FIRQuery`.
  */
 // clang-format off
-- (FIRQuery *)queryWherePredicate:(NSPredicate *)predicate NS_SWIFT_NAME(wherePredicate(_:));
+- (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate NS_SWIFT_NAME(filter(using:));
 // clang-format on
 
 #pragma mark - Sorting Data

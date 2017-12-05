@@ -119,7 +119,7 @@
   }];
 
   NSPredicate *predicate = [NSPredicate predicateWithFormat:@"a < 3"];
-  FIRQuery *query = [collRef queryWherePredicate:predicate];
+  FIRQuery *query = [collRef queryFilteredUsingPredicate:predicate];
   query = [query queryOrderedByFieldPath:[[FIRFieldPath alloc] initWithFields:@[ @"a" ]]
                               descending:YES];
 
