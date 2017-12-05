@@ -188,6 +188,9 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   BOOL didChange = (watchStreamOnlineState != self.watchStreamOnlineState);
   self.watchStreamOnlineState = watchStreamOnlineState;
   if (didChange) {
+    if (watchStreamOnlineState == FSTOnlineStateFailed) {
+      FSTWarn(@"Could not reach Firestore backend.");
+    }
     [self.onlineStateDelegate watchStreamDidChangeOnlineState:watchStreamOnlineState];
   }
 }
