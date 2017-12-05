@@ -319,9 +319,16 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
       query = [query queryWherePredicate:pred];
     }
     return query;
+  } else if ([predicate isKindOfClass:
+              [[NSPredicate predicateWithBlock:
+                ^BOOL(id obj, NSDictionary *bindings) { return true; }] class]]) {
+    FSTThrowInvalidArgument(@"Invalid query. Block-based predicates are not "
+                            "supported. Please use predicateWithFormat to "
+                            "construct predicate instead.");
   } else {
     FSTThrowInvalidArgument(@"Invalid query. Expect comparison or compound of "
-                            "comparison predicate.");
+                            "comparison predicate. Please use "
+                            "predicateWithFormat to construct predicate.");
   }
 }
 
