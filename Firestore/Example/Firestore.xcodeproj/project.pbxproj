@@ -465,7 +465,6 @@
 		6003F5B5195388D20070C39A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				ABAEEF4E1FD5F8B100C966CB /* FIRQueryTests.m */,
 				DE51B1831F0D48AC0013853F /* API */,
 				DE51B1A81F0D48AC0013853F /* Core */,
 				54764FAC1FAA0C390085E60A /* GoogleTests */,
@@ -587,6 +586,7 @@
 			isa = PBXGroup;
 			children = (
 				DE51B1841F0D48AC0013853F /* FIRGeoPointTests.m */,
+				ABAEEF4E1FD5F8B100C966CB /* FIRQueryTests.m */,
 			);
 			path = API;
 			sourceTree = "<group>";
