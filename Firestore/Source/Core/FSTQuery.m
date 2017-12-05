@@ -16,13 +16,14 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 
+#import "FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "FIRDocumentSnapshot+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -124,7 +125,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     FSTAssert([self.value isKindOfClass:[FSTReferenceValue class]],
               @"Comparing on key, but filter value not a FSTReferenceValue.");
     FSTReferenceValue *refValue = (FSTReferenceValue *)self.value;
-    NSComparisonResult comparison = FSTDocumentKeyComparator(document.key, [refValue valueWithOptions:[FSTSnapshotOptions defaultOptions]]);
+    NSComparisonResult comparison = FSTDocumentKeyComparator(document.key, refValue.value);
     return [self matchesComparison:comparison];
   } else {
     return [self matchesValue:[document fieldForPath:self.field]];
@@ -135,7 +136,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   // TODO(b/37283291): This should be collision robust and avoid relying on |description| methods.
   return [NSString stringWithFormat:@"%@%@%@", [self.field canonicalString],
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
-                                    [self.value valueWithOptions:[FSTSnapshotOptions defaultOptions]]];
+                                    [self.value value]];
 }
 
 - (BOOL)isEqualToFilter:(FSTRelationFilter *)other {
@@ -378,7 +379,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     if ([sortOrderComponent.field isEqual:[FSTFieldPath keyFieldPath]]) {
       FSTAssert([fieldValue isKindOfClass:[FSTReferenceValue class]],
                 @"FSTBound has a non-key value where the key path is being used %@", fieldValue);
-      comparison = [[fieldValue valueWithOptions:[FSTSnapshotOptions defaultOptions]] compare:document.key];
+      comparison = [fieldValue.value compare:document.key];
     } else {
       FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
       FSTAssert(docValue != nil, @"Field should exist since document matched the orderBy already.");

@@ -15,7 +15,6 @@
  */
 
 #import "FIRDocumentSnapshot.h"
-#import "FIRSnapshotOptions+internal.h"
 
 @class FIRFirestore;
 @class FSTDocument;
@@ -32,16 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
                             fromCache:(BOOL)fromCache;
 
 @property(nonatomic, strong, readonly, nullable) FSTDocument *internalDocument;
-
-@end
-
-@interface FSTSnapshotOptions : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-
-+ (instancetype)defaultOptions;
-
-@property(atomic, readonly) FSTServerTimestampBehavior serverTimestampBehavior;
 
 @end
 

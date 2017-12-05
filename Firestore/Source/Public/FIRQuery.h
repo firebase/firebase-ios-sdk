@@ -60,7 +60,7 @@ NS_SWIFT_NAME(QueryListenOptions)
  * @param includeDocumentMetadataChanges Whether to raise events for document metadata-only changes.
  * @return The receiver is returned for optional method chaining.
  */
-- (instancetype)includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChangest
+- (instancetype)includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
     NS_SWIFT_NAME(includeDocumentMetadataChanges(_:));
 
 @end

@@ -16,7 +16,6 @@
 
 #import "FIRDocumentSnapshot.h"
 
-#import <Firestore/Source/Public/FIRDocumentSnapshot.h>
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,7 +28,9 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 
 @interface FIRSnapshotOptions (Internal)
 
-@property(nonatomic, readonly) FSTServerTimestampBehavior serverTimestampBehavior;
++ (instancetype)defaultOptions;
+
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 

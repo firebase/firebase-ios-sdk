@@ -16,6 +16,8 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#import "FIRDocumentSnapshot+Internal.h"
+#import "FSTAssert.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -27,46 +29,52 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
-#import "FIRDocumentSnapshot+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRSnapshotOptions (Internal)
-+ (instancetype)defaultOptions {
-  static FIRSnapshotOptions *sharedInstance = nil;
-  static dispatch_once_t onceToken;
+@interface FIRSnapshotOptions ()
 
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [FIRSnapshotOptions new];
-  });
-
-  return sharedInstance;
-}
+@property(nonatomic, assign) FSTServerTimestampBehavior serverTimestampBehavior;
 
 @end
 
-@implementation FSTSnapshotOptions
+@implementation FIRSnapshotOptions
+
+@synthesize serverTimestampBehavior;
 
 - (instancetype)initWithServerTimestampBehavior:
     (FSTServerTimestampBehavior)serverTimestampBehavior {
   self = [super init];
 
   if (self) {
-    _serverTimestampBehavior = serverTimestampBehavior;
+    self.serverTimestampBehavior = serverTimestampBehavior;
   }
   return self;
 }
 
 + (instancetype)defaultOptions {
-  static FSTSnapshotOptions *sharedInstance = nil;
+  static FIRSnapshotOptions *sharedInstance = nil;
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTSnapshotOptions alloc]
+    sharedInstance = [[FIRSnapshotOptions alloc]
         initWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
   });
 
   return sharedInstance;
+}
+
++ (instancetype)setServerTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
+  switch (serverTimestampBehavior) {
+    case FIRServerTimestampBehaviorEstimate:
+      return [[FIRSnapshotOptions alloc]
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorEstimate];
+    case FIRServerTimestampBehaviorPrevious:
+      return [[FIRSnapshotOptions alloc]
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorPrevious];
+    default:
+      FSTFail(@"Encountered unknown server timestamp behavior: %d", (int)serverTimestampBehavior);
+  }
 }
 
 @end
@@ -156,7 +164,8 @@ NS_ASSUME_NONNULL_BEGIN
         self.internalKey);
   }
 
-  return [self convertedObject:[self.internalDocument data] options:options];
+  return [self convertedObject:[self.internalDocument data]
+       serverTimestampBehavior:options.serverTimestampBehavior];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -175,18 +184,20 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  return [self convertedValue:fieldValue options:[self internalOptions:options]];
+  return [self convertedValue:fieldValue serverTimestampBehavior:options.serverTimestampBehavior];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
-  return [self valueForField:key options:[FIRSnapshotOptions defaultOptions]];
+  return [self valueForField:key];
 }
 
-- (id)convertedValue:(FSTFieldValue *)value options:(FSTSnapshotOptions *)options {
+- (id)convertedValue:(FSTFieldValue *)value
+    serverTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior {
   if ([value isKindOfClass:[FSTObjectValue class]]) {
-    return [self convertedObject:(FSTObjectValue *)value options:options];
+    return [self convertedObject:(FSTObjectValue *)value
+         serverTimestampBehavior:serverTimestampBehavior];
   } else if ([value isKindOfClass:[FSTArrayValue class]]) {
-    return [self convertedArray:(FSTArrayValue *)value options:options];
+    return [self convertedArray:(FSTArrayValue *)value];
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
     FSTDatabaseID *refDatabase = ref.databaseID;
@@ -200,36 +211,34 @@ NS_ASSUME_NONNULL_BEGIN
           self.reference.path, refDatabase.projectID, refDatabase.databaseID, database.projectID,
           database.databaseID);
     }
-    return [FIRDocumentReference referenceWithKey:[ref valueWithOptions:options]
-                                        firestore:self.firestore];
+    return [FIRDocumentReference referenceWithKey:[ref value] firestore:self.firestore];
+  } else if ([value isKindOfClass:[FSTServerTimestampValue class]]) {
+    return
+        [(FSTServerTimestampValue *)value valueWithServerTimestampBehavior:serverTimestampBehavior];
   } else {
-    return [value valueWithOptions:options];
+    return value.value;
   }
 }
 
 - (NSDictionary<NSString *, id> *)convertedObject:(FSTObjectValue *)objectValue
-                                          options:(FSTSnapshotOptions *)options {
+                          serverTimestampBehavior:
+                              (FSTServerTimestampBehavior)serverTimestampBehavior {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   [objectValue.internalValue
       enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *value, BOOL *stop) {
-        result[key] = [self convertedValue:value options:options];
+        result[key] = [self convertedValue:value serverTimestampBehavior:serverTimestampBehavior];
       }];
   return result;
 }
 
-- (NSArray<id> *)convertedArray:(FSTArrayValue *)arrayValue options:(FSTSnapshotOptions *)options {
+- (NSArray<id> *)convertedArray:(FSTArrayValue *)arrayValue {
   NSArray<FSTFieldValue *> *internalValue = arrayValue.internalValue;
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:internalValue.count];
   [internalValue enumerateObjectsUsingBlock:^(id value, NSUInteger idx, BOOL *stop) {
-    [result addObject:[self convertedValue:value options:options]];
+    [result addObject:[self convertedValue:value
+                          serverTimestampBehavior:FSTServerTimestampBehaviorDefault]];
   }];
   return result;
-}
-
-/** Converts the public API options object to the internal options object. */
-- (FSTSnapshotOptions *)internalOptions:(nullable FIRSnapshotOptions *)options {
-  return
-      [[FSTSnapshotOptions alloc] initWithServerTimestampBehavior:options.serverTimestampBehavior];
 }
 
 @end

@@ -23,7 +23,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^FSTGenericEventHandler)(id _Nullable, NSError *error);
+typedef void (^FSTValueEventHandler)(id _Nullable, NSError *error);
+typedef void (^FSTErrorEventHandler)(NSError *error);
 
 @interface FSTEventAccumulator : NSObject
 
@@ -35,7 +36,9 @@ typedef void (^FSTGenericEventHandler)(id _Nullable, NSError *error);
 
 - (NSArray<id> *)awaitEvents:(NSUInteger)events name:(NSString *)name;
 
-@property(nonatomic, strong, readonly) FSTGenericEventHandler handler;
+@property(nonatomic, strong, readonly) FSTValueEventHandler valueEventHandler;
+@property(nonatomic, strong, readonly) FSTErrorEventHandler errorEventHandler;
+
 @end
 
 NS_ASSUME_NONNULL_END

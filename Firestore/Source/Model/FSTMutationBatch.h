@@ -60,6 +60,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
  *   their hasLocalMutations flag set.
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                            documentKey:(FSTDocumentKey *)documentKey
                    mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult;
 
@@ -68,6 +69,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
  * the backend).
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                            documentKey:(FSTDocumentKey *)documentKey;
 
 /**
