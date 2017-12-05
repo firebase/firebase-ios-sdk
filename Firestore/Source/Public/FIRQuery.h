@@ -261,7 +261,7 @@ NS_SWIFT_NAME(Query)
  * satisfy the specified predicate.
  *
  * @param predicate The predicate the document must satisfy. Can be either comparison
- *     or compound of comparison.
+ *     or compound of comparison. In particular, block-based predicate is not supported.
  *
  * @return The created `FIRQuery`.
  */

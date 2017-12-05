@@ -266,44 +266,54 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     }
     NSString *path;
     id value = nil;
-    if (comparison.leftExpression.keyPath == nil &&
-        comparison.rightExpression.keyPath == nil) {
-      FSTThrowInvalidArgument(@"Invalid query. Predicate comparison must have "
-                              "a key path on either side of its expression.");
-    } else if (comparison.leftExpression.keyPath == nil) {
-      path = comparison.rightExpression.keyPath;
-      value = comparison.leftExpression.constantValue;
-    } else {
+    if ([comparison.leftExpression expressionType] == NSKeyPathExpressionType &&
+        [comparison.rightExpression expressionType] == NSConstantValueExpressionType) {
       path = comparison.leftExpression.keyPath;
       value = comparison.rightExpression.constantValue;
+      switch (comparison.predicateOperatorType) {
+        case NSEqualToPredicateOperatorType:
+          return [self queryWhereField:path isEqualTo:value];
+        case NSLessThanPredicateOperatorType:
+          return [self queryWhereField:path isLessThan:value];
+        case NSLessThanOrEqualToPredicateOperatorType:
+          return [self queryWhereField:path isLessThanOrEqualTo:value];
+        case NSGreaterThanPredicateOperatorType:
+          return [self queryWhereField:path isGreaterThan:value];
+        case NSGreaterThanOrEqualToPredicateOperatorType:
+          return [self queryWhereField:path isGreaterThanOrEqualTo:value];
+        default:
+          ;  // Fallback below to throw assertion.
+      }
+    } else if ([comparison.leftExpression expressionType] == NSConstantValueExpressionType &&
+               [comparison.rightExpression expressionType] == NSKeyPathExpressionType) {
+      path = comparison.rightExpression.keyPath;
+      value = comparison.leftExpression.constantValue;
+      switch (comparison.predicateOperatorType) {
+        case NSEqualToPredicateOperatorType:
+          return [self queryWhereField:path isEqualTo:value];
+        case NSLessThanPredicateOperatorType:
+          return [self queryWhereField:path isGreaterThan:value];
+        case NSLessThanOrEqualToPredicateOperatorType:
+          return [self queryWhereField:path isGreaterThanOrEqualTo:value];
+        case NSGreaterThanPredicateOperatorType:
+          return [self queryWhereField:path isLessThan:value];
+        case NSGreaterThanOrEqualToPredicateOperatorType:
+          return [self queryWhereField:path isLessThanOrEqualTo:value];
+        default:
+          ;  // Fallback below to throw assertion.
+      }
+    } else {
+      FSTThrowInvalidArgument(@"Invalid query. Predicate comparisons must "
+                              "include a key path and a constant.");
     }
-    if (value == nil) {
-      FSTThrowInvalidArgument(@"Invalid query. Predicate comparison must have "
-                              "a constant on its expression.");
-    }
+    // Fallback cases of unsupported comparison operator.
     switch (comparison.predicateOperatorType) {
-      case NSEqualToPredicateOperatorType:
-        return [self queryWhereField:path isEqualTo:value];
-        break;
-      case NSLessThanPredicateOperatorType:
-        return [self queryWhereField:path isLessThan:value];
-        break;
-      case NSLessThanOrEqualToPredicateOperatorType:
-        return [self queryWhereField:path isLessThanOrEqualTo:value];
-        break;
-      case NSGreaterThanPredicateOperatorType:
-        return [self queryWhereField:path isGreaterThan:value];
-        break;
-      case NSGreaterThanOrEqualToPredicateOperatorType:
-        return [self queryWhereField:path isGreaterThanOrEqualTo:value];
-        break;
       case NSCustomSelectorPredicateOperatorType:
         FSTThrowInvalidArgument(@"Invalid query. Custom predicate filters are "
                                 "not supported.");
         break;
       default:
-        FSTThrowInvalidArgument(@"Invalid query. Predicate does not support "
-                                "%lu operator type.",
+        FSTThrowInvalidArgument(@"Invalid query. Operator type %lu is not supported.",
                                 (unsigned long)comparison.predicateOperatorType);
     }
   } else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
@@ -311,8 +321,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     NSCompoundPredicate *compound = (NSCompoundPredicate *)predicate;
     if (compound.compoundPredicateType != NSAndPredicateType ||
         compound.subpredicates.count == 0) {
-      FSTThrowInvalidArgument(@"Invalid query. Predicate only supports "
-                              "AND-compound.");
+      FSTThrowInvalidArgument(@"Invalid query. Only compound queries using AND "
+                              "are supported.");
     }
     FIRQuery *query = self;
     for (NSPredicate *pred in compound.subpredicates) {
@@ -324,11 +334,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                 ^BOOL(id obj, NSDictionary *bindings) { return true; }] class]]) {
     FSTThrowInvalidArgument(@"Invalid query. Block-based predicates are not "
                             "supported. Please use predicateWithFormat to "
-                            "construct predicate instead.");
+                            "create predicates instead.");
   } else {
     FSTThrowInvalidArgument(@"Invalid query. Expect comparison or compound of "
                             "comparison predicate. Please use "
-                            "predicateWithFormat to construct predicate.");
+                            "predicateWithFormat to create predicates.");
   }
 }
 

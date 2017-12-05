@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseFirestore/FIRFirestore.h"
-#import "FirebaseFirestore/FIRQuery.h"
+@import FirebaseFirestore;
 
 #import <XCTest/XCTest.h>
 
@@ -60,11 +59,15 @@ NS_ASSUME_NONNULL_BEGIN
   FIRQuery *query6 = [query queryFilteredUsingPredicate:
                       [NSPredicate predicateWithFormat:
                        @"f1<2 && f2==3 && f1<='four' && f1>='five' && f1>6"]];
+  FIRQuery *query7 = [query queryFilteredUsingPredicate:
+                      [NSPredicate predicateWithFormat:
+                       @"2>f1 && 3==f2 && 'four'>=f1 && 'five'<=f1 && 6<f1"]];
   XCTAssertEqualObjects(query1, query2);
   XCTAssertNotEqualObjects(query2, query3);
   XCTAssertEqualObjects(query3, query4);
   XCTAssertNotEqualObjects(query4, query5);
   XCTAssertEqualObjects(query5, query6);
+  XCTAssertEqualObjects(query6, query7);
 }
 
 @end
