@@ -473,8 +473,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   BOOL hasLocalMutations = (mutationResult == nil);
   NSArray<FSTFieldValue *> *transformResults =
-      mutationResult ? mutationResult.transformResults
-                     : [self localTransformResultsWithWriteTime:localWriteTime];
+      mutationResult
+          ? mutationResult.transformResults
+          : [self localTransformResultsWithPreviousDocument:maybeDoc writeTime:localWriteTime];
   FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
   return [FSTDocument documentWithData:newData
                                    key:doc.key
@@ -490,12 +491,28 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTServerTimestampValues).
  * @return The transform results array.
  */
-- (NSArray<FSTFieldValue *> *)localTransformResultsWithWriteTime:(FSTTimestamp *)localWriteTime {
+- (NSArray<FSTFieldValue *> *)
+localTransformResultsWithPreviousDocument:(FSTMaybeDocument *_Nullable)maybeDoc
+                                writeTime:(FSTTimestamp *)localWriteTime {
+  // test that multiple mutations work
+
+  // is this not previous document but mutation result?
+
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (FSTFieldTransform *fieldTransform in self.fieldTransforms) {
     if ([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]]) {
-      [transformResults addObject:[FSTServerTimestampValue
-                                      serverTimestampValueWithLocalWriteTime:localWriteTime]];
+      FSTTimestampValue *previousValue = nil;
+
+      if (maybeDoc && [maybeDoc isMemberOfClass:[FSTDocument class]]) {
+        FSTFieldValue *fieldValue = [((FSTDocument *)maybeDoc) fieldForPath:fieldTransform.path];
+        if ([fieldValue isMemberOfClass:[FSTTimestampValue class]]) {
+          previousValue = (FSTTimestampValue *)fieldValue;
+        }
+      }
+
+      [transformResults
+          addObject:[FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
+                                                                      previousValue:previousValue]];
     } else {
       FSTFail(@"Encountered unknown transform: %@", fieldTransform);
     }

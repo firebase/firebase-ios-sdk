@@ -23,6 +23,7 @@
 @class FSTFieldPath;
 @class FSTTimestamp;
 @class FIRGeoPoint;
+@class FSTSnapshotOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,13 +64,16 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 /** Returns the FSTTypeOrder for this value. */
 - (FSTTypeOrder)typeOrder;
 
+
+- (id)value;
+
 /**
  * Converts an FSTFieldValue into the value that users will see in document snapshots.
  *
  * TODO(mikelehen): This conversion should probably happen at the API level and right now `value` is
  * used inappropriately in the serializer implementation, etc.  We need to do some reworking.
  */
-- (id)value;
+- (id)valueWithOptions:(FSTSnapshotOptions *)options;
 
 /** Compares against another FSTFieldValue. */
 - (NSComparisonResult)compare:(FSTFieldValue *)other;
@@ -91,7 +95,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 + (instancetype)trueValue;
 + (instancetype)falseValue;
 + (instancetype)booleanValue:(BOOL)value;
-- (NSNumber *)value;
+- (NSNumber *)valueWithOptions:(FSTSnapshotOptions *)options;
 @end
 
 /**
@@ -106,7 +110,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTIntegerValue : FSTNumberValue
 + (instancetype)integerValue:(int64_t)value;
-- (NSNumber *)value;
+- (NSNumber *)valueWithOptions:(FSTSnapshotOptions *)options;
 - (int64_t)internalValue;
 @end
 
@@ -116,7 +120,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @interface FSTDoubleValue : FSTNumberValue
 + (instancetype)doubleValue:(double)value;
 + (instancetype)nanValue;
-- (NSNumber *)value;
+- (NSNumber *)valueWithOptions:(FSTSnapshotOptions *)options;
 - (double)internalValue;
 @end
 
@@ -125,7 +129,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTStringValue : FSTFieldValue
 + (instancetype)stringValue:(NSString *)value;
-- (NSString *)value;
+- (NSString *)valueWithOptions:(FSTSnapshotOptions *)options;
 @end
 
 /**
@@ -133,7 +137,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTTimestampValue : FSTFieldValue
 + (instancetype)timestampValue:(FSTTimestamp *)value;
-- (NSDate *)value;
+- (NSDate *)valueWithOptions:(FSTSnapshotOptions *)options;
 - (FSTTimestamp *)internalValue;
 @end
 
@@ -150,9 +154,11 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime;
-- (NSNull *)value;
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+                                         previousValue:(FSTTimestampValue *)timestampValue;
+- (id)valueWithOptions:(FSTSnapshotOptions *)options;
 @property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly) FSTTimestamp *previousValue;
 @end
 
 /**
@@ -160,7 +166,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTGeoPointValue : FSTFieldValue
 + (instancetype)geoPointValue:(FIRGeoPoint *)value;
-- (FIRGeoPoint *)value;
+- (FIRGeoPoint *)valueWithOptions:(FSTSnapshotOptions *)options;
 @end
 
 /**
@@ -168,7 +174,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTBlobValue : FSTFieldValue
 + (instancetype)blobValue:(NSData *)value;
-- (NSData *)value;
+- (NSData *)valueWithOptions:(FSTSnapshotOptions *)options;
 @end
 
 /**
@@ -176,7 +182,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTReferenceValue : FSTFieldValue
 + (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
-- (FSTDocumentKey *)value;
+- (FSTDocumentKey *)valueWithOptions:(FSTSnapshotOptions *)options;
 @property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
 @end
 
@@ -200,7 +206,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (NSDictionary<NSString *, id> *)value;
+- (NSDictionary<NSString *, id> *)valueWithOptions:(FSTSnapshotOptions *)options;
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
@@ -234,7 +240,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (NSArray<id> *)value;
+- (NSArray<id> *)valueWithOptions:(FSTSnapshotOptions *)options;
 - (NSArray<FSTFieldValue *> *)internalValue;
 
 @end
