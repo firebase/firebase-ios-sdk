@@ -14,30 +14,24 @@
  * limitations under the License.
  */
 
+#import "FIRDocumentSnapshot.h"
+
 #import <Foundation/Foundation.h>
 
-@class FIRDocumentSnapshot;
-@class FIRQuerySnapshot;
-@class XCTestCase;
-@class XCTestExpectation;
+@class FIRSnapshotOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^FSTValueEventHandler)(id _Nullable, NSError *error);
-typedef void (^FSTErrorEventHandler)(NSError *error);
+@interface FIRSnapshotOptions (Internal)
 
-@interface FSTEventAccumulator : NSObject
+/** Returns a default instance of FIRSnapshotOptions that specifies no options. */
++ (instancetype)defaultOptions;
 
-+ (instancetype)accumulatorForTest:(XCTestCase *)testCase;
+/* Initializes a new instance with the specified server timestamp behavior. */
+- (instancetype)initWithServerTimestampBehavior:(int)serverTimestampBehavior;
 
-- (instancetype)init NS_UNAVAILABLE;
-
-- (id)awaitEventWithName:(NSString *)name;
-
-- (NSArray<id> *)awaitEvents:(NSUInteger)events name:(NSString *)name;
-
-@property(nonatomic, strong, readonly) FSTValueEventHandler valueEventHandler;
-@property(nonatomic, strong, readonly) FSTErrorEventHandler errorEventHandler;
+/* Returns the server timestamp behavior. Returns -1 if no behavior is specified. */
+- (int)serverTimestampBehavior;
 
 @end
 

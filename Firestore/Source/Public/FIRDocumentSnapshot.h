@@ -22,6 +22,49 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * Controls the return value for server timestamps that have not yet been set to
+ * their final value.
+ */
+typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
+  /**
+   * Return a local estimates for `FieldValue.serverTimestamp()`
+   * fields that have not yet been set to their final value. This estimate will
+   * likely differ from the final value and may cause these pending values to
+   * change once the server result becomes available.
+   */
+  FIRServerTimestampBehaviorEstimate,
+
+  /**
+   * Return the previous value for `FieldValue.serverTimestamp()` fields that
+   * have not yet been set to their final value.
+   */
+  FIRServerTimestampBehaviorPrevious,
+};
+
+/**
+ * Options that configure how data is retrieved from a `DocumentSnapshot`
+ * (e.g. the desired behavior for server timestamps that have not yet been set
+ * to their final value).
+ */
+NS_SWIFT_NAME(SnapshotOptions)
+@interface FIRSnapshotOptions : NSObject
+
+/**   */
+- (instancetype)init __attribute__((unavailable("FIRSnapshotOptions cannot be created directly.")));
+
+/**
+ * If set, controls the return value for `FieldValue.serverTimestamp()`
+ * fields that have not yet been set to their final value.
+ *
+ * If omitted, `NSNull` will be returned by default.
+ *
+ * @return The created `FIRSnapshotOptions` object.
+ */
++ (instancetype)setServerTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
+
+@end
+
+/**
  * A `FIRDocumentSnapshot` contains data read from a document in your Firestore database. The data
  * can be extracted with the `data` property or by using subscript syntax to access a specific
  * field.
@@ -48,9 +91,54 @@ NS_SWIFT_NAME(DocumentSnapshot)
 /**
  * Retrieves all fields in the document as an `NSDictionary`.
  *
+ * Server-provided timestamps that have not yet been set to their final value
+ * will be returned as `NSNull`. You can use `dataWithOptions()` to configure this
+ * behavior.
+ *
  * @return An `NSDictionary` containing all fields in the document.
  */
 - (NSDictionary<NSString *, id> *)data;
+
+/**
+ * Retrieves all fields in the document as a `Dictionary`.
+ *
+ * @param options `SnapshotOptions` to configure how data is returned from
+ * the snapshot (e.g. the desired behavior for server timestamps that have not
+ * yet been set to their final value).
+ * @return A `Dictionary` containing all fields in the document.
+ */
+- (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
+
+/**
+ * Retrieves a specific field from the document.
+ *
+ * The timestamps that have not yet been set to their final value
+ * will be returned as `NSNull`. The can use `get(_:options:)` to
+ * configure this behavior.
+ *
+ * @param field The field to retrieve.
+ * @return The value contained in the field or `nil` if the field doesn't exist.
+ */
+- (nullable id)valueForField:(id)field NS_SWIFT_NAME(get(_:));
+
+/**
+ * Retrieves a specific field from the document.
+ *
+ * The timestamps that have not yet been set to their final value
+ * will be returned as `NSNull`. The can use `get(_:options:)` to
+ * configure this behavior.
+ *
+ * @param field The field to retrieve.
+ * @param options `SnapshotOptions` to configure how data is returned from
+ * the snapshot (e.g. the desired behavior for server timestamps that have not
+ * yet been set to their final value).
+ * @return The value contained in the field or `nil` if the field doesn't exist.
+ */
+// clang-format off
+- (nullable id)valueForField:(id)field
+                     options:(FIRSnapshotOptions *)options
+               NS_SWIFT_NAME(get(_:options:));
+// clang-format on
 
 /**
  * Retrieves a specific field from the document.

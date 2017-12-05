@@ -158,8 +158,10 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * Applies this mutation to the given FSTDocument, FSTDeletedDocument or nil, if we don't have
  * information about this document. Both the input and returned documents can be nil.
  *
- * @param maybeDoc The document to mutate. The input document should nil if it does not currently
- * exist.
+ * @param maybeDoc The current state of the document to mutate. The input document should be nil if
+ * it does not currently exist.
+ * @param baseDoc The state of the document prior to this mutation batch. The input document should
+ * be nil if it the document did not exist.
  * @param localWriteTime A timestamp indicating the local write time of the batch this mutation is
  * a part of.
  * @param mutationResult Optional result info from the backend. If omitted, it's assumed that
@@ -197,6 +199,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * FSTSetMutation, but not necessarily for an FSTPatchMutation).
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
                         mutationResult:(FSTMutationResult *_Nullable)mutationResult;
 
@@ -205,6 +208,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * backend).
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;

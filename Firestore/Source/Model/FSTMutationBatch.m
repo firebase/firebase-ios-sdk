@@ -71,6 +71,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
                    mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult {
   FSTAssert(!maybeDoc || [maybeDoc.key isEqualToKey:documentKey],
             @"applyTo: key %@ doesn't match maybeDoc key %@", documentKey, maybeDoc.key);
+  FSTMaybeDocument *baseDoc = maybeDoc;
   if (mutationBatchResult) {
     FSTAssert(mutationBatchResult.mutationResults.count == self.mutations.count,
               @"Mismatch between mutations length (%lu) and results length (%lu)",
@@ -83,6 +84,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
     FSTMutationResult *_Nullable mutationResult = mutationBatchResult.mutationResults[i];
     if ([mutation.key isEqualToKey:documentKey]) {
       maybeDoc = [mutation applyTo:maybeDoc
+                           baseDoc:baseDoc
                     localWriteTime:self.localWriteTime
                     mutationResult:mutationResult];
     }

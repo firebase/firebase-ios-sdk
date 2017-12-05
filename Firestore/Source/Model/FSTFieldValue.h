@@ -22,6 +22,7 @@
 @class FSTDocumentKey;
 @class FSTFieldPath;
 @class FSTTimestamp;
+@class FSTFieldValueOptions;
 @class FIRGeoPoint;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,6 +40,30 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
   FSTTypeOrderArray,
   FSTTypeOrderObject,
 };
+
+/** Defines the return value for pending server timestamps. */
+typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
+  FSTServerTimestampBehaviorDefault,
+  FSTServerTimestampBehaviorEstimate,
+  FSTServerTimestampBehaviorPrevious,
+};
+
+/** Holds properties that define field value deserialization options. */
+@interface FSTFieldValueOptions : NSObject
+
+@property(nonatomic, readonly) FSTServerTimestampBehavior serverTimestampBehavior;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/** Creates a FSTFieldValueOptions instance that specifies deserialization behavior for pending
+ * server timestamps. */
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
+    NS_DESIGNATED_INITIALIZER;
+
+/** Returns the default deserialization options. */
++ (instancetype)defaultOptions;
+
+@end
 
 /**
  * Abstract base class representing an immutable data value as stored in Firestore. FSTFieldValue
@@ -71,6 +96,14 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 - (id)value;
 
+/**
+ * Converts an FSTFieldValue into the value that users will see in document snapshots.
+ *
+ * Options can be provided to configure the deserialization of some field values (such as server
+ * timestamps).
+ */
+- (id)valueWithOptions:(FSTFieldValueOptions *)options;
+
 /** Compares against another FSTFieldValue. */
 - (NSComparisonResult)compare:(FSTFieldValue *)other;
 
@@ -81,7 +114,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTNullValue : FSTFieldValue
 + (instancetype)nullValue;
-- (id)value;
+- (id)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -91,7 +124,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 + (instancetype)trueValue;
 + (instancetype)falseValue;
 + (instancetype)booleanValue:(BOOL)value;
-- (NSNumber *)value;
+- (NSNumber *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -106,8 +139,8 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTIntegerValue : FSTNumberValue
 + (instancetype)integerValue:(int64_t)value;
-- (NSNumber *)value;
 - (int64_t)internalValue;
+- (NSNumber *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -116,8 +149,8 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @interface FSTDoubleValue : FSTNumberValue
 + (instancetype)doubleValue:(double)value;
 + (instancetype)nanValue;
-- (NSNumber *)value;
 - (double)internalValue;
+- (NSNumber *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -125,7 +158,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTStringValue : FSTFieldValue
 + (instancetype)stringValue:(NSString *)value;
-- (NSString *)value;
+- (NSString *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -133,7 +166,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTTimestampValue : FSTFieldValue
 + (instancetype)timestampValue:(FSTTimestamp *)value;
-- (NSDate *)value;
+- (NSDate *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (FSTTimestamp *)internalValue;
 @end
 
@@ -144,15 +177,18 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * - FSTServerTimestampValue instances are created as the result of applying an FSTTransformMutation
  *   (see [FSTTransformMutation applyTo]). They can only exist in the local view of a document.
  *   Therefore they do not need to be parsed or serialized.
- * - When evaluated locally (e.g. via FSTDocumentSnapshot data), they evaluate to NSNull (at least
- *   for now, see b/62064202).
+ * - When evaluated locally (e.g. via FSTDocumentSnapshot data), they by default evaluate to NSNull.
+ *   This behavior can be configured by passing custom FSTFieldValueOptions to `valueWithOptions:`.
  * - They sort after all FSTTimestampValues. With respect to other FSTServerTimestampValues, they
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime;
-- (NSNull *)value;
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+                                         previousValue:(nullable FSTFieldValue *)previousValue;
+
 @property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly, nullable) FSTFieldValue *previousValue;
+
 @end
 
 /**
@@ -160,7 +196,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTGeoPointValue : FSTFieldValue
 + (instancetype)geoPointValue:(FIRGeoPoint *)value;
-- (FIRGeoPoint *)value;
+- (FIRGeoPoint *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -168,7 +204,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTBlobValue : FSTFieldValue
 + (instancetype)blobValue:(NSData *)value;
-- (NSData *)value;
+- (NSData *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -176,7 +212,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTReferenceValue : FSTFieldValue
 + (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
-- (FSTDocumentKey *)value;
+- (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
 @property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
 @end
 
@@ -200,7 +236,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (NSDictionary<NSString *, id> *)value;
+- (NSDictionary<NSString *, id> *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
@@ -234,7 +270,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (NSArray<id> *)value;
+- (NSArray<id> *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (NSArray<FSTFieldValue *> *)internalValue;
 
 @end
