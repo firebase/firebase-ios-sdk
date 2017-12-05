@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
+#import "FirebaseFirestore/FIRFirestore.h"
 #import "FirebaseFirestore/FIRQuery.h"
 
 #import <XCTest/XCTest.h>
+
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -27,10 +33,38 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRQueryTests
 
-- (void)testEquals {
-    FIRQuery *query1 = [FIRQuery alloc];
-    FIRQuery *query2 = [FIRQuery alloc];
-    XCTAssertEqualObjects(query1, query2);
+- (void)testFilteringWithPredicate {
+  // Everything is dummy for unit test here. Filtering does not require any app
+  // specific setting as far as we do not fetch data.
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
+                                                           database:@"abc"
+                                                     persistenceKey:@"db123"
+                                                credentialsProvider:nil
+                                                workerDispatchQueue:nil
+                                                        firebaseApp:nil];
+  FSTResourcePath *path = [FSTResourcePath pathWithString:@"foo"];
+  FIRQuery *query = [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:path]
+                                       firestore:firestore];
+  FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];
+  FIRQuery *query2 = [query queryFilteredUsingPredicate:
+                      [NSPredicate predicateWithFormat:@"f<=1"]];
+  FIRQuery *query3 = [[query queryWhereField:@"f1" isLessThan:@2]
+                      queryWhereField:@"f2" isEqualTo:@3];
+  FIRQuery *query4 = [query queryFilteredUsingPredicate:
+                      [NSPredicate predicateWithFormat:@"f1<2 && f2==3"]];
+  FIRQuery *query5 = [[[[[query queryWhereField:@"f1" isLessThan:@2]
+                         queryWhereField:@"f2" isEqualTo:@3]
+                        queryWhereField:@"f1" isLessThanOrEqualTo:@"four"]
+                       queryWhereField:@"f1" isGreaterThanOrEqualTo:@"five"]
+                      queryWhereField:@"f1" isGreaterThan:@6];
+  FIRQuery *query6 = [query queryFilteredUsingPredicate:
+                      [NSPredicate predicateWithFormat:
+                       @"f1<2 && f2==3 && f1<='four' && f1>='five' && f1>6"]];
+  XCTAssertEqualObjects(query1, query2);
+  XCTAssertNotEqualObjects(query2, query3);
+  XCTAssertEqualObjects(query3, query4);
+  XCTAssertNotEqualObjects(query4, query5);
+  XCTAssertEqualObjects(query5, query6);
 }
 
 @end
