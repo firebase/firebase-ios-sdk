@@ -54,7 +54,7 @@ or copy [patch/FirebaseAnalytics.h](patch/FirebaseAnalytics.h) to
 Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h.
 See the post_install phase of [Example/Podfile](Example/Podfile) for an example
 of applying the workaround automatically - make sure you correct the path of
-patch/FirebaseAnalytics.h.
+`patch/FirebaseAnalytics.h`.
 
 ## Usage
 
