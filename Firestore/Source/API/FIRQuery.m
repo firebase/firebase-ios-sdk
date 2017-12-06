@@ -256,7 +256,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                  value:value];
 }
 
-- (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate predicate) {
+- (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate *)predicate {
   NSComparisonPredicate *comparison = (NSComparisonPredicate *)predicate;
   if (comparison.comparisonPredicateModifier != NSDirectPredicateModifier) {
     FSTThrowInvalidArgument(@"Invalid query. Predicate cannot have an "
@@ -316,7 +316,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   }
 }
 
-- (FIRQuery *)queryFilteredUsingCompoundPredicate:(NSPredicate predicate) {
+- (FIRQuery *)queryFilteredUsingCompoundPredicate:(NSPredicate *)predicate {
   NSCompoundPredicate *compound = (NSCompoundPredicate *)predicate;
   if (compound.compoundPredicateType != NSAndPredicateType ||
       compound.subpredicates.count == 0) {
