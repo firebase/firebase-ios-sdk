@@ -17,7 +17,7 @@
 #include <cstdint>
 
 #include "gtest/gtest.h"
-#include "absl/synchronization/internal/thread_pool.h"
+// #include "absl/synchronization/internal/thread_pool.h"
 
 namespace {
 
@@ -41,6 +41,7 @@ TEST(ConfigTest, Endianness) {
 #endif
 }
 
+#if 0
 #if defined(ABSL_HAVE_THREAD_LOCAL)
 TEST(ConfigTest, ThreadLocal) {
   static thread_local int mine_mine_mine = 16;
@@ -56,5 +57,6 @@ TEST(ConfigTest, ThreadLocal) {
   EXPECT_EQ(16, mine_mine_mine);
 }
 #endif
+#endif  // 0
 
 }  // namespace
