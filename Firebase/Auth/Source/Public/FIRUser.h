@@ -107,7 +107,7 @@ NS_SWIFT_NAME(User)
         Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
          sent in the request.
       + `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
@@ -135,7 +135,7 @@ NS_SWIFT_NAME(User)
         Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled
          sign in with the specified identity provider.
       + `FIRAuthErrorCodeRequiresRecentLogin` - Updating a user’s password is a security
@@ -164,7 +164,7 @@ NS_SWIFT_NAME(User)
         Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeRequiresRecentLogin` - Updating a user’s phone number is a security
          sensitive operation that requires a recent login from the user. This error indicates
          the user has not signed in recently enough. To resolve, reauthenticate the user by
@@ -221,7 +221,7 @@ NS_SWIFT_NAME(User)
         user remains signed in.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidCredential` - Indicates the supplied credential is invalid.
          This could happen if it has expired or it is malformed.
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates that accounts with the
@@ -240,7 +240,7 @@ NS_SWIFT_NAME(User)
       + `FIRAuthErrorCodeUserMismatch` -  Indicates that an attempt was made to
          reauthenticate with a user which is not the current user.
       + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-    
+
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
@@ -317,7 +317,7 @@ NS_SWIFT_NAME(User)
         Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
          type already linked to this account.
       + `FIRAuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
@@ -342,15 +342,13 @@ NS_SWIFT_NAME(User)
         Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeNoSuchProvider` - Indicates an attempt to unlink a provider
          that is not linked to the account.
       + `FIRAuthErrorCodeRequiresRecentLogin` - Updating email is a security sensitive
          operation that requires a recent login from the user. This error indicates the user
          has not signed in recently enough. To resolve, reauthenticate the user by invoking
          reauthenticateWithCredential:completion: on FIRUser.
-        
-    
 
     See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
@@ -364,7 +362,7 @@ NS_SWIFT_NAME(User)
         is complete, or fails. Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
          sent in the request.
       + `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
@@ -372,7 +370,6 @@ NS_SWIFT_NAME(User)
       + `FIRAuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
          sending update email.
       + `FIRAuthErrorCodeUserNotFound` - Indicates the user account was not found.
-    
 
     See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
@@ -385,7 +382,7 @@ NS_SWIFT_NAME(User)
         handling action codes.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
          sent in the request.
       + `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
@@ -401,8 +398,7 @@ NS_SWIFT_NAME(User)
          continue URL is not whitelisted in the Firebase console.
       + `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
          continue URI is not valid.
-        
-    
+
  */
 - (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
                                          completion:(nullable FIRSendEmailVerificationCallback)
@@ -415,13 +411,10 @@ NS_SWIFT_NAME(User)
         complete, or fails. Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
       + `FIRAuthErrorCodeRequiresRecentLogin` - Updating email is a security sensitive
          operation that requires a recent login from the user. This error indicates the user
          has not signed in recently enough. To resolve, reauthenticate the user by invoking
          reauthenticateWithCredential:completion: on FIRUser.
-        
-    
 
     See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
 
