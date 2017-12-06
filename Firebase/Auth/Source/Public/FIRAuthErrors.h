@@ -18,7 +18,7 @@
 
 /**
     Error Codes common to all API Methods:
-    
+
       + `FIRAuthErrorCodeNetworkError`
       + `FIRAuthErrorCodeUserNotFound`
       + `FIRAuthErrorCodeUserTokenExpired`
@@ -27,12 +27,12 @@
       + `FIRAuthErrorCodeAppNotAuthorized`
       + `FIRAuthErrorCodeKeychainError`
       + `FIRAuthErrorCodeInternalError`
-    
+
     Common error codes for `FIRUser` operations:
-    
+
       + `FIRAuthErrorCodeInvalidUserToken`
       + `FIRAuthErrorCodeUserDisabled`
-    
+
  */
 NS_SWIFT_NAME(AuthErrors)
 @interface FIRAuthErrors
