@@ -29,8 +29,8 @@ NS_SWIFT_NAME(AuthDataResult)
 @interface FIRAuthDataResult : NSObject
 
 /** @fn init
-    @brief This class should not be initialized manually. @c FIRAuthDataResult instance is
-        returned as part of @c FIRAuthDataResultCallback .
+    @brief This class should not be initialized manually. `FIRAuthDataResult` instance is
+        returned as part of `FIRAuthDataResultCallback`.
  */
 - (instancetype)init NS_UNAVAILABLE;
 
