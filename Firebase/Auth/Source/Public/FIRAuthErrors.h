@@ -16,52 +16,52 @@
 
 #import <Foundation/Foundation.h>
 
-/** @class FIRAuthErrors
-    @remarks Error Codes common to all API Methods:
-    <ul>
-        <li>@c FIRAuthErrorCodeNetworkError</li>
-        <li>@c FIRAuthErrorCodeUserNotFound</li>
-        <li>@c FIRAuthErrorCodeUserTokenExpired</li>
-        <li>@c FIRAuthErrorCodeTooManyRequests</li>
-        <li>@c FIRAuthErrorCodeInvalidAPIKey</li>
-        <li>@c FIRAuthErrorCodeAppNotAuthorized</li>
-        <li>@c FIRAuthErrorCodeKeychainError</li>
-        <li>@c FIRAuthErrorCodeInternalError</li>
-    </ul>
-    @remarks Common error codes for @c FIRUser operations:
-    <ul>
-        <li>@c FIRAuthErrorCodeInvalidUserToken</li>
-        <li>@c FIRAuthErrorCodeUserDisabled</li>
-    </ul>
+/**
+    Error Codes common to all API Methods:
+    
+      + `FIRAuthErrorCodeNetworkError`
+      + `FIRAuthErrorCodeUserNotFound`
+      + `FIRAuthErrorCodeUserTokenExpired`
+      + `FIRAuthErrorCodeTooManyRequests`
+      + `FIRAuthErrorCodeInvalidAPIKey`
+      + `FIRAuthErrorCodeAppNotAuthorized`
+      + `FIRAuthErrorCodeKeychainError`
+      + `FIRAuthErrorCodeInternalError`
+    
+    Common error codes for `FIRUser` operations:
+    
+      + `FIRAuthErrorCodeInvalidUserToken`
+      + `FIRAuthErrorCodeUserDisabled`
+    
  */
 NS_SWIFT_NAME(AuthErrors)
 @interface FIRAuthErrors
 
 /**
-    @brief The Firebase Auth error domain.
+    The Firebase Auth error domain.
  */
 extern NSString *const FIRAuthErrorDomain NS_SWIFT_NAME(AuthErrorDomain);
 
 /**
-    @brief The key used to read the updated credential from the userinfo dictionary of the NSError
+    The key used to read the updated credential from the userinfo dictionary of the NSError
         object returned in the case that the credential being linked in already in use.
  */
 extern NSString *const FIRAuthUpdatedCredentialKey NS_SWIFT_NAME(AuthUpdatedCredentialKey);
 
 /**
-    @brief The name of the key for the "error_name" string in the NSError userinfo dictionary.
+    The name of the key for the "error_name" string in the NSError userinfo dictionary.
  */
 extern NSString *const FIRAuthErrorNameKey NS_SWIFT_NAME(AuthErrorNameKey);
 
 /**
-    @brief Errors with the code @c FIRAuthErrorCodeAccountExistsWithDifferentCredential may contain
-        an @c NSError.userInfo dictinary object which contains this key. The value associated with
+    Errors with the code `FIRAuthErrorCodeAccountExistsWithDifferentCredential` may contain
+        an `NSError.userInfo` dictinary object which contains this key. The value associated with
         this key is an NSString of the email address of the account that already exists.
  */
 extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserInfoEmailKey);
 
 /**
-    @brief Error codes used by Firebase Auth.
+    Error codes used by Firebase Auth.
  */
 typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates a validation error with the custom token.
@@ -127,7 +127,7 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
 
     /** Indicates a network error occurred (such as a timeout, interrupted connection, or
         unreachable host). These types of errors are often recoverable with a retry. The
-        @c NSUnderlyingError field in the @c NSError.userInfo dictionary will contain the error
+        `NSUnderlyingError` field in the `NSError.userInfo` dictionary will contain the error
         encountered.
      */
     FIRAuthErrorCodeNetworkError = 17020,
@@ -192,7 +192,7 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeMissingIosBundleID = 17036,
 
-    /** Indicates that the android package name is missing when the @c androidInstallApp flag is set
+    /** Indicates that the android package name is missing when the `androidInstallApp` flag is set
         to true.
      */
     FIRAuthErrorCodeMissingAndroidPackageName = 17037,
@@ -212,12 +212,12 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     FIRAuthErrorCodeMissingContinueURI = 17040,
 
     /** Indicates that a phone number was not provided in a call to
-        @c verifyPhoneNumber:completion:.
+        `verifyPhoneNumber:completion:`.
      */
     FIRAuthErrorCodeMissingPhoneNumber = 17041,
 
     /** Indicates that an invalid phone number was provided in a call to
-        @c verifyPhoneNumber:completion:.
+        `verifyPhoneNumber:completion:`.
      */
     FIRAuthErrorCodeInvalidPhoneNumber = 17042,
 
