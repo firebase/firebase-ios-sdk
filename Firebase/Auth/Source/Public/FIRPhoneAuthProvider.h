@@ -64,19 +64,18 @@ NS_SWIFT_NAME(PhoneAuthProvider)
     Possible error codes:
     
       + `FIRAuthErrorCodeAppNotVerified` - Indicates that Firebase could not retrieve the
-            silent push notification and therefore could not verify your app.
+         silent push notification and therefore could not verify your app.
       + `FIRAuthErrorCodeInvalidAppCredential` - Indicates that The APNs device token provided
-            is either incorrect or does not match the private certificate uploaded to the Firebase
-            Console.
+         is either incorrect or does not match the private certificate uploaded to the Firebase
+         Console.
       + `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
-            project has been exceeded.
+         project has been exceeded.
       + `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
-            invalid.
+         invalid.
       + `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
-        
       + `FIRAuthErrorCodeMissingAppToken` - Indicates that the APNs device token could not be
-            obtained. The app may not have set up remote notification correctly, or may fail to
-            forward the APNs device token to FIRAuth if app delegate swizzling is disabled.
+         obtained. The app may not have set up remote notification correctly, or may fail to
+         forward the APNs device token to FIRAuth if app delegate swizzling is disabled.
         
     
  */
@@ -94,11 +93,11 @@ NS_SWIFT_NAME(PhoneAuthProvider)
     Possible error codes:
     
       + `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
-            the Firebase Auth is invalid or has expired.
+         the Firebase Auth is invalid or has expired.
       + `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
-            project has been exceeded.
+         project has been exceeded.
       + `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
-            invalid.
+         invalid.
       + `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
         
     
