@@ -110,6 +110,9 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 /** A count of consecutive failures to open the stream. */
 @property(nonatomic, assign) int watchStreamFailures;
 
+/** Whether the client should fire offline warning. */
+@property(nonatomic, assign) BOOL shouldWarnOffline;
+
 #pragma mark Write Stream
 // The writeStream is null when the network is disabled. The non-null check is performed by
 // isNetworkEnabled.
@@ -146,6 +149,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 
     _lastBatchSeen = kFSTBatchIDUnknown;
     _watchStreamOnlineState = FSTOnlineStateUnknown;
+    _shouldWarnOffline = YES;
     _pendingWrites = [NSMutableArray array];
   }
   return self;
@@ -157,6 +161,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 - (void)setOnlineStateToHealthy {
+  self.shouldWarnOffline = NO;
   [self updateAndNotifyAboutOnlineState:FSTOnlineStateHealthy];
 }
 
@@ -179,6 +184,10 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   } else {
     self.watchStreamFailures++;
     if (self.watchStreamFailures >= kOnlineAttemptsBeforeFailure) {
+      if (self.shouldWarnOffline) {
+        FSTWarn(@"Could not reach Firestore backend.");
+        self.shouldWarnOffline = NO;
+      }
       [self updateAndNotifyAboutOnlineState:FSTOnlineStateFailed];
     }
   }
@@ -188,9 +197,6 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   BOOL didChange = (watchStreamOnlineState != self.watchStreamOnlineState);
   self.watchStreamOnlineState = watchStreamOnlineState;
   if (didChange) {
-    if (watchStreamOnlineState == FSTOnlineStateFailed) {
-      FSTWarn(@"Could not reach Firestore backend.");
-    }
     [self.onlineStateDelegate watchStreamDidChangeOnlineState:watchStreamOnlineState];
   }
 }
