@@ -289,9 +289,8 @@ NS_SWIFT_NAME(Auth)
         main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-    
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
@@ -308,19 +307,14 @@ NS_SWIFT_NAME(Auth)
 
     Possible error codes:
 
-    
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates that email and password
-            accounts are not enabled. Enable them in the Auth section of the
-            Firebase console.
-        
+         accounts are not enabled. Enable them in the Auth section of the
+         Firebase console.
       + `FIRAuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-        
       + `FIRAuthErrorCodeWrongPassword` - Indicates the user attempted
-            sign in with an incorrect password.
-        
+         sign in with an incorrect password.
       + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-        
-    
+
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
@@ -338,19 +332,14 @@ NS_SWIFT_NAME(Auth)
 
     Possible error codes:
 
-    
+
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates that email and password
-            accounts are not enabled. Enable them in the Auth section of the
-            Firebase console.
-        
+         accounts are not enabled. Enable them in the Auth section of the
+         Firebase console.
       + `FIRAuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-        
       + `FIRAuthErrorCodeWrongPassword` - Indicates the user attempted
-            sign in with an incorrect password.
-        
+         sign in with an incorrect password.
       + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-        
-    
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
 
@@ -379,43 +368,31 @@ NS_SWIFT_NAME(Auth)
         canceled. Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidCredential` - Indicates the supplied credential is invalid.
-            This could happen if it has expired or it is malformed.
-        
+        This could happen if it has expired or it is malformed.
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates that accounts
-            with the identity provider represented by the credential are not enabled.
-            Enable them in the Auth section of the Firebase console.
-        
+         with the identity provider represented by the credential are not enabled.
+         Enable them in the Auth section of the Firebase console.
       + `FIRAuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted
-            by the credential (e.g. the email in a Facebook access token) is already in use by an
-            existing account, that cannot be authenticated with this sign-in method. Call
-            fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
-            the sign-in providers returned. This error will only be thrown if the "One account per
-            email address" setting is enabled in the Firebase console, under Auth settings.
-        
+         by the credential (e.g. the email in a Facebook access token) is already in use by an
+         existing account, that cannot be authenticated with this sign-in method. Call
+         fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+         the sign-in providers returned. This error will only be thrown if the "One account per
+         email address" setting is enabled in the Firebase console, under Auth settings.
       + `FIRAuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-        
       + `FIRAuthErrorCodeWrongPassword` - Indicates the user attempted sign in with an
-            incorrect password, if credential is of the type EmailPasswordAuthCredential.
-        
+         incorrect password, if credential is of the type EmailPasswordAuthCredential.
       + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-        
       + `FIRAuthErrorCodeMissingVerificationID` - Indicates that the phone auth credential was
-            created with an empty verification ID.
-        
+         created with an empty verification ID.
       + `FIRAuthErrorCodeMissingVerificationCode` - Indicates that the phone auth credential
-            was created with an empty verification code.
-        
+         was created with an empty verification code.
       + `FIRAuthErrorCodeInvalidVerificationCode` - Indicates that the phone auth credential
-            was created with an invalid verification Code.
-        
+         was created with an invalid verification Code.
       + `FIRAuthErrorCodeInvalidVerificationID` - Indicates that the phone auth credential was
-            created with an invalid verification ID.
-        
+         created with an invalid verification ID.
       + `FIRAuthErrorCodeSessionExpired` - Indicates that the SMS code has expired.
-        
-    
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
@@ -473,14 +450,11 @@ NS_SWIFT_NAME(Auth)
         canceled. Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidCustomToken` - Indicates a validation error with
-            the custom token.
-        
+         the custom token.
       + `FIRAuthErrorCodeCustomTokenMismatch` - Indicates the service account and the API key
-            belong to different projects.
-        
-    
+         belong to different projects.
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
@@ -497,12 +471,10 @@ NS_SWIFT_NAME(Auth)
     Possible error codes:
     
       + `FIRAuthErrorCodeInvalidCustomToken` - Indicates a validation error with
-            the custom token.
-        
+         the custom token.
       + `FIRAuthErrorCodeCustomTokenMismatch` - Indicates the service account and the API key
-            belong to different projects.
-        
-    
+         belong to different projects.
+
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
 
@@ -523,21 +495,16 @@ NS_SWIFT_NAME(Auth)
         canceled. Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-        
       + `FIRAuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
-            already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
-            used, and prompt the user to sign in with one of those.
-        
+         already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+         used, and prompt the user to sign in with one of those.
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
-            are not enabled. Enable them in the Auth section of the Firebase console.
-        
+        are not enabled. Enable them in the Auth section of the Firebase console.
       + `FIRAuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-            considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
-            dictionary object will contain more detailed explanation that can be shown to the user.
-        
-    
+         considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+         dictionary object will contain more detailed explanation that can be shown to the user.
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
@@ -554,21 +521,16 @@ NS_SWIFT_NAME(Auth)
         canceled. Invoked asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-        
       + `FIRAuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
-            already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
-            used, and prompt the user to sign in with one of those.
-        
+         already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+         used, and prompt the user to sign in with one of those.
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
-            are not enabled. Enable them in the Auth section of the Firebase console.
-        
+         are not enabled. Enable them in the Auth section of the Firebase console.
       + `FIRAuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-            considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
-            dictionary object will contain more detailed explanation that can be shown to the user.
-        
-    
+         considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+         dictionary object will contain more detailed explanation that can be shown to the user.
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
 
@@ -589,18 +551,13 @@ NS_SWIFT_NAME(Auth)
         asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-            considered too weak.
-        
+         considered too weak.
       + `FIRAuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign
-            in with the specified identity provider.
-        
+         in with the specified identity provider.
       + `FIRAuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
-        
       + `FIRAuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
-        
-   
 
     See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
@@ -648,17 +605,13 @@ NS_SWIFT_NAME(Auth)
         asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
-            sent in the request.
-        
+         sent in the request.
       + `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
-            the console for this action.
-        
+         the console for this action.
       + `FIRAuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
-            sending update email.
-        
-    
+         sending update email.
  */
 - (void)sendPasswordResetWithEmail:(NSString *)email
                         completion:(nullable FIRSendPasswordResetCallback)completion;
@@ -673,29 +626,21 @@ NS_SWIFT_NAME(Auth)
         asynchronously on the main thread in the future.
 
     Possible error codes:
-    
+
       + `FIRAuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
-            sent in the request.
-        
+         sent in the request.
       + `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
-            the console for this action.
-        
+         the console for this action.
       + `FIRAuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
-            sending update email.
-        
+         sending update email.
       + `FIRAuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when
-            `handleCodeInApp` is set to YES.
-        
+         `handleCodeInApp` is set to YES.
       + `FIRAuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
-            is missing when the `androidInstallApp` flag is set to true.
-        
+         is missing when the `androidInstallApp` flag is set to true.
       + `FIRAuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
-            continue URL is not whitelisted in the Firebase console.
-        
+         continue URL is not whitelisted in the Firebase console.
       + `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
-            continue URI is not valid.
-        
-    
+         continue URI is not valid.
  */
  - (void)sendPasswordResetWithEmail:(NSString *)email
                  actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
@@ -709,13 +654,10 @@ NS_SWIFT_NAME(Auth)
     @return @YES when the sign out request was successful. @NO otherwise.
 
     Possible error codes:
-    
-      + `FIRAuthErrorCodeKeychainError` - Indicates an error occurred when accessing the
-            keychain. The `NSLocalizedFailureReasonErrorKey` field in the `NSError.userInfo`
-            dictionary will contain more information about the error encountered.
-        
-    
 
+      + `FIRAuthErrorCodeKeychainError` - Indicates an error occurred when accessing the
+         keychain. The `NSLocalizedFailureReasonErrorKey` field in the `NSError.userInfo`
+         dictionary will contain more information about the error encountered.
  */
 - (BOOL)signOut:(NSError *_Nullable *_Nullable)error;
 
