@@ -16,52 +16,52 @@
 
 #import <Foundation/Foundation.h>
 
-/**
-    Error Codes common to all API Methods:
+/** @class FIRAuthErrors
+    @remarks Error Codes common to all API Methods:
 
-      + `FIRAuthErrorCodeNetworkError`
-      + `FIRAuthErrorCodeUserNotFound`
-      + `FIRAuthErrorCodeUserTokenExpired`
-      + `FIRAuthErrorCodeTooManyRequests`
-      + `FIRAuthErrorCodeInvalidAPIKey`
-      + `FIRAuthErrorCodeAppNotAuthorized`
-      + `FIRAuthErrorCodeKeychainError`
-      + `FIRAuthErrorCodeInternalError`
+        + `FIRAuthErrorCodeNetworkError`
+        + `FIRAuthErrorCodeUserNotFound`
+        + `FIRAuthErrorCodeUserTokenExpired`
+        + `FIRAuthErrorCodeTooManyRequests`
+        + `FIRAuthErrorCodeInvalidAPIKey`
+        + `FIRAuthErrorCodeAppNotAuthorized`
+        + `FIRAuthErrorCodeKeychainError`
+        + `FIRAuthErrorCodeInternalError`
 
-    Common error codes for `FIRUser` operations:
+    @remarks Common error codes for `FIRUser` operations:
 
-      + `FIRAuthErrorCodeInvalidUserToken`
-      + `FIRAuthErrorCodeUserDisabled`
+        + `FIRAuthErrorCodeInvalidUserToken`
+        + `FIRAuthErrorCodeUserDisabled`
 
  */
 NS_SWIFT_NAME(AuthErrors)
 @interface FIRAuthErrors
 
 /**
-    The Firebase Auth error domain.
+    @brief The Firebase Auth error domain.
  */
 extern NSString *const FIRAuthErrorDomain NS_SWIFT_NAME(AuthErrorDomain);
 
 /**
-    The key used to read the updated credential from the userinfo dictionary of the NSError
+    @brief The key used to read the updated credential from the userinfo dictionary of the NSError
         object returned in the case that the credential being linked in already in use.
  */
 extern NSString *const FIRAuthUpdatedCredentialKey NS_SWIFT_NAME(AuthUpdatedCredentialKey);
 
 /**
-    The name of the key for the "error_name" string in the NSError userinfo dictionary.
+    @brief The name of the key for the "error_name" string in the NSError userinfo dictionary.
  */
 extern NSString *const FIRAuthErrorNameKey NS_SWIFT_NAME(AuthErrorNameKey);
 
 /**
-    Errors with the code `FIRAuthErrorCodeAccountExistsWithDifferentCredential` may contain
+    @brief Errors with the code `FIRAuthErrorCodeAccountExistsWithDifferentCredential` may contain
         an `NSError.userInfo` dictinary object which contains this key. The value associated with
         this key is an NSString of the email address of the account that already exists.
  */
 extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserInfoEmailKey);
 
 /**
-    Error codes used by Firebase Auth.
+    @brief Error codes used by Firebase Auth.
  */
 typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates a validation error with the custom token.
