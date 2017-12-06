@@ -374,7 +374,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(FSTDocumentKey *)key {
-  return [self.localDocuments documentForKey:key];
+  FSTMaybeDocument *mayebDoc = [self.localDocuments documentForKey:key];
+
+  return mayebDoc;
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
@@ -530,7 +532,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTSnapshotVersion *ackVersion = batchResult.docVersions[docKey];
     FSTAssert(ackVersion, @"docVersions should contain every doc in the write.");
     if (!doc || [doc.version compare:ackVersion] == NSOrderedAscending) {
-      doc = [batch applyTo:doc documentKey:docKey mutationBatchResult:batchResult];
+      doc = [batch applyTo:doc
+                    remoteDoc:remoteDoc
+                  documentKey:docKey
+          mutationBatchResult:batchResult];
       if (!doc) {
         FSTAssert(!remoteDoc, @"Mutation batch %@ applied to document %@ resulted in nil.", batch,
                   remoteDoc);

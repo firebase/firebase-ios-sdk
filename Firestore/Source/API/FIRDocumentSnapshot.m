@@ -16,10 +16,13 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#import "FIRDocumentSnapshot+Internal.h"
+#import "FSTAssert.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -28,6 +31,53 @@
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRSnapshotOptions ()
+
+@property(nonatomic, assign) FSTServerTimestampBehavior serverTimestampBehavior;
+
+@end
+
+@implementation FIRSnapshotOptions
+
+@synthesize serverTimestampBehavior;
+
+- (instancetype)initWithServerTimestampBehavior:
+    (FSTServerTimestampBehavior)serverTimestampBehavior {
+  self = [super init];
+
+  if (self) {
+    self.serverTimestampBehavior = serverTimestampBehavior;
+  }
+  return self;
+}
+
++ (instancetype)defaultOptions {
+  static FIRSnapshotOptions *sharedInstance = nil;
+  static dispatch_once_t onceToken;
+
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[FIRSnapshotOptions alloc]
+        initWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
+  });
+
+  return sharedInstance;
+}
+
++ (instancetype)setServerTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
+  switch (serverTimestampBehavior) {
+    case FIRServerTimestampBehaviorEstimate:
+      return [[FIRSnapshotOptions alloc]
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorEstimate];
+    case FIRServerTimestampBehaviorPrevious:
+      return [[FIRSnapshotOptions alloc]
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorPrevious];
+    default:
+      FSTFail(@"Encountered unknown server timestamp behavior: %d", (int)serverTimestampBehavior);
+  }
+}
+
+@end
 
 @interface FIRDocumentSnapshot ()
 
@@ -100,6 +150,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSDictionary<NSString *, id> *)data {
+  return [self dataWithOptions:[FIRSnapshotOptions defaultOptions]];
+}
+
+- (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options {
   FSTDocument *document = self.internalDocument;
 
   if (!document) {
@@ -110,27 +164,38 @@ NS_ASSUME_NONNULL_BEGIN
         self.internalKey);
   }
 
-  return [self convertedObject:[self.internalDocument data]];
+  return [self convertedObject:[self.internalDocument data]
+       serverTimestampBehavior:options.serverTimestampBehavior];
 }
 
-- (nullable id)objectForKeyedSubscript:(id)key {
+- (nullable id)valueForField:(id)field {
+  return [self valueForField:field options:[FIRSnapshotOptions defaultOptions]];
+}
+
+- (nullable id)valueForField:(id)field options:(FIRSnapshotOptions *)options {
   FIRFieldPath *fieldPath;
 
-  if ([key isKindOfClass:[NSString class]]) {
-    fieldPath = [FIRFieldPath pathWithDotSeparatedString:key];
-  } else if ([key isKindOfClass:[FIRFieldPath class]]) {
-    fieldPath = key;
+  if ([field isKindOfClass:[NSString class]]) {
+    fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
+  } else if ([field isKindOfClass:[FIRFieldPath class]]) {
+    fieldPath = field;
   } else {
     FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
   }
 
   FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  return [self convertedValue:fieldValue];
+  return [self convertedValue:fieldValue serverTimestampBehavior:options.serverTimestampBehavior];
 }
 
-- (id)convertedValue:(FSTFieldValue *)value {
+- (nullable id)objectForKeyedSubscript:(id)key {
+  return [self valueForField:key];
+}
+
+- (id)convertedValue:(FSTFieldValue *)value
+    serverTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior {
   if ([value isKindOfClass:[FSTObjectValue class]]) {
-    return [self convertedObject:(FSTObjectValue *)value];
+    return [self convertedObject:(FSTObjectValue *)value
+         serverTimestampBehavior:serverTimestampBehavior];
   } else if ([value isKindOfClass:[FSTArrayValue class]]) {
     return [self convertedArray:(FSTArrayValue *)value];
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
@@ -146,17 +211,22 @@ NS_ASSUME_NONNULL_BEGIN
           self.reference.path, refDatabase.projectID, refDatabase.databaseID, database.projectID,
           database.databaseID);
     }
-    return [FIRDocumentReference referenceWithKey:ref.value firestore:self.firestore];
+    return [FIRDocumentReference referenceWithKey:[ref value] firestore:self.firestore];
+  } else if ([value isKindOfClass:[FSTServerTimestampValue class]]) {
+    return
+        [(FSTServerTimestampValue *)value valueWithServerTimestampBehavior:serverTimestampBehavior];
   } else {
     return value.value;
   }
 }
 
-- (NSDictionary<NSString *, id> *)convertedObject:(FSTObjectValue *)objectValue {
+- (NSDictionary<NSString *, id> *)convertedObject:(FSTObjectValue *)objectValue
+                          serverTimestampBehavior:
+                              (FSTServerTimestampBehavior)serverTimestampBehavior {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   [objectValue.internalValue
       enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *value, BOOL *stop) {
-        result[key] = [self convertedValue:value];
+        result[key] = [self convertedValue:value serverTimestampBehavior:serverTimestampBehavior];
       }];
   return result;
 }
@@ -165,7 +235,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<FSTFieldValue *> *internalValue = arrayValue.internalValue;
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:internalValue.count];
   [internalValue enumerateObjectsUsingBlock:^(id value, NSUInteger idx, BOOL *stop) {
-    [result addObject:[self convertedValue:value]];
+    [result addObject:[self convertedValue:value
+                          serverTimestampBehavior:FSTServerTimestampBehaviorDefault]];
   }];
   return result;
 }

@@ -237,14 +237,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
                         mutationResult:(FSTMutationResult *_Nullable)mutationResult {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime {
-  return [self applyTo:maybeDoc localWriteTime:localWriteTime mutationResult:nil];
+  return
+      [self applyTo:maybeDoc remoteDoc:remoteDoc localWriteTime:localWriteTime mutationResult:nil];
 }
 
 @end
@@ -288,6 +291,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
                         mutationResult:(FSTMutationResult *_Nullable)mutationResult {
   if (mutationResult) {
@@ -363,6 +367,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
                         mutationResult:(FSTMutationResult *_Nullable)mutationResult {
   if (mutationResult) {
@@ -452,6 +457,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
                         mutationResult:(FSTMutationResult *_Nullable)mutationResult {
   if (mutationResult) {
@@ -473,8 +479,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   BOOL hasLocalMutations = (mutationResult == nil);
   NSArray<FSTFieldValue *> *transformResults =
-      mutationResult ? mutationResult.transformResults
-                     : [self localTransformResultsWithWriteTime:localWriteTime];
+      mutationResult
+          ? mutationResult.transformResults
+          : [self localTransformResultsWithRemoteDocument:remoteDoc writeTime:localWriteTime];
   FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
   return [FSTDocument documentWithData:newData
                                    key:doc.key
@@ -490,12 +497,25 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTServerTimestampValues).
  * @return The transform results array.
  */
-- (NSArray<FSTFieldValue *> *)localTransformResultsWithWriteTime:(FSTTimestamp *)localWriteTime {
+- (NSArray<FSTFieldValue *> *)
+localTransformResultsWithRemoteDocument:(FSTMaybeDocument *_Nullable)remoteDocument
+                              writeTime:(FSTTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (FSTFieldTransform *fieldTransform in self.fieldTransforms) {
     if ([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]]) {
-      [transformResults addObject:[FSTServerTimestampValue
-                                      serverTimestampValueWithLocalWriteTime:localWriteTime]];
+      FSTTimestampValue *previousValue = nil;
+
+      if (remoteDocument && [remoteDocument isMemberOfClass:[FSTDocument class]]) {
+        FSTFieldValue *fieldValue =
+            [((FSTDocument *)remoteDocument) fieldForPath:fieldTransform.path];
+        if ([fieldValue isMemberOfClass:[FSTTimestampValue class]]) {
+          previousValue = (FSTTimestampValue *)fieldValue;
+        }
+      }
+
+      [transformResults
+          addObject:[FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
+                                                                      previousValue:previousValue]];
     } else {
       FSTFail(@"Encountered unknown transform: %@", fieldTransform);
     }
@@ -552,6 +572,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
                         mutationResult:(FSTMutationResult *_Nullable)mutationResult {
   if (mutationResult) {

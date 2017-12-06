@@ -410,14 +410,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTServerTimestampValue
 
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime {
-  return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime];
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+                                         previousValue:(nullable FSTTimestampValue *)previousValue {
+  return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime
+                                                   previousValue:previousValue];
 }
 
-- (id)initWithLocalWriteTime:(FSTTimestamp *)localWriteTime {
+- (id)initWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+               previousValue:(FSTTimestampValue *)previousValue {
   self = [super init];
   if (self) {
     _localWriteTime = localWriteTime;
+    _previousValue = previousValue;
   }
   return self;
 }
@@ -426,9 +430,21 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderTimestamp;
 }
 
-- (NSNull *)value {
-  // For developers, server timestamps always evaluate to NSNull (for now, at least; b/62064202).
-  return [NSNull null];
+- (id)value {
+  return [self valueWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
+}
+
+- (id)valueWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior {
+  switch (serverTimestampBehavior) {
+    case FSTServerTimestampBehaviorDefault:
+      return [NSNull null];
+    case FSTServerTimestampBehaviorEstimate:
+      return [self.localWriteTime approximateDateValue];
+    case FSTServerTimestampBehaviorPrevious:
+      return self.previousValue ? [self.previousValue value] : [NSNull null];
+    default:
+      FSTFail(@"Unexpected server timestamp behavior: %d", (int)serverTimestampBehavior);
+  }
 }
 
 - (BOOL)isEqual:(id)other {
@@ -441,7 +457,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<ServerTimestamp localTime=%@>", self.localWriteTime];
+  return [NSString stringWithFormat:@"<ServerTimestamp localTime=%@ previousTime=%@>",
+                                    self.localWriteTime, self.previousValue];
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
@@ -649,10 +666,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)value {
+  return [self valueWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
+}
+
+- (id)valueWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   [self.internalValue
       enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *obj, BOOL *stop) {
-        result[key] = [obj value];
+        if ([obj isKindOfClass:[FSTServerTimestampValue class]]) {
+          result[key] = [(FSTServerTimestampValue *)obj
+              valueWithServerTimestampBehavior:serverTimestampBehavior];
+        } else if ([obj isKindOfClass:[FSTObjectValue class]]) {
+          result[key] =
+              [(FSTObjectValue *)obj valueWithServerTimestampBehavior:serverTimestampBehavior];
+        } else {
+          result[key] = [obj value];
+        }
       }];
   return result;
 }

@@ -197,6 +197,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * FSTSetMutation, but not necessarily for an FSTPatchMutation).
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
                         mutationResult:(FSTMutationResult *_Nullable)mutationResult;
 
@@ -205,6 +206,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * backend).
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;

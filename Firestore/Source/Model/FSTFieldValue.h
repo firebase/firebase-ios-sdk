@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <Firestore/Source/API/FIRSnapshotOptions+Internal.h>
 #import <Foundation/Foundation.h>
 
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
@@ -150,9 +151,12 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime;
-- (NSNull *)value;
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+                                         previousValue:(nullable FSTTimestampValue *)previousValue;
+- (id)valueWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior;
+
 @property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly, nullable) FSTTimestampValue *previousValue;
 @end
 
 /**
@@ -186,6 +190,8 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @interface FSTObjectValue : FSTFieldValue
 /** Returns an empty FSTObjectValue. */
 + (instancetype)objectValue;
+
+- (id)valueWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior;
 
 /**
  * Initializes this FSTObjectValue with the given dictionary.

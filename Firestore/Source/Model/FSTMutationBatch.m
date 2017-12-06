@@ -67,6 +67,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                            documentKey:(FSTDocumentKey *)documentKey
                    mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult {
   FSTAssert(!maybeDoc || [maybeDoc.key isEqualToKey:documentKey],
@@ -77,12 +78,13 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
               (unsigned long)self.mutations.count,
               (unsigned long)mutationBatchResult.mutationResults.count);
   }
-
   for (NSUInteger i = 0; i < self.mutations.count; i++) {
     FSTMutation *mutation = self.mutations[i];
     FSTMutationResult *_Nullable mutationResult = mutationBatchResult.mutationResults[i];
     if ([mutation.key isEqualToKey:documentKey]) {
+      // it gets lost here.... replaced with null maybe?
       maybeDoc = [mutation applyTo:maybeDoc
+                         remoteDoc:remoteDoc
                     localWriteTime:self.localWriteTime
                     mutationResult:mutationResult];
     }
@@ -91,8 +93,10 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+                             remoteDoc:(FSTMaybeDocument *_Nullable)remoteDoc
                            documentKey:(FSTDocumentKey *)documentKey {
-  return [self applyTo:maybeDoc documentKey:documentKey mutationBatchResult:nil];
+  return
+      [self applyTo:maybeDoc remoteDoc:remoteDoc documentKey:documentKey mutationBatchResult:nil];
 }
 
 - (BOOL)isTombstone {

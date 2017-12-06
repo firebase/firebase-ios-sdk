@@ -145,10 +145,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable FSTMaybeDocument *)localDocument:(nullable FSTMaybeDocument *)document
                                          key:(FSTDocumentKey *)documentKey {
+  FSTMaybeDocument *remoteDoc = document;
   NSArray<FSTMutationBatch *> *batches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKey:documentKey];
   for (FSTMutationBatch *batch in batches) {
-    document = [batch applyTo:document documentKey:documentKey];
+    document = [batch applyTo:document remoteDoc:remoteDoc documentKey:documentKey];
   }
 
   return document;
