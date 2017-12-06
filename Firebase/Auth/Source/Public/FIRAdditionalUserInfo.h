@@ -27,8 +27,8 @@ NS_SWIFT_NAME(AdditionalUserInfo)
 @interface FIRAdditionalUserInfo : NSObject
 
 /** @fn init
-    @brief This class should not be initialized manually. @c FIRAdditionalUserInfo can be retrieved
-        from from an instance of @c FIRAuthDataResult.
+    @brief This class should not be initialized manually. `FIRAdditionalUserInfo` can be retrieved
+        from from an instance of `FIRAuthDataResult`.
  */
 - (instancetype)init NS_UNAVAILABLE;
 
