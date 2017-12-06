@@ -124,7 +124,7 @@
                               descending:YES];
 
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:query];
-  
+
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"b", @"a" ]));
 }
 
