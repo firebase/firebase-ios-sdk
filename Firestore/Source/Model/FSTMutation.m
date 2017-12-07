@@ -236,17 +236,18 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
-                        mutationResult:(FSTMutationResult *_Nullable)mutationResult {
+                        mutationResult:(nullable FSTMutationResult *)mutationResult {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime {
-  return [self applyTo:maybeDoc baseDoc:baseDoc localWriteTime:localWriteTime mutationResult:nil];
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
+                        localWriteTime:(nullable FSTTimestamp *)localWriteTime {
+  return
+      [self applyTo:maybeDoc baseDocument:baseDoc localWriteTime:localWriteTime mutationResult:nil];
 }
 
 @end
@@ -289,10 +290,10 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
-                        mutationResult:(FSTMutationResult *_Nullable)mutationResult {
+                        mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTSetMutation.");
   }
@@ -365,10 +366,10 @@ NS_ASSUME_NONNULL_BEGIN
                                     self.key, self.fieldMask, self.value, self.precondition];
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
-                        mutationResult:(FSTMutationResult *_Nullable)mutationResult {
+                        mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTPatchMutation.");
   }
@@ -455,10 +456,10 @@ NS_ASSUME_NONNULL_BEGIN
                                     self.key, self.fieldTransforms, self.precondition];
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
-                        mutationResult:(FSTMutationResult *_Nullable)mutationResult {
+                        mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(mutationResult.transformResults,
               @"Transform results missing for FSTTransformMutation.");
@@ -480,7 +481,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<FSTFieldValue *> *transformResults =
       mutationResult
           ? mutationResult.transformResults
-          : [self localTransformResultsWithPreviousDocument:baseDoc writeTime:localWriteTime];
+          : [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
   FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
   return [FSTDocument documentWithData:newData
                                    key:doc.key
@@ -492,21 +493,21 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an array of "transform results" (a transform result is a field value representing the
  * result of applying a transform) for use when applying an FSTTransformMutation locally.
  *
- * @param previousDocument The document prior to applying this mutation batch.
+ * @param baseDocument The document prior to applying this mutation batch.
  * @param localWriteTime The local time of the transform mutation (used to generate
  * FSTServerTimestampValues).
  * @return The transform results array.
  */
-- (NSArray<FSTFieldValue *> *)
-localTransformResultsWithPreviousDocument:(FSTMaybeDocument *_Nullable)previousDocument
-                                writeTime:(FSTTimestamp *)localWriteTime {
+- (NSArray<FSTFieldValue *> *)localTransformResultsWithBaseDocument:
+                                  (FSTMaybeDocument *_Nullable)baseDocument
+                                                          writeTime:(FSTTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (FSTFieldTransform *fieldTransform in self.fieldTransforms) {
     if ([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]]) {
       FSTFieldValue *previousValue = nil;
 
-      if (previousDocument && [previousDocument isMemberOfClass:[FSTDocument class]]) {
-        previousValue = [((FSTDocument *)previousDocument) fieldForPath:fieldTransform.path];
+      if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
+        previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path];
       }
 
       [transformResults
@@ -567,10 +568,10 @@ localTransformResultsWithPreviousDocument:(FSTMaybeDocument *_Nullable)previousD
       stringWithFormat:@"<FSTDeleteMutation key=%@ precondition=%@>", self.key, self.precondition];
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
-                        mutationResult:(FSTMutationResult *_Nullable)mutationResult {
+                        mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults,
               @"Transform results received by FSTDeleteMutation.");

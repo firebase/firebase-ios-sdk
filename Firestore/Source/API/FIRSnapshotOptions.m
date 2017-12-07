@@ -16,34 +16,20 @@
 
 #import "FIRDocumentSnapshot.h"
 
-#import "FIRDocumentSnapshot+Internal.h"
-#import "FSTAssert.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Model/FSTPath.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** The default server timestamp behavior (returning NSNull for pending timestamps). */
-static const int kFIRServerTimestampBehaviorDefault = -1;
-
 @interface FIRSnapshotOptions ()
 
-@property(nonatomic) int serverTimestampBehavior;
+@property(nonatomic) FSTServerTimestampBehavior serverTimestampBehavior;
 
 @end
 
 @implementation FIRSnapshotOptions
 
-- (instancetype)initWithServerTimestampBehavior:(int)serverTimestampBehavior {
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior {
   self = [super init];
 
   if (self) {
@@ -59,20 +45,20 @@ static const int kFIRServerTimestampBehaviorDefault = -1;
 
   dispatch_once(&onceToken, ^{
     sharedInstance = [[FIRSnapshotOptions alloc]
-        initWithServerTimestampBehavior:kFIRServerTimestampBehaviorDefault];
+        initWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
   });
 
   return sharedInstance;
 }
 
-+ (instancetype)setServerTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
++ (instancetype)serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
   switch (serverTimestampBehavior) {
     case FIRServerTimestampBehaviorEstimate:
       return [[FIRSnapshotOptions alloc]
-          initWithServerTimestampBehavior:FIRServerTimestampBehaviorEstimate];
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorEstimate];
     case FIRServerTimestampBehaviorPrevious:
       return [[FIRSnapshotOptions alloc]
-          initWithServerTimestampBehavior:FIRServerTimestampBehaviorPrevious];
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorPrevious];
     default:
       FSTFail(@"Encountered unknown server timestamp behavior: %d", (int)serverTimestampBehavior);
   }

@@ -42,7 +42,7 @@
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
   FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"bar" : @"bar-value"});
-  FSTMaybeDocument *setDoc = [set applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp];
+  FSTMaybeDocument *setDoc = [set applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
   NSDictionary *expectedData = @{@"bar" : @"bar-value"};
   XCTAssertEqualObjects(setDoc, FSTTestDoc(@"collection/key", 0, expectedData, YES));
@@ -54,7 +54,8 @@
 
   FSTMutation *patch =
       FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, nil);
-  FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp];
+  FSTMaybeDocument *patchedDoc =
+      [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
   NSDictionary *expectedData = @{ @"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value" };
   XCTAssertEqualObjects(patchedDoc, FSTTestDoc(@"collection/key", 0, expectedData, YES));
@@ -70,7 +71,8 @@
                                                    fieldMask:mask
                                                        value:[FSTObjectValue objectValue]
                                                 precondition:[FSTPrecondition none]];
-  FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp];
+  FSTMaybeDocument *patchedDoc =
+      [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
   NSDictionary *expectedData = @{ @"foo" : @{@"baz" : @"baz-value"} };
   XCTAssertEqualObjects(patchedDoc, FSTTestDoc(@"collection/key", 0, expectedData, YES));
@@ -82,7 +84,8 @@
 
   FSTMutation *patch =
       FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, nil);
-  FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp];
+  FSTMaybeDocument *patchedDoc =
+      [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
   NSDictionary *expectedData = @{ @"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value" };
   XCTAssertEqualObjects(patchedDoc, FSTTestDoc(@"collection/key", 0, expectedData, YES));
@@ -91,7 +94,8 @@
 - (void)testPatchingDeletedDocumentsDoesNothing {
   FSTMaybeDocument *baseDoc = FSTTestDeletedDoc(@"collection/key", 0);
   FSTMutation *patch = FSTTestPatchMutation(@"collection/key", @{@"foo" : @"bar"}, nil);
-  FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp];
+  FSTMaybeDocument *patchedDoc =
+      [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
   XCTAssertEqualObjects(patchedDoc, baseDoc);
 }
 
@@ -101,7 +105,7 @@
 
   FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @[ @"foo.bar" ]);
   FSTMaybeDocument *transformedDoc =
-      [transform applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp];
+      [transform applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
   // Server timestamps aren't parsed, so we manually insert it.
   FSTObjectValue *expectedData = FSTTestObjectValue(
@@ -132,7 +136,7 @@
       transformResults:@[ [FSTTimestampValue timestampValue:_timestamp] ]];
 
   FSTMaybeDocument *transformedDoc = [transform applyTo:baseDoc
-                                                baseDoc:baseDoc
+                                           baseDocument:baseDoc
                                          localWriteTime:_timestamp
                                          mutationResult:mutationResult];
 
@@ -147,7 +151,8 @@
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
   FSTMutation *mutation = FSTTestDeleteMutation(@"collection/key");
-  FSTMaybeDocument *result = [mutation applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp];
+  FSTMaybeDocument *result =
+      [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
   XCTAssertEqualObjects(result, FSTTestDeletedDoc(@"collection/key", 0));
 }
 
@@ -158,8 +163,10 @@
   FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"foo" : @"new-bar"});
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(4) transformResults:nil];
-  FSTMaybeDocument *setDoc =
-      [set applyTo:baseDoc baseDoc:baseDoc localWriteTime:_timestamp mutationResult:mutationResult];
+  FSTMaybeDocument *setDoc = [set applyTo:baseDoc
+                             baseDocument:baseDoc
+                           localWriteTime:_timestamp
+                           mutationResult:mutationResult];
 
   NSDictionary *expectedData = @{@"foo" : @"new-bar"};
   XCTAssertEqualObjects(setDoc, FSTTestDoc(@"collection/key", 0, expectedData, NO));
@@ -173,7 +180,7 @@
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(4) transformResults:nil];
   FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc
-                                        baseDoc:baseDoc
+                                   baseDocument:baseDoc
                                  localWriteTime:_timestamp
                                  mutationResult:mutationResult];
 
@@ -186,7 +193,7 @@
     FSTMutationResult *mutationResult =                                                     \
         [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(0) transformResults:nil]; \
     FSTMaybeDocument *actual = [mutation applyTo:base                                       \
-                                         baseDoc:base                                       \
+                                    baseDocument:base                                       \
                                   localWriteTime:_timestamp                                 \
                                   mutationResult:mutationResult];                           \
     XCTAssertEqualObjects(actual, expected);                                                \

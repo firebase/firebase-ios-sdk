@@ -84,7 +84,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
     FSTMutationResult *_Nullable mutationResult = mutationBatchResult.mutationResults[i];
     if ([mutation.key isEqualToKey:documentKey]) {
       maybeDoc = [mutation applyTo:maybeDoc
-                           baseDoc:baseDoc
+                      baseDocument:baseDoc
                     localWriteTime:self.localWriteTime
                     mutationResult:mutationResult];
     }

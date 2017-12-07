@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRSnapshotOptions;
+#import "Firestore/Source/Model/FSTFieldValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,10 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)defaultOptions;
 
 /* Initializes a new instance with the specified server timestamp behavior. */
-- (instancetype)initWithServerTimestampBehavior:(int)serverTimestampBehavior;
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior;
 
 /* Returns the server timestamp behavior. Returns -1 if no behavior is specified. */
-- (int)serverTimestampBehavior;
+- (FSTServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 

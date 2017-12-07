@@ -24,6 +24,7 @@
 @class FSTTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
+@class FIRSnapshotOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,17 +52,19 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /** Holds properties that define field value deserialization options. */
 @interface FSTFieldValueOptions : NSObject
 
-@property(nonatomic, readonly) FSTServerTimestampBehavior serverTimestampBehavior;
+@property(nonatomic, readonly, assign) FSTServerTimestampBehavior serverTimestampBehavior;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Creates a FSTFieldValueOptions instance that specifies deserialization behavior for pending
- * server timestamps. */
+/**
+ * Creates a FSTFieldValueOptions instance that specifies deserialization behavior for pending
+ * server timestamps.
+ */
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
     NS_DESIGNATED_INITIALIZER;
 
-/** Returns the default deserialization options. */
-+ (instancetype)defaultOptions;
+/** Creates FSTFieldValueOptions from FIRSnapshotOptions. */
++ (instancetype)fieldValueOptions:(FIRSnapshotOptions *)value;
 
 @end
 
@@ -114,7 +117,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  */
 @interface FSTNullValue : FSTFieldValue
 + (instancetype)nullValue;
-- (id)valueWithOptions:(FSTFieldValueOptions *)options;
+- (NSNull *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**

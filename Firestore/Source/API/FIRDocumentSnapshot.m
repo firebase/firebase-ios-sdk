@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return [self convertedObject:[self.internalDocument data]
-                       options:[self convertedSnapshotOptions:options]];
+                       options:[FSTFieldValueOptions fieldValueOptions:options]];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -135,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  return [self convertedValue:fieldValue options:[self convertedSnapshotOptions:options]];
+  return [self convertedValue:fieldValue options:[FSTFieldValueOptions fieldValueOptions:options]];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
@@ -185,20 +185,6 @@ NS_ASSUME_NONNULL_BEGIN
     [result addObject:[self convertedValue:value options:options]];
   }];
   return result;
-}
-
-/** Create a field value option from a snapshot option. */
-- (FSTFieldValueOptions *)convertedSnapshotOptions:(FIRSnapshotOptions *)snapshotOptions {
-  switch (snapshotOptions.serverTimestampBehavior) {
-    case FIRServerTimestampBehaviorEstimate:
-      return [[FSTFieldValueOptions alloc]
-          initWithServerTimestampBehavior:FSTServerTimestampBehaviorEstimate];
-    case FIRServerTimestampBehaviorPrevious:
-      return [[FSTFieldValueOptions alloc]
-          initWithServerTimestampBehavior:FSTServerTimestampBehaviorPrevious];
-    default:
-      return [FSTFieldValueOptions defaultOptions];
-  }
 }
 
 @end

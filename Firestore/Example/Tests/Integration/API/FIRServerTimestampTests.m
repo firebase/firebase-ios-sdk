@@ -16,16 +16,14 @@
 
 @import FirebaseFirestore;
 
-#import <FirebaseFirestore/FIRDocumentReference.h>
 #import <FirebaseFirestore/FIRDocumentSnapshot.h>
-#import <Firestore/Source/Core/FSTFirestoreClient.h>
 #import <OCMock/OCMArg.h>
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 @interface FIRServerTimestampTests : FSTIntegrationTestCase
 @end
@@ -48,17 +46,17 @@
   id<FIRListenerRegistration> _listenerRegistration;
 
   // Snapshot options that return the previous value for pending server timestamps.
-  FIRSnapshotOptions *_previousValue;
-  FIRSnapshotOptions *_estimateValue;
+  FIRSnapshotOptions *_returnPreviousValue;
+  FIRSnapshotOptions *_returnEstimatedValue;
 }
 
 - (void)setUp {
   [super setUp];
 
-  _previousValue =
-      [FIRSnapshotOptions setServerTimestampBehavior:FIRServerTimestampBehaviorPrevious];
-  _estimateValue =
-      [FIRSnapshotOptions setServerTimestampBehavior:FIRServerTimestampBehaviorEstimate];
+  _returnPreviousValue =
+      [FIRSnapshotOptions serverTimestampBehavior:FIRServerTimestampBehaviorPrevious];
+  _returnEstimatedValue =
+      [FIRSnapshotOptions serverTimestampBehavior:FIRServerTimestampBehaviorEstimate];
 
   // Data written in tests via set.
   _setData = @{
@@ -92,7 +90,7 @@
 #pragma mark - Test Helpers
 
 /** Returns the expected data, with the specified timestamp substituted in. */
-- (NSDictionary *)expectedDataWithTimestamp:(id _Nullable)timestamp {
+- (NSDictionary *)expectedDataWithTimestamp:(nullable id)timestamp {
   return @{ @"a" : @42, @"when" : timestamp, @"deep" : @{@"when" : timestamp} };
 }
 
@@ -105,55 +103,53 @@
 
 /** Waits for a snapshot with local writes. */
 - (FIRDocumentSnapshot *)waitForLocalEvent {
-  return [_accumulator awaitEventWithName:@"Local event."];
+  FIRDocumentSnapshot *snapshot = [_accumulator awaitEventWithName:@"Local event."];
+  XCTAssertTrue(snapshot.metadata.hasPendingWrites);
+  return snapshot;
 }
 
-/** Waits for a snapshot containing _setData but with NSNull for the timestamps. */
-- (FIRDocumentSnapshot *)waitForLocalEventWithNullTimestamps {
-  FIRDocumentSnapshot *localSnap = [self waitForLocalEvent];
-  XCTAssertEqualObjects(localSnap.data, [self expectedDataWithTimestamp:[NSNull null]]);
-  return localSnap;
+/** Waits for a snapshot with that has no pending writes */
+- (FIRDocumentSnapshot *)waitForRemoteEvent {
+  FIRDocumentSnapshot *snapshot = [_accumulator awaitEventWithName:@"Remote event."];
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
+  return snapshot;
 }
 
-/** Waits for a snapshot containing _setData but with a local estimate for the timestamps. */
-- (FIRDocumentSnapshot *)waitForLocalEventWithEstimatedTimestamps {
-  FIRDocumentSnapshot *localSnap = [self waitForLocalEvent];
-  id timestamp = [localSnap valueForField:@"when" options:_estimateValue];
+/** Verifies a snapshot containing _setData but with NSNull for the timestamps. */
+- (void)verifySnapshotWithNullTimestamps:(FIRDocumentSnapshot *)snapshot {
+  XCTAssertEqualObjects(snapshot.data, [self expectedDataWithTimestamp:[NSNull null]]);
+}
+
+/** Verifies a snapshot  containing _setData but with a local estimate for the timestamps. */
+- (void)verifySnapshotWithEstimatedTimestamps:(FIRDocumentSnapshot *)snapshot {
+  id timestamp = [snapshot valueForField:@"when" options:_returnEstimatedValue];
   XCTAssertTrue([timestamp isKindOfClass:[NSDate class]]);
-  XCTAssertEqualObjects([localSnap dataWithOptions:_estimateValue],
+  XCTAssertEqualObjects([snapshot dataWithOptions:_returnEstimatedValue],
                         [self expectedDataWithTimestamp:timestamp]);
-  return localSnap;
 }
 
-/** Waits for a snapshot containing _setData but using the previous field value for the timestamps. */
-- (FIRDocumentSnapshot *)waitForLocalEventWithPreviousDataFromSnapshot:
-    (FIRDocumentSnapshot *_Nullable)previousSnapshot {
-  FIRDocumentSnapshot *localSnap = [self waitForLocalEvent];
-
+/** Verifies a snapshot containing _setData but using the previous field value for the timestamps. */
+- (void)verifySnapshot:(FIRDocumentSnapshot *)snapshot
+    withDataFromPreviousSnapshot:(nullable FIRDocumentSnapshot *)previousSnapshot {
   if (previousSnapshot == nil) {
-    XCTAssertEqualObjects([localSnap dataWithOptions:_previousValue],
+    XCTAssertEqualObjects([snapshot dataWithOptions:_returnPreviousValue],
                           [self expectedDataWithTimestamp:[NSNull null]]);
   } else {
-    XCTAssertEqualObjects([localSnap dataWithOptions:_previousValue],
+    XCTAssertEqualObjects([snapshot dataWithOptions:_returnPreviousValue],
                           [self expectedDataWithTimestamp:previousSnapshot[@"when"]]);
   }
-
-  return localSnap;
 }
 
 /** Waits for a snapshot containing _setData but with resolved server timestamps. */
-- (FIRDocumentSnapshot *)waitForRemoteEvent {
-  // server event should have a resolved timestamp; verify it.
-  FIRDocumentSnapshot *remoteSnap = [_accumulator awaitEventWithName:@"Remote event"];
-  XCTAssertTrue(remoteSnap.exists);
-  NSDate *when = remoteSnap[@"when"];
+- (id)verifySnapshotWithResolvedTimestamps:(FIRDocumentSnapshot *)snapshot {
+  XCTAssertTrue(snapshot.exists);
+  NSDate *when = snapshot[@"when"];
   XCTAssertTrue([when isKindOfClass:[NSDate class]]);
   // Tolerate up to 10 seconds of clock skew between client and server.
   XCTAssertEqualWithAccuracy(when.timeIntervalSinceNow, 0, 10);
 
   // Validate the rest of the document.
-  XCTAssertEqualObjects(remoteSnap.data, [self expectedDataWithTimestamp:when]);
-  return remoteSnap;
+  XCTAssertEqualObjects(snapshot.data, [self expectedDataWithTimestamp:when]);
 }
 
 /** Runs a transaction block. */
@@ -186,85 +182,85 @@
 
 - (void)testServerTimestampsWorkViaSet {
   [self writeDocumentRef:_docRef data:_setData];
-  [self waitForLocalEventWithNullTimestamps];
-  [self waitForRemoteEvent];
+  [self verifySnapshotWithNullTimestamps:[self waitForLocalEvent]];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWorkViaUpdate {
   [self writeInitialData];
   [self updateDocumentRef:_docRef data:_updateData];
-  [self waitForLocalEventWithNullTimestamps];
-  [self waitForRemoteEvent];
+  [self verifySnapshotWithNullTimestamps:[self waitForLocalEvent]];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWithEstimatedValue {
   [self writeDocumentRef:_docRef data:_setData];
-  [self waitForLocalEventWithEstimatedTimestamps];
-  [self waitForRemoteEvent];
+  [self verifySnapshotWithEstimatedTimestamps:[self waitForLocalEvent]];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWithPreviousValue {
   [self writeDocumentRef:_docRef data:_setData];
-  [self waitForLocalEventWithPreviousDataFromSnapshot:nil];
+  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
   FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
 
   [_docRef updateData:_updateData];
-  [self waitForLocalEventWithPreviousDataFromSnapshot:remoteSnapshot];
+  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:remoteSnapshot];
 
-  [self waitForRemoteEvent];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWithPreviousValueOfDifferentType {
   [self writeDocumentRef:_docRef data:_setData];
-  [self waitForLocalEvent];
-  [self waitForRemoteEvent];
+  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 
   [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp]}];
   FIRDocumentSnapshot *localSnapshot = [self waitForLocalEvent];
   XCTAssertEqualObjects([localSnapshot valueForField:@"a"], [NSNull null]);
-  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_previousValue], @42);
-  XCTAssertTrue(
-      [[localSnapshot valueForField:@"a" options:_estimateValue] isKindOfClass:[NSDate class]]);
+  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_returnPreviousValue], @42);
+  XCTAssertTrue([[localSnapshot valueForField:@"a" options:_returnEstimatedValue]
+      isKindOfClass:[NSDate class]]);
 
-  FIRDocumentSnapshot *remoteSnapshot = [_accumulator awaitEventWithName:@"Remote event"];
+  FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
   XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[NSDate class]]);
-  XCTAssertTrue(
-      [[remoteSnapshot valueForField:@"a" options:_previousValue] isKindOfClass:[NSDate class]]);
-  XCTAssertTrue(
-      [[remoteSnapshot valueForField:@"a" options:_estimateValue] isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([[remoteSnapshot valueForField:@"a" options:_returnPreviousValue]
+      isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([[remoteSnapshot valueForField:@"a" options:_returnEstimatedValue]
+      isKindOfClass:[NSDate class]]);
 }
 
 - (void)testServerTimestampsWithConsecutiveUpdates {
   [self writeDocumentRef:_docRef data:_setData];
-  [self waitForLocalEvent];
-  [self waitForRemoteEvent];
+  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 
   [self disableNetwork];
 
   [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp]}];
   FIRDocumentSnapshot *localSnapshot = [self waitForLocalEvent];
-  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_previousValue], @42);
+  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_returnPreviousValue], @42);
 
   [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp]}];
   localSnapshot = [self waitForLocalEvent];
-  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_previousValue], @42);
+  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_returnPreviousValue], @42);
 
   [self enableNetwork];
 
-  FIRDocumentSnapshot *remoteSnapshot = [_accumulator awaitEventWithName:@"Remote event"];
+  FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
   XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[NSDate class]]);
 }
 
 - (void)testServerTimestampsPreviousValueFromLocalMutation {
   [self writeDocumentRef:_docRef data:_setData];
-  [self waitForLocalEvent];
-  [self waitForRemoteEvent];
+  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 
   [self disableNetwork];
 
   [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp]}];
   FIRDocumentSnapshot *localSnapshot = [self waitForLocalEvent];
-  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_previousValue], @42);
+  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_returnPreviousValue], @42);
 
   [_docRef updateData:@{ @"a" : @1337 }];
   localSnapshot = [self waitForLocalEvent];
@@ -272,11 +268,11 @@
 
   [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp]}];
   localSnapshot = [self waitForLocalEvent];
-  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_previousValue], @1337);
+  XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_returnPreviousValue], @1337);
 
   [self enableNetwork];
 
-  FIRDocumentSnapshot *remoteSnapshot = [_accumulator awaitEventWithName:@"Remote event"];
+  FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
   XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[NSDate class]]);
 }
 
@@ -285,7 +281,7 @@
     [transaction setData:_setData forDocument:_docRef];
   }];
 
-  [self waitForRemoteEvent];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWorkViaTransactionUpdate {
@@ -293,7 +289,7 @@
   [self runTransactionBlock:^(FIRTransaction *transaction) {
     [transaction updateData:_updateData forDocument:_docRef];
   }];
-  [self waitForRemoteEvent];
+  [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsFailViaUpdateOnNonexistentDocument {

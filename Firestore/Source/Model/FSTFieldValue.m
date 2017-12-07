@@ -17,6 +17,7 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -31,6 +32,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFieldValueOptions
 
++ (instancetype)fieldValueOptions:(FIRSnapshotOptions *)options {
+  if (options.serverTimestampBehavior == FSTServerTimestampBehaviorDefault) {
+    static FSTFieldValueOptions *defaultInstance = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+      defaultInstance = [[FSTFieldValueOptions alloc]
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
+    });
+    return defaultInstance;
+  } else {
+    return [[FSTFieldValueOptions alloc]
+        initWithServerTimestampBehavior:options.serverTimestampBehavior];
+  }
+}
+
 - (instancetype)initWithServerTimestampBehavior:
     (FSTServerTimestampBehavior)serverTimestampBehavior {
   self = [super init];
@@ -39,18 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
     _serverTimestampBehavior = serverTimestampBehavior;
   }
   return self;
-}
-
-+ (instancetype)defaultOptions {
-  static FSTFieldValueOptions *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTFieldValueOptions alloc]
-        initWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
-  });
-
-  return sharedInstance;
 }
 
 @end
@@ -68,7 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)value {
-  return [self valueWithOptions:[FSTFieldValueOptions defaultOptions]];
+  return [self valueWithOptions:[FSTFieldValueOptions
+                                    fieldValueOptions:[FIRSnapshotOptions defaultOptions]]];
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {

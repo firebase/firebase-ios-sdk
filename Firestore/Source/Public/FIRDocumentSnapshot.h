@@ -60,7 +60,7 @@ NS_SWIFT_NAME(SnapshotOptions)
  *
  * @return The created `FIRSnapshotOptions` object.
  */
-+ (instancetype)setServerTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
++ (instancetype)serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 
@@ -103,8 +103,8 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * Retrieves all fields in the document as a `Dictionary`.
  *
  * @param options `SnapshotOptions` to configure how data is returned from
- * the snapshot (e.g. the desired behavior for server timestamps that have not
- * yet been set to their final value).
+ *     the snapshot (e.g. the desired behavior for server timestamps that have not
+ *     yet been set to their final value).
  * @return A `Dictionary` containing all fields in the document.
  */
 - (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
@@ -130,8 +130,8 @@ NS_SWIFT_NAME(DocumentSnapshot)
  *
  * @param field The field to retrieve.
  * @param options `SnapshotOptions` to configure how data is returned from
- * the snapshot (e.g. the desired behavior for server timestamps that have not
- * yet been set to their final value).
+ *     the snapshot (e.g. the desired behavior for server timestamps that have not
+ *     yet been set to their final value).
  * @return The value contained in the field or `nil` if the field doesn't exist.
  */
 // clang-format off

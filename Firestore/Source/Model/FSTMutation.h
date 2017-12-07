@@ -198,18 +198,18 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * apply the transform if the prior mutation resulted in an FSTDocument (always true for an
  * FSTSetMutation, but not necessarily for an FSTPatchMutation).
  */
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
-                        mutationResult:(FSTMutationResult *_Nullable)mutationResult;
+                        mutationResult:(nullable FSTMutationResult *)mutationResult;
 
 /**
  * A helper version of applyTo for applying mutations locally (without a mutation result from the
  * backend).
  */
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                               baseDoc:(FSTMaybeDocument *_Nullable)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime;
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
+                        localWriteTime:(nullable FSTTimestamp *)localWriteTime;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
 
