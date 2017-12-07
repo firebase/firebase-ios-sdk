@@ -256,6 +256,19 @@ NS_SWIFT_NAME(Query)
            isGreaterThanOrEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isGreaterThanOrEqualTo:));
 // clang-format on
 
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must
+ * satisfy the specified predicate.
+ *
+ * @param predicate The predicate the document must satisfy. Can be either comparison
+ *     or compound of comparison. In particular, block-based predicate is not supported.
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate NS_SWIFT_NAME(filter(using:));
+// clang-format on
+
 #pragma mark - Sorting Data
 /**
  * Creates and returns a new `FIRQuery` that's additionally sorted by the specified field.
