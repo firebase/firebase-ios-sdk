@@ -1,5 +1,7 @@
 # Unreleased
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
+- [changed] FIRWriteBatch method commitWithCompletion has nullable param and a new
+  method commit is introduced.
 - [fixed] Fixed a crash when using path names with international characters
   with persistence enabled.
 
