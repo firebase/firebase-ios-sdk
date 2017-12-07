@@ -12,7 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${PROJECT_SOURCE_DIR}/cmake/external/googletest.cmake)
+cmake_minimum_required(VERSION 2.8.11)
+project(firestore)
 
-add_subdirectory(core/src/firebase/firestore/util)
-add_subdirectory(core/test/firebase/firestore/util)
+set(FIREBASE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
+include("${FIREBASE_SOURCE_DIR}/cmake/utils.cmake")
+
+find_package(GTest REQUIRED)
+
+# We use C++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Fully qualified imports, project wide
+include_directories("${FIREBASE_SOURCE_DIR}")
+
+enable_testing()
+add_subdirectory(core)
