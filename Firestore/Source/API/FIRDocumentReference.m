@@ -48,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
     NS_DESIGNATED_INITIALIZER;
 
+@property(nonatomic, assign, readonly) BOOL includeMetadataChanges;
+
 @end
 
 @implementation FIRDocumentListenOptions
