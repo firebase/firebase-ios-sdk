@@ -12,22 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Superbuild for Firebase
+
 cmake_minimum_required(VERSION 2.8.11)
 project(firebase C CXX)
 
-# We use C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 
-# Fully qualified imports, project wide
-include_directories("${PROJECT_SOURCE_DIR}")
-
-# CMake's test target does not build tests before running them. This adds a
-# check target that
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
-
-include(cmake/utils.cmake)
+# External Projects install into this prefix and download into the source tree
+# to avoid re-downloading repeatedly during development.
+set(FIREBASE_INSTALL_DIR "${PROJECT_BINARY_DIR}/usr")
+set(FIREBASE_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
 
 enable_testing()
-add_subdirectory(Firestore)
+
+include(external/googletest)
+include(external/firestore)

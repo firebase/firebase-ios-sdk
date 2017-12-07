@@ -14,21 +14,27 @@
 
 include(ExternalProject)
 
+set(source_dir ${PROJECT_SOURCE_DIR}/Firestore)
+set(binary_dir ${PROJECT_BINARY_DIR}/Firestore)
+
 ExternalProject_Add(
-  googletest
+  Firestore
+  DEPENDS googletest
 
-  URL "https://github.com/google/googletest/archive/release-1.8.0.tar.gz"
-  URL_HASH "SHA256=58a6f4277ca2bc8565222b3bbd58a177609e9c488e8a72649359ba51450db7d8"
+  # Lay the binary directory out as if this were a subproject. This makes it
+  # possible to build and test in it directly.
+  PREFIX ${binary_dir}
+  SOURCE_DIR ${source_dir}
+  BINARY_DIR ${binary_dir}
+  BUILD_ALWAYS ON
 
-  PREFIX ${PROJECT_BINARY_DIR}/third_party/googletest
-
-  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  # Even though this isn't installed, set up the INSTALL_DIR so that
+  # find_package can find dependencies built from source.
   INSTALL_DIR ${FIREBASE_INSTALL_DIR}
-
-  TEST_COMMAND ""
+  INSTALL_COMMAND ""
+  TEST_BEFORE_INSTALL ON
 
   CMAKE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-      -DBUILD_SHARED_LIBS:BOOL=OFF
 )
