@@ -80,6 +80,7 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInitCustomizedOptions {
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                        bundleID:kBundleID
                                                     GCMSenderID:kGCMSenderID
@@ -90,6 +91,7 @@ extern NSString *const kFIRLibraryVersionID;
                                                     databaseURL:kDatabaseURL
                                                   storageBucket:kStorageBucket
                                               deepLinkURLScheme:kDeepLinkURLScheme];
+#pragma clang pop
   [self assertOptionsMatchDefaults:options andProjectID:NO];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
@@ -112,6 +114,7 @@ extern NSString *const kFIRLibraryVersionID;
   // nil GoogleAppID should throw an exception
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertThrows([[FIROptions alloc] initWithGoogleAppID:nil
                                                  bundleID:kBundleID
                                               GCMSenderID:kGCMSenderID

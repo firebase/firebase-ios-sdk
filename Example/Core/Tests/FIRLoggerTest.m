@@ -245,6 +245,8 @@ static NSString *const kMessageCode = @"I-COR000001";
 }
 
 - (BOOL)messageWasLogged:(NSString *)message {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   aslmsg query = asl_new(ASL_TYPE_QUERY);
   asl_set_query(query, ASL_KEY_FACILITY, kFIRLoggerASLClientFacilityName, ASL_QUERY_OP_EQUAL);
   aslresponse r = asl_search(getFIRLoggerClient(), query);
@@ -261,6 +263,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   asl_free(m);
   asl_release(r);
   return [allMsg containsObject:message];
+#pragma clang pop
 }
 
 @end

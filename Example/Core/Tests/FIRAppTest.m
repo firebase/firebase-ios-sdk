@@ -122,6 +122,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // valid customized options
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                        bundleID:kBundleID
                                                     GCMSenderID:kGCMSenderID
@@ -196,6 +197,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Configure a different app with valid customized options
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                                  bundleID:kBundleID
                                                               GCMSenderID:kGCMSenderID
