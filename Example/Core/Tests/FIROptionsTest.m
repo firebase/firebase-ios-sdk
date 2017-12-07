@@ -110,6 +110,8 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
   // nil GoogleAppID should throw an exception
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([[FIROptions alloc] initWithGoogleAppID:nil
                                                  bundleID:kBundleID
                                               GCMSenderID:kGCMSenderID
@@ -120,6 +122,7 @@ extern NSString *const kFIRLibraryVersionID;
                                               databaseURL:nil
                                             storageBucket:nil
                                         deepLinkURLScheme:nil]);
+#pragma clang diagnostic pop
 }
 
 - (void)testinitWithContentsOfFile {
@@ -130,7 +133,10 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   FIROptions *emptyOptions = [[FIROptions alloc] initWithContentsOfFile:nil];
+#pragma clang diagnostic pop
   XCTAssertNil(emptyOptions);
 
   FIROptions *invalidOptions = [[FIROptions alloc] initWithContentsOfFile:@"invalid.plist"];
