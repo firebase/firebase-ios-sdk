@@ -35,7 +35,7 @@
   [self awaitExpectations];
 }
 
-- (void)testSupportEmptyCompletion {
+- (void)testCommitWithoutCompletionHandler {
   FIRDocumentReference *doc = [self documentRef];
   FIRWriteBatch *batch1 = [doc.firestore batch];
   [batch1 setData:@{@"aa" : @"bb"} forDocument:doc];
@@ -49,7 +49,7 @@
   [batch2 commit];
   FIRDocumentSnapshot *snapshot2 = [self readDocumentForRef:doc];
   XCTAssertTrue(snapshot2.exists);
-  XCTAssertEqualObjects(snapshot2.data, @{@"aa" : @"bb"});
+  XCTAssertEqualObjects(snapshot2.data, @{@"cc" : @"dd"});
 }
 
 - (void)testSetDocuments {

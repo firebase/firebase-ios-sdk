@@ -94,12 +94,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)commit {
-  [self verifyNotCommitted];
-  self.committed = TRUE;
+  [self commitWithCompletion:nil];
 }
 
 - (void)commitWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  [self commit];
+  [self verifyNotCommitted];
+  self.committed = TRUE;
   [self.firestore.client writeMutations:self.mutations completion:completion];
 }
 
