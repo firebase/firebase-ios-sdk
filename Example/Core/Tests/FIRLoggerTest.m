@@ -149,7 +149,11 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, @"I-app000001", @"Message."));
 
   // nil or empty message code should fail.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, nil, @"Message."));
+#pragma clang diagnostic pop
+
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, @"", @"Message."));
 
   // Android message code should fail.
