@@ -135,7 +135,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  return [self convertedValue:fieldValue options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+  return [self convertedValue:fieldValue
+                      options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {

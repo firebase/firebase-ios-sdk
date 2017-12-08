@@ -29,7 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRSnapshotOptions
 
-- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior {
+- (instancetype)initWithServerTimestampBehavior:
+    (FSTServerTimestampBehavior)serverTimestampBehavior {
   self = [super init];
 
   if (self) {
@@ -44,8 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[FIRSnapshotOptions alloc]
-        initWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
+    sharedInstance =
+        [[FIRSnapshotOptions alloc] initWithServerTimestampBehavior:FSTServerTimestampBehaviorNone];
   });
 
   return sharedInstance;
@@ -59,6 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
     case FIRServerTimestampBehaviorPrevious:
       return [[FIRSnapshotOptions alloc]
           initWithServerTimestampBehavior:FSTServerTimestampBehaviorPrevious];
+    case FIRServerTimestampBehaviorNone:
+      return [FIRSnapshotOptions defaultOptions];
     default:
       FSTFail(@"Encountered unknown server timestamp behavior: %d", (int)serverTimestampBehavior);
   }

@@ -33,13 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTFieldValueOptions
 
 + (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options {
-  if (options.serverTimestampBehavior == FSTServerTimestampBehaviorDefault) {
+  if (options.serverTimestampBehavior == FSTServerTimestampBehaviorNone) {
     static FSTFieldValueOptions *defaultInstance = nil;
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
       defaultInstance = [[FSTFieldValueOptions alloc]
-          initWithServerTimestampBehavior:FSTServerTimestampBehaviorDefault];
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorNone];
     });
     return defaultInstance;
   } else {
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)value {
   return [self valueWithOptions:[FSTFieldValueOptions
-      optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]]];
+                                    optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]]];
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
@@ -470,7 +470,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
   switch (options.serverTimestampBehavior) {
-    case FSTServerTimestampBehaviorDefault:
+    case FSTServerTimestampBehaviorNone:
       return [NSNull null];
     case FSTServerTimestampBehaviorEstimate:
       return [self.localWriteTime approximateDateValue];

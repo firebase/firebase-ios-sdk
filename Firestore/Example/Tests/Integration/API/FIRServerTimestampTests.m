@@ -128,7 +128,8 @@
                         [self expectedDataWithTimestamp:timestamp]);
 }
 
-/** Verifies a snapshot containing _setData but using the previous field value for the timestamps. */
+/** Verifies a snapshot containing _setData but using the previous field value for the timestamps.
+ */
 - (void)verifyTimestampsInSnapshot:(FIRDocumentSnapshot *)snapshot
               fromPreviousSnapshot:(nullable FIRDocumentSnapshot *)previousSnapshot {
   if (previousSnapshot == nil) {

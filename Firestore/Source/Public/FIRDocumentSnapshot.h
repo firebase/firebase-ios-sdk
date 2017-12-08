@@ -39,6 +39,12 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
    * have not yet been set to their final value.
    */
   FIRServerTimestampBehaviorPrevious,
+
+  /**
+   * Return `NSNull` for `FieldValue.serverTimestamp()` fields that have not yet
+   * been set to their final value.
+   */
+  FIRServerTimestampBehaviorNone
 };
 
 /**
@@ -102,8 +108,8 @@ NS_SWIFT_NAME(DocumentSnapshot)
 /**
  * Retrieves all fields in the document as a `Dictionary`.
  *
- * @param options `SnapshotOptions` to configure how data is returned from
- *     the snapshot (e.g. the desired behavior for server timestamps that have not
+ * @param options `SnapshotOptions` to configure how data is returned from the
+ *     snapshot (e.g. the desired behavior for server timestamps that have not
  *     yet been set to their final value).
  * @return A `Dictionary` containing all fields in the document.
  */
@@ -129,8 +135,8 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * configure this behavior.
  *
  * @param field The field to retrieve.
- * @param options `SnapshotOptions` to configure how data is returned from
- *     the snapshot (e.g. the desired behavior for server timestamps that have not
+ * @param options `SnapshotOptions` to configure how data is returned from the
+ *     snapshot (e.g. the desired behavior for server timestamps that have not
  *     yet been set to their final value).
  * @return The value contained in the field or `nil` if the field doesn't exist.
  */

@@ -44,9 +44,9 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 
 /** Defines the return value for pending server timestamps. */
 typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
-  FSTServerTimestampBehaviorDefault,
   FSTServerTimestampBehaviorEstimate,
   FSTServerTimestampBehaviorPrevious,
+  FSTServerTimestampBehaviorNone
 };
 
 /** Holds properties that define field value deserialization options. */
