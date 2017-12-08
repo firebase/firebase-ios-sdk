@@ -231,7 +231,7 @@ static NSTimeInterval const  kLastSignInDateTimeIntervalInSeconds = 1505858583;
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 1;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @class FIRUserTests
     @brief Tests for @c FIRUser .
