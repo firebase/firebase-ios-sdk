@@ -158,9 +158,10 @@ static BOOL isAppEncrypted() {
 + (BOOL)isAppStoreReceiptSandbox {
   // Since checking the App Store's receipt URL can be memory intensive, check the option in the
   // Info.plist if developers opted out of this check.
-  NSNumber *enableSandboxCheck =
+  id enableSandboxCheck =
       [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRAppStoreSandboxCheckEnabledKey];
-  if ([enableSandboxCheck respondsToSelector:@selector(boolValue)] &&
+  if (enableSandboxCheck &&
+      [enableSandboxCheck isKindOfClass:[NSNumber class]] &&
       ![enableSandboxCheck boolValue]) {
     return NO;
   }
