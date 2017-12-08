@@ -108,7 +108,7 @@
   return snapshot;
 }
 
-/** Waits for a snapshot with that has no pending writes */
+/** Waits for a snapshot that has no pending writes */
 - (FIRDocumentSnapshot *)waitForRemoteEvent {
   FIRDocumentSnapshot *snapshot = [_accumulator awaitEventWithName:@"Remote event."];
   XCTAssertFalse(snapshot.metadata.hasPendingWrites);
@@ -141,7 +141,7 @@
   }
 }
 
-/** Waits for a snapshot containing _setData but with resolved server timestamps. */
+/** Verifies a snapshot containing _setData but with resolved server timestamps. */
 - (id)verifySnapshotWithResolvedTimestamps:(FIRDocumentSnapshot *)snapshot {
   XCTAssertTrue(snapshot.exists);
   NSDate *when = snapshot[@"when"];
