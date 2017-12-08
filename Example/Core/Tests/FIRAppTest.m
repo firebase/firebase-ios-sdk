@@ -96,7 +96,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testConfigureWithOptions {
   // nil options
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([FIRApp configureWithOptions:nil]);
+#pragma clang diagnostic pop
   XCTAssertTrue([FIRApp allApps].count == 0);
 
   NSDictionary *expectedUserInfo =
@@ -117,6 +120,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testConfigureWithCustomizedOptions {
   // valid customized options
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                        bundleID:kBundleID
                                                     GCMSenderID:kGCMSenderID
@@ -127,7 +133,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                     databaseURL:nil
                                                   storageBucket:nil
                                               deepLinkURLScheme:nil];
-
+#pragma clang diagnostic pop
   NSDictionary *expectedUserInfo =
       [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
@@ -146,8 +152,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureWithNameAndOptions {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([FIRApp configureWithName:nil options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:nil]);
+#pragma clang diagnostic pop
   XCTAssertThrows([FIRApp configureWithName:@"" options:[FIROptions defaultOptions]]);
   XCTAssertThrows(
       [FIRApp configureWithName:kFIRDefaultAppName options:[FIROptions defaultOptions]]);
@@ -186,6 +195,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   self.app = [FIRApp appNamed:kFIRTestAppName1];
 
   // Configure a different app with valid customized options
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                                  bundleID:kBundleID
                                                               GCMSenderID:kGCMSenderID
@@ -196,6 +208,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                               databaseURL:nil
                                                             storageBucket:nil
                                                         deepLinkURLScheme:nil];
+#pragma clang diagnostic pop
 
   NSDictionary *expectedUserInfo2 =
       [self expectedUserInfoWithAppName:kFIRTestAppName2 isDefaultApp:NO];
