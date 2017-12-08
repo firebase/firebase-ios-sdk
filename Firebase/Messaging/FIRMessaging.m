@@ -384,7 +384,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   id<UIApplicationDelegate> appDelegate = application.delegate;
   SEL continueUserActivitySelector =
       @selector(application:continueUserActivity:restorationHandler:);
-  SEL openURLWithOptionsSelector = @selector(application:openURL:options:);
   SEL openURLWithSourceApplicationSelector =
       @selector(application:openURL:sourceApplication:annotation:);
   SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
@@ -403,7 +402,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
       // Do nothing, as we don't support the app calling this block
     }];
 
-  } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
+  } else if (@available(iOS 9.0, *)) {
     [appDelegate application:application openURL:url options:@{}];
 
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
@@ -727,7 +726,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 - (void)receiver:(FIRMessagingReceiver *)receiver
       receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
-  if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
+  if (@available(iOS 10.0, *)) {
     [self.delegate messaging:self didReceiveMessage:remoteMessage];
   } else if ([self.delegate respondsToSelector:@selector(applicationReceivedRemoteMessage:)]) {
 #pragma clang diagnostic push
