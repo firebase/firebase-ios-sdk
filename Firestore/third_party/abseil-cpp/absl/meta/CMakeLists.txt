@@ -44,6 +44,3 @@ absl_test(
   PUBLIC_LIBRARIES
     ${TYPE_TRAITS_TEST_PUBLIC_LIBRARIES} absl::meta
 )
-
-
-

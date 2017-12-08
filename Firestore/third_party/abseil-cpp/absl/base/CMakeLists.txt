@@ -34,7 +34,7 @@ list(APPEND BASE_INTERNAL_HEADERS
 
 
 # absl_base main library
-list(APPEND BASE_SRC 
+list(APPEND BASE_SRC
   "internal/raw_logging.cc"
   ${BASE_PUBLIC_HEADERS}
   ${BASE_INTERNAL_HEADERS}
