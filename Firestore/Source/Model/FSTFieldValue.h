@@ -57,14 +57,14 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Creates a FSTFieldValueOptions instance that specifies deserialization behavior for pending
+ * Creates an FSTFieldValueOptions instance that specifies deserialization behavior for pending
  * server timestamps.
  */
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
     NS_DESIGNATED_INITIALIZER;
 
-/** Creates FSTFieldValueOptions from FIRSnapshotOptions. */
-+ (instancetype)fieldValueOptions:(FIRSnapshotOptions *)value;
+/** Creates an FSTFieldValueOption instance from FIRSnapshotOptions. */
++ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)value;
 
 @end
 

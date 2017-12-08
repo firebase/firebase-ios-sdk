@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFieldValueOptions
 
-+ (instancetype)fieldValueOptions:(FIRSnapshotOptions *)options {
++ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options {
   if (options.serverTimestampBehavior == FSTServerTimestampBehaviorDefault) {
     static FSTFieldValueOptions *defaultInstance = nil;
     static dispatch_once_t onceToken;
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)value {
   return [self valueWithOptions:[FSTFieldValueOptions
-                                    fieldValueOptions:[FIRSnapshotOptions defaultOptions]]];
+      optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]]];
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {

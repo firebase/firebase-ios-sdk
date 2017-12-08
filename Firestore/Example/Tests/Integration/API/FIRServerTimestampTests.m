@@ -116,12 +116,12 @@
 }
 
 /** Verifies a snapshot containing _setData but with NSNull for the timestamps. */
-- (void)verifySnapshotWithNullTimestamps:(FIRDocumentSnapshot *)snapshot {
+- (void)verifyTimestampsAreNullInSnapshot:(FIRDocumentSnapshot *)snapshot {
   XCTAssertEqualObjects(snapshot.data, [self expectedDataWithTimestamp:[NSNull null]]);
 }
 
 /** Verifies a snapshot  containing _setData but with a local estimate for the timestamps. */
-- (void)verifySnapshotWithEstimatedTimestamps:(FIRDocumentSnapshot *)snapshot {
+- (void)verifyTimestampsAreEstimatedInSnapshot:(FIRDocumentSnapshot *)snapshot {
   id timestamp = [snapshot valueForField:@"when" options:_returnEstimatedValue];
   XCTAssertTrue([timestamp isKindOfClass:[NSDate class]]);
   XCTAssertEqualObjects([snapshot dataWithOptions:_returnEstimatedValue],
@@ -129,8 +129,8 @@
 }
 
 /** Verifies a snapshot containing _setData but using the previous field value for the timestamps. */
-- (void)verifySnapshot:(FIRDocumentSnapshot *)snapshot
-    withDataFromPreviousSnapshot:(nullable FIRDocumentSnapshot *)previousSnapshot {
+- (void)verifyTimestampsInSnapshot:(FIRDocumentSnapshot *)snapshot
+              fromPreviousSnapshot:(nullable FIRDocumentSnapshot *)previousSnapshot {
   if (previousSnapshot == nil) {
     XCTAssertEqualObjects([snapshot dataWithOptions:_returnPreviousValue],
                           [self expectedDataWithTimestamp:[NSNull null]]);
@@ -182,37 +182,37 @@
 
 - (void)testServerTimestampsWorkViaSet {
   [self writeDocumentRef:_docRef data:_setData];
-  [self verifySnapshotWithNullTimestamps:[self waitForLocalEvent]];
+  [self verifyTimestampsAreNullInSnapshot:[self waitForLocalEvent]];
   [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWorkViaUpdate {
   [self writeInitialData];
   [self updateDocumentRef:_docRef data:_updateData];
-  [self verifySnapshotWithNullTimestamps:[self waitForLocalEvent]];
+  [self verifyTimestampsAreNullInSnapshot:[self waitForLocalEvent]];
   [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWithEstimatedValue {
   [self writeDocumentRef:_docRef data:_setData];
-  [self verifySnapshotWithEstimatedTimestamps:[self waitForLocalEvent]];
+  [self verifyTimestampsAreEstimatedInSnapshot:[self waitForLocalEvent]];
   [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWithPreviousValue {
   [self writeDocumentRef:_docRef data:_setData];
-  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
+  [self verifyTimestampsInSnapshot:[self waitForLocalEvent] fromPreviousSnapshot:nil];
   FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
 
   [_docRef updateData:_updateData];
-  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:remoteSnapshot];
+  [self verifyTimestampsInSnapshot:[self waitForLocalEvent] fromPreviousSnapshot:remoteSnapshot];
 
   [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 }
 
 - (void)testServerTimestampsWithPreviousValueOfDifferentType {
   [self writeDocumentRef:_docRef data:_setData];
-  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
+  [self verifyTimestampsInSnapshot:[self waitForLocalEvent] fromPreviousSnapshot:nil];
   [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 
   [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp]}];
@@ -232,7 +232,7 @@
 
 - (void)testServerTimestampsWithConsecutiveUpdates {
   [self writeDocumentRef:_docRef data:_setData];
-  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
+  [self verifyTimestampsInSnapshot:[self waitForLocalEvent] fromPreviousSnapshot:nil];
   [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 
   [self disableNetwork];
@@ -253,7 +253,7 @@
 
 - (void)testServerTimestampsPreviousValueFromLocalMutation {
   [self writeDocumentRef:_docRef data:_setData];
-  [self verifySnapshot:[self waitForLocalEvent] withDataFromPreviousSnapshot:nil];
+  [self verifyTimestampsInSnapshot:[self waitForLocalEvent] fromPreviousSnapshot:nil];
   [self verifySnapshotWithResolvedTimestamps:[self waitForRemoteEvent]];
 
   [self disableNetwork];
