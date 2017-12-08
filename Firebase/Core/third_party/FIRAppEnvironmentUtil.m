@@ -36,6 +36,10 @@ struct encryption_info_command {
 
 @implementation FIRAppEnvironmentUtil
 
+/// A key for the Info.plist to enable or disable checking the App Store Receipt URL to determine if
+/// a build is from TestFlight or the App Store.
+static NSString *const kFIRAppStoreReceiptURLEnabledKey = @"FirebaseAppStoreReceiptURLEnabled";
+
 /// The file name of the sandbox receipt. This is available on iOS >= 8.0
 static NSString *const kFIRAIdentitySandboxReceiptFileName = @"sandboxReceipt";
 
@@ -152,6 +156,15 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)isAppStoreReceiptSandbox {
+  // Since checking the App Store's receipt URL can be memory intensive, provide an option in the
+  // Info.plist for developers to opt out of this check.
+  NSNumber *enableReceiptCheck =
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRAppStoreReceiptURLEnabledKey];
+  if ([enableReceiptCheck respondsToSelector:@selector(boolValue)] &&
+      ![enableReceiptCheck boolValue]) {
+    return NO;
+  }
+
   NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
   NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
   return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
