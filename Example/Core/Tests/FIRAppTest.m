@@ -95,7 +95,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureWithOptions {
-  // nil options
+// nil options
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([FIRApp configureWithOptions:nil]);
@@ -119,7 +119,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureWithCustomizedOptions {
-  // valid customized options
+// valid customized options
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -194,7 +194,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertTrue([FIRApp allApps].count == 1);
   self.app = [FIRApp appNamed:kFIRTestAppName1];
 
-  // Configure a different app with valid customized options
+// Configure a different app with valid customized options
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

@@ -17,6 +17,8 @@
 @import FirebaseFirestore;
 
 #import <XCTest/XCTest.h>
+#import <FirebaseFirestore/FIRFirestore.h>
+#import <FirebaseFirestore/FIRCollectionReference.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -81,6 +83,13 @@
   [self deleteDocumentRef:doc];
   result = [self readDocumentForRef:doc];
   XCTAssertFalse(result.exists);
+}
+
+- (void)testCanRetrieveDocumentThatDoesNotExist {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertNil(result.data);
+  XCTAssertNil(result[@"foo"]);
 }
 
 - (void)testCannotUpdateNonexistentDocument {

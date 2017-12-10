@@ -25,6 +25,7 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -99,18 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
   return _cachedMetadata;
 }
 
-- (NSDictionary<NSString *, id> *)data {
-  FSTDocument *document = self.internalDocument;
-
-  if (!document) {
-    FSTThrowInvalidUsage(
-        @"NonExistentDocumentException",
-        @"Document '%@' doesn't exist. "
-        @"Check document.exists to make sure the document exists before calling document.data.",
-        self.internalKey);
-  }
-
-  return [self convertedObject:[self.internalDocument data]];
+- (nullable NSDictionary<NSString *, id> *)data {
+  return self.internalDocument == nil ? nil : [self convertedObject:[self.internalDocument data]];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
@@ -125,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  return [self convertedValue:fieldValue];
+  return fieldValue == nil ? nil : [self convertedValue:fieldValue];
 }
 
 - (id)convertedValue:(FSTFieldValue *)value {
@@ -168,6 +159,36 @@ NS_ASSUME_NONNULL_BEGIN
     [result addObject:[self convertedValue:value]];
   }];
   return result;
+}
+
+@end
+
+@interface FIRQueryDocumentSnapshot ()
+
+- (instancetype)initWithFirestore:(FIRFirestore *)firestore
+                      documentKey:(FSTDocumentKey *)documentKey
+                         document:(FSTDocument *)document
+                        fromCache:(BOOL)fromCache NS_DESIGNATED_INITIALIZER;
+
+@end
+
+@implementation FIRQueryDocumentSnapshot
+
+- (instancetype)initWithFirestore:(FIRFirestore *)firestore
+                      documentKey:(FSTDocumentKey *)documentKey
+                         document:(FSTDocument *)document
+                        fromCache:(BOOL)fromCache {
+   self =  [super initWithFirestore:firestore
+                                                 documentKey:documentKey
+                                                    document:document
+                                                   fromCache:fromCache];
+  return self;
+}
+
+- (NSDictionary<NSString *, id> *)data {
+  NSDictionary<NSString *, id> *data = [super data];
+  FSTAssert(data, @"Document in a QueryDocumentSnapshot should exist");
+  return data;
 }
 
 @end

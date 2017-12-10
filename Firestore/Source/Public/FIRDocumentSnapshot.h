@@ -46,20 +46,43 @@ NS_SWIFT_NAME(DocumentSnapshot)
 @property(nonatomic, strong, readonly) FIRSnapshotMetadata *metadata;
 
 /**
- * Retrieves all fields in the document as an `NSDictionary`.
+ * Retrieves all fields in the document as an `NSDictionary`. Returns `nil` if the document doesn't
+ * exist.
  *
- * @return An `NSDictionary` containing all fields in the document.
+ * @return An `NSDictionary` containing all fields in the document or `nil` if the document doesn't
+ *      exist.
  */
-- (NSDictionary<NSString *, id> *)data;
+- (nullable NSDictionary<NSString *, id> *)data;
 
 /**
  * Retrieves a specific field from the document.
  *
  * @param key The field to retrieve.
  *
- * @return The value contained in the field or `nil` if the field doesn't exist.
+ * @return The value contained in the field or `nil` if the document or field doesn't exist.
  */
 - (nullable id)objectForKeyedSubscript:(id)key;
+
+@end
+
+/**
+ * A `FIRDocumentSnapshot` contains data read from a document in your Firestore database. The
+ * document is guaranteed to exist and its data can be extracted with the `data` property or by using
+ * subscript syntax to access a specific field.
+ */
+NS_SWIFT_NAME(QueryDocumentSnapshot)
+@interface FIRQueryDocumentSnapshot : FIRDocumentSnapshot
+
+/**   */
+- (instancetype)init
+    __attribute__((unavailable("FIRQueryDocumentSnapshot cannot be created directly.")));
+
+/**
+ * Retrieves all fields in the document as an `NSDictionary`.
+ *
+ * @return An `NSDictionary` containing all fields in the document.
+ */
+- (NSDictionary<NSString *, id> *)data;
 
 @end
 
