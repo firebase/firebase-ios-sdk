@@ -53,15 +53,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_WARNING_VLA} ${CMAKE_CXX_FLAGS} ")
 ## pthread
 find_package(Threads REQUIRED)
 
-# commented: used only for standalone test
-#add_subdirectory(cctz)
-#add_subdirectory(googletest)
-
-## check targets
-check_target(cctz)
-check_target(gtest)
-check_target(gtest_main)
-check_target(gmock)
+find_package(GTest REQUIRED)
 
 # -fexceptions
 set(ABSL_EXCEPTIONS_FLAG "${CMAKE_CXX_EXCEPTIONS}")
@@ -70,9 +62,8 @@ set(ABSL_EXCEPTIONS_FLAG "${CMAKE_CXX_EXCEPTIONS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FIX_MSVC} ${CMAKE_CXX_FLAGS}")
 
 list(APPEND ABSL_TEST_COMMON_LIBRARIES
-  gtest_main
-  gtest
-  gmock
+  GTest::Main
+  GTest::GTest
   ${CMAKE_THREAD_LIBS_INIT}
 )
 

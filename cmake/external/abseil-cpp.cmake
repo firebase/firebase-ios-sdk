@@ -1,5 +1,4 @@
-#
-# Copyright 2017 The Abseil Authors.
+# Copyright 2017 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,35 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-list(APPEND META_PUBLIC_HEADERS
-  "type_traits.h"
-)
+include(ExternalProject)
 
+set(source_dir ${PROJECT_SOURCE_DIR}/Firestore/third_party/abseil-cpp)
+set(binary_dir ${PROJECT_BINARY_DIR}/Firestore/third_party/abseil-cpp)
 
-#
-## TESTS
-#
+ExternalProject_Add(
+  abseil-cpp
+  DEPENDS googletest
 
-# test type_traits_test
-list(APPEND TYPE_TRAITS_TEST_SRC
-  "type_traits_test.cc"
-  ${META_PUBLIC_HEADERS}
-)
+  PREFIX "${binary_dir}"
+  SOURCE_DIR "${source_dir}"
+  BINARY_DIR "${binary_dir}"
 
-absl_header_library(
-  TARGET
-    absl_meta
-  EXPORT_NAME
-    meta
- )
+  INSTALL_DIR "${FIREBASE_INSTALL_DIR}"
+  INSTALL_COMMAND ""
+  TEST_BEFORE_INSTALL ON
 
-absl_test(
-  TARGET
-    type_traits_test
-  SOURCES
-    ${TYPE_TRAITS_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${TYPE_TRAITS_TEST_PUBLIC_LIBRARIES} absl::meta
+  CMAKE_ARGS
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
 )

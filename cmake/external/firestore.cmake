@@ -19,7 +19,7 @@ set(binary_dir ${PROJECT_BINARY_DIR}/Firestore)
 
 ExternalProject_Add(
   Firestore
-  DEPENDS googletest
+  DEPENDS googletest abseil-cpp
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.
