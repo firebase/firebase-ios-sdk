@@ -27,9 +27,11 @@ list(APPEND BASE_PUBLIC_HEADERS
 
 list(APPEND BASE_INTERNAL_HEADERS
   "internal/atomic_hook.h"
+  "internal/endian.h"
   "internal/log_severity.h"
   "internal/raw_logging.h"
   "internal/throw_delegate.h"
+  "internal/unaligned_access.h"
 )
 
 
@@ -83,6 +85,17 @@ absl_library(
 #
 ## TESTS
 #
+
+# test endian_test
+set(ENDIAN_TEST_SRC "internal/endian_test.cc")
+
+absl_test(
+  TARGET
+    endian_test
+  SOURCES
+    ${ENDIAN_TEST_SRC}
+)
+
 
 # test config_test
 set(CONFIG_TEST_SRC "config_test.cc")
