@@ -273,21 +273,49 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSString *path = [[self class] pathForDatabase:dbName inDirectory:self.currentDirectory];
 
-  BOOL didOpenDatabase = YES;
-  if (![fileManager fileExistsAtPath:path]) {
-    // We've to separate between different versions here because of backwards compatbility issues.
+  // We have to separate between different versions here because of backwards compatability issues.
+  if ([fileManager fileExistsAtPath:path]) {
+    // Calling sqlite3_open should create the database, since the file doesn't exist.
+    int result = sqlite3_open([path UTF8String], &_database);
+    // Set the file protection on the sqlite database. The db may be written to in the background
+    // during data notification background execution.
+    NSError *setPermissionsError = nil;
+    NSDictionary *protectionType = @{
+      NSFileProtectionKey: NSFileProtectionCompleteUntilFirstUserAuthentication
+    };
+    [fileManager setAttributes:protectionType
+                  ofItemAtPath:path
+                         error:&setPermissionsError];
+    if (setPermissionsError != nil) {
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingDatabase,
+                              @"%@",
+                              setPermissionsError.localizedDescription);
+    }
+    if (result != SQLITE_OK) {
+      NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
+      NSString *errorMessage =
+      [NSString stringWithFormat:@"Could not create RMQ database at path %@, error: %@",
+       path,
+       errorString];
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingDatabase,
+                              @"%@",
+                              errorMessage);
+      NSAssert(NO, errorMessage);
+      return;
+    }
+    [self updateDbWithStringRmqID];
+  } else {
     int result = sqlite3_open([path UTF8String], &_database);
     if (result != SQLITE_OK) {
       NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
       NSString *errorMessage =
-          [NSString stringWithFormat:@"Could not open existing RMQ database at path %@, error: %@",
-                                     path,
-                                     errorString];
+      [NSString stringWithFormat:@"Could not open existing RMQ database at path %@, error: %@",
+       path,
+       errorString];
       FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
                               @"%@",
                               errorMessage);
       NSAssert(NO, errorMessage);
-      didOpenDatabase = NO;
       return;
     }
     [self createTableWithName:kTableOutgoingRmqMessages
@@ -295,28 +323,9 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
     [self createTableWithName:kTableLastRmqId command:kCreateTableLastRmqId];
     [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
-  } else {
-    // Calling sqlite3_open should create the database, since the file doesn't exist.
-    int result = sqlite3_open([path UTF8String], &_database);
-    if (result != SQLITE_OK) {
-      NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
-      NSString *errorMessage =
-          [NSString stringWithFormat:@"Could not create RMQ database at path %@, error: %@",
-                                     path,
-                                     errorString];
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingDatabase,
-                              @"%@",
-                              errorMessage);
-      NSAssert(NO, errorMessage);
-      didOpenDatabase = NO;
-    } else {
-      [self updateDbWithStringRmqID];
-    }
   }
 
-  if (didOpenDatabase) {
-    [self createTableWithName:kTableSyncMessages command:kCreateTableSyncMessages];
-  }
+  [self createTableWithName:kTableSyncMessages command:kCreateTableSyncMessages];
 }
 
 - (void)updateDbWithStringRmqID {
