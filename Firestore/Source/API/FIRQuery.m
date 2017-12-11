@@ -93,9 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate *)predicate {
   NSComparisonPredicate *comparison = (NSComparisonPredicate *)predicate;
   if (comparison.comparisonPredicateModifier != NSDirectPredicateModifier) {
-    FSTThrowInvalidArgument(
-                            @"Invalid query. Predicate cannot have an "
-                            "aggregate modifier.");
+    FSTThrowInvalidArgument(@"Invalid query. Predicate cannot have an aggregate modifier.");
   }
   NSString *path;
   id value = nil;
@@ -135,15 +133,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
   } else {
     FSTThrowInvalidArgument(
-                            @"Invalid query. Predicate comparisons must "
-                            "include a key path and a constant.");
+        @"Invalid query. Predicate comparisons must include a key path and a constant.");
   }
   // Fallback cases of unsupported comparison operator.
   switch (comparison.predicateOperatorType) {
     case NSCustomSelectorPredicateOperatorType:
-      FSTThrowInvalidArgument(
-                              @"Invalid query. Custom predicate filters are "
-                              "not supported.");
+      FSTThrowInvalidArgument(@"Invalid query. Custom predicate filters are not supported.");
       break;
     default:
       FSTThrowInvalidArgument(@"Invalid query. Operator type %lu is not supported.",
@@ -154,9 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRQuery *)queryFilteredUsingCompoundPredicate:(NSPredicate *)predicate {
   NSCompoundPredicate *compound = (NSCompoundPredicate *)predicate;
   if (compound.compoundPredicateType != NSAndPredicateType || compound.subpredicates.count == 0) {
-    FSTThrowInvalidArgument(
-                            @"Invalid query. Only compound queries using AND "
-                            "are supported.");
+    FSTThrowInvalidArgument(@"Invalid query. Only compound queries using AND are supported.");
   }
   FIRQuery *query = self;
   for (NSPredicate *pred in compound.subpredicates) {
