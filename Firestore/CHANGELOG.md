@@ -1,3 +1,8 @@
+# Firestore API Branch
+- [changed] For non-existing documents, DocumentSnapshot.data() now returns `nil`
+  instead of throwing an exception. A non-nullable QueryDocumentSnapshot is
+  introduced for Queries to reduce the number of nil-checks in your code.
+
 # Unreleased
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions

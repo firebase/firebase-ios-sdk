@@ -25,6 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
  * A `FIRDocumentSnapshot` contains data read from a document in your Firestore database. The data
  * can be extracted with the `data` property or by using subscript syntax to access a specific
  * field.
+ *
+ * For a `FIRDocumentSnapshot` that points to non-existing document, any data access will return
+ * `nil`. You can use the `exists` property to explicitly verify a documents existence.
  */
 NS_SWIFT_NAME(DocumentSnapshot)
 @interface FIRDocumentSnapshot : NSObject
@@ -66,9 +69,13 @@ NS_SWIFT_NAME(DocumentSnapshot)
 @end
 
 /**
- * A `FIRQueryDocumentSnapshot` contains data read from a document in your Firestore database. The
- * document is guaranteed to exist and its data can be extracted with the `data` property or by
- * using subscript syntax to access a specific field.
+ * A `FIRQueryDocumentSnapshot` contains data read from a document in your Firestore database as
+ * part of a query. The document is guaranteed to exist and its data can be extracted with the
+ * `data` property or by using subscript syntax to access a specific field.
+ *
+ * A `FIRQueryDocumentSnapshot` offers the same API surface as a `FIRDocumentSnapshot`. As
+ * deleted documents are not returned from queries, its `exists` property will always be true and
+ * `data:` will never return `nil`.
  */
 NS_SWIFT_NAME(QueryDocumentSnapshot)
 @interface FIRQueryDocumentSnapshot : FIRDocumentSnapshot
