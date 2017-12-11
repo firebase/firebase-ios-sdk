@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
   /**
+   * Return `NSNull` for `FieldValue.serverTimestamp()` fields that have not yet
+   * been set to their final value.
+   */
+  FIRServerTimestampBehaviorNone,
+
+  /**
    * Return a local estimates for `FieldValue.serverTimestamp()`
    * fields that have not yet been set to their final value. This estimate will
    * likely differ from the final value and may cause these pending values to
@@ -38,13 +44,7 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
    * Return the previous value for `FieldValue.serverTimestamp()` fields that
    * have not yet been set to their final value.
    */
-  FIRServerTimestampBehaviorPrevious,
-
-  /**
-   * Return `NSNull` for `FieldValue.serverTimestamp()` fields that have not yet
-   * been set to their final value.
-   */
-  FIRServerTimestampBehaviorNone
+  FIRServerTimestampBehaviorPrevious
 };
 
 /**

@@ -16,8 +16,6 @@
 
 @import FirebaseFirestore;
 
-#import <FirebaseFirestore/FIRDocumentSnapshot.h>
-#import <OCMock/OCMArg.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
@@ -128,7 +126,9 @@
                         [self expectedDataWithTimestamp:timestamp]);
 }
 
-/** Verifies a snapshot containing _setData but using the previous field value for the timestamps.
+/**
+ * Verifies a snapshot containing _setData but using the previous field value for server
+ * timestamps.
  */
 - (void)verifyTimestampsInSnapshot:(FIRDocumentSnapshot *)snapshot
               fromPreviousSnapshot:(nullable FIRDocumentSnapshot *)previousSnapshot {

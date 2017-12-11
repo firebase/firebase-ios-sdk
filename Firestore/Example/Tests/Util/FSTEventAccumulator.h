@@ -23,8 +23,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^FSTValueEventHandler)(id _Nullable, NSError *error);
-typedef void (^FSTErrorEventHandler)(NSError *error);
+typedef void (^FSTValueEventHandler)(id _Nullable, NSError *_Nullable error);
+typedef void (^FSTErrorEventHandler)(NSError *_Nullable error);
 
 @interface FSTEventAccumulator : NSObject
 

@@ -1,3 +1,7 @@
+# Firestore API Branch
+- [added] Added SnapshotOptions API to control how DocumentSnapshots return unresolved
+  server timestamps.
+
 # Unreleased
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
 - [fixed] Fixed a crash when using path names with international characters
