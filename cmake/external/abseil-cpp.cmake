@@ -14,23 +14,18 @@
 
 include(ExternalProject)
 
-set(source_dir ${PROJECT_SOURCE_DIR}/Firestore)
-set(binary_dir ${PROJECT_BINARY_DIR}/Firestore)
+set(source_dir ${PROJECT_SOURCE_DIR}/Firestore/third_party/abseil-cpp)
+set(binary_dir ${PROJECT_BINARY_DIR}/Firestore/third_party/abseil-cpp)
 
 ExternalProject_Add(
-  Firestore
-  DEPENDS googletest abseil-cpp
+  abseil-cpp
+  DEPENDS googletest
 
-  # Lay the binary directory out as if this were a subproject. This makes it
-  # possible to build and test in it directly.
-  PREFIX ${binary_dir}
-  SOURCE_DIR ${source_dir}
-  BINARY_DIR ${binary_dir}
-  BUILD_ALWAYS ON
+  PREFIX "${binary_dir}"
+  SOURCE_DIR "${source_dir}"
+  BINARY_DIR "${binary_dir}"
 
-  # Even though this isn't installed, set up the INSTALL_DIR so that
-  # find_package can find dependencies built from source.
-  INSTALL_DIR ${FIREBASE_INSTALL_DIR}
+  INSTALL_DIR "${FIREBASE_INSTALL_DIR}"
   INSTALL_COMMAND ""
   TEST_BEFORE_INSTALL ON
 

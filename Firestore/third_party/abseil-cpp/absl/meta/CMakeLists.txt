@@ -1,4 +1,5 @@
-# Copyright 2017 Google
+#
+# Copyright 2017 The Abseil Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,21 +12,35 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-# Superbuild for Firebase
+list(APPEND META_PUBLIC_HEADERS
+  "type_traits.h"
+)
 
-cmake_minimum_required(VERSION 2.8.11)
-project(firebase C CXX)
 
-list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
+#
+## TESTS
+#
 
-# External Projects install into this prefix and download into the source tree
-# to avoid re-downloading repeatedly during development.
-set(FIREBASE_INSTALL_DIR "${PROJECT_BINARY_DIR}/usr")
-set(FIREBASE_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
+# test type_traits_test
+list(APPEND TYPE_TRAITS_TEST_SRC
+  "type_traits_test.cc"
+  ${META_PUBLIC_HEADERS}
+)
 
-enable_testing()
+absl_header_library(
+  TARGET
+    absl_meta
+  EXPORT_NAME
+    meta
+ )
 
-include(external/googletest)
-include(external/abseil-cpp)
-include(external/firestore)
+absl_test(
+  TARGET
+    type_traits_test
+  SOURCES
+    ${TYPE_TRAITS_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${TYPE_TRAITS_TEST_PUBLIC_LIBRARIES} absl::meta
+)
