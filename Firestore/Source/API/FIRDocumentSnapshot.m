@@ -178,10 +178,10 @@ NS_ASSUME_NONNULL_BEGIN
                       documentKey:(FSTDocumentKey *)documentKey
                          document:(FSTDocument *)document
                         fromCache:(BOOL)fromCache {
-   self =  [super initWithFirestore:firestore
-                                                 documentKey:documentKey
-                                                    document:document
-                                                   fromCache:fromCache];
+  self = [super initWithFirestore:firestore
+                      documentKey:documentKey
+                         document:document
+                        fromCache:fromCache];
   return self;
 }
 

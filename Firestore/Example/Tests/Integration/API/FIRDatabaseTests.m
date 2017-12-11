@@ -16,9 +16,9 @@
 
 @import FirebaseFirestore;
 
-#import <XCTest/XCTest.h>
-#import <FirebaseFirestore/FIRFirestore.h>
 #import <FirebaseFirestore/FIRCollectionReference.h>
+#import <FirebaseFirestore/FIRFirestore.h>
+#import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"

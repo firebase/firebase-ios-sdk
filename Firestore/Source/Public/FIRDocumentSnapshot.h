@@ -67,8 +67,8 @@ NS_SWIFT_NAME(DocumentSnapshot)
 
 /**
  * A `FIRDocumentSnapshot` contains data read from a document in your Firestore database. The
- * document is guaranteed to exist and its data can be extracted with the `data` property or by using
- * subscript syntax to access a specific field.
+ * document is guaranteed to exist and its data can be extracted with the `data` property or by
+ * using subscript syntax to access a specific field.
  */
 NS_SWIFT_NAME(QueryDocumentSnapshot)
 @interface FIRQueryDocumentSnapshot : FIRDocumentSnapshot
