@@ -2,8 +2,7 @@
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
   to avoid confusion with the factory method of the same name.
-- [changed] FIRWriteBatch method commitWithCompletion has nullable param and a new
-  method commit is introduced.
+- [changed] Added a commit method that takes no completion handler to FIRWriteBatch.
 - [fixed] Fixed a crash when using path names with international characters
   with persistence enabled.
 

@@ -139,21 +139,20 @@ func writeDocuments(at docRef: DocumentReference, database db: Firestore) {
   batch.setData(["c" : "d"], forDocument:docRef);
   // commit without completion callback.
   batch.commit();
-  print("Batch write without completion complete!")
+  print("Batch write without completion complete!");
 
   batch = db.batch();
   batch.setData(["a" : "b"], forDocument:docRef);
   batch.setData(["c" : "d"], forDocument:docRef);
   // commit with completion callback via trailing closure syntax.
   batch.commit() { error in
-      if let error = error {
-          print("Uh oh! \(error)")
-          return
-      }
-
-      print("Batch write callback complete!")
+    if let error = error {
+      print("Uh oh! \(error)");
+      return;
+    }
+    print("Batch write callback complete!");
   }
-  print("Batch write with completion complete!")
+  print("Batch write with completion complete!");
 }
 
 func addDocument(to collectionRef: CollectionReference) {
