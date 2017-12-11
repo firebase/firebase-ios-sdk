@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  *  - Array
  *  - Object
  */
-@interface FSTFieldValue : NSObject
+@interface FSTFieldValue <__covariant T> : NSObject
 
 /** Returns the FSTTypeOrder for this value. */
 - (FSTTypeOrder)typeOrder;
@@ -97,7 +97,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * TODO(mikelehen): This conversion should probably happen at the API level and right now `value` is
  * used inappropriately in the serializer implementation, etc.  We need to do some reworking.
  */
-- (id)value;
+- (T)value;
 
 /**
  * Converts an FSTFieldValue into the value that users will see in document snapshots.
@@ -105,7 +105,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * Options can be provided to configure the deserialization of some field values (such as server
  * timestamps).
  */
-- (id)valueWithOptions:(FSTFieldValueOptions *)options;
+- (T)valueWithOptions:(FSTFieldValueOptions *)options;
 
 /** Compares against another FSTFieldValue. */
 - (NSComparisonResult)compare:(FSTFieldValue *)other;
@@ -115,26 +115,24 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /**
  * A null value stored in Firestore. The |value| of a FSTNullValue is [NSNull null].
  */
-@interface FSTNullValue : FSTFieldValue
+@interface FSTNullValue : FSTFieldValue <NSNull *>
 + (instancetype)nullValue;
-- (NSNull *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
  * A boolean value stored in Firestore.
  */
-@interface FSTBooleanValue : FSTFieldValue
+@interface FSTBooleanValue : FSTFieldValue <NSNumber *>
 + (instancetype)trueValue;
 + (instancetype)falseValue;
 + (instancetype)booleanValue:(BOOL)value;
-- (NSNumber *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
  * Base class inherited from by FSTIntegerValue and FSTDoubleValue. It implements proper number
  * comparisons between the two types.
  */
-@interface FSTNumberValue : FSTFieldValue
+@interface FSTNumberValue : FSTFieldValue <NSNumber *>
 @end
 
 /**
@@ -143,7 +141,6 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 @interface FSTIntegerValue : FSTNumberValue
 + (instancetype)integerValue:(int64_t)value;
 - (int64_t)internalValue;
-- (NSNumber *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -153,23 +150,20 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 + (instancetype)doubleValue:(double)value;
 + (instancetype)nanValue;
 - (double)internalValue;
-- (NSNumber *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
  * A string stored in Firestore.
  */
-@interface FSTStringValue : FSTFieldValue
+@interface FSTStringValue : FSTFieldValue <NSString *>
 + (instancetype)stringValue:(NSString *)value;
-- (NSString *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
  * A timestamp value stored in Firestore.
  */
-@interface FSTTimestampValue : FSTFieldValue
+@interface FSTTimestampValue : FSTFieldValue <NSDate *>
 + (instancetype)timestampValue:(FSTTimestamp *)value;
-- (NSDate *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (FSTTimestamp *)internalValue;
 @end
 
@@ -185,7 +179,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * - They sort after all FSTTimestampValues. With respect to other FSTServerTimestampValues, they
  *   sort by their localWriteTime.
  */
-@interface FSTServerTimestampValue : FSTFieldValue
+@interface FSTServerTimestampValue : FSTFieldValue <id>
 + (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue;
 
@@ -197,7 +191,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /**
  * A geo point value stored in Firestore.
  */
-@interface FSTGeoPointValue : FSTFieldValue
+@interface FSTGeoPointValue : FSTFieldValue <FIRGeoPoint *>
 + (instancetype)geoPointValue:(FIRGeoPoint *)value;
 - (FIRGeoPoint *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
@@ -205,7 +199,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /**
  * A blob value stored in Firestore.
  */
-@interface FSTBlobValue : FSTFieldValue
+@interface FSTBlobValue : FSTFieldValue <NSData *>
 + (instancetype)blobValue:(NSData *)value;
 - (NSData *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
@@ -213,7 +207,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /**
  * A reference value stored in Firestore.
  */
-@interface FSTReferenceValue : FSTFieldValue
+@interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
 + (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
 - (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
 @property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
@@ -222,7 +216,12 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /**
  * A structured object value stored in Firestore.
  */
-@interface FSTObjectValue : FSTFieldValue
+// clang-format off
+@interface FSTObjectValue : FSTFieldValue < NSDictionary<NSString *, id> * >
+
+- (instancetype)init NS_UNAVAILABLE;
+// clang-format on
+
 /** Returns an empty FSTObjectValue. */
 + (instancetype)objectValue;
 
@@ -236,8 +235,6 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  */
 - (instancetype)initWithImmutableDictionary:
     (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)value NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
 
 - (NSDictionary<NSString *, id> *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
@@ -261,19 +258,20 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /**
  * An array value stored in Firestore.
  */
-@interface FSTArrayValue : FSTFieldValue
+// clang-format off
+@interface FSTArrayValue : FSTFieldValue < NSArray <id> * >
+
+- (instancetype)init NS_UNAVAILABLE;
+// clang-format on
 
 /**
  * Initializes this instance with the given array of wrapped values.
  *
  * @param value An immutable array of FSTFieldValue objects. Caller is responsible for copying the
- *     value or releasing all references.
+ *      value or releasing all references.
  */
 - (instancetype)initWithValueNoCopy:(NSArray<FSTFieldValue *> *)value NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)init NS_UNAVAILABLE;
-
-- (NSArray<id> *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (NSArray<FSTFieldValue *> *)internalValue;
 
 @end
