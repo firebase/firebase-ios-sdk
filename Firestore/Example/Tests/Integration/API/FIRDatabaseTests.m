@@ -860,7 +860,7 @@
           [writeEpectation fulfill];
         }];
 
-    [firestore.client enableNetworkWithCompletion:^(NSError *error) {
+    [firestore enableNetworkWithCompletion:^(NSError *error) {
       XCTAssertNil(error);
       [networkExpectation fulfill];
     }];
@@ -911,7 +911,7 @@
       // Verify that we are reading from cache.
       XCTAssertTrue(snapshot.metadata.fromCache);
       XCTAssertEqualObjects(snapshot.data, data);
-      [firestore.client enableNetworkWithCompletion:^(NSError *error) {
+      [firestore enableNetworkWithCompletion:^(NSError *error) {
         [networkExpectation fulfill];
       }];
     }];

@@ -151,7 +151,7 @@
   [firestore.client disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
     [docRef setData:@{@"foo" : @"bar"}];
-    [firestore.client enableNetworkWithCompletion:^(NSError *error) {
+    [firestore enableNetworkWithCompletion:^(NSError *error) {
       XCTAssertNil(error);
     }];
   }];

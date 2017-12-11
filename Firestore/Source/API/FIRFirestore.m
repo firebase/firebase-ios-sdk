@@ -279,6 +279,16 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   FIRSetLoggerLevel(logging ? FIRLoggerLevelDebug : FIRLoggerLevelNotice);
 }
 
+- (void)enableNetworkWithCompletion:(void (^ _Nullable)(NSError *_Nullable error))completion {
+    [self firestoreWithConfiguredClient];
+    [self.client enableNetworkWithCompletion:completion];
+}
+
+- (void)disableNetworkWithCompletion:(void (^ _Nullable)(NSError * _Nullable))completion {
+    [self firestoreWithConfiguredClient];
+    [self.client disableNetworkWithCompletion:completion];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

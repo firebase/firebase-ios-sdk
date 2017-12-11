@@ -139,6 +139,21 @@ NS_SWIFT_NAME(Firestore)
 + (void)enableLogging:(BOOL)logging
     DEPRECATED_MSG_ATTRIBUTE("Use FIRSetLoggerLevel(FIRLoggerLevelDebug) to enable logging");
 
+
+#pragma mark - Network
+
+/**
+ * Enables usage of the network by this Firestore instance. Completion block, if provided,
+ * will be called once network uasge has been enabled.
+ */
+- (void)enableNetworkWithCompletion:(void (^ _Nullable)(NSError *_Nullable error))completion;
+
+/**
+ * Disables usage of the network by this Firestore instance. Completion block, if provided,
+ * will be called once network usage has been disabled.
+ */
+- (void)disableNetworkWithCompletion:(void (^ _Nullable)(NSError *_Nullable error))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

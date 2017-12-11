@@ -210,8 +210,9 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 - (void)enableNetwork {
-  FSTAssert(self.watchStream == nil, @"enableNetwork: called with non-null watchStream.");
-  FSTAssert(self.writeStream == nil, @"enableNetwork: called with non-null writeStream.");
+  if ([self isNetworkEnabled]) {
+    return;
+  }
 
   // Create new streams (but note they're not started yet).
   self.watchStream = [self.datastore createWatchStream];
@@ -231,6 +232,9 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 - (void)disableNetwork {
+  if (![self isNetworkEnabled]) {
+    return;
+  }
   [self updateAndNotifyAboutOnlineState:FSTOnlineStateFailed];
 
   // NOTE: We're guaranteed not to get any further events from these streams (not even a close
