@@ -148,7 +148,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   // Lowercase should fail.
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, @"I-app000001", @"Message."));
 
-  // nil or empty message code should fail.
+// nil or empty message code should fail.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, nil, @"Message."));

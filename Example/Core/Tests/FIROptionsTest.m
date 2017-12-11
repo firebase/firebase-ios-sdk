@@ -111,7 +111,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options2.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
-  // nil GoogleAppID should throw an exception
+// nil GoogleAppID should throw an exception
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

@@ -142,7 +142,8 @@ static FIRApp *sDefaultApp;
 
         NSString *minVersion = info[@"MinimumOSVersion"];
         if ([minVersion hasPrefix:@"7."]) {
-          FIRLogNotice(kFIRLoggerCore, @"I-COR000026", @"Support for iOS 7 is deprecated and will "
+          FIRLogNotice(kFIRLoggerCore, @"I-COR000026",
+                       @"Support for iOS 7 is deprecated and will "
                        @"stop working in the future. Please upgrade your app to target iOS 8 or "
                        @"above.");
         }
