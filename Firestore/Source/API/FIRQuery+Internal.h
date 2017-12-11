@@ -23,8 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRQuery API we don't want exposed in our public header files. */
 @interface FIRQuery (Internal)
 + (FIRQuery *)referenceWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore;
-- (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate *)predicate;
-- (FIRQuery *)queryFilteredUsingCompoundPredicate:(NSPredicate *)predicate;
 @property(nonatomic, strong, readonly) FSTQuery *query;
 @end
 
