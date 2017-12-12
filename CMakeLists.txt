@@ -32,5 +32,6 @@ set(FIREBASE_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
 enable_testing()
 
 include(external/googletest)
+include(external/leveldb)
 include(external/abseil-cpp)
 include(external/firestore)

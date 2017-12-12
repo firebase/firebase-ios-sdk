@@ -16,9 +16,13 @@ cmake_minimum_required(VERSION 2.8.11)
 project(firestore)
 
 set(FIREBASE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
-include("${FIREBASE_SOURCE_DIR}/cmake/utils.cmake")
+set(FIREBASE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/..")
+
+list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
+include(utils)
 
 find_package(GTest REQUIRED)
+find_package(LevelDB REQUIRED)
 
 # We use C++11
 set(CMAKE_CXX_STANDARD 11)
