@@ -851,7 +851,7 @@
   FIRFirestore *firestore = doc.firestore;
   NSDictionary<NSString *, id> *data = @{@"a" : @"b"};
 
-  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
+  [firestore disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
 
     [doc setData:data
@@ -890,7 +890,7 @@
 
   __weak FIRDocumentReference *weakDoc = doc;
 
-  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
+  [firestore disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
     [doc setData:data
         completion:^(NSError *_Nullable error) {
