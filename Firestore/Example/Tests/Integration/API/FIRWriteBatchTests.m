@@ -148,7 +148,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
                                                  includeQueryMetadataChanges:YES]
-                                    listener:accumulator.handler];
+                                    listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -178,7 +178,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
                                                  includeQueryMetadataChanges:YES]
-                                    listener:accumulator.handler];
+                                    listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -212,7 +212,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
                                                  includeQueryMetadataChanges:YES]
-                                    listener:accumulator.handler];
+                                    listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -244,7 +244,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [doc
       addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
-                            listener:accumulator.handler];
+                            listener:accumulator.valueEventHandler];
   FIRDocumentSnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertFalse(initialSnap.exists);
 
