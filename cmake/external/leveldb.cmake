@@ -49,8 +49,6 @@ else()
 
       PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
 
-      DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-
       CONFIGURE_COMMAND ""
       BUILD_ALWAYS ON
       BUILD_IN_SOURCE ON
