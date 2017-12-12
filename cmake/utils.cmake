@@ -23,7 +23,5 @@ function(cc_test name)
   add_executable(${name} ${ARGN})
   add_test(${name} ${name})
 
-  target_link_libraries(${name} gtest gtest_main)
-
-  add_dependencies(check ${name})
+  target_link_libraries(${name} GTest::GTest GTest::Main)
 endfunction()

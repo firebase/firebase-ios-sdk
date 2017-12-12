@@ -3,10 +3,15 @@
   server timestamps.
 
 # Unreleased
+- [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
+  to avoid confusion with the factory method of the same name.
+- [changed] Added a commit method that takes no completion handler to FIRWriteBatch.
+- [feature] Queries can now be created from an NSPredicate.
+
+# v0.9.4
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
 - [fixed] Fixed a crash when using path names with international characters
   with persistence enabled.
-
 - [fixed] Addressed race condition during the teardown of idle streams (#490).
 
 # v0.9.3

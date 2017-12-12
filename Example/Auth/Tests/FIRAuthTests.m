@@ -170,7 +170,7 @@ static NSString *const kVerificationID = @"55432";
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 1;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @var kWaitInterval
     @brief The time waiting for background tasks to finish before continue when necessary.

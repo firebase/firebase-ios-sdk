@@ -111,6 +111,23 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"b", @"a" ]));
 }
 
+- (void)testQueryWithPredicate {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"a" : @1},
+    @"b" : @{@"a" : @2},
+    @"c" : @{@"a" : @3}
+  }];
+
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"a < 3"];
+  FIRQuery *query = [collRef queryFilteredUsingPredicate:predicate];
+  query = [query queryOrderedByFieldPath:[[FIRFieldPath alloc] initWithFields:@[ @"a" ]]
+                              descending:YES];
+
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:query];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"b", @"a" ]));
+}
+
 - (void)testFilterOnInfinity {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"a" : @{@"inf" : @(INFINITY)},

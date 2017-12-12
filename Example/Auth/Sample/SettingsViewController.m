@@ -43,7 +43,7 @@ static NSString *const kSecureTokenRequestClassName = @"FIRSecureTokenRequest";
 /** @var kIdentityToolkitSandboxHost
     @brief The host of Identity Toolkit sandbox server.
  */
-static NSString *const kIdentityToolkitSandboxHost = @"www-googleapis-staging.sandbox.google.com";
+static NSString *const kIdentityToolkitSandboxHost = @"staging-www.sandbox.googleapis.com";
 
 /** @var kSecureTokenSandboxHost
     @brief The host of Secure Token Service sandbox server.
