@@ -83,8 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRQuery ()
 @property(nonatomic, strong, readonly) FSTQuery *query;
-- (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate *)predicate;
-- (FIRQuery *)queryFilteredUsingCompoundPredicate:(NSPredicate *)predicate;
 @end
 
 @implementation FIRQuery (Internal)
