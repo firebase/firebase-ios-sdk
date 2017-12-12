@@ -17,6 +17,11 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(firebase C CXX)
 
+# If no build type is specified, make it a debug build
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 
 # External Projects install into this prefix and download into the source tree
@@ -27,5 +32,6 @@ set(FIREBASE_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
 enable_testing()
 
 include(external/googletest)
+include(external/leveldb)
 include(external/abseil-cpp)
 include(external/firestore)
