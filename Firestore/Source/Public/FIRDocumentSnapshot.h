@@ -75,7 +75,7 @@ NS_SWIFT_NAME(SnapshotOptions)
  * can be extracted with the `data` property or by using subscript syntax to access a specific
  * field.
  *
- * For a `FIRDocumentSnapshot` that points to non-existing document, any data access will return
+ * For a `FIRDocumentSnapshot` that points to a non-existing document, any data access will return
  * `nil`. You can use the `exists` property to explicitly verify a documents existence.
  */
 NS_SWIFT_NAME(DocumentSnapshot)
