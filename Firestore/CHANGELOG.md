@@ -1,12 +1,10 @@
-# Firestore API Branch
-- [added] Added SnapshotOptions API to control how DocumentSnapshots return unresolved
-  server timestamps.
-
 # Unreleased
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
   to avoid confusion with the factory method of the same name.
 - [changed] Added a commit method that takes no completion handler to FIRWriteBatch.
 - [feature] Queries can now be created from an NSPredicate.
+- [added] Added SnapshotOptions API to control how DocumentSnapshots return unresolved
+  server timestamps.
 
 # v0.9.4
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
