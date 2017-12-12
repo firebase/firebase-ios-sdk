@@ -20,6 +20,7 @@
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -101,29 +102,47 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable NSDictionary<NSString *, id> *)data {
-  return self.internalDocument == nil ? nil : [self convertedObject:[self.internalDocument data]];
+  return [self dataWithOptions:[FIRSnapshotOptions defaultOptions]];
 }
 
-- (nullable id)objectForKeyedSubscript:(id)key {
+- (nullable NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options {
+  return self.internalDocument == nil
+             ? nil
+             : [self convertedObject:[self.internalDocument data]
+                             options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+}
+
+- (nullable id)valueForField:(id)field {
+  return [self valueForField:field options:[FIRSnapshotOptions defaultOptions]];
+}
+
+- (nullable id)valueForField:(id)field options:(FIRSnapshotOptions *)options {
   FIRFieldPath *fieldPath;
 
-  if ([key isKindOfClass:[NSString class]]) {
-    fieldPath = [FIRFieldPath pathWithDotSeparatedString:key];
-  } else if ([key isKindOfClass:[FIRFieldPath class]]) {
-    fieldPath = key;
+  if ([field isKindOfClass:[NSString class]]) {
+    fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
+  } else if ([field isKindOfClass:[FIRFieldPath class]]) {
+    fieldPath = field;
   } else {
     FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
   }
 
   FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  return fieldValue == nil ? nil : [self convertedValue:fieldValue];
+  return fieldValue == nil
+             ? nil
+             : [self convertedValue:fieldValue
+                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
 }
 
-- (id)convertedValue:(FSTFieldValue *)value {
+- (nullable id)objectForKeyedSubscript:(id)key {
+  return [self valueForField:key];
+}
+
+- (id)convertedValue:(FSTFieldValue *)value options:(FSTFieldValueOptions *)options {
   if ([value isKindOfClass:[FSTObjectValue class]]) {
-    return [self convertedObject:(FSTObjectValue *)value];
+    return [self convertedObject:(FSTObjectValue *)value options:options];
   } else if ([value isKindOfClass:[FSTArrayValue class]]) {
-    return [self convertedArray:(FSTArrayValue *)value];
+    return [self convertedArray:(FSTArrayValue *)value options:options];
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
     FSTDatabaseID *refDatabase = ref.databaseID;
@@ -137,26 +156,29 @@ NS_ASSUME_NONNULL_BEGIN
           self.reference.path, refDatabase.projectID, refDatabase.databaseID, database.projectID,
           database.databaseID);
     }
-    return [FIRDocumentReference referenceWithKey:ref.value firestore:self.firestore];
+    return [FIRDocumentReference referenceWithKey:[ref valueWithOptions:options]
+                                        firestore:self.firestore];
   } else {
-    return value.value;
+    return [value valueWithOptions:options];
   }
 }
 
-- (NSDictionary<NSString *, id> *)convertedObject:(FSTObjectValue *)objectValue {
+- (NSDictionary<NSString *, id> *)convertedObject:(FSTObjectValue *)objectValue
+                                          options:(FSTFieldValueOptions *)options {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   [objectValue.internalValue
       enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *value, BOOL *stop) {
-        result[key] = [self convertedValue:value];
+        result[key] = [self convertedValue:value options:options];
       }];
   return result;
 }
 
-- (NSArray<id> *)convertedArray:(FSTArrayValue *)arrayValue {
+- (NSArray<id> *)convertedArray:(FSTArrayValue *)arrayValue
+                        options:(FSTFieldValueOptions *)options {
   NSArray<FSTFieldValue *> *internalValue = arrayValue.internalValue;
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:internalValue.count];
   [internalValue enumerateObjectsUsingBlock:^(id value, NSUInteger idx, BOOL *stop) {
-    [result addObject:[self convertedValue:value]];
+    [result addObject:[self convertedValue:value options:options]];
   }];
   return result;
 }

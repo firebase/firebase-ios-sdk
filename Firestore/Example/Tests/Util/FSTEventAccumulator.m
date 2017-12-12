@@ -68,15 +68,25 @@ NS_ASSUME_NONNULL_BEGIN
   return events[0];
 }
 
-// Overrides the handler property
-- (void (^)(id _Nullable, NSError *))handler {
-  return ^void(id _Nullable value, NSError *error) {
+// Override the valueEventHandler property
+- (void (^)(id _Nullable, NSError *_Nullable))valueEventHandler {
+  return ^void(id _Nullable value, NSError *_Nullable error) {
     // We can't store nil in the _events array, but these are still interesting to tests so store
     // NSNull instead.
     id event = value ? value : [NSNull null];
 
     @synchronized(self) {
       [_events addObject:event];
+      [self checkFulfilled];
+    }
+  };
+}
+
+// Override the errorEventHandler property
+- (void (^)(NSError *_Nullable))errorEventHandler {
+  return ^void(NSError *_Nullable error) {
+    @synchronized(self) {
+      [_events addObject:[NSNull null]];
       [self checkFulfilled];
     }
   };
