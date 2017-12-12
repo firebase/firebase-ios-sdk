@@ -74,6 +74,9 @@ NS_SWIFT_NAME(SnapshotOptions)
  * A `FIRDocumentSnapshot` contains data read from a document in your Firestore database. The data
  * can be extracted with the `data` property or by using subscript syntax to access a specific
  * field.
+ *
+ * For a `FIRDocumentSnapshot` that points to non-existing document, any data access will return
+ * `nil`. You can use the `exists` property to explicitly verify a documents existence.
  */
 NS_SWIFT_NAME(DocumentSnapshot)
 @interface FIRDocumentSnapshot : NSObject
@@ -95,50 +98,51 @@ NS_SWIFT_NAME(DocumentSnapshot)
 @property(nonatomic, strong, readonly) FIRSnapshotMetadata *metadata;
 
 /**
- * Retrieves all fields in the document as an `NSDictionary`.
+ * Retrieves all fields in the document as an `NSDictionary`. Returns `nil` if the document doesn't
+ * exist.
  *
- * Server-provided timestamps that have not yet been set to their final value
- * will be returned as `NSNull`. You can use `dataWithOptions()` to configure this
- * behavior.
+ * Server-provided timestamps that have not yet been set to their final value will be returned as
+ * `NSNull`. You can use `dataWithOptions()` to configure this behavior.
  *
- * @return An `NSDictionary` containing all fields in the document.
+ * @return An `NSDictionary` containing all fields in the document or `nil` if the document doesn't
+ *      exist.
  */
-- (NSDictionary<NSString *, id> *)data;
+- (nullable NSDictionary<NSString *, id> *)data;
 
 /**
- * Retrieves all fields in the document as a `Dictionary`.
+ * Retrieves all fields in the document as a `Dictionary`. Returns `nil` if the document doesn't
+ * exist.
  *
- * @param options `SnapshotOptions` to configure how data is returned from the
- *     snapshot (e.g. the desired behavior for server timestamps that have not
- *     yet been set to their final value).
- * @return A `Dictionary` containing all fields in the document.
+ * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
+ *      desired behavior for server timestamps that have not yet been set to their final value).
+ * @return A `Dictionary` containing all fields in the document or `nil` if the document doesn't
+ *      exist.
  */
-- (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
+- (nullable NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
 
 /**
- * Retrieves a specific field from the document.
+ * Retrieves a specific field from the document. Returns `nil` if the document or the field doesn't
+ * exist.
  *
- * The timestamps that have not yet been set to their final value
- * will be returned as `NSNull`. The can use `get(_:options:)` to
- * configure this behavior.
+ * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
+ * can use `get(_:options:)` to configure this behavior.
  *
  * @param field The field to retrieve.
- * @return The value contained in the field or `nil` if the field doesn't exist.
+ * @return The value contained in the field or `nil` if the document or field doesn't exist.
  */
 - (nullable id)valueForField:(id)field NS_SWIFT_NAME(get(_:));
 
 /**
- * Retrieves a specific field from the document.
+ * Retrieves a specific field from the document. Returns `nil` if the document or the field doesn't
+ * exist.
  *
- * The timestamps that have not yet been set to their final value
- * will be returned as `NSNull`. The can use `get(_:options:)` to
- * configure this behavior.
+ * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
+ * can use `get(_:options:)` to configure this behavior.
  *
  * @param field The field to retrieve.
- * @param options `SnapshotOptions` to configure how data is returned from the
- *     snapshot (e.g. the desired behavior for server timestamps that have not
- *     yet been set to their final value).
- * @return The value contained in the field or `nil` if the field doesn't exist.
+ * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
+ *      desired behavior for server timestamps that have not yet been set to their final value).
+ * @return The value contained in the field or `nil` if the document or field doesn't exist.
  */
 // clang-format off
 - (nullable id)valueForField:(id)field
@@ -151,9 +155,34 @@ NS_SWIFT_NAME(DocumentSnapshot)
  *
  * @param key The field to retrieve.
  *
- * @return The value contained in the field or `nil` if the field doesn't exist.
+ * @return The value contained in the field or `nil` if the document or field doesn't exist.
  */
 - (nullable id)objectForKeyedSubscript:(id)key;
+
+@end
+
+/**
+ * A `FIRQueryDocumentSnapshot` contains data read from a document in your Firestore database as
+ * part of a query. The document is guaranteed to exist and its data can be extracted with the
+ * `data` property or by using subscript syntax to access a specific field.
+ *
+ * A `FIRQueryDocumentSnapshot` offers the same API surface as a `FIRDocumentSnapshot`. As
+ * deleted documents are not returned from queries, its `exists` property will always be true and
+ * `data:` will never return `nil`.
+ */
+NS_SWIFT_NAME(QueryDocumentSnapshot)
+@interface FIRQueryDocumentSnapshot : FIRDocumentSnapshot
+
+/**   */
+- (instancetype)init
+    __attribute__((unavailable("FIRQueryDocumentSnapshot cannot be created directly.")));
+
+/**
+ * Retrieves all fields in the document as an `NSDictionary`.
+ *
+ * @return An `NSDictionary` containing all fields in the document.
+ */
+- (NSDictionary<NSString *, id> *)data;
 
 @end
 

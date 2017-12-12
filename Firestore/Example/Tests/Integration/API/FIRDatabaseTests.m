@@ -83,6 +83,13 @@
   XCTAssertFalse(result.exists);
 }
 
+- (void)testCanRetrieveDocumentThatDoesNotExist {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertNil(result.data);
+  XCTAssertNil(result[@"foo"]);
+}
+
 - (void)testCannotUpdateNonexistentDocument {
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 

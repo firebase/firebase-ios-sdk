@@ -5,6 +5,9 @@
 - [feature] Queries can now be created from an NSPredicate.
 - [added] Added SnapshotOptions API to control how DocumentSnapshots return unresolved
   server timestamps.
+- [changed] For non-existing documents, DocumentSnapshot.data() now returns `nil`
+  instead of throwing an exception. A non-nullable QueryDocumentSnapshot is
+  introduced for Queries to reduce the number of nil-checks in your code.
 
 # v0.9.4
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
