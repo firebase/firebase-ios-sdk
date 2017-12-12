@@ -101,9 +101,8 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * Retrieves all fields in the document as an `NSDictionary`. Returns `nil` if the document doesn't
  * exist.
  *
- * Server-provided timestamps that have not yet been set to their final value
- * will be returned as `NSNull`. You can use `dataWithOptions()` to configure this
- * behavior.
+ * Server-provided timestamps that have not yet been set to their final value will be returned as
+ * `NSNull`. You can use `dataWithOptions()` to configure this behavior.
  *
  * @return An `NSDictionary` containing all fields in the document or `nil` if the document doesn't
  *      exist.
@@ -114,21 +113,19 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * Retrieves all fields in the document as a `Dictionary`. Returns `nil` if the document doesn't
  * exist.
  *
- * @param options `SnapshotOptions` to configure how data is returned from the
- *     snapshot (e.g. the desired behavior for server timestamps that have not
- *     yet been set to their final value).
+ * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
+ *      desired behavior for server timestamps that have not yet been set to their final value).
  * @return A `Dictionary` containing all fields in the document or `nil` if the document doesn't
  *      exist.
  */
 - (nullable NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
 
 /**
- * Retrieves a specific field from the document. Returns `nil` if the document or the
- * field doesn't exist.
+ * Retrieves a specific field from the document. Returns `nil` if the document or the field doesn't
+ * exist.
  *
- * The timestamps that have not yet been set to their final value
- * will be returned as `NSNull`. The can use `get(_:options:)` to
- * configure this behavior.
+ * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
+ * can use `get(_:options:)` to configure this behavior.
  *
  * @param field The field to retrieve.
  * @return The value contained in the field or `nil` if the document or field doesn't exist.
@@ -136,17 +133,15 @@ NS_SWIFT_NAME(DocumentSnapshot)
 - (nullable id)valueForField:(id)field NS_SWIFT_NAME(get(_:));
 
 /**
- * Retrieves a specific field from the document. Returns `nil` if the document or the
- * field doesn't exist.
+ * Retrieves a specific field from the document. Returns `nil` if the document or the field doesn't
+ * exist.
  *
- * The timestamps that have not yet been set to their final value
- * will be returned as `NSNull`. The can use `get(_:options:)` to
- * configure this behavior.
+ * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
+ * can use `get(_:options:)` to configure this behavior.
  *
  * @param field The field to retrieve.
- * @param options `SnapshotOptions` to configure how data is returned from the
- *     snapshot (e.g. the desired behavior for server timestamps that have not
- *     yet been set to their final value).
+ * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
+ *      desired behavior for server timestamps that have not yet been set to their final value).
  * @return The value contained in the field or `nil` if the document or field doesn't exist.
  */
 // clang-format off
