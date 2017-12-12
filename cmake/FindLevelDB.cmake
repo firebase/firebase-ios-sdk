@@ -27,17 +27,8 @@ find_library(
   LEVELDB_LIBRARY
   NAMES leveldb
   HINTS
-    $ENV{LEVELDB_ROOT}
-    ${LEVELDB_ROOT}
-    ${binary_dir}/out-static
-)
-
-find_library(
-  LEVELDB_MEMENV_LIBRARY
-  NAMES memenv
-  HINTS
-    $ENV{LEVELDB_ROOT}
-    ${LEVELDB_ROOT}
+    $ENV{LEVELDB_ROOT}/lib
+    ${LEVELDB_ROOT}/lib
     ${binary_dir}/out-static
 )
 
@@ -47,25 +38,17 @@ find_package_handle_standard_args(
   DEFAULT_MSG
   LEVELDB_INCLUDE_DIR
   LEVELDB_LIBRARY
-  LEVELDB_MEMENV_LIBRARY
 )
 
 if(LEVELDB_FOUND)
   set(LEVELDB_INCLUDE_DIRS ${LEVELDB_INCLUDE_DIR})
-  set(LEVELDB_LIBRARIES ${LEVELDB_LIBRARY} ${LEVELDB_MEMENV_LIBRARY})
+  set(LEVELDB_LIBRARIES ${LEVELDB_LIBRARY})
 
   if (NOT TARGET LevelDB::LevelDB)
-    add_library(LevelDB::Memenv UNKNOWN IMPORTED)
-    set_target_properties(
-      LevelDB::Memenv PROPERTIES
-      IMPORTED_LOCATION ${LEVELDB_MEMENV_LIBRARY}
-    )
-
     add_library(LevelDB::LevelDB UNKNOWN IMPORTED)
     set_target_properties(
       LevelDB::LevelDB PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES ${LEVELDB_INCLUDE_DIR}
-      INTERFACE_LINK_LIBRARIES LevelDB::Memenv
       IMPORTED_LOCATION ${LEVELDB_LIBRARY}
     )
   endif()
