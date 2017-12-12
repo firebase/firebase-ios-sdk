@@ -44,7 +44,7 @@ else()
     ExternalProject_Add(
       leveldb
 
-      GIT_REPOSITORY "git@github.com:google/leveldb.git"
+      GIT_REPOSITORY "https://github.com/google/leveldb.git"
       GIT_TAG "v1.20"
 
       PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
