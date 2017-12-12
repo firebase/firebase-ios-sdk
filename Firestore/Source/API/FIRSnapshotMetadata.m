@@ -44,6 +44,22 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+// NSObject Methods
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (!other || ![[other class] isEqual:[self class]]) return NO;
+
+  return [self isEqualToMetadata:other];
+}
+
+- (BOOL)isEqualToMetadata:(nullable FIRSnapshotMetadata *)metadata {
+  if (self == metadata) return YES;
+  if (metadata == nil) return NO;
+  //  if (self.firestore != query.firestore && ![self.firestore isEqual:query.firestore]) return NO;
+  //  if (self.query != query.query && ![self.query isEqual:query.query]) return NO;
+  return YES;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

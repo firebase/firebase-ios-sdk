@@ -65,6 +65,22 @@ NS_ASSUME_NONNULL_BEGIN
   FSTFail(@"Use FIRCollectionReference initWithPath: initializer.");
 }
 
+// NSObject Methods
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (!other || ![[other class] isEqual:[self class]]) return NO;
+
+  return [self isEqualToReference:other];
+}
+
+- (BOOL)isEqualToReference:(nullable FIRCollectionReference *)reference {
+  if (self == reference) return YES;
+  if (reference == nil) return NO;
+  //  if (self.firestore != query.firestore && ![self.firestore isEqual:query.firestore]) return NO;
+  //  if (self.query != query.query && ![self.query isEqual:query.query]) return NO;
+  return YES;
+}
+
 - (NSString *)collectionID {
   return [self.query.path lastSegment];
 }

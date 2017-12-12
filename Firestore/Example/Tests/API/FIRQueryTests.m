@@ -32,6 +32,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRQueryTests
 
+- (void)testEquals {
+  // Everything is dummy for unit test here. Filtering does not require any app
+  // specific setting as far as we do not fetch data.
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
+                                                           database:@"abc"
+                                                     persistenceKey:@"db123"
+                                                credentialsProvider:nil
+                                                workerDispatchQueue:nil
+                                                        firebaseApp:nil];
+  FSTResourcePath *pathFoo = [FSTResourcePath pathWithString:@"foo"];
+  FSTResourcePath *pathBar = [FSTResourcePath pathWithString:@"bar"];
+  FIRQuery *queryFoo =
+      [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:pathFoo] firestore:firestore];
+  FIRQuery *queryFooDup =
+      [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:pathFoo] firestore:firestore];
+  FIRQuery *queryBar =
+      [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:pathBar] firestore:firestore];
+  XCTAssertEqualObjects(queryFoo, queryFooDup);
+  XCTAssertNotEqualObjects(queryFoo, queryBar);
+  XCTAssertEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
+                        [queryFoo queryWhereField:@"f" isEqualTo:@1]);
+  XCTAssertNotEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
+                           [queryFoo queryWhereField:@"f" isEqualTo:@2]);
+}
+
 - (void)testFilteringWithPredicate {
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
