@@ -1,5 +1,5 @@
 # v2.1.1
-- [changed] Internal cleanup in the firebase-ios-sdk repository. Functionality of the Storage SDK should is not affected.
+- [changed] Internal cleanup in the firebase-ios-sdk repository. Functionality of the Storage SDK is not affected.
 
 # v2.1.0
 - [added] Added 'md5Hash' to FIRStorageMetadata.
