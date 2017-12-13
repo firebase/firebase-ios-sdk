@@ -213,6 +213,12 @@ NS_ASSUME_NONNULL_BEGIN
   return data;
 }
 
+- (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options {
+  NSDictionary<NSString *, id> *data = [super dataWithOptions:options];
+  FSTAssert(data, @"Document in a QueryDocumentSnapshot should exist");
+  return data;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

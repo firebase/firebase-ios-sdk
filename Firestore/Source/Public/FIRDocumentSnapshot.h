@@ -180,9 +180,21 @@ NS_SWIFT_NAME(QueryDocumentSnapshot)
 /**
  * Retrieves all fields in the document as an `NSDictionary`.
  *
+ * Server-provided timestamps that have not yet been set to their final value will be returned as
+ * `NSNull`. You can use `dataWithOptions()` to configure this behavior.
+ *
  * @return An `NSDictionary` containing all fields in the document.
  */
 - (NSDictionary<NSString *, id> *)data;
+
+/**
+ * Retrieves all fields in the document as a `Dictionary`.
+ *
+ * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
+ *      desired behavior for server timestamps that have not yet been set to their final value).
+ * @return A `Dictionary` containing all fields in the document.
+ */
+- (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
 
 @end
 
