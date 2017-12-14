@@ -55,8 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToMetadata:(nullable FIRSnapshotMetadata *)metadata {
   if (self == metadata) return YES;
   if (metadata == nil) return NO;
-  //  if (self.firestore != query.firestore && ![self.firestore isEqual:query.firestore]) return NO;
-  //  if (self.query != query.query && ![self.query isEqual:query.query]) return NO;
+  if (self.pendingWrites != metadata.pendingWrites) return NO;
+  if (self.fromCache != metadata.fromCache) return NO;
   return YES;
 }
 
