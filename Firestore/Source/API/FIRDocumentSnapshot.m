@@ -87,8 +87,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToSnapshot:(nullable FIRDocumentSnapshot *)snapshot {
   if (self == snapshot) return YES;
   if (snapshot == nil) return NO;
-  //  if (self.firestore != query.firestore && ![self.firestore isEqual:query.firestore]) return NO;
-  //  if (self.query != query.query && ![self.query isEqual:query.query]) return NO;
+  if (self.firestore != snapshot.firestore && ![self.firestore isEqual:snapshot.firestore])
+    return NO;
+  if (self.internalKey != snapshot.internalKey && ![self.internalKey isEqual:snapshot.internalKey])
+    return NO;
+  if (self.internalDocument != snapshot.internalDocument &&
+      (!self.internalDocument || ![self.internalDocument isEqual:snapshot.internalDocument]))
+    return NO;
+  if (self.fromCache != snapshot.fromCache) return NO;
   return YES;
 }
 
