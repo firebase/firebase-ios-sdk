@@ -167,11 +167,20 @@ func readDocument(at docRef: DocumentReference) {
     // Trailing closure syntax.
     docRef.getDocument() { document, error in
         if let document = document {
-            // NOTE that document is nullable.
-            let data = document.data();
+          // Note that both document and document.data() is nullable.
+          if let data = document.data() {
             print("Read document: \(data)")
-
-            // Fields are read via subscript notation.
+          }
+          if let data = document.data(with:SnapshotOptions.serverTimestampBehavior(.estimate)) {
+            print("Read document: \(data)")
+          }
+          if let foo = document.get("foo") {
+            print("Field: \(foo)")
+          }
+          if let foo = document.get("foo", options: SnapshotOptions.serverTimestampBehavior(.previous)) {
+            print("Field: \(foo)")
+          }
+          // Fields can also be read via subscript notation.
           if let foo = document["foo"] {
             print("Field: \(foo)")
           }
@@ -214,7 +223,9 @@ func listenToDocument(at docRef: DocumentReference) {
         }
 
         if let document = document {
-            print("Current document: \(document.data())");
+            // Note that document.data() is nullable.
+            let data : [String:Any]? = document.data()
+            print("Current document: \(data)");
             if (document.metadata.isFromCache) {
                 print("From Cache")
             } else {
@@ -241,7 +252,9 @@ func listenToDocuments(matching query: Query) {
             // TODO(mikelehen): Figure out how to make "for..in" syntax work
             // directly on documentSet.
             for document in snap.documents {
-              print("Doc: ", document.data())
+              // Note that document.data() is not nullable.
+              let data : [String:Any] = document.data()
+              print("Doc: ", data)
             }
         }
     }

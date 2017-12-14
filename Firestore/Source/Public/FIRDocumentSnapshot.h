@@ -45,7 +45,7 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
    * have not yet been set to their final value.
    */
   FIRServerTimestampBehaviorPrevious
-};
+} NS_SWIFT_NAME(ServerTimestampBehavior);
 
 /**
  * Options that configure how data is retrieved from a `DocumentSnapshot`
