@@ -2193,12 +2193,14 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                     NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"unlink auth provider failed" error:error];
-      completion(error);
-    } else {
-      [self logSuccess:@"unlink auth provider succeeded."];
       if (completion) {
-        completion(nil);
+        completion(error);
       }
+      return;
+    }
+    [self logSuccess:@"unlink auth provider succeeded."];
+    if (completion) {
+      completion(nil);
     }
     [self showTypicalUIForUserUpdateResultsWithTitle:kUnlinkTitle error:error];
   }];
@@ -2736,7 +2738,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
      if (error) {
        [self logFailure:@"failed to send verification code" error:error];
        [self showMessagePrompt:error.localizedDescription];
-       completion(error);
+       if (completion) {
+         completion(error);
+       }
        return;
      }
      [self logSuccess:@"Code sent"];
@@ -2794,7 +2798,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after linking phone number.
  */
 - (void)linkPhoneNumber:(NSString *_Nullable)phoneNumber
-             completion:(void(^)(NSError *_Nullable))completion{
+             completion:(void(^)(NSError *_Nullable))completion {
     [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -2804,7 +2808,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
           [self showMessagePrompt:error.localizedDescription];
-          completion(error);
+          if (completion) {
+            completion(error);
+          }
           return;
         }
         [self logSuccess:@"Code sent"];
