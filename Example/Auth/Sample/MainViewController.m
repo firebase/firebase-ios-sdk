@@ -39,6 +39,7 @@
 #import "UserTableViewCell.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
 /** @typedef textInputCompletionBlock
     @brief The type of callback used to report text input prompt results.
  */
@@ -2766,7 +2767,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
            if (error) {
              [self logFailure:@"update phone number failed" error:error];
              [self showMessagePrompt:error.localizedDescription];
-             completion(error);
+             if (completion) {
+               completion(error);
+             }
            } else {
              [self logSuccess:@"update phone number succeeded."];
              if (completion) {
@@ -3160,4 +3163,5 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 @end
+
 NS_ASSUME_NONNULL_END
