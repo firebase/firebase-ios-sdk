@@ -54,6 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
+- (instancetype)firestoreWithConfiguredClient;
+
 @property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
 @property(nonatomic, strong, readonly) FSTFirestoreClient *client;
 @property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;

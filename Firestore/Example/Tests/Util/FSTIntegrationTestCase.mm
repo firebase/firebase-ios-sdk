@@ -28,9 +28,12 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
+
+#import "FIRGetOptions.h"
 
 using firebase::firestore::util::CreateAutoId;
 
@@ -50,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self clearPersistence];
 
   _firestores = [NSMutableArray array];
-  self.db = [self firestore];
+  self.db = [[self firestore] firestoreWithConfiguredClient];
   self.eventAccumulator = [FSTEventAccumulator accumulatorForTest:self];
 }
 
@@ -212,6 +215,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
+  return [self readDocumentForRef:ref getOptions:[FIRGetOptions fromDefault]];
+}
+
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref getOptions:(FIRGetOptions *)getOptions {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
@@ -219,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertNil(error);
     result = doc;
     [expectation fulfill];
-  }];
+  } getOptions:getOptions];
   [self awaitExpectations];
 
   return result;
@@ -300,6 +307,15 @@ NS_ASSUME_NONNULL_BEGIN
   if (!predicate()) {
     XCTFail(@"Timeout");
   }
+}
+
+- (void)disableNetwork {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"disableNetwork"];
+  [self.db.client disableNetworkWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
 }
 
 extern "C" NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(

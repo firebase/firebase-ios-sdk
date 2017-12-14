@@ -22,6 +22,7 @@
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
+@class FIRGetOptions;
 @class FIRQuerySnapshot;
 @class FIRFirestore;
 @class FIRFirestoreSettings;
@@ -71,6 +72,8 @@ extern "C" {
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;
 
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref getOptions:(FIRGetOptions *)getOptions;
+
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
 
 - (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query
@@ -89,6 +92,9 @@ extern "C" {
  * test progress and make sure actions to be run on main thread are not blocked by this method.
  */
 - (void)waitUntil:(BOOL (^)())predicate;
+
+/** Disables the network in order to test how the database handles offline queries. */
+- (void)disableNetwork;
 
 @property(nonatomic, strong) FIRFirestore *db;
 @property(nonatomic, strong) FSTEventAccumulator *eventAccumulator;
