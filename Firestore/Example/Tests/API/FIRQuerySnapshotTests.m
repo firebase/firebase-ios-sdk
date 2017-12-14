@@ -19,8 +19,8 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -54,15 +54,15 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *queryFoo = [FSTQuery queryWithPath:pathFoo];
   FSTQuery *queryBar = [FSTQuery queryWithPath:pathBar];
   FIRSnapshotMetadata *metadataFoo =
-  [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES fromCache:YES];
+      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES fromCache:YES];
   FIRSnapshotMetadata *metadataBar =
-  [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:NO];
+      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:NO];
   FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
   FSTDocumentSet *oldDocuments = documents;
   documents = [documents documentSetByAddingDocument:FSTTestDoc(@"c/a", 1, @{}, NO)];
   NSArray<FSTDocumentViewChange *> *documentChanges =
-  @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc(@"c/a", 1, @{}, NO)
-                                          type:FSTDocumentViewChangeTypeAdded] ];
+      @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc(@"c/a", 1, @{}, NO)
+                                              type:FSTDocumentViewChangeTypeAdded] ];
   FSTViewSnapshot *snapshotFoo = [[FSTViewSnapshot alloc] initWithQuery:queryFoo
                                                               documents:documents
                                                            oldDocuments:oldDocuments

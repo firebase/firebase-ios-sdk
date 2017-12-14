@@ -48,14 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTObjectValue *dateFoo = FSTTestObjectValue(@{ @"a" : @1 });
   FSTObjectValue *dateBar = FSTTestObjectValue(@{ @"b" : @1 });
   FSTSnapshotVersion *version = FSTTestVersion(1);
-  FSTDocument *docFoo = [FSTDocument documentWithData:dateFoo
-                                                  key:keyFoo
-                                              version:version
-                                    hasLocalMutations:NO];
-  FSTDocument *docBar = [FSTDocument documentWithData:dateBar
-                                                  key:keyBar
-                                              version:version
-                                    hasLocalMutations:NO];
+  FSTDocument *docFoo =
+      [FSTDocument documentWithData:dateFoo key:keyFoo version:version hasLocalMutations:NO];
+  FSTDocument *docBar =
+      [FSTDocument documentWithData:dateBar key:keyBar version:version hasLocalMutations:NO];
   XCTAssertEqualObjects([FIRDocumentSnapshot snapshotWithFirestore:firestore
                                                        documentKey:keyFoo
                                                           document:nil
