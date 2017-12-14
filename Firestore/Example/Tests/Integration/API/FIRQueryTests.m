@@ -18,9 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
@@ -209,6 +210,45 @@
                                 queryWhereFieldPath:[FIRFieldPath documentID]
                                 isLessThanOrEqualTo:[collection documentWithPath:@"ba"]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(docs), (@[ testDocs[@"ab"], testDocs[@"ba"] ]));
+}
+
+- (void)testQueriesFireFromCacheWhenOffline {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"foo" : @1},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
+      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
+  id<FIRListenerRegistration> registration =
+      [collection addSnapshotListenerWithOptions:options
+                                        listener:self.eventAccumulator.valueEventHandler];
+
+  FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), @[ @{ @"foo" : @1 } ]);
+  XCTAssertEqual(querySnap.metadata.isFromCache, NO);
+  XCTestExpectation *networkDisabled = [self expectationWithDescription:@"disable network"];
+  [collection.firestore.client disableNetworkWithCompletion:^(NSError *error) {
+    [networkDisabled fulfill];
+  }];
+  [self awaitExpectations];
+
+  querySnap = [self.eventAccumulator awaitEventWithName:@"offline event with isFromCache=YES"];
+  XCTAssertEqual(querySnap.metadata.isFromCache, YES);
+
+  // TODO(b/70631617): There's currently a backend bug that prevents us from using a resume token
+  // right away (against hexa at least). So we sleep. :-( :-( Anything over ~10ms seems to be
+  // sufficient.
+  [NSThread sleepForTimeInterval:0.2f];
+
+  XCTestExpectation *networkEnabled = [self expectationWithDescription:@"enable network"];
+  [collection.firestore.client enableNetworkWithCompletion:^(NSError *error) {
+    [networkEnabled fulfill];
+  }];
+  [self awaitExpectations];
+
+  querySnap = [self.eventAccumulator awaitEventWithName:@"back online event with isFromCache=NO"];
+  XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 }
 
 @end

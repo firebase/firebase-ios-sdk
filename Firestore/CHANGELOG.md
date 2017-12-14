@@ -1,4 +1,4 @@
-# Unreleased
+# Unreleased (firestore-api-changes)
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
   to avoid confusion with the factory method of the same name.
 - [changed] Added a commit method that takes no completion handler to FIRWriteBatch.
@@ -8,6 +8,11 @@
 - [changed] For non-existing documents, DocumentSnapshot.data() now returns `nil`
   instead of throwing an exception. A non-nullable QueryDocumentSnapshot is
   introduced for Queries to reduce the number of nil-checks in your code.
+- [changed] Snapshot listeners (with the `includeMetadataChanges` option
+  enabled) now receive an event with `snapshot.metadata.isFromCache` set to
+  `true` if the SDK loses its connection to the backend. A new event with
+  `snapshot.metadata.isFromCache` set to false will be raised once the
+  connection is restored and the query is in sync with the backend again.
 
 # v0.9.4
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.

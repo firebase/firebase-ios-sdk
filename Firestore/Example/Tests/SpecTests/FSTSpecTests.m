@@ -156,7 +156,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   FSTTargetID actualID = [self.driver addUserListenerWithQuery:query];
 
   FSTTargetID expectedID = [listenSpec[0] intValue];
-  XCTAssertEqual(actualID, expectedID);
+  XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");
 }
 
 - (void)doUnlisten:(NSArray *)unlistenSpec {
