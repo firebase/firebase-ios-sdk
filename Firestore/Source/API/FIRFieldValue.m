@@ -83,22 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-// NSObject Methods
-- (BOOL)isEqual:(nullable id)other {
-  if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
-
-  return [self isEqualToValue:other];
-}
-
-- (BOOL)isEqualToValue:(nullable FIRFieldValue *)value {
-  if (self == value) return YES;
-  if (value == nil) return NO;
-  //  if (self.firestore != query.firestore && ![self.firestore isEqual:query.firestore]) return NO;
-  //  if (self.query != query.query && ![self.query isEqual:query.query]) return NO;
-  return YES;
-}
-
 + (instancetype)fieldValueForDelete {
   return [FSTDeleteFieldValue deleteFieldValue];
 }
