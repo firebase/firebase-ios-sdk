@@ -15,6 +15,7 @@
  */
 
 #import "FIRCollectionReference.h"
+#import "FIRFirestore.h"
 
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
@@ -76,8 +77,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToReference:(nullable FIRCollectionReference *)reference {
   if (self == reference) return YES;
   if (reference == nil) return NO;
-  //  if (self.firestore != query.firestore && ![self.firestore isEqual:query.firestore]) return NO;
-  //  if (self.query != query.query && ![self.query isEqual:query.query]) return NO;
+  if (self.firestore != reference.firestore && ![self.firestore isEqual:reference.firestore])
+    return NO;
+  if (self.query != reference.query && ![self.query isEqual:reference.query]) return NO;
   return YES;
 }
 
