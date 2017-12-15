@@ -35,69 +35,19 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQuerySnapshotTests
 
 - (void)testEquals {
-  // Everything is dummy for unit test here. Filtering does not require any app
-  // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = FSTTestFirestore();
-  FSTQuery *queryFoo = FSTTestQuery(@"foo");
-  FSTQuery *queryBar = FSTTestQuery(@"bar");
-  FIRSnapshotMetadata *metadataFoo =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES fromCache:YES];
-  FIRSnapshotMetadata *metadataBar =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:NO];
-  FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
-  FSTDocumentSet *oldDocuments = documents;
-  documents = [documents documentSetByAddingDocument:FSTTestDoc(@"c/a", 1, @{}, NO)];
-  NSArray<FSTDocumentViewChange *> *documentChanges =
-      @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc(@"c/a", 1, @{}, NO)
-                                              type:FSTDocumentViewChangeTypeAdded] ];
-  FSTViewSnapshot *snapshotFoo = [[FSTViewSnapshot alloc] initWithQuery:queryFoo
-                                                              documents:documents
-                                                           oldDocuments:oldDocuments
-                                                        documentChanges:documentChanges
-                                                              fromCache:YES
-                                                       hasPendingWrites:NO
-                                                       syncStateChanged:YES];
-  FSTViewSnapshot *snapshotBar = [[FSTViewSnapshot alloc] initWithQuery:queryBar
-                                                              documents:documents
-                                                           oldDocuments:oldDocuments
-                                                        documentChanges:documentChanges
-                                                              fromCache:YES
-                                                       hasPendingWrites:NO
-                                                       syncStateChanged:YES];
-  XCTAssertEqualObjects([FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                  originalQuery:queryFoo
-                                                       snapshot:snapshotFoo
-                                                       metadata:metadataFoo],
-                        [FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                  originalQuery:queryFoo
-                                                       snapshot:snapshotFoo
-                                                       metadata:metadataFoo]);
-  XCTAssertNotEqualObjects([FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                     originalQuery:queryFoo
-                                                          snapshot:snapshotFoo
-                                                          metadata:metadataFoo],
-                           [FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                     originalQuery:queryBar
-                                                          snapshot:snapshotFoo
-                                                          metadata:metadataFoo]);
-  XCTAssertNotEqualObjects([FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                     originalQuery:queryFoo
-                                                          snapshot:snapshotFoo
-                                                          metadata:metadataFoo],
-                           [FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                     originalQuery:queryFoo
-                                                          snapshot:snapshotBar
-                                                          metadata:metadataFoo]);
-  XCTAssertNotEqualObjects([FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                     originalQuery:queryFoo
-                                                          snapshot:snapshotFoo
-                                                          metadata:metadataFoo],
-                           [FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                     originalQuery:queryFoo
-                                                          snapshot:snapshotFoo
-                                                          metadata:metadataBar]);
+  FIRQuerySnapshot *foo = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"a":@1 } ], YES, YES);
+  FIRQuerySnapshot *fooDup = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"a":@1 } ], YES, YES);
+  FIRQuerySnapshot *bar = FSTTestQuerySnapshot(@"bar/foo", @[], @[ @{ @"a":@1 } ], YES, YES);
+  FIRQuerySnapshot *baz = FSTTestQuerySnapshot(@"foo/bar", @[ @{ @"a":@1 } ], @[], YES, YES);
+  FIRQuerySnapshot *qux = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"b":@1 } ], NO, YES);
+  FIRQuerySnapshot *quux = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"b":@1 } ], YES, NO);
+  NSArray *groups = @[ @[foo, fooDup], @[bar], @[baz], @[qux], @[quux]];
+  FSTAssertEqualityGroups(groups);
 
-  // Also test hash (in)equality here.
+  NSArray *hashGroups = @[ @[[NSNumber numberWithLong:[foo hash]], [NSNumber numberWithLong:[fooDup hash]] ],
+      @[ [NSNumber numberWithLong:[bar hash]] ], @[ [NSNumber numberWithLong:[baz hash]] ],
+      @[ [NSNumber numberWithLong:[qux hash]] ], @[ [NSNumber numberWithLong:[quux hash]]  ]];
+  FSTAssertEqualityGroups(hashGroups);
 }
 
 @end

@@ -24,6 +24,7 @@
 @class FIRDocumentSnapshot;
 @class FIRFirestore;
 @class FIRGeoPoint;
+@class FIRQuerySnapshot;
 @class FSTDeleteMutation;
 @class FSTDeletedDocument;
 @class FSTDocument;
@@ -186,13 +187,13 @@ FSTDocument *FSTTestDoc(NSString *path,
                         NSDictionary<NSString *, id> *data,
                         BOOL hasMutations);
 
-/** A convenience method for creating docs snapshots for tests. */
+/** A convenience method for creating a doc snapshot for tests. */
 FIRDocumentSnapshot *FSTTestDocSnapshot(
-        NSString *path,
-        FSTTestSnapshotVersion version,
-        NSDictionary<NSString *, id> *data,
-        BOOL hasMutations,
-        BOOL fromCache);
+    NSString *path,
+    FSTTestSnapshotVersion version,
+    NSDictionary<NSString *, id> *data,
+    BOOL hasMutations,
+    BOOL fromCache);
 
 /** A convenience method for creating deleted docs for tests. */
 FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version);
@@ -207,6 +208,14 @@ FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *databaseID, N
 
 /** A convenience method for creating a query for the given path (without any other filters). */
 FSTQuery *FSTTestQuery(NSString *path);
+
+/** A convenience method for creating a particular query snapshots for tests. */
+FIRQuerySnapshot *FSTTestQuerySnapshot(
+    NSString *path,
+    NSArray<NSDictionary<NSString *, id> *> *oldData,
+    NSArray<NSDictionary<NSString *, id> *> *dataToAdd,
+    BOOL hasPendingWrites,
+    BOOL fromCache);
 
 /**
  * A convenience method to create a FSTFilter using a string representation for both field

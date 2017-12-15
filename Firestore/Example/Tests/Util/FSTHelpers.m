@@ -15,12 +15,17 @@
  */
 
 #import <Firestore/Source/API/FIRDocumentSnapshot+Internal.h>
+#import <Firestore/Source/API/FIRSnapshotMetadata+Internal.h>
+#import <Firestore/Source/Core/FSTViewSnapshot.h>
+#import <Firestore/Source/API/FIRQuerySnapshot+Internal.h>
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #import "FirebaseFirestore/FIRDocumentSnapshot.h"
 #import "FirebaseFirestore/FIRFieldPath.h"
 #import "FirebaseFirestore/FIRFirestore.h"
 #import "FirebaseFirestore/FIRGeoPoint.h"
+#import "FirebaseFirestore/FIRQuerySnapshot.h"
+#import "FirebaseFirestore/FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
@@ -201,6 +206,40 @@ FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSS
 
 FSTQuery *FSTTestQuery(NSString *path) {
   return [FSTQuery queryWithPath:FSTTestPath(path)];
+}
+
+/** A convenience method for creating a query snapshots for tests. */
+FIRQuerySnapshot *FSTTestQuerySnapshot(
+        NSString *path,
+        NSArray<NSDictionary<NSString *, id> *> *oldData,
+        NSArray<NSDictionary<NSString *, id> *> *dataToAdd,
+        BOOL hasPendingWrites,
+        BOOL fromCache) {
+  FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites
+                                                                               fromCache:fromCache];
+  FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
+  for (NSDictionary<NSString *, id> *data in oldData) {
+    oldDocuments = [oldDocuments documentSetByAddingDocument:FSTTestDoc(path, 1, data, hasPendingWrites)];
+  }
+  FSTDocumentSet *newDocuments = oldDocuments;
+  NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
+  for (NSDictionary<NSString *, id> *data in dataToAdd) {
+    FSTDocument *docToAdd = FSTTestDoc(path, 1, data, hasPendingWrites);
+    newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
+    documentChanges = [documentChanges arrayByAddingObject:[FSTDocumentViewChange changeWithDocument:docToAdd type:FSTDocumentViewChangeTypeAdded]];
+  }
+  FSTViewSnapshot *viewSnapshot =
+          [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
+                                       documents:newDocuments
+                                    oldDocuments:oldDocuments
+                                 documentChanges:documentChanges
+                                       fromCache:fromCache
+                                hasPendingWrites:hasPendingWrites
+                                syncStateChanged:YES];
+  return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
+                                   originalQuery:FSTTestQuery(path)
+                                        snapshot:viewSnapshot
+                                        metadata:metadata];
 }
 
 id<FSTFilter> FSTTestFilter(NSString *field, NSString *opString, id value) {
