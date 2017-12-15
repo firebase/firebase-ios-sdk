@@ -196,8 +196,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
     NSEnumerator<NSString *> *keyPathEnumerator = keyPaths.objectEnumerator;             \
     [actual enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey * actualKey,              \
                                                 FSTMaybeDocument * value, BOOL * stop) { \
-      FSTDocumentKey *expectedKey =                                                      \
-          [FSTDocumentKey keyWithPathString:[keyPathEnumerator nextObject]];             \
+      FSTDocumentKey *expectedKey = FSTTestDocKey([keyPathEnumerator nextObject]);             \
       XCTAssertEqualObjects(actualKey, expectedKey);                                     \
       XCTAssertTrue([value isKindOfClass:[FSTDeletedDocument class]]);                   \
     }];                                                                                  \
@@ -215,7 +214,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 /** Asserts that the given local store does not contain the given document. */
 #define FSTAssertNotContains(keyPathString)                                 \
   do {                                                                      \
-    FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:keyPathString]; \
+    FSTDocumentKey *key = FSTTestDocKey(keyPathString); \
     FSTMaybeDocument *actual = [self.localStore readDocument:key];          \
     XCTAssertNil(actual);                                                   \
   } while (0)

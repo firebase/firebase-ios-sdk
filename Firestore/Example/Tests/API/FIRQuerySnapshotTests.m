@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
-
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "FirebaseFirestore/FIRQuerySnapshot.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -43,14 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEquals {
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                                           database:@"abc"
-                                                     persistenceKey:@"db123"
-                                                credentialsProvider:nil
-                                                workerDispatchQueue:nil
-                                                        firebaseApp:nil];
-  FSTResourcePath *pathFoo = [FSTResourcePath pathWithString:@"foo"];
-  FSTResourcePath *pathBar = [FSTResourcePath pathWithString:@"bar"];
+  FIRFirestore *firestore = FSTTestFirestore();
+  FSTResourcePath *pathFoo = FSTTestPath(@"foo");
+  FSTResourcePath *pathBar = FSTTestPath(@"bar");
   FSTQuery *queryFoo = [FSTQuery queryWithPath:pathFoo];
   FSTQuery *queryBar = [FSTQuery queryWithPath:pathBar];
   FIRSnapshotMetadata *metadataFoo =

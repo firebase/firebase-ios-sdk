@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
-
 #import <XCTest/XCTest.h>
 
+#import "FirebaseFirestore/FIRCollectionReference.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -34,14 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEquals {
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                                           database:@"abc"
-                                                     persistenceKey:@"db123"
-                                                credentialsProvider:nil
-                                                workerDispatchQueue:nil
-                                                        firebaseApp:nil];
-  FSTResourcePath *pathFoo = [FSTResourcePath pathWithString:@"foo"];
-  FSTResourcePath *pathBar = [FSTResourcePath pathWithString:@"bar"];
+  FIRFirestore *firestore = FSTTestFirestore();
+  FSTResourcePath *pathFoo = FSTTestPath(@"foo");
+  FSTResourcePath *pathBar = FSTTestPath(@"bar");
   FIRCollectionReference *referenceFoo =
       [FIRCollectionReference referenceWithPath:pathFoo firestore:firestore];
   FIRCollectionReference *referenceFooDup =

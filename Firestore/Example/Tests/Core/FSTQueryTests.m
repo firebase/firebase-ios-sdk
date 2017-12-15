@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEmptyFieldsAreAllowedForQueries {
-  FSTResourcePath *queryPath = [FSTResourcePath pathWithString:@"rooms/eros/messages"];
+  FSTResourcePath *queryPath = FSTTestPath(@"rooms/eros/messages");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/eros/messages/2", 0, @{}, NO);
 

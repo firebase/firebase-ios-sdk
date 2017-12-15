@@ -21,6 +21,7 @@
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+@class FIRFirestore;
 @class FIRGeoPoint;
 @class FSTDeleteMutation;
 @class FSTDeletedDocument;
@@ -133,6 +134,9 @@ extern "C" {
     }                                                           \
     XCTAssertTrue(__didThrow, ##__VA_ARGS__);                   \
   })
+
+/** A convenience method for creating dummy FIRFirestore for tests. */
+FIRFirestore *FSTTestFirestore();
 
 /** Creates a new FSTTimestamp from components. Note that year, month, and day are all one-based. */
 FSTTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);

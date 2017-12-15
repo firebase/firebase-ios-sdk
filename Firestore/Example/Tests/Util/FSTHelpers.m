@@ -17,8 +17,10 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #import "FirebaseFirestore/FIRFieldPath.h"
+#import "FirebaseFirestore/FIRFirestore.h"
 #import "FirebaseFirestore/FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -44,6 +46,15 @@ static NSString *const kDeleteSentinel = @"<DELETE>";
 
 static const int kMicrosPerSec = 1000000;
 static const int kMillisPerSec = 1000;
+
+FIRFirestore *FSTTestFirestore() {
+  return  [[FIRFirestore alloc] initWithProjectID:@"abc"
+                                         database:@"abc"
+                                   persistenceKey:@"db123"
+                              credentialsProvider:nil
+                              workerDispatchQueue:nil
+                                      firebaseApp:nil];
+}
 
 FSTTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second) {
   NSDate *date = FSTTestDate(year, month, day, hour, minute, second);
@@ -138,7 +149,7 @@ FSTDocument *FSTTestDoc(NSString *path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
                         BOOL hasMutations) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:path];
+  FSTDocumentKey *key = FSTTestDocKey(path);
   return [FSTDocument documentWithData:FSTTestObjectValue(data)
                                    key:key
                                version:FSTTestVersion(version)
@@ -146,7 +157,7 @@ FSTDocument *FSTTestDoc(NSString *path,
 }
 
 FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:path];
+  FSTDocumentKey *key = FSTTestDocKey(path);
   return [FSTDeletedDocument documentWithKey:key version:FSTTestVersion(version)];
 }
 
@@ -229,7 +240,7 @@ FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs) {
 }
 
 FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
-  return [[FSTSetMutation alloc] initWithKey:[FSTDocumentKey keyWithPathString:path]
+  return [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(path)
                                        value:FSTTestObjectValue(values)
                                 precondition:[FSTPrecondition none]];
 }
@@ -274,7 +285,7 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path,
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
-  return [[FSTDeleteMutation alloc] initWithKey:[FSTDocumentKey keyWithPathString:path]
+  return [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path)
                                    precondition:[FSTPrecondition none]];
 }
 
@@ -334,12 +345,12 @@ FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *removedKeys) {
   FSTDocumentKeySet *added = [FSTDocumentKeySet keySet];
   for (NSString *keyPath in addedKeys) {
-    FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:keyPath];
+    FSTDocumentKey *key = FSTTestDocKey(keyPath);
     added = [added setByAddingObject:key];
   }
   FSTDocumentKeySet *removed = [FSTDocumentKeySet keySet];
   for (NSString *keyPath in removedKeys) {
-    FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:keyPath];
+    FSTDocumentKey *key = FSTTestDocKey(keyPath);
     removed = [removed setByAddingObject:key];
   }
   return [FSTLocalViewChanges changesForQuery:query addedKeys:added removedKeys:removed];

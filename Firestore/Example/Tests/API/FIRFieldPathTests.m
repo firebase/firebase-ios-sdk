@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
-
 #import <XCTest/XCTest.h>
 
+#import "FirebaseFirestore/FIRFieldPath.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"

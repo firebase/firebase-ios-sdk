@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
-
 #import <XCTest/XCTest.h>
 
+#import "FirebaseFirestore/FIRDocumentSnapshot.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -37,21 +35,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEquals {
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                                           database:@"abc"
-                                                     persistenceKey:@"db123"
-                                                credentialsProvider:nil
-                                                workerDispatchQueue:nil
-                                                        firebaseApp:nil];
-  FSTDocumentKey *keyFoo = [FSTDocumentKey keyWithPathString:@"rooms/foo"];
-  FSTDocumentKey *keyBar = [FSTDocumentKey keyWithPathString:@"rooms/bar"];
-  FSTObjectValue *dateFoo = FSTTestObjectValue(@{ @"a" : @1 });
-  FSTObjectValue *dateBar = FSTTestObjectValue(@{ @"b" : @1 });
+  FIRFirestore *firestore = FSTTestFirestore();
+  FSTDocumentKey *keyFoo = FSTTestDocKey(@"rooms/foo");
+  FSTDocumentKey *keyBar = FSTTestDocKey(@"rooms/bar");
+  FSTObjectValue *dataFoo = FSTTestObjectValue(@{ @"a" : @1 });
+  FSTObjectValue *dataBar = FSTTestObjectValue(@{ @"b" : @1 });
   FSTSnapshotVersion *version = FSTTestVersion(1);
-  FSTDocument *docFoo =
-      [FSTDocument documentWithData:dateFoo key:keyFoo version:version hasLocalMutations:NO];
-  FSTDocument *docBar =
-      [FSTDocument documentWithData:dateBar key:keyBar version:version hasLocalMutations:NO];
+  FSTDocument *docFoo = FSTTestDoc(@"rooms/foo", 1, @{ @"a" : @1 }, NO);
+  FSTDocument *docBar = FSTTestDoc(@"rooms/bar", 1, @{ @"b" : @1 }, NO);
   XCTAssertEqualObjects([FIRDocumentSnapshot snapshotWithFirestore:firestore
                                                        documentKey:keyFoo
                                                           document:nil

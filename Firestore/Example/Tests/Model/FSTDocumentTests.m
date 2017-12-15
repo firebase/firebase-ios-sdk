@@ -33,20 +33,20 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDocumentTests
 
 - (void)testConstructor {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:@"messages/first"];
+  FSTDocumentKey *key = FSTTestDocKey(@"messages/first");
   FSTSnapshotVersion *version = FSTTestVersion(1);
   FSTObjectValue *data = FSTTestObjectValue(@{ @"a" : @1 });
   FSTDocument *doc =
       [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
 
-  XCTAssertEqualObjects(doc.key, [FSTDocumentKey keyWithPathString:@"messages/first"]);
+  XCTAssertEqualObjects(doc.key, FSTTestDocKey(@"messages/first"));
   XCTAssertEqualObjects(doc.version, version);
   XCTAssertEqualObjects(doc.data, data);
   XCTAssertEqual(doc.hasLocalMutations, NO);
 }
 
 - (void)testExtractsFields {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:@"rooms/eros"];
+  FSTDocumentKey *key = FSTTestDocKey(@"rooms/eros");
   FSTSnapshotVersion *version = FSTTestVersion(1);
   FSTObjectValue *data = FSTTestObjectValue(@{
     @"desc" : @"Discuss all the project related stuff",
@@ -62,8 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testIsEqual {
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"messages/first"];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"messages/second"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"messages/first");
+  FSTDocumentKey *key2 = FSTTestDocKey(@"messages/second");
   FSTObjectValue *data1 = FSTTestObjectValue(@{ @"a" : @1 });
   FSTObjectValue *data2 = FSTTestObjectValue(@{ @"b" : @1 });
   FSTSnapshotVersion *version1 = FSTTestVersion(1);
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(
       doc1, [FSTDocument documentWithData:FSTTestObjectValue(
                                               @{ @"a" : @1 })
-                                      key:[FSTDocumentKey keyWithPathString:@"messages/first"]
+                                      key:FSTTestDocKey(@"messages/first")
                                   version:version1
                         hasLocalMutations:NO]);
 

@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
-
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "FirebaseFirestore/FIRQuery.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTPath.h"
@@ -35,14 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEquals {
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                                           database:@"abc"
-                                                     persistenceKey:@"db123"
-                                                credentialsProvider:nil
-                                                workerDispatchQueue:nil
-                                                        firebaseApp:nil];
-  FSTResourcePath *pathFoo = [FSTResourcePath pathWithString:@"foo"];
-  FSTResourcePath *pathBar = [FSTResourcePath pathWithString:@"bar"];
+  FIRFirestore *firestore = FSTTestFirestore();
+  FSTResourcePath *pathFoo = FSTTestPath(@"foo");
+  FSTResourcePath *pathBar = FSTTestPath(@"bar");
   FIRQuery *queryFoo =
       [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:pathFoo] firestore:firestore];
   FIRQuery *queryFooDup =
@@ -67,13 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testFilteringWithPredicate {
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                                           database:@"abc"
-                                                     persistenceKey:@"db123"
-                                                credentialsProvider:nil
-                                                workerDispatchQueue:nil
-                                                        firebaseApp:nil];
-  FSTResourcePath *path = [FSTResourcePath pathWithString:@"foo"];
+  FIRFirestore *firestore = FSTTestFirestore();
+  FSTResourcePath *path = FSTTestPath(@"foo");
   FIRQuery *query = [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];
   FIRQuery *query2 = [query queryFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"f<=1"]];

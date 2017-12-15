@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
-
 #import <XCTest/XCTest.h>
 
+#import "FirebaseFirestore/FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
