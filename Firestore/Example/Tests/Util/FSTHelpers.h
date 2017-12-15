@@ -21,6 +21,7 @@
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+@class FIRDocumentSnapshot;
 @class FIRFirestore;
 @class FIRGeoPoint;
 @class FSTDeleteMutation;
@@ -135,7 +136,7 @@ extern "C" {
     XCTAssertTrue(__didThrow, ##__VA_ARGS__);                   \
   })
 
-/** A convenience method for creating dummy FIRFirestore for tests. */
+/** A convenience method for creating dummy singleton FIRFirestore for tests. */
 FIRFirestore *FSTTestFirestore();
 
 /** Creates a new FSTTimestamp from components. Note that year, month, and day are all one-based. */
@@ -184,6 +185,14 @@ FSTDocument *FSTTestDoc(NSString *path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
                         BOOL hasMutations);
+
+/** A convenience method for creating docs snapshots for tests. */
+FIRDocumentSnapshot *FSTTestDocSnapshot(
+        NSString *path,
+        FSTTestSnapshotVersion version,
+        NSDictionary<NSString *, id> *data,
+        BOOL hasMutations,
+        BOOL fromCache);
 
 /** A convenience method for creating deleted docs for tests. */
 FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version);

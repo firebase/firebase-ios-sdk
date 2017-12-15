@@ -33,58 +33,31 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentSnapshotTests
 
 - (void)testEquals {
-  // Everything is dummy for unit test here. Filtering does not require any app
-  // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = FSTTestFirestore();
-  FSTDocumentKey *keyFoo = FSTTestDocKey(@"rooms/foo");
-  FSTDocumentKey *keyBar = FSTTestDocKey(@"rooms/bar");
-  FSTObjectValue *dataFoo = FSTTestObjectValue(@{ @"a" : @1 });
-  FSTObjectValue *dataBar = FSTTestObjectValue(@{ @"b" : @1 });
-  FSTSnapshotVersion *version = FSTTestVersion(1);
-  FSTDocument *docFoo = FSTTestDoc(@"rooms/foo", 1, @{ @"a" : @1 }, NO);
-  FSTDocument *docBar = FSTTestDoc(@"rooms/bar", 1, @{ @"b" : @1 }, NO);
-  XCTAssertEqualObjects([FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                       documentKey:keyFoo
-                                                          document:nil
-                                                         fromCache:YES],
-                        [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                       documentKey:keyFoo
-                                                          document:nil
-                                                         fromCache:YES]);
-  XCTAssertEqualObjects([FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                       documentKey:keyFoo
-                                                          document:docFoo
-                                                         fromCache:YES],
-                        [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                       documentKey:keyFoo
-                                                          document:docFoo
-                                                         fromCache:YES]);
-  XCTAssertNotEqualObjects([FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                          documentKey:keyFoo
-                                                             document:nil
-                                                            fromCache:YES],
-                           [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                          documentKey:keyBar
-                                                             document:nil
-                                                            fromCache:YES]);
-  XCTAssertNotEqualObjects([FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                          documentKey:keyFoo
-                                                             document:docFoo
-                                                            fromCache:YES],
-                           [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                          documentKey:keyFoo
-                                                             document:docBar
-                                                            fromCache:YES]);
-  XCTAssertNotEqualObjects([FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                          documentKey:keyFoo
-                                                             document:nil
-                                                            fromCache:YES],
-                           [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                          documentKey:keyFoo
-                                                             document:nil
-                                                            fromCache:NO]);
+  XCTAssertEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO),
+                        FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO));
+  XCTAssertEqualObjects(FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO),
+                        FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO));
+  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO),
+                           FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO));
+  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO),
+                           FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO));
+  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, YES, NO),
+                           FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO));
+  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, YES),
+                           FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO));
 
-  // Test hash (in)equality here as well.
+  XCTAssertEqual([FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO) hash],
+                 [FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO) hash]);
+  XCTAssertEqual([FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO) hash],
+                 [FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO) hash]);
+  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO) hash],
+                    [FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO) hash]);
+  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO) hash],
+                    [FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO) hash]);
+  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, YES, NO) hash],
+                    [FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO) hash]);
+  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, YES) hash],
+                    [FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO) hash]);
 }
 
 @end

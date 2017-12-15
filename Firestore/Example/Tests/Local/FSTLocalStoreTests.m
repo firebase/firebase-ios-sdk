@@ -260,7 +260,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   if ([self isTestBaseClass]) return;
 
   // Start a query that requires acks to be held.
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo");
   [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
@@ -553,7 +553,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testCollectsGarbageAfterChangeBatch {
   if ([self isTestBaseClass]) return;
 
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo");
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
@@ -636,7 +636,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testPinsDocumentsInTheLocalView {
   if ([self isTestBaseClass]) return;
 
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo");
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
@@ -684,7 +684,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
     FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"}),
     FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"})
   ]];
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo", @"bar" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo/bar");
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects([docs values], @[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
 }
@@ -699,7 +699,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
     FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"}),
     FSTTestSetMutation(@"fooo/blah", @{@"fooo" : @"blah"})
   ]];
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo");
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects([docs values], (@[
                           FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES),
@@ -710,7 +710,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testCanExecuteMixedCollectionQueries {
   if ([self isTestBaseClass]) return;
 
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo");
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
@@ -735,7 +735,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   // This test only works in the absence of the FSTEagerGarbageCollector.
   [self restartWithNoopGarbageCollector];
 
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo", @"bar" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo/bar");
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   FSTBoxedTargetID *targetID = @(queryData.targetID);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
@@ -769,7 +769,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   if ([self isTestBaseClass]) return;
   [self restartWithNoopGarbageCollector];
 
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"foo" ]]];
+  FSTQuery *query = FSTTestQuery(@"foo");
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 

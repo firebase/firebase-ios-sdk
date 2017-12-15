@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+#import <Firestore/Source/API/FIRDocumentSnapshot+Internal.h>
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#import "FirebaseFirestore/FIRDocumentSnapshot.h"
 #import "FirebaseFirestore/FIRFieldPath.h"
 #import "FirebaseFirestore/FIRFirestore.h"
 #import "FirebaseFirestore/FIRGeoPoint.h"
@@ -48,12 +50,18 @@ static const int kMicrosPerSec = 1000000;
 static const int kMillisPerSec = 1000;
 
 FIRFirestore *FSTTestFirestore() {
-  return  [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                         database:@"abc"
-                                   persistenceKey:@"db123"
-                              credentialsProvider:nil
-                              workerDispatchQueue:nil
-                                      firebaseApp:nil];
+  static FIRFirestore *sharedInstance = nil;
+  static dispatch_once_t onceToken;
+
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[FIRFirestore alloc] initWithProjectID:@"abc"
+                                                    database:@"abc"
+                                              persistenceKey:@"db123"
+                                         credentialsProvider:nil
+                                         workerDispatchQueue:nil
+                                                 firebaseApp:nil];
+  });
+  return sharedInstance;
 }
 
 FSTTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second) {
@@ -156,6 +164,19 @@ FSTDocument *FSTTestDoc(NSString *path,
                      hasLocalMutations:hasMutations];
 }
 
+FIRDocumentSnapshot *FSTTestDocSnapshot(
+        NSString *path,
+        FSTTestSnapshotVersion version,
+        NSDictionary<NSString *, id> *data,
+        BOOL hasMutations,
+        BOOL fromCache) {
+    FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;
+    return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
+                                          documentKey:FSTTestDocKey(path)
+                                             document:doc
+                                            fromCache:fromCache];
+}
+
 FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version) {
   FSTDocumentKey *key = FSTTestDocKey(path);
   return [FSTDeletedDocument documentWithKey:key version:FSTTestVersion(version)];
@@ -225,7 +246,7 @@ FSTSortOrder *FSTTestOrderBy(NSString *field, NSString *direction) {
 }
 
 NSComparator FSTTestDocComparator(NSString *fieldPath) {
-  FSTQuery *query = [[FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"docs" ]]]
+  FSTQuery *query = [FSTTestQuery(@"docs")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(fieldPath)
                                                         ascending:YES]];
   return [query comparator];

@@ -70,9 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Type information is currently lost in our canonicalID implementations so this currently an
   // easy way to force colliding canonicalIDs
-  FSTQuery *q1 = [[FSTQuery queryWithPath:FSTTestPath(@"a")]
+  FSTQuery *q1 = [FSTTestQuery(@"a")
       queryByAddingFilter:FSTTestFilter(@"foo", @"==", @(1))];
-  FSTQuery *q2 = [[FSTQuery queryWithPath:FSTTestPath(@"a")]
+  FSTQuery *q2 = [FSTTestQuery(@"a")
       queryByAddingFilter:FSTTestFilter(@"foo", @"==", @"1")];
   XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
 

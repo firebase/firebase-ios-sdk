@@ -38,10 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
   FIRFirestore *firestore = FSTTestFirestore();
-  FSTResourcePath *pathFoo = FSTTestPath(@"foo");
-  FSTResourcePath *pathBar = FSTTestPath(@"bar");
-  FSTQuery *queryFoo = [FSTQuery queryWithPath:pathFoo];
-  FSTQuery *queryBar = [FSTQuery queryWithPath:pathBar];
+  FSTQuery *queryFoo = FSTTestQuery(@"foo");
+  FSTQuery *queryBar = FSTTestQuery(@"bar");
   FIRSnapshotMetadata *metadataFoo =
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES fromCache:YES];
   FIRSnapshotMetadata *metadataBar =

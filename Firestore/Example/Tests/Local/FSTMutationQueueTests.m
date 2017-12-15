@@ -301,7 +301,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 
   NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2], batches[4] ];
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"foo")];
+  FSTQuery *query = FSTTestQuery(@"foo");
   NSArray<FSTMutationBatch *> *matches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
 

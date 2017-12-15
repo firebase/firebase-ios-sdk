@@ -30,12 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFieldPathTests
 
 - (void)testEquals {
-  FSTFieldPath *pathFoo = [FSTFieldPath pathWithServerFormat:@"foo.ooo.oooo"];
-  FSTFieldPath *pathFooDup = [FSTFieldPath pathWithServerFormat:@"foo.ooo.oooo"];
-  FSTFieldPath *pathBar = [FSTFieldPath pathWithServerFormat:@"baa.aaa.aaar"];
-  FIRFieldPath *foo = [[FIRFieldPath alloc] initPrivate:pathFoo];
-  FIRFieldPath *fooDup = [[FIRFieldPath alloc] initPrivate:pathFooDup];
-  FIRFieldPath *bar = [[FIRFieldPath alloc] initPrivate:pathBar];
+  FIRFieldPath *foo = [[FIRFieldPath alloc] initPrivate:FSTTestFieldPath(@"foo.ooo.oooo")];
+  FIRFieldPath *fooDup = [[FIRFieldPath alloc] initPrivate:FSTTestFieldPath(@"foo.ooo.oooo")];
+  FIRFieldPath *bar = [[FIRFieldPath alloc] initPrivate:FSTTestFieldPath(@"baa.aaa.aaar")];
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, bar);
 

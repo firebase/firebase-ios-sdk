@@ -103,11 +103,11 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (nullable FSTQuery *)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return [FSTQuery queryWithPath:FSTTestPath(querySpec)];
+    return FSTTestQuery(querySpec);
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(path)];
+    __block FSTQuery *query = FSTTestQuery(path);
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];

@@ -62,38 +62,25 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testIsEqual {
-  FSTDocumentKey *key1 = FSTTestDocKey(@"messages/first");
-  FSTDocumentKey *key2 = FSTTestDocKey(@"messages/second");
-  FSTObjectValue *data1 = FSTTestObjectValue(@{ @"a" : @1 });
-  FSTObjectValue *data2 = FSTTestObjectValue(@{ @"b" : @1 });
-  FSTSnapshotVersion *version1 = FSTTestVersion(1);
-
-  FSTDocument *doc1 =
-      [FSTDocument documentWithData:data1 key:key1 version:version1 hasLocalMutations:NO];
-  FSTDocument *doc2 =
-      [FSTDocument documentWithData:data1 key:key1 version:version1 hasLocalMutations:NO];
-
-  XCTAssertEqualObjects(doc1, doc2);
   XCTAssertEqualObjects(
-      doc1, [FSTDocument documentWithData:FSTTestObjectValue(
-                                              @{ @"a" : @1 })
-                                      key:FSTTestDocKey(@"messages/first")
-                                  version:version1
-                        hasLocalMutations:NO]);
-
-  FSTSnapshotVersion *version2 = FSTTestVersion(2);
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, NO),
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, NO));
   XCTAssertNotEqualObjects(
-      doc1, [FSTDocument documentWithData:data2 key:key1 version:version1 hasLocalMutations:NO]);
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, NO),
+      FSTTestDoc(@"messages/first", 1, @{ @"b" : @1 }, NO));
   XCTAssertNotEqualObjects(
-      doc1, [FSTDocument documentWithData:data1 key:key2 version:version1 hasLocalMutations:NO]);
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, NO),
+      FSTTestDoc(@"messages/second", 1, @{ @"b" : @1 }, NO));
   XCTAssertNotEqualObjects(
-      doc1, [FSTDocument documentWithData:data1 key:key1 version:version2 hasLocalMutations:NO]);
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, NO),
+      FSTTestDoc(@"messages/first", 2, @{ @"a" : @1 }, NO));
   XCTAssertNotEqualObjects(
-      doc1, [FSTDocument documentWithData:data1 key:key1 version:version1 hasLocalMutations:YES]);
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, NO),
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, YES));
 
   XCTAssertEqualObjects(
-      [FSTDocument documentWithData:data1 key:key1 version:version1 hasLocalMutations:YES],
-      [FSTDocument documentWithData:data1 key:key1 version:version1 hasLocalMutations:5]);
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, YES),
+      FSTTestDoc(@"messages/first", 1, @{ @"a" : @1 }, 5));
 }
 
 @end
