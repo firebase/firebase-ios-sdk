@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
   }
 
-  if (!object || ![object isKindOfClass:[FIRFieldPath class]]) {
+  if (![object isKindOfClass:[FIRFieldPath class]]) {
     return NO;
   }
 

@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isEqual:(nullable id)other {
   if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
+  if (![[other class] isEqual:[self class]]) return NO;
 
   return [self isEqualToQuery:other];
 }

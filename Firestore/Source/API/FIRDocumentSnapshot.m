@@ -79,7 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
 // NSObject Methods
 - (BOOL)isEqual:(nullable id)other {
   if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
+  // self class could be FIRDocumentSnapshot or subtype. So we compare with base type explicitly.
+  if (![other isKindOfClass:[FIRDocumentSnapshot class]]) return NO;
 
   return [self isEqualToSnapshot:other];
 }
