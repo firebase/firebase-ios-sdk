@@ -119,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
     _remoteStore.syncEngine = _syncEngine;
     _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
 
-    _remoteStore.onlineStateDelegate = _eventManager;
+    _remoteStore.onlineStateDelegate = self;
 
     // Set up internal event tracking for the spec tests.
     NSMutableArray<FSTQueryEvent *> *events = [NSMutableArray array];
@@ -137,6 +137,11 @@ NS_ASSUME_NONNULL_BEGIN
     _currentUser = initialUser;
   }
   return self;
+}
+
+- (void)watchStreamDidChangeOnlineState:(FSTOnlineState)onlineState {
+  [self.syncEngine applyOnlineStateChange:onlineState];
+  [self.eventManager watchStreamDidChangeOnlineState:onlineState];
 }
 
 - (void)start {
