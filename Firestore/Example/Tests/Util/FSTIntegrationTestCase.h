@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <Firestore/Source/Core/FSTTypes.h>
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
@@ -82,6 +83,10 @@ extern "C" {
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref;
 
+- (void)disableNetwork;
+
+- (void)enableNetwork;
+
 /**
  * "Blocks" the current thread/run loop until the block returns YES.
  * Should only be called on the main thread.
@@ -89,6 +94,9 @@ extern "C" {
  * test progress and make sure actions to be run on main thread are not blocked by this method.
  */
 - (void)waitUntil:(BOOL (^)())predicate;
+
+/** Returns a completion block that fulfills a newly-created expectation with the specified name. */
+- (FSTVoidErrorBlock)completionExpectationWithName:(NSString *)name;
 
 @property(nonatomic, strong) FIRFirestore *db;
 @property(nonatomic, strong) FSTEventAccumulator *eventAccumulator;
