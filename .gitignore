@@ -57,3 +57,4 @@ Podfile.lock
 
 # CMake
 .downloads
+.idea/

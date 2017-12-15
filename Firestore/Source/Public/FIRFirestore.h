@@ -152,7 +152,7 @@ NS_SWIFT_NAME(Firestore)
 /**
  * Disables usage of the network by this Firestore instance. It can be re-enabled by via
  * `enableNetworkWithCompletion`. While the network is disabled, any snapshot listeners or get calls
- * will return results from cache, and any write operations will be queued until the network is
+ * will return results from cache and any write operations will be queued until the network is
  * restored. The completion block, if provided, will be called once network usage has been disabled.
  */
 - (void)disableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
