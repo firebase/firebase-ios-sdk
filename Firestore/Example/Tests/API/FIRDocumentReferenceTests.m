@@ -51,6 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
       [FIRDocumentReference referenceWithKey:keyBar firestore:firestore];
   XCTAssertEqualObjects(referenceFoo, referenceFooDup);
   XCTAssertNotEqualObjects(referenceFoo, referenceBar);
+
+  XCTAssertEqual([referenceFoo hash], [referenceFooDup hash]);
+  XCTAssertNotEqual([referenceFoo hash], [referenceBar hash]);
 }
 
 @end

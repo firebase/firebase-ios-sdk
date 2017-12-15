@@ -109,6 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                      originalQuery:queryFoo
                                                           snapshot:snapshotFoo
                                                           metadata:metadataBar]);
+
+  // Also test hash (in)equality here.
 }
 
 @end

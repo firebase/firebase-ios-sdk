@@ -37,6 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNotEqualObjects([FIRFieldValue fieldValueForServerTimestamp], nil);
   XCTAssertNotEqualObjects([FIRFieldValue fieldValueForDelete],
                            [FIRFieldValue fieldValueForServerTimestamp]);
+
+  XCTAssertEqual([[FIRFieldValue fieldValueForDelete] hash], [[FIRFieldValue fieldValueForDelete] hash]);
+  XCTAssertEqual([[FIRFieldValue fieldValueForServerTimestamp] hash],
+          [[FIRFieldValue fieldValueForServerTimestamp] hash]);
+  XCTAssertNotEqual([[FIRFieldValue fieldValueForDelete] hash],
+          [[FIRFieldValue fieldValueForServerTimestamp] hash]);
 }
 
 @end

@@ -83,6 +83,12 @@ NS_ASSUME_NONNULL_BEGIN
   return YES;
 }
 
+- (NSUInteger)hash {
+  NSUInteger hash = [self.firestore hash];
+  hash = hash * 31u + [self.query hash];
+  return hash;
+}
+
 - (NSString *)collectionID {
   return [self.query.path lastSegment];
 }

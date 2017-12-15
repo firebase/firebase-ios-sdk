@@ -60,6 +60,12 @@ NS_ASSUME_NONNULL_BEGIN
   return YES;
 }
 
+- (NSUInteger)hash {
+  NSUInteger hash = self.pendingWrites ? 1 : 0;
+  hash = hash * 31u + (self.fromCache ? 1 : 0);
+  return hash;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

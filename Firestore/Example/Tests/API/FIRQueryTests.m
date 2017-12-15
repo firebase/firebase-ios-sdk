@@ -55,6 +55,13 @@ NS_ASSUME_NONNULL_BEGIN
                         [queryFoo queryWhereField:@"f" isEqualTo:@1]);
   XCTAssertNotEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
                            [queryFoo queryWhereField:@"f" isEqualTo:@2]);
+
+  XCTAssertEqual([queryFoo hash], [queryFooDup hash]);
+  XCTAssertNotEqual([queryFoo hash], [queryBar hash]);
+  XCTAssertEqual([[queryFoo queryWhereField:@"f" isEqualTo:@1] hash],
+          [[queryFoo queryWhereField:@"f" isEqualTo:@1] hash]);
+  XCTAssertNotEqual([[queryFoo queryWhereField:@"f" isEqualTo:@1] hash],
+          [[queryFoo queryWhereField:@"f" isEqualTo:@2] hash]);
 }
 
 - (void)testFilteringWithPredicate {

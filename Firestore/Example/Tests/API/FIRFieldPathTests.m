@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
   FIRFieldPath *bar = [[FIRFieldPath alloc] initPrivate:pathBar];
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, bar);
+
+  XCTAssertEqual([foo hash], [fooDup hash]);
+  XCTAssertNotEqual([foo hash], [bar hash]);
 }
 
 @end

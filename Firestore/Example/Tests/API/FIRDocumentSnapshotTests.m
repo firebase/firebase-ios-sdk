@@ -92,6 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                           documentKey:keyFoo
                                                              document:nil
                                                             fromCache:NO]);
+
+  // Test hash (in)equality here as well.
 }
 
 @end

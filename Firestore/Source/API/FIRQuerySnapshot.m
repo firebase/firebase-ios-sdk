@@ -98,6 +98,14 @@ NS_ASSUME_NONNULL_BEGIN
   return YES;
 }
 
+- (NSUInteger)hash {
+  NSUInteger hash = [self.firestore hash];
+  hash = hash * 31u + [self.originalQuery hash];
+  hash = hash * 31u + [self.snapshot hash];
+  hash = hash * 31u + [self.metadata hash];
+  return hash;
+}
+
 @dynamic empty;
 
 - (FIRQuery *)query {

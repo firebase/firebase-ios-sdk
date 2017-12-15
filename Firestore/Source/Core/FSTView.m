@@ -94,6 +94,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self.type == otherChange.type && [self.key isEqual:otherChange.key];
 }
 
+- (NSUInteger)hash {
+  NSUInteger hash = self.type;
+  hash = hash * 31u + [self.key hash];
+  return hash;
+}
+
 @end
 
 #pragma mark - FSTViewChange

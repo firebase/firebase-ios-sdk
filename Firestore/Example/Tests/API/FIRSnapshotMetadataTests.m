@@ -42,6 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNotEqualObjects(foo, bar);
   XCTAssertNotEqualObjects(foo, baz);
   XCTAssertNotEqualObjects(bar, baz);
+
+  XCTAssertEqual([foo hash], [fooDup hash]);
+  XCTAssertNotEqual([foo hash], [bar hash]);
+  XCTAssertNotEqual([foo hash], [baz hash]);
+  XCTAssertNotEqual([bar hash], [baz hash]);
 }
 
 @end

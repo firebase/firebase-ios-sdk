@@ -50,6 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
       [FIRCollectionReference referenceWithPath:pathBar firestore:firestore];
   XCTAssertEqualObjects(referenceFoo, referenceFooDup);
   XCTAssertNotEqualObjects(referenceFoo, referenceBar);
+
+  XCTAssertEqual([referenceFoo hash], [referenceFooDup hash]);
+  XCTAssertNotEqual([referenceFoo hash], [referenceBar hash]);
 }
 
 @end

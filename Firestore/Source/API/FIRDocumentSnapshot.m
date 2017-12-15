@@ -98,6 +98,14 @@ NS_ASSUME_NONNULL_BEGIN
   return YES;
 }
 
+- (NSUInteger)hash {
+  NSUInteger hash = [self.firestore hash];
+  hash = hash * 31u + [self.internalKey hash];
+  hash = hash * 31u + [self.internalDocument hash];
+  hash = hash * 31u + (self.fromCache ? 1 : 0);
+  return hash;
+}
+
 @dynamic exists;
 
 - (BOOL)exists {

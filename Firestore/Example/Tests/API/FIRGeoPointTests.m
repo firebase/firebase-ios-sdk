@@ -38,6 +38,17 @@ NS_ASSUME_NONNULL_BEGIN
                            [[FIRGeoPoint alloc] initWithLatitude:0 longitude:1]);
   XCTAssertNotEqualObjects([[FIRGeoPoint alloc] initWithLatitude:0 longitude:0],
                            [[NSObject alloc] init]);
+
+  XCTAssertEqual([[[FIRGeoPoint alloc] initWithLatitude:0 longitude:0] hash],
+          [[[FIRGeoPoint alloc] initWithLatitude:0 longitude:0] hash]);
+  XCTAssertEqual([[[FIRGeoPoint alloc] initWithLatitude:1.23 longitude:4.56] hash],
+          [[[FIRGeoPoint alloc] initWithLatitude:1.23 longitude:4.56] hash]);
+  XCTAssertNotEqual([[[FIRGeoPoint alloc] initWithLatitude:0 longitude:0] hash],
+          [[[FIRGeoPoint alloc] initWithLatitude:1 longitude:0] hash]);
+  XCTAssertNotEqual([[[FIRGeoPoint alloc] initWithLatitude:0 longitude:0] hash],
+          [[[FIRGeoPoint alloc] initWithLatitude:0 longitude:1] hash]);
+  XCTAssertNotEqual([[[FIRGeoPoint alloc] initWithLatitude:0 longitude:0] hash],
+          [[[NSObject alloc] init] hash]);
 }
 
 - (void)testComparison {
