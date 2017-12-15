@@ -160,6 +160,10 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   [self enableNetwork];
 }
 
+/**
+  * Updates our OnlineState to the new state, updating local state and notifying the
+  * onlineStateHandler as appropriate.
+ */
 - (void)updateOnlineState:(FSTOnlineState)newState {
   if (newState == FSTOnlineStateHealthy) {
     // We've connected to watch at least once. Don't warn the developer about being offline going
