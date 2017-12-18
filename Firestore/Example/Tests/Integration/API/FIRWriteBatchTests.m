@@ -47,6 +47,12 @@
   FIRWriteBatch *batch2 = [doc.firestore batch];
   [batch2 setData:@{@"cc" : @"dd"} forDocument:doc];
   [batch2 commit];
+
+  // TODO(b/70631617): There's currently a backend bug that prevents us from using a resume token
+  // right away (against hexa at least). So we sleep. :-( :-( Anything over ~10ms seems to be
+  // sufficient.
+  [NSThread sleepForTimeInterval:0.2f];
+
   FIRDocumentSnapshot *snapshot2 = [self readDocumentForRef:doc];
   XCTAssertTrue(snapshot2.exists);
   XCTAssertEqualObjects(snapshot2.data, @{@"cc" : @"dd"});
