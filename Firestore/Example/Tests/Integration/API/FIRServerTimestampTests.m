@@ -142,7 +142,7 @@
 }
 
 /** Verifies a snapshot containing _setData but with resolved server timestamps. */
-- (id)verifySnapshotWithResolvedTimestamps:(FIRDocumentSnapshot *)snapshot {
+- (void)verifySnapshotWithResolvedTimestamps:(FIRDocumentSnapshot *)snapshot {
   XCTAssertTrue(snapshot.exists);
   NSDate *when = snapshot[@"when"];
   XCTAssertTrue([when isKindOfClass:[NSDate class]]);
