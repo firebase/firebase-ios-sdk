@@ -25,7 +25,7 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,19 +35,27 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQuerySnapshotTests
 
 - (void)testEquals {
-  FIRQuerySnapshot *foo = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"a":@1 } ], YES, YES);
-  FIRQuerySnapshot *fooDup = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"a":@1 } ], YES, YES);
-  FIRQuerySnapshot *bar = FSTTestQuerySnapshot(@"bar/foo", @[], @[ @{ @"a":@1 } ], YES, YES);
-  FIRQuerySnapshot *baz = FSTTestQuerySnapshot(@"foo/bar", @[ @{ @"a":@1 } ], @[], YES, YES);
-  FIRQuerySnapshot *qux = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"b":@1 } ], NO, YES);
-  FIRQuerySnapshot *quux = FSTTestQuerySnapshot(@"foo/bar", @[], @[ @{ @"b":@1 } ], YES, NO);
-  NSArray *groups = @[ @[foo, fooDup], @[bar], @[baz], @[qux], @[quux]];
-  FSTAssertEqualityGroups(groups);
+  FIRQuerySnapshot *foo = FSTTestQuerySnapshot(@"foo", @{}, @{ @"a" : @{@"a" : @1} }, YES, NO);
+  FIRQuerySnapshot *fooDup = FSTTestQuerySnapshot(@"foo", @{}, @{ @"a" : @{@"a" : @1} }, YES, NO);
+  FIRQuerySnapshot *differentPath = FSTTestQuerySnapshot(@"bar", @{},
+                                                         @{ @"a" : @{@"a" : @1} }, YES, NO);
+  FIRQuerySnapshot *differentDoc = FSTTestQuerySnapshot(@"foo",
+                                                        @{ @"a" : @{@"b" : @1} }, @{}, YES, NO);
+  FIRQuerySnapshot *noPendingWrites = FSTTestQuerySnapshot(@"foo", @{},
+                                                           @{ @"a" : @{@"a" : @1} }, NO, NO);
+  FIRQuerySnapshot *fromCache = FSTTestQuerySnapshot(@"foo", @{},
+                                                     @{ @"a" : @{@"a" : @1} }, YES, YES);
+  XCTAssertEqualObjects(foo, fooDup);
+  XCTAssertNotEqualObjects(foo, differentPath);
+  XCTAssertNotEqualObjects(foo, differentDoc);
+  XCTAssertNotEqualObjects(foo, noPendingWrites);
+  XCTAssertNotEqualObjects(foo, fromCache);
 
-  NSArray *hashGroups = @[ @[[NSNumber numberWithLong:[foo hash]], [NSNumber numberWithLong:[fooDup hash]] ],
-      @[ [NSNumber numberWithLong:[bar hash]] ], @[ [NSNumber numberWithLong:[baz hash]] ],
-      @[ [NSNumber numberWithLong:[qux hash]] ], @[ [NSNumber numberWithLong:[quux hash]]  ]];
-  FSTAssertEqualityGroups(hashGroups);
+  XCTAssertEqual([foo hash], [fooDup hash]);
+  XCTAssertNotEqual([foo hash], [differentPath hash]);
+  XCTAssertNotEqual([foo hash], [differentDoc hash]);
+  XCTAssertNotEqual([foo hash], [noPendingWrites hash]);
+  XCTAssertNotEqual([foo hash], [fromCache hash]);
 }
 
 @end

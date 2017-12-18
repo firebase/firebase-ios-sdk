@@ -114,10 +114,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testMatchesPrimitiveValuesForFilters {
-  FSTQuery *query1 = [FSTTestQuery(@"collection")
-      queryByAddingFilter:FSTTestFilter(@"sort", @">=", @(2))];
-  FSTQuery *query2 = [FSTTestQuery(@"collection")
-      queryByAddingFilter:FSTTestFilter(@"sort", @"<=", @(2))];
+  FSTQuery *query1 =
+      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter(@"sort", @">=", @(2))];
+  FSTQuery *query2 =
+      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter(@"sort", @"<=", @(2))];
 
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @1 }, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
@@ -158,8 +158,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testNanFilter {
-  FSTQuery *query = [FSTTestQuery(@"collection")
-      queryByAddingFilter:FSTTestFilter(@"sort", @"==", @(NAN))];
+  FSTQuery *query =
+      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter(@"sort", @"==", @(NAN))];
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @(NAN) }, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
   FSTDocument *doc3 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @3.1 }, NO);
@@ -174,10 +174,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDoesNotMatchComplexObjectsForFilters {
-  FSTQuery *query1 = [FSTTestQuery(@"collection")
-      queryByAddingFilter:FSTTestFilter(@"sort", @"<=", @(2))];
-  FSTQuery *query2 = [FSTTestQuery(@"collection")
-      queryByAddingFilter:FSTTestFilter(@"sort", @">=", @(2))];
+  FSTQuery *query1 =
+      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter(@"sort", @"<=", @(2))];
+  FSTQuery *query2 =
+      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter(@"sort", @">=", @(2))];
 
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @2 }, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @[] }, NO);
@@ -301,8 +301,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSortsDocumentsInTheCorrectOrder {
   FSTQuery *query = FSTTestQuery(@"collection");
   query =
-       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"sort")
-                                                                ascending:YES]];
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"sort")
+                                                               ascending:YES]];
 
   // clang-format off
   NSArray<FSTDocument *> *docs = @[

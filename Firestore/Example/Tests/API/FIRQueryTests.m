@@ -21,6 +21,7 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,15 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQueryTests
 
 - (void)testEquals {
-  // Everything is dummy for unit test here. Filtering does not require any app
-  // specific setting as far as we do not fetch data.
   FIRFirestore *firestore = FSTTestFirestore();
-  FIRQuery *queryFoo =
-      [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
-  FIRQuery *queryFooDup =
-      [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
-  FIRQuery *queryBar =
-      [FIRQuery referenceWithQuery:FSTTestQuery(@"bar") firestore:firestore];
+  FIRQuery *queryFoo = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
+  FIRQuery *queryFooDup = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
+  FIRQuery *queryBar = [FIRQuery referenceWithQuery:FSTTestQuery(@"bar") firestore:firestore];
   XCTAssertEqualObjects(queryFoo, queryFooDup);
   XCTAssertNotEqualObjects(queryFoo, queryBar);
   XCTAssertEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
@@ -50,14 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual([queryFoo hash], [queryFooDup hash]);
   XCTAssertNotEqual([queryFoo hash], [queryBar hash]);
   XCTAssertEqual([[queryFoo queryWhereField:@"f" isEqualTo:@1] hash],
-          [[queryFoo queryWhereField:@"f" isEqualTo:@1] hash]);
+                 [[queryFoo queryWhereField:@"f" isEqualTo:@1] hash]);
   XCTAssertNotEqual([[queryFoo queryWhereField:@"f" isEqualTo:@1] hash],
-          [[queryFoo queryWhereField:@"f" isEqualTo:@2] hash]);
+                    [[queryFoo queryWhereField:@"f" isEqualTo:@2] hash]);
 }
 
 - (void)testFilteringWithPredicate {
-  // Everything is dummy for unit test here. Filtering does not require any app
-  // specific setting as far as we do not fetch data.
   FIRFirestore *firestore = FSTTestFirestore();
   FIRQuery *query = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];

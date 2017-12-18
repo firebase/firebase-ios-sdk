@@ -20,7 +20,7 @@
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,19 +30,19 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFieldValueTests
 
 - (void)testEquals {
-  XCTAssertEqualObjects([FIRFieldValue fieldValueForDelete], [FIRFieldValue fieldValueForDelete]);
-  XCTAssertNotEqualObjects([FIRFieldValue fieldValueForDelete], nil);
-  XCTAssertEqualObjects([FIRFieldValue fieldValueForServerTimestamp],
-                        [FIRFieldValue fieldValueForServerTimestamp]);
-  XCTAssertNotEqualObjects([FIRFieldValue fieldValueForServerTimestamp], nil);
-  XCTAssertNotEqualObjects([FIRFieldValue fieldValueForDelete],
-                           [FIRFieldValue fieldValueForServerTimestamp]);
+  FIRFieldValue *delete = [FIRFieldValue fieldValueForDelete];
+  FIRFieldValue *deleteDup = [FIRFieldValue fieldValueForDelete];
+  FIRFieldValue *serverTimestamp = [FIRFieldValue fieldValueForServerTimestamp];
+  FIRFieldValue *serverTimestampDup = [FIRFieldValue fieldValueForServerTimestamp];
+  XCTAssertEqualObjects(delete, deleteDup);
+  XCTAssertNotEqualObjects(delete, nil);
+  XCTAssertEqualObjects(serverTimestamp, serverTimestampDup);
+  XCTAssertNotEqualObjects(serverTimestamp, nil);
+  XCTAssertNotEqualObjects(delete, serverTimestamp);
 
-  XCTAssertEqual([[FIRFieldValue fieldValueForDelete] hash], [[FIRFieldValue fieldValueForDelete] hash]);
-  XCTAssertEqual([[FIRFieldValue fieldValueForServerTimestamp] hash],
-          [[FIRFieldValue fieldValueForServerTimestamp] hash]);
-  XCTAssertNotEqual([[FIRFieldValue fieldValueForDelete] hash],
-          [[FIRFieldValue fieldValueForServerTimestamp] hash]);
+  XCTAssertEqual([delete hash], [deleteDup hash]);
+  XCTAssertEqual([serverTimestamp hash], [serverTimestamp hash]);
+  XCTAssertNotEqual([delete hash], [serverTimestamp hash]);
 }
 
 @end

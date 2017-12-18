@@ -17,10 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseFirestore/FIRCollectionReference.h"
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,17 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRCollectionReferenceTests
 
 - (void)testEquals {
-  // Everything is dummy for unit test here. Filtering does not require any app
-  // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = FSTTestFirestore();
-  FSTResourcePath *pathFoo = FSTTestPath(@"foo");
-  FSTResourcePath *pathBar = FSTTestPath(@"bar");
-  FIRCollectionReference *referenceFoo =
-      [FIRCollectionReference referenceWithPath:pathFoo firestore:firestore];
-  FIRCollectionReference *referenceFooDup =
-      [FIRCollectionReference referenceWithPath:pathFoo firestore:firestore];
-  FIRCollectionReference *referenceBar =
-      [FIRCollectionReference referenceWithPath:pathBar firestore:firestore];
+  FIRCollectionReference *referenceFoo = FSTTestCollectionRef(@"foo");
+  FIRCollectionReference *referenceFooDup = FSTTestCollectionRef(@"foo");
+  FIRCollectionReference *referenceBar = FSTTestCollectionRef(@"bar");
   XCTAssertEqualObjects(referenceFoo, referenceFooDup);
   XCTAssertNotEqualObjects(referenceFoo, referenceBar);
 

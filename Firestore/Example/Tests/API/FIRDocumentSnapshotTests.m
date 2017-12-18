@@ -23,7 +23,7 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,31 +33,30 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentSnapshotTests
 
 - (void)testEquals {
-  XCTAssertEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO),
-                        FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO));
-  XCTAssertEqualObjects(FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO),
-                        FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO));
-  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO),
-                           FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO));
-  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO),
-                           FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO));
-  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, YES, NO),
-                           FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO));
-  XCTAssertNotEqualObjects(FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, YES),
-                           FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO));
+  FIRDocumentSnapshot *base = FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
+  FIRDocumentSnapshot *baseDup = FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
+  FIRDocumentSnapshot *nilData = FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO);
+  FIRDocumentSnapshot *nilDataDup = FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO);
+  FIRDocumentSnapshot *differentPath = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO);
+  FIRDocumentSnapshot *differentData = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"b" : @1 }, NO, NO);
+  FIRDocumentSnapshot *hasMutations = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, YES, NO);
+  FIRDocumentSnapshot *fromCache = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, YES);
+  XCTAssertEqualObjects(base, baseDup);
+  XCTAssertEqualObjects(nilData, nilDataDup);
+  XCTAssertNotEqualObjects(base, nilData);
+  XCTAssertNotEqualObjects(nilData, base);
+  XCTAssertNotEqualObjects(base, differentPath);
+  XCTAssertNotEqualObjects(base, differentData);
+  XCTAssertNotEqualObjects(base, hasMutations);
+  XCTAssertNotEqualObjects(base, fromCache);
 
-  XCTAssertEqual([FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO) hash],
-                 [FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO) hash]);
-  XCTAssertEqual([FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO) hash],
-                 [FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO) hash]);
-  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO) hash],
-                    [FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO) hash]);
-  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO) hash],
-                    [FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO) hash]);
-  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, YES, NO) hash],
-                    [FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO) hash]);
-  XCTAssertNotEqual([FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, YES) hash],
-                    [FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"b" : @1 }, NO, NO) hash]);
+  XCTAssertEqual([base hash], [baseDup hash]);
+  XCTAssertEqual([nilData hash], [nilDataDup hash]);
+  XCTAssertNotEqual([base hash], [nilData hash]);
+  XCTAssertNotEqual([base hash], [differentPath hash]);
+  XCTAssertNotEqual([base hash], [differentData hash]);
+  XCTAssertNotEqual([base hash], [hasMutations hash]);
+  XCTAssertNotEqual([base hash], [fromCache hash]);
 }
 
 @end

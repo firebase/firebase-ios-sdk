@@ -17,10 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseFirestore/FIRDocumentReference.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,18 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentReferenceTests
 
 - (void)testEquals {
-  // Everything is dummy for unit test here. Filtering does not require any app
-  // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = FSTTestFirestore();
-  FSTDocumentKey *keyFoo = FSTTestDocKey(@"rooms/foo");
-  FSTDocumentKey *keyFooDup = FSTTestDocKey(@"rooms/foo");
-  FSTDocumentKey *keyBar = FSTTestDocKey(@"rooms/bar");
-  FIRDocumentReference *referenceFoo =
-      [FIRDocumentReference referenceWithKey:keyFoo firestore:firestore];
-  FIRDocumentReference *referenceFooDup =
-      [FIRDocumentReference referenceWithKey:keyFooDup firestore:firestore];
-  FIRDocumentReference *referenceBar =
-      [FIRDocumentReference referenceWithKey:keyBar firestore:firestore];
+  FIRDocumentReference *referenceFoo = FSTTestDocRef(@"rooms/foo");
+  FIRDocumentReference *referenceFooDup = FSTTestDocRef(@"rooms/foo");
+  FIRDocumentReference *referenceBar = FSTTestDocRef(@"rooms/bar");
   XCTAssertEqualObjects(referenceFoo, referenceFooDup);
   XCTAssertNotEqualObjects(referenceFoo, referenceBar);
 
