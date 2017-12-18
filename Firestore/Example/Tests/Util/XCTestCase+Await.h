@@ -32,7 +32,7 @@
 
 /**
  * Returns a completion block that fulfills a newly-created expectation with the specified
- * description.
+ * name.
  */
 - (FSTVoidErrorBlock)completionForExpectationWithName:(NSString *)expectationName;
 
