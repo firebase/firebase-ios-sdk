@@ -18,9 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
@@ -213,33 +214,63 @@
 
 - (void)testWatchSurvivesNetworkDisconnect {
   XCTestExpectation *testExpectiation =
-  [self expectationWithDescription:@"testWatchSurvivesNetworkDisconnect"];
-  
+          [self expectationWithDescription:@"testWatchSurvivesNetworkDisconnect"];
+
   FIRCollectionReference *collectionRef = [self collectionRef];
   FIRDocumentReference *docRef = [collectionRef documentWithAutoID];
-  
+
   FIRFirestore *firestore = collectionRef.firestore;
-  
+
   FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
-                                     includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
-  
+          includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
+
   [collectionRef addSnapshotListenerWithOptions:options
                                        listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
-                                         XCTAssertNil(error);
-                                         if (!snapshot.empty && !snapshot.metadata.fromCache) {
-                                           [testExpectiation fulfill];
-                                         }
+                                           XCTAssertNil(error);
+                                           if (!snapshot.empty && !snapshot.metadata.fromCache) {
+                                             [testExpectiation fulfill];
+                                           }
                                        }];
-  
+
   [firestore disableNetworkWithCompletion:^(NSError *error) {
-    XCTAssertNil(error);
-    [docRef setData:@{@"foo" : @"bar"}];
-    [firestore enableNetworkWithCompletion:^(NSError *error) {
       XCTAssertNil(error);
-    }];
+      [docRef setData:@{@"foo": @"bar"}];
+      [firestore enableNetworkWithCompletion:^(NSError *error) {
+          XCTAssertNil(error);
+      }];
   }];
-  
+
   [self awaitExpectations];
+}
+
+- (void)testQueriesFireFromCacheWhenOffline {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"foo" : @1},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
+      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
+  id<FIRListenerRegistration> registration =
+      [collection addSnapshotListenerWithOptions:options
+                                        listener:self.eventAccumulator.valueEventHandler];
+
+  FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), @[ @{ @"foo" : @1 } ]);
+  XCTAssertEqual(querySnap.metadata.isFromCache, NO);
+
+  [self disableNetwork];
+  querySnap = [self.eventAccumulator awaitEventWithName:@"offline event with isFromCache=YES"];
+  XCTAssertEqual(querySnap.metadata.isFromCache, YES);
+
+  // TODO(b/70631617): There's currently a backend bug that prevents us from using a resume token
+  // right away (against hexa at least). So we sleep. :-( :-( Anything over ~10ms seems to be
+  // sufficient.
+  [NSThread sleepForTimeInterval:0.2f];
+
+  [self enableNetwork];
+  querySnap = [self.eventAccumulator awaitEventWithName:@"back online event with isFromCache=NO"];
+  XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 }
 
 @end

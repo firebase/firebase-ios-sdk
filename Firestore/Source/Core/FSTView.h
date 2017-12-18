@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
@@ -137,6 +138,12 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  */
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
                               targetChange:(nullable FSTTargetChange *)targetChange;
+
+/**
+ * Applies an FSTOnlineState change to the view, potentially generating an FSTViewChange if the
+ * view's syncState changes as a result.
+ */
+- (FSTViewChange *)applyOnlineStateChange:(FSTOnlineState)onlineState;
 
 @end
 

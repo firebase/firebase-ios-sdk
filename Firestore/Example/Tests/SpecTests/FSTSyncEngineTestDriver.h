@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <Firestore/Source/Remote/FSTRemoteStore.h>
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
@@ -76,7 +77,7 @@ typedef NSDictionary<FSTUser *, NSArray<FSTOutstandingWrite *> *> FSTOutstanding
  *
  * Each method on the driver injects a different event into the system.
  */
-@interface FSTSyncEngineTestDriver : NSObject
+@interface FSTSyncEngineTestDriver : NSObject <FSTOnlineStateDelegate>
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
