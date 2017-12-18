@@ -44,6 +44,7 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -266,7 +267,8 @@ NS_ASSUME_NONNULL_BEGIN
     @"i" : @1,
     @"n" : [NSNull null],
     @"s" : @"foo",
-    @"a" : @[ @2, @"bar", @{@"b" : @NO} ],
+    @"a" : @[ @2, @"bar",
+              @{ @"b" : @NO } ],
     @"o" : @{
       @"d" : @100,
       @"nested" : @{@"e" : @(LLONG_MIN)},
@@ -471,8 +473,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
-  FSTQuery *q = [FSTTestQuery(@"docs")
-      queryByAddingFilter:FSTTestFilter(@"prop", @"<", @(42))];
+  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"<", @(42))];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -546,8 +547,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)unaryFilterTestWithValue:(id)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)
                                  operator{
-  FSTQuery *q = [FSTTestQuery(@"docs")
-      queryByAddingFilter:FSTTestFilter(@"prop", @"==", value)];
+  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"==", value)];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
