@@ -161,8 +161,8 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 /**
-  * Updates our OnlineState to the new state, updating local state and notifying the
-  * onlineStateHandler as appropriate.
+ * Updates our OnlineState to the new state, updating local state and notifying the
+ * onlineStateHandler as appropriate.
  */
 - (void)updateOnlineState:(FSTOnlineState)newState {
   if (newState == FSTOnlineStateHealthy) {

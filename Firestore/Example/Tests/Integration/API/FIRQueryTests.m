@@ -227,12 +227,8 @@
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), @[ @{ @"foo" : @1 } ]);
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
-  XCTestExpectation *networkDisabled = [self expectationWithDescription:@"disable network"];
-  [collection.firestore.client disableNetworkWithCompletion:^(NSError *error) {
-    [networkDisabled fulfill];
-  }];
-  [self awaitExpectations];
 
+  [self disableNetwork];
   querySnap = [self.eventAccumulator awaitEventWithName:@"offline event with isFromCache=YES"];
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
@@ -241,12 +237,7 @@
   // sufficient.
   [NSThread sleepForTimeInterval:0.2f];
 
-  XCTestExpectation *networkEnabled = [self expectationWithDescription:@"enable network"];
-  [collection.firestore.client enableNetworkWithCompletion:^(NSError *error) {
-    [networkEnabled fulfill];
-  }];
-  [self awaitExpectations];
-
+  [self enableNetwork];
   querySnap = [self.eventAccumulator awaitEventWithName:@"back online event with isFromCache=NO"];
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 }

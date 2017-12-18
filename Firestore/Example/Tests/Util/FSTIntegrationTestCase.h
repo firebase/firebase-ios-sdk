@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <Firestore/Source/Core/FSTTypes.h>
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
@@ -81,6 +82,10 @@ extern "C" {
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref;
+
+- (void)disableNetwork;
+
+- (void)enableNetwork;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

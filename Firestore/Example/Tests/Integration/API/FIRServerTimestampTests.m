@@ -167,18 +167,6 @@
   [self awaitExpectations];
 }
 
-/** Disables the network synchronously. */
-- (void)disableNetwork {
-  [_docRef.firestore.client disableNetworkWithCompletion:_accumulator.errorEventHandler];
-  [_accumulator awaitEventWithName:@"Disconnect event."];
-}
-
-/** Enables the network synchronously. */
-- (void)enableNetwork {
-  [_docRef.firestore.client enableNetworkWithCompletion:_accumulator.errorEventHandler];
-  [_accumulator awaitEventWithName:@"Reconnect event."];
-}
-
 #pragma mark - Test Cases
 
 - (void)testServerTimestampsWorkViaSet {

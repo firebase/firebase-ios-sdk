@@ -68,7 +68,6 @@ NS_ASSUME_NONNULL_BEGIN
   return events[0];
 }
 
-// Override the valueEventHandler property
 - (void (^)(id _Nullable, NSError *_Nullable))valueEventHandler {
   return ^void(id _Nullable value, NSError *_Nullable error) {
     // We can't store nil in the _events array, but these are still interesting to tests so store
@@ -77,16 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     @synchronized(self) {
       [_events addObject:event];
-      [self checkFulfilled];
-    }
-  };
-}
-
-// Override the errorEventHandler property
-- (void (^)(NSError *_Nullable))errorEventHandler {
-  return ^void(NSError *_Nullable error) {
-    @synchronized(self) {
-      [_events addObject:[NSNull null]];
       [self checkFulfilled];
     }
   };
