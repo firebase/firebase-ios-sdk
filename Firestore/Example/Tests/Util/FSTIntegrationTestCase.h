@@ -95,9 +95,6 @@ extern "C" {
  */
 - (void)waitUntil:(BOOL (^)())predicate;
 
-/** Returns a completion block that fulfills a newly-created expectation with the specified name. */
-- (FSTVoidErrorBlock)completionExpectationWithName:(NSString *)name;
-
 @property(nonatomic, strong) FIRFirestore *db;
 @property(nonatomic, strong) FSTEventAccumulator *eventAccumulator;
 @end

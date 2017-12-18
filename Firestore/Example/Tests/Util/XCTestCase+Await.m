@@ -35,4 +35,12 @@ static const double kExpectationWaitSeconds = 10.0;
   return kExpectationWaitSeconds;
 }
 
+- (FSTVoidErrorBlock)completionBlockExpecting:(NSString *)expectationDescription {
+  XCTestExpectation *expectation = [self expectationWithDescription:expectationDescription];
+  return ^(NSError *error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  };
+}
+
 @end

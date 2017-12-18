@@ -159,7 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
-  [firestore shutdownWithCompletion:[self completionExpectationWithName:@"shutdown"]];
+  [firestore shutdownWithCompletion:[self completionBlockExpecting:@"shutdown"]];
   [self awaitExpectations];
 }
 
@@ -258,29 +258,27 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data completion:[self completionExpectationWithName:@"setData"]];
+  [ref setData:data completion:[self completionBlockExpecting:@"setData"]];
   [self awaitExpectations];
 }
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<id, id> *)data {
-  [ref updateData:data completion:[self completionExpectationWithName:@"updateData"]];
+  [ref updateData:data completion:[self completionBlockExpecting:@"updateData"]];
   [self awaitExpectations];
 }
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
-  [ref deleteDocumentWithCompletion:[self completionExpectationWithName:@"deleteDocument"]];
+  [ref deleteDocumentWithCompletion:[self completionBlockExpecting:@"deleteDocument"]];
   [self awaitExpectations];
 }
 
 - (void)disableNetwork {
-  [self.db.client
-      disableNetworkWithCompletion:[self completionExpectationWithName:@"Disable Network."]];
+  [self.db.client disableNetworkWithCompletion:[self completionBlockExpecting:@"Disable Network."]];
   [self awaitExpectations];
 }
 
 - (void)enableNetwork {
-  [self.db.client
-      enableNetworkWithCompletion:[self completionExpectationWithName:@"Enable Network."]];
+  [self.db.client enableNetworkWithCompletion:[self completionBlockExpecting:@"Enable Network."]];
   [self awaitExpectations];
 }
 
@@ -295,14 +293,6 @@ NS_ASSUME_NONNULL_BEGIN
   if (!predicate()) {
     XCTFail(@"Timeout");
   }
-}
-
-- (FSTVoidErrorBlock)completionExpectationWithName:(NSString *)name {
-  XCTestExpectation *expectation = [self expectationWithDescription:name];
-  return ^(NSError *error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  };
 }
 
 extern "C" NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(
