@@ -34,6 +34,6 @@
  * Returns a completion block that fulfills a newly-created expectation with the specified
  * description.
  */
-- (FSTVoidErrorBlock)completionBlockExpecting:(NSString *)expectationDescription;
+- (FSTVoidErrorBlock)completionForExpectationWithName:(NSString *)expectationName;
 
 @end

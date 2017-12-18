@@ -159,7 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
-  [firestore shutdownWithCompletion:[self completionBlockExpecting:@"shutdown"]];
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
   [self awaitExpectations];
 }
 
@@ -258,27 +258,29 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data completion:[self completionBlockExpecting:@"setData"]];
+  [ref setData:data completion:[self completionForExpectationWithName:@"setData"]];
   [self awaitExpectations];
 }
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<id, id> *)data {
-  [ref updateData:data completion:[self completionBlockExpecting:@"updateData"]];
+  [ref updateData:data completion:[self completionForExpectationWithName:@"updateData"]];
   [self awaitExpectations];
 }
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
-  [ref deleteDocumentWithCompletion:[self completionBlockExpecting:@"deleteDocument"]];
+  [ref deleteDocumentWithCompletion:[self completionForExpectationWithName:@"deleteDocument"]];
   [self awaitExpectations];
 }
 
 - (void)disableNetwork {
-  [self.db.client disableNetworkWithCompletion:[self completionBlockExpecting:@"Disable Network."]];
+  [self.db.client
+      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
   [self awaitExpectations];
 }
 
 - (void)enableNetwork {
-  [self.db.client enableNetworkWithCompletion:[self completionBlockExpecting:@"Enable Network."]];
+  [self.db.client
+      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
   [self awaitExpectations];
 }
 
