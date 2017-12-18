@@ -22,7 +22,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-void FSTLog(NSString *format, ...) {
+void logInternal(FIRLoggerLevel level, NSString* format, ...) {
+  NSString* formatWithVersion = [@"%@ - " stringByAppendingString:format];
+  va_list args;
+  va_start(args, format);
+  FIRLogBasic(level, kFIRLoggerFirestore, @"I-FST000001", formatWithVersion, args);
+  va_end(args);
+}
+
+#define FSTLog(format, args...) \
+  logInternal(FIRLoggerLevelDebug, format, @"SDK_VERSION" ##__VA_ARGS__);
+
+#define FSTWarn(format, args...) \
+  logInternal(FIRLoggerLevelWarning, format, @"SDK_VERSION" ##__VA_ARGS__);
+
+/*void FSTLog(NSString *format, ...) {
   if ([FIRFirestore isLoggingEnabled]) {
     va_list args;
     va_start(args, format);
@@ -36,6 +50,6 @@ void FSTWarn(NSString *format, ...) {
   va_start(args, format);
   FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerFirestore, @"I-FST000001", format, args);
   va_end(args);
-}
+}*/
 
 NS_ASSUME_NONNULL_END
