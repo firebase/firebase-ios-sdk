@@ -139,11 +139,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryListener *fakeListener = OCMClassMock([FSTQueryListener class]);
   NSMutableArray *events = [NSMutableArray array];
   OCMStub([fakeListener query]).andReturn(query);
-  OCMStub([fakeListener clientDidChangeOnlineState:FSTOnlineStateUnknown])
+  OCMStub([fakeListener applyOnlineStateChange:FSTOnlineStateUnknown])
       .andDo(^(NSInvocation *invocation) {
         [events addObject:@(FSTOnlineStateUnknown)];
       });
-  OCMStub([fakeListener clientDidChangeOnlineState:FSTOnlineStateHealthy])
+  OCMStub([fakeListener applyOnlineStateChange:FSTOnlineStateHealthy])
       .andDo(^(NSInvocation *invocation) {
         [events addObject:@(FSTOnlineStateHealthy)];
       });
@@ -154,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [eventManager addListener:fakeListener];
   XCTAssertEqualObjects(events, @[ @(FSTOnlineStateUnknown) ]);
-  [eventManager watchStreamDidChangeOnlineState:FSTOnlineStateHealthy];
+  [eventManager applyOnlineStateChange:FSTOnlineStateHealthy];
   XCTAssertEqualObjects(events, (@[ @(FSTOnlineStateUnknown), @(FSTOnlineStateHealthy) ]));
 }
 

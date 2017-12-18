@@ -340,10 +340,10 @@ NS_ASSUME_NONNULL_BEGIN
                           [FSTTargetChange changeWithDocuments:@[ doc1, doc2 ]
                                            currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];  // no event
+  [listener applyOnlineStateChange:FSTOnlineStateHealthy];  // no event
   [listener queryDidChangeViewSnapshot:snap1];
-  [listener clientDidChangeOnlineState:FSTOnlineStateUnknown];
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];
+  [listener applyOnlineStateChange:FSTOnlineStateUnknown];
+  [listener applyOnlineStateChange:FSTOnlineStateHealthy];
   [listener queryDidChangeViewSnapshot:snap2];
   [listener queryDidChangeViewSnapshot:snap3];
 
@@ -379,11 +379,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];  // no event
+  [listener applyOnlineStateChange:FSTOnlineStateHealthy];      // no event
   [listener queryDidChangeViewSnapshot:snap1];                  // no event
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];   // event
-  [listener clientDidChangeOnlineState:FSTOnlineStateUnknown];  // no event
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];   // no event
+  [listener applyOnlineStateChange:FSTOnlineStateFailed];       // event
+  [listener applyOnlineStateChange:FSTOnlineStateUnknown];      // no event
+  [listener applyOnlineStateChange:FSTOnlineStateFailed];       // no event
   [listener queryDidChangeViewSnapshot:snap2];                  // another event
 
   FSTDocumentViewChange *change1 =
@@ -419,9 +419,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];  // no event
+  [listener applyOnlineStateChange:FSTOnlineStateHealthy];      // no event
   [listener queryDidChangeViewSnapshot:snap1];                  // no event
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];   // event
+  [listener applyOnlineStateChange:FSTOnlineStateFailed];       // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
          initWithQuery:query
@@ -445,7 +445,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];  // no event
+  [listener applyOnlineStateChange:FSTOnlineStateFailed];      // no event
   [listener queryDidChangeViewSnapshot:snap1];                 // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
