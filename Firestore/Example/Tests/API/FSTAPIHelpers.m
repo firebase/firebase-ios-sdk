@@ -72,7 +72,7 @@ FIRDocumentReference *FSTTestDocRef(NSString *path) {
 FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSString *path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *DocsToAdd,
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
     BOOL fromCache) {
   FIRSnapshotMetadata *metadata =
@@ -85,9 +85,9 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
-  for (NSString *key in DocsToAdd) {
+  for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd = FSTTestDoc([NSString stringWithFormat:@"%@/%@", path, key], 1,
-                                       DocsToAdd[key], hasPendingWrites);
+                                       docsToAdd[key], hasPendingWrites);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
     documentChanges = [documentChanges
         arrayByAddingObject:[FSTDocumentViewChange

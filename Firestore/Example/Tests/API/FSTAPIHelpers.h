@@ -49,10 +49,12 @@ FIRDocumentReference *FSTTestDocRef(NSString *path);
  * A convenience method for creating a particular query snapshot for tests.
  *
  * @param path To be used in constructing the query.
- * @param oldDocs Provides data to construct the query snapshot in the past. It maps each key to a
- * document. The key is the document's path relative to the query path.
- * @param DocsToAdd Specifies data to be added into the query snapshot as of now. It maps each key
- * to a document. The key is the document's path relative to the query path.
+ * @param oldDocs Provides the prior set of documents in the QuerySnapshot. Each dictionary entry
+ * maps to a document, with the key being the document id, and the value being the document
+ * contents.
+ * @param docsToAdd Specifies data to be added into the query snapshot as of now. Each dictionary
+ * entry maps to a document, with the key being the document id, and the value being the document
+ * contents.
  * @param hasPendingWrites Whether the query snapshot has pending writes to the server.
  * @param fromCache Whether the query snapshot is cache result.
  * @returns A query snapshot that consists of both sets of documents.
@@ -60,7 +62,7 @@ FIRDocumentReference *FSTTestDocRef(NSString *path);
 FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSString *path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *DocsToAdd,
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
     BOOL fromCache);
 
