@@ -39,7 +39,7 @@ func main() {
 
     listenToDocuments(matching: query);
 
-    enableDisableNetwork(db: db);
+    enableDisableNetwork(database: db);
 
     types();
 }
@@ -133,7 +133,7 @@ func writeDocument(at docRef: DocumentReference) {
     }
 }
 
-func enableDisableNetwork(db db: Firestore) {
+func enableDisableNetwork(database db: Firestore) {
     // closure syntax
     db.disableNetwork(completion: { (error) in
         if let e = error {
@@ -235,26 +235,27 @@ func readDocuments(matching query: Query) {
 
 func listenToDocument(at docRef: DocumentReference) {
 
-    let listener = docRef.addSnapshotListener() { document, error in
-        if let error = error {
-            print("Uh oh! Listen canceled: \(error)")
-            return
-        }
-
-        if let document = document {
-            // Note that document.data() is nullable.
-            let data : [String:Any]? = document.data()
-            print("Current document: \(data)");
-            if (document.metadata.isFromCache) {
-                print("From Cache")
-            } else {
-                print("From Server")
-            }
-        }
+  let listener = docRef.addSnapshotListener() { document, error in
+    if let error = error {
+      print("Uh oh! Listen canceled: \(error)")
+      return
     }
 
-    // Unsubscribe.
-    listener.remove();
+    if let document = document {
+      // Note that document.data() is nullable.
+      if let data : [String:Any] = document.data() {
+        print("Current document: \(data)");
+      }
+      if document.metadata.isFromCache {
+        print("From Cache")
+      } else {
+        print("From Server")
+      }
+    }
+  }
+
+  // Unsubscribe.
+  listener.remove();
 }
 
 func listenToDocuments(matching query: Query) {
@@ -316,7 +317,7 @@ func transactions() {
             let balanceA = try transaction.getDocument(accA)["balance"] as! Double
             let balanceB = try transaction.getDocument(accB)["balance"] as! Double
 
-            if (balanceA < amount) {
+            if balanceA < amount {
                 errorPointer?.pointee = NSError(domain: "Foo", code: 123, userInfo: nil)
                 return nil
             }

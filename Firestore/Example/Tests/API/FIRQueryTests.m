@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQueryTests
 
 - (void)testFilteringWithPredicate {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   // Everything is dummy for unit test here. Filtering does not require any app
   // specific setting as far as we do not fetch data.
   FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
@@ -41,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                 credentialsProvider:nil
                                                 workerDispatchQueue:nil
                                                         firebaseApp:nil];
+#pragma clang diagnostic pop
+
   FSTResourcePath *path = [FSTResourcePath pathWithString:@"foo"];
   FIRQuery *query = [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];

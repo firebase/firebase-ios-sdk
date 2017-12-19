@@ -271,6 +271,8 @@
   [self enableNetwork];
   querySnap = [self.eventAccumulator awaitEventWithName:@"back online event with isFromCache=NO"];
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
+
+  [registration remove];
 }
 
 @end
