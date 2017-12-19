@@ -19,8 +19,6 @@
 #import "FirebaseFirestore/FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRSnapshotMetadataTests : XCTestCase

@@ -17,11 +17,6 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseFirestore/FIRDocumentSnapshot.h"
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 

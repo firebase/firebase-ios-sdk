@@ -15,28 +15,16 @@
  */
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import <Firestore/Source/API/FIRDocumentSnapshot+Internal.h>
-#import <Firestore/Source/API/FIRQuerySnapshot+Internal.h>
-#import <Firestore/Source/API/FIRSnapshotMetadata+Internal.h>
-#import <Firestore/Source/Core/FSTViewSnapshot.h>
 
-#import "FirebaseFirestore/FIRCollectionReference.h"
-#import "FirebaseFirestore/FIRDocumentReference.h"
-#import "FirebaseFirestore/FIRDocumentSnapshot.h"
 #import "FirebaseFirestore/FIRFieldPath.h"
-#import "FirebaseFirestore/FIRFirestore.h"
 #import "FirebaseFirestore/FIRGeoPoint.h"
-#import "FirebaseFirestore/FIRQuerySnapshot.h"
-#import "FirebaseFirestore/FIRSnapshotMetadata.h"
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Core/FSTView.h"
+#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
@@ -83,6 +71,10 @@ NSData *FSTTestData(int bytes, ...) {
 
   va_end(args);
   return [data copy];
+}
+
+FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude) {
+  return [[FIRGeoPoint alloc] initWithLatitude:latitude longitude:longitude];
 }
 
 NSDateComponents *FSTTestDateComponents(

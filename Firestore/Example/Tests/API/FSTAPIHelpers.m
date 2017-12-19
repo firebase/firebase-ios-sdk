@@ -15,41 +15,21 @@
  */
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
-#import <Firestore/Source/API/FIRDocumentSnapshot+Internal.h>
-#import <Firestore/Source/API/FIRQuerySnapshot+Internal.h>
-#import <Firestore/Source/API/FIRSnapshotMetadata+Internal.h>
-#import <Firestore/Source/Core/FSTViewSnapshot.h>
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
-#import "FirebaseFirestore/FIRCollectionReference.h"
 #import "FirebaseFirestore/FIRDocumentReference.h"
-#import "FirebaseFirestore/FIRDocumentSnapshot.h"
-#import "FirebaseFirestore/FIRFieldPath.h"
-#import "FirebaseFirestore/FIRFirestore.h"
-#import "FirebaseFirestore/FIRGeoPoint.h"
-#import "FirebaseFirestore/FIRQuerySnapshot.h"
 #import "FirebaseFirestore/FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
-#import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/Source/Local/FSTLocalViewChanges.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTPath.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,10 +46,6 @@ FIRFirestore *FSTTestFirestore() {
                                                  firebaseApp:nil];
   });
   return sharedInstance;
-}
-
-FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude) {
-  return [[FIRGeoPoint alloc] initWithLatitude:latitude longitude:longitude];
 }
 
 FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
@@ -95,23 +71,23 @@ FIRDocumentReference *FSTTestDocRef(NSString *path) {
 /** A convenience method for creating a query snapshots for tests. */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSString *path,
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldData,
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *dataToAdd,
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *DocsToAdd,
     BOOL hasPendingWrites,
     BOOL fromCache) {
   FIRSnapshotMetadata *metadata =
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites fromCache:fromCache];
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
-  for (NSString *key in oldData) {
+  for (NSString *key in oldDocs) {
     oldDocuments = [oldDocuments
         documentSetByAddingDocument:FSTTestDoc([NSString stringWithFormat:@"%@/%@", path, key], 1,
-                                               oldData[key], hasPendingWrites)];
+                                               oldDocs[key], hasPendingWrites)];
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
-  for (NSString *key in dataToAdd) {
+  for (NSString *key in DocsToAdd) {
     FSTDocument *docToAdd = FSTTestDoc([NSString stringWithFormat:@"%@/%@", path, key], 1,
-                                       dataToAdd[key], hasPendingWrites);
+                                       DocsToAdd[key], hasPendingWrites);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
     documentChanges = [documentChanges
         arrayByAddingObject:[FSTDocumentViewChange

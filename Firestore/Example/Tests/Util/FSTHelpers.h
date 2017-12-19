@@ -16,17 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-@class FIRCollectionReference;
-@class FIRDocumentReference;
-@class FIRDocumentSnapshot;
-@class FIRFirestore;
 @class FIRGeoPoint;
-@class FIRQuerySnapshot;
 @class FSTDeleteMutation;
 @class FSTDeletedDocument;
 @class FSTDocument;
@@ -38,7 +32,6 @@
 @class FSTPatchMutation;
 @class FSTQuery;
 @class FSTRemoteEvent;
-@class FSTResourceName;
 @class FSTResourcePath;
 @class FSTSetMutation;
 @class FSTSnapshotVersion;
@@ -149,6 +142,11 @@ NSDate *FSTTestDate(int year, int month, int day, int hour, int minute, int seco
  * Creates a new NSData from the var args of bytes, must be terminated with a negative byte
  */
 NSData *FSTTestData(int bytes, ...);
+
+// Note that FIRGeoPoint is a model class in addition to an API class, so we put this helper here instead of
+// FSTAPIHelpers.h
+/** Creates a new GeoPoint from the latitude and longitude values */
+FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 
 /**
  * Creates a new NSDateComponents from components. Note that year, month, and day are all

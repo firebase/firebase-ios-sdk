@@ -16,42 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+#import "FirebaseFirestore/FIRCollectionReference.h"
+#import "FirebaseFirestore/FIRDocumentSnapshot.h"
+#import "FirebaseFirestore/FIRFirestore.h"
+#import "FirebaseFirestore/FIRQuerySnapshot.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
-@class FIRCollectionReference;
-@class FIRDocumentReference;
-@class FIRDocumentSnapshot;
-@class FIRFirestore;
-@class FIRGeoPoint;
-@class FIRQuerySnapshot;
-@class FSTDeleteMutation;
-@class FSTDeletedDocument;
-@class FSTDocument;
-@class FSTDocumentKeyReference;
-@class FSTDocumentSet;
-@class FSTFieldPath;
-@class FSTFieldValue;
-@class FSTLocalViewChanges;
-@class FSTPatchMutation;
-@class FSTQuery;
-@class FSTRemoteEvent;
-@class FSTResourceName;
-@class FSTResourcePath;
-@class FSTSetMutation;
-@class FSTSnapshotVersion;
-@class FSTSortOrder;
-@class FSTTargetChange;
-@class FSTTimestamp;
-@class FSTTransformMutation;
-@class FSTView;
-@class FSTViewSnapshot;
-@class FSTObjectValue;
-@protocol FSTFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,9 +32,6 @@ extern "C" {
 /** A convenience method for creating dummy singleton FIRFirestore for tests. */
 FIRFirestore *FSTTestFirestore();
 
-/** Creates a new GeoPoint from the latitude and longitude values */
-FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
-
 /** A convenience method for creating a doc snapshot for tests. */
 FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                         FSTTestSnapshotVersion version,
@@ -72,21 +39,28 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                         BOOL hasMutations,
                                         BOOL fromCache);
 
-/** A covenience method for creating a collection reference from a path string. */
+/** A convenience method for creating a collection reference from a path string. */
 FIRCollectionReference *FSTTestCollectionRef(NSString *path);
 
-/** A covenience method for creating a document reference from a path string. */
+/** A convenience method for creating a document reference from a path string. */
 FIRDocumentReference *FSTTestDocRef(NSString *path);
 
 /**
  * A convenience method for creating a particular query snapshot for tests.
- * This function allows user to pass in snapshot of the query in the past as well as new rows to be
- * added into the snapshot as for now. The current snapshot of the query consists both data.
+ *
+ * @param path To be used in constructing the query.
+ * @param oldDocs Provides data to construct the query snapshot in the past. It maps each key to a document. The key
+ *     is the document's path relative to the query path.
+ * @param DocsToAdd Specifies data to be added into the query snapshot as of now. It maps each key to a document. The
+ *     key is the document's path relative to the query path.
+ * @param hasPendingWrites Whether the query snapshot has pending writes to the server.
+ * @param fromCache Whether the query snapshot is cache result.
+ * @returns A query snapshot that consists of both sets of documents.
  */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSString *path,
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldData,
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *dataToAdd,
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *DocsToAdd,
     BOOL hasPendingWrites,
     BOOL fromCache);
 

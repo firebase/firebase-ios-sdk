@@ -18,7 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,24 +28,17 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGeoPointTests
 
 - (void)testEquals {
-  FIRGeoPoint *foo = FSTTestGeoPoint(0, 0);
-  FIRGeoPoint *fooDup = FSTTestGeoPoint(0, 0);
-  FIRGeoPoint *bar = FSTTestGeoPoint(1.23, 4.56);
-  FIRGeoPoint *barDup = FSTTestGeoPoint(1.23, 4.56);
-  FIRGeoPoint *differentLatitude = FSTTestGeoPoint(1, 0);
-  FIRGeoPoint *differentLongitude = FSTTestGeoPoint(0, 1);
-  NSObject *object = [[NSObject alloc] init];
+  FIRGeoPoint *foo = FSTTestGeoPoint(1.23, 4.56);
+  FIRGeoPoint *fooDup = FSTTestGeoPoint(1.23, 4.56);
+  FIRGeoPoint *differentLatitude = FSTTestGeoPoint(1.23, 0);
+  FIRGeoPoint *differentLongitude = FSTTestGeoPoint(0, 4.56);
   XCTAssertEqualObjects(foo, fooDup);
-  XCTAssertEqualObjects(bar, barDup);
   XCTAssertNotEqualObjects(foo, differentLatitude);
   XCTAssertNotEqualObjects(foo, differentLongitude);
-  XCTAssertNotEqualObjects(foo, object);
 
   XCTAssertEqual([foo hash], [fooDup hash]);
-  XCTAssertEqual([bar hash], [barDup hash]);
   XCTAssertNotEqual([foo hash], [differentLatitude hash]);
   XCTAssertNotEqual([foo hash], [differentLongitude hash]);
-  XCTAssertNotEqual([foo hash], [object hash]);
 }
 
 - (void)testComparison {

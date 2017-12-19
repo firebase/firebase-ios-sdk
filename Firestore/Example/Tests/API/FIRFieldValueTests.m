@@ -18,9 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFieldValue+Internal.h"
-
-#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
+#import "FirebaseFirestore/FIRFieldValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
