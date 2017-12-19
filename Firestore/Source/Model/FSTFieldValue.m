@@ -17,6 +17,7 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -26,6 +27,38 @@
 #import "Firestore/Source/Util/FSTComparison.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+#pragma mark - FSTFieldValueOptions
+
+@implementation FSTFieldValueOptions
+
++ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options {
+  if (options.serverTimestampBehavior == FSTServerTimestampBehaviorNone) {
+    static FSTFieldValueOptions *defaultInstance = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+      defaultInstance = [[FSTFieldValueOptions alloc]
+          initWithServerTimestampBehavior:FSTServerTimestampBehaviorNone];
+    });
+    return defaultInstance;
+  } else {
+    return [[FSTFieldValueOptions alloc]
+        initWithServerTimestampBehavior:options.serverTimestampBehavior];
+  }
+}
+
+- (instancetype)initWithServerTimestampBehavior:
+    (FSTServerTimestampBehavior)serverTimestampBehavior {
+  self = [super init];
+
+  if (self) {
+    _serverTimestampBehavior = serverTimestampBehavior;
+  }
+  return self;
+}
+
+@end
 
 #pragma mark - FSTFieldValue
 
@@ -40,6 +73,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)value {
+  return [self valueWithOptions:[FSTFieldValueOptions
+                                    optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]]];
+}
+
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -89,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderNull;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return [NSNull null];
 }
 
@@ -155,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderBoolean;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return self.internalValue ? @YES : @NO;
 }
 
@@ -233,7 +271,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return @(self.internalValue);
 }
 
@@ -285,7 +323,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return @(self.internalValue);
 }
 
@@ -332,7 +370,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderString;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return self.internalValue;
 }
 
@@ -379,7 +417,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderTimestamp;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   // For developers, we expose Timestamps as Dates.
   return self.internalValue.approximateDateValue;
 }
@@ -410,14 +448,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTServerTimestampValue
 
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime {
-  return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime];
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+                                         previousValue:(nullable FSTFieldValue *)previousValue {
+  return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime
+                                                   previousValue:previousValue];
 }
 
-- (id)initWithLocalWriteTime:(FSTTimestamp *)localWriteTime {
+- (id)initWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+               previousValue:(nullable FSTFieldValue *)previousValue {
   self = [super init];
   if (self) {
     _localWriteTime = localWriteTime;
+    _previousValue = previousValue;
   }
   return self;
 }
@@ -426,9 +468,17 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderTimestamp;
 }
 
-- (NSNull *)value {
-  // For developers, server timestamps always evaluate to NSNull (for now, at least; b/62064202).
-  return [NSNull null];
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+  switch (options.serverTimestampBehavior) {
+    case FSTServerTimestampBehaviorNone:
+      return [NSNull null];
+    case FSTServerTimestampBehaviorEstimate:
+      return [self.localWriteTime approximateDateValue];
+    case FSTServerTimestampBehaviorPrevious:
+      return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
+    default:
+      FSTFail(@"Unexpected server timestamp option: %d", (int)options.serverTimestampBehavior);
+  }
 }
 
 - (BOOL)isEqual:(id)other {
@@ -481,7 +531,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderGeoPoint;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return self.internalValue;
 }
 
@@ -529,7 +579,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderBlob;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return self.internalValue;
 }
 
@@ -573,7 +623,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   return self.key;
 }
 
@@ -648,11 +698,11 @@ NS_ASSUME_NONNULL_BEGIN
   return [self initWithImmutableDictionary:dictionary];
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   [self.internalValue
       enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *obj, BOOL *stop) {
-        result[key] = [obj value];
+        result[key] = [obj valueWithOptions:options];
       }];
   return result;
 }
@@ -803,7 +853,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.internalValue hash];
 }
 
-- (id)value {
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:_internalValue.count];
   [self.internalValue enumerateObjectsUsingBlock:^(FSTFieldValue *obj, NSUInteger idx, BOOL *stop) {
     [result addObject:[obj value]];

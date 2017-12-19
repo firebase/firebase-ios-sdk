@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-#import "FIRQuery.h"
+#import "FIRDocumentSnapshot.h"
 
-@class FSTQuery;
+#import <Foundation/Foundation.h>
+
+#import "Firestore/Source/Model/FSTFieldValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Internal FIRQuery API we don't want exposed in our public header files. */
-@interface FIRQuery (Internal)
-+ (FIRQuery *)referenceWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore;
-@property(nonatomic, strong, readonly) FSTQuery *query;
+@interface FIRSnapshotOptions (Internal)
+
+/** Returns a default instance of FIRSnapshotOptions that specifies no options. */
++ (instancetype)defaultOptions;
+
+/* Initializes a new instance with the specified server timestamp behavior. */
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior;
+
+/* Returns the server timestamp behavior. Returns -1 if no behavior is specified. */
+- (FSTServerTimestampBehavior)serverTimestampBehavior;
+
 @end
 
 NS_ASSUME_NONNULL_END
