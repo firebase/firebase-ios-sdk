@@ -139,7 +139,6 @@ NS_SWIFT_NAME(Firestore)
 + (void)enableLogging:(BOOL)logging
     DEPRECATED_MSG_ATTRIBUTE("Use FIRSetLoggerLevel(FIRLoggerLevelDebug) to enable logging");
 
-
 #pragma mark - Network
 
 /**

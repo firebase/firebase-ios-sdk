@@ -165,18 +165,18 @@ static const int kOnlineAttemptsBeforeFailure = 2;
  * onlineStateHandler as appropriate.
  */
 - (void)updateOnlineState:(FSTOnlineState)newState {
-    // Update and broadcast the new state.
+  // Update and broadcast the new state.
   if (newState != self.watchStreamOnlineState) {
     if (newState == FSTOnlineStateHealthy) {
       // We've connected to watch at least once. Don't warn the developer about being offline going
       // forward.
       self.shouldWarnOffline = NO;
     } else if (newState == FSTOnlineStateUnknown) {
-      // The state is set to unknown when a healthy stream is closed (e.g. due to a token timeout) or
-      // when we have no active listens and therefore there's no need to start the stream. Assuming
-      // there is (possibly in the future) an active listen, then we will eventually move to state
-      // Online or Failed, but we always want to make at least kOnlineAttemptsBeforeFailure attempts
-      // before failing, so we reset the count here.
+      // The state is set to unknown when a healthy stream is closed (e.g. due to a token timeout)
+      // or when we have no active listens and therefore there's no need to start the stream.
+      // Assuming there is (possibly in the future) an active listen, then we will eventually move
+      // to state Online or Failed, but we always want to make at least kOnlineAttemptsBeforeFailure
+      // attempts before failing, so we reset the count here.
       self.watchStreamFailures = 0;
     }
     self.watchStreamOnlineState = newState;

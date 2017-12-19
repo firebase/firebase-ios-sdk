@@ -16,8 +16,8 @@
 
 @import FirebaseFirestore;
 
-#import <XCTest/XCTest.h>
 #import <FirebaseFirestore/FIRFirestore.h>
+#import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -943,20 +943,20 @@
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
 
-  [firestore enableNetworkWithCompletion:
-          [self completionForExpectationWithName:@"Enable network"]];
+  [firestore enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
   [self awaitExpectations];
-  [firestore enableNetworkWithCompletion:
-          [self completionForExpectationWithName:@"Enable network again"]];
+  [firestore
+      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network again"]];
   [self awaitExpectations];
-  [firestore disableNetworkWithCompletion:
-          [self completionForExpectationWithName:@"Disable network"]];
+  [firestore
+      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable network"]];
   [self awaitExpectations];
-  [firestore disableNetworkWithCompletion:
-          [self completionForExpectationWithName:@"Disable network again"]];
+  [firestore
+      disableNetworkWithCompletion:[self
+                                       completionForExpectationWithName:@"Disable network again"]];
   [self awaitExpectations];
-  [firestore enableNetworkWithCompletion:
-          [self completionForExpectationWithName:@"Final enable network"]];
+  [firestore
+      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Final enable network"]];
   [self awaitExpectations];
 }
 

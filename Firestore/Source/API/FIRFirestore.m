@@ -280,13 +280,13 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-    [self firestoreWithConfiguredClient];
-    [self.client enableNetworkWithCompletion:completion];
+  [self firestoreWithConfiguredClient];
+  [self.client enableNetworkWithCompletion:completion];
 }
 
-- (void)disableNetworkWithCompletion:(nullable void (^)(NSError * _Nullable))completion {
-    [self firestoreWithConfiguredClient];
-    [self.client disableNetworkWithCompletion:completion];
+- (void)disableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable))completion {
+  [self firestoreWithConfiguredClient];
+  [self.client disableNetworkWithCompletion:completion];
 }
 
 @end
