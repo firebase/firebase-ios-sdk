@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
-
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "FirebaseFirestore/FIRQuery.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,21 +30,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRQueryTests
 
-- (void)testFilteringWithPredicate {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  // Everything is dummy for unit test here. Filtering does not require any app
-  // specific setting as far as we do not fetch data.
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                                           database:@"abc"
-                                                     persistenceKey:@"db123"
-                                                credentialsProvider:nil
-                                                workerDispatchQueue:nil
-                                                        firebaseApp:nil];
-#pragma clang diagnostic pop
+- (void)testEquals {
+  FIRFirestore *firestore = FSTTestFirestore();
+  FIRQuery *queryFoo = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
+  FIRQuery *queryFooDup = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
+  FIRQuery *queryBar = [FIRQuery referenceWithQuery:FSTTestQuery(@"bar") firestore:firestore];
+  XCTAssertEqualObjects(queryFoo, queryFooDup);
+  XCTAssertNotEqualObjects(queryFoo, queryBar);
+  XCTAssertEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
+                        [queryFoo queryWhereField:@"f" isEqualTo:@1]);
+  XCTAssertNotEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
+                           [queryFoo queryWhereField:@"f" isEqualTo:@2]);
 
-  FSTResourcePath *path = [FSTResourcePath pathWithString:@"foo"];
-  FIRQuery *query = [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
+  XCTAssertEqual([queryFoo hash], [queryFooDup hash]);
+  XCTAssertNotEqual([queryFoo hash], [queryBar hash]);
+  XCTAssertEqual([[queryFoo queryWhereField:@"f" isEqualTo:@1] hash],
+                 [[queryFoo queryWhereField:@"f" isEqualTo:@1] hash]);
+  XCTAssertNotEqual([[queryFoo queryWhereField:@"f" isEqualTo:@1] hash],
+                    [[queryFoo queryWhereField:@"f" isEqualTo:@2] hash]);
+}
+
+- (void)testFilteringWithPredicate {
+  FIRFirestore *firestore = FSTTestFirestore();
+  FIRQuery *query = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];
   FIRQuery *query2 = [query queryFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"f<=1"]];
   FIRQuery *query3 =

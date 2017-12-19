@@ -65,7 +65,7 @@
   NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value", @"baz" : @"baz-value"} };
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:@"collection/key"];
+  FSTDocumentKey *key = FSTTestDocKey(@"collection/key");
   FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:@[ FSTTestFieldPath(@"foo.bar") ]];
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:mask

@@ -78,6 +78,37 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+// NSObject Methods
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  // self class could be FIRDocumentSnapshot or subtype. So we compare with base type explicitly.
+  if (![other isKindOfClass:[FIRDocumentSnapshot class]]) return NO;
+
+  return [self isEqualToSnapshot:other];
+}
+
+- (BOOL)isEqualToSnapshot:(nullable FIRDocumentSnapshot *)snapshot {
+  if (self == snapshot) return YES;
+  if (snapshot == nil) return NO;
+  if (self.firestore != snapshot.firestore && ![self.firestore isEqual:snapshot.firestore])
+    return NO;
+  if (self.internalKey != snapshot.internalKey && ![self.internalKey isEqual:snapshot.internalKey])
+    return NO;
+  if (self.internalDocument != snapshot.internalDocument &&
+      ![self.internalDocument isEqual:snapshot.internalDocument])
+    return NO;
+  if (self.fromCache != snapshot.fromCache) return NO;
+  return YES;
+}
+
+- (NSUInteger)hash {
+  NSUInteger hash = [self.firestore hash];
+  hash = hash * 31u + [self.internalKey hash];
+  hash = hash * 31u + [self.internalDocument hash];
+  hash = hash * 31u + (self.fromCache ? 1 : 0);
+  return hash;
+}
+
 @dynamic exists;
 
 - (BOOL)exists {
