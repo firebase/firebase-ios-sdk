@@ -27,7 +27,7 @@ namespace firestore {
 namespace util {
 
 static NSString* FormatString(const char* format) {
-  return [[NSString alloc] initWithBytesNoCopy:(void *)format
+  return [[NSString alloc] initWithBytesNoCopy:(void*)format
                                         length:strlen(format)
                                       encoding:NSUTF8StringEncoding
                                   freeWhenDone:NO];
@@ -116,7 +116,7 @@ void LogMessageV(LogLevel log_level, const char* format, va_list args) {
     case kLogLevelDebug:
       FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerFirestore, @"I-FST000001",
                   FormatString(format), args);
-        break;
+      break;
     case kLogLevelInfo:
       FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerFirestore, @"I-FST000001",
                   FormatString(format), args);
