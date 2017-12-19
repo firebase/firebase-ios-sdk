@@ -17,8 +17,9 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
+#include <gtest/gtest.h>
+
 #include "Firestore/Source/Util/FSTAssert.h"
-#include "gtest/gtest.h"
 
 /**
  * An XCTest test case that finds C++ test cases written in the GoogleTest framework, runs them, and
