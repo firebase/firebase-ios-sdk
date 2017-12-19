@@ -15,18 +15,6 @@
 add_library(
   firebase_firestore_util
   autoid.cc
+  log_stdio.cc
   secure_random_arc4random.cc
-)
-
-# Apple-specific utility build.
-# Expose FirebaseCore/FIRLogger.h to cmake.
-# add_library(
-#   firebase_firestore_util_apple
-#   log_apple.mm
-# )
-
-# Non-Apple-specific utility build.
-add_library(
-  firebase_firestore_util_other
-  log_other.cc
 )

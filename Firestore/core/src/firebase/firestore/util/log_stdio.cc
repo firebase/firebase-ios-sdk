@@ -61,13 +61,6 @@ void LogError(const char* format, ...) {
   va_end(list);
 }
 
-void LogAssert(const char* format, ...) {
-  va_list list;
-  va_start(list, format);
-  LogMessageV(kLogLevelAssert, format, list);
-  va_end(list);
-}
-
 void LogMessageV(LogLevel log_level, const char* format, va_list args) {
   if (log_level < g_log_level) {
     return;
@@ -86,10 +79,6 @@ void LogMessageV(LogLevel log_level, const char* format, va_list args) {
       break;
     case kLogLevelError:
       printf("ERROR: ");
-      break;
-    case kLogLevelAssert:
-      // TODO(zxu): call the assert API, once it is available.
-      printf("ASSERT: ");
       break;
   }
   vprintf(format, args);

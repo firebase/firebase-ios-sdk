@@ -26,6 +26,13 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+static NSString* FormatString(const char* format) {
+  return [[NSString alloc] initWithBytesNoCopy:(void *)format
+                                        length:strlen(format)
+                                      encoding:NSUTF8StringEncoding
+                                  freeWhenDone:NO];
+}
+
 void LogSetLevel(LogLevel level) {
   switch (level) {
     case kLogLevelVerbose:
@@ -43,13 +50,9 @@ void LogSetLevel(LogLevel level) {
     case kLogLevelError:
       FIRSetLoggerLevel(FIRLoggerLevelError);
       break;
-    case kLogLevelAssert:
-      // Unsupported log level. FIRSetLoggerLevel will deal with it.
-      FIRSetLoggerLevel(-1);
-      break;
     default:
       // Unsupported log level. FIRSetLoggerLevel will deal with it.
-      FIRSetLoggerLevel(-1);
+      FIRSetLoggerLevel((FIRLoggerLevel)-1);
       break;
   }
 }
@@ -58,7 +61,7 @@ LogLevel LogGetLevel() {
   // We return the true log level. True log level is what the SDK used to
   // determine whether to log instead of what parameter is used in the last call
   // of LogSetLevel().
-  if (FIRIsLoggableLevel(kLogLevelInfo, NO)) {
+  if (FIRIsLoggableLevel(FIRLoggerLevelInfo, NO)) {
     if (FIRIsLoggableLevel(FIRLoggerLevelDebug, NO)) {
       // FIRLoggerLevelMax is actually kLogLevelDebug right now. We do not check
       // further.
@@ -67,7 +70,7 @@ LogLevel LogGetLevel() {
       return kLogLevelInfo;
     }
   } else {
-    if (FIRIsLoggableLevel(kLogLevelWarning, NO)) {
+    if (FIRIsLoggableLevel(FIRLoggerLevelWarning, NO)) {
       return kLogLevelWarning;
     } else {
       return kLogLevelError;
@@ -79,7 +82,7 @@ void LogDebug(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerFirestore, @"I-FST000001",
-              @(format), list);
+              FormatString(format), list);
   va_end(list);
 }
 
@@ -87,7 +90,7 @@ void LogInfo(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerFirestore, @"I-FST000001",
-              @(format), list);
+              FormatString(format), list);
   va_end(list);
 }
 
@@ -95,7 +98,7 @@ void LogWarning(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerFirestore, @"I-FST000001",
-              @(format), list);
+              FormatString(format), list);
   va_end(list);
 }
 
@@ -103,43 +106,32 @@ void LogError(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelError, kFIRLoggerFirestore, @"I-FST000001",
-              @(format), list);
-  va_end(list);
-}
-
-void LogAssert(const char* format, ...) {
-  // TODO(zxu): to be implemented by calling the pending assert API. Fallback to
-  // log error for now.
-  va_list list;
-  va_start(list, format);
-  FIRLogBasic(FIRLoggerLevelError, kFIRLoggerFirestore, @"I-FST000001",
-              @(format), list);
+              FormatString(format), list);
   va_end(list);
 }
 
 void LogMessageV(LogLevel log_level, const char* format, va_list args) {
   switch (log_level) {
     case kLogLevelVerbose:  // fall through
-    case kLogLevelDebug FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerFirestore,
-                                    @"I-FST000001", @(format), list);
-        break; case kLogLevelInfo:
+    case kLogLevelDebug:
+      FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerFirestore, @"I-FST000001",
+                  FormatString(format), args);
+        break;
+    case kLogLevelInfo:
       FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerFirestore, @"I-FST000001",
-                  @(format), list);
+                  FormatString(format), args);
       break;
     case kLogLevelWarning:
       FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerFirestore, @"I-FST000001",
-                  @(format), list);
+                  FormatString(format), args);
       break;
     case kLogLevelError:
       FIRLogBasic(FIRLoggerLevelError, kFIRLoggerFirestore, @"I-FST000001",
-                  @(format), list);
+                  FormatString(format), args);
       break;
-    case kLogLevelAssert:
-      // TODO(zxu): to be implemented by calling the pending assert API. Fall
-      // through for now.
     default:
       FIRLogBasic(FIRLoggerLevelError, kFIRLoggerFirestore, @"I-FST000001",
-                  @(format), list);
+                  FormatString(format), args);
       break;
   }
 }

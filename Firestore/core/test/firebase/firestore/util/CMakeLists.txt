@@ -15,28 +15,10 @@
 cc_test(
   firebase_firestore_util_test
   autoid_test.cc
+  log_test.cc
   secure_random_test.cc
 )
 target_link_libraries(
   firebase_firestore_util_test
   firebase_firestore_util
-)
-
-cc_test(
-  firebase_firestore_util_apple_test
-  log_test.cc
-)
-target_link_libraries(
-  firebase_firestore_util_apple_test
-  # firebase_firestore_util_apple is not ready yet.
-  firebase_firestore_util_other
-)
-
-cc_test(
-  firebase_firestore_util_other_test
-  log_test.cc
-)
-target_link_libraries(
-  firebase_firestore_util_other_test
-  firebase_firestore_util_other
 )

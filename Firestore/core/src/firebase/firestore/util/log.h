@@ -19,11 +19,23 @@
 
 #include <stdarg.h>
 
-#include "Firestore/core/src/firebase/firestore/public/log.h"
-
 namespace firebase {
 namespace firestore {
 namespace util {
+
+/// @brief Levels used when logging messages.
+enum LogLevel {
+  /// Verbose Log Level
+  kLogLevelVerbose = 0,
+  /// Debug Log Level
+  kLogLevelDebug,
+  /// Info Log Level
+  kLogLevelInfo,
+  /// Warning Log Level
+  kLogLevelWarning,
+  /// Error Log Level
+  kLogLevelError,
+};
 
 // Common log methods.
 
