@@ -37,6 +37,8 @@ FIRFirestore *FSTTestFirestore() {
   static FIRFirestore *sharedInstance = nil;
   static dispatch_once_t onceToken;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   dispatch_once(&onceToken, ^{
     sharedInstance = [[FIRFirestore alloc] initWithProjectID:@"abc"
                                                     database:@"abc"
@@ -45,6 +47,7 @@ FIRFirestore *FSTTestFirestore() {
                                          workerDispatchQueue:nil
                                                  firebaseApp:nil];
   });
+#pragma clang diagnostic pop
   return sharedInstance;
 }
 
