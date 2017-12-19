@@ -39,6 +39,8 @@ func main() {
 
     listenToDocuments(matching: query);
 
+    enableDisableNetwork(db: db);
+
     types();
 }
 
@@ -128,6 +130,23 @@ func writeDocument(at docRef: DocumentReference) {
         }
 
         print("Set complete!")
+    }
+}
+
+func enableDisableNetwork(db db: Firestore) {
+    // closure syntax
+    db.disableNetwork(completion: { (error) in
+        if let e = error {
+            print("Uh oh! \(e)")
+            return
+        }
+    })
+    // trailing block syntax
+    db.enableNetwork { (error) in
+        if let e = error {
+            print("Uh oh! \(e)")
+            return
+        }
     }
 }
 

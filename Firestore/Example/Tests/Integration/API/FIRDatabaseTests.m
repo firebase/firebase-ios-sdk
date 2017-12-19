@@ -17,6 +17,7 @@
 @import FirebaseFirestore;
 
 #import <XCTest/XCTest.h>
+#import <FirebaseFirestore/FIRFirestore.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -936,6 +937,27 @@
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
   [self waitForIdleFirestore:firestore];
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
+}
+
+- (void)testCanDisableNetwork {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [firestore enableNetworkWithCompletion:
+          [self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+  [firestore enableNetworkWithCompletion:
+          [self completionForExpectationWithName:@"Enable network again"]];
+  [self awaitExpectations];
+  [firestore disableNetworkWithCompletion:
+          [self completionForExpectationWithName:@"Disable network"]];
+  [self awaitExpectations];
+  [firestore disableNetworkWithCompletion:
+          [self completionForExpectationWithName:@"Disable network again"]];
+  [self awaitExpectations];
+  [firestore enableNetworkWithCompletion:
+          [self completionForExpectationWithName:@"Final enable network"]];
+  [self awaitExpectations];
 }
 
 @end
