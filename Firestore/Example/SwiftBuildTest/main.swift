@@ -246,7 +246,7 @@ func listenToDocument(at docRef: DocumentReference) {
       if let data : [String:Any] = document.data() {
         print("Current document: \(data)");
       }
-      if (document.metadata.isFromCache) {
+      if document.metadata.isFromCache {
         print("From Cache")
       } else {
         print("From Server")
@@ -317,7 +317,7 @@ func transactions() {
             let balanceA = try transaction.getDocument(accA)["balance"] as! Double
             let balanceB = try transaction.getDocument(accB)["balance"] as! Double
 
-            if (balanceA < amount) {
+            if balanceA < amount {
                 errorPointer?.pointee = NSError(domain: "Foo", code: 123, userInfo: nil)
                 return nil
             }
