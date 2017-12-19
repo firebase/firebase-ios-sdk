@@ -187,9 +187,9 @@ NS_ASSUME_NONNULL_BEGIN
   [self.syncEngine userDidChange:user];
 }
 
-- (void)applyOnlineStateChange:(FSTOnlineState)onlineState {
-  [self.syncEngine applyOnlineStateChange:onlineState];
-  [self.eventManager applyOnlineStateChange:onlineState];
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+  [self.syncEngine applyChangedOnlineState:onlineState];
+  [self.eventManager applyChangedOnlineState:onlineState];
 }
 
 - (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {

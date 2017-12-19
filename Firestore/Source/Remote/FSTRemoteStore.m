@@ -181,7 +181,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   // Update and broadcast the new state.
   if (newState != self.watchStreamOnlineState) {
     self.watchStreamOnlineState = newState;
-    [self.onlineStateDelegate applyOnlineStateChange:newState];
+    [self.onlineStateDelegate applyChangedOnlineState:newState];
   }
 }
 

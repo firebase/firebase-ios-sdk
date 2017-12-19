@@ -318,11 +318,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self emitNewSnapshotsWithChanges:changes remoteEvent:remoteEvent];
 }
 
-- (void)applyOnlineStateChange:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
   NSMutableArray<FSTViewSnapshot *> *newViewSnapshots = [NSMutableArray array];
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
-        FSTViewChange *viewChange = [queryView.view applyOnlineStateChange:onlineState];
+        FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
         FSTAssert(viewChange.limboChanges.count == 0,
                   @"OnlineState should not affect limbo documents.");
         if (viewChange.snapshot) {

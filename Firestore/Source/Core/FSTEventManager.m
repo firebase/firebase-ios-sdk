@@ -151,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.viewSnapshotHandler(nil, error);
 }
 
-- (void)applyOnlineStateChange:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
   self.onlineState = onlineState;
   if (self.snapshot && !self.raisedInitialEvent &&
       [self shouldRaiseInitialEventForSnapshot:self.snapshot onlineState:onlineState]) {
@@ -268,7 +268,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   [queryInfo.listeners addObject:listener];
 
-  [listener applyOnlineStateChange:self.onlineState];
+  [listener applyChangedOnlineState:self.onlineState];
 
   if (queryInfo.viewSnapshot) {
     [listener queryDidChangeViewSnapshot:queryInfo.viewSnapshot];
@@ -321,11 +321,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queries removeObjectForKey:query];
 }
 
-- (void)applyOnlineStateChange:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
   self.onlineState = onlineState;
   for (FSTQueryListenersInfo *info in self.queries.objectEnumerator) {
     for (FSTQueryListener *listener in info.listeners) {
-      [listener applyOnlineStateChange:onlineState];
+      [listener applyChangedOnlineState:onlineState];
     }
   }
 }
