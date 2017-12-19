@@ -18,6 +18,7 @@
 
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
+#import <Firestore/Source/Core/FSTFirestoreClient.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
@@ -158,11 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
-  XCTestExpectation *shutdownCompletion = [self expectationWithDescription:@"shutdown"];
-  [firestore shutdownWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [shutdownCompletion fulfill];
-  }];
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
   [self awaitExpectations];
 }
 
@@ -261,31 +258,29 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"setData"];
-  [ref setData:data
-      completion:^(NSError *_Nullable error) {
-        XCTAssertNil(error);
-        [expectation fulfill];
-      }];
+  [ref setData:data completion:[self completionForExpectationWithName:@"setData"]];
   [self awaitExpectations];
 }
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<id, id> *)data {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"updateData"];
-  [ref updateData:data
-       completion:^(NSError *_Nullable error) {
-         XCTAssertNil(error);
-         [expectation fulfill];
-       }];
+  [ref updateData:data completion:[self completionForExpectationWithName:@"updateData"]];
   [self awaitExpectations];
 }
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteDocument"];
-  [ref deleteDocumentWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
+  [ref deleteDocumentWithCompletion:[self completionForExpectationWithName:@"deleteDocument"]];
+  [self awaitExpectations];
+}
+
+- (void)disableNetwork {
+  [self.db.client
+      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
+  [self awaitExpectations];
+}
+
+- (void)enableNetwork {
+  [self.db.client
+      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
   [self awaitExpectations];
 }
 

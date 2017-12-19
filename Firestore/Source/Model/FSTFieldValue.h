@@ -22,7 +22,9 @@
 @class FSTDocumentKey;
 @class FSTFieldPath;
 @class FSTTimestamp;
+@class FSTFieldValueOptions;
 @class FIRGeoPoint;
+@class FIRSnapshotOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,6 +41,32 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
   FSTTypeOrderArray,
   FSTTypeOrderObject,
 };
+
+/** Defines the return value for pending server timestamps. */
+typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
+  FSTServerTimestampBehaviorNone,
+  FSTServerTimestampBehaviorEstimate,
+  FSTServerTimestampBehaviorPrevious
+};
+
+/** Holds properties that define field value deserialization options. */
+@interface FSTFieldValueOptions : NSObject
+
+@property(nonatomic, readonly, assign) FSTServerTimestampBehavior serverTimestampBehavior;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ * Creates an FSTFieldValueOptions instance that specifies deserialization behavior for pending
+ * server timestamps.
+ */
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
+    NS_DESIGNATED_INITIALIZER;
+
+/** Creates an FSTFieldValueOption instance from FIRSnapshotOptions. */
++ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)value;
+
+@end
 
 /**
  * Abstract base class representing an immutable data value as stored in Firestore. FSTFieldValue
@@ -58,7 +86,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  *  - Array
  *  - Object
  */
-@interface FSTFieldValue : NSObject
+@interface FSTFieldValue <__covariant T> : NSObject
 
 /** Returns the FSTTypeOrder for this value. */
 - (FSTTypeOrder)typeOrder;
@@ -69,7 +97,15 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * TODO(mikelehen): This conversion should probably happen at the API level and right now `value` is
  * used inappropriately in the serializer implementation, etc.  We need to do some reworking.
  */
-- (id)value;
+- (T)value;
+
+/**
+ * Converts an FSTFieldValue into the value that users will see in document snapshots.
+ *
+ * Options can be provided to configure the deserialization of some field values (such as server
+ * timestamps).
+ */
+- (T)valueWithOptions:(FSTFieldValueOptions *)options;
 
 /** Compares against another FSTFieldValue. */
 - (NSComparisonResult)compare:(FSTFieldValue *)other;
@@ -79,26 +115,24 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 /**
  * A null value stored in Firestore. The |value| of a FSTNullValue is [NSNull null].
  */
-@interface FSTNullValue : FSTFieldValue
+@interface FSTNullValue : FSTFieldValue <NSNull *>
 + (instancetype)nullValue;
-- (id)value;
 @end
 
 /**
  * A boolean value stored in Firestore.
  */
-@interface FSTBooleanValue : FSTFieldValue
+@interface FSTBooleanValue : FSTFieldValue <NSNumber *>
 + (instancetype)trueValue;
 + (instancetype)falseValue;
 + (instancetype)booleanValue:(BOOL)value;
-- (NSNumber *)value;
 @end
 
 /**
  * Base class inherited from by FSTIntegerValue and FSTDoubleValue. It implements proper number
  * comparisons between the two types.
  */
-@interface FSTNumberValue : FSTFieldValue
+@interface FSTNumberValue : FSTFieldValue <NSNumber *>
 @end
 
 /**
@@ -106,7 +140,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  */
 @interface FSTIntegerValue : FSTNumberValue
 + (instancetype)integerValue:(int64_t)value;
-- (NSNumber *)value;
 - (int64_t)internalValue;
 @end
 
@@ -116,24 +149,21 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @interface FSTDoubleValue : FSTNumberValue
 + (instancetype)doubleValue:(double)value;
 + (instancetype)nanValue;
-- (NSNumber *)value;
 - (double)internalValue;
 @end
 
 /**
  * A string stored in Firestore.
  */
-@interface FSTStringValue : FSTFieldValue
+@interface FSTStringValue : FSTFieldValue <NSString *>
 + (instancetype)stringValue:(NSString *)value;
-- (NSString *)value;
 @end
 
 /**
  * A timestamp value stored in Firestore.
  */
-@interface FSTTimestampValue : FSTFieldValue
+@interface FSTTimestampValue : FSTFieldValue <NSDate *>
 + (instancetype)timestampValue:(FSTTimestamp *)value;
-- (NSDate *)value;
 - (FSTTimestamp *)internalValue;
 @end
 
@@ -144,46 +174,54 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * - FSTServerTimestampValue instances are created as the result of applying an FSTTransformMutation
  *   (see [FSTTransformMutation applyTo]). They can only exist in the local view of a document.
  *   Therefore they do not need to be parsed or serialized.
- * - When evaluated locally (e.g. via FSTDocumentSnapshot data), they evaluate to NSNull (at least
- *   for now, see b/62064202).
+ * - When evaluated locally (e.g. via FSTDocumentSnapshot data), they by default evaluate to NSNull.
+ *   This behavior can be configured by passing custom FSTFieldValueOptions to `valueWithOptions:`.
  * - They sort after all FSTTimestampValues. With respect to other FSTServerTimestampValues, they
  *   sort by their localWriteTime.
  */
-@interface FSTServerTimestampValue : FSTFieldValue
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime;
-- (NSNull *)value;
+@interface FSTServerTimestampValue : FSTFieldValue <id>
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+                                         previousValue:(nullable FSTFieldValue *)previousValue;
+
 @property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly, nullable) FSTFieldValue *previousValue;
+
 @end
 
 /**
  * A geo point value stored in Firestore.
  */
-@interface FSTGeoPointValue : FSTFieldValue
+@interface FSTGeoPointValue : FSTFieldValue <FIRGeoPoint *>
 + (instancetype)geoPointValue:(FIRGeoPoint *)value;
-- (FIRGeoPoint *)value;
+- (FIRGeoPoint *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
  * A blob value stored in Firestore.
  */
-@interface FSTBlobValue : FSTFieldValue
+@interface FSTBlobValue : FSTFieldValue <NSData *>
 + (instancetype)blobValue:(NSData *)value;
-- (NSData *)value;
+- (NSData *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
  * A reference value stored in Firestore.
  */
-@interface FSTReferenceValue : FSTFieldValue
+@interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
 + (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
-- (FSTDocumentKey *)value;
+- (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
 @property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
 @end
 
 /**
  * A structured object value stored in Firestore.
  */
-@interface FSTObjectValue : FSTFieldValue
+// clang-format off
+@interface FSTObjectValue : FSTFieldValue < NSDictionary<NSString *, id> * >
+
+- (instancetype)init NS_UNAVAILABLE;
+// clang-format on
+
 /** Returns an empty FSTObjectValue. */
 + (instancetype)objectValue;
 
@@ -198,9 +236,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 - (instancetype)initWithImmutableDictionary:
     (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)value NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)init NS_UNAVAILABLE;
-
-- (NSDictionary<NSString *, id> *)value;
+- (NSDictionary<NSString *, id> *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
@@ -222,19 +258,20 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 /**
  * An array value stored in Firestore.
  */
-@interface FSTArrayValue : FSTFieldValue
+// clang-format off
+@interface FSTArrayValue : FSTFieldValue < NSArray <id> * >
+
+- (instancetype)init NS_UNAVAILABLE;
+// clang-format on
 
 /**
  * Initializes this instance with the given array of wrapped values.
  *
  * @param value An immutable array of FSTFieldValue objects. Caller is responsible for copying the
- *     value or releasing all references.
+ *      value or releasing all references.
  */
 - (instancetype)initWithValueNoCopy:(NSArray<FSTFieldValue *> *)value NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)init NS_UNAVAILABLE;
-
-- (NSArray<id> *)value;
 - (NSArray<FSTFieldValue *> *)internalValue;
 
 @end

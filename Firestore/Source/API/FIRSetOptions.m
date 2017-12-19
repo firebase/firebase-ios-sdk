@@ -15,7 +15,6 @@
  */
 
 #import "Firestore/Source/API/FIRSetOptions+Internal.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
