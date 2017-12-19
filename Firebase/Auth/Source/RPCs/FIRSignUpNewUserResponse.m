@@ -16,8 +16,6 @@
 
 #import "FIRSignUpNewUserResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRSignUpNewUserResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
