@@ -212,6 +212,37 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(docs), (@[ testDocs[@"ab"], testDocs[@"ba"] ]));
 }
 
+- (void)testWatchSurvivesNetworkDisconnect {
+  XCTestExpectation *testExpectiation =
+      [self expectationWithDescription:@"testWatchSurvivesNetworkDisconnect"];
+
+  FIRCollectionReference *collectionRef = [self collectionRef];
+  FIRDocumentReference *docRef = [collectionRef documentWithAutoID];
+
+  FIRFirestore *firestore = collectionRef.firestore;
+
+  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
+      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
+
+  [collectionRef addSnapshotListenerWithOptions:options
+                                       listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+                                         XCTAssertNil(error);
+                                         if (!snapshot.empty && !snapshot.metadata.fromCache) {
+                                           [testExpectiation fulfill];
+                                         }
+                                       }];
+
+  [firestore disableNetworkWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [docRef setData:@{@"foo" : @"bar"}];
+    [firestore enableNetworkWithCompletion:^(NSError *error) {
+      XCTAssertNil(error);
+    }];
+  }];
+
+  [self awaitExpectations];
+}
+
 - (void)testQueriesFireFromCacheWhenOffline {
   NSDictionary *testDocs = @{
     @"a" : @{@"foo" : @1},

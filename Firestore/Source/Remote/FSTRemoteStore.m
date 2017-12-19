@@ -165,21 +165,20 @@ static const int kOnlineAttemptsBeforeFailure = 2;
  * onlineStateHandler as appropriate.
  */
 - (void)updateOnlineState:(FSTOnlineState)newState {
-  if (newState == FSTOnlineStateHealthy) {
-    // We've connected to watch at least once. Don't warn the developer about being offline going
-    // forward.
-    self.shouldWarnOffline = NO;
-  } else if (newState == FSTOnlineStateUnknown) {
-    // The state is set to unknown when a healthy stream is closed (e.g. due to a token timeout) or
-    // when we have no active listens and therefore there's no need to start the stream. Assuming
-    // there is (possibly in the future) an active listen, then we will eventually move to state
-    // Online or Failed, but we always want to make at least kOnlineAttemptsBeforeFailure attempts
-    // before failing, so we reset the count here.
-    self.watchStreamFailures = 0;
-  }
-
   // Update and broadcast the new state.
   if (newState != self.watchStreamOnlineState) {
+    if (newState == FSTOnlineStateHealthy) {
+      // We've connected to watch at least once. Don't warn the developer about being offline going
+      // forward.
+      self.shouldWarnOffline = NO;
+    } else if (newState == FSTOnlineStateUnknown) {
+      // The state is set to unknown when a healthy stream is closed (e.g. due to a token timeout)
+      // or when we have no active listens and therefore there's no need to start the stream.
+      // Assuming there is (possibly in the future) an active listen, then we will eventually move
+      // to state Online or Failed, but we always want to make at least kOnlineAttemptsBeforeFailure
+      // attempts before failing, so we reset the count here.
+      self.watchStreamFailures = 0;
+    }
     self.watchStreamOnlineState = newState;
     [self.onlineStateDelegate watchStreamDidChangeOnlineState:newState];
   }
@@ -214,8 +213,9 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 - (void)enableNetwork {
-  FSTAssert(self.watchStream == nil, @"enableNetwork: called with non-null watchStream.");
-  FSTAssert(self.writeStream == nil, @"enableNetwork: called with non-null writeStream.");
+  if ([self isNetworkEnabled]) {
+    return;
+  }
 
   // Create new streams (but note they're not started yet).
   self.watchStream = [self.datastore createWatchStream];
@@ -235,48 +235,47 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 - (void)disableNetwork {
+  [self disableNetworkInternal];
   // Set the FSTOnlineState to failed so get()'s return from cache, etc.
-  [self disableNetworkWithTargetOnlineState:FSTOnlineStateFailed];
+  [self updateOnlineState:FSTOnlineStateFailed];
 }
 
 /** Disables the network, setting the FSTOnlineState to the specified targetOnlineState. */
-- (void)disableNetworkWithTargetOnlineState:(FSTOnlineState)targetOnlineState {
-  // NOTE: We're guaranteed not to get any further events from these streams (not even a close
-  // event).
-  [self.watchStream stop];
-  [self.writeStream stop];
+- (void)disableNetworkInternal {
+  if ([self isNetworkEnabled]) {
+    // NOTE: We're guaranteed not to get any further events from these streams (not even a close
+    // event).
+    [self.watchStream stop];
+    [self.writeStream stop];
 
-  [self cleanUpWatchStreamState];
-  [self cleanUpWriteStreamState];
+    [self cleanUpWatchStreamState];
+    [self cleanUpWriteStreamState];
 
-  self.writeStream = nil;
-  self.watchStream = nil;
-
-  [self updateOnlineState:targetOnlineState];
+    self.writeStream = nil;
+    self.watchStream = nil;
+  }
 }
 
 #pragma mark Shutdown
 
 - (void)shutdown {
   FSTLog(@"FSTRemoteStore %p shutting down", (__bridge void *)self);
-
-  // For now, all shutdown logic is handled by disableNetwork(). We might expand on this in the
-  // future.
-  if ([self isNetworkEnabled]) {
-    // Set the FSTOnlineState to Unknown (rather than Failed) to avoid potentially triggering
-    // spurious listener events with cached data, etc.
-    [self disableNetworkWithTargetOnlineState:FSTOnlineStateUnknown];
-  }
+  [self disableNetworkInternal];
+  // Set the FSTOnlineState to Unknown (rather than Failed) to avoid potentially triggering
+  // spurious listener events with cached data, etc.
+  [self updateOnlineState:FSTOnlineStateUnknown];
 }
 
 - (void)userDidChange:(FSTUser *)user {
   FSTLog(@"FSTRemoteStore %p changing users: %@", (__bridge void *)self, user);
-
-  // Tear down and re-create our network streams. This will ensure we get a fresh auth token
-  // for the new user and re-fill the write pipeline with new mutations from the LocalStore
-  // (since mutations are per-user).
-  [self disableNetworkWithTargetOnlineState:FSTOnlineStateUnknown];
-  [self enableNetwork];
+  if ([self isNetworkEnabled]) {
+    // Tear down and re-create our network streams. This will ensure we get a fresh auth token
+    // for the new user and re-fill the write pipeline with new mutations from the LocalStore
+    // (since mutations are per-user).
+    [self disableNetworkInternal];
+    [self updateOnlineState:FSTOnlineStateUnknown];
+    [self enableNetwork];
+  }
 }
 
 #pragma mark Watch Stream

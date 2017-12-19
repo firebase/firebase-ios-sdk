@@ -16,6 +16,7 @@
 
 @import FirebaseFirestore;
 
+#import <FirebaseFirestore/FIRFirestore.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -851,7 +852,7 @@
   FIRFirestore *firestore = doc.firestore;
   NSDictionary<NSString *, id> *data = @{@"a" : @"b"};
 
-  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
+  [firestore disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
 
     [doc setData:data
@@ -860,7 +861,7 @@
           [writeEpectation fulfill];
         }];
 
-    [firestore.client enableNetworkWithCompletion:^(NSError *error) {
+    [firestore enableNetworkWithCompletion:^(NSError *error) {
       XCTAssertNil(error);
       [networkExpectation fulfill];
     }];
@@ -890,7 +891,7 @@
 
   __weak FIRDocumentReference *weakDoc = doc;
 
-  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
+  [firestore disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
     [doc setData:data
         completion:^(NSError *_Nullable error) {
@@ -911,7 +912,7 @@
       // Verify that we are reading from cache.
       XCTAssertTrue(snapshot.metadata.fromCache);
       XCTAssertEqualObjects(snapshot.data, data);
-      [firestore.client enableNetworkWithCompletion:^(NSError *error) {
+      [firestore enableNetworkWithCompletion:^(NSError *error) {
         [networkExpectation fulfill];
       }];
     }];
@@ -936,6 +937,27 @@
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
   [self waitForIdleFirestore:firestore];
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
+}
+
+- (void)testCanDisableNetwork {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [firestore enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+  [firestore
+      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network again"]];
+  [self awaitExpectations];
+  [firestore
+      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable network"]];
+  [self awaitExpectations];
+  [firestore
+      disableNetworkWithCompletion:[self
+                                       completionForExpectationWithName:@"Disable network again"]];
+  [self awaitExpectations];
+  [firestore
+      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Final enable network"]];
+  [self awaitExpectations];
 }
 
 @end
