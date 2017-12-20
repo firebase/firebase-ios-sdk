@@ -24,7 +24,8 @@
 
 /* Begin PBXBuildFile section */
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
-		5463926E1FBEDE28005031AA /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5463926D1FBEDE28005031AA /* secure_random_test.cc */; };
+		54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
+		54740A581FC914F000713A1A /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A521FC913E500713A1A /* autoid_test.cc */; };
 		54764FAB1FAA0C320085E60A /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAA1FAA0C320085E60A /* string_util_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
 		5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
@@ -56,6 +57,7 @@
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
+		61E1D8B11FCF6C5700753285 /* StringViewTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */; };
 		6ED54761B845349D43DB6B78 /* Pods_Firestore_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75A6FE51C1A02DF38F62FAAD /* Pods_Firestore_Example.framework */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
@@ -135,7 +137,6 @@
 		DE51B1FF1F0D493A0013853F /* FSTAssertTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1861F0D48AC0013853F /* FSTAssertTests.m */; };
 		DE51B2001F0D493A0013853F /* FSTComparisonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */; };
 		DE51B2011F0D493E0013853F /* FSTHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1891F0D48AC0013853F /* FSTHelpers.m */; };
-		DE51B2021F0D493E0013853F /* FSTUtilTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B18A1F0D48AC0013853F /* FSTUtilTests.m */; };
 		F104BBD69BC3F0796E3A77C1 /* Pods_Firestore_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F6A10DBD6187489481CD76 /* Pods_Firestore_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -184,7 +185,8 @@
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		42491D7DC8C8CD245CC22B93 /* Pods-SwiftBuildTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBuildTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest.debug.xcconfig"; sourceTree = "<group>"; };
 		4EBC5F5ABE1FD097EFE5E224 /* Pods-Firestore_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example/Pods-Firestore_Example.release.xcconfig"; sourceTree = "<group>"; };
-		5463926D1FBEDE28005031AA /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = secure_random_test.cc; path = ../../test/support/secure_random_test.cc; sourceTree = "<group>"; };
+		54740A521FC913E500713A1A /* autoid_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autoid_test.cc; path = ../../core/test/firebase/firestore/util/autoid_test.cc; sourceTree = "<group>"; };
+		54740A531FC913E500713A1A /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = secure_random_test.cc; path = ../../core/test/firebase/firestore/util/secure_random_test.cc; sourceTree = "<group>"; };
 		54764FAA1FAA0C320085E60A /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_util_test.cc; path = ../../Port/string_util_test.cc; sourceTree = "<group>"; };
 		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
 		5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTIntegrationTestCase.mm; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringViewTests.mm; sourceTree = "<group>"; };
 		69F6A10DBD6187489481CD76 /* Pods_Firestore_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		75A6FE51C1A02DF38F62FAAD /* Pods_Firestore_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -281,7 +284,6 @@
 		DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTComparisonTests.m; sourceTree = "<group>"; };
 		DE51B1881F0D48AC0013853F /* FSTHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTHelpers.h; sourceTree = "<group>"; };
 		DE51B1891F0D48AC0013853F /* FSTHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTHelpers.m; sourceTree = "<group>"; };
-		DE51B18A1F0D48AC0013853F /* FSTUtilTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTUtilTests.m; sourceTree = "<group>"; };
 		DE51B1941F0D48AC0013853F /* FSTLevelDBSpecTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTLevelDBSpecTests.m; sourceTree = "<group>"; };
 		DE51B1951F0D48AC0013853F /* FSTMemorySpecTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTMemorySpecTests.m; sourceTree = "<group>"; };
 		DE51B1961F0D48AC0013853F /* FSTMockDatastore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTMockDatastore.h; sourceTree = "<group>"; };
@@ -366,19 +368,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5463926F1FBEDE2F005031AA /* support */ = {
+		54740A561FC913EB00713A1A /* util */ = {
 			isa = PBXGroup;
 			children = (
-				5463926D1FBEDE28005031AA /* secure_random_test.cc */,
+				54740A521FC913E500713A1A /* autoid_test.cc */,
+				54740A531FC913E500713A1A /* secure_random_test.cc */,
 			);
-			name = support;
+			name = util;
 			sourceTree = "<group>";
 		};
 		54764FAC1FAA0C390085E60A /* GoogleTests */ = {
 			isa = PBXGroup;
 			children = (
 				54764FAD1FAA0C650085E60A /* Port */,
-				5463926F1FBEDE2F005031AA /* support */,
+				54740A561FC913EB00713A1A /* util */,
 				54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */,
 			);
 			name = GoogleTests;
@@ -534,6 +537,7 @@
 		DE51B1621F0D48AC0013853F /* Local */ = {
 			isa = PBXGroup;
 			children = (
+				61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */,
 				DE51B16A1F0D48AC0013853F /* FSTLocalStoreTests.h */,
 				DE51B1701F0D48AC0013853F /* FSTMutationQueueTests.h */,
 				DE51B1721F0D48AC0013853F /* FSTPersistenceTestHelpers.h */,
@@ -595,7 +599,6 @@
 				DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */,
 				DE51B1881F0D48AC0013853F /* FSTHelpers.h */,
 				DE51B1891F0D48AC0013853F /* FSTHelpers.m */,
-				DE51B18A1F0D48AC0013853F /* FSTUtilTests.m */,
 				54E9282A1F339CAD00C1953E /* XCTestCase+Await.h */,
 				54E9282B1F339CAD00C1953E /* XCTestCase+Await.m */,
 				D5B259DAA9149B80D6245B57 /* FSTTestDispatchQueue.h */,
@@ -1163,7 +1166,6 @@
 				DE51B1E11F0D490D0013853F /* FSTMemoryRemoteDocumentCacheTests.m in Sources */,
 				DE51B1FF1F0D493A0013853F /* FSTAssertTests.m in Sources */,
 				DE51B1D31F0D48CD0013853F /* FSTViewSnapshotTest.m in Sources */,
-				DE51B2021F0D493E0013853F /* FSTUtilTests.m in Sources */,
 				DE51B1F91F0D491F0013853F /* FSTWatchChangeTests.m in Sources */,
 				DE51B1F81F0D491F0013853F /* FSTWatchChange+Testing.m in Sources */,
 				DE51B1EB1F0D490D0013853F /* FSTWriteGroupTests.mm in Sources */,
@@ -1176,6 +1178,7 @@
 				DE51B1EC1F0D49140013853F /* FSTDatabaseIDTests.m in Sources */,
 				DE51B1ED1F0D49140013853F /* FSTDocumentKeyTests.m in Sources */,
 				DE51B1D41F0D48CD0013853F /* FSTViewTests.m in Sources */,
+				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				DE51B1F41F0D491B0013853F /* FSTRemoteEventTests.m in Sources */,
 				54E928241F33953300C1953E /* FSTEventAccumulator.m in Sources */,
 				DE51B1D11F0D48CD0013853F /* FSTTargetIDGeneratorTests.m in Sources */,
@@ -1200,10 +1203,10 @@
 				DE51B1E91F0D490D0013853F /* FSTLevelDBMutationQueueTests.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
 				DE51B1E61F0D490D0013853F /* FSTRemoteDocumentCacheTests.m in Sources */,
+				61E1D8B11FCF6C5700753285 /* StringViewTests.mm in Sources */,
 				DE51B1D91F0D490D0013853F /* FSTEagerGarbageCollectorTests.m in Sources */,
 				DE51B1E21F0D490D0013853F /* FSTMutationQueueTests.m in Sources */,
 				DE51B1E81F0D490D0013853F /* FSTLevelDBKeyTests.mm in Sources */,
-				5463926E1FBEDE28005031AA /* secure_random_test.cc in Sources */,
 				DE51B1E31F0D490D0013853F /* FSTPersistenceTestHelpers.m in Sources */,
 				DE51B1CF1F0D48CD0013853F /* FSTQueryListenerTests.m in Sources */,
 				DE51B1DA1F0D490D0013853F /* FSTLevelDBLocalStoreTests.m in Sources */,
@@ -1214,6 +1217,7 @@
 				DE51B1E41F0D490D0013853F /* FSTQueryCacheTests.m in Sources */,
 				DE51B1CD1F0D48CD0013853F /* FSTDatabaseInfoTests.m in Sources */,
 				DE51B1F21F0D49140013853F /* FSTPathTests.m in Sources */,
+				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
 				DE51B1DD1F0D490D0013853F /* FSTLocalStoreTests.m in Sources */,
 				D5B25474286C9800CE42B8C2 /* FSTTestDispatchQueue.m in Sources */,
 			);
@@ -1447,6 +1451,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1478,6 +1483,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";

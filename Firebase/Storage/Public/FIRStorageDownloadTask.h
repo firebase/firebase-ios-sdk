@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRStorageObservableTask.h"
-#import "FIRStorageSwiftNameSupport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * specified callbackQueue in FIRStorage, or the main queue if left unspecified.
  * Currently all uploads must be initiated and managed on the main queue.
  */
-FIR_SWIFT_NAME(StorageDownloadTask)
+NS_SWIFT_NAME(StorageDownloadTask)
 @interface FIRStorageDownloadTask : FIRStorageObservableTask <FIRStorageTaskManagement>
 
 @end

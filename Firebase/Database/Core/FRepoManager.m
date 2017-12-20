@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
 #import "FRepoManager.h"
 #import "FRepo.h"
 #import "FIRDatabaseQuery_Private.h"

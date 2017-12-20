@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRDocumentReference;
@@ -33,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Unlike transactions, write batches are persisted offline and therefore are preferable when you
  * don't need to condition your writes on read data.
  */
-FIR_SWIFT_NAME(WriteBatch)
+NS_SWIFT_NAME(WriteBatch)
 @interface FIRWriteBatch : NSObject
 
 /** :nodoc: */
@@ -50,7 +48,7 @@ FIR_SWIFT_NAME(WriteBatch)
  */
 // clang-format off
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
-               forDocument:(FIRDocumentReference *)document FIR_SWIFT_NAME(setData(_:forDocument:));
+               forDocument:(FIRDocumentReference *)document NS_SWIFT_NAME(setData(_:forDocument:));
 // clang-format on
 
 /**
@@ -67,7 +65,7 @@ FIR_SWIFT_NAME(WriteBatch)
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
                forDocument:(FIRDocumentReference *)document
                    options:(FIRSetOptions *)options
-    FIR_SWIFT_NAME(setData(_:forDocument:options:));
+    NS_SWIFT_NAME(setData(_:forDocument:options:));
 // clang-format on
 
 /**
@@ -75,14 +73,14 @@ FIR_SWIFT_NAME(WriteBatch)
  * If document does not exist, the write batch will fail.
  *
  * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- * `FIRFieldPath`) and values with which to update the document.
+ *     `FIRFieldPath`) and values with which to update the document.
  * @param document A reference to the document whose data should be updated.
  * @return This `FIRWriteBatch` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRWriteBatch *)updateData:(NSDictionary<id, id> *)fields
                   forDocument:(FIRDocumentReference *)document
-    FIR_SWIFT_NAME(updateData(_:forDocument:));
+    NS_SWIFT_NAME(updateData(_:forDocument:));
 // clang-format on
 
 /**
@@ -92,13 +90,16 @@ FIR_SWIFT_NAME(WriteBatch)
  * @return This `FIRWriteBatch` instance. Used for chaining method calls.
  */
 - (FIRWriteBatch *)deleteDocument:(FIRDocumentReference *)document
-    FIR_SWIFT_NAME(deleteDocument(_:));
+    NS_SWIFT_NAME(deleteDocument(_:));
 
 /**
  * Commits all of the writes in this write batch as a single atomic unit.
  *
  * @param completion A block to be called once all of the writes in the batch have been
- * successfully written to the backend as an atomic unit.
+ *     successfully written to the backend as an atomic unit. This block will only execute
+ *     when the client is online and the commit has completed against the server. The
+ *     completion handler will not be called when the device is offline, though local
+ *     changes will be visible immediately.
  */
 - (void)commitWithCompletion:(void (^)(NSError *_Nullable error))completion;
 

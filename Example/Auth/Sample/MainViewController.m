@@ -38,11 +38,17 @@
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
-/*! @typedef textInputCompletionBlock
+/** @typedef textInputCompletionBlock
     @brief The type of callback used to report text input prompt results.
  */
 typedef void (^textInputCompletionBlock)(NSString *_Nullable userInput);
+
+/** @typedef testAutomationCallback
+    @brief The type of callback used when automatically testing an API.
+ */
+typedef void (^testAutomationCallback)(NSError *_Nullable error);
 
 /** @var kTokenGetButtonText
     @brief The text of the "Get Token" button.
@@ -117,6 +123,12 @@ static NSString *const kSignInEmailPasswordAuthDataResultButtonText =
     @brief The text of the "Sign In (BYOAuth)" button.
  */
 static NSString *const kSignInWithCustomTokenButtonText = @"Sign In (BYOAuth)";
+
+/** @var kSignInWithCustomAuthResultTokenButtonText
+    @brief The text of the "Sign In with Custom Token (Auth Result)" button.
+ */
+static NSString *const kSignInWithCustomAuthResultTokenButtonText = @"Sign In with Custom Token"
+    " (Auth Result)";
 
 /** @var kSignInAnonymouslyButtonText
     @brief The text of the "Sign In Anonymously" button.
@@ -722,6 +734,8 @@ typedef enum {
                                            action:^{ [weakSelf signInEmailPasswordAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInWithCustomTokenButtonText
                                            action:^{ [weakSelf signInWithCustomToken]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInWithCustomAuthResultTokenButtonText
+                                           action:^{ [weakSelf signInWithCustomTokenAuthResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyButtonText
                                            action:^{ [weakSelf signInAnonymously]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyWithAuthResultButtonText
@@ -1754,6 +1768,24 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   [self presentViewController:dataEntryViewController animated:YES completion:nil];
 }
 
+/** @fn signInWithCustomTokenAuthResult
+    @brief Signs the user in using a manually-entered custom token.
+ */
+- (void)signInWithCustomTokenAuthResult {
+  CustomTokenDataEntryViewControllerCompletion action =
+      ^(BOOL cancelled, NSString *_Nullable userEnteredTokenText) {
+        if (cancelled) {
+          [self log:@"CANCELLED:sign-in with custom token cancelled."];
+          return;
+        }
+
+        [self doSignInAndRetrieveDataWithCustomToken:userEnteredTokenText];
+      };
+  CustomTokenDataEntryViewController *dataEntryViewController =
+      [[CustomTokenDataEntryViewController alloc] initWithCompletion:action];
+  [self presentViewController:dataEntryViewController animated:YES completion:nil];
+}
+
 /** @fn signOut
     @brief Signs the user out.
  */
@@ -2161,18 +2193,20 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after the provider is unlinked.
  */
 - (void)unlinkFromProvider:(NSString *)provider
-                completion:(void(^)(NSError *_Nullable))completion {
+                completion:(nullable testAutomationCallback)completion {
   [[self user] unlinkFromProvider:provider
                        completion:^(FIRUser *_Nullable user,
                                     NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"unlink auth provider failed" error:error];
-      completion(error);
-    } else {
-      [self logSuccess:@"unlink auth provider succeeded."];
       if (completion) {
-        completion(nil);
+        completion(error);
       }
+      return;
+    }
+    [self logSuccess:@"unlink auth provider succeeded."];
+    if (completion) {
+      completion(nil);
     }
     [self showTypicalUIForUserUpdateResultsWithTitle:kUnlinkTitle error:error];
   }];
@@ -2616,7 +2650,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after successful phone number sign in.
  */
 - (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
-                   completion:(void(^)(NSError *_Nullable))completion {
+                   completion:(nullable testAutomationCallback)completion {
   [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -2701,7 +2735,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after phone number is updated.
  */
 - (void)updatePhoneNumber:(NSString *_Nullable)phoneNumber
-               completion:(void(^)(NSError *_Nullable))completion{
+               completion:(nullable testAutomationCallback)completion {
   [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -2710,7 +2744,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
      if (error) {
        [self logFailure:@"failed to send verification code" error:error];
        [self showMessagePrompt:error.localizedDescription];
-       completion(error);
+       if (completion) {
+         completion(error);
+       }
        return;
      }
      [self logSuccess:@"Code sent"];
@@ -2731,7 +2767,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
            if (error) {
              [self logFailure:@"update phone number failed" error:error];
              [self showMessagePrompt:error.localizedDescription];
-             completion(error);
+             if (completion) {
+               completion(error);
+             }
            } else {
              [self logSuccess:@"update phone number succeeded."];
              if (completion) {
@@ -2768,7 +2806,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after linking phone number.
  */
 - (void)linkPhoneNumber:(NSString *_Nullable)phoneNumber
-             completion:(void(^)(NSError *_Nullable))completion{
+             completion:(nullable testAutomationCallback)completion {
     [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -2778,7 +2816,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
           [self showMessagePrompt:error.localizedDescription];
-          completion(error);
+          if (completion) {
+            completion(error);
+          }
           return;
         }
         [self logSuccess:@"Code sent"];
@@ -2819,7 +2859,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                               if (error) {
                                 [self logFailure:@"failed to verify phone number" error:error];
                                 [self showMessagePrompt:error.localizedDescription];
-                                completion(error);
+                                if (completion) {
+                                  completion(error);
+                                }
                                 return;
                               }
                             }];
@@ -3070,6 +3112,26 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+- (void)doSignInAndRetrieveDataWithCustomToken:(NSString *_Nullable)userEnteredTokenText {
+  [[AppManager auth] signInAndRetrieveDataWithCustomToken:userEnteredTokenText
+                                               completion:^(FIRAuthDataResult *_Nullable result,
+                                                            NSError *_Nullable error) {
+    if (error) {
+      [self logFailure:@"sign-in with custom token failed" error:error];
+      [self showMessagePromptWithTitle:kSignInErrorAlertTitle
+                               message:error.localizedDescription
+                      showCancelButton:NO
+                            completion:nil];
+      return;
+    }
+    [self logSuccess:@"sign-in with custom token succeeded."];
+    [self showMessagePromptWithTitle:kSignedInAlertTitle
+                             message:result.user.displayName
+                    showCancelButton:NO
+                          completion:nil];
+  }];
+}
+
 - (void)updateUserInfo {
   [_userInfoTableViewCell updateContentsWithUser:[AppManager auth].currentUser];
   [_userInMemoryInfoTableViewCell updateContentsWithUser:_userInMemory];
@@ -3101,3 +3163,5 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

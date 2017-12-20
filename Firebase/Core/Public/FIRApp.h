@@ -21,14 +21,12 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import "FIRCoreSwiftNameSupport.h"
-
 @class FIROptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A block that takes a BOOL and has no return value. */
-typedef void (^FIRAppVoidBoolCallback)(BOOL success) FIR_SWIFT_NAME(FirebaseAppVoidBoolCallback);
+typedef void (^FIRAppVoidBoolCallback)(BOOL success) NS_SWIFT_NAME(FirebaseAppVoidBoolCallback);
 
 /**
  * The entry point of Firebase SDKs.
@@ -48,7 +46,7 @@ typedef void (^FIRAppVoidBoolCallback)(BOOL success) FIR_SWIFT_NAME(FirebaseAppV
  * It is also possible to change the default logging level in code by calling setLoggerLevel: on
  * the FIRConfiguration interface.
  */
-FIR_SWIFT_NAME(FirebaseApp)
+NS_SWIFT_NAME(FirebaseApp)
 @interface FIRApp : NSObject
 
 /**
@@ -65,7 +63,7 @@ FIR_SWIFT_NAME(FirebaseApp)
  *
  * @param options The Firebase application options used to configure the service.
  */
-+ (void)configureWithOptions:(FIROptions *)options FIR_SWIFT_NAME(configure(options:));
++ (void)configureWithOptions:(FIROptions *)options NS_SWIFT_NAME(configure(options:));
 
 /**
  * Configures a Firebase app with the given name and options. Raises an exception if any
@@ -77,19 +75,19 @@ FIR_SWIFT_NAME(FirebaseApp)
  */
 // clang-format off
 + (void)configureWithName:(NSString *)name
-                  options:(FIROptions *)options FIR_SWIFT_NAME(configure(name:options:));
+                  options:(FIROptions *)options NS_SWIFT_NAME(configure(name:options:));
 // clang-format on
 
 /**
  * Returns the default app, or nil if the default app does not exist.
  */
-+ (nullable FIRApp *)defaultApp FIR_SWIFT_NAME(app());
++ (nullable FIRApp *)defaultApp NS_SWIFT_NAME(app());
 
 /**
  * Returns a previously created FIRApp instance with the given name, or nil if no such app exists.
  * This method is thread safe.
  */
-+ (nullable FIRApp *)appNamed:(NSString *)name FIR_SWIFT_NAME(app(name:));
++ (nullable FIRApp *)appNamed:(NSString *)name NS_SWIFT_NAME(app(name:));
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /**
@@ -102,7 +100,7 @@ FIR_SWIFT_NAME(FirebaseApp)
  * Returns the set of all extant FIRApp instances, or nil if there are no FIRApp instances. This
  * method is thread safe.
  */
-+ (nullable NSDictionary<NSString *, FIRApp *> *)allApps FIR_SWIFT_NAME(allApps());
++ (nullable NSDictionary<NSString *, FIRApp *> *)allApps NS_SWIFT_NAME(allApps());
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /**

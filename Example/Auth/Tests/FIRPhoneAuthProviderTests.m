@@ -20,7 +20,7 @@
 
 #import "FIRAuth.h"
 #import "FIRPhoneAuthProvider.h"
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 #import "FIRAuth_Internal.h"
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
@@ -38,7 +38,7 @@
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRSendVerificationCodeResponse.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIROptions.h>
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
@@ -180,7 +180,7 @@ static const NSTimeInterval kTestTimeout = 5;
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 1;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @class FIRPhoneAuthProviderTests
     @brief Tests for @c FIRPhoneAuthProvider

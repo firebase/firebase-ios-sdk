@@ -170,7 +170,7 @@ static NSString *const kVerificationID = @"55432";
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 1;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @var kWaitInterval
     @brief The time waiting for background tasks to finish before continue when necessary.
@@ -1239,6 +1239,61 @@ static const NSTimeInterval kWaitInterval = .5;
                                                                   NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(user);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeInvalidCustomToken);
+    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  XCTAssertNil([FIRAuth auth].currentUser);
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInAndRetrieveDataWithCustomTokenSuccess
+    @brief Tests the flow of a successful @c signInAndRetrieveDataWithCustomToken:completion: call.
+ */
+- (void)testSignInAndRetrieveDataWithCustomTokenSuccess {
+  OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
+                       FIRVerifyCustomTokenResponseCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertEqualObjects(request.token, kCustomToken);
+    XCTAssertTrue(request.returnSecureToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockVeriyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+      [self stubTokensWithMockResponse:mockVeriyCustomTokenResponse];
+      callback(mockVeriyCustomTokenResponse, nil);
+    });
+  });
+  [self expectGetAccountInfo];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInAndRetrieveDataWithCustomToken:kCustomToken
+                                            completion:^(FIRAuthDataResult *_Nullable result,
+                                                         NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    [self assertUser:result.user];
+    XCTAssertFalse(result.additionalUserInfo.isNewUser);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUser:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInAndRetrieveDataWithCustomTokenFailure
+    @brief Tests the flow of a failed @c signInAndRetrieveDataWithCustomToken:completion: call.
+ */
+- (void)testSignInAndRetrieveDataWithCustomTokenFailure {
+  OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils invalidCustomTokenErrorWithMessage:nil]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInAndRetrieveDataWithCustomToken:kCustomToken
+                                            completion:^(FIRAuthDataResult *_Nullable result,
+                                                         NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeInvalidCustomToken);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];

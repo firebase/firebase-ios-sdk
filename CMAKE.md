@@ -16,6 +16,7 @@ the Mac App Store.
 
 You can get other development tools via [homebrew](https://brew.sh). Adjust as
 needed for other package managers.
+
 ```
 brew install cmake
 ```
@@ -51,12 +52,33 @@ cd build
 cmake ..
 ```
 
-## Testing
+You only need to do this once.
 
-Once CMake has run once, you can just run `make` repeatedly and it will
-regenerate Makefiles as needed.
+## Initial Build
 
-To build everything and run tests:
+The first build will download, compile all dependencies of the project, and run
+an initial battery of tests.
+
+To perform the initial build, you can use CMake
+
 ```
+cmake --build .
+```
+
+or use the underlying build system, e.g.
+
+```
+make -j all
+```
+
+## Working with a Project
+
+Once the initial build has completed, you can work with a specific subproject
+to make changes and test just that project in isolation.
+
+For example, to work with just Firestore,
+
+```
+cd build/Firestore
 make -j all test
 ```

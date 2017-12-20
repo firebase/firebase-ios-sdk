@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
 #import <dlfcn.h>
 #import "FRepo.h"
 #import "FSnapshotUtilities.h"

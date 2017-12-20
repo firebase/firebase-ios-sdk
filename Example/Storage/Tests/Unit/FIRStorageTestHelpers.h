@@ -18,8 +18,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRApp.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 
 #import "FIRStorageConstants.h"
 #import "FIRStorageConstants_Private.h"

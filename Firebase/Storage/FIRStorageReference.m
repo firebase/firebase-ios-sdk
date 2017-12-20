@@ -28,8 +28,8 @@
 #import "FIRStorageUtils.h"
 #import "FIRStorage_Private.h"
 
-#import "FIRApp.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import "GTMSessionFetcherService.h"

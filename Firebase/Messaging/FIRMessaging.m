@@ -37,7 +37,7 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
-#import "FIRReachabilityChecker.h"
+#import <FirebaseCore/FIRReachabilityChecker.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -709,12 +709,8 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 #pragma mark - IID dependencies
 
-// FIRMessagingInternalUtilities.h to see usage.
 + (NSString *)FIRMessagingSDKVersion {
-  NSString *semanticVersion = FIRMessagingCurrentLibraryVersion();
-  // Use prefix fcm for all FCM libs. This allows us to differentiate b/w
-  // the new and old FCM registrations.
-  return [NSString stringWithFormat:@"fcm-%@", semanticVersion];
+  return FIRMessagingCurrentLibraryVersion();
 }
 
 + (NSString *)FIRMessagingSDKCurrentLocale {

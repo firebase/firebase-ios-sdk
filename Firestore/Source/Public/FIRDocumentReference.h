@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSwiftNameSupport.h"
 #import "FIRListenerRegistration.h"
 
 @class FIRFirestore;
@@ -30,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Options for use with `[FIRDocumentReference addSnapshotListener]` to control the behavior of the
  * snapshot listener.
  */
-FIR_SWIFT_NAME(DocumentListenOptions)
+NS_SWIFT_NAME(DocumentListenOptions)
 @interface FIRDocumentListenOptions : NSObject
 
 + (instancetype)options NS_SWIFT_UNAVAILABLE("Use initializer");
@@ -47,7 +46,7 @@ FIR_SWIFT_NAME(DocumentListenOptions)
  * @return The receiver is returned for optional method chaining.
  */
 - (instancetype)includeMetadataChanges:(BOOL)includeMetadataChanges
-    FIR_SWIFT_NAME(includeMetadataChanges(_:));
+    NS_SWIFT_NAME(includeMetadataChanges(_:));
 
 @end
 
@@ -60,7 +59,7 @@ typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot
  * may or may not exist. A `FIRDocumentReference` can also be used to create a
  * `FIRCollectionReference` to a subcollection.
  */
-FIR_SWIFT_NAME(DocumentReference)
+NS_SWIFT_NAME(DocumentReference)
 @interface FIRDocumentReference : NSObject
 
 /**   */
@@ -92,7 +91,7 @@ FIR_SWIFT_NAME(DocumentReference)
  * @return The `FIRCollectionReference` at the specified _collectionPath_.
  */
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath
-    FIR_SWIFT_NAME(collection(_:));
+    NS_SWIFT_NAME(collection(_:));
 
 #pragma mark - Writing Data
 
@@ -122,8 +121,10 @@ FIR_SWIFT_NAME(DocumentReference)
  * is created. If a document already exists, it is overwritten.
  *
  * @param documentData An `NSDictionary` containing the fields that make up the document
- * to be written.
- * @param completion A block to execute once the document has been successfully written.
+ *     to be written.
+ * @param completion A block to execute once the document has been successfully written to the
+ *     server. This block will not be called while the client is offline, though local
+ *     changes will be visible immediately.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
      completion:(nullable void (^)(NSError *_Nullable error))completion;
@@ -136,7 +137,9 @@ FIR_SWIFT_NAME(DocumentReference)
  * @param documentData An `NSDictionary` containing the fields that make up the document
  * to be written.
  * @param options A `FIRSetOptions` used to configure the set behavior.
- * @param completion A block to execute once the document has been successfully written.
+ * @param completion A block to execute once the document has been successfully written to the
+ *     server. This block will not be called while the client is offline, though local
+ *     changes will be visible immediately.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
         options:(FIRSetOptions *)options
@@ -147,7 +150,7 @@ FIR_SWIFT_NAME(DocumentReference)
  * If the document does not exist, the update fails (specify a completion block to be notified).
  *
  * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- * `FIRFieldPath`) and values with which to update the document.
+ *     `FIRFieldPath`) and values with which to update the document.
  */
 - (void)updateData:(NSDictionary<id, id> *)fields;
 
@@ -156,9 +159,12 @@ FIR_SWIFT_NAME(DocumentReference)
  * does not exist, the update fails and the specified completion block receives an error.
  *
  * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- * `FIRFieldPath`) and values with which to update the document.
+ *     `FIRFieldPath`) and values with which to update the document.
  * @param completion A block to execute when the update is complete. If the update is successful the
- * error parameter will be nil, otherwise it will give an indication of how the update failed.
+ *     error parameter will be nil, otherwise it will give an indication of how the update failed.
+ *     This block will only execute when the client is online and the commit has completed against
+ *     the server. The completion handler will not be called when the device is offline, though
+ *     local changes will be visible immediately.
  */
 - (void)updateData:(NSDictionary<id, id> *)fields
         completion:(nullable void (^)(NSError *_Nullable error))completion;
@@ -166,17 +172,19 @@ FIR_SWIFT_NAME(DocumentReference)
 // NOTE: this is named 'deleteDocument' because 'delete' is a keyword in Objective-C++.
 /** Deletes the document referred to by this `FIRDocumentReference`. */
 // clang-format off
-- (void)deleteDocument FIR_SWIFT_NAME(delete());
+- (void)deleteDocument NS_SWIFT_NAME(delete());
 // clang-format on
 
 /**
  * Deletes the document referred to by this `FIRDocumentReference`.
  *
- * @param completion A block to execute once the document has been successfully deleted.
+ * @param completion A block to execute once the document has been successfully written to the
+ *     server. This block will not be called while the client is offline, though local
+ *     changes will be visible immediately.
  */
 // clang-format off
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
-    FIR_SWIFT_NAME(delete(completion:));
+    NS_SWIFT_NAME(delete(completion:));
 // clang-format on
 
 #pragma mark - Retrieving Data
@@ -187,7 +195,7 @@ FIR_SWIFT_NAME(DocumentReference)
  * @param completion a block to execute once the document has been successfully read.
  */
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion
-    FIR_SWIFT_NAME(getDocument(completion:));
+    NS_SWIFT_NAME(getDocument(completion:));
 
 /**
  * Attaches a listener for DocumentSnapshot events.
@@ -197,7 +205,7 @@ FIR_SWIFT_NAME(DocumentReference)
  * @return A FIRListenerRegistration that can be used to remove this listener.
  */
 - (id<FIRListenerRegistration>)addSnapshotListener:(FIRDocumentSnapshotBlock)listener
-    FIR_SWIFT_NAME(addSnapshotListener(_:));
+    NS_SWIFT_NAME(addSnapshotListener(_:));
 
 /**
  * Attaches a listener for DocumentSnapshot events.
@@ -211,7 +219,7 @@ FIR_SWIFT_NAME(DocumentReference)
 - (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
                                    (nullable FIRDocumentListenOptions *)options
                                                      listener:(FIRDocumentSnapshotBlock)listener
-    FIR_SWIFT_NAME(addSnapshotListener(options:listener:));
+    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
 // clang-format on
 
 @end
