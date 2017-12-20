@@ -50,12 +50,15 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @property(nonatomic, strong) id<FSTCredentialsProvider> credentialsProvider;
 @property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
 
+// Note that `client` is updated after initialization, but marking this readwrite would generate an
+// incorrect setter (since we make the assignment to `client` inside an `@synchronized` block.
 @property(nonatomic, strong, readonly) FSTFirestoreClient *client;
 @property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;
 
 @end
 
 @implementation FIRFirestore {
+  // All guarded by @synchronized(self)
   FIRFirestoreSettings *_settings;
   FSTFirestoreClient *_client;
 }
@@ -283,6 +286,8 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   if (!client) {
+    // We should be dispatching the callback on the user dispatch queue but if the client is nil
+    // here that queue was never created.
     completion(nil);
   } else {
     [client shutdownWithCompletion:completion];
