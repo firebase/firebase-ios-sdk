@@ -11,16 +11,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find . \
-    -name 'third_party' -prune -o \
-    -name 'Auth' -prune -o \
-    -name 'AuthSamples' -prune -o \
-    -name 'Database' -prune -o \
-    -name 'FirebaseCommunity.h' -prune -o \
-    -name 'Messaging' -prune -o \
-    -name 'Pods' -prune -o \
-    -path '*/Firestore/Port/*' -prune -o \
-    \( -name '*.[mh]' -o -name '*.mm' -o -name '*.cc' \) \
-    -not -name '*.pbobjc.*' \
-    -not -name '*.pbrpc.*' \
-    -print0 | xargs -0 clang-format -style=file -i
+# Usage:
+# ./scripts/style.sh [branch-name | filenames]
+#
+# With no arguments, formats all eligible files in the repo
+# Pass a branch name to format all eligible files changed since that branch
+# Pass a specific file or directory name to format just files found there
+#
+# Commonly
+# ./scripts/style.sh master
+
+set -euo pipefail
+
+(
+  if [[ $# -gt 0 ]]; then
+    if git rev-parse "$1" -- >& /dev/null; then
+      # Argument was a branch name show files changed since that branch
+      git diff --name-only --relative
+    else
+      # Otherwise assume the passed things are files or directories
+      find "$@" -type f
+    fi
+  else
+    # Do everything by default
+    find . -type f
+  fi
+) | sed -E -n '
+# Build outputs
+\%/Pods/% d
+\%^./build/% d
+
+# Sources controlled outside this tree
+\%/third_party/% d
+\%/Firestore/Port/% d
+
+# Sources within the tree that are not subject to formatting
+\%^./(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
+
+# Checked-in generated code
+\%\.pb(objc|rpc)\.% d
+
+# Format C-ish sources only
+\%\.(h|m|mm|cc)$% p
+' | xargs clang-format -style=file -i

@@ -16,7 +16,7 @@
 
 #import "AppManager.h"
 
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 #import "FIRPhoneAuthProvider.h"
 #import "FirebaseAuth.h"
 

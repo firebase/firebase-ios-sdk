@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 #import "FirebaseAuth.h"
 #import "AuthCredentials.h"
 

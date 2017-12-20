@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Simple wrapper around a nullable UID. Mostly exists to make code more readable and for use as
  * a key in dictionaries (since keys cannot be nil).
  */
-@interface FSTUser : NSObject<NSCopying>
+@interface FSTUser : NSObject <NSCopying>
 
 /** Returns an FSTUser with a nil UID. */
 + (instancetype)unauthenticatedUser;

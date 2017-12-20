@@ -3,7 +3,7 @@
 ```
 $ cd Firestore/Example
 $ pod update
-$ open Firebase.xcworkspace
+$ open Firestore.xcworkspace
 Select the FirestoreTests scheme
 ⌘-u to build and run the unit tests
 ```

@@ -40,7 +40,6 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTUtil.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 

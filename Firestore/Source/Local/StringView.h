@@ -46,7 +46,8 @@ class StringView {
   // Creates a StringView from an NSString. When StringView is an argument type
   // into which an NSString* is passed, the caller should ensure that the
   // NSString is retained.
-  StringView(NSString *str) : data_([str UTF8String]), size_(str.length) {
+  StringView(NSString *str)
+      : data_([str UTF8String]), size_([str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]) {
   }
 
   // Creates a StringView from the given char* pointer with an explicit size.

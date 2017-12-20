@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '4.0.11'
+  s.version          = '4.0.13'
   s.summary          = 'Firebase Core for iOS'
 
   s.description      = <<-DESC
@@ -18,7 +18,6 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
-  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true

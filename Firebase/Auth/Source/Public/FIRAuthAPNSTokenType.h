@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthSwiftNameSupport.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -37,6 +35,6 @@ typedef NS_ENUM(NSInteger, FIRAuthAPNSTokenType) {
   /** Production token type.
    */
   FIRAuthAPNSTokenTypeProd,
-} FIR_SWIFT_NAME(AuthAPNSTokenType);
+} NS_SWIFT_NAME(AuthAPNSTokenType);
 
 NS_ASSUME_NONNULL_END

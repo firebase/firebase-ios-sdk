@@ -111,7 +111,7 @@ static NSString *const kFIRAuthErrorMessageTooManyRequests = @"We have blocked a
     "this device due to unusual activity. Try again later.";
 
 /** @var kFIRAuthErrorMessageAccountExistsWithDifferentCredential
-    @brief Message for @c FIRAuthErrorCodeAccountLinkNeeded error code.
+    @brief Message for @c FIRAuthErrorCodeAccountExistsWithDifferentCredential error code.
  */
 static NSString *const kFIRAuthErrorMessageAccountExistsWithDifferentCredential = @"An account "
     "already exists with the same email address but different sign-in credentials. Sign in using a "

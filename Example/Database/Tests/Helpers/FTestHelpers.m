@@ -16,8 +16,8 @@
 
 #import "FTestHelpers.h"
 #import "FConstants.h"
-#import "FIRApp.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 #import "FIRDatabaseConfig_Private.h"
 #import "FTestAuthTokenGenerator.h"
 

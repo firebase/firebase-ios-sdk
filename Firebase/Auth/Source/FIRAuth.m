@@ -18,10 +18,11 @@
 
 #import "FIRAuth_Internal.h"
 
-#import "FIRAppAssociationRegistration.h"
-#import "FIRAppInternal.h"
-#import "FIROptions.h"
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRAppAssociationRegistration.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
+
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuthCredential_Internal.h"
@@ -790,22 +791,20 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthResultCallback decoratedCallback =
         [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
-    FIRVerifyCustomTokenRequest *request =
-        [[FIRVerifyCustomTokenRequest alloc] initWithToken:token
-                                      requestConfiguration:_requestConfiguration];
-    [FIRAuthBackend verifyCustomToken:request
-                             callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
-                                        NSError *_Nullable error) {
-      if (error) {
-        decoratedCallback(nil, error);
-        return;
-      }
-      [self completeSignInWithAccessToken:response.IDToken
-                accessTokenExpirationDate:response.approximateExpirationDate
-                             refreshToken:response.refreshToken
-                                anonymous:NO
-                                 callback:decoratedCallback];
+    [self internalSignInAndRetrieveDataWithCustomToken:token
+                                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                         NSError *_Nullable error) {
+      decoratedCallback(authResult.user, error);
     }];
+  });
+}
+
+- (void)signInAndRetrieveDataWithCustomToken:(NSString *)token
+                                  completion:(nullable FIRAuthDataResultCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
+    [self internalSignInAndRetrieveDataWithCustomToken:token completion:decoratedCallback];
   });
 }
 
@@ -1196,6 +1195,52 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 #endif
 
+/** @fn internalSignInAndRetrieveDataWithCustomToken:completion:
+    @brief Signs in a Firebase user given a custom token.
+    @param token A self-signed custom auth token.
+    @param completion A block which is invoked when the custom token sign in request completes.
+ */
+- (void)internalSignInAndRetrieveDataWithCustomToken:(NSString *)token
+                                          completion:(nullable FIRAuthDataResultCallback)
+                                              completion {
+  FIRVerifyCustomTokenRequest *request =
+    [[FIRVerifyCustomTokenRequest alloc] initWithToken:token
+                                  requestConfiguration:_requestConfiguration];
+  [FIRAuthBackend verifyCustomToken:request
+                           callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+    if (error) {
+      if (completion) {
+        completion(nil, error);
+        return;
+      }
+    }
+    [self completeSignInWithAccessToken:response.IDToken
+              accessTokenExpirationDate:response.approximateExpirationDate
+                           refreshToken:response.refreshToken
+                              anonymous:NO
+                               callback:^(FIRUser *_Nullable user,
+                                          NSError *_Nullable error) {
+      if (error) {
+        if (completion) {
+          completion(nil, error);
+        }
+        return;
+      }
+      FIRAdditionalUserInfo *additonalUserInfo =
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:nil
+                                                   profile:nil
+                                                  username:nil
+                                                 isNewUser:response.isNewUser];
+      FIRAuthDataResult *result =
+          [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:additonalUserInfo];
+      if (completion) {
+        completion(result, nil);
+      }
+    }];
+  }];
+}
+
 /** @fn internalCreateUserWithEmail:password:completion:
     @brief Makes a backend request attempting to create a new Firebase user given an email address
         and password.
@@ -1253,6 +1298,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (token.length) {
     internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token;
   }
+  internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = _currentUser.uid;
   NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
   dispatch_async(dispatch_get_main_queue(), ^{
     [notifications postNotificationName:FIRAuthStateDidChangeInternalNotification

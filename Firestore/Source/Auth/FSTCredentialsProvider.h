@@ -66,7 +66,7 @@ typedef void (^FSTVoidUserBlock)(FSTUser *user);
 #pragma mark - FSTCredentialsProvider
 
 /** Provides methods for getting the uid and token for the current user and listen for changes. */
-@protocol FSTCredentialsProvider<NSObject>
+@protocol FSTCredentialsProvider <NSObject>
 
 /** Requests token for the current user, optionally forcing a refreshed token to be fetched. */
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh completion:(FSTVoidGetTokenResultBlock)completion;
@@ -95,7 +95,7 @@ typedef void (^FSTVoidUserBlock)(FSTUser *user);
  * backing our internal worker queue and the callbacks from FIRAuth will be executed on an
  * arbitrary different thread.
  */
-@interface FSTFirebaseCredentialsProvider : NSObject<FSTCredentialsProvider>
+@interface FSTFirebaseCredentialsProvider : NSObject <FSTCredentialsProvider>
 
 /**
  * Initializes a new FSTFirebaseCredentialsProvider.

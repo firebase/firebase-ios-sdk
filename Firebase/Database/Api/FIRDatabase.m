@@ -15,8 +15,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRAppInternal.h"
-#import "FIRLogger.h"
+
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRLogger.h>
+
 #import "FIRDatabase.h"
 #import "FIRDatabase_Private.h"
 #import "FIRDatabaseQuery_Private.h"
@@ -26,7 +28,7 @@
 #import "FRepoInfo.h"
 #import "FIRDatabaseConfig.h"
 #import "FIRDatabaseReference_Private.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIROptions.h>
 
 @interface FIRDatabase ()
 @property (nonatomic, strong) FRepoInfo *repoInfo;

@@ -29,6 +29,8 @@ It is now possible to override the default pod locations with source pod
 locations described via the Podfile syntax documented
 [here](https://guides.cocoapods.org/syntax/podfile.html#pod).
 
+**CocoaPods 1.4.0** or later is required.
+
 For example, to access FirebaseMessaging via a checked out version of the
 firebase-ios-sdk repo do:
 
@@ -45,7 +47,14 @@ To access via a tag (Release tags will be available starting with Firebase 4.7.0
 pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
 ```
 
-Note that CocoaPods 1.4.0 or later is required.
+If your Podfile does not include *use_frameworks!*, you need to workaround
+a build issue with the FirebaseAnalytics umbrella header. Delete the first four lines
+of Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h
+or copy [patch/FirebaseAnalytics.h](patch/FirebaseAnalytics.h) to
+Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h.
+See the post_install phase of [Example/Podfile](Example/Podfile) for an example
+of applying the workaround automatically - make sure you correct the path of
+`patch/FirebaseAnalytics.h`.
 
 ## Usage
 
@@ -98,11 +107,6 @@ To run the Database Integration tests, make your database authentication rules
 
 To run the Storage Integration tests, follow the instructions in
 [FIRStorageIntegrationTests.m](Example/Storage/Tests/Integration/FIRStorageIntegrationTests.m).
-
-### Firebase Messaging
-
-To use Messaging, include `pod 'FirebaseInstanceID'` in your Podfile, in addition to
-`pod 'FirebaseCommunity/Messaging'`.
 
 #### Push Notifications
 
