@@ -51,8 +51,6 @@ void LogInfo(const char* format, ...);
 void LogWarning(const char* format, ...);
 // Log an error to the system log.
 void LogError(const char* format, ...);
-// Log an assert and stop the application.
-void LogAssert(const char* format, ...);
 // Log a firebase message (implemented by the platform specific logger).
 void LogMessageV(LogLevel log_level, const char* format, va_list args);
 // Log a firebase message via LogMessageV().

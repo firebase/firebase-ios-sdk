@@ -36,8 +36,6 @@ TEST(Log, SetAndGet) {
 
   LogSetLevel(kLogLevelError);
   EXPECT_EQ(kLogLevelError, LogGetLevel());
-
-  LogSetLevel(kLogLevelAssert);
 }
 
 TEST(Log, LogAllKinds) {
@@ -45,8 +43,6 @@ TEST(Log, LogAllKinds) {
   LogInfo("test info logging %d", 2);
   LogWarning("test warning logging %d", 3);
   LogError("test error logging %d", 4);
-  // Make this a death-test once assert is ready.
-  LogAssert("test assert logging %d", 5);
   LogMessage(kLogLevelError, "test va-args %s %c %d", "abc", ':', 123);
 }
 
