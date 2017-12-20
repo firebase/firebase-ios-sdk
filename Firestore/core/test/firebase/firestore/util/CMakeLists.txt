@@ -15,6 +15,7 @@
 cc_test(
   firebase_firestore_util_test
   autoid_test.cc
+  log_test.cc
   secure_random_test.cc
 )
 target_link_libraries(
