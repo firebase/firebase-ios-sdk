@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-#import "FSTIntegrationTestCase.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#import <FirebaseCommunity/FIRLogger.h>
-#import <Firestore/Firestore-umbrella.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
-#import "API/FIRFirestore+Internal.h"
-#import "Auth/FSTEmptyCredentialsProvider.h"
-#import "Local/FSTLevelDB.h"
-#import "Model/FSTDatabaseID.h"
-#import "Util/FSTDispatchQueue.h"
-#import "Util/FSTUtil.h"
+#include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
-#import "FSTEventAccumulator.h"
-#import "FSTTestDispatchQueue.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Model/FSTDatabaseID.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
+
+using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -164,7 +167,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)documentPath {
-  return [@"test-collection/" stringByAppendingString:[FSTUtil autoID]];
+  std::string autoId = CreateAutoId();
+  return [NSString stringWithFormat:@"test-collection/%s", autoId.c_str()];
 }
 
 - (FIRDocumentReference *)documentRef {
@@ -172,7 +176,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRCollectionReference *)collectionRef {
-  NSString *collectionName = [@"test-collection-" stringByAppendingString:[FSTUtil autoID]];
+  std::string autoId = CreateAutoId();
+  NSString *collectionName = [NSString stringWithFormat:@"test-collection-%s", autoId.c_str()];
   return [self.db collectionWithPath:collectionName];
 }
 
