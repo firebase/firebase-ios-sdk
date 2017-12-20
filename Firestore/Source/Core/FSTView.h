@@ -143,7 +143,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * Applies an FSTOnlineState change to the view, potentially generating an FSTViewChange if the
  * view's syncState changes as a result.
  */
-- (FSTViewChange *)applyOnlineStateChange:(FSTOnlineState)onlineState;
+- (FSTViewChange *)applyChangedOnlineState:(FSTOnlineState)onlineState;
 
 @end
 

@@ -180,7 +180,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
       self.watchStreamFailures = 0;
     }
     self.watchStreamOnlineState = newState;
-    [self.onlineStateDelegate watchStreamDidChangeOnlineState:newState];
+    [self.onlineStateDelegate applyChangedOnlineState:newState];
   }
 }
 

@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)userDidChange:(FSTUser *)user;
 
 /** Applies an FSTOnlineState change to the sync engine and notifies any views of the change. */
-- (void)applyOnlineStateChange:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
 
 @end
 
