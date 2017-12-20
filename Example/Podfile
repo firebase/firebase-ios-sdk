@@ -21,17 +21,12 @@ target 'Core_Example_iOS' do
   end
 end
 
-target 'Database_Example_iOS' do
+target 'Auth_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseAuth', :path => '../'
 
-  target 'Database_Tests_iOS' do
-    inherit! :search_paths
-    pod 'OCMock'
-  end
-
-  target 'Database_IntegrationTests_iOS' do
+  target 'Auth_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
@@ -74,7 +69,6 @@ target 'Storage_Example_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
-end
 
   target 'Storage_IntegrationTests_iOS' do
     inherit! :search_paths
@@ -129,11 +123,6 @@ target 'Auth_Example_macOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
-
-  target 'Storage_IntegrationTests_macOS' do
-    inherit! :search_paths
-    pod 'OCMock'
-  end
 end
 
 target 'Database_Example_macOS' do
@@ -145,9 +134,44 @@ target 'Database_Example_macOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
-end
 
   target 'Database_IntegrationTests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Storage_Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'FirebaseStorage', :path => '../'
+
+  target 'Storage_Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+  target 'Storage_IntegrationTests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Core_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  target 'Core_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Auth_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseAuth', :path => '../'
+
+  target 'Auth_Tests_tvOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
@@ -156,7 +180,7 @@ end
 target 'Database_Example_tvOS' do
   platform :tvos, '10.0'
 
-  pod 'FirebaseStorage', :path => '../'
+  pod 'FirebaseDatabase', :path => '../'
 
   target 'Database_Tests_tvOS' do
     inherit! :search_paths
