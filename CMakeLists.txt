@@ -24,10 +24,7 @@ endif()
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 
-# External Projects install into this prefix and download into the source tree
-# to avoid re-downloading repeatedly during development.
-set(FIREBASE_INSTALL_DIR "${PROJECT_BINARY_DIR}/usr")
-set(FIREBASE_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
+set(FIREBASE_INSTALL_DIR ${PROJECT_BINARY_DIR})
 
 enable_testing()
 
