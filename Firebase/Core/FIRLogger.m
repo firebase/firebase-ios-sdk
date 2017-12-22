@@ -164,13 +164,13 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
     return;
   }
   FIRLoggerInitializeASL();
-  dispatch_async(sFIRClientQueue, ^{
-    // We should not raise the logger level if we are running from App Store.
-    if (loggerLevel >= FIRLoggerLevelNotice && [FIRAppEnvironmentUtil isFromAppStore]) {
-      return;
-    }
+  // We should not raise the logger level if we are running from App Store.
+  if (loggerLevel >= FIRLoggerLevelNotice && [FIRAppEnvironmentUtil isFromAppStore]) {
+    return;
+  }
 
-    sFIRLoggerMaximumLevel = loggerLevel;
+  sFIRLoggerMaximumLevel = loggerLevel;
+  dispatch_async(sFIRClientQueue, ^{
     asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(loggerLevel));
   });
 }
