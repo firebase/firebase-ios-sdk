@@ -15,12 +15,16 @@
 import UIKit
 import FirebaseDatabase
 
-/// A class to demonstrate the power of the Firebase Realtime Database. This will show a number read
+/// A class to demonstrate the Firebase Realtime Database API. This will show a number read
 /// from the Database and increase or decrease it based on the buttons pressed.
 class DatabaseViewController: UIViewController {
   private enum Counter: Int {
     case increment = 1
     case decrement = -1
+
+    var intValue: Int {
+      return rawValue
+    }
   }
 
   // MARK: - Interface
@@ -39,16 +43,16 @@ class DatabaseViewController: UIViewController {
   // MARK: - Internal Helpers
 
   /// Update the number on the server by a particular value. Note: the number passed in should only
-  /// be
+  /// be one above or below the current number.
   private func changeServerValue(with type: Counter) {
     let ref = Database.database().reference(withPath: Constants.databasePath)
-    // Update the current value of the number!
+    // Update the current value of the number.
     ref.runTransactionBlock { (currentData) -> TransactionResult in
       guard let value = currentData.value as? Int else {
         return TransactionResult.abort()
       }
 
-      currentData.value = value + type.rawValue
+      currentData.value = value + type.intValue
       return TransactionResult.success(withValue: currentData)
     }
   }

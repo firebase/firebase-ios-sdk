@@ -68,9 +68,10 @@ class StorageViewController: UIViewController {
   @IBAction func downloadButtonHit(_ sender: UIButton) {
     guard case .cleared = state else { return }
 
-    // Start the download!
+    // Start the download.
     let storage = Storage.storage()
     let ref = storage.reference(withPath: Constants.downloadPath)
+    // TODO: Show progress bar here using proper API.
     let task = ref.getData(maxSize: Constants.maxSize) { [unowned self] (data, error) in
       guard let data = data else {
         self.state = .failed("Error downloading: \(error!.localizedDescription)")
