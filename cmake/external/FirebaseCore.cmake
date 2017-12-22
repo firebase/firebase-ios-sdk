@@ -12,25 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Superbuild for Firebase
+include(xcodebuild)
 
-cmake_minimum_required(VERSION 2.8.11)
-project(firebase C CXX)
-
-# If no build type is specified, make it a debug build
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug)
-endif()
-
-list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
-
-set(FIREBASE_INSTALL_DIR ${PROJECT_BINARY_DIR})
-
-enable_testing()
-
-include(external/FirebaseCore)
-
-include(external/googletest)
-include(external/leveldb)
-include(external/abseil-cpp)
-include(external/firestore)
+# FirebaseCore is only available as a Cocoapod build.
+xcodebuild(FirebaseCore)
