@@ -14,5 +14,10 @@
 
 include(xcodebuild)
 
-# FirebaseCore is only available as a Cocoapod build.
-xcodebuild(FirebaseCore)
+if(APPLE)
+  # FirebaseCore is only available as a Cocoapod build.
+  xcodebuild(FirebaseCore)
+else()
+  # On non-Apple platforms, there's no way to build FirebaseCore.
+  add_custom_target(FirebaseCore)
+endif()
