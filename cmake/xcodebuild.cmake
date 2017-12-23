@@ -82,7 +82,7 @@ function(xcodebuild framework)
         CONFIGURATION_BUILD_DIR=${FIREBASE_INSTALL_DIR}/Frameworks
         build
         ${pipe_xcpretty}
-    BUILD_ALWAYS ON
+    BUILD_ALWAYS ${BUILD_PODS}
 
     INSTALL_COMMAND ""
     TEST_COMMAND ""
