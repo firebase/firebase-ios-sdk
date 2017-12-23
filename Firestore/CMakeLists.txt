@@ -24,6 +24,10 @@ include(utils)
 find_package(GTest REQUIRED)
 find_package(LevelDB REQUIRED)
 
+if(APPLE)
+  find_package(FirebaseCore REQUIRED)
+endif()
+
 # We use C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
