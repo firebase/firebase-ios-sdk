@@ -33,6 +33,9 @@ DerivedData
 *.hmap
 *.ipa
 
+# IntelliJ
+.idea
+
 # Vim
 *.swo
 *.swp
@@ -54,3 +57,7 @@ Carthage
 Pods/
 Podfile.lock
 *.xcworkspace
+
+# CMake
+Debug
+Release

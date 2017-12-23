@@ -43,5 +43,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Fully qualified imports, project wide
 include_directories("${FIREBASE_SOURCE_DIR}")
 
+if(APPLE)
+  # CMake has no special support for Objective-C as a distinct language but enabling modules and
+  # other clang extensions would apply even to regular C++ sources which is nonportable. Keep these
+  # flags separate to avoid misuse.
+  set(
+    OBJC_FLAGS
+    -fobjc-arc
+    -fmodules
+    -fno-autolink
+    -F${FIREBASE_INSTALL_DIR}/Frameworks
+  )
+endif(APPLE)
+
 enable_testing()
 add_subdirectory(core)

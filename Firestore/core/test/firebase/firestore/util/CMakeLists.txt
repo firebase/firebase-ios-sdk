@@ -22,6 +22,17 @@ target_link_libraries(
   firebase_firestore_util
 )
 
+if(APPLE)
+  cc_test(
+    firebase_firestore_util_log_apple_test
+    log_test.cc
+  )
+  target_link_libraries(
+    firebase_firestore_util_log_apple_test
+    firebase_firestore_util_log_apple
+  )
+endif(APPLE)
+
 cc_test(
   firebase_firestore_util_log_stdio_test
   log_test.cc

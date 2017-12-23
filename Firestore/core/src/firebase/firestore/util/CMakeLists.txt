@@ -22,3 +22,34 @@ add_library(
   firebase_firestore_util_log_stdio
   log_stdio.cc
 )
+
+if(APPLE)
+  add_library(
+    firebase_firestore_util_log_apple
+    log_apple.mm
+  )
+  target_compile_options(
+    firebase_firestore_util_log_apple
+    PRIVATE
+    ${OBJC_FLAGS}
+  )
+  target_link_libraries(
+    firebase_firestore_util_log_apple
+    PUBLIC
+    FirebaseCore
+  )
+
+  target_link_libraries(
+    firebase_firestore_util
+    PUBLIC
+    firebase_firestore_util_log_apple
+  )
+
+else(NOT APPLE)
+  target_link_libraries(
+    firebase_firestore_util
+    PUBLIC
+    firebase_firestore_util_log_stdio
+  )
+
+endif(APPLE)

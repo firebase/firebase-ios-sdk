@@ -20,8 +20,6 @@
 
 #import <FirebaseCore/FIRLogger.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-
 namespace firebase {
 namespace firestore {
 namespace util {
