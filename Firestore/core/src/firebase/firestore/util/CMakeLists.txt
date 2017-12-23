@@ -15,6 +15,10 @@
 add_library(
   firebase_firestore_util
   autoid.cc
-  log_stdio.cc
   secure_random_arc4random.cc
+)
+
+add_library(
+  firebase_firestore_util_log_stdio
+  log_stdio.cc
 )
