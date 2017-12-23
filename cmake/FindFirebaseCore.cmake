@@ -15,7 +15,7 @@
 find_library(
   FIREBASECORE_LIBRARY
   FirebaseCore
-  PATHS ${FIREBASE_BINARY_DIR}/Frameworks
+  PATHS ${FIREBASE_INSTALL_DIR}/Frameworks
 )
 
 include(FindPackageHandleStandardArgs)
