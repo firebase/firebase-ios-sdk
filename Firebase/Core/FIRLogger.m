@@ -171,7 +171,9 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
   }
 
   sFIRLoggerMaximumLevel = loggerLevel;
-  asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(loggerLevel));
+  dispatch_async(sFIRClientQueue, ^{
+      asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(loggerLevel));
+  });
 }
 
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent) {
