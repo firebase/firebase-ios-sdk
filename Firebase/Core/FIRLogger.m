@@ -172,7 +172,7 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
 
   sFIRLoggerMaximumLevel = loggerLevel;
   dispatch_async(sFIRClientQueue, ^{
-      asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(loggerLevel));
+    asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(loggerLevel));
   });
 }
 
