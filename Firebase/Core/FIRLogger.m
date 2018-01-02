@@ -15,7 +15,7 @@
 #import "Private/FIRLogger.h"
 
 #import "FIRLoggerLevel.h"
-#import "FIRVersion.h"
+#import "Private/FIRVersion.h"
 #import "third_party/FIRAppEnvironmentUtil.h"
 
 #include <asl.h>
