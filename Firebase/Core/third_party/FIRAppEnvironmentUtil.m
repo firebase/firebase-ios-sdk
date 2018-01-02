@@ -204,11 +204,7 @@ static BOOL isAppEncrypted() {
 }
 
 + (NSString *)systemVersion {
-  #if TARGET_OS_IOS
-  return [UIDevice currentDevice].systemVersion;
-  #elif TARGET_OS_OSX
   return [NSProcessInfo processInfo].operatingSystemVersionString;
-  #endif
 }
 
 + (BOOL)isAppExtension {
@@ -220,25 +216,6 @@ static BOOL isAppEncrypted() {
   return NO;
   #endif
 }
-
-#if TARGET_OS_IOS
-+ (UIApplication *)sharedApplication {
-  if ([FIRAppEnvironmentUtil isAppExtension]) {
-    return nil;
-  }
-  id sharedApplication = nil;
-  Class uiApplicationClass = NSClassFromString(@"UIApplication");
-  if (uiApplicationClass &&
-      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
-    sharedApplication = [uiApplicationClass sharedApplication];
-  }
-  return sharedApplication;
-}
-#elif TARGET_OS_OSX
-+ (NSApplication *)sharedApplication {
-  return [NSApplication sharedApplication];
-}
-#endif
 
 #pragma mark - Helper methods
 
