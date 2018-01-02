@@ -40,7 +40,7 @@ function(xcodebuild framework)
   endif()
 
   # TODO(mcg): Investigate supporting non-macOS platforms
-  # The canonical way to build and test for iOS is via Xcode and Cocoapods so
+  # The canonical way to build and test for iOS is via Xcode and CocoaPods so
   # it's not super important to make this work here
   set(platform macOS)
   set(destination "platform=macOS,arch=x86_64")
@@ -48,7 +48,7 @@ function(xcodebuild framework)
 
   set(binary_dir ${PROJECT_BINARY_DIR}/${scheme})
 
-  # CMake has a variety of release types, but Xcode has just one.
+  # CMake has a variety of release types, but Xcode has just one by default.
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(configuration Debug)
   else()

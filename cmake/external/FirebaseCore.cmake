@@ -15,7 +15,7 @@
 include(xcodebuild)
 
 if(APPLE)
-  # FirebaseCore is only available as a Cocoapod build.
+  # FirebaseCore is only available as a CocoaPod build.
   xcodebuild(FirebaseCore)
 else()
   # On non-Apple platforms, there's no way to build FirebaseCore.
