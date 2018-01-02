@@ -48,10 +48,10 @@
 
 #if TARGET_OS_IOS
 /// Returns the [UIApplication sharedApplication] if it is running on an app, not an extension.
-+ (UIApplication *)sharedApplication;
++ (UIApplication *)sharedApplication __deprecated;
 #elif TARGET_OS_OSX
 /// Returns the [NSApplication sharedApplication].
-+ (NSApplication *)sharedApplication;
++ (NSApplication *)sharedApplication __deprecated;
 #endif
 
 @end
