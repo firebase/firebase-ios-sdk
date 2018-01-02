@@ -33,11 +33,10 @@ if(FIREBASECORE_FOUND)
     ${FIREBASECORE_LIBRARY}/PrivateHeaders
   )
 
-  # TODO(mcg): on iOS this should depend on UIKit.
   set(
     FIREBASECORE_LIBRARIES
     ${FIREBASECORE_LIBRARY}
-    "-framework AppKit"
+    "-framework Foundation"
   )
 
   if(NOT TARGET FirebaseCore)
