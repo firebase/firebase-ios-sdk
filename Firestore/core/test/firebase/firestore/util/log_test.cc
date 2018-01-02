@@ -26,7 +26,7 @@ namespace util {
 // this test can fail if debug_mode gets persisted in the user defaults. Check
 // for defaults getting in your way with
 //
-//   defaults read firebase_firestore_util_log_appleA_test
+//   defaults read firebase_firestore_util_log_apple_test
 //
 // You can fix it with:
 //

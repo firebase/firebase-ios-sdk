@@ -18,11 +18,13 @@ add_library(
   secure_random_arc4random.cc
 )
 
+# log_stdio can be built and tested everywhere
 add_library(
   firebase_firestore_util_log_stdio
   log_stdio.cc
 )
 
+# log_apple can only built and tested on apple plaforms
 if(APPLE)
   add_library(
     firebase_firestore_util_log_apple
@@ -38,7 +40,11 @@ if(APPLE)
     PUBLIC
     FirebaseCore
   )
+endif(APPLE)
 
+# Export a dependency on the correct logging library for this platform. All
+# buildable libraries are built and tested but only the best fit is exported.
+if(APPLE)
   target_link_libraries(
     firebase_firestore_util
     PUBLIC
