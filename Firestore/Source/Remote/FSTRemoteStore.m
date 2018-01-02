@@ -540,7 +540,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 
 - (void)cleanUpWriteStreamState {
   self.lastBatchSeen = kFSTBatchIDUnknown;
-  FSTLog(@"Stopping write stream with %i pending writes", [self.pendingWrites count]);
+  FSTLog(@"Stopping write stream with %lu pending writes", (unsigned long)[self.pendingWrites count]);
   [self.pendingWrites removeAllObjects];
 }
 
