@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Removed AppKit dependency for community macOS build.
 
 # 2017-11-30 -- v4.0.12 -- M20.2
 - [fixed] Removed `FIR_SWIFT_NAME` macro, replaced with proper `NS_SWIFT_NAME`.
