@@ -26,7 +26,7 @@ find_package_handle_standard_args(
 )
 
 if(FIREBASECORE_FOUND)
-  # Emulate Cocoapods behavior which makes all headers available unqualified.
+  # Emulate CocoaPods behavior which makes all headers available unqualified.
   set(
     FIREBASECORE_INCLUDE_DIRS
     ${FIREBASECORE_LIBRARY}/Headers
