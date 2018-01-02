@@ -87,8 +87,8 @@ class StorageViewController: UIViewController {
       self.state = .downloaded(image)
     }
 
-    // We could have the image cached already causing the completion block to run before this line.
-    // If that's the case, we don't need to do anything else and can return.
+    // The completion block above could be run before this line in some situations. If that's the
+    // case, we don't need to do anything else and can return.
     if case .downloaded = state { return }
 
     // Set the state to downloading!
@@ -139,10 +139,9 @@ class StorageViewController: UIViewController {
   /// Internal constants for this class.
   private struct Constants {
     /// The image name to download. Can comment this out and replace it with the other below it as
-    /// part of the demo.
-    static let downloadPath = "yosemite.jpg"
-//    static let downloadPath = "google_io_2017.jpg"
-//    static let downloadPath = "firebase_logo.png"
+    /// part of the demo. Ensure that Storage has an image uploaded to this path for this to
+    /// function properly.
+    static let downloadPath = "YOUR_IMAGE_NAME.jpg"
 
     static let maxSize: Int64 = 1024 * 1024 * 10 // ~10MB
   }
