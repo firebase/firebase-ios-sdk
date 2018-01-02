@@ -15,6 +15,7 @@
 #import "Private/FIRLogger.h"
 
 #import "FIRLoggerLevel.h"
+#import "FIRVersion.h"
 #import "third_party/FIRAppEnvironmentUtil.h"
 
 #include <asl.h>
@@ -229,7 +230,7 @@ void FIRLogBasic(FIRLoggerLevel level,
   NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
 #endif
   NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
-  logMsg = [NSString stringWithFormat:@"%@[%@] %@", service, messageCode, logMsg];
+  logMsg = [NSString stringWithFormat:@"%s - %@[%@] %@", FirebaseVersionString, service, messageCode, logMsg];
   dispatch_async(sFIRClientQueue, ^{
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
   });

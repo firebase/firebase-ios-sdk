@@ -28,4 +28,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.private_header_files = 'Firebase/Core/Private/*.h'
   s.framework = 'SystemConfiguration'
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
+  s.pod_target_xcconfig = {
+    'OTHER_CFLAGS' => '-DFIRCore_VERSION=' + s.version.to_s + ' -DFirebase_VERSION=4.8.0'
+  }
 end
