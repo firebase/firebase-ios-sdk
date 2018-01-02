@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_BASE_PORT_H_
 
 #if defined(__APPLE__)
-// On Apple platforms we support building via Cocoapods without CMake. When
+// On Apple platforms we support building via CocoaPods without CMake. When
 // building this way we can't test the presence of features so predefine all
 // the platform-support feature macros to their expected values.
 
