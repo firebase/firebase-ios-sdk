@@ -12,22 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(ExternalProject)
+include(xcodebuild)
 
-ExternalProject_Add(
-  googletest
-
-  GIT_REPOSITORY "https://github.com/google/googletest.git"
-  GIT_TAG "release-1.8.0"
-
-  PREFIX ${PROJECT_BINARY_DIR}/third_party/googletest
-
-  INSTALL_DIR ${FIREBASE_INSTALL_DIR}
-
-  TEST_COMMAND ""
-
-  CMAKE_ARGS
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-      -DBUILD_SHARED_LIBS:BOOL=OFF
-)
+if(APPLE)
+  # FirebaseCore is only available as a CocoaPod build.
+  xcodebuild(FirebaseCore)
+else()
+  # On non-Apple platforms, there's no way to build FirebaseCore.
+  add_custom_target(FirebaseCore)
+endif()

@@ -36,6 +36,10 @@ static NSString *const kCustomAuthTestingAccountUserID = KCUSTOM_AUTH_USER_ID;
 /** The url for obtaining a valid custom token string used to test Custom Auth. */
 static NSString *const kCustomTokenUrl = KCUSTOM_AUTH_TOKEN_URL;
 
+/** The url for obtaining an expired but valid custom token string used to test Custom Auth failure.
+ */
+static NSString *const kExpiredCustomTokenUrl = KCUSTOM_AUTH_TOKEN_EXPIRED_URL;
+
 /** Facebook app access token that will be used for Facebook Graph API, which is different from
  * account access token.
  */
@@ -253,6 +257,93 @@ static NSTimeInterval const kExpectationsTimeout = 30;
   XCTAssertEqualObjects(auth.currentUser.uid, kCustomAuthTestingAccountUserID);
 }
 
+- (void)testSignInWithValidCustomAuthExpiredToken {
+  FIRAuth *auth = [FIRAuth auth];
+  if (!auth) {
+    XCTFail(@"Could not obtain auth object.");
+  }
+
+  NSError *error;
+  NSString *customToken =
+    [NSString stringWithContentsOfURL:[NSURL URLWithString:kExpiredCustomTokenUrl]
+                             encoding:NSUTF8StringEncoding
+                                error:&error];
+  if (!customToken) {
+    XCTFail(@"There was an error retrieving the custom token: %@", error);
+  }
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
+
+  __block NSError *apiError;
+  [auth signInWithCustomToken:customToken
+                   completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                     if (error) {
+                       apiError = error;
+                     }
+                     [expectation fulfill];
+                   }];
+  [self waitForExpectationsWithTimeout:kExpectationsTimeout
+                               handler:^(NSError *error) {
+                                 if (error != nil) {
+                                   XCTFail(@"Failed to wait for expectations "
+                                           @"in CustomAuthToken sign in. Error: %@",
+                                           error.localizedDescription);
+                                 }
+                               }];
+
+  XCTAssertNil(auth.currentUser);
+  XCTAssertEqual(apiError.code, FIRAuthErrorCodeInvalidCustomToken);
+  [NSThread sleepForTimeInterval:3.0];
+}
+
+- (void)testInMemoryUserAfterSignOut {
+  FIRAuth *auth = [FIRAuth auth];
+  if (!auth) {
+    XCTFail(@"Could not obtain auth object.");
+  }
+  NSError *error;
+  NSString *customToken = [NSString stringWithContentsOfURL:[NSURL URLWithString:kCustomTokenUrl]
+                                                   encoding:NSUTF8StringEncoding
+                                                      error:&error];
+  if (!customToken) {
+    XCTFail(@"There was an error retrieving the custom token: %@", error);
+  }
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
+  __block NSError *rpcError;
+  [auth signInWithCustomToken:customToken
+                   completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                     if (error) {
+                       rpcError = error;
+                     }
+                     [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationsTimeout
+                               handler:^(NSError *error) {
+                                 if (error != nil) {
+                                   XCTFail(@"Failed to wait for expectations "
+                                           @"in CustomAuthToken sign in. Error: %@",
+                                           error.localizedDescription);
+                                 }
+  }];
+  XCTAssertEqualObjects(auth.currentUser.uid, kCustomAuthTestingAccountUserID);
+  XCTAssertNil(rpcError);
+  FIRUser *inMemoryUser = auth.currentUser;
+  XCTestExpectation *expectation1 = [self expectationWithDescription:@"Profile data change."];
+  [auth signOut:NULL];
+  rpcError = nil;
+  NSString *newEmailAddress = [self fakeRandomEmail];
+  XCTAssertNotEqualObjects(newEmailAddress, inMemoryUser.email);
+  [inMemoryUser updateEmail:newEmailAddress completion:^(NSError *_Nullable error) {
+    rpcError = error;
+    [expectation1 fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
+  XCTAssertEqualObjects(inMemoryUser.email, newEmailAddress);
+  XCTAssertNil(rpcError);
+  XCTAssertNil(auth.currentUser);
+}
+
 - (void)testSignInWithInvalidCustomAuthToken {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
@@ -353,6 +444,17 @@ static NSTimeInterval const kExpectationsTimeout = 30;
 }
 
 #pragma mark - Helpers
+
+/** Generate fake random email address */
+- (NSString *)fakeRandomEmail {
+  NSMutableString *fakeEmail = [[NSMutableString alloc] init];
+  for (int i=0; i<10; i++) {
+    [fakeEmail appendString:
+        [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
+  }
+  [fakeEmail appendString:@"@gmail.com"];
+  return fakeEmail;
+}
 
 /** Sign out current account. */
 - (void)signOut {

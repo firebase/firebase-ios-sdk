@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_BASE_PORT_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_BASE_PORT_H_
+#import <Foundation/Foundation.h>
 
-#if defined(__APPLE__)
-// On Apple platforms we support building via CocoaPods without CMake. When
-// building this way we can't test the presence of features so predefine all
-// the platform-support feature macros to their expected values.
+/** The version of the Firebase SDK. */
+FOUNDATION_EXPORT const unsigned char *const FirebaseVersionString;
 
-// All supported Apple platforms have arc4random(3).
-#define HAVE_ARC4RANDOM 1
-
-#else
-
-#error "Unknown platform."
-#endif  // defined(__APPLE__)
-
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_BASE_PORT_H_
+/** The version of the FirebaseCore Component. */
+FOUNDATION_EXPORT const unsigned char *const FirebaseCoreVersionString;
