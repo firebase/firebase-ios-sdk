@@ -24,14 +24,33 @@ add_library(
   log_stdio.cc
 )
 
-# log_apple can only built and tested on apple plaforms
+# assert_stdio can be built and tested everywhere
+add_library(
+  firebase_firestore_util_assert_stdio
+  assert_stdio.cc
+)
+target_link_libraries(
+  firebase_firestore_util_assert_stdio
+  firebase_firestore_util_log_stdio
+)
+
+# log_apple and assert_apple can only built and tested on apple plaforms
 if(APPLE)
   add_library(
     firebase_firestore_util_log_apple
     log_apple.mm
   )
+  add_library(
+    firebase_firestore_util_assert_apple
+    assert_apple.mm
+  )
   target_compile_options(
     firebase_firestore_util_log_apple
+    PRIVATE
+    ${OBJC_FLAGS}
+  )
+  target_compile_options(
+    firebase_firestore_util_assert_apple
     PRIVATE
     ${OBJC_FLAGS}
   )
@@ -39,6 +58,10 @@ if(APPLE)
     firebase_firestore_util_log_apple
     PUBLIC
     FirebaseCore
+  )
+  target_link_libraries(
+    firebase_firestore_util_assert_apple
+    firebase_firestore_util_log_apple
   )
 endif(APPLE)
 
@@ -48,6 +71,7 @@ if(APPLE)
   target_link_libraries(
     firebase_firestore_util
     PUBLIC
+    firebase_firestore_util_assert_apple
     firebase_firestore_util_log_apple
   )
 
@@ -55,6 +79,7 @@ else(NOT APPLE)
   target_link_libraries(
     firebase_firestore_util
     PUBLIC
+    firebase_firestore_util_assert_stdio
     firebase_firestore_util_log_stdio
   )
 
