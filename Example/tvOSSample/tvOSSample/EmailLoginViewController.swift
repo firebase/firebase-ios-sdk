@@ -37,7 +37,7 @@ class EmailLoginViewController: UIViewController {
 
     Auth.auth().signIn(withEmail: email, password: password) { [unowned self] (user, error) in
       guard let user = user else {
-        print("Error retrieving user: \(error!)")
+        print("Error signing in: \(error!)")
         self.delegate?.emailLogin(self, failedWithError: error!)
         return
       }
@@ -52,7 +52,7 @@ class EmailLoginViewController: UIViewController {
 
     Auth.auth().createUser(withEmail: email, password: password) { [unowned self] (user, error) in
       guard let user = user else {
-        print("Error retrieving user: \(error!)")
+        print("Error signing up: \(error!)")
         self.delegate?.emailLogin(self, failedWithError: error!)
         return
       }
@@ -72,12 +72,12 @@ class EmailLoginViewController: UIViewController {
   /// Validate the inputs for user email and password, returning the username and password if valid,
   /// otherwise nil.
   private func validatedInputs() -> (email: String, password: String)? {
-    guard let userEmail = emailAddress.text, userEmail.count > 3 else {
+    guard let userEmail = emailAddress.text, userEmail.count >= 6 else {
       presentError(with: "Email address isn't long enough.")
       return nil
     }
 
-    guard let userPassword = password.text, userPassword.count > 2 else {
+    guard let userPassword = password.text, userPassword.count >= 6 else {
       presentError(with: "Password is not long enough!")
       return nil
     }
