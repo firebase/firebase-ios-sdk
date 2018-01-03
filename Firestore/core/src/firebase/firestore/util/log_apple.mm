@@ -16,45 +16,48 @@
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
-#include <string>
-
 #import <FirebaseCore/FIRLogger.h>
+#import <Foundation/Foundation.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#include <string>
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-static NSString* FormatString(const char* format) {
+namespace {
+
+// Translates a C format string to the equivalent NSString without making a
+// copy.
+NSString* FormatString(const char* format) {
   return [[NSString alloc] initWithBytesNoCopy:(void*)format
                                         length:strlen(format)
                                       encoding:NSUTF8StringEncoding
                                   freeWhenDone:NO];
 }
 
-void LogSetLevel(LogLevel level) {
+// Translates a C++ LogLevel to the equivalent Objective-C FIRLoggerLevel
+FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
   switch (level) {
-    case kLogLevelVerbose:
-      FIRSetLoggerLevel(FIRLoggerLevelMax);
-      break;
+    case kLogLevelVerbose:  // fall through
     case kLogLevelDebug:
-      FIRSetLoggerLevel(FIRLoggerLevelDebug);
-      break;
+      return FIRLoggerLevelDebug;
     case kLogLevelInfo:
-      FIRSetLoggerLevel(FIRLoggerLevelInfo);
-      break;
+      return FIRLoggerLevelInfo;
     case kLogLevelWarning:
-      FIRSetLoggerLevel(FIRLoggerLevelWarning);
-      break;
+      return FIRLoggerLevelWarning;
     case kLogLevelError:
-      FIRSetLoggerLevel(FIRLoggerLevelError);
-      break;
+      return FIRLoggerLevelError;
     default:
       // Unsupported log level. FIRSetLoggerLevel will deal with it.
-      FIRSetLoggerLevel((FIRLoggerLevel)-1);
-      break;
+      return static_cast<FIRLoggerLevel>(-1);
   }
+}
+
+}  // namespace
+
+void LogSetLevel(LogLevel level) {
+  FIRSetLoggerLevel(ToFIRLoggerLevel(level));
 }
 
 LogLevel LogGetLevel() {
@@ -111,29 +114,8 @@ void LogError(const char* format, ...) {
 }
 
 void LogMessageV(LogLevel log_level, const char* format, va_list args) {
-  switch (log_level) {
-    case kLogLevelVerbose:  // fall through
-    case kLogLevelDebug:
-      FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerFirestore, @"I-FST000001",
-                  FormatString(format), args);
-      break;
-    case kLogLevelInfo:
-      FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerFirestore, @"I-FST000001",
-                  FormatString(format), args);
-      break;
-    case kLogLevelWarning:
-      FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerFirestore, @"I-FST000001",
-                  FormatString(format), args);
-      break;
-    case kLogLevelError:
-      FIRLogBasic(FIRLoggerLevelError, kFIRLoggerFirestore, @"I-FST000001",
-                  FormatString(format), args);
-      break;
-    default:
-      FIRLogBasic(FIRLoggerLevelError, kFIRLoggerFirestore, @"I-FST000001",
-                  FormatString(format), args);
-      break;
-  }
+  FIRLogBasic(ToFIRLoggerLevel(log_level), kFIRLoggerFirestore, @"I-FST000001",
+              FormatString(format), args);
 }
 
 void LogMessage(LogLevel log_level, const char* format, ...) {

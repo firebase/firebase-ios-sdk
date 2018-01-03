@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(binary_dir ${FIREBASE_BINARY_DIR}/third_party/leveldb/src/leveldb)
+set(binary_dir ${FIREBASE_INSTALL_DIR}/third_party/leveldb/src/leveldb)
 
 find_path(
   LEVELDB_INCLUDE_DIR leveldb/db.h
