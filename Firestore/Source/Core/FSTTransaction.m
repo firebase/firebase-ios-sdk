@@ -18,8 +18,8 @@
 
 #import <GRPCClient/GRPCCall.h>
 
-#import "FIRFirestoreErrors.h"
-#import "FIRSetOptions.h"
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
+#import <FirebaseFirestore/FIRSetOptions.h>
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"

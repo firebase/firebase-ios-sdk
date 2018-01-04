@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot.h"
+#import <FirebaseFirestore/FIRDocumentSnapshot.h>
 
 @class FIRFirestore;
 @class FSTDocument;

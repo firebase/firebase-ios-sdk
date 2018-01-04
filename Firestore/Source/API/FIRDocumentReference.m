@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentReference.h"
+#import <FirebaseFirestore/FIRDocumentReference.h>
 
 #import <GRPCClient/GRPCCall.h>
 
-#import "FIRFirestoreErrors.h"
-#import "FIRSnapshotMetadata.h"
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
+#import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot.h"
+#import <FirebaseFirestore/FIRDocumentSnapshot.h>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"

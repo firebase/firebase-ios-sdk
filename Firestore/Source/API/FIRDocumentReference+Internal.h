@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentReference.h"
+#import <FirebaseFirestore/FIRDocumentReference.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

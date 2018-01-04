@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFirestore.h"
+#import <FirebaseFirestore/FIRFirestore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

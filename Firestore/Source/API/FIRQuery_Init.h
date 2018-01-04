@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRQuery.h"
+#import <FirebaseFirestore/FIRQuery.h>
 
 @class FSTQuery;
 

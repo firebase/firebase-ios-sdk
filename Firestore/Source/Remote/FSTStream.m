@@ -19,7 +19,7 @@
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "FIRFirestoreErrors.h"
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"

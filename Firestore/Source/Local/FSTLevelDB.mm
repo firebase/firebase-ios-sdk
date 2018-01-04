@@ -18,7 +18,7 @@
 
 #include <leveldb/db.h>
 
-#import "FIRFirestoreErrors.h"
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"

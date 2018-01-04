@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRQuery.h"
+#import <FirebaseFirestore/FIRQuery.h>
 
-#import "FIRDocumentReference.h"
+#import <FirebaseFirestore/FIRDocumentReference.h>
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"

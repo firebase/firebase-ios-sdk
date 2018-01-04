@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentChange.h"
+#import <FirebaseFirestore/FIRDocumentChange.h>
 
 @class FSTViewSnapshot;
 

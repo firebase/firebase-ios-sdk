@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRQuerySnapshot.h"
+#import <FirebaseFirestore/FIRQuerySnapshot.h>
 
 @class FIRFirestore;
 @class FIRSnapshotMetadata;

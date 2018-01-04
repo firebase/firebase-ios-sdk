@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 
-#import "FIRSnapshotMetadata.h"
+#import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import "Firestore/Source/API/FIRDocumentChange+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
