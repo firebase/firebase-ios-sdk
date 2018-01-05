@@ -81,14 +81,13 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testInitCustomizedOptions {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wnonnull"
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                        bundleID:kBundleID
                                                     GCMSenderID:kGCMSenderID
                                                          APIKey:kAPIKey
                                                        clientID:kClientID
                                                      trackingID:kTrackingID
-                                                androidClientID:nil
+                                                androidClientID:(id _Nonnull)nil
                                                     databaseURL:kDatabaseURL
                                                   storageBucket:kStorageBucket
                                               deepLinkURLScheme:kDeepLinkURLScheme];
@@ -239,14 +238,13 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
 
   // customized options
-  #pragma clang diagnostic ignored "-Wnonnull"
   FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                                  bundleID:kBundleID
                                                               GCMSenderID:kGCMSenderID
                                                                    APIKey:kAPIKey
                                                                  clientID:kClientID
                                                                trackingID:kTrackingID
-                                                          androidClientID:nil
+                                                          androidClientID:(id _Nonnull)nil
                                                               databaseURL:kDatabaseURL
                                                             storageBucket:kStorageBucket
                                                         deepLinkURLScheme:kDeepLinkURLScheme];
