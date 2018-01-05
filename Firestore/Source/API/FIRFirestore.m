@@ -158,14 +158,14 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (FIRFirestoreSettings *)settings {
-  @synchronized (self) {
+  @synchronized(self) {
     // Disallow mutation of our internal settings
     return [_settings copy];
   }
 }
 
 - (void)setSettings:(FIRFirestoreSettings *)settings {
-  @synchronized (self) {
+  @synchronized(self) {
     // As a special exception, don't throw if the same settings are passed repeatedly. This should
     // make it more friendly to create a Firestore instance.
     if (_client && ![_settings isEqual:settings]) {
@@ -187,17 +187,17 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (void)ensureClientConfigured {
-  @synchronized (self) {
+  @synchronized(self) {
     if (!_client) {
       // These values are validated elsewhere; this is just double-checking:
       FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
       FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
       FSTDatabaseInfo *databaseInfo =
-      [FSTDatabaseInfo databaseInfoWithDatabaseID:_databaseID
-                                   persistenceKey:_persistenceKey
-                                             host:_settings.host
-                                       sslEnabled:_settings.sslEnabled];
+          [FSTDatabaseInfo databaseInfoWithDatabaseID:_databaseID
+                                       persistenceKey:_persistenceKey
+                                                 host:_settings.host
+                                           sslEnabled:_settings.sslEnabled];
 
       FSTDispatchQueue *userDispatchQueue = [FSTDispatchQueue queueWith:_settings.dispatchQueue];
 
@@ -280,7 +280,7 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTFirestoreClient *client;
-  @synchronized (self) {
+  @synchronized(self) {
     client = _client;
     _client = nil;
   }

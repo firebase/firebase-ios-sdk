@@ -101,15 +101,19 @@
 
 /** Waits for a snapshot with local writes. */
 - (FIRDocumentSnapshot *)waitForLocalEvent {
-  FIRDocumentSnapshot *snapshot = [_accumulator awaitEventWithName:@"Local event."];
-  XCTAssertTrue(snapshot.metadata.hasPendingWrites);
+  FIRDocumentSnapshot *snapshot;
+  do {
+    snapshot = [_accumulator awaitEventWithName:@"Local event."];
+  } while (!snapshot.metadata.hasPendingWrites);
   return snapshot;
 }
 
 /** Waits for a snapshot that has no pending writes */
 - (FIRDocumentSnapshot *)waitForRemoteEvent {
-  FIRDocumentSnapshot *snapshot = [_accumulator awaitEventWithName:@"Remote event."];
-  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
+  FIRDocumentSnapshot *snapshot;
+  do {
+    snapshot = [_accumulator awaitEventWithName:@"Remote event."];
+  } while (snapshot.metadata.hasPendingWrites);
   return snapshot;
 }
 
