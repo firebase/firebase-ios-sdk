@@ -24,6 +24,7 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Public/FIRGetOptions.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
@@ -207,6 +208,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getDocumentWithCompletion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
+  return [self getDocumentWithCompletion:completion getOptions:[FIRGetOptions fromDefault]];
+}
+
+- (void)getDocumentWithCompletion:(void (^)(FIRDocumentSnapshot *_Nullable document,
+                                            NSError *_Nullable error))completion getOptions:(FIRGetOptions *)getOptions {
   FSTListenOptions *listenOptions =
       [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                      includeDocumentMetadataChanges:YES

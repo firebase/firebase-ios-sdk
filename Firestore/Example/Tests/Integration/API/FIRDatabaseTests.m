@@ -21,6 +21,7 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "FIRGetOptions.h"
 
 @interface FIRDatabaseTests : FSTIntegrationTestCase
 @end
@@ -930,5 +931,176 @@
   [self waitForIdleFirestore:firestore];
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
 }
+
+
+
+- (void)testGetDocumentWhileOnlineWithDefaultGetOptions {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // set document to a known value
+  NSDictionary<NSString *, id> *initialData = @{@"key" : @"value"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // get doc and ensure that it exists, is *not* from the cache, and matches
+  // the initialData.
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertTrue(result.exists);
+  XCTAssertFalse(result.metadata.fromCache);
+  XCTAssertEqualObjects(result.data, initialData);
+}
+
+- (void)testGetDocumentWhileOfflineWithDefaultGetOptions {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // set document to a known value
+  NSDictionary<NSString *, id> *initialData = @{@"key1" : @"value1"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+  // update the doc (though don't wait for a server response. We're offline; so
+  // that ain't happening!). This allows us to further distinguished cached vs
+  // server responses below.
+  NSDictionary<NSString *, id> *newData = @{@"key2" : @"value2"};
+  [doc setData:newData completion:^(NSError *_Nullable error) {
+    XCTAssertTrue(false, "Because we're offline, this should never occur.");
+  }];
+
+  // get doc and ensure it exists, *is* from the cache, and matches the
+  // newData.
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertTrue(result.exists);
+  XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertEqualObjects(result.data, newData);
+}
+
+- (void)testGetDocumentWhileOnlineCacheOnly {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // set document to a known value
+  NSDictionary<NSString *, id> *initialData = @{@"key" : @"value"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // get doc and ensure that it exists, *is* from the cache, and matches
+  // the initialData.
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc getOptions:[FIRGetOptions fromCache]];
+  XCTAssertTrue(result.exists);
+  XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertEqualObjects(result.data, initialData);
+}
+
+- (void)testGetDocumentWhileOfflineCacheOnly {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // set document to a known value
+  NSDictionary<NSString *, id> *initialData = @{@"key1" : @"value1"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+  // update the doc (though don't wait for a server response. We're offline; so
+  // that ain't happening!). This allows us to further distinguished cached vs
+  // server responses below.
+  NSDictionary<NSString *, id> *newData = @{@"key2" : @"value2"};
+  [doc setData:newData completion:^(NSError *_Nullable error) {
+    XCTAssertTrue(false, "Because we're offline, this should never occur.");
+  }];
+
+  // get doc and ensure it exists, *is* from the cache, and matches the
+  // newData.
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc getOptions:[FIRGetOptions fromCache]];
+  XCTAssertTrue(result.exists);
+  XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertEqualObjects(result.data, newData);
+}
+
+- (void)testGetDocumentWhileOnlineServerOnly {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // set document to a known value
+  NSDictionary<NSString *, id> *initialData = @{@"key" : @"value"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // get doc and ensure that it exists, is *not* from the cache, and matches
+  // the initialData.
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc getOptions:[FIRGetOptions fromServer]];
+  XCTAssertTrue(result.exists);
+  XCTAssertFalse(result.metadata.fromCache);
+  XCTAssertEqualObjects(result.data, initialData);
+}
+
+- (void)testGetDocumentWhileOfflineServerOnly {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // set document to a known value
+  NSDictionary<NSString *, id> *initialData = @{@"key1" : @"value1"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+  // update the doc (though don't wait for a server response. We're offline; so
+  // that ain't happening!). This allows us to further distinguished cached vs
+  // server responses below.
+  NSDictionary<NSString *, id> *newData = @{@"key2" : @"value2"};
+  [doc setData:newData completion:^(NSError *_Nullable error) {
+    XCTAssertTrue(false, "Because we're offline, this should never occur.");
+  }];
+
+  // attempt to get doc and ensure cannot be retreived
+  // newData.
+  XCTestExpectation *failedGetDocCompletion = [self expectationWithDescription:@"failedGetDoc"];
+  // TODO: force server only
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertNotNil(error);
+    // TODO: Ensure error is reasonable. Something like this but with different values:
+    //  XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+    //  XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
+    [failedGetDocCompletion fulfill];
+  } getOptions:[FIRGetOptions fromServer]];
+  [self awaitExpectations];
+}
+
+- (void)testGetNonExistingDocWhileOnlineWithDefaultGetOptions {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // get doc and ensure that it does not exist and is *not* from the cache.
+  XCTestExpectation *getNonExistingDocCompletion = [self expectationWithDescription:@"getNonExistingDoc"];
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertNil(error);
+    XCTAssertFalse(snapshot.exists);
+    XCTAssertFalse(snapshot.metadata.fromCache);
+    [getNonExistingDocCompletion fulfill];
+  }];
+  [self awaitExpectations];
+}
+
+- (void)testGetNonExistingDocWhileOfflineWithDefaultGetOptions {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+  // attempt to get doc. Currently, this is expected to fail. In the future, we
+  // might consider adding support for negative cache hits so that we know
+  // certain documents *don't* exist.
+  XCTestExpectation *getNonExistingDocCompletion = [self expectationWithDescription:@"getNonExistingDoc"];
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
+    [getNonExistingDocCompletion fulfill];
+  }];
+  [self awaitExpectations];
+}
+
+/* TODO: Implement these too in the expected manner:
+testGetNonExistingDocWhileOnlineCacheOnly
+testGetNonExistingDocWhileOfflineCacheOnly
+testGetNonExistingDocWhileOnlineServerOnly
+testGetNonExistingDocWhileOfflineServerOnly
+*/
 
 @end
