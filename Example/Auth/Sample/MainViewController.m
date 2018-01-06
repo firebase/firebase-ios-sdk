@@ -2715,14 +2715,22 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     FIRAuthCredential *credential =
         [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
                                                     verificationCode:verificationCode];
-    [[AppManager auth] signInWithCredential:credential
-                                 completion:^(FIRUser *_Nullable user,
-                                              NSError *_Nullable error) {
+    [[AppManager auth] signInAndRetrieveDataWithCredential:credential
+                                                completion:^(FIRAuthDataResult *_Nullable result,
+                                                             NSError *_Nullable error) {
       [self hideSpinner:^{
         if (error) {
           [self logFailure:@"failed to verify phone number" error:error];
           [self showMessagePrompt:error.localizedDescription];
           return;
+        }
+        if (_isNewUserToggleOn) {
+          NSString *newUserString = result.additionalUserInfo.isNewUser ?
+              @"New user" : @"Existing user";
+          [self showMessagePromptWithTitle:@"New or Existing"
+                                   message:newUserString
+                          showCancelButton:NO
+                                completion:nil];
         }
       }];
     }];
