@@ -12,19 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# firebase_firestore_util is the interface of this module. The rest of the
+# libraries in here are an implementation detail of making this a
+# mutli-platform build.
+
 add_library(
-  firebase_firestore_util
-  autoid.cc
+  firebase_firestore_util_base
   secure_random_arc4random.cc
+  string_printf.cc
+)
+target_link_libraries(
+  firebase_firestore_util_base
+  PRIVATE
+  absl_base
 )
 
-# log_stdio can be built and tested everywhere
+# stdio-dependent bits can be built and tested everywhere
 add_library(
   firebase_firestore_util_stdio
   log_stdio.cc
 )
+target_link_libraries(
+  firebase_firestore_util_stdio
+  PUBLIC
+  firebase_firestore_util_base
+)
 
-# log_apple can only built and tested on apple plaforms
+# apple-dependent bits can only built and tested on apple plaforms
 if(APPLE)
   add_library(
     firebase_firestore_util_apple
@@ -42,6 +56,11 @@ if(APPLE)
   )
 endif(APPLE)
 
+add_library(
+  firebase_firestore_util
+  autoid.cc
+)
+
 # Export a dependency on the correct logging library for this platform. All
 # buildable libraries are built and tested but only the best fit is exported.
 if(APPLE)
@@ -49,6 +68,7 @@ if(APPLE)
     firebase_firestore_util
     PUBLIC
     firebase_firestore_util_apple
+    firebase_firestore_util_base
   )
 
 else(NOT APPLE)
@@ -56,6 +76,7 @@ else(NOT APPLE)
     firebase_firestore_util
     PUBLIC
     firebase_firestore_util_stdio
+    firebase_firestore_util_base
   )
 
 endif(APPLE)
