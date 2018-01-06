@@ -40,5 +40,4 @@ include(external/FirebaseCore)
 
 include(external/googletest)
 include(external/leveldb)
-include(external/abseil-cpp)
 include(external/firestore)
