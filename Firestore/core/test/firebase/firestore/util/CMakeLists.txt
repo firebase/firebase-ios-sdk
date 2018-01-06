@@ -26,37 +26,21 @@ target_link_libraries(
 if(APPLE)
   cc_test(
     firebase_firestore_util_apple_test
+    assert_test.cc
     log_test.cc
   )
   target_link_libraries(
     firebase_firestore_util_apple_test
     firebase_firestore_util_apple
   )
-  cc_test(
-    firebase_firestore_util_assert_apple_test
-    assert_test.cc
-  )
-  target_link_libraries(
-    firebase_firestore_util_assert_apple_test
-    firebase_firestore_util_assert_apple
-  )
 endif(APPLE)
 
 cc_test(
   firebase_firestore_util_stdio_test
+  assert_test.cc
   log_test.cc
 )
 target_link_libraries(
   firebase_firestore_util_stdio_test
   firebase_firestore_util_stdio
 )
-
-cc_test(
-  firebase_firestore_util_assert_stdio_test
-  assert_test.cc
-)
-target_link_libraries(
-  firebase_firestore_util_assert_stdio_test
-  firebase_firestore_util_assert_stdio
-)
-
