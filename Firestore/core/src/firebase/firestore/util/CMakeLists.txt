@@ -20,23 +20,23 @@ add_library(
 
 # log_stdio can be built and tested everywhere
 add_library(
-  firebase_firestore_util_log_stdio
+  firebase_firestore_util_stdio
   log_stdio.cc
 )
 
 # log_apple can only built and tested on apple plaforms
 if(APPLE)
   add_library(
-    firebase_firestore_util_log_apple
+    firebase_firestore_util_apple
     log_apple.mm
   )
   target_compile_options(
-    firebase_firestore_util_log_apple
+    firebase_firestore_util_apple
     PRIVATE
     ${OBJC_FLAGS}
   )
   target_link_libraries(
-    firebase_firestore_util_log_apple
+    firebase_firestore_util_apple
     PUBLIC
     FirebaseCore
   )
@@ -48,14 +48,14 @@ if(APPLE)
   target_link_libraries(
     firebase_firestore_util
     PUBLIC
-    firebase_firestore_util_log_apple
+    firebase_firestore_util_apple
   )
 
 else(NOT APPLE)
   target_link_libraries(
     firebase_firestore_util
     PUBLIC
-    firebase_firestore_util_log_stdio
+    firebase_firestore_util_stdio
   )
 
 endif(APPLE)
