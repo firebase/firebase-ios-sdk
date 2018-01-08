@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRSetOptions.h>
+#import "FIRSetOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

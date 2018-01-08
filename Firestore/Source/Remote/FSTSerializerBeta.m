@@ -26,8 +26,8 @@
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 
-#import <FirebaseFirestore/FIRFirestoreErrors.h>
-#import <FirebaseFirestore/FIRGeoPoint.h>
+#import "FIRFirestoreErrors.h"
+#import "FIRGeoPoint.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"

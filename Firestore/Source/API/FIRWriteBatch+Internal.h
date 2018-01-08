@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRWriteBatch.h>
+#import "FIRWriteBatch.h"
 
 @class FIRFirestore;
 

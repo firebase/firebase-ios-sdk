@@ -20,7 +20,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import <FirebaseFirestore/FIRFirestoreErrors.h>
+#import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"

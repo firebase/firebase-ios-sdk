@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRDocumentChange.h>
+#import "FIRDocumentChange.h"
 
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"

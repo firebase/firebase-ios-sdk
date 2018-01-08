@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRFirestore.h>
+#import "FIRFirestore.h"
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
-#import <FirebaseFirestore/FIRFirestoreSettings.h>
+#import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"

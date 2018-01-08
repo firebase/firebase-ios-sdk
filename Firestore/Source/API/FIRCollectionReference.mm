@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRCollectionReference.h>
-#import <FirebaseFirestore/FIRDocumentReference.h>
+#import "FIRCollectionReference.h"
 
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 

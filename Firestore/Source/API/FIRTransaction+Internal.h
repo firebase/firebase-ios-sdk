@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRTransaction.h>
+#import "FIRTransaction.h"
 
 @class FIRFirestore;
 @class FSTTransaction;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRFirestoreSettings.h>
+#import "FIRFirestoreSettings.h"
 
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 

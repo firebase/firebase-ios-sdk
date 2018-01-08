@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRFieldPath.h>
+#import "FIRFieldPath.h"
 
 @class FSTFieldPath;
 

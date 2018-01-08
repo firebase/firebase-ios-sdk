@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRCollectionReference.h>
+#import "FIRCollectionReference.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#import <FirebaseFirestore/FIRGeoPoint.h>
+#import "FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRListenerRegistration.h>
+#import "FIRListenerRegistration.h"
 
 @class FSTAsyncQueryListener;
 @class FSTFirestoreClient;

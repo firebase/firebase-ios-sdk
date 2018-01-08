@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRGeoPoint.h>
+#import "FIRGeoPoint.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
