@@ -14,31 +14,24 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_IOS_UTIL_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_IOS_UTIL_H_
 
 #import <Foundation/Foundation.h>
 
-#include <string>
+#include <stdarg.h>
 
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include <string>
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-void FailAssert(const char* file, const char* func, const int line, const char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  NSString *description = [[NSString alloc] initWithFormat:WrapNSStringNoCopy(format) arguments:args];
-  va_end(args);
-  [[NSAssertionHandler currentHandler]
-      handleFailureInFunction:WrapNSStringNoCopy(func)
-                         file:WrapNSStringNoCopy(file)
-                   lineNumber:line
-     description:@"FIRESTORE INTERNAL ASSERTION FAILED: %@", description];
-  abort();
-}
+// Translates a C string to the equivalent NSString without making a copy.
+NSString* WrapNSStringNoCopy(const char* c_str);
 
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_FORMAT_H_
