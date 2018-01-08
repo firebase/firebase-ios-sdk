@@ -1,4 +1,4 @@
-osx_image: xcode9.1
+osx_image: xcode9.2
 language: objective-c
 cache:
   - bundler
@@ -16,7 +16,9 @@ before_install:
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
   - ./test.sh
-  - bundle exec pod lib lint FirebaseCore.podspec
+
+# TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
+  - bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
 
 # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
 #  - bundle exec pod lib lint FirebaseAuth.podspec

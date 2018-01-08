@@ -57,4 +57,5 @@ if(APPLE)
 endif(APPLE)
 
 enable_testing()
+add_subdirectory(third_party/abseil-cpp EXCLUDE_FROM_ALL)
 add_subdirectory(core)

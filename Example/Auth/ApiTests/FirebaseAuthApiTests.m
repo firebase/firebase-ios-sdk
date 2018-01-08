@@ -63,6 +63,12 @@ static NSString *const kTestingEmailToCreateUser = @"abc@xyz.com";
 /** The testing email address for testSignInExistingUserWithEmailAndPassword. */
 static NSString *const kExistingTestingEmailToSignIn = @"456@abc.com";
 
+/** The testing email address for testUpdatingUsersEmail. */
+static NSString *const kNewTestingEmail = @"updatedEmail@abc.com";
+
+/** The testing password for testSignInExistingUserWithModifiedEmailAndPassword. */
+static NSString *const kNewTestingPasswordToSignIn = @"password_new";
+
 /** Error message for invalid custom token sign in. */
 NSString *kInvalidTokenErrorMessage =
     @"The custom token format is incorrect. Please check the documentation.";
@@ -75,7 +81,7 @@ NSString *kGoogleCliendId = KGOOGLE_CLIENT_ID;
  */
 NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
 
-static NSTimeInterval const kExpectationsTimeout = 30;
+static NSTimeInterval const kExpectationsTimeout = 10;
 
 #ifdef NO_NETWORK
 #define SKIP_IF_ON_MOBILE_HARNESS                                                                  \
@@ -141,6 +147,38 @@ static NSTimeInterval const kExpectationsTimeout = 30;
 
   XCTAssertEqualObjects(auth.currentUser.email, kTestingEmailToCreateUser);
 
+  // Clean up the created Firebase user for future runs.
+  [self deleteCurrentFirebaseUser];
+}
+
+- (void)testUpdatingUsersEmail {
+  SKIP_IF_ON_MOBILE_HARNESS
+  FIRAuth *auth = [FIRAuth auth];
+  if (!auth) {
+    XCTFail(@"Could not obtain auth object.");
+  }
+
+  __block NSError *apiError;
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Created account with email and password."];
+  [auth createUserWithEmail:kTestingEmailToCreateUser
+                   password:@"password"
+                 completion:^(FIRUser *user, NSError *error) {
+                   apiError = error;
+                   [expectation fulfill];
+                 }];
+  [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
+  expectation = [self expectationWithDescription:@"Created account with email and password."];
+  XCTAssertEqualObjects(auth.currentUser.email, kTestingEmailToCreateUser);
+  XCTAssertNil(apiError);
+  [auth.currentUser updateEmail:kNewTestingEmail
+                     completion:^(NSError *_Nullable error) {
+    apiError = error;
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
+  XCTAssertNil(apiError);
+  XCTAssertEqualObjects(auth.currentUser.email, kNewTestingEmail);
   // Clean up the created Firebase user for future runs.
   [self deleteCurrentFirebaseUser];
 }
@@ -293,7 +331,6 @@ static NSTimeInterval const kExpectationsTimeout = 30;
 
   XCTAssertNil(auth.currentUser);
   XCTAssertEqual(apiError.code, FIRAuthErrorCodeInvalidCustomToken);
-  [NSThread sleepForTimeInterval:3.0];
 }
 
 - (void)testInMemoryUserAfterSignOut {

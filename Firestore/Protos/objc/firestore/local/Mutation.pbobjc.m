@@ -32,12 +32,12 @@
 #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
  #import <Protobuf/Timestamp.pbobjc.h>
 #else
- #import "Timestamp.pbobjc.h"
+ #import "Firestore/Protos/objc/google/protobuf/Timestamp.pbobjc.h"
 #endif
 
- #import "Mutation.pbobjc.h"
- #import "Write.pbobjc.h"
- #import "Annotations.pbobjc.h"
+ #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+ #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+ #import "Firestore/Protos/objc/google/api/Annotations.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push

@@ -14,29 +14,57 @@
  * limitations under the License.
  */
 
+#if !GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#endif
 
 #import <ProtoRPC/ProtoService.h>
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriteable.h>
 #import <RxLibrary/GRXWriter.h>
 
-#import "Firestore/Protos/objc/google/api/Annotations.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Empty.pbobjc.h>
+#if GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
+  @class GCFSBatchGetDocumentsRequest;
+  @class GCFSBatchGetDocumentsResponse;
+  @class GCFSBeginTransactionRequest;
+  @class GCFSBeginTransactionResponse;
+  @class GCFSCommitRequest;
+  @class GCFSCommitResponse;
+  @class GCFSCreateDocumentRequest;
+  @class GCFSDeleteDocumentRequest;
+  @class GCFSDocument;
+  @class GCFSGetDocumentRequest;
+  @class GCFSListCollectionIdsRequest;
+  @class GCFSListCollectionIdsResponse;
+  @class GCFSListDocumentsRequest;
+  @class GCFSListDocumentsResponse;
+  @class GCFSListenRequest;
+  @class GCFSListenResponse;
+  @class GCFSRollbackRequest;
+  @class GCFSRunQueryRequest;
+  @class GCFSRunQueryResponse;
+  @class GCFSUpdateDocumentRequest;
+  @class GCFSWriteRequest;
+  @class GCFSWriteResponse;
+  @class GPBEmpty;
 #else
-  #import "Empty.pbobjc.h"
+  #import "Firestore/Protos/objc/google/api/Annotations.pbobjc.h"
+  #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
+  #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
+  #import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
+  #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+  #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+    #import <Protobuf/Empty.pbobjc.h>
+  #else
+    #import "Firestore/Protos/objc/google/protobuf/Empty.pbobjc.h"
+  #endif
+  #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+    #import <Protobuf/Timestamp.pbobjc.h>
+  #else
+    #import "Firestore/Protos/objc/google/protobuf/Timestamp.pbobjc.h"
+  #endif
+  #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #endif
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Timestamp.pbobjc.h>
-#else
-  #import "Timestamp.pbobjc.h"
-#endif
-#import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 
 
 NS_ASSUME_NONNULL_BEGIN
