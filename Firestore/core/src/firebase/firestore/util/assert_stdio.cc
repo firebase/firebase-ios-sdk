@@ -16,13 +16,13 @@
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdarg.h>
 
 #include <exception>
 #include <string>
 
-#include "absl/base/config.h"
+#include <absl/base/config.h>
+
 #include "Firestore/core/src/firebase/firestore/util/string_printf.h"
 
 namespace firebase {
@@ -31,7 +31,9 @@ namespace util {
 
 void FailAssert(const char* file, const char* func, const int line,
                 const char* format, ...) {
-  std::string message = StringPrintf("ASSERT: %s(%d) %s: ", file, line, func);
+  std::string message;
+  StringAppendF(&message, "ASSERT: %s(%d) %s: ", file, line, func);
+
   va_list args;
   va_start(args, format);
   StringAppendV(&message, format, args);
@@ -39,9 +41,10 @@ void FailAssert(const char* file, const char* func, const int line,
 
 #if ABSL_HAVE_EXCEPTIONS
   throw std::logic_error(message);
+
 #else
   fprintf(stderr, "%s\n", message.c_str());
-  abort();
+  std::terminate();
 #endif
 }
 
