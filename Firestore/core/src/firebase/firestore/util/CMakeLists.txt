@@ -45,6 +45,7 @@ if(APPLE)
     firebase_firestore_util_apple
     assert_apple.mm
     log_apple.mm
+    string_apple.mm
   )
   target_compile_options(
     firebase_firestore_util_apple

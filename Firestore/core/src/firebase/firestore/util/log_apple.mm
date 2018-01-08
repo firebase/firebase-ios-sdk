@@ -21,20 +21,13 @@
 
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
 
 namespace {
-
-// Translates a C format string to the equivalent NSString without making a
-// copy.
-NSString* FormatString(const char* format) {
-  return [[NSString alloc] initWithBytesNoCopy:(void*)format
-                                        length:strlen(format)
-                                      encoding:NSUTF8StringEncoding
-                                  freeWhenDone:NO];
-}
 
 // Translates a C++ LogLevel to the equivalent Objective-C FIRLoggerLevel
 FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
@@ -85,7 +78,7 @@ void LogDebug(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerFirestore, @"I-FST000001",
-              FormatString(format), list);
+              WrapNSStringNoCopy(format), list);
   va_end(list);
 }
 
@@ -93,7 +86,7 @@ void LogInfo(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerFirestore, @"I-FST000001",
-              FormatString(format), list);
+              WrapNSStringNoCopy(format), list);
   va_end(list);
 }
 
@@ -101,7 +94,7 @@ void LogWarning(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerFirestore, @"I-FST000001",
-              FormatString(format), list);
+              WrapNSStringNoCopy(format), list);
   va_end(list);
 }
 
@@ -109,13 +102,13 @@ void LogError(const char* format, ...) {
   va_list list;
   va_start(list, format);
   FIRLogBasic(FIRLoggerLevelError, kFIRLoggerFirestore, @"I-FST000001",
-              FormatString(format), list);
+              WrapNSStringNoCopy(format), list);
   va_end(list);
 }
 
 void LogMessageV(LogLevel log_level, const char* format, va_list args) {
   FIRLogBasic(ToFIRLoggerLevel(log_level), kFIRLoggerFirestore, @"I-FST000001",
-              FormatString(format), args);
+              WrapNSStringNoCopy(format), args);
 }
 
 void LogMessage(LogLevel log_level, const char* format, ...) {
