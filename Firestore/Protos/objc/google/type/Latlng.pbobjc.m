@@ -29,7 +29,7 @@
  #import "GPBProtocolBuffers_RuntimeSupport.h"
 #endif
 
- #import "Latlng.pbobjc.h"
+ #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push
