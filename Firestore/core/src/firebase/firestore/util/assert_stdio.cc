@@ -22,20 +22,27 @@
 #include <exception>
 #include <string>
 
+#include "absl/base/config.h"
+#include "Firestore/core/src/firebase/firestore/util/string_printf.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
 
 void FailAssert(const char* file, const char* func, const int line,
                 const char* format, ...) {
-  fprintf(stderr, "ASSERT: %s(%d) %s: ", file, line, func);
+  std::string message = StringPrintf("ASSERT: %s(%d) %s: ", file, line, func);
   va_list args;
   va_start(args, format);
-  vfprintf(stderr, format, args);
+  StringAppendV(&message, format, args);
   va_end(args);
-  fprintf(stderr, "\n");
-  throw std::exception();
+
+#if ABSL_HAVE_EXCEPTIONS
+  throw std::logic_error(message);
+#else
+  fprintf(stderr, "%s\n", message.c_str());
   abort();
+#endif
 }
 
 }  // namespace util

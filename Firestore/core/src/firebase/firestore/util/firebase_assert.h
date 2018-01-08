@@ -20,7 +20,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
 
-#include <cstdlib>
+#include <stdlib.h>
+
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
 #define FIREBASE_EXPAND_STRINGIFY_(X) #X
@@ -45,12 +46,12 @@
 
 // Assert condition is true, if it's false log an assert with the specified
 // expression as a string. Compiled out of release builds.
-#if !defined(NDEBUG)
-#define FIREBASE_DEV_ASSERT_WITH_EXPRESSION(condition, expression) \
-  FIREBASE_ASSERT_WITH_EXPRESSION(condition, expression)
-#else
+#if defined(NDEBUG)
 #define FIREBASE_DEV_ASSERT_WITH_EXPRESSION(condition, expression) \
   { (void)(condition); }
+#else
+#define FIREBASE_DEV_ASSERT_WITH_EXPRESSION(condition, expression) \
+  FIREBASE_ASSERT_WITH_EXPRESSION(condition, expression)
 #endif  // !defined(NDEBUG)
 
 // Custom assert() implementation that is not compiled out in release builds.
@@ -76,14 +77,14 @@
 
 // Assert condition is true otherwise display the specified expression,
 // message and abort. Compiled out of release builds.
-#if !defined(NDEBUG)
-#define FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, \
-                                                    ...)                   \
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, __VA_ARGS__)
-#else
+#if defined(NDEBUG)
 #define FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, \
                                                     ...)                   \
   { (void)(condition); }
+#else
+#define FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, \
+                                                    ...)                   \
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, __VA_ARGS__)
 #endif  // !defined(NDEBUG)
 
 namespace firebase {
