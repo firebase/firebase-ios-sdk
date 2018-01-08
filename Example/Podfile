@@ -157,6 +157,60 @@ target 'Storage_Example_macOS' do
   end
 end
 
+target 'Core_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  target 'Core_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Auth_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseAuth', :path => '../'
+
+  target 'Auth_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Database_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseDatabase', :path => '../'
+
+  target 'Database_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+# TODO
+# target 'Database_IntegrationTests_tvOS' do
+#    inherit! :search_paths
+#    pod 'OCMock'
+#  end
+end
+
+target 'Storage_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseStorage', :path => '../'
+
+  target 'Storage_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+#TODO Storage_IntegrationTests_tvOS
+#  target 'Storage_IntegrationTests_tvOS' do
+#    inherit! :search_paths
+#    pod 'OCMock'
+#  end
+end
+
 # This post_install workaround should be removed when FirebaseAnalytics
 # removes its module includes to FirebaseCore.
 

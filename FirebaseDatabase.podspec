@@ -18,6 +18,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true

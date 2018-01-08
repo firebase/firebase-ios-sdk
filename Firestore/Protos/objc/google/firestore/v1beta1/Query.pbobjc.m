@@ -32,12 +32,12 @@
 #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
  #import <Protobuf/Wrappers.pbobjc.h>
 #else
- #import "Wrappers.pbobjc.h"
+ #import "Firestore/Protos/objc/google/protobuf/Wrappers.pbobjc.h"
 #endif
 
- #import "Query.pbobjc.h"
- #import "Annotations.pbobjc.h"
- #import "Document.pbobjc.h"
+ #import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
+ #import "Firestore/Protos/objc/google/api/Annotations.pbobjc.h"
+ #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push

@@ -33,13 +33,13 @@
  #import <Protobuf/Struct.pbobjc.h>
  #import <Protobuf/Timestamp.pbobjc.h>
 #else
- #import "Struct.pbobjc.h"
- #import "Timestamp.pbobjc.h"
+ #import "Firestore/Protos/objc/google/protobuf/Struct.pbobjc.h"
+ #import "Firestore/Protos/objc/google/protobuf/Timestamp.pbobjc.h"
 #endif
 
- #import "Document.pbobjc.h"
- #import "Annotations.pbobjc.h"
- #import "Latlng.pbobjc.h"
+ #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
+ #import "Firestore/Protos/objc/google/api/Annotations.pbobjc.h"
+ #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push
