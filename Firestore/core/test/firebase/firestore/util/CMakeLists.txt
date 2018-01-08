@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_util_test
   autoid_test.cc
   secure_random_test.cc
+  string_printf_test.cc
 )
 target_link_libraries(
   firebase_firestore_util_test
@@ -24,20 +25,20 @@ target_link_libraries(
 
 if(APPLE)
   cc_test(
-    firebase_firestore_util_log_apple_test
+    firebase_firestore_util_apple_test
     log_test.cc
   )
   target_link_libraries(
-    firebase_firestore_util_log_apple_test
-    firebase_firestore_util_log_apple
+    firebase_firestore_util_apple_test
+    firebase_firestore_util_apple
   )
 endif(APPLE)
 
 cc_test(
-  firebase_firestore_util_log_stdio_test
+  firebase_firestore_util_stdio_test
   log_test.cc
 )
 target_link_libraries(
-  firebase_firestore_util_log_stdio_test
-  firebase_firestore_util_log_stdio
+  firebase_firestore_util_stdio_test
+  firebase_firestore_util_stdio
 )
