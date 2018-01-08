@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/assert.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASSERT_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASSERT_H_
+// To avoid naming-collision, this header is called firebase_assert.h instead
+// of assert.h.
+
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
 
 #include <cstdlib>
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -95,4 +98,4 @@ void FailAssert(const char* file, const char* func, const int line,
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASSERT_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
