@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_IOS_UTIL_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_IOS_UTIL_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_APPLE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_APPLE_H_
 
 #import <Foundation/Foundation.h>
-
-#include <stdarg.h>
-
-#include <string>
 
 namespace firebase {
 namespace firestore {
@@ -40,4 +36,4 @@ inline NSString* WrapNSStringNoCopy(const char* c_str) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_FORMAT_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_APPLE_H_
