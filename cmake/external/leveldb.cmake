@@ -14,52 +14,50 @@
 
 include(ExternalProject)
 
-if(LEVELDB_ROOT)
+if(WIN32 OR LEVELDB_ROOT)
   # If the user has supplied a LEVELDB_ROOT then just use it. Add an empty
   # custom target so that the superbuild depdendencies don't all have to be
   # conditional.
-  add_custom_target(leveldb)
-
-else()
-  # LevelDB does not build on Windows (yet)
+  #
+  # Also, unfortunately, LevelDB does not build on Windows (yet)
   # See:
   #   https://github.com/google/leveldb/issues/363
   #   https://github.com/google/leveldb/issues/466
-  if(NOT WIN32)
-    # Clean up warning output to reduce noise in the build
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-      set(
-        LEVELDB_CXX_FLAGS "\
-          -Wno-deprecated-declarations"
-      )
-    endif()
+  add_custom_target(leveldb)
 
-    # Map CMake compiler configuration down onto the leveldb Makefile
+else()
+  # Clean up warning output to reduce noise in the build
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     set(
-      LEVELDB_OPT "\
-        $<$<CONFIG:Debug>:${CMAKE_CXX_FLAGS_DEBUG}> \
-        $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>"
+      LEVELDB_CXX_FLAGS "\
+        -Wno-deprecated-declarations"
     )
+  endif()
 
-    ExternalProject_Add(
-      leveldb
+  # Map CMake compiler configuration down onto the leveldb Makefile
+  set(
+    LEVELDB_OPT "\
+      $<$<CONFIG:Debug>:${CMAKE_CXX_FLAGS_DEBUG}> \
+      $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>"
+  )
 
-      GIT_REPOSITORY "https://github.com/google/leveldb.git"
-      GIT_TAG "v1.20"
+  ExternalProject_Add(
+    leveldb
 
-      PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
+    GIT_REPOSITORY "https://github.com/google/leveldb.git"
+    GIT_TAG "v1.20"
 
-      CONFIGURE_COMMAND ""
-      BUILD_ALWAYS ON
-      BUILD_IN_SOURCE ON
-      BUILD_COMMAND
-        env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT} make -j all
+    PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
 
-      INSTALL_DIR ${FIREBASE_INSTALL_DIR}
+    CONFIGURE_COMMAND ""
+    BUILD_ALWAYS ON
+    BUILD_IN_SOURCE ON
+    BUILD_COMMAND
+      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT} make -j all
 
-      INSTALL_COMMAND ""
-      TEST_COMMAND ""
-    )
+    INSTALL_DIR ${FIREBASE_INSTALL_DIR}
 
-  endif(NOT WIN32)
-endif(LEVELDB_ROOT)
+    INSTALL_COMMAND ""
+    TEST_COMMAND ""
+  )
+endif(WIN32 OR LEVELDB_ROOT)
