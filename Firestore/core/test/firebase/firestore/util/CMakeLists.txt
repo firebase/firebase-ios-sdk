@@ -26,6 +26,7 @@ target_link_libraries(
 if(APPLE)
   cc_test(
     firebase_firestore_util_apple_test
+    assert_test.cc
     log_test.cc
   )
   target_link_libraries(
@@ -36,6 +37,7 @@ endif(APPLE)
 
 cc_test(
   firebase_firestore_util_stdio_test
+  assert_test.cc
   log_test.cc
 )
 target_link_libraries(

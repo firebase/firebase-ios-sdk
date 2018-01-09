@@ -23,13 +23,14 @@ add_library(
 )
 target_link_libraries(
   firebase_firestore_util_base
-  PRIVATE
+  PUBLIC
   absl_base
 )
 
 # stdio-dependent bits can be built and tested everywhere
 add_library(
   firebase_firestore_util_stdio
+  assert_stdio.cc
   log_stdio.cc
 )
 target_link_libraries(
@@ -42,6 +43,7 @@ target_link_libraries(
 if(APPLE)
   add_library(
     firebase_firestore_util_apple
+    assert_apple.mm
     log_apple.mm
   )
   target_compile_options(
