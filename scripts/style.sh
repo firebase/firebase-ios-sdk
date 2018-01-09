@@ -27,7 +27,7 @@ set -euo pipefail
   if [[ $# -gt 0 ]]; then
     if git rev-parse "$1" -- >& /dev/null; then
       # Argument was a branch name show files changed since that branch
-      git diff --name-only --relative
+      git diff --name-only --relative "$1"
     else
       # Otherwise assume the passed things are files or directories
       find "$@" -type f

@@ -32,10 +32,10 @@
 #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
  #import <Protobuf/Any.pbobjc.h>
 #else
- #import "Any.pbobjc.h"
+ #import "Firestore/Protos/objc/google/protobuf/Any.pbobjc.h"
 #endif
 
- #import "Status.pbobjc.h"
+ #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push

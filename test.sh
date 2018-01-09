@@ -18,7 +18,7 @@ test_iOS() {
     -workspace Example/Firebase.xcworkspace \
     -scheme AllUnitTests_iOS \
     -sdk iphonesimulator \
-    -destination 'platform=iOS Simulator,OS=10.3.1,name=iPhone 7' \
+    -destination 'platform=iOS Simulator,name=iPhone 7' \
     build \
     test \
     ONLY_ACTIVE_ARCH=YES \
@@ -39,6 +39,19 @@ test_macOS() {
     | xcpretty
 }
 
+test_tvOS() {
+  xcodebuild \
+    -workspace Example/Firebase.xcworkspace \
+    -scheme AllUnitTests_tvOS \
+    -sdk appletvsimulator \
+    -destination 'platform=tvOS Simulator,name=Apple TV' \
+    build \
+    test \
+    ONLY_ACTIVE_ARCH=YES \
+    CODE_SIGNING_REQUIRED=NO \
+    | xcpretty
+}
+
 test_iOS; RESULT=$?
 
 if [ $RESULT != 0 ]; then exit $RESULT; fi
@@ -51,6 +64,10 @@ if [ $RESULT == 65 ]; then
 
   test_macOS; RESULT=$?
 fi
+
+if [ $RESULT != 0 ]; then exit $RESULT; fi
+
+test_tvOS; RESULT=$?
 
 if [ $RESULT != 0 ]; then exit $RESULT; fi
 

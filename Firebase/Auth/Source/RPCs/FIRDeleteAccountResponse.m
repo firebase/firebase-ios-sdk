@@ -16,8 +16,6 @@
 
 #import "FIRDeleteAccountResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRDeleteAccountResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary

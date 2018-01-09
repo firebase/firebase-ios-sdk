@@ -18,7 +18,7 @@
 
 #include <ctype.h>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using firebase::firestore::util::CreateAutoId;
 

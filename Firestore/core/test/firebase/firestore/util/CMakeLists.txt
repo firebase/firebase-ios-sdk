@@ -16,8 +16,31 @@ cc_test(
   firebase_firestore_util_test
   autoid_test.cc
   secure_random_test.cc
+  string_printf_test.cc
 )
 target_link_libraries(
   firebase_firestore_util_test
   firebase_firestore_util
+)
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_util_apple_test
+    assert_test.cc
+    log_test.cc
+  )
+  target_link_libraries(
+    firebase_firestore_util_apple_test
+    firebase_firestore_util_apple
+  )
+endif(APPLE)
+
+cc_test(
+  firebase_firestore_util_stdio_test
+  assert_test.cc
+  log_test.cc
+)
+target_link_libraries(
+  firebase_firestore_util_stdio_test
+  firebase_firestore_util_stdio
 )

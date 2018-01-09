@@ -104,13 +104,9 @@ typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 
 // Utility to create an NSString from a sqlite3 result code
 NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
-  const char *errorStr;
-  if (@available(iOS 8.2, *)) {
-    errorStr = sqlite3_errstr(result);
-  } else {
-    errorStr = "pre iOS 8.2";
-  }
-  return [NSString stringWithFormat:@"%d - %s", result, errorStr];
+  const char *errorStr = sqlite3_errstr(result);
+  NSString *errorString = [NSString stringWithFormat:@"%d - %s", result, errorStr];
+  return errorString;
 }
 
 @interface FIRMessagingRmq2PersistentStore () {
