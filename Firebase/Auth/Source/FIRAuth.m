@@ -666,10 +666,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         }
 
         [self completeSignInWithAccessToken:response.IDToken
-          accessTokenExpirationDate:response.approximateExpirationDate
-                       refreshToken:response.refreshToken
-                          anonymous:NO
-                           callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                  accessTokenExpirationDate:response.approximateExpirationDate
+                               refreshToken:response.refreshToken
+                                  anonymous:NO
+                                   callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
           FIRAdditionalUserInfo *additionalUserInfo =
               [[FIRAdditionalUserInfo alloc] initWithProviderID:FIRPhoneAuthProviderID
                                                         profile:nil
