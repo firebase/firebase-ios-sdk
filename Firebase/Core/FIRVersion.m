@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-
 #ifndef Firebase_VERSION
 #error "Firebase_VERSION is not defined: add -DFirebase_VERSION=... to the build invocation"
 #endif
@@ -23,7 +21,6 @@
 #ifndef FIRCore_VERSION
 #error "FIRCore_VERSION is not defined: add -DFIRCore_VERSION=... to the build invocation"
 #endif
-
 
 // The following two macros supply the incantation so that the C
 // preprocessor does not try to parse the version as a floating
@@ -33,7 +30,7 @@
 #define STR_EXPAND(x) #x
 
 const unsigned char *const FirebaseVersionString =
-        (const unsigned char *const)STR(Firebase_VERSION);
+    (const unsigned char *const)STR(Firebase_VERSION);
 
 const unsigned char *const FirebaseCoreVersionString =
-        (const unsigned char *const)STR(FIRCore_VERSION);
+    (const unsigned char *const)STR(FIRCore_VERSION);
