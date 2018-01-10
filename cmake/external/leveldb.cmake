@@ -51,11 +51,18 @@ else()
 
     PREFIX ${PROJECT_BINARY_DIR}/external/leveldb
 
+    # LevelDB's configuration is done in the Makefile
     CONFIGURE_COMMAND ""
-    BUILD_ALWAYS ON
+
+    # The Makefile-based build of leveldb does not support building
+    # out-of-source.
     BUILD_IN_SOURCE ON
+
+    # Only build the leveldb library skipping the tools and in-memory
+    # implementation we don't use.
     BUILD_COMMAND
-      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT} make -j all
+      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT}
+        make -j out-static/libleveldb.a
 
     INSTALL_DIR ${FIREBASE_INSTALL_DIR}
 
