@@ -104,7 +104,7 @@
       break;
 
     case FIRStorageErrorCodeUnknown:
-    /* Fall through to default case for unknown errors */
+      /* Fall through to default case for unknown errors */
 
     default:
       errorMessage = @"An unknown error occurred, please check the server response.";

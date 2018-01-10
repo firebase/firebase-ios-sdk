@@ -381,9 +381,7 @@ static FIRApp *sDefaultApp;
       [NSString stringWithFormat:@"Configuration failed for service %@.", service];
   NSDictionary *errorDict =
       @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : reason};
-  return [NSError errorWithDomain:domain
-                             code:code
-                         userInfo:errorDict];
+  return [NSError errorWithDomain:domain code:code userInfo:errorDict];
 }
 
 + (NSError *)errorForInvalidAppID {
