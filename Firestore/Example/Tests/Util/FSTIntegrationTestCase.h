@@ -23,6 +23,7 @@
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
+@class FIRGetOptions;
 @class FIRQuerySnapshot;
 @class FIRFirestore;
 @class FIRFirestoreSettings;
@@ -71,6 +72,8 @@ extern "C" {
                                                FIRDocumentReference *writerRef))action;
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;
+
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref getOptions:(FIRGetOptions *)getOptions;
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
 

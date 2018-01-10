@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
+#import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
@@ -34,6 +35,8 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -246,6 +249,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeListener:(FSTQueryListener *)listener {
   [self.workerDispatchQueue dispatchAsync:^{
     [self.eventManager removeListener:listener];
+  }];
+}
+
+- (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc completion:(void (^)(FIRDocumentSnapshot *_Nullable document, NSError *_Nullable error))completion {
+  [self.workerDispatchQueue dispatchAsync:^{
+    FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
+    if (maybeDoc) {
+      completion([FIRDocumentSnapshot snapshotWithFirestore:doc.firestore documentKey:doc.key document:(FSTDocument *)maybeDoc fromCache:YES], nil);
+    } else {
+      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain code:FIRFirestoreErrorCodeUnavailable userInfo:@{NSLocalizedDescriptionKey: @"Failed to get document from server.",}]);
+    }
   }];
 }
 

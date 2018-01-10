@@ -243,7 +243,9 @@ NS_ASSUME_NONNULL_BEGIN
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:NO];
+                                                                      waitForSyncWhenOnline:NO
+                                                                                 getOptions:[FIRGetOptions defaultOptions]];
+
   FSTQueryListener *listener = [[FSTQueryListener alloc]
             initWithQuery:query
                   options:options

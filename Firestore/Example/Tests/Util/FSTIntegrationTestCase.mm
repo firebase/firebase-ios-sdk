@@ -209,10 +209,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
+  return [self readDocumentForRef:ref getOptions:[FIRGetOptions defaultOptions]];
+}
+
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref getOptions:(FIRGetOptions *)getOptions {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [ref getDocumentWithCompletion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+  [ref getDocumentWithOptions:getOptions completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
     XCTAssertNil(error);
     result = doc;
     [expectation fulfill];

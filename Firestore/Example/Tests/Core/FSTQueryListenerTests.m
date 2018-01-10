@@ -172,7 +172,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:NO
-                                                                      waitForSyncWhenOnline:NO];
+                                                                      waitForSyncWhenOnline:NO
+                                                                                 getOptions:[FIRGetOptions defaultOptions]];
 
   FSTQueryListener *filteredListener =
       [self listenToQuery:query accumulatingSnapshots:filteredAccum];
@@ -212,7 +213,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
                                                              includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:NO];
+                                                                      waitForSyncWhenOnline:NO
+                                                                                 getOptions:[FIRGetOptions defaultOptions]];
 
   FSTQueryListener *filteredListener =
       [self listenToQuery:query accumulatingSnapshots:filteredAccum];
@@ -262,7 +264,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:NO
-                                                                      waitForSyncWhenOnline:NO];
+                                                                      waitForSyncWhenOnline:NO
+                                                                                 getOptions:[FIRGetOptions defaultOptions]];
+
   FSTQueryListener *fullListener =
       [self listenToQuery:query options:options accumulatingSnapshots:fullAccum];
 
@@ -329,7 +333,9 @@ NS_ASSUME_NONNULL_BEGIN
       [self listenToQuery:query
                         options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
                                                                includeDocumentMetadataChanges:NO
-                                                                        waitForSyncWhenOnline:YES]
+                                                                        waitForSyncWhenOnline:YES
+                                                                                   getOptions:[FIRGetOptions defaultOptions]]
+
           accumulatingSnapshots:events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
@@ -372,7 +378,9 @@ NS_ASSUME_NONNULL_BEGIN
       [self listenToQuery:query
                         options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
                                                                includeDocumentMetadataChanges:NO
-                                                                        waitForSyncWhenOnline:YES]
+                                                                        waitForSyncWhenOnline:YES
+                                                                                   getOptions:[FIRGetOptions defaultOptions]]
+
           accumulatingSnapshots:events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
