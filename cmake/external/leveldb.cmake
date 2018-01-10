@@ -43,6 +43,8 @@ else()
 
   ExternalProject_Add(
     leveldb
+    DEPENDS
+      googletest  # for sequencing
 
     GIT_REPOSITORY "https://github.com/google/leveldb.git"
     GIT_TAG "v1.20"

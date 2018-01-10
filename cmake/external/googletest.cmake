@@ -16,6 +16,8 @@ include(ExternalProject)
 
 ExternalProject_Add(
   googletest
+  DEPENDS
+    FirebaseCore  # for sequencing
 
   GIT_REPOSITORY "https://github.com/google/googletest.git"
   GIT_TAG "release-1.8.0"
