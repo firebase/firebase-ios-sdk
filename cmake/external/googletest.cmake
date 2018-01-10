@@ -13,14 +13,20 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(ExternalProjectFlags)
+
+ExternalProject_GitSource(
+  GOOGLETEST_GIT
+  GIT_REPOSITORY "https://github.com/google/googletest.git"
+  GIT_TAG "release-1.8.0"
+)
 
 ExternalProject_Add(
   googletest
   DEPENDS
     FirebaseCore  # for sequencing
 
-  GIT_REPOSITORY "https://github.com/google/googletest.git"
-  GIT_TAG "release-1.8.0"
+  ${GOOGLETEST_GIT}
 
   PREFIX ${PROJECT_BINARY_DIR}/external/googletest
 
