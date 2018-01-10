@@ -25,12 +25,12 @@ namespace util {
 
 // Translates a C string to the equivalent NSString without making a copy.
 inline NSString* WrapNSStringNoCopy(const char* c_str) {
-  return [[NSString alloc] initWithBytesNoCopy:const_cast<void*>(static_cast<const void*>(c_str))
-                                        length:strlen(c_str)
-                                      encoding:NSUTF8StringEncoding
-                                  freeWhenDone:NO];
+  return [[NSString alloc]
+      initWithBytesNoCopy:const_cast<void*>(static_cast<const void*>(c_str))
+                   length:strlen(c_str)
+                 encoding:NSUTF8StringEncoding
+             freeWhenDone:NO];
 }
-
 
 }  // namespace util
 }  // namespace firestore

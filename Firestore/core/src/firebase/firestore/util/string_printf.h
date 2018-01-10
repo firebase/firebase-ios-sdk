@@ -28,8 +28,7 @@ namespace firestore {
 namespace util {
 
 /** Return a C++ string. */
-std::string StringPrintf(const char* format, ...)
-    ABSL_PRINTF_ATTRIBUTE(1, 2);
+std::string StringPrintf(const char* format, ...) ABSL_PRINTF_ATTRIBUTE(1, 2);
 
 /** Append result to a supplied string. */
 void StringAppendF(std::string* dst, const char* format, ...)

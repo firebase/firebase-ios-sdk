@@ -29,8 +29,11 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-void FailAssert(const char* file, const char* func, const int line,
-                const char* format, ...) {
+void FailAssert(const char* file,
+                const char* func,
+                const int line,
+                const char* format,
+                ...) {
   std::string message;
   StringAppendF(&message, "ASSERT: %s(%d) %s: ", file, line, func);
 

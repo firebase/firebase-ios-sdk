@@ -267,7 +267,8 @@ NS_ASSUME_NONNULL_BEGIN
     @"i" : @1,
     @"n" : [NSNull null],
     @"s" : @"foo",
-    @"a" : @[ @2, @"bar", @{@"b" : @NO} ],
+    @"a" : @[ @2, @"bar",
+              @{ @"b" : @NO } ],
     @"o" : @{
       @"d" : @100,
       @"nested" : @{@"e" : @(LLONG_MIN)},

@@ -72,8 +72,8 @@ using leveldb::WriteOptions;
 
 #else
 #error "local storage on tvOS"
-// TODO(mcg): Writing to NSDocumentsDirectory on tvOS will fail; we need to write to Caches
-// https://developer.apple.com/library/content/documentation/General/Conceptual/AppleTV_PG/
+  // TODO(mcg): Writing to NSDocumentsDirectory on tvOS will fail; we need to write to Caches
+  // https://developer.apple.com/library/content/documentation/General/Conceptual/AppleTV_PG/
 
 #endif
 }

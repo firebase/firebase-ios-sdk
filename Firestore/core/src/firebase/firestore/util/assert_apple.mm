@@ -26,16 +26,23 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-void FailAssert(const char* file, const char* func, const int line, const char* format, ...) {
+void FailAssert(const char* file,
+                const char* func,
+                const int line,
+                const char* format,
+                ...) {
   va_list args;
   va_start(args, format);
-  NSString *description = [[NSString alloc] initWithFormat:WrapNSStringNoCopy(format) arguments:args];
+  NSString* description =
+      [[NSString alloc] initWithFormat:WrapNSStringNoCopy(format)
+                             arguments:args];
   va_end(args);
   [[NSAssertionHandler currentHandler]
       handleFailureInFunction:WrapNSStringNoCopy(func)
                          file:WrapNSStringNoCopy(file)
                    lineNumber:line
-     description:@"FIRESTORE INTERNAL ASSERTION FAILED: %@", description];
+                  description:@"FIRESTORE INTERNAL ASSERTION FAILED: %@",
+                              description];
   abort();
 }
 
