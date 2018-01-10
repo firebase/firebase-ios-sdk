@@ -112,7 +112,7 @@ static const int kVersion = 42;
   [self setTestDocumentAtPath:@"b/2"];
   [self setTestDocumentAtPath:@"c/1"];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"b")];
+  FSTQuery *query = FSTTestQuery(@"b");
   FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray *expected =
       @[ FSTTestDoc(@"b/1", kVersion, _kDocData, NO), FSTTestDoc(@"b/2", kVersion, _kDocData, NO) ];

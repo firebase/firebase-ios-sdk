@@ -240,7 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
         c = *source++;
         // TODO(b/37244157): Make this a user-facing exception once we finalize field escaping.
         FSTAssert(c != '\0', @"Trailing escape characters not allowed in %@", fieldPath);
-      // Fall through
+        // Fall through
 
       default:
         // copy into the current segment

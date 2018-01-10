@@ -542,7 +542,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTWeakify(self);
   [self.workerDispatchQueue dispatchAsync:^{
     FSTStrongify(self);
-    if (!self || ![self isStarted]) {
+    if (![self isStarted]) {
       FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
     }
 

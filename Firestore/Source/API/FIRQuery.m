@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isEqual:(nullable id)other {
   if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
+  if (![[other class] isEqual:[self class]]) return NO;
 
   return [self isEqualToQuery:other];
 }
@@ -254,6 +254,95 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
                                   path:path.internalValue
                                  value:value];
+}
+
+- (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate *)predicate {
+  NSComparisonPredicate *comparison = (NSComparisonPredicate *)predicate;
+  if (comparison.comparisonPredicateModifier != NSDirectPredicateModifier) {
+    FSTThrowInvalidArgument(@"Invalid query. Predicate cannot have an aggregate modifier.");
+  }
+  NSString *path;
+  id value = nil;
+  if ([comparison.leftExpression expressionType] == NSKeyPathExpressionType &&
+      [comparison.rightExpression expressionType] == NSConstantValueExpressionType) {
+    path = comparison.leftExpression.keyPath;
+    value = comparison.rightExpression.constantValue;
+    switch (comparison.predicateOperatorType) {
+      case NSEqualToPredicateOperatorType:
+        return [self queryWhereField:path isEqualTo:value];
+      case NSLessThanPredicateOperatorType:
+        return [self queryWhereField:path isLessThan:value];
+      case NSLessThanOrEqualToPredicateOperatorType:
+        return [self queryWhereField:path isLessThanOrEqualTo:value];
+      case NSGreaterThanPredicateOperatorType:
+        return [self queryWhereField:path isGreaterThan:value];
+      case NSGreaterThanOrEqualToPredicateOperatorType:
+        return [self queryWhereField:path isGreaterThanOrEqualTo:value];
+      default:;  // Fallback below to throw assertion.
+    }
+  } else if ([comparison.leftExpression expressionType] == NSConstantValueExpressionType &&
+             [comparison.rightExpression expressionType] == NSKeyPathExpressionType) {
+    path = comparison.rightExpression.keyPath;
+    value = comparison.leftExpression.constantValue;
+    switch (comparison.predicateOperatorType) {
+      case NSEqualToPredicateOperatorType:
+        return [self queryWhereField:path isEqualTo:value];
+      case NSLessThanPredicateOperatorType:
+        return [self queryWhereField:path isGreaterThan:value];
+      case NSLessThanOrEqualToPredicateOperatorType:
+        return [self queryWhereField:path isGreaterThanOrEqualTo:value];
+      case NSGreaterThanPredicateOperatorType:
+        return [self queryWhereField:path isLessThan:value];
+      case NSGreaterThanOrEqualToPredicateOperatorType:
+        return [self queryWhereField:path isLessThanOrEqualTo:value];
+      default:;  // Fallback below to throw assertion.
+    }
+  } else {
+    FSTThrowInvalidArgument(
+        @"Invalid query. Predicate comparisons must include a key path and a constant.");
+  }
+  // Fallback cases of unsupported comparison operator.
+  switch (comparison.predicateOperatorType) {
+    case NSCustomSelectorPredicateOperatorType:
+      FSTThrowInvalidArgument(@"Invalid query. Custom predicate filters are not supported.");
+      break;
+    default:
+      FSTThrowInvalidArgument(@"Invalid query. Operator type %lu is not supported.",
+                              (unsigned long)comparison.predicateOperatorType);
+  }
+}
+
+- (FIRQuery *)queryFilteredUsingCompoundPredicate:(NSPredicate *)predicate {
+  NSCompoundPredicate *compound = (NSCompoundPredicate *)predicate;
+  if (compound.compoundPredicateType != NSAndPredicateType || compound.subpredicates.count == 0) {
+    FSTThrowInvalidArgument(@"Invalid query. Only compound queries using AND are supported.");
+  }
+  FIRQuery *query = self;
+  for (NSPredicate *pred in compound.subpredicates) {
+    query = [query queryFilteredUsingPredicate:pred];
+  }
+  return query;
+}
+
+- (FIRQuery *)queryFilteredUsingPredicate:(NSPredicate *)predicate {
+  if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
+    return [self queryFilteredUsingComparisonPredicate:predicate];
+  } else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
+    return [self queryFilteredUsingCompoundPredicate:predicate];
+  } else if ([predicate isKindOfClass:[[NSPredicate
+                                          predicateWithBlock:^BOOL(id obj, NSDictionary *bindings) {
+                                            return true;
+                                          }] class]]) {
+    FSTThrowInvalidArgument(
+        @"Invalid query. Block-based predicates are not "
+         "supported. Please use predicateWithFormat to "
+         "create predicates instead.");
+  } else {
+    FSTThrowInvalidArgument(
+        @"Invalid query. Expect comparison or compound of "
+         "comparison predicate. Please use "
+         "predicateWithFormat to create predicates.");
+  }
 }
 
 - (FIRQuery *)queryOrderedByField:(NSString *)field {

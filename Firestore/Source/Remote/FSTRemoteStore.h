@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FSTOnlineStateDelegate <NSObject>
 
 /** Called whenever the online state of the watch stream changes */
-- (void)watchStreamDidChangeOnlineState:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
 
 @end
 

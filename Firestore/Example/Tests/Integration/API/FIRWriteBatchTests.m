@@ -35,6 +35,29 @@
   [self awaitExpectations];
 }
 
+- (void)testCommitWithoutCompletionHandler {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRWriteBatch *batch1 = [doc.firestore batch];
+  [batch1 setData:@{@"aa" : @"bb"} forDocument:doc];
+  [batch1 commitWithCompletion:nil];
+  FIRDocumentSnapshot *snapshot1 = [self readDocumentForRef:doc];
+  XCTAssertTrue(snapshot1.exists);
+  XCTAssertEqualObjects(snapshot1.data, @{@"aa" : @"bb"});
+
+  FIRWriteBatch *batch2 = [doc.firestore batch];
+  [batch2 setData:@{@"cc" : @"dd"} forDocument:doc];
+  [batch2 commit];
+
+  // TODO(b/70631617): There's currently a backend bug that prevents us from using a resume token
+  // right away (against hexa at least). So we sleep. :-( :-( Anything over ~10ms seems to be
+  // sufficient.
+  [NSThread sleepForTimeInterval:0.2f];
+
+  FIRDocumentSnapshot *snapshot2 = [self readDocumentForRef:doc];
+  XCTAssertTrue(snapshot2.exists);
+  XCTAssertEqualObjects(snapshot2.data, @{@"cc" : @"dd"});
+}
+
 - (void)testSetDocuments {
   FIRDocumentReference *doc = [self documentRef];
   XCTestExpectation *batchExpectation = [self expectationWithDescription:@"batch written"];
@@ -131,7 +154,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
                                                  includeQueryMetadataChanges:YES]
-                                    listener:accumulator.handler];
+                                    listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -161,7 +184,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
                                                  includeQueryMetadataChanges:YES]
-                                    listener:accumulator.handler];
+                                    listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -195,7 +218,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
                                                  includeQueryMetadataChanges:YES]
-                                    listener:accumulator.handler];
+                                    listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -227,7 +250,7 @@
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
   [doc
       addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
-                            listener:accumulator.handler];
+                            listener:accumulator.valueEventHandler];
   FIRDocumentSnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertFalse(initialSnap.exists);
 

@@ -50,13 +50,17 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @property(nonatomic, strong) id<FSTCredentialsProvider> credentialsProvider;
 @property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
 
-@property(nonatomic, strong) FSTFirestoreClient *client;
+// Note that `client` is updated after initialization, but marking this readwrite would generate an
+// incorrect setter (since we make the assignment to `client` inside an `@synchronized` block.
+@property(nonatomic, strong, readonly) FSTFirestoreClient *client;
 @property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;
 
 @end
 
 @implementation FIRFirestore {
+  // All guarded by @synchronized(self)
   FIRFirestoreSettings *_settings;
+  FSTFirestoreClient *_client;
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -154,64 +158,74 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (FIRFirestoreSettings *)settings {
-  // Disallow mutation of our internal settings
-  return [_settings copy];
+  @synchronized(self) {
+    // Disallow mutation of our internal settings
+    return [_settings copy];
+  }
 }
 
 - (void)setSettings:(FIRFirestoreSettings *)settings {
-  // As a special exception, don't throw if the same settings are passed repeatedly. This should
-  // make it more friendly to create a Firestore instance.
-  if (_client && ![_settings isEqual:settings]) {
-    FSTThrowInvalidUsage(@"FIRIllegalStateException",
-                         @"Firestore instance has already been started and its settings can no "
-                          "longer be changed. You can only set settings before calling any "
-                          "other methods on a Firestore instance.");
+  @synchronized(self) {
+    // As a special exception, don't throw if the same settings are passed repeatedly. This should
+    // make it more friendly to create a Firestore instance.
+    if (_client && ![_settings isEqual:settings]) {
+      FSTThrowInvalidUsage(@"FIRIllegalStateException",
+                           @"Firestore instance has already been started and its settings can no "
+                            "longer be changed. You can only set settings before calling any "
+                            "other methods on a Firestore instance.");
+    }
+    _settings = [settings copy];
   }
-  _settings = [settings copy];
 }
 
 /**
- * Ensures that the FirestoreClient is configured.
- * @return self
+ * Ensures that the FirestoreClient is configured and returns it.
  */
-- (instancetype)firestoreWithConfiguredClient {
-  if (!_client) {
-    // These values are validated elsewhere; this is just double-checking:
-    FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
-    FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
+- (FSTFirestoreClient *)client {
+  [self ensureClientConfigured];
+  return _client;
+}
 
-    FSTDatabaseInfo *databaseInfo =
-        [FSTDatabaseInfo databaseInfoWithDatabaseID:_databaseID
-                                     persistenceKey:_persistenceKey
-                                               host:_settings.host
-                                         sslEnabled:_settings.sslEnabled];
+- (void)ensureClientConfigured {
+  @synchronized(self) {
+    if (!_client) {
+      // These values are validated elsewhere; this is just double-checking:
+      FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
+      FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
-    FSTDispatchQueue *userDispatchQueue = [FSTDispatchQueue queueWith:_settings.dispatchQueue];
+      FSTDatabaseInfo *databaseInfo =
+          [FSTDatabaseInfo databaseInfoWithDatabaseID:_databaseID
+                                       persistenceKey:_persistenceKey
+                                                 host:_settings.host
+                                           sslEnabled:_settings.sslEnabled];
 
-    _client = [FSTFirestoreClient clientWithDatabaseInfo:databaseInfo
-                                          usePersistence:_settings.persistenceEnabled
-                                     credentialsProvider:_credentialsProvider
-                                       userDispatchQueue:userDispatchQueue
-                                     workerDispatchQueue:_workerDispatchQueue];
+      FSTDispatchQueue *userDispatchQueue = [FSTDispatchQueue queueWith:_settings.dispatchQueue];
+
+      _client = [FSTFirestoreClient clientWithDatabaseInfo:databaseInfo
+                                            usePersistence:_settings.persistenceEnabled
+                                       credentialsProvider:_credentialsProvider
+                                         userDispatchQueue:userDispatchQueue
+                                       workerDispatchQueue:_workerDispatchQueue];
+    }
   }
-  return self;
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
+  [self ensureClientConfigured];
   FSTResourcePath *path = [FSTResourcePath pathWithString:collectionPath];
-  return
-      [FIRCollectionReference referenceWithPath:path firestore:self.firestoreWithConfiguredClient];
+  return [FIRCollectionReference referenceWithPath:path firestore:self];
 }
 
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath {
   if (!documentPath) {
     FSTThrowInvalidArgument(@"Document path cannot be nil.");
   }
+  [self ensureClientConfigured];
   FSTResourcePath *path = [FSTResourcePath pathWithString:documentPath];
-  return [FIRDocumentReference referenceWithPath:path firestore:self.firestoreWithConfiguredClient];
+  return [FIRDocumentReference referenceWithPath:path firestore:self];
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
@@ -241,12 +255,13 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
           internalCompletion(result, error);
         });
       };
-  [self firestoreWithConfiguredClient];
   [self.client transactionWithRetries:5 updateBlock:wrappedUpdate completion:completion];
 }
 
 - (FIRWriteBatch *)batch {
-  return [FIRWriteBatch writeBatchWithFirestore:[self firestoreWithConfiguredClient]];
+  [self ensureClientConfigured];
+
+  return [FIRWriteBatch writeBatchWithFirestore:self];
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock
@@ -264,11 +279,19 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  if (!self.client) {
-    completion(nil);
-    return;
+  FSTFirestoreClient *client;
+  @synchronized(self) {
+    client = _client;
+    _client = nil;
   }
-  return [self.client shutdownWithCompletion:completion];
+
+  if (!client) {
+    // We should be dispatching the callback on the user dispatch queue but if the client is nil
+    // here that queue was never created.
+    completion(nil);
+  } else {
+    [client shutdownWithCompletion:completion];
+  }
 }
 
 + (BOOL)isLoggingEnabled {
@@ -277,6 +300,16 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 + (void)enableLogging:(BOOL)logging {
   FIRSetLoggerLevel(logging ? FIRLoggerLevelDebug : FIRLoggerLevelNotice);
+}
+
+- (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  [self ensureClientConfigured];
+  [self.client enableNetworkWithCompletion:completion];
+}
+
+- (void)disableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable))completion {
+  [self ensureClientConfigured];
+  [self.client disableNetworkWithCompletion:completion];
 }
 
 @end

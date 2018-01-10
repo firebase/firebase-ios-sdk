@@ -59,5 +59,6 @@ Podfile.lock
 *.xcworkspace
 
 # CMake
+.downloads
 Debug
 Release

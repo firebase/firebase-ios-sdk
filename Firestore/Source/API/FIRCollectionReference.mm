@@ -15,6 +15,7 @@
  */
 
 #import "FIRCollectionReference.h"
+#import "FIRFirestore.h"
 
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
@@ -63,6 +64,29 @@ NS_ASSUME_NONNULL_BEGIN
 // Override the designated initializer from the super class.
 - (instancetype)initWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore {
   FSTFail(@"Use FIRCollectionReference initWithPath: initializer.");
+}
+
+// NSObject Methods
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (![[other class] isEqual:[self class]]) return NO;
+
+  return [self isEqualToReference:other];
+}
+
+- (BOOL)isEqualToReference:(nullable FIRCollectionReference *)reference {
+  if (self == reference) return YES;
+  if (reference == nil) return NO;
+  if (self.firestore != reference.firestore && ![self.firestore isEqual:reference.firestore])
+    return NO;
+  if (self.query != reference.query && ![self.query isEqual:reference.query]) return NO;
+  return YES;
+}
+
+- (NSUInteger)hash {
+  NSUInteger hash = [self.firestore hash];
+  hash = hash * 31u + [self.query hash];
+  return hash;
 }
 
 - (NSString *)collectionID {

@@ -48,7 +48,7 @@ NSString *const kDefaultDatabaseID = @"(default)";
 
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
+  if (![[other class] isEqual:[self class]]) return NO;
 
   return [self isEqualToDatabaseId:other];
 }

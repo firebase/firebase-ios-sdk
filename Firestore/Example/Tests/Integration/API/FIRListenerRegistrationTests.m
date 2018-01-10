@@ -128,35 +128,4 @@
   [two remove];
 }
 
-- (void)testWatchSurvivesNetworkDisconnect {
-  XCTestExpectation *testExpectiation =
-      [self expectationWithDescription:@"testWatchSurvivesNetworkDisconnect"];
-
-  FIRCollectionReference *collectionRef = [self collectionRef];
-  FIRDocumentReference *docRef = [collectionRef documentWithAutoID];
-
-  FIRFirestore *firestore = collectionRef.firestore;
-
-  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
-      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
-
-  [collectionRef addSnapshotListenerWithOptions:options
-                                       listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
-                                         XCTAssertNil(error);
-                                         if (!snapshot.empty && !snapshot.metadata.fromCache) {
-                                           [testExpectiation fulfill];
-                                         }
-                                       }];
-
-  [firestore.client disableNetworkWithCompletion:^(NSError *error) {
-    XCTAssertNil(error);
-    [docRef setData:@{@"foo" : @"bar"}];
-    [firestore.client enableNetworkWithCompletion:^(NSError *error) {
-      XCTAssertNil(error);
-    }];
-  }];
-
-  [self awaitExpectations];
-}
-
 @end

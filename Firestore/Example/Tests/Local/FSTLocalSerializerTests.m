@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesMutationBatch {
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{ @"a" : @"b", @"num" : @1 });
   FSTMutation *patch = [[FSTPatchMutation alloc]
-       initWithKey:[FSTDocumentKey keyWithPathString:@"bar/baz"]
+       initWithKey:FSTTestDocKey(@"bar/baz")
          fieldMask:[[FSTFieldMask alloc] initWithFields:@[ FSTTestFieldPath(@"a") ]]
              value:FSTTestObjectValue(
                        @{ @"a" : @"b",

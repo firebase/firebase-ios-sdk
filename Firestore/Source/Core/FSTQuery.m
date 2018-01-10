@@ -205,7 +205,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
+  if (![[other class] isEqual:[self class]]) return NO;
 
   return [self.field isEqual:((FSTNullFilter *)other).field];
 }
@@ -246,7 +246,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
+  if (![[other class] isEqual:[self class]]) return NO;
 
   return [self.field isEqual:((FSTNanFilter *)other).field];
 }

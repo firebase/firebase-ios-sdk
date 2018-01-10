@@ -40,7 +40,8 @@
 
 - (void)testCanReadAndWriteArrayFields {
   [self assertSuccessfulRoundtrip:@{
-    @"array" : @[ @1, @"foo", @{@"deep" : @YES}, [NSNull null] ]
+    @"array" : @[ @1, @"foo",
+                  @{ @"deep" : @YES }, [NSNull null] ]
   }];
 }
 
