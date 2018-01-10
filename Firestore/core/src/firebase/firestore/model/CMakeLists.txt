@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(src/firebase/firestore/model)
-add_subdirectory(src/firebase/firestore/util)
-add_subdirectory(test/firebase/firestore/model)
-add_subdirectory(test/firebase/firestore/util)
+# firebase_firestore_util is the interface of this module. The rest of the
+# libraries in here are an implementation detail of making this a
+# mutli-platform build.
+
+add_library(
+  firebase_firestore_model
+  field_value.cc
+)
+target_link_libraries(
+  firebase_firestore_model
+  firebase_firestore_util
+)
