@@ -23,6 +23,12 @@
 
 set -euo pipefail
 
+if [[ $(clang-format --version) != **"version 6"** ]]; then
+  echo "Please upgrade to clang-format version 6."
+  echo "If it's installed via homebrew you can run: brew upgrade clang-format"
+  exit 1
+fi
+
 (
   if [[ $# -gt 0 ]]; then
     if git rev-parse "$1" -- >& /dev/null; then
