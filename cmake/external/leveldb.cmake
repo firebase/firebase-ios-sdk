@@ -47,7 +47,7 @@ else()
     GIT_REPOSITORY "https://github.com/google/leveldb.git"
     GIT_TAG "v1.20"
 
-    PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
+    PREFIX ${PROJECT_BINARY_DIR}/external/leveldb
 
     CONFIGURE_COMMAND ""
     BUILD_ALWAYS ON
