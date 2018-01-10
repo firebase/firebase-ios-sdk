@@ -33,6 +33,9 @@ DerivedData
 *.hmap
 *.ipa
 
+# IntelliJ
+.idea
+
 # Vim
 *.swo
 *.swp
@@ -57,4 +60,5 @@ Podfile.lock
 
 # CMake
 .downloads
-.idea/
+Debug
+Release

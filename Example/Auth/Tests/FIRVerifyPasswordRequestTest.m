@@ -18,9 +18,9 @@
 
 #import "FIRAuthErrors.h"
 #import "FIRAuthBackend.h"
+#import "FIRFakeBackendRPCIssuer.h"
 #import "FIRVerifyPasswordRequest.h"
 #import "FIRVerifyPasswordResponse.h"
-#import "FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -125,9 +125,10 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the verify password request.
  */
 - (void)testVerifyPasswordRequest {
-  FIRVerifyPasswordRequest * request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                              password:kTestPassword
-                                                                                requestConfiguration:_requestConfiguration];
+  FIRVerifyPasswordRequest * request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   request.returnSecureToken = NO;
   [FIRAuthBackend verifyPassword:request
                         callback:^(FIRVerifyPasswordResponse *_Nullable response,
@@ -147,9 +148,10 @@ static NSString *const kExpectedAPIURL =
     @brief Tests the verify password request with optional fields.
  */
 - (void)testVerifyPasswordRequestOptionalFields {
-  FIRVerifyPasswordRequest * request = [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
-                                                                              password:kTestPassword
-                                                                                requestConfiguration:_requestConfiguration];
+  FIRVerifyPasswordRequest * request =
+      [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
+                                             password:kTestPassword
+                                 requestConfiguration:_requestConfiguration];
   request.pendingIDToken = kTestPendingToken;
   request.captchaChallenge = kTestCaptchaChallenge;
   request.captchaResponse = kTestCaptchaResponse;

@@ -87,7 +87,7 @@ extern NSString *const kFIRLibraryVersionID;
                                                          APIKey:kAPIKey
                                                        clientID:kClientID
                                                      trackingID:kTrackingID
-                                                androidClientID:kAndroidClientID
+                                                androidClientID:(id _Nonnull)nil
                                                     databaseURL:kDatabaseURL
                                                   storageBucket:kStorageBucket
                                               deepLinkURLScheme:kDeepLinkURLScheme];
@@ -98,7 +98,6 @@ extern NSString *const kFIRLibraryVersionID;
 
   FIROptions *options2 =
       [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
-  options2.androidClientID = kAndroidClientID;
   options2.APIKey = kAPIKey;
   options2.bundleID = kBundleID;
   options2.clientID = kClientID;
@@ -152,7 +151,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.clientID, kClientID);
   XCTAssertEqualObjects(options.trackingID, kTrackingID);
   XCTAssertEqualObjects(options.GCMSenderID, kGCMSenderID);
-  XCTAssertEqualObjects(options.androidClientID, kAndroidClientID);
+  XCTAssertNil(options.androidClientID);
   XCTAssertEqualObjects(options.libraryVersionID, kFIRLibraryVersionID);
   XCTAssertEqualObjects(options.databaseURL, kDatabaseURL);
   XCTAssertEqualObjects(options.storageBucket, kStorageBucket);
@@ -245,7 +244,7 @@ extern NSString *const kFIRLibraryVersionID;
                                                                    APIKey:kAPIKey
                                                                  clientID:kClientID
                                                                trackingID:kTrackingID
-                                                          androidClientID:kAndroidClientID
+                                                          androidClientID:(id _Nonnull)nil
                                                               databaseURL:kDatabaseURL
                                                             storageBucket:kStorageBucket
                                                         deepLinkURLScheme:kDeepLinkURLScheme];

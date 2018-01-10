@@ -16,9 +16,8 @@
 
 #include "Firestore/Port/string_util.h"
 
-#include "leveldb/db.h"
-
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include <leveldb/db.h>
 
 using Firestore::PrefixSuccessor;
 using Firestore::ImmediateSuccessor;

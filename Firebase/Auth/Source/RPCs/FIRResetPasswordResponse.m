@@ -16,8 +16,6 @@
 
 #import "FIRResetPasswordResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRResetPasswordResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
