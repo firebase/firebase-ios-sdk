@@ -52,6 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTTargetID)highestTargetID;
 
+/**
+ * Returns the highest listen sequence number of any query seen by the cache.
+ */
 - (FSTListenSequenceNumber)highestListenSequenceNumber;
 
 /**

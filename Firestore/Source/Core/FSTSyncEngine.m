@@ -43,6 +43,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Limbo documents don't use persistence, and are eagerly GC'd. So, listens for them don't need
+// real sequence numbers.
 static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 #pragma mark - FSTQueryView
