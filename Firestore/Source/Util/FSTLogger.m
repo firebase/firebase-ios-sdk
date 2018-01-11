@@ -19,14 +19,25 @@
 #import <FirebaseCore/FIRLogger.h>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRFirestoreVersion.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+// assumes the first variable argument is the sdk version, and adds a space for it to the format
+// string.
+void logInternal(FIRLoggerLevel level, NSString* format, ...) {
+  NSString* formatWithVersion = [@"v%s - " stringByAppendingString:format];
+  va_list args;
+  va_start(args, format);
+  FIRLogBasic(level, kFIRLoggerFirestore, @"I-FST000001", formatWithVersion, args);
+  va_end(args);
+}
 
 void FSTLog(NSString *format, ...) {
   if ([FIRFirestore isLoggingEnabled]) {
     va_list args;
     va_start(args, format);
-    FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerFirestore, @"I-FST000001", format, args);
+    logInternal(FIRLoggerLevelDebug, format, FirebaseFirestoreVersionString, args);
     va_end(args);
   }
 }
@@ -34,7 +45,7 @@ void FSTLog(NSString *format, ...) {
 void FSTWarn(NSString *format, ...) {
   va_list args;
   va_start(args, format);
-  FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerFirestore, @"I-FST000001", format, args);
+  logInternal(FIRLoggerLevelWarning, format, FirebaseFirestoreVersionString, args);
   va_end(args);
 }
 
