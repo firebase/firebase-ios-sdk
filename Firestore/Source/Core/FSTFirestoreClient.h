@@ -22,6 +22,8 @@
 
 @class FIRDocumentReference;
 @class FIRDocumentSnapshot;
+@class FIRQuery;
+@class FIRQuerySnapshot;
 @class FSTDatabaseID;
 @class FSTDatabaseInfo;
 @class FSTDispatchQueue;
@@ -77,6 +79,12 @@ NS_ASSUME_NONNULL_BEGIN
  * doesn't exist, an error will be sent to the completion.
  */
 - (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc completion:(void (^)(FIRDocumentSnapshot *_Nullable document, NSError *_Nullable error))completion;
+
+/**
+ * Retrieves a (possibly empty) set of documents from the cache via the
+ * indicated completion.
+ */
+- (void)getDocumentsFromLocalCache:(FIRQuery *)query completion:(void (^)(FIRQuerySnapshot *_Nullable query, NSError *_Nullable error))completion;
 
 /** Write mutations. completion will be notified when it's written to the backend. */
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations

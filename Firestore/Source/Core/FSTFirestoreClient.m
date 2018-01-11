@@ -22,12 +22,15 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -37,6 +40,10 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -260,6 +267,23 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
       completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain code:FIRFirestoreErrorCodeUnavailable userInfo:@{NSLocalizedDescriptionKey: @"Failed to get document from server.",}]);
     }
+  }];
+}
+
+- (void)getDocumentsFromLocalCache:(FIRQuery *)query completion:(void (^)(FIRQuerySnapshot *_Nullable query, NSError *_Nullable error))completion {
+  [self.workerDispatchQueue dispatchAsync:^{
+    FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
+
+    __block FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:query.query.comparator];
+    FSTDocumentSet *oldDocuments = documents;
+    [docs enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *value, BOOL *stop) {
+      documents = [documents documentSetByAddingDocument:value];
+    }];
+
+    FSTViewSnapshot *snapshot = [[FSTViewSnapshot alloc] initWithQuery:query.query documents:documents oldDocuments:oldDocuments documentChanges:@[] fromCache:YES hasPendingWrites:NO syncStateChanged:NO];
+    FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:YES];
+
+    completion([FIRQuerySnapshot snapshotWithFirestore:query.firestore originalQuery:query.query snapshot:snapshot metadata:metadata], nil);
   }];
 }
 

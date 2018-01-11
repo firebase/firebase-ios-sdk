@@ -227,10 +227,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query {
+  return [self readDocumentSetForRef:query getOptions:[FIRGetOptions defaultOptions]];
+}
+
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query getOptions:(FIRGetOptions *)getOptions {
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error) {
+  [query getDocumentsWithOptions:getOptions completion:^(FIRQuerySnapshot *documentSet, NSError *error) {
     XCTAssertNil(error);
     result = documentSet;
     [expectation fulfill];

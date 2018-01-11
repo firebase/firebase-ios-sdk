@@ -20,6 +20,7 @@
 
 @class FIRFieldPath;
 @class FIRFirestore;
+@class FIRGetOptions;
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
 
@@ -89,6 +90,9 @@ NS_SWIFT_NAME(Query)
  */
 - (void)getDocumentsWithCompletion:(FIRQuerySnapshotBlock)completion
     NS_SWIFT_NAME(getDocuments(completion:));
+
+- (void)getDocumentsWithOptions:(FIRGetOptions *)getOptions completion:(FIRQuerySnapshotBlock)completion
+    NS_SWIFT_NAME(getDocuments(options:completion:));
 
 /**
  * Attaches a listener for QuerySnapshot events.

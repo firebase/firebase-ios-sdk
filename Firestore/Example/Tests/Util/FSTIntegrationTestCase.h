@@ -77,6 +77,8 @@ extern "C" {
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
 
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query getOptions:(FIRGetOptions *)getOptions;
+
 - (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query
                               requireOnline:(BOOL)online;
 
