@@ -18,7 +18,6 @@
 
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
-#import <Firestore/Source/Core/FSTFirestoreClient.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
@@ -26,6 +25,7 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
