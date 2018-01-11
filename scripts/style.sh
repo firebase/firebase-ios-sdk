@@ -21,6 +21,8 @@
 # Commonly
 # ./scripts/style.sh master
 
+set -x
+
 if [[ $(clang-format --version) != **"version 6"** ]]; then
   echo "Please upgrade to clang-format version 6."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
@@ -65,7 +67,7 @@ fi
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p
-' | xargs clang-format -style=file $options | grep "<replacement " > /dev/null
+' | xargs clang-format -style=file $options | grep "<replacement "
 
 if [[ "$test_only" = true && $? -ne 1 ]]; then
   echo "Proposed commit is not style compliant. Run scripts/style.sh and git add the result."

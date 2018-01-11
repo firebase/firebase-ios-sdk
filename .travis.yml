@@ -16,8 +16,9 @@ before_install:
 
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
+  - clang-format --version
   - ./scripts/style.sh test-only # Validate clang-format compliance
-  - ./test.sh
+#  - ./test.sh
 
 # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
   - bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
