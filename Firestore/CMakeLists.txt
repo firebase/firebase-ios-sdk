@@ -30,6 +30,7 @@ include(utils)
 
 find_package(GTest REQUIRED)
 find_package(LevelDB REQUIRED)
+find_package(GRPC REQUIRED)
 
 if(APPLE)
   find_package(FirebaseCore REQUIRED)
