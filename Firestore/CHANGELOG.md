@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.10.0
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
   to avoid confusion with the factory method of the same name.
 - [changed] Added a commit method that takes no completion handler to FIRWriteBatch.
