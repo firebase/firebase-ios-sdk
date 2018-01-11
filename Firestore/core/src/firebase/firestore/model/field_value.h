@@ -17,125 +17,154 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
+#include <memory>
+#include <vector>
+
 namespace firebase {
 namespace firestore {
 namespace model {
 
+class NullValue {};
+
+class BooleanValue {
+ public:
+  BooleanValue(bool value) : value_(value) {}
+
+  bool value() const {
+    return value_;
+  }
+
+ private:
+  bool value_;
+};
+
+class FieldValue;
+class ArrayValue {
+ public:
+  /* take ownership */
+  ArrayValue(std::vector<FieldValue>* value) : value_(value) {}
+
+  ~ArrayValue() {
+    delete value_;
+  }
+
+  std::vector<FieldValue>* value() const {
+    return value_;
+  }
+
+  friend class FieldValue;
+
+ private:
+  // Cannot use smart pointer or otherwise will make this non-compatible
+  // with the union logic (e.g. delete the copy constructor of this class).
+  std::vector<FieldValue>* value_;
+};
+
 /**
- * Abstract base class representing an immutable data value as stored in
+ * tagged-union class representing an immutable data value as stored in
  * Firestore. FieldValue represents all the different kinds of values
  * that can be stored in fields in a document.
  */
 class FieldValue {
  public:
-
-  /** The order of types in Firestore; this order is defined by the backend. */
-  typedef enum {
-    TypeOrderNull,
-    TypeOrderBoolean,
-    TypeOrderNumber,
-    TypeOrderTimestamp,
-    TypeOrderString,
-    TypeOrderBlob,
-    TypeOrderReference,
-    TypeOrderGeoPoint,
-    TypeOrderArray,
-    TypeOrderObject,
-  } TypeOrder;
-
   /**
    * All the different kinds of values that can be stored in fields in
    * a document.
    */
-  typedef enum {
-    TypeNull,
-    TypeBoolean,
-    TypeLong,
-    TypeDouble,
-    TypeTimestamp,
-    TypeServerTimestamp,
-    TypeString,
-    TypeBinary,
-    TypeReference,
-    TypeGeoPoint,
-    TypeArray,
-    TypeObject,
-  } Type;
+  enum class Type {
+    Null,
+    Boolean,
+    Long,
+    Double,
+    Timestamp,
+    ServerTimestamp,
+    String,
+    Binary,
+    Reference,
+    GeoPoint,
+    Array,
+    Object,
+  };
 
-  /** Returns the TypeOrder for this value. */
-  virtual TypeOrder type_order() const = 0;
+  /** The order of types in Firestore; this order is defined by the backend. */
+  enum class TypeOrder {
+    Null,
+    Boolean,
+    Number,
+    Timestamp,
+    String,
+    Blob,
+    Reference,
+    GeoPoint,
+    Array,
+    Object,
+  };
+
+  union UnionValue {
+    NullValue null_value_;
+    BooleanValue boolean_value_;
+    ArrayValue array_value_;
+    ~UnionValue() {}
+  };
+
+  FieldValue() : tag_(Type::Null) {}
+
+  explicit FieldValue(const NullValue& value) : tag_(Type::Null) {}
+
+  explicit FieldValue(const BooleanValue& value) : tag_(Type::Boolean) {
+    value_.reset(new UnionValue({.boolean_value_ = {value.value()}}));
+  }
+
+  ~FieldValue();
 
   /** Returns the true type for this value. */
-  virtual Type type() const = 0;
+  Type type() const {
+    return tag_;
+  }
+
+  /** Returns the TypeOrder for this value. */
+  TypeOrder type_order() const;
 
   /** Compares against another FieldValue. */
-  virtual int Compare(const FieldValue& other) const = 0;
-
- protected:
-  /** default compare method. */
-  int DefaultCompare(const FieldValue& other) const;
-};
-
-class NullValue : public FieldValue {
- public:
-  /* Override */
-  virtual TypeOrder type_order() const {
-    return TypeOrderNull;
-  }
-
-  /* Override */
-  virtual Type type() const {
-    return TypeNull;
-  }
-
-  /* Override */
-  virtual int Compare(const FieldValue& other) const;
-
-  static NullValue NulValue() {
-    return kInstance;
-  }
+  friend int Compare(const FieldValue& lhs, const FieldValue& rhs);
+  friend bool operator< (const FieldValue& lhs, const FieldValue& rhs);
+  friend bool operator<= (const FieldValue& lhs, const FieldValue& rhs);
+  friend bool operator== (const FieldValue& lhs, const FieldValue& rhs);
+  friend bool operator!= (const FieldValue& lhs, const FieldValue& rhs);
+  friend bool operator>= (const FieldValue& lhs, const FieldValue& rhs);
+  friend bool operator> (const FieldValue& lhs, const FieldValue& rhs);
 
  private:
-  NullValue() {}
-
-  static const NullValue kInstance;
+  Type tag_;
+  std::shared_ptr<UnionValue> value_;
 };
 
-class BooleanValue : public FieldValue {
- public:
-  /* Override */
-  virtual TypeOrder type_order() const {
-    return TypeOrderBoolean;
-  }
+int Compare(const NullValue& lhs, const NullValue& rhs);
+int Compare(const BooleanValue& lhs, const BooleanValue& rhs);
 
-  /* Override */
-  virtual Type type() const {
-    return TypeBoolean;
-  }
+inline bool operator< (const FieldValue& lhs, const FieldValue& rhs) {
+  return Compare(lhs, rhs) == -1;
+}
 
-  /* Override */
-  virtual int Compare(const FieldValue& other) const;
+inline bool operator<= (const FieldValue& lhs, const FieldValue& rhs) {
+  return Compare(lhs, rhs) <= 0;
+}
 
-  bool Value() const {
-    return value_;
-  }
+inline bool operator== (const FieldValue& lhs, const FieldValue& rhs) {
+  return Compare(lhs, rhs) == 0;
+}
 
-  static BooleanValue TrueValue() {
-    return kTrueValue;
-  }
+inline bool operator!= (const FieldValue& lhs, const FieldValue& rhs) {
+  return Compare(lhs, rhs) != 0;
+}
 
-  static BooleanValue FalseValue() {
-    return kFalseValue;
-  }
+inline bool operator>= (const FieldValue& lhs, const FieldValue& rhs) {
+  return Compare(lhs, rhs) >= 0;
+}
 
- private:
-  explicit BooleanValue(bool value) : value_(value) {}
-
-  const bool value_;
-
-  static const BooleanValue kTrueValue;
-  static const BooleanValue kFalseValue;
-};
+inline bool operator> (const FieldValue& lhs, const FieldValue& rhs) {
+  return Compare(lhs, rhs) == 1;
+}
 
 }  // namespace model
 }  // namespace firestore

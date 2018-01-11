@@ -15,44 +15,94 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-int FieldValue::DefaultCompare(const FieldValue& other) const {
-  int diff = type_order() - other.type_order();
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      diff != 0, type_order() == other.type_order(),
-      "Default compareTo should not be used for values of same type.");
-  if (diff > 0) {
+FieldValue::~FieldValue() {
+  switch(tag_) {
+    case FieldValue::Type::Array:
+      delete value_->array_value_.value_;
+      break;
+    default:
+      ;  // The other types where there is nothing to worry about.
+  }
+}
+
+FieldValue::TypeOrder FieldValue::type_order() const {
+  switch(tag_) {
+    case FieldValue::Type::Null:
+      return FieldValue::TypeOrder::Null;
+    case FieldValue::Type::Boolean:
+      return FieldValue::TypeOrder::Boolean;
+    case FieldValue::Type::Long:
+      return FieldValue::TypeOrder::Number;
+    case FieldValue::Type::Double:
+      return FieldValue::TypeOrder::Number;
+    case FieldValue::Type::Timestamp:
+      return FieldValue::TypeOrder::Timestamp;
+    case FieldValue::Type::ServerTimestamp:
+      return FieldValue::TypeOrder::Timestamp;
+    case FieldValue::Type::String:
+      return FieldValue::TypeOrder::String;
+    case FieldValue::Type::Binary:
+      return FieldValue::TypeOrder::Blob;
+    case FieldValue::Type::Reference:
+      return FieldValue::TypeOrder::Reference;
+    case FieldValue::Type::GeoPoint:
+      return FieldValue::TypeOrder::GeoPoint;
+    case FieldValue::Type::Array:
+      return FieldValue::TypeOrder::Array;
+    case FieldValue::Type::Object:
+      return FieldValue::TypeOrder::Object;
+    default:
+      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, tag_,
+          "Unmatched type %d", tag_);
+  }
+}
+
+int Compare(const NullValue& lhs, const NullValue& rhs) {
+  return 0;
+}
+
+int Compare(const BooleanValue& lhs, const BooleanValue& rhs) {
+  return lhs.value() == rhs.value() ? 0 : lhs.value() ? 1 : -1;
+}
+
+int Compare(const FieldValue& lhs, const FieldValue& rhs) {
+  const FieldValue::TypeOrder left = lhs.type_order();
+  const FieldValue::TypeOrder right = rhs.type_order();
+  if (left == right) {
+    switch(lhs.type()) {
+      case FieldValue::Type::Null:
+        return Compare(lhs.value_->null_value_, rhs.value_->null_value_);
+      case FieldValue::Type::Boolean:
+        return Compare(lhs.value_->boolean_value_, rhs.value_->boolean_value_);
+      case FieldValue::Type::Long:
+      case FieldValue::Type::Double:
+      case FieldValue::Type::Timestamp:
+      case FieldValue::Type::ServerTimestamp:
+      case FieldValue::Type::String:
+      case FieldValue::Type::Binary:
+      case FieldValue::Type::Reference:
+      case FieldValue::Type::GeoPoint:
+      case FieldValue::Type::Array:
+      case FieldValue::Type::Object:
+        FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
+            "Unsupported type %d", lhs.type());
+      default:
+        FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
+            "Unmatched type %d", lhs.type());
+    }
+  } else if (left > right) {
     return 1;
   } else {
     return -1;
   }
 }
-
-int NullValue::Compare(const FieldValue& other) const {
-  if (type() == other.type()) {
-    return 0;
-  } else {
-    return DefaultCompare(other);
-  }
-}
-
-const NullValue NullValue::kInstance;
-
-int BooleanValue::Compare(const FieldValue& other) const {
-  if (type() == other.type()) {
-    return value_ == static_cast<const BooleanValue&>(other).value_ ? 0 : value_ ? 1 : -1;
-  } else {
-    return DefaultCompare(other);
-  }
-}
-
-const BooleanValue BooleanValue::kTrueValue(true);
-const BooleanValue BooleanValue::kFalseValue(false);
 
 }  // namespace model
 }  // namespace firestore

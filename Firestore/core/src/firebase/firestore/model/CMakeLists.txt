@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# firebase_firestore_util is the interface of this module. The rest of the
-# libraries in here are an implementation detail of making this a
-# mutli-platform build.
-
 add_library(
   firebase_firestore_model
   field_value.cc
