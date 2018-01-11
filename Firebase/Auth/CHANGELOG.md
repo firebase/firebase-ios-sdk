@@ -1,7 +1,7 @@
 # v4.4.1
 - Fixes bug where the FIRAuthResult object returned following a Phone Number authentication
-  always contained a nil FIRAdditionalUserInfo object.  Now the FIRAdditionalUserInfo is never
-  and it's newUser field is populated correctly.
+  always contained a nil FIRAdditionalUserInfo object.  Now the FIRAdditionalUserInfo object is
+  never nil and its newUser field is populated correctly.
 
 # v4.4.0
 - Adds new APIs which return an AuthDataResult object after successfully creating an
