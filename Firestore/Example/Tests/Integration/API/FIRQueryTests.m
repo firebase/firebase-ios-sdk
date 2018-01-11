@@ -275,4 +275,27 @@
   [registration remove];
 }
 
+- (void)testCanHaveMultipleMutationsWhileOffline {
+  FIRCollectionReference *col = [self collectionRef];
+
+  // set a few docs to known values
+  NSDictionary *initialDocs =
+      @{ @"doc1" : @{@"key1" : @"value1"},
+         @"doc2" : @{@"key2" : @"value2"} };
+  [self writeAllDocuments:initialDocs toCollection:col];
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+  // apply *multiple* mutations while offline
+  [[col documentWithPath:@"doc1"] setData:@{@"key1b" : @"value1b"}];
+  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"}];
+
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
+                          @{@"key1b" : @"value1b"},
+                          @{@"key2b" : @"value2b"},
+                        ]));
+}
+
 @end
