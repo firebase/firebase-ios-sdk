@@ -29,13 +29,11 @@ ExternalProject_Add(
 
   CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+    -DCMAKE_INSTALL_PREFIX:PATH=${FIREBASE_INSTALL_DIR}
+    ${GTEST_CMAKE_ARGS}
 
   BUILD_ALWAYS ON
 
-  # Even though this isn't installed, set up the INSTALL_DIR so that
-  # find_package can find dependencies built from source.
-  INSTALL_DIR ${FIREBASE_INSTALL_DIR}
   INSTALL_COMMAND ""
   TEST_BEFORE_INSTALL ON
 )
