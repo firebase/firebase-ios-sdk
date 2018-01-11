@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(src/firebase/firestore/util)
-add_subdirectory(src/firebase/firestore/remote)
-
-add_subdirectory(test/firebase/firestore/util)
-add_subdirectory(test/firebase/firestore/remote)
+add_library(
+  firebase_firestore_remote
+  datastore.h
+  datastore.cc
+)
+target_link_libraries(
+  firebase_firestore_remote
+  grpc::grpc
+)
