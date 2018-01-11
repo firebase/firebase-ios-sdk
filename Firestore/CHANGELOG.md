@@ -1,4 +1,4 @@
-# Unreleased (firestore-api-changes)
+# Unreleased
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
   to avoid confusion with the factory method of the same name.
 - [changed] Added a commit method that takes no completion handler to FIRWriteBatch.
@@ -13,6 +13,8 @@
   `true` if the SDK loses its connection to the backend. A new event with
   `snapshot.metadata.isFromCache` set to false will be raised once the
   connection is restored and the query is in sync with the backend again.
+- [fixed] Multiple offline mutations now properly reflected in retrieved
+  documents. Previously, only the last mutation would be visible. (#643)
 
 # v0.9.4
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
