@@ -33,7 +33,7 @@ function(xcodebuild framework)
   set(options "")
   set(single_value SCHEME WORKSPACE)
   set(multi_value DEPENDS)
-  cmake_parse_arguments(xcb "${options}" "${single_value}" "${multi_value}")
+  cmake_parse_arguments(xcb "${options}" "${single_value}" "${multi_value}" ${ARGN})
 
   if(NOT xcb_WORKSPACE)
     set(xcb_WORKSPACE ${PROJECT_SOURCE_DIR}/Example/Firebase.xcworkspace)
