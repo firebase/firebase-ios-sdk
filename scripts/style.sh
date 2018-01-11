@@ -71,4 +71,3 @@ if [[ "$test_only" = true && $? -ne 1 ]]; then
   echo "Proposed commit is not style compliant. Run scripts/style.sh and git add the result."
   exit 1
 fi
-exit 0
