@@ -21,16 +21,22 @@
 # Commonly
 # ./scripts/style.sh master
 
-set -euo pipefail
-
 if [[ $(clang-format --version) != **"version 6"** ]]; then
   echo "Please upgrade to clang-format version 6."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
   exit 1
 fi
 
+if [[ $# -gt 0 && "$1" = "test-only" ]]; then
+  test_only=true
+  options="-output-replacements-xml"
+else
+  test_only=false
+  options="-i"
+fi
+
 (
-  if [[ $# -gt 0 ]]; then
+  if [[ "$test_only" = false && $# -gt 0 ]]; then
     if git rev-parse "$1" -- >& /dev/null; then
       # Argument was a branch name show files changed since that branch
       git diff --name-only --relative "$1"
@@ -59,4 +65,9 @@ fi
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p
-' | xargs clang-format -style=file -i
+' | xargs clang-format -style=file $options | grep "<replacement " > /dev/null
+
+if [[ "$test_only" = true && $? -ne 1 ]]; then
+  echo "Proposed commit is not style compliant. Run scripts/style.sh and git add the result."
+  exit 1
+fi
