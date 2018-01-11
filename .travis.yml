@@ -15,6 +15,7 @@ before_install:
 
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
+  - ./scripts/style.sh test-only # Validate clang-format compliance
   - ./test.sh
 
 # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
