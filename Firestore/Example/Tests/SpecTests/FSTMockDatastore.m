@@ -109,6 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
+  // TODO(gsoltis): sequence number?
   FSTLog(@"watchQuery: %d: %@", query.targetID, query.query);
   self.datastore.watchStreamRequestCount += 1;
   // Snapshot version is ignored on the wire

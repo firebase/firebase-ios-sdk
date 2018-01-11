@@ -157,6 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                        targetID:targetID
+                                           listenSequenceNumber:10
                                                         purpose:FSTQueryPurposeListen
                                                 snapshotVersion:version
                                                     resumeToken:resumeToken];
@@ -166,6 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTPBTarget *expected = [FSTPBTarget message];
   expected.targetId = targetID;
+  expected.lastListenSequenceNumber = 10;
   expected.snapshotVersion.nanos = 1039000;
   expected.resumeToken = [resumeToken copy];
   expected.query.parent = queryTarget.parent;

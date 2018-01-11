@@ -43,6 +43,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
+
 #pragma mark - FSTQueryView
 
 /**
@@ -490,6 +492,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQuery *query = [FSTQuery queryWithPath:key.path];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
+                                             listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
     self.limboKeysByTarget[@(limboTargetID)] = key;
     [self.remoteStore listenToTargetWithQueryData:queryData];

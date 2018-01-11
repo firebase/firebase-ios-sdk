@@ -52,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTTargetID)highestTargetID;
 
+- (FSTListenSequenceNumber)highestListenSequenceNumber;
+
 /**
  * A global snapshot version representing the last consistent snapshot we received from the
  * backend. This is monotonically increasing and any snapshots received from the backend prior to
