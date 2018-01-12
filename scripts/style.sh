@@ -67,7 +67,8 @@ fi
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p
-' | xargs clang-format -style=file $options | grep "<replacement "
+'
+#' | xargs clang-format -style=file $options | grep "<replacement "
 
 if [[ "$test_only" = true && $? -ne 1 ]]; then
   echo "Proposed commit is not style compliant. Run scripts/style.sh and git add the result."
