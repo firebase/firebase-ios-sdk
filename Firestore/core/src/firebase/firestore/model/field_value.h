@@ -17,48 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
-#include <memory>
 #include <vector>
 
 namespace firebase {
 namespace firestore {
 namespace model {
-
-class NullValue {};
-
-class BooleanValue {
- public:
-  BooleanValue(bool value) : value_(value) {}
-
-  bool value() const {
-    return value_;
-  }
-
- private:
-  bool value_;
-};
-
-class FieldValue;
-class ArrayValue {
- public:
-  /* take ownership */
-  ArrayValue(std::vector<FieldValue>* value) : value_(value) {}
-
-  ~ArrayValue() {
-    delete value_;
-  }
-
-  std::vector<FieldValue>* value() const {
-    return value_;
-  }
-
-  friend class FieldValue;
-
- private:
-  // Cannot use smart pointer or otherwise will make this non-compatible
-  // with the union logic (e.g. delete the copy constructor of this class).
-  std::vector<FieldValue>* value_;
-};
 
 /**
  * tagged-union class representing an immutable data value as stored in
@@ -69,101 +32,98 @@ class FieldValue {
  public:
   /**
    * All the different kinds of values that can be stored in fields in
-   * a document.
+   * a document. The types of the same comparison order should be defined
+   * together as a group. The order of each group is defined by the Firestore
+   * backend.
    */
   enum class Type {
-    Null,
-    Boolean,
-    Long,
+    Null,  // Null
+    Boolean,  // Boolean
+    Long,  // Number type starts here
     Double,
-    Timestamp,
+    Timestamp,  // Timestamp type starts here
     ServerTimestamp,
-    String,
-    Binary,
-    Reference,
-    GeoPoint,
-    Array,
-    Object,
-  };
-
-  /** The order of types in Firestore; this order is defined by the backend. */
-  enum class TypeOrder {
-    Null,
-    Boolean,
-    Number,
-    Timestamp,
-    String,
-    Blob,
-    Reference,
-    GeoPoint,
-    Array,
-    Object,
+    String,  // String
+    Blob,  // Blob
+    Reference,  // Reference
+    GeoPoint,  // GeoPoint
+    Array,  // Array
+    Object,  // Object
+    // New enum should not always been added at the tail. Add it to the correct
+    // position instead, see the doc comment above.
   };
 
   union UnionValue {
-    NullValue null_value_;
-    BooleanValue boolean_value_;
-    ArrayValue array_value_;
+    // There is no null type as tag_ alone is enough for Null FieldValue.
+    bool boolean_value_;
+    std::vector<FieldValue> array_value_;
+
+    // Explicitly define constructor and destructor as the default ones are
+    // deleted. In particular, for each non-POD type, there is a constructor to
+    // initialize that type.
+    UnionValue() {}
+    UnionValue(bool value) : boolean_value_(value) {}
+    UnionValue(const std::vector<FieldValue>& value) : array_value_(value) {}
+
+    // UnionValue itself does not do destruction. Instead its FieldValue
+    // container does destruction for it.
     ~UnionValue() {}
   };
 
   FieldValue() : tag_(Type::Null) {}
 
-  explicit FieldValue(const NullValue& value) : tag_(Type::Null) {}
+  explicit FieldValue(const std::vector<FieldValue>& value)
+      : tag_(Type::Array), value_(value) {}
 
-  explicit FieldValue(const BooleanValue& value) : tag_(Type::Boolean) {
-    value_.reset(new UnionValue({.boolean_value_ = {value.value()}}));
-  }
+  FieldValue(const FieldValue& value);
 
   ~FieldValue();
+
+  FieldValue& operator=(const FieldValue& value);
 
   /** Returns the true type for this value. */
   Type type() const {
     return tag_;
   }
 
-  /** Returns the TypeOrder for this value. */
-  TypeOrder type_order() const;
+  /** Returns constants. */
+  static const FieldValue& NullValue();
+  static const FieldValue& BooleanValue(bool value);
 
-  /** Compares against another FieldValue. */
-  friend int Compare(const FieldValue& lhs, const FieldValue& rhs);
-  friend bool operator< (const FieldValue& lhs, const FieldValue& rhs);
-  friend bool operator<= (const FieldValue& lhs, const FieldValue& rhs);
-  friend bool operator== (const FieldValue& lhs, const FieldValue& rhs);
-  friend bool operator!= (const FieldValue& lhs, const FieldValue& rhs);
-  friend bool operator>= (const FieldValue& lhs, const FieldValue& rhs);
-  friend bool operator> (const FieldValue& lhs, const FieldValue& rhs);
+  friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
  private:
+  explicit FieldValue(bool value) : tag_(Type::Boolean), value_(value) {}
+
+  void ResetUnion();
+
+  void CopyUnion(const FieldValue& value);  
+
   Type tag_;
-  std::shared_ptr<UnionValue> value_;
+  UnionValue value_;
 };
 
-int Compare(const NullValue& lhs, const NullValue& rhs);
-int Compare(const BooleanValue& lhs, const BooleanValue& rhs);
+/** Compares against another FieldValue. */
+bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
-inline bool operator< (const FieldValue& lhs, const FieldValue& rhs) {
-  return Compare(lhs, rhs) == -1;
+inline bool operator>(const FieldValue& lhs, const FieldValue& rhs) {
+  return rhs < lhs;
 }
 
-inline bool operator<= (const FieldValue& lhs, const FieldValue& rhs) {
-  return Compare(lhs, rhs) <= 0;
+inline bool operator>=(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(lhs < rhs);
 }
 
-inline bool operator== (const FieldValue& lhs, const FieldValue& rhs) {
-  return Compare(lhs, rhs) == 0;
+inline bool operator<=(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(lhs > rhs);
 }
 
-inline bool operator!= (const FieldValue& lhs, const FieldValue& rhs) {
-  return Compare(lhs, rhs) != 0;
+inline bool operator!=(const FieldValue& lhs, const FieldValue& rhs) {
+  return lhs < rhs || lhs > rhs;
 }
 
-inline bool operator>= (const FieldValue& lhs, const FieldValue& rhs) {
-  return Compare(lhs, rhs) >= 0;
-}
-
-inline bool operator> (const FieldValue& lhs, const FieldValue& rhs) {
-  return Compare(lhs, rhs) == 1;
+inline bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(lhs != rhs);
 }
 
 }  // namespace model

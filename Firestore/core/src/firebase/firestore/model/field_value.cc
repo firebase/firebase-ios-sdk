@@ -16,91 +16,106 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#include <algorithm>
+#include <vector>
+
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-FieldValue::~FieldValue() {
+using Type = FieldValue::Type;
+
+namespace {
+
+bool Comparable(Type lhs, Type rhs) {
+  switch(lhs) {
+    case Type::Long:
+    case Type::Double:
+      return rhs == Type::Long || rhs == Type::Double;
+    case Type::Timestamp:
+    case Type::ServerTimestamp:
+      return rhs == Type::Timestamp || rhs == Type::ServerTimestamp;
+    default:
+      return lhs == rhs;
+  }
+}
+
+}  // namespace
+
+void FieldValue::ResetUnion() {
+  // Must call destructor explicitly for any non-POD type for UnionValue.
   switch(tag_) {
-    case FieldValue::Type::Array:
-      delete value_->array_value_.value_;
+    case Type::Array:
+      tag_ = Type::Null;
+      value_.array_value_.~vector();
       break;
     default:
       ;  // The other types where there is nothing to worry about.
   }
 }
 
-FieldValue::TypeOrder FieldValue::type_order() const {
-  switch(tag_) {
-    case FieldValue::Type::Null:
-      return FieldValue::TypeOrder::Null;
-    case FieldValue::Type::Boolean:
-      return FieldValue::TypeOrder::Boolean;
-    case FieldValue::Type::Long:
-      return FieldValue::TypeOrder::Number;
-    case FieldValue::Type::Double:
-      return FieldValue::TypeOrder::Number;
-    case FieldValue::Type::Timestamp:
-      return FieldValue::TypeOrder::Timestamp;
-    case FieldValue::Type::ServerTimestamp:
-      return FieldValue::TypeOrder::Timestamp;
-    case FieldValue::Type::String:
-      return FieldValue::TypeOrder::String;
-    case FieldValue::Type::Binary:
-      return FieldValue::TypeOrder::Blob;
-    case FieldValue::Type::Reference:
-      return FieldValue::TypeOrder::Reference;
-    case FieldValue::Type::GeoPoint:
-      return FieldValue::TypeOrder::GeoPoint;
-    case FieldValue::Type::Array:
-      return FieldValue::TypeOrder::Array;
-    case FieldValue::Type::Object:
-      return FieldValue::TypeOrder::Object;
+void FieldValue::CopyUnion(const FieldValue& value){
+  switch(value.tag_) {
+    case Type::Null:
+      break;
+    case Type::Boolean:
+      new (&value_) UnionValue(value.value_.boolean_value_);
+      break;
+    case Type::Array:
+      new (&value_) UnionValue(value.value_.array_value_);
+      break;
     default:
-      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, tag_,
-          "Unmatched type %d", tag_);
+      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
+          "Unsupported type %d", value.type());
   }
 }
 
-int Compare(const NullValue& lhs, const NullValue& rhs) {
-  return 0;
+FieldValue::FieldValue(const FieldValue& value) : tag_(value.tag_) {
+  CopyUnion(value);
 }
 
-int Compare(const BooleanValue& lhs, const BooleanValue& rhs) {
-  return lhs.value() == rhs.value() ? 0 : lhs.value() ? 1 : -1;
+FieldValue::~FieldValue() {
+  ResetUnion();
 }
 
-int Compare(const FieldValue& lhs, const FieldValue& rhs) {
-  const FieldValue::TypeOrder left = lhs.type_order();
-  const FieldValue::TypeOrder right = rhs.type_order();
-  if (left == right) {
-    switch(lhs.type()) {
-      case FieldValue::Type::Null:
-        return Compare(lhs.value_->null_value_, rhs.value_->null_value_);
-      case FieldValue::Type::Boolean:
-        return Compare(lhs.value_->boolean_value_, rhs.value_->boolean_value_);
-      case FieldValue::Type::Long:
-      case FieldValue::Type::Double:
-      case FieldValue::Type::Timestamp:
-      case FieldValue::Type::ServerTimestamp:
-      case FieldValue::Type::String:
-      case FieldValue::Type::Binary:
-      case FieldValue::Type::Reference:
-      case FieldValue::Type::GeoPoint:
-      case FieldValue::Type::Array:
-      case FieldValue::Type::Object:
-        FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
-            "Unsupported type %d", lhs.type());
-      default:
-        FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
-            "Unmatched type %d", lhs.type());
-    }
-  } else if (left > right) {
-    return 1;
-  } else {
-    return -1;
+FieldValue& FieldValue::operator=(const FieldValue& value) {
+  // Not same type. Destruct old type first.
+  if (tag_ != value.tag_) {
+    ResetUnion();
+  }
+  tag_ = value.tag_;
+  CopyUnion(value);
+}
+
+const FieldValue& FieldValue::NullValue() {
+  static const FieldValue kNullInstance;
+  return kNullInstance;
+}
+
+const FieldValue& FieldValue::BooleanValue(bool value) {
+  static const FieldValue kTrueInstance(true);
+  static const FieldValue kFalseInstance(false);
+  return value ? kTrueInstance : kFalseInstance;
+}
+
+bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
+  if (!Comparable(lhs.type(), rhs.type())) {
+    return lhs.type() < rhs.type();
+  }
+
+  switch(lhs.type()) {
+    case Type::Null:
+      return 0;
+    case Type::Boolean:
+      // lhs < rhs iff lhs == false and rhs == true.
+      return !lhs.value_.boolean_value_ && rhs.value_.boolean_value_;
+    case Type::Array:
+      return lhs.value_.array_value_ < rhs.value_.array_value_;
+    default:
+      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
+          "Unsupported type %d", lhs.type());
   }
 }
 

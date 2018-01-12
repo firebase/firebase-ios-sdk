@@ -16,69 +16,89 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#include <vector>
+
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
+using Type = FieldValue::Type;
+
 TEST(FieldValue, NullType) {
-  NullValue null_value;
-  NullValue another_null;
-  FieldValue value(null_value);
-  EXPECT_EQ(FieldValue::TypeOrder::Null, value.type_order());
-  EXPECT_EQ(FieldValue::Type::Null, value.type());
-  EXPECT_EQ(0, Compare(null_value, another_null));
+  const FieldValue value = FieldValue::NullValue();
+  EXPECT_EQ(Type::Null, value.type());
+  EXPECT_FALSE(value < value);
 }
 
 TEST(FieldValue, BooleanType) {
-  BooleanValue true_value(true);
-  BooleanValue another_true(true);
-  BooleanValue false_value(false);
-  BooleanValue another_false(false);
-  FieldValue value(true_value);
-  EXPECT_EQ(FieldValue::TypeOrder::Boolean, value.type_order());
-  EXPECT_EQ(FieldValue::Type::Boolean, value.type());
-  EXPECT_EQ(0, Compare(true_value, another_true));
-  EXPECT_EQ(0, Compare(false_value, another_false));
-  EXPECT_EQ(1, Compare(true_value, false_value));
-  EXPECT_EQ(-1, Compare(false_value, true_value));
+  const FieldValue true_value = FieldValue::BooleanValue(true);
+  const FieldValue false_value = FieldValue::BooleanValue(false);
+  EXPECT_EQ(Type::Boolean, true_value.type());
+  EXPECT_FALSE(true_value < true_value);
+  EXPECT_FALSE(true_value < false_value);
+  EXPECT_FALSE(false_value < false_value);
+  EXPECT_TRUE(false_value < true_value);
+}
+
+TEST(FieldValue, ArrayType) {
+  const FieldValue empty(std::vector<FieldValue>(0));
+  std::vector<FieldValue> small_value_array = {
+      FieldValue::NullValue(),
+      FieldValue::BooleanValue(true),
+      FieldValue::BooleanValue(false)
+  };
+  const FieldValue small(small_value_array);
+  std::vector<FieldValue> large_value_array = {
+      FieldValue::BooleanValue(true),
+      FieldValue::BooleanValue(false)
+  };
+  const FieldValue large(large_value_array);
+  EXPECT_EQ(Type::Array, empty.type());
+  EXPECT_EQ(Type::Array, small.type());
+  EXPECT_EQ(Type::Array, large.type());
+  EXPECT_TRUE(empty < small);
+  EXPECT_FALSE(small < empty);
+  EXPECT_FALSE(small < small);
+  EXPECT_TRUE(small < large);
+  EXPECT_FALSE(large < small);
 }
 
 TEST(FieldValue, CompareMixedType) {
-  FieldValue null_value;
-  FieldValue true_value(BooleanValue(true));
-  EXPECT_EQ(-1, Compare(null_value, true_value));
-  EXPECT_EQ(1, Compare(true_value, null_value));
+  const FieldValue null_value = FieldValue::NullValue();
+  const FieldValue true_value = FieldValue::BooleanValue(true);
+  const FieldValue array_value(std::vector<FieldValue>(0));
+  EXPECT_TRUE(null_value < true_value);
+  EXPECT_TRUE(true_value < array_value);
 }
 
 TEST(FieldValue, CompareWithOperator) {
-  FieldValue small;
-  FieldValue large(BooleanValue(true));
+  const FieldValue small = FieldValue::NullValue();
+  const FieldValue large = FieldValue::BooleanValue(true);
 
   EXPECT_TRUE(small < large);
   EXPECT_FALSE(small < small);
   EXPECT_FALSE(large < small);
 
-  EXPECT_TRUE(small <= large);
-  EXPECT_TRUE(small <= small);
-  EXPECT_FALSE(large <= small);
-
-  EXPECT_TRUE(small == small);
-  EXPECT_FALSE(small == large);
-
-  EXPECT_TRUE(small != large);
-  EXPECT_FALSE(small != small);
+  EXPECT_TRUE(large > small);
+  EXPECT_FALSE(small > small);
+  EXPECT_FALSE(small > large);
 
   EXPECT_TRUE(large >= small);
   EXPECT_TRUE(small >= small);
   EXPECT_FALSE(small >= large);
 
-  EXPECT_TRUE(large > small);
-  EXPECT_FALSE(small > small);
-  EXPECT_FALSE(small > large);
-}
+  EXPECT_TRUE(small <= large);
+  EXPECT_TRUE(small <= small);
+  EXPECT_FALSE(large <= small);
 
+  EXPECT_TRUE(small != large);
+  EXPECT_FALSE(small != small);
+
+  EXPECT_TRUE(small == small);
+  EXPECT_FALSE(small == large);
+}
 }  //  namespace model
 }  //  namespace firestore
 }  //  namespace firebase
