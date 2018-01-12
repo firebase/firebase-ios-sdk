@@ -611,6 +611,7 @@
 
         } else if (callbacks == 2) {
           XCTAssertEqual(docSet.count, 1);
+          XCTAssertTrue([docSet.documents[0] isKindOfClass:[FIRQueryDocumentSnapshot class]]);
           XCTAssertEqualObjects(docSet.documents[0].data, newData);
           XCTAssertEqual(docSet.documents[0].metadata.hasPendingWrites, YES);
           [changeCompletion fulfill];
