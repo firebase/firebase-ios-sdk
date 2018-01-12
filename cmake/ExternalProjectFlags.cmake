@@ -14,7 +14,20 @@
 
 include(CMakeParseArguments)
 
-# Assemble the git-related arguments to an external project in a way that
+# Assemble the git-related arguments to an external project making use of the
+# latest features where available but avoiding them when run under CMake
+# versions that don't support them.
+#
+# The complete set of git-related arguments are stored as a list in the
+# variable named by RESULT_VAR in the calling scope.
+#
+# Currently this handles:
+#   * GIT_SUBMODULES -- added on CMake 3.0 or later. Earlier CMakes will
+#       check out all submodules.
+#   * GIT_SHALLOW -- added by default on CMake 3.6 or later. Disable by passing
+#       GIT_SHALLOW OFF
+#   * GIT_PROGRESS -- added by default on CMake 3.8 or later. Disable by
+#       passing GIT_PROGRESS OFF
 function(ExternalProject_GitSource RESULT_VAR)
   # Parse arguments
   set(options "")
