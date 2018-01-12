@@ -21,8 +21,6 @@
 # Commonly
 # ./scripts/style.sh master
 
-set -x
-
 if [[ $(clang-format --version) != **"version 6"** ]]; then
   echo "Please upgrade to clang-format version 6."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
@@ -59,6 +57,9 @@ fi
 \%/third_party/% d
 \%/Firestore/Port/% d
 
+# Sources pulled in by travis bundler
+\%/vendor/bundle/% d
+
 # Sources within the tree that are not subject to formatting
 \%^./(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
 
@@ -67,8 +68,7 @@ fi
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p
-'
-#' | xargs clang-format -style=file $options | grep "<replacement "
+' | xargs clang-format -style=file $options | grep "<replacement " > /dev/null
 
 if [[ "$test_only" = true && $? -ne 1 ]]; then
   echo "Proposed commit is not style compliant. Run scripts/style.sh and git add the result."
