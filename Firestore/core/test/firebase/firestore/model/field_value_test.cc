@@ -43,18 +43,18 @@ TEST(FieldValue, BooleanType) {
 }
 
 TEST(FieldValue, ArrayType) {
-  const FieldValue empty(std::vector<FieldValue>(0));
-  std::vector<FieldValue> small_value_array = {
-      FieldValue::NullValue(),
-      FieldValue::BooleanValue(true),
-      FieldValue::BooleanValue(false)
-  };
-  const FieldValue small(small_value_array);
-  std::vector<FieldValue> large_value_array = {
-      FieldValue::BooleanValue(true),
-      FieldValue::BooleanValue(false)
-  };
-  const FieldValue large(large_value_array);
+  const FieldValue empty =
+      FieldValue::ArrayValue(std::vector<const FieldValue>{});
+  std::vector<const FieldValue> small_value_array = {
+      FieldValue::NullValue(), FieldValue::BooleanValue(true),
+      FieldValue::BooleanValue(false)};
+  // copy small array
+  const FieldValue small = FieldValue::ArrayValue(small_value_array);
+  std::vector<const FieldValue> large_value_array = {
+      FieldValue::BooleanValue(true), FieldValue::BooleanValue(false)};
+  // move large array
+  const FieldValue large =
+      std::move(FieldValue::ArrayValue(std::move(large_value_array)));
   EXPECT_EQ(Type::Array, empty.type());
   EXPECT_EQ(Type::Array, small.type());
   EXPECT_EQ(Type::Array, large.type());
@@ -65,17 +65,81 @@ TEST(FieldValue, ArrayType) {
   EXPECT_FALSE(large < small);
 }
 
+TEST(FieldValue, Assignment) {
+  FieldValue clone = FieldValue::TrueValue();
+  const FieldValue null_value = FieldValue::NullValue();
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = clone;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  const FieldValue true_value = FieldValue::TrueValue();
+  clone = true_value;
+  EXPECT_EQ(FieldValue::TrueValue(), clone);
+  clone = clone;
+  EXPECT_EQ(FieldValue::TrueValue(), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  const FieldValue array_value =
+      FieldValue::ArrayValue(std::vector<const FieldValue>{
+          FieldValue::TrueValue(), FieldValue::FalseValue()});
+  clone = array_value;
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+                FieldValue::TrueValue(), FieldValue::FalseValue()}),
+            clone);
+  clone = clone;
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+                FieldValue::TrueValue(), FieldValue::FalseValue()}),
+            clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+}
+
+TEST(FieldValue, Move) {
+  FieldValue clone = FieldValue::TrueValue();
+
+  FieldValue null_value = FieldValue::NullValue();
+  clone = std::move(null_value);
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = std::move(clone);
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  FieldValue true_value = FieldValue::TrueValue();
+  clone = std::move(true_value);
+  EXPECT_EQ(FieldValue::TrueValue(), clone);
+  clone = std::move(clone);
+  EXPECT_EQ(FieldValue::TrueValue(), clone);
+  clone = FieldValue::NullValue();
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  FieldValue array_value =
+      std::move(FieldValue::ArrayValue(std::vector<const FieldValue>{
+          FieldValue::TrueValue(), FieldValue::FalseValue()}));
+  clone = std::move(array_value);
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+                FieldValue::TrueValue(), FieldValue::FalseValue()}),
+            clone);
+  clone = std::move(clone);
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+                FieldValue::TrueValue(), FieldValue::FalseValue()}),
+            clone);
+  clone = FieldValue::NullValue();
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+}
+
 TEST(FieldValue, CompareMixedType) {
   const FieldValue null_value = FieldValue::NullValue();
-  const FieldValue true_value = FieldValue::BooleanValue(true);
-  const FieldValue array_value(std::vector<FieldValue>(0));
+  const FieldValue true_value = FieldValue::TrueValue();
+  const FieldValue array_value =
+      FieldValue::ArrayValue(std::vector<const FieldValue>());
   EXPECT_TRUE(null_value < true_value);
   EXPECT_TRUE(true_value < array_value);
 }
 
 TEST(FieldValue, CompareWithOperator) {
   const FieldValue small = FieldValue::NullValue();
-  const FieldValue large = FieldValue::BooleanValue(true);
+  const FieldValue large = FieldValue::TrueValue();
 
   EXPECT_TRUE(small < large);
   EXPECT_FALSE(small < small);
@@ -99,6 +163,7 @@ TEST(FieldValue, CompareWithOperator) {
   EXPECT_TRUE(small == small);
   EXPECT_FALSE(small == large);
 }
+
 }  //  namespace model
 }  //  namespace firestore
 }  //  namespace firebase

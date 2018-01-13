@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
+#include <memory>
 #include <vector>
 
 namespace firebase {
@@ -34,73 +35,69 @@ class FieldValue {
    * All the different kinds of values that can be stored in fields in
    * a document. The types of the same comparison order should be defined
    * together as a group. The order of each group is defined by the Firestore
-   * backend.
+   * backend and is available at:
+   *     https://firebase.google.com/docs/firestore/manage-data/data-types
    */
   enum class Type {
-    Null,  // Null
+    Null,     // Null
     Boolean,  // Boolean
-    Long,  // Number type starts here
+    Long,     // Number type starts here
     Double,
     Timestamp,  // Timestamp type starts here
     ServerTimestamp,
-    String,  // String
-    Blob,  // Blob
+    String,     // String
+    Blob,       // Blob
     Reference,  // Reference
-    GeoPoint,  // GeoPoint
-    Array,  // Array
-    Object,  // Object
+    GeoPoint,   // GeoPoint
+    Array,      // Array
+    Object,     // Object
     // New enum should not always been added at the tail. Add it to the correct
     // position instead, see the doc comment above.
   };
 
-  union UnionValue {
-    // There is no null type as tag_ alone is enough for Null FieldValue.
-    bool boolean_value_;
-    std::vector<FieldValue> array_value_;
+  FieldValue() : tag_(Type::Null) {
+  }
 
-    // Explicitly define constructor and destructor as the default ones are
-    // deleted. In particular, for each non-POD type, there is a constructor to
-    // initialize that type.
-    UnionValue() {}
-    UnionValue(bool value) : boolean_value_(value) {}
-    UnionValue(const std::vector<FieldValue>& value) : array_value_(value) {}
-
-    // UnionValue itself does not do destruction. Instead its FieldValue
-    // container does destruction for it.
-    ~UnionValue() {}
-  };
-
-  FieldValue() : tag_(Type::Null) {}
-
-  explicit FieldValue(const std::vector<FieldValue>& value)
-      : tag_(Type::Array), value_(value) {}
-
+  // Do not inline these ctor/dtor below, which contain call to non-trivial
+  // operator=.
   FieldValue(const FieldValue& value);
+  FieldValue(FieldValue&& value);
 
   ~FieldValue();
 
   FieldValue& operator=(const FieldValue& value);
+  FieldValue& operator=(FieldValue&& value);
 
   /** Returns the true type for this value. */
   Type type() const {
     return tag_;
   }
 
-  /** Returns constants. */
+  /** factory methods. */
   static const FieldValue& NullValue();
+  static const FieldValue& TrueValue();
+  static const FieldValue& FalseValue();
   static const FieldValue& BooleanValue(bool value);
+  static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
+  static FieldValue ArrayValue(std::vector<const FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
  private:
-  explicit FieldValue(bool value) : tag_(Type::Boolean), value_(value) {}
+  explicit FieldValue(bool value) : tag_(Type::Boolean), boolean_value_(value) {
+  }
 
-  void ResetUnion();
-
-  void CopyUnion(const FieldValue& value);  
+  /**
+   * Switch to the specified type, if different from the current type.
+   */
+  void SwitchTo(const Type type);
 
   Type tag_;
-  UnionValue value_;
+  union {
+    // There is no null type as tag_ alone is enough for Null FieldValue.
+    bool boolean_value_;
+    std::vector<const FieldValue> array_value_;
+  };
 };
 
 /** Compares against another FieldValue. */

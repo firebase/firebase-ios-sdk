@@ -35,14 +35,14 @@
 
 // Assert condition is true, if it's false log an assert with the specified
 // expression as a string.
-#define FIREBASE_ASSERT_WITH_EXPRESSION(condition, expression)               \
-  do {                                                                       \
-    if (!(condition)) {                                                      \
-      firebase::firestore::util::FailAssert(                                 \
-          __FILE__, __PRETTY_FUNCTION__, __LINE__,                           \
-          FIREBASE_EXPAND_STRINGIFY(expression));                            \
-    }                                                                        \
-  } while(0)
+#define FIREBASE_ASSERT_WITH_EXPRESSION(condition, expression) \
+  do {                                                         \
+    if (!(condition)) {                                        \
+      firebase::firestore::util::FailAssert(                   \
+          __FILE__, __PRETTY_FUNCTION__, __LINE__,             \
+          FIREBASE_EXPAND_STRINGIFY(expression));              \
+    }                                                          \
+  } while (0)
 
 // Assert condition is true, if it's false log an assert with the specified
 // expression as a string. Compiled out of release builds.
@@ -65,15 +65,15 @@
 
 // Assert condition is true otherwise display the specified expression,
 // message and abort.
-#define FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, ...)  \
-  do {                                                                       \
-    if (!(condition)) {                                                      \
-      firebase::firestore::util::LogError(                                   \
-          FIREBASE_EXPAND_STRINGIFY(expression));                            \
-      firebase::firestore::util::FailAssert(                                 \
-          __FILE__, __PRETTY_FUNCTION__, __LINE__, __VA_ARGS__);             \
-    }                                                                        \
-  } while(0)
+#define FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, ...) \
+  do {                                                                      \
+    if (!(condition)) {                                                     \
+      firebase::firestore::util::LogError(                                  \
+          FIREBASE_EXPAND_STRINGIFY(expression));                           \
+      firebase::firestore::util::FailAssert(__FILE__, __PRETTY_FUNCTION__,  \
+                                            __LINE__, __VA_ARGS__);         \
+    }                                                                       \
+  } while (0)
 
 // Assert condition is true otherwise display the specified expression,
 // message and abort. Compiled out of release builds.
@@ -92,8 +92,11 @@ namespace firestore {
 namespace util {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-void FailAssert(const char* file, const char* func, const int line,
-                const char* format, ...);
+void FailAssert(const char* file,
+                const char* func,
+                const int line,
+                const char* format,
+                ...);
 
 }  // namespace util
 }  // namespace firestore

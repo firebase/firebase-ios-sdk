@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
@@ -28,9 +29,15 @@ namespace model {
 using Type = FieldValue::Type;
 
 namespace {
-
+/**
+ * This deviates from the other platforms that define TypeOrder. Since
+ * we already define Type for union types, we use it together with this
+ * function to achive the equivalent order of types i.e.
+ *     i) if two types are comparable, then they are of equal order;
+ *    ii) otherwise, their order is the same as the order of their Type.
+ */
 bool Comparable(Type lhs, Type rhs) {
-  switch(lhs) {
+  switch (lhs) {
     case Type::Long:
     case Type::Double:
       return rhs == Type::Long || rhs == Type::Double;
@@ -44,49 +51,49 @@ bool Comparable(Type lhs, Type rhs) {
 
 }  // namespace
 
-void FieldValue::ResetUnion() {
-  // Must call destructor explicitly for any non-POD type for UnionValue.
-  switch(tag_) {
-    case Type::Array:
-      tag_ = Type::Null;
-      value_.array_value_.~vector();
-      break;
-    default:
-      ;  // The other types where there is nothing to worry about.
-  }
+FieldValue::FieldValue(const FieldValue& value) {
+  *this = value;
 }
 
-void FieldValue::CopyUnion(const FieldValue& value){
-  switch(value.tag_) {
-    case Type::Null:
-      break;
-    case Type::Boolean:
-      new (&value_) UnionValue(value.value_.boolean_value_);
-      break;
-    case Type::Array:
-      new (&value_) UnionValue(value.value_.array_value_);
-      break;
-    default:
-      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
-          "Unsupported type %d", value.type());
-  }
-}
-
-FieldValue::FieldValue(const FieldValue& value) : tag_(value.tag_) {
-  CopyUnion(value);
+FieldValue::FieldValue(FieldValue&& value) {
+  *this = std::move(value);
 }
 
 FieldValue::~FieldValue() {
-  ResetUnion();
+  SwitchTo(Type::Null);
 }
 
 FieldValue& FieldValue::operator=(const FieldValue& value) {
-  // Not same type. Destruct old type first.
-  if (tag_ != value.tag_) {
-    ResetUnion();
+  SwitchTo(value.tag_);
+  switch (tag_) {
+    case Type::Null:
+      break;
+    case Type::Boolean:
+      boolean_value_ = value.boolean_value_;
+      break;
+    case Type::Array: {
+      // copy-and-swap
+      std::vector<const FieldValue> tmp = value.array_value_;
+      std::swap(array_value_, tmp);
+      break;
+    }
+    default:
+      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+          false, lhs.type(), "Unsupported type %d", value.type());
   }
-  tag_ = value.tag_;
-  CopyUnion(value);
+  return *this;
+}
+
+FieldValue& FieldValue::operator=(FieldValue&& value) {
+  switch (value.tag_) {
+    case Type::Array:
+      SwitchTo(Type::Array);
+      std::swap(array_value_, value.array_value_);
+      return *this;
+    default:
+      // We just copy over POD union types.
+      return *this = value;
+  }
 }
 
 const FieldValue& FieldValue::NullValue() {
@@ -94,10 +101,29 @@ const FieldValue& FieldValue::NullValue() {
   return kNullInstance;
 }
 
-const FieldValue& FieldValue::BooleanValue(bool value) {
+const FieldValue& FieldValue::TrueValue() {
   static const FieldValue kTrueInstance(true);
+  return kTrueInstance;
+}
+
+const FieldValue& FieldValue::FalseValue() {
   static const FieldValue kFalseInstance(false);
-  return value ? kTrueInstance : kFalseInstance;
+  return kFalseInstance;
+}
+
+const FieldValue& FieldValue::BooleanValue(bool value) {
+  return value ? TrueValue() : FalseValue();
+}
+
+FieldValue FieldValue::ArrayValue(const std::vector<const FieldValue>& value) {
+  return ArrayValue(std::move(std::vector<const FieldValue>(value)));
+}
+
+FieldValue FieldValue::ArrayValue(std::vector<const FieldValue>&& value) {
+  FieldValue result;
+  result.SwitchTo(Type::Array);
+  std::swap(result.array_value_, value);
+  return result;
 }
 
 bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
@@ -105,17 +131,39 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     return lhs.type() < rhs.type();
   }
 
-  switch(lhs.type()) {
+  switch (lhs.type()) {
     case Type::Null:
-      return 0;
+      return false;
     case Type::Boolean:
       // lhs < rhs iff lhs == false and rhs == true.
-      return !lhs.value_.boolean_value_ && rhs.value_.boolean_value_;
+      return !lhs.boolean_value_ && rhs.boolean_value_;
     case Type::Array:
-      return lhs.value_.array_value_ < rhs.value_.array_value_;
+      return lhs.array_value_ < rhs.array_value_;
     default:
-      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(false, lhs.type(),
-          "Unsupported type %d", lhs.type());
+      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+          false, lhs.type(), "Unsupported type %d", lhs.type());
+  }
+}
+
+void FieldValue::SwitchTo(const Type type) {
+  if (tag_ == type) {
+    return;
+  }
+  // Not same type. Destruct old type first and then initialize new type.
+  // Must call destructor explicitly for any non-POD type.
+  switch (tag_) {
+    case Type::Array:
+      array_value_.~vector();
+      break;
+    default:;  // The other types where there is nothing to worry about.
+  }
+  tag_ = type;
+  // Must call constructor explicitly for any non-POD type to initialize.
+  switch (tag_) {
+    case Type::Array:
+      new (&array_value_) std::vector<const FieldValue>();
+      break;
+    default:;  // The other types where there is nothing to worry about.
   }
 }
 
