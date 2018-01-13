@@ -13,6 +13,7 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(ExternalProjectFlags)
 
 if(WIN32 OR LEVELDB_ROOT)
   # If the user has supplied a LEVELDB_ROOT then just use it. Add an empty
@@ -41,23 +42,38 @@ else()
       $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>"
   )
 
-  ExternalProject_Add(
-    leveldb
-
+  ExternalProject_GitSource(
+    LEVELDB_GIT
     GIT_REPOSITORY "https://github.com/google/leveldb.git"
     GIT_TAG "v1.20"
+  )
 
-    PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
+  ExternalProject_Add(
+    leveldb
+    DEPENDS
+      googletest  # for sequencing
 
+    ${LEVELDB_GIT}
+
+    PREFIX ${PROJECT_BINARY_DIR}/external/leveldb
+
+    # LevelDB's configuration is done in the Makefile
     CONFIGURE_COMMAND ""
-    BUILD_ALWAYS ON
+
+    # The Makefile-based build of leveldb does not support building
+    # out-of-source.
     BUILD_IN_SOURCE ON
+
+    # Only build the leveldb library skipping the tools and in-memory
+    # implementation we don't use.
     BUILD_COMMAND
-      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT} make -j all
+      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT}
+        make -j out-static/libleveldb.a
 
     INSTALL_DIR ${FIREBASE_INSTALL_DIR}
 
     INSTALL_COMMAND ""
     TEST_COMMAND ""
   )
+
 endif(WIN32 OR LEVELDB_ROOT)
