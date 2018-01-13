@@ -57,6 +57,9 @@ fi
 \%/third_party/% d
 \%/Firestore/Port/% d
 
+# Sources pulled in by travis bundler
+\%/vendor/bundle/% d
+
 # Sources within the tree that are not subject to formatting
 \%^./(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
 

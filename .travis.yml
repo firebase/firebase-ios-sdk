@@ -12,9 +12,11 @@ before_install:
   - gem install xcpretty
   - bundle exec pod install --project-directory=Example --repo-update
   - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+  - brew install clang-format
 
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
+  - ./scripts/style.sh test-only # Validate clang-format compliance
   - ./test.sh
 
 # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
