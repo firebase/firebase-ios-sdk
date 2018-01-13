@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_library(
+cc_library(
   firebase_firestore_remote
-  datastore.h
-  datastore.cc
-)
-target_link_libraries(
-  firebase_firestore_remote
-  grpc::grpc
+  SOURCES
+    datastore.h
+    datastore.cc
+  DEPENDS
+    grpc::grpc
 )

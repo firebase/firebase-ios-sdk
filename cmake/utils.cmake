@@ -14,6 +14,29 @@
 
 include(CMakeParseArguments)
 
+# cc_library(
+#   target
+#   SOURCES sources...
+#   DEPENDS libraries...
+# )
+#
+# Defines a new library target with the given target name, sources, and dependencies.
+function(cc_library name)
+  set(multi DEPENDS SOURCES)
+  cmake_parse_arguments(ccl "" "" "${multi}" ${ARGN})
+
+  add_library(
+    ${name}
+    ${ccl_SOURCES}
+  )
+  target_link_libraries(
+    ${name}
+    PUBLIC
+    ${ccl_DEPENDS}
+  )
+
+endfunction()
+
 # cc_test(
 #   target
 #   SOURCES sources...
