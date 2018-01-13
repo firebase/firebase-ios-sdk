@@ -16,11 +16,11 @@
 # libraries in here are an implementation detail of making this a
 # mutli-platform build.
 
+include(CheckSymbolExists)
+
 cc_library(
   firebase_firestore_util_base
   SOURCES
-    secure_random.h
-    secure_random_arc4random.cc
     string_printf.cc
     string_printf.h
   DEPENDS
@@ -60,15 +60,39 @@ else()
 endif()
 
 
+## secure_random
+
+check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
+cc_library(
+  firebase_firestore_util_arc4random
+  SOURCES
+    secure_random_arc4random.cc
+)
+
+if(HAVE_ARC4RANDOM)
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_arc4random)
+
+else()
+  message(FATAL_ERROR "No implementation for SecureRandom available.")
+
+endif()
+
+
 ## main library
+configure_file(
+  config.h.in
+  config.h
+)
 
 cc_library(
   firebase_firestore_util
   SOURCES
     autoid.cc
     autoid.h
+    config.h
     firebase_assert.h
     log.h
+    secure_random.h
   DEPENDS
     ${UTIL_DEPENDS}
     firebase_firestore_util_base

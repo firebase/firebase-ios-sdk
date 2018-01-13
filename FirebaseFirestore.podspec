@@ -66,4 +66,12 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp"',
     'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s
   }
+
+  s.prepare_command = <<-CMD
+    # Generate a version of the config.h header suitable for building with
+    # CocoaPods.
+    sed '/^#cmakedefine/ d' \
+        Firestore/core/src/firebase/firestore/util/config.h.in > \
+        Firestore/core/src/firebase/firestore/util/config.h
+  CMD
 end
