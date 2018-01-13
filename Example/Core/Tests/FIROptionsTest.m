@@ -398,8 +398,6 @@ extern NSString *const kFIRLibraryVersionID;
                   optionsDictionary[kFIRIsMeasurementEnabled] = optionsMeasurementEnabled;
                 }
 
-                // Temporarily mock the mainBundle. This should be improved in the future to prevent
-                // collisions with other tests interacting with the mainBundle.
                 FIROptions *options =
                     [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
                 if (![uniqueOptionsCombinations containsObject:optionsDictionary]) {

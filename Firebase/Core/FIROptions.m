@@ -72,8 +72,7 @@ NSString *const kFIRExceptionBadModification =
  * Combination of analytics options from both the infoDictionary and the GoogleService-Info.plist.
  * Values which are present in the infoDictionary override values from the GoogleService-Info.plist.
  */
-- (NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:
-    (NSDictionary *)infoDictionary;
+- (NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:(NSDictionary *)infoDictionary;
 
 /**
  * Throw exception if editing is locked when attempting to modify an option.
