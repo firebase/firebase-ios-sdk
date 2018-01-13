@@ -29,6 +29,7 @@ function(cc_library name)
     ${name}
     ${ccl_SOURCES}
   )
+  add_objc_flags(${name} ccl)
   target_link_libraries(
     ${name}
     PUBLIC
@@ -52,7 +53,31 @@ function(cc_test name)
   list(APPEND cct_DEPENDS GTest::GTest GTest::Main)
 
   add_executable(${name} ${cct_SOURCES})
+  add_objc_flags(${name} cct)
   add_test(${name} ${name})
 
   target_link_libraries(${name} ${cct_DEPENDS})
+endfunction()
+
+# add_objc_flags(target sources...)
+#
+# Adds OBJC_FLAGS to the compile options of the given target if any of the
+# sources have filenames that indicate they are are Objective-C.
+function(add_objc_flags target)
+  set(_has_objc OFF)
+
+  foreach(source ${ARGN})
+    get_filename_component(ext ${source} EXT)
+    if((ext STREQUAL ".m") OR (ext STREQUAL ".mm"))
+      set(_has_objc ON)
+    endif()
+  endforeach()
+
+  if(_has_objc)
+    target_compile_options(
+      ${target}
+      PRIVATE
+      ${OBJC_FLAGS}
+    )
+  endif()
 endfunction()

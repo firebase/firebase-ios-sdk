@@ -50,11 +50,6 @@ cc_library(
   DEPENDS
     FirebaseCore
 )
-target_compile_options(
-  firebase_firestore_util_apple
-  PRIVATE
-  ${OBJC_FLAGS}
-)
 
 # Export a dependency on the correct logging library for this platform. All
 # buildable libraries are built and tested but only the best fit is exported.
