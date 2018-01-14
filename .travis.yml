@@ -30,17 +30,17 @@ script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
   - ./scripts/style.sh test-only # Validate clang-format compliance
   - |
-    if [ $SKIP_FIREBASE == 1 ]; then
+    if [ $SKIP_FIREBASE != 1 ]; then
       ./test.sh
     fi
   - |
-    if [ $SKIP_FIRESTORE == 1 ]; then
+    if [ $SKIP_FIRESTORE != 1 ]; then
       ./Firestore/test.sh
     fi
 
 # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
   - |
-    if [ $SKIP_FIREBASE == 1 ]; then
+    if [ $SKIP_FIREBASE != 1 ]; then
       bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
     fi
 
