@@ -29,11 +29,17 @@ before_install:
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
   - ./scripts/style.sh test-only # Validate clang-format compliance
-  - [ $SKIP_FIREBASE == 1 ] || ./test.sh
-  - [ $SKIP_FIRESTORE == 1 ] || ./Firestore/test.sh
+  - if [ $SKIP_FIREBASE == 1 ]; then
+      ./test.sh
+    fi
+  - if [ $SKIP_FIRESTORE == 1 ]; then
+      ./Firestore/test.sh
+    fi
 
 # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
-  - [ $SKIP_FIREBASE == 1 ] || bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
+  - if [ $SKIP_FIREBASE == 1 ]; then
+      bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
+    fi
 
 # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
 #  - bundle exec pod lib lint FirebaseAuth.podspec
