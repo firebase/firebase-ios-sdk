@@ -47,7 +47,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
     # Exclude alternate implementations for other platforms
     'Firestore/core/src/firebase/firestore/util/assert_stdio.cc',
-    'Firestore/core/src/firebase/firestore/util/log_stdio.cc'
+    'Firestore/core/src/firebase/firestore/util/log_stdio.cc',
+    'Firestore/core/src/firebase/firestore/util/secure_random_openssl.cc'
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 

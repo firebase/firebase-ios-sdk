@@ -17,6 +17,7 @@
 # mutli-platform build.
 
 include(CheckSymbolExists)
+include(CheckIncludeFiles)
 
 cc_library(
   firebase_firestore_util_base
@@ -69,8 +70,24 @@ cc_library(
     secure_random_arc4random.cc
 )
 
+get_target_property(
+  CMAKE_REQUIRED_INCLUDES
+  OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
+)
+check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
+cc_library(
+  firebase_firestore_util_openssl
+  SOURCES
+    secure_random_openssl.cc
+  DEPENDS
+    OpenSSL::Crypto
+)
+
 if(HAVE_ARC4RANDOM)
   list(APPEND UTIL_DEPENDS firebase_firestore_util_arc4random)
+
+elseif(HAVE_OPENSSL_RAND_H)
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_openssl)
 
 else()
   message(FATAL_ERROR "No implementation for SecureRandom available.")

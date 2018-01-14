@@ -22,6 +22,16 @@ if(HAVE_ARC4RANDOM)
   )
 endif()
 
+if(HAVE_OPENSSL_RAND_H)
+  cc_test(
+    firebase_firestore_util_openssl_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_openssl
+  )
+endif()
+
 cc_test(
   firebase_firestore_util_test
   SOURCES
