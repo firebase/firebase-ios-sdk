@@ -30,6 +30,7 @@
 		54764FAB1FAA0C320085E60A /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAA1FAA0C320085E60A /* string_util_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
 		548DB927200D590300E00ABC /* assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 548DB926200D590300E00ABC /* assert_test.cc */; };
+		548DB929200D59F600E00ABC /* comparison_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 548DB928200D59F600E00ABC /* comparison_test.cc */; };
 		5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		5491BC731FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		54C2294F1FECABAE007D065B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
@@ -204,6 +205,7 @@
 		54764FAA1FAA0C320085E60A /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_util_test.cc; path = ../../Port/string_util_test.cc; sourceTree = "<group>"; };
 		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
 		548DB926200D590300E00ABC /* assert_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = assert_test.cc; path = ../../core/test/firebase/firestore/util/assert_test.cc; sourceTree = "<group>"; };
+		548DB928200D59F600E00ABC /* comparison_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = comparison_test.cc; path = ../../core/test/firebase/firestore/util/comparison_test.cc; sourceTree = "<group>"; };
 		5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTIntegrationTestCase.mm; sourceTree = "<group>"; };
 		54C2294E1FECABAE007D065B /* log_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = log_test.cc; path = ../../core/test/firebase/firestore/util/log_test.cc; sourceTree = "<group>"; };
 		54DA129C1F315EE100DD57A1 /* collection_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = collection_spec_test.json; sourceTree = "<group>"; };
@@ -400,6 +402,7 @@
 			children = (
 				548DB926200D590300E00ABC /* assert_test.cc */,
 				54740A521FC913E500713A1A /* autoid_test.cc */,
+				548DB928200D59F600E00ABC /* comparison_test.cc */,
 				54C2294E1FECABAE007D065B /* log_test.cc */,
 				54740A531FC913E500713A1A /* secure_random_test.cc */,
 				5436F32320008FAD006E51E3 /* string_printf_test.cc */,
@@ -1276,6 +1279,7 @@
 				DE51B1E41F0D490D0013853F /* FSTQueryCacheTests.m in Sources */,
 				DE51B1CD1F0D48CD0013853F /* FSTDatabaseInfoTests.m in Sources */,
 				AB382F7E1FE03059007CA955 /* FIRFieldPathTests.m in Sources */,
+				548DB929200D59F600E00ABC /* comparison_test.cc in Sources */,
 				DE51B1F21F0D49140013853F /* FSTPathTests.m in Sources */,
 				AB99452C1FE3018D00DFC1E6 /* FIRQuerySnapshotTests.m in Sources */,
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
