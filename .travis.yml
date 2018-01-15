@@ -20,7 +20,7 @@ before_install:
       SKIP_FIREBASE=0
       SKIP_FIRESTORE=0
     else
-      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase | Example)'
+      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
       SKIP_FIREBASE="$?"
       git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
       SKIP_FIRESTORE="$?"
