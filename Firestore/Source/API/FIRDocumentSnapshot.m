@@ -51,10 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
                           documentKey:(FSTDocumentKey *)documentKey
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache {
-  return [[FIRDocumentSnapshot alloc] initWithFirestore:firestore
-                                            documentKey:documentKey
-                                               document:document
-                                              fromCache:fromCache];
+  return [[[self class] alloc] initWithFirestore:firestore
+                                     documentKey:documentKey
+                                        document:document
+                                       fromCache:fromCache];
 }
 
 @end
