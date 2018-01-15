@@ -70,6 +70,3 @@ if [ $RESULT != 0 ]; then exit $RESULT; fi
 test_tvOS; RESULT=$?
 
 if [ $RESULT != 0 ]; then exit $RESULT; fi
-
-# Also test Firestore
-Firestore/test.sh
