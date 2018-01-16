@@ -38,6 +38,7 @@ cc_library(
   DEPENDS
     firebase_firestore_util_base
     absl_base
+  EXCLUDE_FROM_ALL
 )
 
 # apple-dependent bits can only built and tested on apple plaforms
@@ -49,6 +50,7 @@ cc_library(
     string_apple.h
   DEPENDS
     FirebaseCore
+  EXCLUDE_FROM_ALL
 )
 
 # Export a dependency on the correct logging library for this platform. All

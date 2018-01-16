@@ -22,8 +22,9 @@ include(CMakeParseArguments)
 #
 # Defines a new library target with the given target name, sources, and dependencies.
 function(cc_library name)
+  set(flag EXCLUDE_FROM_ALL)
   set(multi DEPENDS SOURCES)
-  cmake_parse_arguments(ccl "" "" "${multi}" ${ARGN})
+  cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
   add_library(
     ${name}
@@ -35,6 +36,13 @@ function(cc_library name)
     PUBLIC
     ${ccl_DEPENDS}
   )
+
+  if(ccl_EXCLUDE_FROM_ALL)
+    set_property(
+      TARGET ${name}
+      PROPERTY EXCLUDE_FROM_ALL ON
+    )
+  endif()
 
 endfunction()
 
