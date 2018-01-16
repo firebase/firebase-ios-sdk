@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getDocumentsWithOptions:(FIRGetOptions *)options
                      completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                           NSError *_Nullable error))completion {
-  if (options.source == FIRCache) {
+  if (options.source == FIRSourceCache) {
     [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
     return;
   }
@@ -161,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    if (snapshot.metadata.fromCache && options.source == FIRServer) {
+    if (snapshot.metadata.fromCache && options.source == FIRSourceServer) {
       completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
                                           code:FIRFirestoreErrorCodeUnavailable
                                       userInfo:@{

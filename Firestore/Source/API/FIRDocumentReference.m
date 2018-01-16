@@ -216,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getDocumentWithOptions:(FIRGetOptions *)options
                     completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                          NSError *_Nullable error))completion {
-  if (options.source == FIRCache) {
+  if (options.source == FIRSourceCache) {
     [self.firestore.client getDocumentFromLocalCache:self completion:completion];
     return;
   }
@@ -255,7 +255,8 @@ NS_ASSUME_NONNULL_BEGIN
                                    NSLocalizedDescriptionKey :
                                        @"Failed to get document because the client is offline.",
                                  }]);
-    } else if (snapshot.exists && snapshot.metadata.fromCache && options.source == FIRServer) {
+    } else if (snapshot.exists && snapshot.metadata.fromCache &&
+               options.source == FIRSourceServer) {
       completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
                                           code:FIRFirestoreErrorCodeUnavailable
                                       userInfo:@{

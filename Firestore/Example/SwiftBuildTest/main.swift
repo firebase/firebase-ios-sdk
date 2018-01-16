@@ -32,8 +32,10 @@ func main() {
     addDocument(to: collectionRef);
 
     readDocument(at: documentRef);
+    readDocumentWithOptions(at: documentRef);
 
     readDocuments(matching: query);
+    readDocumentsWithOptions(matching: query);
 
     listenToDocument(at: documentRef);
 
@@ -223,6 +225,17 @@ func readDocument(at docRef: DocumentReference) {
     }
 }
 
+func readDocumentWithOptions(at docRef: DocumentReference) {
+  docRef.getDocument(options:GetOptions.defaultOptions()) { document, error in
+  }
+  docRef.getDocument(options:GetOptions.init(source:Source.default)) { document, error in
+  }
+  docRef.getDocument(options:GetOptions.init(source:Source.server)) { document, error in
+  }
+  docRef.getDocument(options:GetOptions.init(source:Source.cache)) { document, error in
+  }
+}
+
 func readDocuments(matching query: Query) {
     query.getDocuments() { querySnapshot, error in
         // TODO(mikelehen): Figure out how to make "for..in" syntax work
@@ -231,6 +244,17 @@ func readDocuments(matching query: Query) {
             print(document.data())
         }
     }
+}
+
+func readDocumentsWithOptions(matching query: Query) {
+  query.getDocuments(options:GetOptions.defaultOptions()) { querySnapshot, error in
+  }
+  query.getDocuments(options:GetOptions.init(source:Source.default)) { querySnapshot, error in
+  }
+  query.getDocuments(options:GetOptions.init(source:Source.server)) { querySnapshot, error in
+  }
+  query.getDocuments(options:GetOptions.init(source:Source.cache)) { querySnapshot, error in
+  }
 }
 
 func listenToDocument(at docRef: DocumentReference) {
