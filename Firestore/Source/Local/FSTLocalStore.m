@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
-#import "FSTListenSequence.h"
 #import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTargetIDGenerator.h"
