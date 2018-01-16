@@ -52,7 +52,7 @@
 #else
 #define FIREBASE_DEV_ASSERT_WITH_EXPRESSION(condition, expression) \
   FIREBASE_ASSERT_WITH_EXPRESSION(condition, expression)
-#endif  // !defined(NDEBUG)
+#endif  // defined(NDEBUG)
 
 // Custom assert() implementation that is not compiled out in release builds.
 #define FIREBASE_ASSERT(expression) \
@@ -85,7 +85,7 @@
 #define FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, \
                                                     ...)                   \
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, __VA_ARGS__)
-#endif  // !defined(NDEBUG)
+#endif  // defined(NDEBUG)
 
 namespace firebase {
 namespace firestore {

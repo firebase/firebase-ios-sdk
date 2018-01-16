@@ -45,16 +45,16 @@ TEST(FieldValue, BooleanType) {
 TEST(FieldValue, ArrayType) {
   const FieldValue empty =
       FieldValue::ArrayValue(std::vector<const FieldValue>{});
-  std::vector<const FieldValue> small_value_array = {
+  std::vector<const FieldValue> array {
       FieldValue::NullValue(), FieldValue::BooleanValue(true),
       FieldValue::BooleanValue(false)};
-  // copy small array
-  const FieldValue small = FieldValue::ArrayValue(small_value_array);
-  std::vector<const FieldValue> large_value_array = {
+  // copy the array
+  const FieldValue small = FieldValue::ArrayValue(array);
+  std::vector<const FieldValue> another_array {
       FieldValue::BooleanValue(true), FieldValue::BooleanValue(false)};
-  // move large array
+  // move the array
   const FieldValue large =
-      std::move(FieldValue::ArrayValue(std::move(large_value_array)));
+      std::move(FieldValue::ArrayValue(std::move(another_array)));
   EXPECT_EQ(Type::Array, empty.type());
   EXPECT_EQ(Type::Array, small.type());
   EXPECT_EQ(Type::Array, large.type());
@@ -65,17 +65,19 @@ TEST(FieldValue, ArrayType) {
   EXPECT_FALSE(large < small);
 }
 
-TEST(FieldValue, Assignment) {
+TEST(FieldValue, Copy) {
   FieldValue clone = FieldValue::TrueValue();
   const FieldValue null_value = FieldValue::NullValue();
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::NullValue(), null_value);
   clone = clone;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
   const FieldValue true_value = FieldValue::TrueValue();
   clone = true_value;
   EXPECT_EQ(FieldValue::TrueValue(), clone);
+  EXPECT_EQ(FieldValue::TrueValue(), true_value);
   clone = clone;
   EXPECT_EQ(FieldValue::TrueValue(), clone);
   clone = null_value;
@@ -88,6 +90,9 @@ TEST(FieldValue, Assignment) {
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             clone);
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+                FieldValue::TrueValue(), FieldValue::FalseValue()}),
+            array_value);
   clone = clone;
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),

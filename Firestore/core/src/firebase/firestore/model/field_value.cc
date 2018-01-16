@@ -116,7 +116,8 @@ const FieldValue& FieldValue::BooleanValue(bool value) {
 }
 
 FieldValue FieldValue::ArrayValue(const std::vector<const FieldValue>& value) {
-  return ArrayValue(std::move(std::vector<const FieldValue>(value)));
+  std::vector<const FieldValue> copy(value);
+  return ArrayValue(std::move(copy));
 }
 
 FieldValue FieldValue::ArrayValue(std::vector<const FieldValue>&& value) {
@@ -142,6 +143,9 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     default:
       FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
           false, lhs.type(), "Unsupported type %d", lhs.type());
+      // return false if assertion does not abort the program. We will say
+      // each unsupported type takes only one value thus everything is equal.
+      return false;
   }
 }
 
