@@ -38,7 +38,7 @@ void StringAppendV(std::string* dst, const char* format, va_list ap) {
   if (result < kSpaceLength) {
     if (result >= 0) {
       // Normal case -- everything fit.
-      dst->append(space, result);
+      dst->append(space, static_cast<size_t>(result));
       return;
     }
 
@@ -49,28 +49,29 @@ void StringAppendV(std::string* dst, const char* format, va_list ap) {
     result = vsnprintf(nullptr, 0, format, backup_ap);
     va_end(backup_ap);
 #endif
-
-    if (result < 0) {
-      // Just an error.
-      return;
-    }
   }
+
+  if (result < 0) {
+    // Just an error.
+    return;
+  }
+  size_t result_size = static_cast<size_t>(result);
 
   // Increase the buffer size to the size requested by vsnprintf,
   // plus one for the closing \0.
   size_t initial_size = dst->size();
-  size_t target_size = initial_size + result;
+  size_t target_size = initial_size + result_size;
 
   dst->resize(target_size + 1);
   char* buf = &(*dst)[initial_size];
-  int buf_remain = result + 1;
+  size_t buf_remain = result_size + 1;
 
   // Restore the va_list before we use it again
   va_copy(backup_ap, ap);
   result = vsnprintf(buf, buf_remain, format, backup_ap);
   va_end(backup_ap);
 
-  if (result >= 0 && result < buf_remain) {
+  if (result >= 0 && static_cast<size_t>(result) < buf_remain) {
     // It fit and vsnprintf copied in directly. Resize down one to
     // remove the trailing \0.
     dst->resize(target_size);
