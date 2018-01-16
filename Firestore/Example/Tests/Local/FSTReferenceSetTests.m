@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTReferenceSetTests
 
 - (void)testAddOrRemoveReferences {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:@"foo/bar"];
+  FSTDocumentKey *key = FSTTestDocKey(@"foo/bar");
 
   FSTReferenceSet *referenceSet = [[FSTReferenceSet alloc] init];
   XCTAssertTrue([referenceSet isEmpty]);
@@ -53,9 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testRemoveAllReferencesForTargetID {
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"foo/bar"];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"foo/baz"];
-  FSTDocumentKey *key3 = [FSTDocumentKey keyWithPathString:@"foo/blah"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
+  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
+  FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
   FSTReferenceSet *referenceSet = [[FSTReferenceSet alloc] init];
 
   [referenceSet addReferenceToKey:key1 forID:1];

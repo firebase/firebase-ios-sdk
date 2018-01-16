@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
   NSMutableArray<FSTViewSnapshot *> *otherAccum = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTDocument *doc2prime =
@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testRaisesErrorEvent {
   NSMutableArray<NSError *> *accum = [NSMutableArray array];
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms/Eros")];
+  FSTQuery *query = FSTTestQuery(@"rooms/Eros");
 
   FSTQueryListener *listener = [self listenToQuery:query
                                            handler:^(FSTViewSnapshot *snapshot, NSError *error) {
@@ -104,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testRaisesEventForEmptyCollectionAfterSync {
   NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
 
   FSTQueryListener *listener = [self listenToQuery:query accumulatingSnapshots:accum];
 
@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMutingAsyncListenerPreventsAllSubsequentEvents {
   NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms/Eros")];
+  FSTQuery *query = FSTTestQuery(@"rooms/Eros");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 3, @{@"name" : @"Eros"}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Eros", 4, @{@"name" : @"Eros2"}, NO);
 
@@ -166,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *filteredAccum = [NSMutableArray array];
   NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
 
@@ -204,7 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *filteredAccum = [NSMutableArray array];
   NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTDocument *doc1Prime = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
@@ -253,7 +253,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRaisesQueryMetadataEventsOnlyWhenHasPendingWritesOnTheQueryChanges {
   NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, YES);
   FSTDocument *doc1Prime = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
@@ -290,7 +290,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMetadataOnlyDocumentChangesAreFilteredOutWhenIncludeDocumentMetadataChangesIsFalse {
   NSMutableArray<FSTViewSnapshot *> *filteredAccum = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTDocument *doc1Prime = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
@@ -322,7 +322,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testWillWaitForSyncIfOnline {
   NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTQueryListener *listener =
@@ -340,10 +340,10 @@ NS_ASSUME_NONNULL_BEGIN
                           [FSTTargetChange changeWithDocuments:@[ doc1, doc2 ]
                                            currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];  // no event
+  [listener applyChangedOnlineState:FSTOnlineStateHealthy];  // no event
   [listener queryDidChangeViewSnapshot:snap1];
-  [listener clientDidChangeOnlineState:FSTOnlineStateUnknown];
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];
+  [listener applyChangedOnlineState:FSTOnlineStateUnknown];
+  [listener applyChangedOnlineState:FSTOnlineStateHealthy];
   [listener queryDidChangeViewSnapshot:snap2];
   [listener queryDidChangeViewSnapshot:snap3];
 
@@ -365,7 +365,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testWillRaiseInitialEventWhenGoingOffline {
   NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTQueryListener *listener =
@@ -379,12 +379,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];  // no event
-  [listener queryDidChangeViewSnapshot:snap1];                  // no event
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];   // event
-  [listener clientDidChangeOnlineState:FSTOnlineStateUnknown];  // no event
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];   // no event
-  [listener queryDidChangeViewSnapshot:snap2];                  // another event
+  [listener applyChangedOnlineState:FSTOnlineStateHealthy];  // no event
+  [listener queryDidChangeViewSnapshot:snap1];               // no event
+  [listener applyChangedOnlineState:FSTOnlineStateFailed];   // event
+  [listener applyChangedOnlineState:FSTOnlineStateUnknown];  // no event
+  [listener applyChangedOnlineState:FSTOnlineStateFailed];   // no event
+  [listener queryDidChangeViewSnapshot:snap2];               // another event
 
   FSTDocumentViewChange *change1 =
       [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded];
@@ -411,7 +411,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testWillRaiseInitialEventWhenGoingOfflineAndThereAreNoDocs {
   NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTQueryListener *listener = [self listenToQuery:query
                                            options:[FSTListenOptions defaultOptions]
                              accumulatingSnapshots:events];
@@ -419,9 +419,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateHealthy];  // no event
-  [listener queryDidChangeViewSnapshot:snap1];                  // no event
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];   // event
+  [listener applyChangedOnlineState:FSTOnlineStateHealthy];  // no event
+  [listener queryDidChangeViewSnapshot:snap1];               // no event
+  [listener applyChangedOnlineState:FSTOnlineStateFailed];   // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
          initWithQuery:query
@@ -437,7 +437,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testWillRaiseInitialEventWhenStartingOfflineAndThereAreNoDocs {
   NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
 
-  FSTQuery *query = [FSTQuery queryWithPath:FSTTestPath(@"rooms")];
+  FSTQuery *query = FSTTestQuery(@"rooms");
   FSTQueryListener *listener = [self listenToQuery:query
                                            options:[FSTListenOptions defaultOptions]
                              accumulatingSnapshots:events];
@@ -445,8 +445,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
-  [listener clientDidChangeOnlineState:FSTOnlineStateFailed];  // no event
-  [listener queryDidChangeViewSnapshot:snap1];                 // event
+  [listener applyChangedOnlineState:FSTOnlineStateFailed];  // no event
+  [listener queryDidChangeViewSnapshot:snap1];              // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
          initWithQuery:query

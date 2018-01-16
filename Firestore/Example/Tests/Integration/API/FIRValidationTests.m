@@ -169,7 +169,7 @@
 }
 
 - (void)testWritesWithIndirectlyNestedArraysSucceed {
-  NSDictionary<NSString *, id> *data = @{ @"nested-array" : @[ @1, @{@"foo" : @[ @2 ]} ] };
+  NSDictionary<NSString *, id> *data = @{ @"nested-array" : @[ @1, @{ @"foo" : @[ @2 ] } ] };
 
   FIRDocumentReference *ref = [self documentRef];
   FIRDocumentReference *ref2 = [self documentRef];

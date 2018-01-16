@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 
+#import "FIRFirestore.h"
 #import "FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRDocumentChange+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -57,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRQuerySnapshot {
   // Cached value of the documents property.
-  NSArray<FIRDocumentSnapshot *> *_documents;
+  NSArray<FIRQueryDocumentSnapshot *> *_documents;
 
   // Cached value of the documentChanges property.
   NSArray<FIRDocumentChange *> *_documentChanges;
@@ -74,6 +75,35 @@ NS_ASSUME_NONNULL_BEGIN
     _metadata = metadata;
   }
   return self;
+}
+
+// NSObject Methods
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (![[other class] isEqual:[self class]]) return NO;
+
+  return [self isEqualToSnapshot:other];
+}
+
+- (BOOL)isEqualToSnapshot:(nullable FIRQuerySnapshot *)snapshot {
+  if (self == snapshot) return YES;
+  if (snapshot == nil) return NO;
+  if (self.firestore != snapshot.firestore && ![self.firestore isEqual:snapshot.firestore])
+    return NO;
+  if (self.originalQuery != snapshot.originalQuery &&
+      ![self.originalQuery isEqual:snapshot.originalQuery])
+    return NO;
+  if (self.snapshot != snapshot.snapshot && ![self.snapshot isEqual:snapshot.snapshot]) return NO;
+  if (self.metadata != snapshot.metadata && ![self.metadata isEqual:snapshot.metadata]) return NO;
+  return YES;
+}
+
+- (NSUInteger)hash {
+  NSUInteger hash = [self.firestore hash];
+  hash = hash * 31u + [self.originalQuery hash];
+  hash = hash * 31u + [self.snapshot hash];
+  hash = hash * 31u + [self.metadata hash];
+  return hash;
 }
 
 @dynamic empty;
@@ -93,18 +123,18 @@ NS_ASSUME_NONNULL_BEGIN
   return self.snapshot.documents.count;
 }
 
-- (NSArray<FIRDocumentSnapshot *> *)documents {
+- (NSArray<FIRQueryDocumentSnapshot *> *)documents {
   if (!_documents) {
     FSTDocumentSet *documentSet = self.snapshot.documents;
     FIRFirestore *firestore = self.firestore;
     BOOL fromCache = self.metadata.fromCache;
 
-    NSMutableArray<FIRDocumentSnapshot *> *result = [NSMutableArray array];
+    NSMutableArray<FIRQueryDocumentSnapshot *> *result = [NSMutableArray array];
     for (FSTDocument *document in documentSet.documentEnumerator) {
-      [result addObject:[FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                       documentKey:document.key
-                                                          document:document
-                                                         fromCache:fromCache]];
+      [result addObject:[FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
+                                                            documentKey:document.key
+                                                               document:document
+                                                              fromCache:fromCache]];
     }
 
     _documents = result;

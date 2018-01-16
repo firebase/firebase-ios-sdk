@@ -172,7 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Setup wiring for remote store.
   _remoteStore.syncEngine = _syncEngine;
 
-  _remoteStore.onlineStateDelegate = _eventManager;
+  _remoteStore.onlineStateDelegate = self;
 
   // NOTE: RemoteStore depends on LocalStore (for persisting stream tokens, refilling mutation
   // queue, etc.) so must be started after LocalStore.
@@ -185,6 +185,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTLog(@"User Changed: %@", user);
   [self.syncEngine userDidChange:user];
+}
+
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+  [self.syncEngine applyChangedOnlineState:onlineState];
+  [self.eventManager applyChangedOnlineState:onlineState];
 }
 
 - (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {

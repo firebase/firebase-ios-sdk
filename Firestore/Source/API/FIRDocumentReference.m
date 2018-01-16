@@ -48,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
     NS_DESIGNATED_INITIALIZER;
 
+@property(nonatomic, assign, readonly) BOOL includeMetadataChanges;
+
 @end
 
 @implementation FIRDocumentListenOptions
@@ -114,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isEqual:(nullable id)other {
   if (other == self) return YES;
-  if (!other || ![[other class] isEqual:[self class]]) return NO;
+  if (![[other class] isEqual:[self class]]) return NO;
 
   return [self isEqualToReference:other];
 }

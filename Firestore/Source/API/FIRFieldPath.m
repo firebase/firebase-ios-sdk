@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [[[self class] alloc] initPrivate:self.internalValue];
 }
 
-- (BOOL)isEqual:(id)object {
+- (BOOL)isEqual:(nullable id)object {
   if (self == object) {
     return YES;
   }

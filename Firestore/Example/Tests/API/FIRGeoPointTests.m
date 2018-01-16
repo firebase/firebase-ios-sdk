@@ -28,16 +28,17 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGeoPointTests
 
 - (void)testEquals {
-  XCTAssertEqualObjects([[FIRGeoPoint alloc] initWithLatitude:0 longitude:0],
-                        [[FIRGeoPoint alloc] initWithLatitude:0 longitude:0]);
-  XCTAssertEqualObjects([[FIRGeoPoint alloc] initWithLatitude:1.23 longitude:4.56],
-                        [[FIRGeoPoint alloc] initWithLatitude:1.23 longitude:4.56]);
-  XCTAssertNotEqualObjects([[FIRGeoPoint alloc] initWithLatitude:0 longitude:0],
-                           [[FIRGeoPoint alloc] initWithLatitude:1 longitude:0]);
-  XCTAssertNotEqualObjects([[FIRGeoPoint alloc] initWithLatitude:0 longitude:0],
-                           [[FIRGeoPoint alloc] initWithLatitude:0 longitude:1]);
-  XCTAssertNotEqualObjects([[FIRGeoPoint alloc] initWithLatitude:0 longitude:0],
-                           [[NSObject alloc] init]);
+  FIRGeoPoint *foo = FSTTestGeoPoint(1.23, 4.56);
+  FIRGeoPoint *fooDup = FSTTestGeoPoint(1.23, 4.56);
+  FIRGeoPoint *differentLatitude = FSTTestGeoPoint(1.23, 0);
+  FIRGeoPoint *differentLongitude = FSTTestGeoPoint(0, 4.56);
+  XCTAssertEqualObjects(foo, fooDup);
+  XCTAssertNotEqualObjects(foo, differentLatitude);
+  XCTAssertNotEqualObjects(foo, differentLongitude);
+
+  XCTAssertEqual([foo hash], [fooDup hash]);
+  XCTAssertNotEqual([foo hash], [differentLatitude hash]);
+  XCTAssertNotEqual([foo hash], [differentLongitude hash]);
 }
 
 - (void)testComparison {

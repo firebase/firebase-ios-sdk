@@ -14,27 +14,27 @@
 
 include(ExternalProject)
 
-set(source_dir ${PROJECT_SOURCE_DIR}/Firestore)
-set(binary_dir ${PROJECT_BINARY_DIR}/Firestore)
-
 ExternalProject_Add(
   Firestore
-  DEPENDS FirebaseCore googletest leveldb
+  DEPENDS
+    FirebaseCore
+    googletest
+    leveldb
+    grpc
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.
-  PREFIX ${binary_dir}
-  SOURCE_DIR ${source_dir}
-  BINARY_DIR ${binary_dir}
-  BUILD_ALWAYS ON
-
-  # Even though this isn't installed, set up the INSTALL_DIR so that
-  # find_package can find dependencies built from source.
-  INSTALL_DIR ${FIREBASE_INSTALL_DIR}
-  INSTALL_COMMAND ""
-  TEST_BEFORE_INSTALL ON
+  PREFIX ${PROJECT_BINARY_DIR}/external/Firestore
+  SOURCE_DIR ${PROJECT_SOURCE_DIR}/Firestore
+  BINARY_DIR ${PROJECT_BINARY_DIR}/Firestore
 
   CMAKE_ARGS
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${FIREBASE_INSTALL_DIR}
+    ${GTEST_CMAKE_ARGS}
+
+  BUILD_ALWAYS ON
+
+  INSTALL_COMMAND ""
+  TEST_BEFORE_INSTALL ON
 )

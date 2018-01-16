@@ -57,11 +57,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSUInteger index = 0;
     NSMutableArray<FIRDocumentChange *> *changes = [NSMutableArray array];
     for (FSTDocumentViewChange *change in snapshot.documentChanges) {
-      FIRDocumentSnapshot *document =
-          [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                         documentKey:change.document.key
-                                            document:change.document
-                                           fromCache:snapshot.isFromCache];
+      FIRQueryDocumentSnapshot *document =
+          [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
+                                              documentKey:change.document.key
+                                                 document:change.document
+                                                fromCache:snapshot.isFromCache];
       FSTAssert(change.type == FSTDocumentViewChangeTypeAdded,
                 @"Invalid event type for first snapshot");
       FSTAssert(!lastDocument ||
@@ -79,11 +79,11 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocumentSet *indexTracker = snapshot.oldDocuments;
     NSMutableArray<FIRDocumentChange *> *changes = [NSMutableArray array];
     for (FSTDocumentViewChange *change in snapshot.documentChanges) {
-      FIRDocumentSnapshot *document =
-          [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                         documentKey:change.document.key
-                                            document:change.document
-                                           fromCache:snapshot.isFromCache];
+      FIRQueryDocumentSnapshot *document =
+          [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
+                                              documentKey:change.document.key
+                                                 document:change.document
+                                                fromCache:snapshot.isFromCache];
 
       NSUInteger oldIndex = NSNotFound;
       NSUInteger newIndex = NSNotFound;
@@ -112,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentChange
 
 - (instancetype)initWithType:(FIRDocumentChangeType)type
-                    document:(FIRDocumentSnapshot *)document
+                    document:(FIRQueryDocumentSnapshot *)document
                     oldIndex:(NSUInteger)oldIndex
                     newIndex:(NSUInteger)newIndex {
   if (self = [super init]) {

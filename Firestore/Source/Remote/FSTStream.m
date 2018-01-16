@@ -343,9 +343,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 - (void)closeWithFinalState:(FSTStreamState)finalState error:(nullable NSError *)error {
   FSTAssert(finalState == FSTStreamStateError || error == nil,
             @"Can't provide an error when not in an error state.");
-  FSTAssert(self.delegate,
-            @"closeWithFinalState should only be called for a started stream that has an active "
-            @"delegate.");
 
   [self.workerDispatchQueue verifyIsCurrentQueue];
   [self cancelIdleCheck];
@@ -542,7 +539,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTWeakify(self);
   [self.workerDispatchQueue dispatchAsync:^{
     FSTStrongify(self);
-    if (!self || ![self isStarted]) {
+    if (![self isStarted]) {
       FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
     }
 

@@ -15,26 +15,9 @@
  */
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
 
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriter+Immediate.h>
-#import "Firestore/Protos/objc/google/api/Annotations.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Empty.pbobjc.h>
-#else
-  #import "Firestore/Protos/objc/google/protobuf/Empty.pbobjc.h"
-#endif
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Timestamp.pbobjc.h>
-#else
-  #import "Firestore/Protos/objc/google/protobuf/Timestamp.pbobjc.h"
-#endif
-#import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 
 @implementation GCFSFirestore
 

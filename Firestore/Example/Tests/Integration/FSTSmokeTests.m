@@ -48,7 +48,7 @@
     [self writeDocumentRef:writerRef data:data];
 
     id<FIRListenerRegistration> listenerRegistration =
-        [readerRef addSnapshotListener:self.eventAccumulator.handler];
+        [readerRef addSnapshotListener:self.eventAccumulator.valueEventHandler];
 
     FIRDocumentSnapshot *doc = [self.eventAccumulator awaitEventWithName:@"snapshot"];
     XCTAssertEqual([doc class], [FIRDocumentSnapshot class]);
@@ -62,7 +62,7 @@
   [self readerAndWriterOnDocumentRef:^(NSString *path, FIRDocumentReference *readerRef,
                                        FIRDocumentReference *writerRef) {
     id<FIRListenerRegistration> listenerRegistration =
-        [readerRef addSnapshotListener:self.eventAccumulator.handler];
+        [readerRef addSnapshotListener:self.eventAccumulator.valueEventHandler];
 
     FIRDocumentSnapshot *doc1 = [self.eventAccumulator awaitEventWithName:@"null snapshot"];
     XCTAssertFalse(doc1.exists);
@@ -82,7 +82,7 @@
 - (void)testWillFireValueEventsForEmptyCollections {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"empty-collection"];
   id<FIRListenerRegistration> listenerRegistration =
-      [collection addSnapshotListener:self.eventAccumulator.handler];
+      [collection addSnapshotListener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *snap = [self.eventAccumulator awaitEventWithName:@"empty query snapshot"];
   XCTAssertEqual([snap class], [FIRQuerySnapshot class]);

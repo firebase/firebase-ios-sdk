@@ -70,10 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Type information is currently lost in our canonicalID implementations so this currently an
   // easy way to force colliding canonicalIDs
-  FSTQuery *q1 = [[FSTQuery queryWithPath:FSTTestPath(@"a")]
-      queryByAddingFilter:FSTTestFilter(@"foo", @"==", @(1))];
-  FSTQuery *q2 = [[FSTQuery queryWithPath:FSTTestPath(@"a")]
-      queryByAddingFilter:FSTTestFilter(@"foo", @"==", @"1")];
+  FSTQuery *q1 = [FSTTestQuery(@"a") queryByAddingFilter:FSTTestFilter(@"foo", @"==", @(1))];
+  FSTQuery *q2 = [FSTTestQuery(@"a") queryByAddingFilter:FSTTestFilter(@"foo", @"==", @"1")];
   XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
 
   FSTQueryData *data1 = [self queryDataWithQuery:q1 targetID:1 version:1];
@@ -141,8 +139,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms targetID:1 version:1];
   [self addQueryData:rooms];
 
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"rooms/foo"];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"rooms/bar"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"rooms/foo");
+  FSTDocumentKey *key2 = FSTTestDocKey(@"rooms/bar");
   [self addMatchingKey:key1 forTargetID:rooms.targetID];
   [self addMatchingKey:key2 forTargetID:rooms.targetID];
 
@@ -157,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAddOrRemoveMatchingKeys {
   if ([self isTestBaseClass]) return;
 
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:@"foo/bar"];
+  FSTDocumentKey *key = FSTTestDocKey(@"foo/bar");
 
   XCTAssertFalse([self.queryCache containsKey:key]);
 
@@ -177,9 +175,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"foo/bar"];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"foo/baz"];
-  FSTDocumentKey *key3 = [FSTDocumentKey keyWithPathString:@"foo/blah"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
+  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
+  FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
 
   [self addMatchingKey:key1 forTargetID:1];
   [self addMatchingKey:key2 forTargetID:1];
@@ -207,15 +205,15 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertEqualSets([garbageCollector collectGarbage], @[]);
 
   FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery(@"rooms") targetID:1 version:1];
-  FSTDocumentKey *room1 = [FSTDocumentKey keyWithPathString:@"rooms/bar"];
-  FSTDocumentKey *room2 = [FSTDocumentKey keyWithPathString:@"rooms/foo"];
+  FSTDocumentKey *room1 = FSTTestDocKey(@"rooms/bar");
+  FSTDocumentKey *room2 = FSTTestDocKey(@"rooms/foo");
   [self addQueryData:rooms];
   [self addMatchingKey:room1 forTargetID:rooms.targetID];
   [self addMatchingKey:room2 forTargetID:rooms.targetID];
 
   FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery(@"halls") targetID:2 version:1];
-  FSTDocumentKey *hall1 = [FSTDocumentKey keyWithPathString:@"halls/bar"];
-  FSTDocumentKey *hall2 = [FSTDocumentKey keyWithPathString:@"halls/foo"];
+  FSTDocumentKey *hall1 = FSTTestDocKey(@"halls/bar");
+  FSTDocumentKey *hall2 = FSTTestDocKey(@"halls/foo");
   [self addQueryData:halls];
   [self addMatchingKey:hall1 forTargetID:halls.targetID];
   [self addMatchingKey:hall2 forTargetID:halls.targetID];
@@ -235,9 +233,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"foo/bar"];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"foo/baz"];
-  FSTDocumentKey *key3 = [FSTDocumentKey keyWithPathString:@"foo/blah"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
+  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
+  FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
 
   [self addMatchingKey:key1 forTargetID:1];
   [self addMatchingKey:key2 forTargetID:1];
@@ -259,8 +257,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"rooms")
                                                     targetID:1
                                                      purpose:FSTQueryPurposeListen];
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"rooms/bar"];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"rooms/foo"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"rooms/bar");
+  FSTDocumentKey *key2 = FSTTestDocKey(@"rooms/foo");
   [self addQueryData:query1];
   [self addMatchingKey:key1 forTargetID:1];
   [self addMatchingKey:key2 forTargetID:1];
@@ -268,7 +266,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"halls")
                                                     targetID:2
                                                      purpose:FSTQueryPurposeListen];
-  FSTDocumentKey *key3 = [FSTDocumentKey keyWithPathString:@"halls/foo"];
+  FSTDocumentKey *key3 = FSTTestDocKey(@"halls/foo");
   [self addQueryData:query2];
   [self addMatchingKey:key3 forTargetID:2];
   XCTAssertEqual([self.queryCache highestTargetID], 2);

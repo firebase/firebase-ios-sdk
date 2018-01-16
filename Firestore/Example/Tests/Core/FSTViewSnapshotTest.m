@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testViewSnapshotConstructor {
-  FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithSegments:@[ @"a" ]]];
+  FSTQuery *query = FSTTestQuery(@"a");
   FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
   FSTDocumentSet *oldDocuments = documents;
   documents = [documents documentSetByAddingDocument:FSTTestDoc(@"c/a", 1, @{}, NO)];
