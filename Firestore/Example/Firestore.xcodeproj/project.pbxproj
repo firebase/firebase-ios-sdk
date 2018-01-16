@@ -29,6 +29,7 @@
 		54740A581FC914F000713A1A /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A521FC913E500713A1A /* autoid_test.cc */; };
 		54764FAB1FAA0C320085E60A /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAA1FAA0C320085E60A /* string_util_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
+		548DB927200D590300E00ABC /* assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 548DB926200D590300E00ABC /* assert_test.cc */; };
 		5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		5491BC731FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		54C2294F1FECABAE007D065B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
@@ -201,6 +202,7 @@
 		54740A531FC913E500713A1A /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = secure_random_test.cc; path = ../../core/test/firebase/firestore/util/secure_random_test.cc; sourceTree = "<group>"; };
 		54764FAA1FAA0C320085E60A /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_util_test.cc; path = ../../Port/string_util_test.cc; sourceTree = "<group>"; };
 		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
+		548DB926200D590300E00ABC /* assert_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = assert_test.cc; path = ../../core/test/firebase/firestore/util/assert_test.cc; sourceTree = "<group>"; };
 		5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTIntegrationTestCase.mm; sourceTree = "<group>"; };
 		54C2294E1FECABAE007D065B /* log_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = log_test.cc; path = ../../core/test/firebase/firestore/util/log_test.cc; sourceTree = "<group>"; };
 		54DA129C1F315EE100DD57A1 /* collection_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = collection_spec_test.json; sourceTree = "<group>"; };
@@ -394,6 +396,7 @@
 		54740A561FC913EB00713A1A /* util */ = {
 			isa = PBXGroup;
 			children = (
+				548DB926200D590300E00ABC /* assert_test.cc */,
 				54740A521FC913E500713A1A /* autoid_test.cc */,
 				54C2294E1FECABAE007D065B /* log_test.cc */,
 				54740A531FC913E500713A1A /* secure_random_test.cc */,
@@ -1217,6 +1220,7 @@
 				DE51B1D41F0D48CD0013853F /* FSTViewTests.m in Sources */,
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				DE51B1F41F0D491B0013853F /* FSTRemoteEventTests.m in Sources */,
+				548DB927200D590300E00ABC /* assert_test.cc in Sources */,
 				54E928241F33953300C1953E /* FSTEventAccumulator.m in Sources */,
 				DE51B1D11F0D48CD0013853F /* FSTTargetIDGeneratorTests.m in Sources */,
 				5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */,
