@@ -73,7 +73,8 @@ extern "C" {
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;
 
-- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref options:(FIRGetOptions *)options;
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
+                                    options:(FIRGetOptions *)options;
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
 

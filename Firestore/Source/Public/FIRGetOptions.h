@@ -53,11 +53,7 @@ NS_SWIFT_NAME(GetOptions)
  * stale with respect to the value on the server.) For a single document, the
  * get will fail if the document doesn't exist.
  */
-typedef NS_ENUM(NSUInteger, FIRSource) {
-  FIRDefault,
-  FIRServer,
-  FIRCache
-} NS_SWIFT_NAME(Source);
+typedef NS_ENUM(NSUInteger, FIRSource) { FIRDefault, FIRServer, FIRCache } NS_SWIFT_NAME(Source);
 
 /**
  * Initializes the get options with the specified source.

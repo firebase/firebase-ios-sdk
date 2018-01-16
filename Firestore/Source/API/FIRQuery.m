@@ -135,15 +135,18 @@ NS_ASSUME_NONNULL_BEGIN
   [self getDocumentsWithOptions:[FIRGetOptions defaultOptions] completion:completion];
 }
 
-- (void)getDocumentsWithOptions:(FIRGetOptions *)options completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion {
+- (void)getDocumentsWithOptions:(FIRGetOptions *)options
+                     completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                          NSError *_Nullable error))completion {
   if (options.source == FIRCache) {
     [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
     return;
   }
 
-  FSTListenOptions *listenOptions = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:YES];
+  FSTListenOptions *listenOptions =
+      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
+                                     includeDocumentMetadataChanges:YES
+                                              waitForSyncWhenOnline:YES];
 
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   __block id<FIRListenerRegistration> listenerRegistration;
@@ -159,13 +162,22 @@ NS_ASSUME_NONNULL_BEGIN
     [listenerRegistration remove];
 
     if (snapshot.metadata.fromCache && options.source == FIRServer) {
-      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain code:FIRFirestoreErrorCodeUnavailable userInfo:@{NSLocalizedDescriptionKey: @"Failed to get documents from server. (However, these documents may exist in the local cache. Run again without setting FIRServer in the GetOptions to retrieve the cached documents.)"}]);
+      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                          code:FIRFirestoreErrorCodeUnavailable
+                                      userInfo:@{
+                                        NSLocalizedDescriptionKey :
+                                            @"Failed to get documents from server. (However, these "
+                                            @"documents may exist in the local cache. Run again "
+                                            @"without setting FIRServer in the GetOptions to "
+                                            @"retrieve the cached documents.)"
+                                      }]);
     } else {
       completion(snapshot, nil);
     }
   };
 
-  listenerRegistration = [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
+  listenerRegistration =
+      [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
   dispatch_semaphore_signal(registered);
 }
 
