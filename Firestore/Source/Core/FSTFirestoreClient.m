@@ -265,7 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (maybeDoc) {
       completion([FIRDocumentSnapshot snapshotWithFirestore:doc.firestore documentKey:doc.key document:(FSTDocument *)maybeDoc fromCache:YES], nil);
     } else {
-      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain code:FIRFirestoreErrorCodeUnavailable userInfo:@{NSLocalizedDescriptionKey: @"Failed to get document from server.",}]);
+      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain code:FIRFirestoreErrorCodeUnavailable userInfo:@{NSLocalizedDescriptionKey: @"Failed to get document from cache. (However, this document may exist on the server. Run again without setting FIRCache in the GetOptions to attempt to retrieve the document from the server.)",}]);
     }
   }];
 }

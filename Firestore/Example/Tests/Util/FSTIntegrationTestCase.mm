@@ -209,14 +209,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
-  return [self readDocumentForRef:ref getOptions:[FIRGetOptions defaultOptions]];
+  return [self readDocumentForRef:ref options:[FIRGetOptions defaultOptions]];
 }
 
-- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref getOptions:(FIRGetOptions *)getOptions {
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref options:(FIRGetOptions *)options {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [ref getDocumentWithOptions:getOptions completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+  [ref getDocumentWithOptions:options completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
     XCTAssertNil(error);
     result = doc;
     [expectation fulfill];
@@ -227,14 +227,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query {
-  return [self readDocumentSetForRef:query getOptions:[FIRGetOptions defaultOptions]];
+  return [self readDocumentSetForRef:query options:[FIRGetOptions defaultOptions]];
 }
 
-- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query getOptions:(FIRGetOptions *)getOptions {
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query options:(FIRGetOptions *)options {
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [query getDocumentsWithOptions:getOptions completion:^(FIRQuerySnapshot *documentSet, NSError *error) {
+  [query getDocumentsWithOptions:options completion:^(FIRQuerySnapshot *documentSet, NSError *error) {
     XCTAssertNil(error);
     result = documentSet;
     [expectation fulfill];

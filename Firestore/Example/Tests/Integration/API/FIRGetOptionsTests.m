@@ -16,7 +16,6 @@
 
 @import FirebaseFirestore;
 
-#import <FirebaseFirestore/FIRFirestore.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -43,7 +42,7 @@
   XCTAssertEqualObjects(result.data, initialData);
 }
 
-- (void)testGetDocumentsWhileOnlineWithDefaultGetOptions {
+- (void)testGetCollectionWhileOnlineWithDefaultGetOptions {
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few documents to known values
@@ -91,7 +90,7 @@
   XCTAssertEqualObjects(result.data, newData);
 }
 
-- (void)testGetDocumentsWhileOfflineWithDefaultGetOptions {
+- (void)testGetCollectionWhileOfflineWithDefaultGetOptions {
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few documents to known values
@@ -132,13 +131,13 @@
 
   // get doc and ensure that it exists, *is* from the cache, and matches
   // the initialData.
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(result.data, initialData);
 }
 
-- (void)testGetDocumentsWhileOnlineCacheOnly {
+- (void)testGetCollectionWhileOnlineCacheOnly {
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few documents to a known value
@@ -151,7 +150,7 @@
 
   // get docs and ensure they *are* from the cache, and matches the
   // initialDocs.
-  FIRQuerySnapshot *result = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
         @{@"key1": @"value1"},
@@ -180,13 +179,13 @@
 
   // get doc and ensure it exists, *is* from the cache, and matches the
   // newData.
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(result.data, newData);
 }
 
-- (void)testGetDocumentsWhileOfflineCacheOnly {
+- (void)testGetCollectionWhileOfflineCacheOnly {
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few documents to a known value
@@ -209,7 +208,7 @@
 
   // get docs and ensure they *are* from the cache, and matches the updated
   // data.
-  FIRQuerySnapshot *result = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
         @{@"key1": @"value1"},
@@ -228,13 +227,13 @@
 
   // get doc and ensure that it exists, is *not* from the cache, and matches
   // the initialData.
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc getOptions:[[FIRGetOptions alloc] initWithSource:FIRServer]];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRServer]];
   XCTAssertTrue(result.exists);
   XCTAssertFalse(result.metadata.fromCache);
   XCTAssertEqualObjects(result.data, initialData);
 }
 
-- (void)testGetDocumentsWhileOnlineServerOnly {
+- (void)testGetCollectionWhileOnlineServerOnly {
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few documents to a known value
@@ -247,7 +246,7 @@
 
   // get docs and ensure they are *not* from the cache, and matches the
   // initialData.
-  FIRQuerySnapshot *result = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRServer]];
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRServer]];
   XCTAssertFalse(result.metadata.fromCache);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
         @{@"key1": @"value1"},
@@ -277,7 +276,7 @@
   [self awaitExpectations];
 }
 
-- (void)testGetDocumentsWhileOfflineServerOnly {
+- (void)testGetCollectionWhileOfflineServerOnly {
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few documents to a known value
@@ -320,7 +319,7 @@
     XCTAssertTrue(false, "Because we're offline, this should never occur.");
   }];
 
-  // Create an initial listener for this query (to attempt to disrupt the gets below) and wait for the listener to be fully initialized before continuing.
+  // Create an initial listener for this query (to attempt to disrupt the gets below) and wait for the listener to deliver its initial snapshot before continuing.
   XCTestExpectation *listenerReady = [self expectationWithDescription:@"listenerReady"];
   [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     [listenerReady fulfill];
@@ -329,13 +328,13 @@
 
   // get doc (from cache) and ensure it exists, *is* from the cache, and
   // matches the newData.
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(result.data, newData);
 
   // attempt to get doc (with default get options)
-  result = [self readDocumentForRef:doc getOptions:[[FIRGetOptions alloc] initWithSource:FIRDefault]];
+  result = [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRDefault]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(result.data, newData);
@@ -351,7 +350,7 @@
   [self awaitExpectations];
 }
 
-- (void)testGetDocumentsWhileOfflineWithDifferentGetOptions {
+- (void)testGetCollectionWhileOfflineWithDifferentGetOptions {
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few documents to a known value
@@ -373,7 +372,7 @@
   [[col documentWithPath:@"doc4"] setData:@{@"key4" : @"value4"}];
 
   // Create an initial listener for this query (to attempt to disrupt the gets
-  // below) and wait for the listener to be fully initialized before
+  // below) and wait for the listener to deliver its initial snapshot before
   // continuing.
   XCTestExpectation *listenerReady = [self expectationWithDescription:@"listenerReady"];
   [col addSnapshotListener:^(FIRQuerySnapshot *snapshot, NSError *error) {
@@ -383,7 +382,7 @@
 
   // get docs (from cache) and ensure they *are* from the cache, and
   // matches the updated data.
-  FIRQuerySnapshot *result = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
         @{@"key1": @"value1"},
@@ -393,7 +392,7 @@
         ]));
 
   // attempt to get docs (with default get options)
-  result = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRDefault]];
+  result = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRDefault]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
         @{@"key1": @"value1"},
@@ -422,11 +421,12 @@
   XCTAssertFalse(snapshot.metadata.fromCache);
 }
 
-- (void)testGetNonExistingDocsWhileOnlineWithDefaultGetOptions {
+- (void)testGetNonExistingCollectionWhileOnlineWithDefaultGetOptions {
   FIRCollectionReference *col = [self collectionRef];
 
-  // get docs and ensure that they are *not* from the cache.
+  // get collection and ensure it's empty and that it's *not* from the cache.
   FIRQuerySnapshot* snapshot = [self readDocumentSetForRef:col];
+  XCTAssertEqual(snapshot.count, 0);
   XCTAssertFalse(snapshot.metadata.fromCache);
 }
 
@@ -449,14 +449,15 @@
   [self awaitExpectations];
 }
 
-- (void)testGetNonExistingDocsWhileOfflineWithDefaultGetOptions {
+- (void)testGetNonExistingCollectionWhileOfflineWithDefaultGetOptions {
   FIRCollectionReference *col = [self collectionRef];
 
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // get docs and ensure they *are* from the cache.
+  // get collection and ensure it's empty and that it *is* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col];
+  XCTAssertEqual(snapshot.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
 }
 
@@ -476,11 +477,12 @@
   [self awaitExpectations];
 }
 
-- (void)testGetNonExistingDocsWhileOnlineCacheOnly {
+- (void)testGetNonExistingCollectionWhileOnlineCacheOnly {
   FIRCollectionReference *col = [self collectionRef];
 
-  // get docs and ensure they *are* from the cache.
-  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  // get collection and ensure it's empty and that it *is* from the cache.
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  XCTAssertEqual(snapshot.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
 }
 
@@ -503,14 +505,15 @@
   [self awaitExpectations];
 }
 
-- (void)testGetNonExistingDocsWhileOfflineCacheOnly {
+- (void)testGetNonExistingCollectionWhileOfflineCacheOnly {
   FIRCollectionReference *col = [self collectionRef];
 
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // get docs and ensure they *are* from the cache.
-  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  // get collection and ensure it's empty and that it *is* from the cache.
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRCache]];
+  XCTAssertEqual(snapshot.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
 }
 
@@ -518,16 +521,17 @@
   FIRDocumentReference *doc = [self documentRef];
 
   // get doc and ensure that it does not exist and is *not* from the cache.
-  FIRDocumentSnapshot* snapshot = [self readDocumentForRef:doc getOptions:[[FIRGetOptions alloc] initWithSource:FIRServer]];
+  FIRDocumentSnapshot* snapshot = [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRServer]];
   XCTAssertFalse(snapshot.exists);
   XCTAssertFalse(snapshot.metadata.fromCache);
 }
 
-- (void)testGetNonExistingDocsWhileOnlineServerOnly {
+- (void)testGetNonExistingCollectionWhileOnlineServerOnly {
   FIRCollectionReference *col = [self collectionRef];
 
-  // get docs and ensure that they are *not* from the cache.
-  FIRQuerySnapshot* snapshot = [self readDocumentSetForRef:col getOptions:[[FIRGetOptions alloc] initWithSource:FIRServer]];
+  // get collection and ensure that it's empty and that it's *not* from the cache.
+  FIRQuerySnapshot* snapshot = [self readDocumentSetForRef:col options:[[FIRGetOptions alloc] initWithSource:FIRServer]];
+  XCTAssertEqual(snapshot.count, 0);
   XCTAssertFalse(snapshot.metadata.fromCache);
 }
 
@@ -550,13 +554,13 @@
   [self awaitExpectations];
 }
 
-- (void)testGetNonExistingDocsWhileOfflineServerOnly {
+- (void)testGetNonExistingCollectionWhileOfflineServerOnly {
   FIRCollectionReference *col = [self collectionRef];
 
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get docs and ensure they cannot be retreived
+  // attempt to get collection and ensure that it cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
   [col getDocumentsWithOptions:[[FIRGetOptions alloc] initWithSource:FIRServer] completion:^(FIRQuerySnapshot *snapshot, NSError *error) {
     XCTAssertNotNil(error);

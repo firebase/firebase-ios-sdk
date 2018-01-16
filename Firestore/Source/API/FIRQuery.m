@@ -135,13 +135,13 @@ NS_ASSUME_NONNULL_BEGIN
   [self getDocumentsWithOptions:[FIRGetOptions defaultOptions] completion:completion];
 }
 
-- (void)getDocumentsWithOptions:(FIRGetOptions *)getOptions completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion {
-  if (getOptions.source == FIRCache) {
+- (void)getDocumentsWithOptions:(FIRGetOptions *)options completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion {
+  if (options.source == FIRCache) {
     [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
     return;
   }
 
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
+  FSTListenOptions *listenOptions = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:YES
                                                                       waitForSyncWhenOnline:YES];
 
@@ -158,14 +158,14 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    if (snapshot.metadata.fromCache && getOptions.source == FIRServer) {
-      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain code:FIRFirestoreErrorCodeUnavailable userInfo:@{NSLocalizedDescriptionKey: @"Failed to get documents from server."}]);
+    if (snapshot.metadata.fromCache && options.source == FIRServer) {
+      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain code:FIRFirestoreErrorCodeUnavailable userInfo:@{NSLocalizedDescriptionKey: @"Failed to get documents from server. (However, these documents may exist in the local cache. Run again without setting FIRServer in the GetOptions to retrieve the cached documents.)"}]);
     } else {
       completion(snapshot, nil);
     }
   };
 
-  listenerRegistration = [self addSnapshotListenerInternalWithOptions:options listener:listener];
+  listenerRegistration = [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
   dispatch_semaphore_signal(registered);
 }
 
