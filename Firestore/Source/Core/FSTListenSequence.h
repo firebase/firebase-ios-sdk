@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initStartingAfter:(FSTListenSequenceNumber)after NS_DESIGNATED_INITIALIZER;
 
-- (id)init __attribute__((unavailable("Use a static constructor method")));
+- (id)init __attribute__((unavailable("Use initStartingAfter:")));
 
 - (FSTListenSequenceNumber)next;
 
