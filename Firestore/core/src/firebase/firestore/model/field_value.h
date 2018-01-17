@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -94,7 +95,8 @@ class FieldValue {
   // static FieldValue GeoPointValue();
   static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
   static FieldValue ArrayValue(std::vector<const FieldValue>&& value);
-  // static const FieldValue& ObjectValue();
+  static FieldValue ObjectValue(const std::map<const std::string, const FieldValue>& value);
+  static FieldValue ObjectValue(std::map<const std::string, const FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -118,7 +120,7 @@ class FieldValue {
     // Blob blob_value_;
     // GeoPoint geopoint_value_;
     std::vector<const FieldValue> array_value_;
-    // std::map<const std::string, const FieldValue> object_value_;
+    std::map<const std::string, const FieldValue> object_value_;
   };
 };
 

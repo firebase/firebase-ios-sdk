@@ -65,6 +65,7 @@ bool LessThan(double lhs, double rhs) {
     return isnan(lhs) && !isnan(rhs);
   }
 }
+
 bool LessThan(double lhs, int64_t rhs) {
   // LLONG_MIN has an exact representation as double, so to check for a value
   // outside the range representable by long, we have to check for strictly less
@@ -136,6 +137,12 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       std::swap(array_value_, tmp);
       break;
     }
+    case Type::Object: {
+      // copy-and-swap
+      std::map<const std::string, const FieldValue> tmp = value.object_value_;
+      std::swap(object_value_, tmp);
+      break;
+    }
     default:
       FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
           false, lhs.type(), "Unsupported type %d", value.type());
@@ -152,6 +159,10 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
     case Type::Array:
       SwitchTo(Type::Array);
       std::swap(array_value_, value.array_value_);
+      return *this;
+    case Type::Object:
+      SwitchTo(Type::Object);
+      std::swap(object_value_, value.object_value_);
       return *this;
     default:
       // We just copy over POD union types.
@@ -226,6 +237,18 @@ FieldValue FieldValue::ArrayValue(std::vector<const FieldValue>&& value) {
   return result;
 }
 
+FieldValue FieldValue::ObjectValue(const std::map<const std::string, const FieldValue>& value) {
+  std::map<const std::string, const FieldValue> copy(value);
+  return ObjectValue(std::move(copy));
+}
+
+FieldValue FieldValue::ObjectValue(std::map<const std::string, const FieldValue>&& value) {
+  FieldValue result;
+  result.SwitchTo(Type::Object);
+  std::swap(result.object_value_, value);
+  return result;
+}
+
 bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
   if (!Comparable(lhs.type(), rhs.type())) {
     return lhs.type() < rhs.type();
@@ -253,6 +276,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return lhs.string_value_.compare(rhs.string_value_) < 0;
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
+    case Type::Object:
+      return lhs.object_value_ < rhs.object_value_;
     default:
       FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
           false, lhs.type(), "Unsupported type %d", lhs.type());
@@ -275,6 +300,9 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Array:
       array_value_.~vector();
       break;
+    case Type::Object:
+      object_value_.~map();
+      break;
     default:;  // The other types where there is nothing to worry about.
   }
   tag_ = type;
@@ -285,6 +313,9 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();
+      break;
+    case Type::Object:
+      new (&object_value_) std::map<const std::string, const FieldValue>();
       break;
     default:;  // The other types where there is nothing to worry about.
   }
