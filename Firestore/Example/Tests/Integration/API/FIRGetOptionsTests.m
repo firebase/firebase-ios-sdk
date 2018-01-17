@@ -39,6 +39,7 @@
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
   XCTAssertTrue(result.exists);
   XCTAssertFalse(result.metadata.fromCache);
+  XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, initialData);
 }
 
@@ -57,9 +58,15 @@
   // initialDocs.
   FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
   XCTAssertFalse(result.metadata.fromCache);
+  XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(
       FIRQuerySnapshotGetData(result),
       (@[ @{@"key1" : @"value1"}, @{@"key2" : @"value2"}, @{@"key3" : @"value3"} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetDocChangesData(result), (@[
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc1", @{@"key1" : @"value1"} ],
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc2", @{@"key2" : @"value2"} ],
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc3", @{@"key3" : @"value3"} ]
+                        ]));
 }
 
 - (void)testGetDocumentWhileOfflineWithDefaultGetOptions {
@@ -86,6 +93,7 @@
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, newData);
 }
 
@@ -113,10 +121,18 @@
   // get docs and ensure they *are* from the cache, and matches the updated data.
   FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
                           @{@"key1" : @"value1"}, @{@"key2" : @"value2", @"key2b" : @"value2b"},
                           @{@"key3b" : @"value3b"}, @{@"key4" : @"value4"}
                         ]));
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetDocChangesData(result), (@[
+        @[ @(FIRDocumentChangeTypeAdded), @"doc1", @{@"key1" : @"value1"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc2", @{@"key2" : @"value2", @"key2b" : @"value2b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc3", @{@"key3b" : @"value3b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc4", @{@"key4" : @"value4"} ]
+      ]));
 }
 
 - (void)testGetDocumentWhileOnlineCacheOnly {
@@ -132,6 +148,7 @@
       [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, initialData);
 }
 
@@ -152,10 +169,16 @@
       [self readDocumentSetForRef:col
                           options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
                           @{@"key1" : @"value1"},
                           @{@"key2" : @"value2"},
                           @{@"key3" : @"value3"},
+                        ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetDocChangesData(result), (@[
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc1", @{@"key1" : @"value1"} ],
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc2", @{@"key2" : @"value2"} ],
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc3", @{@"key3" : @"value3"} ]
                         ]));
 }
 
@@ -184,6 +207,7 @@
       [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, newData);
 }
 
@@ -214,10 +238,18 @@
       [self readDocumentSetForRef:col
                           options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
                           @{@"key1" : @"value1"}, @{@"key2" : @"value2", @"key2b" : @"value2b"},
                           @{@"key3b" : @"value3b"}, @{@"key4" : @"value4"}
                         ]));
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetDocChangesData(result), (@[
+        @[ @(FIRDocumentChangeTypeAdded), @"doc1", @{@"key1" : @"value1"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc2", @{@"key2" : @"value2", @"key2b" : @"value2b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc3", @{@"key3b" : @"value3b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc4", @{@"key4" : @"value4"} ]
+      ]));
 }
 
 - (void)testGetDocumentWhileOnlineServerOnly {
@@ -233,6 +265,7 @@
       [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
   XCTAssertTrue(result.exists);
   XCTAssertFalse(result.metadata.fromCache);
+  XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, initialData);
 }
 
@@ -253,10 +286,16 @@
       [self readDocumentSetForRef:col
                           options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
   XCTAssertFalse(result.metadata.fromCache);
+  XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
                           @{@"key1" : @"value1"},
                           @{@"key2" : @"value2"},
                           @{@"key3" : @"value3"},
+                        ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetDocChangesData(result), (@[
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc1", @{@"key1" : @"value1"} ],
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc2", @{@"key2" : @"value2"} ],
+                          @[ @(FIRDocumentChangeTypeAdded), @"doc3", @{@"key3" : @"value3"} ]
                         ]));
 }
 
@@ -341,6 +380,7 @@
       [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, newData);
 
   // attempt to get doc (with default get options)
@@ -348,6 +388,7 @@
       [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceDefault]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, newData);
 
   // attempt to get doc (from the server) and ensure it cannot be retreived
@@ -398,10 +439,18 @@
       [self readDocumentSetForRef:col
                           options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertTrue(result.metadata.fromCache);
+  XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
                           @{@"key1" : @"value1"}, @{@"key2" : @"value2", @"key2b" : @"value2b"},
                           @{@"key3b" : @"value3b"}, @{@"key4" : @"value4"}
                         ]));
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetDocChangesData(result), (@[
+        @[ @(FIRDocumentChangeTypeAdded), @"doc1", @{@"key1" : @"value1"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc2", @{@"key2" : @"value2", @"key2b" : @"value2b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc3", @{@"key3b" : @"value3b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc4", @{@"key4" : @"value4"} ]
+      ]));
 
   // attempt to get docs (with default get options)
   result = [self readDocumentSetForRef:col
@@ -411,6 +460,13 @@
                           @{@"key1" : @"value1"}, @{@"key2" : @"value2", @"key2b" : @"value2b"},
                           @{@"key3b" : @"value3b"}, @{@"key4" : @"value4"}
                         ]));
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetDocChangesData(result), (@[
+        @[ @(FIRDocumentChangeTypeAdded), @"doc1", @{@"key1" : @"value1"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc2", @{@"key2" : @"value2", @"key2b" : @"value2b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc3", @{@"key3b" : @"value3b"} ],
+        @[ @(FIRDocumentChangeTypeAdded), @"doc4", @{@"key4" : @"value4"} ]
+      ]));
 
   // attempt to get docs (from the server) and ensure they cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
@@ -431,6 +487,7 @@
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertFalse(snapshot.exists);
   XCTAssertFalse(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingCollectionWhileOnlineWithDefaultGetOptions {
@@ -439,7 +496,9 @@
   // get collection and ensure it's empty and that it's *not* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col];
   XCTAssertEqual(snapshot.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertFalse(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingDocWhileOfflineWithDefaultGetOptions {
@@ -471,7 +530,9 @@
   // get collection and ensure it's empty and that it *is* from the cache.
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:col];
   XCTAssertEqual(snapshot.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingDocWhileOnlineCacheOnly {
@@ -500,7 +561,9 @@
       [self readDocumentSetForRef:col
                           options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertEqual(snapshot.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingDocWhileOfflineCacheOnly {
@@ -535,7 +598,9 @@
       [self readDocumentSetForRef:col
                           options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
   XCTAssertEqual(snapshot.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingDocWhileOnlineServerOnly {
@@ -546,6 +611,7 @@
       [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
   XCTAssertFalse(snapshot.exists);
   XCTAssertFalse(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingCollectionWhileOnlineServerOnly {
@@ -556,7 +622,9 @@
       [self readDocumentSetForRef:col
                           options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
   XCTAssertEqual(snapshot.count, 0);
+  XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertFalse(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingDocWhileOfflineServerOnly {

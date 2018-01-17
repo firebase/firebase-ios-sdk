@@ -325,6 +325,18 @@ extern "C" NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs) {
   return result;
 }
 
+extern "C" NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySnapshot *docs) {
+  NSMutableArray<NSMutableArray<id> *> *result = [NSMutableArray array];
+  for (FIRDocumentChange *docChange in docs.documentChanges) {
+    NSMutableArray<id> *docChangeData = [NSMutableArray array];
+    [docChangeData addObject:@(docChange.type)];
+    [docChangeData addObject:docChange.document.documentID];
+    [docChangeData addObject:docChange.document.data];
+    [result addObject:docChangeData];
+  }
+  return result;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

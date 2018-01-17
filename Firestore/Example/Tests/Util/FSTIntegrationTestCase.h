@@ -111,6 +111,10 @@ NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(FIRQuerySnapsho
 /** Converts the FIRQuerySnapshot to an NSArray containing the document IDs in order. */
 NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs);
 
+/** Converts the FIRQuerySnapshot to an NSArray containing an NSArray containing the doc change data
+ * in order of { type, doc title, doc data }. */
+NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySnapshot *docs);
+
 #if __cplusplus
 }  // extern "C"
 #endif

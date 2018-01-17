@@ -28,6 +28,7 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
@@ -287,27 +288,23 @@ NS_ASSUME_NONNULL_BEGIN
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
   [self.workerDispatchQueue dispatchAsync:^{
+
     FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
+    FSTDocumentKeySet *remoteKeys = [FSTDocumentKeySet keySet];
 
-    __block FSTDocumentSet *documents =
-        [FSTDocumentSet documentSetWithComparator:query.query.comparator];
-    FSTDocumentSet *oldDocuments = documents;
-    [docs enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *value, BOOL *stop) {
-      documents = [documents documentSetByAddingDocument:value];
-    }];
+    FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:remoteKeys];
+    FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
+    FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
+    FSTAssert(viewChange.limboChanges.count == 0,
+              @"View returned limbo docs before target ack from the server.");
 
-    FSTViewSnapshot *snapshot = [[FSTViewSnapshot alloc] initWithQuery:query.query
-                                                             documents:documents
-                                                          oldDocuments:oldDocuments
-                                                       documentChanges:@[]
-                                                             fromCache:YES
-                                                      hasPendingWrites:NO
-                                                      syncStateChanged:NO];
+    FSTViewSnapshot *snapshot = viewChange.snapshot;
     FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:YES];
+        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.hasPendingWrites
+                                                     fromCache:snapshot.fromCache];
 
     completion([FIRQuerySnapshot snapshotWithFirestore:query.firestore
-                                         originalQuery:query.query
+                                         originalQuery:query
                                               snapshot:snapshot
                                               metadata:metadata],
                nil);
