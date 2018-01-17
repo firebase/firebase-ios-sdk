@@ -42,6 +42,64 @@ TEST(FieldValue, BooleanType) {
   EXPECT_TRUE(false_value < true_value);
 }
 
+TEST(FieldValue, NumberType) {
+  const FieldValue nan_value = FieldValue::NanValue();
+  const FieldValue integer_value = FieldValue::IntegerValue(10L);
+  const FieldValue double_value = FieldValue::DoubleValue(10.1);
+  EXPECT_EQ(Type::Double, nan_value.type());
+  EXPECT_EQ(Type::Long, integer_value.type());
+  EXPECT_EQ(Type::Double, double_value.type());
+  EXPECT_TRUE(nan_value < integer_value);
+  EXPECT_TRUE(nan_value < double_value);
+  EXPECT_FALSE(nan_value < nan_value);
+  EXPECT_FALSE(integer_value < nan_value);
+  EXPECT_FALSE(integer_value < nan_value);
+  EXPECT_TRUE(integer_value < double_value);  // 10 < 10.1
+  EXPECT_FALSE(double_value < integer_value);
+  EXPECT_FALSE(integer_value < integer_value);
+  EXPECT_FALSE(double_value < double_value);
+
+  // Number comparison craziness
+  // Integers
+  EXPECT_TRUE(FieldValue::IntegerValue(1L) < FieldValue::IntegerValue(2L));
+  EXPECT_FALSE(FieldValue::IntegerValue(1L) < FieldValue::IntegerValue(1L));
+  EXPECT_FALSE(FieldValue::IntegerValue(2L) < FieldValue::IntegerValue(1L));
+  // Doubles
+  EXPECT_TRUE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(2.0));
+  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(1.0));
+  EXPECT_FALSE(FieldValue::DoubleValue(2.0) < FieldValue::DoubleValue(1.0));
+  EXPECT_TRUE(FieldValue::NanValue() < FieldValue::DoubleValue(1.0));
+  EXPECT_FALSE(FieldValue::NanValue() < FieldValue::NanValue());
+  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::NanValue());
+  // Mixed
+  EXPECT_TRUE(FieldValue::DoubleValue(-1e20) <
+              FieldValue::IntegerValue(LLONG_MIN));
+  EXPECT_FALSE(FieldValue::DoubleValue(1e20) <
+               FieldValue::IntegerValue(LLONG_MAX));
+  EXPECT_TRUE(FieldValue::DoubleValue(1.234) < FieldValue::IntegerValue(2L));
+  EXPECT_FALSE(FieldValue::DoubleValue(2.345) < FieldValue::IntegerValue(1L));
+  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::IntegerValue(1L));
+  EXPECT_FALSE(FieldValue::DoubleValue(1.234) < FieldValue::IntegerValue(1L));
+  EXPECT_FALSE(FieldValue::IntegerValue(LLONG_MIN) <
+               FieldValue::DoubleValue(-1e20));
+  EXPECT_TRUE(FieldValue::IntegerValue(LLONG_MAX) <
+              FieldValue::DoubleValue(1e20));
+  EXPECT_FALSE(FieldValue::IntegerValue(1) < FieldValue::DoubleValue(1.0));
+  EXPECT_TRUE(FieldValue::IntegerValue(1) < FieldValue::DoubleValue(1.234));
+}
+
+TEST(FieldValue, StringType) {
+  const FieldValue a = FieldValue::StringValue("abc");
+  std::string xyz("xyz");
+  const FieldValue b = FieldValue::StringValue(xyz);
+  const FieldValue c = FieldValue::StringValue(std::move(xyz));
+  EXPECT_EQ(Type::String, a.type());
+  EXPECT_EQ(Type::String, b.type());
+  EXPECT_EQ(Type::String, c.type());
+  EXPECT_TRUE(a < b);
+  EXPECT_FALSE(a < a);
+}
+
 TEST(FieldValue, ArrayType) {
   const FieldValue empty =
       FieldValue::ArrayValue(std::vector<const FieldValue>{});
@@ -82,6 +140,42 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
+  const FieldValue nan_value = FieldValue::NanValue();
+  clone = nan_value;
+  EXPECT_EQ(FieldValue::NanValue(), clone);
+  EXPECT_EQ(FieldValue::NanValue(), nan_value);
+  clone = clone;
+  EXPECT_EQ(FieldValue::NanValue(), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  const FieldValue integer_value = FieldValue::IntegerValue(1L);
+  clone = integer_value;
+  EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
+  EXPECT_EQ(FieldValue::IntegerValue(1L), integer_value);
+  clone = clone;
+  EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  const FieldValue double_value = FieldValue::DoubleValue(1.0);
+  clone = double_value;
+  EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
+  EXPECT_EQ(FieldValue::DoubleValue(1.0), double_value);
+  clone = clone;
+  EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  const FieldValue string_value = FieldValue::StringValue("abc");
+  clone = string_value;
+  EXPECT_EQ(FieldValue::StringValue("abc"), clone);
+  EXPECT_EQ(FieldValue::StringValue("abc"), string_value);
+  clone = clone;
+  EXPECT_EQ(FieldValue::StringValue("abc"), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<const FieldValue>{
           FieldValue::TrueValue(), FieldValue::FalseValue()});
@@ -113,6 +207,30 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
+  FieldValue nan_value = FieldValue::NanValue();
+  clone = std::move(nan_value);
+  EXPECT_EQ(FieldValue::NanValue(), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  FieldValue integer_value = FieldValue::IntegerValue(1L);
+  clone = std::move(integer_value);
+  EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  FieldValue double_value = FieldValue::DoubleValue(1.0);
+  clone = std::move(double_value);
+  EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  FieldValue string_value = FieldValue::StringValue("abc");
+  clone = std::move(string_value);
+  EXPECT_EQ(FieldValue::StringValue("abc"), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
   FieldValue array_value = FieldValue::ArrayValue(std::vector<const FieldValue>{
       FieldValue::TrueValue(), FieldValue::FalseValue()});
   clone = std::move(array_value);
@@ -126,10 +244,14 @@ TEST(FieldValue, Move) {
 TEST(FieldValue, CompareMixedType) {
   const FieldValue null_value = FieldValue::NullValue();
   const FieldValue true_value = FieldValue::TrueValue();
+  const FieldValue number_value = FieldValue::NanValue();
+  const FieldValue string_value = FieldValue::StringValue("abc");
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<const FieldValue>());
   EXPECT_TRUE(null_value < true_value);
-  EXPECT_TRUE(true_value < array_value);
+  EXPECT_TRUE(true_value < number_value);
+  EXPECT_TRUE(number_value < string_value);
+  EXPECT_TRUE(string_value < array_value);
 }
 
 TEST(FieldValue, CompareWithOperator) {
