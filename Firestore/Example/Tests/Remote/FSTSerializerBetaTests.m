@@ -398,7 +398,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery(@"collection/key");
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                        targetID:2
-                                           listenSequenceNumber:2
+                                           listenSequenceNumber:3
                                                         purpose:FSTQueryPurposeListen];
 
   NSDictionary<NSString *, NSString *> *result =
@@ -407,14 +407,14 @@ NS_ASSUME_NONNULL_BEGIN
 
   queryData = [[FSTQueryData alloc] initWithQuery:query
                                          targetID:2
-                             listenSequenceNumber:2
+                             listenSequenceNumber:3
                                           purpose:FSTQueryPurposeLimboResolution];
   result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"limbo-document"});
 
   queryData = [[FSTQueryData alloc] initWithQuery:query
                                          targetID:2
-                             listenSequenceNumber:2
+                             listenSequenceNumber:3
                                           purpose:FSTQueryPurposeExistenceFilterMismatch];
   result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"existence-filter-mismatch"});
