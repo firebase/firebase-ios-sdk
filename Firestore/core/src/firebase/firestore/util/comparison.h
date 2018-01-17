@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -57,6 +58,13 @@ enum class ComparisonResult {
   /** The left hand side was greater than the right. */
   Descending = 1
 };
+
+/**
+ * Returns the reverse order (i.e. Ascending => Descending) etc.
+ */
+inline ComparisonResult ReverseOrder(ComparisonResult result) {
+  return static_cast<ComparisonResult>(-static_cast<int>(result));
+}
 
 /**
  * A generalized comparator for types in Firestore, with ordering defined

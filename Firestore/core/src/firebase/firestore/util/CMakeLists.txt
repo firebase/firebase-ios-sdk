@@ -48,6 +48,7 @@ cc_library(
     string_apple.h
   DEPENDS
     FirebaseCore
+    absl_strings
   EXCLUDE_FROM_ALL
 )
 

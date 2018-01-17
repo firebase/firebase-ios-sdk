@@ -16,8 +16,11 @@
 
 #import "Firestore/Source/Local/FSTDocumentReference.h"
 
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
+
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Util/FSTComparison.h"
+
+using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,13 +70,13 @@ const NSComparator FSTDocumentReferenceComparatorByKey =
       if (result != NSOrderedSame) {
         return result;
       }
-      return FSTCompareInt32s(left.ID, right.ID);
+      return WrapCompare<int32_t>(left.ID, right.ID);
     };
 
 /** Sorts document references by ID then key. */
 const NSComparator FSTDocumentReferenceComparatorByID =
     ^NSComparisonResult(FSTDocumentReference *left, FSTDocumentReference *right) {
-      NSComparisonResult result = FSTCompareInt32s(left.ID, right.ID);
+      NSComparisonResult result = WrapCompare<int32_t>(left.ID, right.ID);
       if (result != NSOrderedSame) {
         return result;
       }
