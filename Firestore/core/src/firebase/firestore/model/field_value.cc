@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
@@ -159,7 +160,7 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Array:
       array_value_.~vector();
       break;
-    default:;  // The other types where there is nothing to worry about.
+    default: {}  // The other types where there is nothing to worry about.
   }
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
@@ -167,7 +168,7 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();
       break;
-    default:;  // The other types where there is nothing to worry about.
+    default: {}  // The other types where there is nothing to worry about.
   }
 }
 
