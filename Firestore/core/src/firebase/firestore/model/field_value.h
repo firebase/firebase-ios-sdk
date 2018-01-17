@@ -17,7 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
+#include <stdint.h>
+
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace firebase {
@@ -78,8 +81,20 @@ class FieldValue {
   static const FieldValue& TrueValue();
   static const FieldValue& FalseValue();
   static const FieldValue& BooleanValue(bool value);
+  static const FieldValue& NanValue();
+  static FieldValue IntegerValue(int64_t value);
+  static FieldValue DoubleValue(double value);
+  // static FieldValue TimestampValue();
+  // static FieldValue ServerTimestampValue();
+  static FieldValue StringValue(const char* value);
+  static FieldValue StringValue(const std::string& value);
+  static FieldValue StringValue(std::string&& value);
+  // static FieldValue BlobValue();
+  // static FieldValue ReferenceValue();
+  // static FieldValue GeoPointValue();
   static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
   static FieldValue ArrayValue(std::vector<const FieldValue>&& value);
+  // static const FieldValue& ObjectValue();
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -96,7 +111,14 @@ class FieldValue {
   union {
     // There is no null type as tag_ alone is enough for Null FieldValue.
     bool boolean_value_;
+    int64_t integer_value_;
+    double double_value_;
+    // Timestamp timestamp_value_;
+    std::string string_value_;
+    // Blob blob_value_;
+    // GeoPoint geopoint_value_;
     std::vector<const FieldValue> array_value_;
+    // std::map<const std::string, const FieldValue> object_value_;
   };
 };
 

@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#include <math.h>
+
 #include <algorithm>
 #include <memory>
 #include <vector>
@@ -49,6 +51,54 @@ bool Comparable(Type lhs, Type rhs) {
   }
 }
 
+/**
+ * Do a comparison on numbers of different types. We provide functions to deal
+ * with all combinations. This way is fool-proof w.r.t. the auto type cast.
+ */
+bool LessThan(double lhs, double rhs) {
+  if (lhs < rhs) {
+    return true;
+  } else if (lhs >= rhs) {
+    return false;
+  } else {
+    // One or both sides is NaN. NaN is less than all numbers.
+    return isnan(lhs) && !isnan(rhs);
+  }
+}
+bool LessThan(double lhs, int64_t rhs) {
+  // LLONG_MIN has an exact representation as double, so to check for a value
+  // outside the range representable by long, we have to check for strictly less
+  // than LLONG_MIN. Note that this also handles negative infinity.
+  if (lhs < static_cast<double>(LLONG_MIN) || isnan(lhs)) {
+    return true;
+  }
+  // LLONG_MAX has no exact representation as double (casting as we've done
+  // makes 2^63, which is larger than LLONG_MAX), so consider any value greater
+  // than or equal to the threshold to be out of range. This also handles
+  // positive infinity.
+  if (lhs >= static_cast<double>(LLONG_MAX)) {
+    return false;
+  }
+  // Now lhs can be presented in int64_t after rounding.
+  if (static_cast<int64_t>(lhs) < rhs) {
+    return true;
+  } else if (static_cast<int64_t>(lhs) > rhs) {
+    return false;
+  }
+  // At this point the long representations are equal but this could be due to
+  // rounding.
+  return LessThan(lhs, static_cast<double>(rhs));
+}
+
+bool LessThan(int64_t lhs, double rhs) {
+  if (LessThan(rhs, lhs)) {
+    return false;
+  }
+  // Now we know lhs <= rhs and want to check the equality.
+  return rhs >= static_cast<double>(LLONG_MAX) ||
+         lhs != static_cast<double>(rhs) || static_cast<double>(lhs) != rhs;
+}
+
 }  // namespace
 
 FieldValue::FieldValue(const FieldValue& value) {
@@ -71,6 +121,15 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::Boolean:
       boolean_value_ = value.boolean_value_;
       break;
+    case Type::Long:
+      integer_value_ = value.integer_value_;
+      break;
+    case Type::Double:
+      double_value_ = value.double_value_;
+      break;
+    case Type::String:
+      string_value_ = value.string_value_;
+      break;
     case Type::Array: {
       // copy-and-swap
       std::vector<const FieldValue> tmp = value.array_value_;
@@ -86,6 +145,10 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
 
 FieldValue& FieldValue::operator=(FieldValue&& value) {
   switch (value.tag_) {
+    case Type::String:
+      SwitchTo(Type::String);
+      string_value_.swap(value.string_value_);
+      return *this;
     case Type::Array:
       SwitchTo(Type::Array);
       std::swap(array_value_, value.array_value_);
@@ -115,6 +178,42 @@ const FieldValue& FieldValue::BooleanValue(bool value) {
   return value ? TrueValue() : FalseValue();
 }
 
+const FieldValue& FieldValue::NanValue() {
+  static const FieldValue kNanInstance = FieldValue::DoubleValue(NAN);
+  return kNanInstance;
+}
+
+FieldValue FieldValue::IntegerValue(int64_t value) {
+  FieldValue result;
+  result.SwitchTo(Type::Long);
+  result.integer_value_ = value;
+  return result;
+}
+
+FieldValue FieldValue::DoubleValue(double value) {
+  FieldValue result;
+  result.SwitchTo(Type::Double);
+  result.double_value_ = value;
+  return result;
+}
+
+FieldValue FieldValue::StringValue(const char* value) {
+  std::string copy(value);
+  return StringValue(std::move(copy));
+}
+
+FieldValue FieldValue::StringValue(const std::string& value) {
+  std::string copy(value);
+  return StringValue(std::move(copy));
+}
+
+FieldValue FieldValue::StringValue(std::string&& value) {
+  FieldValue result;
+  result.SwitchTo(Type::String);
+  result.string_value_.swap(value);
+  return result;
+}
+
 FieldValue FieldValue::ArrayValue(const std::vector<const FieldValue>& value) {
   std::vector<const FieldValue> copy(value);
   return ArrayValue(std::move(copy));
@@ -138,6 +237,20 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::Boolean:
       // lhs < rhs iff lhs == false and rhs == true.
       return !lhs.boolean_value_ && rhs.boolean_value_;
+    case Type::Long:
+      if (rhs.type() == Type::Long) {
+        return lhs.integer_value_ < rhs.integer_value_;
+      } else {
+        return LessThan(lhs.integer_value_, rhs.double_value_);
+      }
+    case Type::Double:
+      if (rhs.type() == Type::Double) {
+        return LessThan(lhs.double_value_, rhs.double_value_);
+      } else {
+        return LessThan(lhs.double_value_, rhs.integer_value_);
+      }
+    case Type::String:
+      return lhs.string_value_.compare(rhs.string_value_) < 0;
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
     default:
@@ -156,6 +269,9 @@ void FieldValue::SwitchTo(const Type type) {
   // Not same type. Destruct old type first and then initialize new type.
   // Must call destructor explicitly for any non-POD type.
   switch (tag_) {
+    case Type::String:
+      string_value_.~basic_string();
+      break;
     case Type::Array:
       array_value_.~vector();
       break;
@@ -164,6 +280,9 @@ void FieldValue::SwitchTo(const Type type) {
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
   switch (tag_) {
+    case Type::String:
+      new (&string_value_) std::string();
+      break;
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();
       break;
