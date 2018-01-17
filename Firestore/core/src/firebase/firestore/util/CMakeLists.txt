@@ -16,69 +16,61 @@
 # libraries in here are an implementation detail of making this a
 # mutli-platform build.
 
-add_library(
+cc_library(
   firebase_firestore_util_base
-  secure_random_arc4random.cc
-  string_printf.cc
-)
-target_link_libraries(
-  firebase_firestore_util_base
-  PUBLIC
-  absl_base
+  SOURCES
+    secure_random.h
+    secure_random_arc4random.cc
+    string_printf.cc
+    string_printf.h
+  DEPENDS
+    absl_base
 )
 
-# stdio-dependent bits can be built and tested everywhere
-add_library(
+## assert and log
+
+cc_library(
   firebase_firestore_util_stdio
-  assert_stdio.cc
-  log_stdio.cc
-)
-target_link_libraries(
-  firebase_firestore_util_stdio
-  PUBLIC
-  firebase_firestore_util_base
+  SOURCES
+    assert_stdio.cc
+    log_stdio.cc
+  DEPENDS
+    firebase_firestore_util_base
+    absl_base
+  EXCLUDE_FROM_ALL
 )
 
-# apple-dependent bits can only built and tested on apple plaforms
-if(APPLE)
-  add_library(
-    firebase_firestore_util_apple
+cc_library(
+  firebase_firestore_util_apple
+  SOURCES
     assert_apple.mm
     log_apple.mm
-  )
-  target_compile_options(
-    firebase_firestore_util_apple
-    PRIVATE
-    ${OBJC_FLAGS}
-  )
-  target_link_libraries(
-    firebase_firestore_util_apple
-    PUBLIC
+    string_apple.h
+  DEPENDS
     FirebaseCore
-  )
-endif(APPLE)
-
-add_library(
-  firebase_firestore_util
-  autoid.cc
+  EXCLUDE_FROM_ALL
 )
 
 # Export a dependency on the correct logging library for this platform. All
 # buildable libraries are built and tested but only the best fit is exported.
 if(APPLE)
-  target_link_libraries(
-    firebase_firestore_util
-    PUBLIC
-    firebase_firestore_util_apple
-    firebase_firestore_util_base
-  )
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_apple)
+else()
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_stdio)
+endif()
 
-else(NOT APPLE)
-  target_link_libraries(
-    firebase_firestore_util
-    PUBLIC
-    firebase_firestore_util_stdio
-    firebase_firestore_util_base
-  )
 
-endif(APPLE)
+## main library
+
+cc_library(
+  firebase_firestore_util
+  SOURCES
+    autoid.cc
+    autoid.h
+    firebase_assert.h
+    log.h
+  DEPENDS
+    ${UTIL_DEPENDS}
+    firebase_firestore_util_base
+    absl_base
+)

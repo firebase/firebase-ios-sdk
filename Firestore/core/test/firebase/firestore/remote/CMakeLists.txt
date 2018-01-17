@@ -14,9 +14,8 @@
 
 cc_test(
   firebase_firestore_remote_test
-  datastore_test.cc
-)
-target_link_libraries(
-  firebase_firestore_remote_test
-  firebase_firestore_remote
+  SOURCES
+    datastore_test.cc
+  DEPENDS
+    firebase_firestore_remote
 )
