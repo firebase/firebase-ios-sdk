@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include <absl/base/attributes.h>
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -44,4 +44,4 @@ void StringAppendV(std::string* dst, const char* format, va_list ap);
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_FORMAT_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_PRINTF_H_
