@@ -29,7 +29,6 @@ cc_library(
 
 ## assert and log
 
-# stdio-dependent bits can be built and tested everywhere
 cc_library(
   firebase_firestore_util_stdio
   SOURCES
@@ -41,7 +40,6 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-# apple-dependent bits can only built and tested on apple plaforms
 cc_library(
   firebase_firestore_util_apple
   SOURCES

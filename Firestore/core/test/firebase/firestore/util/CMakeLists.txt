@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_util_test
   SOURCES
     autoid_test.cc
+    secure_random_test.cc
     string_printf_test.cc
   DEPENDS
     firebase_firestore_util
