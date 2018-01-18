@@ -396,20 +396,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesListenRequestLabels {
   FSTQuery *query = FSTTestQuery(@"collection/key");
-  FSTQueryData *queryData =
-      [[FSTQueryData alloc] initWithQuery:query targetID:2 purpose:FSTQueryPurposeListen];
+  FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
+                                                       targetID:2
+                                           listenSequenceNumber:3
+                                                        purpose:FSTQueryPurposeListen];
 
   NSDictionary<NSString *, NSString *> *result =
       [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertNil(result);
 
-  queryData =
-      [[FSTQueryData alloc] initWithQuery:query targetID:2 purpose:FSTQueryPurposeLimboResolution];
+  queryData = [[FSTQueryData alloc] initWithQuery:query
+                                         targetID:2
+                             listenSequenceNumber:3
+                                          purpose:FSTQueryPurposeLimboResolution];
   result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"limbo-document"});
 
   queryData = [[FSTQueryData alloc] initWithQuery:query
                                          targetID:2
+                             listenSequenceNumber:3
                                           purpose:FSTQueryPurposeExistenceFilterMismatch];
   result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"existence-filter-mismatch"});
@@ -627,6 +632,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *q = FSTTestQuery(@"docs");
   FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:q
                                                    targetID:1
+                                       listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen
                                             snapshotVersion:[FSTSnapshotVersion noVersion]
                                                 resumeToken:FSTTestData(1, 2, 3, -1)];
@@ -647,6 +653,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQueryData *)queryDataForQuery:(FSTQuery *)query {
   return [[FSTQueryData alloc] initWithQuery:query
                                     targetID:1
+                        listenSequenceNumber:0
                                      purpose:FSTQueryPurposeListen
                              snapshotVersion:[FSTSnapshotVersion noVersion]
                                  resumeToken:[NSData data]];

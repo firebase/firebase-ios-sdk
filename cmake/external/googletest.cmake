@@ -30,27 +30,9 @@ ExternalProject_Add(
 
   PREFIX ${PROJECT_BINARY_DIR}/external/googletest
 
-  CMAKE_ARGS
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DBUILD_SHARED_LIBS:BOOL=OFF
-
+  # Just download the sources without building.
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
   INSTALL_COMMAND ""
   TEST_COMMAND ""
-)
-
-ExternalProject_Get_Property(
-  googletest
-  SOURCE_DIR BINARY_DIR
-)
-
-# Arguments to pass to another CMake invocation so that it can find googletest
-# without installing it using the standard FindGTest module.
-set(GTEST_INCLUDE_DIR ${SOURCE_DIR}/googletest/include)
-set(GTEST_LIBRARY ${BINARY_DIR}/googlemock/gtest/libgtest.a)
-set(GTEST_MAIN_LIBRARY ${BINARY_DIR}/googlemock/gtest/libgtest_main.a)
-set(
-  GTEST_CMAKE_ARGS
-  -DGTEST_INCLUDE_DIR=${GTEST_INCLUDE_DIR}
-  -DGTEST_LIBRARY=${GTEST_LIBRARY}
-  -DGTEST_MAIN_LIBRARY=${GTEST_MAIN_LIBRARY}
 )

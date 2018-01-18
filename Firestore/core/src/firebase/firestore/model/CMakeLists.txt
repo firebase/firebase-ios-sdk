@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_library(
+cc_library(
   firebase_firestore_model
-  field_value.cc
-  timestamp.cc
-)
-target_link_libraries(
-  firebase_firestore_model
-  firebase_firestore_util
+  SOURCES
+    field_value.cc
+    timestamp.cc
+  DEPENDS
+    firebase_firestore_util
 )

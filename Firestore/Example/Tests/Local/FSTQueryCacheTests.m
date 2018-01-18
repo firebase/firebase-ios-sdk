@@ -31,12 +31,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTQueryCacheTests {
   FSTQuery *_queryRooms;
+  FSTListenSequenceNumber _previousSequenceNumber;
+  FSTTargetID _previousTargetID;
+  FSTTestSnapshotVersion _previousSnapshotVersion;
 }
 
 - (void)setUp {
   [super setUp];
 
   _queryRooms = FSTTestQuery(@"rooms");
+  _previousSequenceNumber = 1000;
+  _previousTargetID = 500;
+  _previousSnapshotVersion = 100;
 }
 
 /**
@@ -56,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSetAndReadAQuery {
   if ([self isTestBaseClass]) return;
 
-  FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms targetID:1 version:1];
+  FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
   [self addQueryData:queryData];
 
   FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
@@ -74,14 +80,14 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *q2 = [FSTTestQuery(@"a") queryByAddingFilter:FSTTestFilter(@"foo", @"==", @"1")];
   XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
 
-  FSTQueryData *data1 = [self queryDataWithQuery:q1 targetID:1 version:1];
+  FSTQueryData *data1 = [self queryDataWithQuery:q1];
   [self addQueryData:data1];
 
   // Using the other query should not return the query cache entry despite equal canonicalIDs.
   XCTAssertNil([self.queryCache queryDataForQuery:q2]);
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
 
-  FSTQueryData *data2 = [self queryDataWithQuery:q2 targetID:2 version:1];
+  FSTQueryData *data2 = [self queryDataWithQuery:q2];
   [self addQueryData:data2];
 
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
@@ -99,10 +105,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSetQueryToNewValue {
   if ([self isTestBaseClass]) return;
 
-  FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms targetID:1 version:1];
+  FSTQueryData *queryData1 =
+      [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
   [self addQueryData:queryData1];
 
-  FSTQueryData *queryData2 = [self queryDataWithQuery:_queryRooms targetID:1 version:2];
+  FSTQueryData *queryData2 =
+      [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:2];
   [self addQueryData:queryData2];
 
   FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
@@ -115,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQuery {
   if ([self isTestBaseClass]) return;
 
-  FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms targetID:1 version:1];
+  FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms];
   [self addQueryData:queryData1];
 
   [self removeQueryData:queryData1];
@@ -127,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveNonExistentQuery {
   if ([self isTestBaseClass]) return;
 
-  FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms targetID:1 version:1];
+  FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
 
   // no-op, but make sure it doesn't throw.
   XCTAssertNoThrow([self removeQueryData:queryData]);
@@ -136,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQueryRemovesMatchingKeysToo {
   if ([self isTestBaseClass]) return;
 
-  FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms targetID:1 version:1];
+  FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
   [self addQueryData:rooms];
 
   FSTDocumentKey *key1 = FSTTestDocKey(@"rooms/foo");
@@ -204,14 +212,14 @@ NS_ASSUME_NONNULL_BEGIN
   [garbageCollector addGarbageSource:self.queryCache];
   FSTAssertEqualSets([garbageCollector collectGarbage], @[]);
 
-  FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery(@"rooms") targetID:1 version:1];
+  FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery(@"rooms")];
   FSTDocumentKey *room1 = FSTTestDocKey(@"rooms/bar");
   FSTDocumentKey *room2 = FSTTestDocKey(@"rooms/foo");
   [self addQueryData:rooms];
   [self addMatchingKey:room1 forTargetID:rooms.targetID];
   [self addMatchingKey:room2 forTargetID:rooms.targetID];
 
-  FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery(@"halls") targetID:2 version:1];
+  FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery(@"halls")];
   FSTDocumentKey *hall1 = FSTTestDocKey(@"halls/bar");
   FSTDocumentKey *hall2 = FSTTestDocKey(@"halls/foo");
   [self addQueryData:halls];
@@ -249,6 +257,46 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
 }
 
+- (void)testHighestListenSequenceNumber {
+  if ([self isTestBaseClass]) return;
+
+  FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"rooms")
+                                                    targetID:1
+                                        listenSequenceNumber:10
+                                                     purpose:FSTQueryPurposeListen];
+  [self addQueryData:query1];
+  FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"halls")
+                                                    targetID:2
+                                        listenSequenceNumber:20
+                                                     purpose:FSTQueryPurposeListen];
+  [self addQueryData:query2];
+  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
+
+  // TargetIDs never come down.
+  [self removeQueryData:query2];
+  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
+
+  // A query with an empty result set still counts.
+  FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"garages")
+                                                    targetID:42
+                                        listenSequenceNumber:100
+                                                     purpose:FSTQueryPurposeListen];
+  [self addQueryData:query3];
+  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+
+  [self removeQueryData:query1];
+  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+
+  [self removeQueryData:query3];
+  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+
+  // Verify that the highestTargetID even survives restarts.
+  [self.queryCache shutdown];
+  self.queryCache = [self.persistence queryCache];
+  [self.queryCache start];
+  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+}
+
 - (void)testHighestTargetID {
   if ([self isTestBaseClass]) return;
 
@@ -256,6 +304,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"rooms")
                                                     targetID:1
+                                        listenSequenceNumber:10
                                                      purpose:FSTQueryPurposeListen];
   FSTDocumentKey *key1 = FSTTestDocKey(@"rooms/bar");
   FSTDocumentKey *key2 = FSTTestDocKey(@"rooms/foo");
@@ -265,6 +314,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"halls")
                                                     targetID:2
+                                        listenSequenceNumber:20
                                                      purpose:FSTQueryPurposeListen];
   FSTDocumentKey *key3 = FSTTestDocKey(@"halls/foo");
   [self addQueryData:query2];
@@ -278,6 +328,7 @@ NS_ASSUME_NONNULL_BEGIN
   // A query with an empty result set still counts.
   FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"garages")
                                                     targetID:42
+                                        listenSequenceNumber:100
                                                      purpose:FSTQueryPurposeListen];
   [self addQueryData:query3];
   XCTAssertEqual([self.queryCache highestTargetID], 42);
@@ -319,12 +370,21 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a new FSTQueryData object from the given parameters, synthesizing a resume token from
  * the snapshot version.
  */
+- (FSTQueryData *)queryDataWithQuery:(FSTQuery *)query {
+  return [self queryDataWithQuery:query
+                         targetID:++_previousTargetID
+             listenSequenceNumber:++_previousSequenceNumber
+                          version:++_previousSnapshotVersion];
+}
+
 - (FSTQueryData *)queryDataWithQuery:(FSTQuery *)query
                             targetID:(FSTTargetID)targetID
+                listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                              version:(FSTTestSnapshotVersion)version {
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(version);
   return [[FSTQueryData alloc] initWithQuery:query
                                     targetID:targetID
+                        listenSequenceNumber:sequenceNumber
                                      purpose:FSTQueryPurposeListen
                              snapshotVersion:FSTTestVersion(version)
                                  resumeToken:resumeToken];

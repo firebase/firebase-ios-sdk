@@ -100,6 +100,10 @@ static ReadOptions GetStandardReadOptions() {
   return self.metadata.highestTargetId;
 }
 
+- (FSTListenSequenceNumber)highestListenSequenceNumber {
+  return self.metadata.highestListenSequenceNumber;
+}
+
 - (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
   return _lastRemoteSnapshotVersion;
 }
@@ -116,7 +120,6 @@ static ReadOptions GetStandardReadOptions() {
 }
 
 - (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
-  // TODO(mcg): actually populate listen sequence number
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
   [group setMessage:[self.serializer encodedQueryData:queryData] forKey:key];
@@ -127,9 +130,19 @@ static ReadOptions GetStandardReadOptions() {
   std::string emptyBuffer;
   [group setData:emptyBuffer forKey:indexKey];
 
+  BOOL saveMetadata = NO;
   FSTPBTargetGlobal *metadata = self.metadata;
   if (targetID > metadata.highestTargetId) {
     metadata.highestTargetId = targetID;
+    saveMetadata = YES;
+  }
+
+  if (queryData.sequenceNumber > metadata.highestListenSequenceNumber) {
+    metadata.highestListenSequenceNumber = queryData.sequenceNumber;
+    saveMetadata = YES;
+  }
+
+  if (saveMetadata) {
     [group setMessage:metadata forKey:[FSTLevelDBTargetGlobalKey key]];
   }
 }

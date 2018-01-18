@@ -30,16 +30,17 @@ fi
 if [[ $# -gt 0 && "$1" = "test-only" ]]; then
   test_only=true
   options="-output-replacements-xml"
+  shift
 else
   test_only=false
   options="-i"
 fi
 
 (
-  if [[ "$test_only" = false && $# -gt 0 ]]; then
+  if [[ $# -gt 0 ]]; then
     if git rev-parse "$1" -- >& /dev/null; then
       # Argument was a branch name show files changed since that branch
-      git diff --name-only --relative "$1"
+      git diff --name-only --relative --diff-filter=ACMR "$1"
     else
       # Otherwise assume the passed things are files or directories
       find "$@" -type f
@@ -68,9 +69,11 @@ fi
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p
-' | xargs clang-format -style=file $options | grep "<replacement " > /dev/null
+' | xargs clang-format -style=file $options \
+  | grep "<replacement " > /dev/null
 
 if [[ "$test_only" = true && $? -ne 1 ]]; then
-  echo "Proposed commit is not style compliant. Run scripts/style.sh and git add the result."
+  echo "Proposed commit is not style compliant."
+  echo "Run scripts/style.sh and git add the result."
   exit 1
 fi

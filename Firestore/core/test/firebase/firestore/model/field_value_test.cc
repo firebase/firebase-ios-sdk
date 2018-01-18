@@ -355,6 +355,10 @@ TEST(FieldValue, Move) {
 TEST(FieldValue, CompareMixedType) {
   const FieldValue null_value = FieldValue::NullValue();
   const FieldValue true_value = FieldValue::TrueValue();
+  const FieldValue array_value =
+      FieldValue::ArrayValue(std::vector<const FieldValue>());
+  EXPECT_TRUE(null_value < true_value);
+  EXPECT_TRUE(true_value < array_value);
   const FieldValue number_value = FieldValue::NanValue();
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   const FieldValue string_value = FieldValue::StringValue("abc");

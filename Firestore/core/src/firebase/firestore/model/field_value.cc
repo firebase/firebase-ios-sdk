@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
@@ -284,6 +285,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::Boolean:
       // lhs < rhs iff lhs == false and rhs == true.
       return !lhs.boolean_value_ && rhs.boolean_value_;
+    case Type::Array:
+      return lhs.array_value_ < rhs.array_value_;
     case Type::Long:
       if (rhs.type() == Type::Long) {
         return lhs.integer_value_ < rhs.integer_value_;
@@ -331,6 +334,9 @@ void FieldValue::SwitchTo(const Type type) {
   // Not same type. Destruct old type first and then initialize new type.
   // Must call destructor explicitly for any non-POD type.
   switch (tag_) {
+    case Type::Array:
+      array_value_.~vector();
+      break;
     case Type::Timestamp:
       timestamp_value_.~Timestamp();
       break;
@@ -346,11 +352,14 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Object:
       object_value_.~map();
       break;
-    default:;  // The other types where there is nothing to worry about.
+    default: {}  // The other types where there is nothing to worry about.
   }
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
   switch (tag_) {
+    case Type::Array:
+      new (&array_value_) std::vector<const FieldValue>();
+      break;
     case Type::Timestamp:
       new (&timestamp_value_) Timestamp(0, 0);
       break;
@@ -368,7 +377,7 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Object:
       new (&object_value_) std::map<const std::string, const FieldValue>();
       break;
-    default:;  // The other types where there is nothing to worry about.
+    default: {}  // The other types where there is nothing to worry about.
   }
 }
 
