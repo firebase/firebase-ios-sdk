@@ -228,11 +228,11 @@ func readDocument(at docRef: DocumentReference) {
 func readDocumentWithOptions(at docRef: DocumentReference) {
   docRef.getDocument(options:GetOptions.defaultOptions()) { document, error in
   }
-  docRef.getDocument(options:GetOptions.init(source:GetSource.default)) { document, error in
+  docRef.getDocument(options:GetOptions(source:GetSource.default)) { document, error in
   }
-  docRef.getDocument(options:GetOptions.init(source:GetSource.server)) { document, error in
+  docRef.getDocument(options:GetOptions(source:.server)) { document, error in
   }
-  docRef.getDocument(options:GetOptions.init(source:GetSource.cache)) { document, error in
+  docRef.getDocument(options:GetOptions(source:GetSource.cache)) { document, error in
   }
 }
 

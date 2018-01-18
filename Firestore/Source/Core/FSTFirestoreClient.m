@@ -298,7 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
     FSTAssert(viewChange.limboChanges.count == 0,
-              @"View returned limbo docs before target ack from the server.");
+              @"View returned limbo documents during local-only query execution.");
 
     FSTViewSnapshot *snapshot = viewChange.snapshot;
     FIRSnapshotMetadata *metadata =
