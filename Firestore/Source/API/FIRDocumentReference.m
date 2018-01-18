@@ -257,15 +257,16 @@ NS_ASSUME_NONNULL_BEGIN
                                  }]);
     } else if (snapshot.exists && snapshot.metadata.fromCache &&
                options.source == FIRSourceServer) {
-      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                          code:FIRFirestoreErrorCodeUnavailable
-                                      userInfo:@{
-                                        NSLocalizedDescriptionKey :
-                                            @"Failed to get document from server. (However, this "
-                                            @"document does exist in the local cache. Run again "
-                                            @"without setting FIRServer in the GetOptions to "
-                                            @"retrieve the cached document.)"
-                                      }]);
+      completion(nil,
+                 [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                     code:FIRFirestoreErrorCodeUnavailable
+                                 userInfo:@{
+                                   NSLocalizedDescriptionKey :
+                                       @"Failed to get document from server. (However, this "
+                                       @"document does exist in the local cache. Run again "
+                                       @"without setting FIRSourceServer in the FIRGetOptions to "
+                                       @"retrieve the cached document.)"
+                                 }]);
     } else {
       completion(snapshot, nil);
     }

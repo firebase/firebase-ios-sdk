@@ -162,15 +162,16 @@ NS_ASSUME_NONNULL_BEGIN
     [listenerRegistration remove];
 
     if (snapshot.metadata.fromCache && options.source == FIRSourceServer) {
-      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                          code:FIRFirestoreErrorCodeUnavailable
-                                      userInfo:@{
-                                        NSLocalizedDescriptionKey :
-                                            @"Failed to get documents from server. (However, these "
-                                            @"documents may exist in the local cache. Run again "
-                                            @"without setting FIRServer in the GetOptions to "
-                                            @"retrieve the cached documents.)"
-                                      }]);
+      completion(nil,
+                 [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                     code:FIRFirestoreErrorCodeUnavailable
+                                 userInfo:@{
+                                   NSLocalizedDescriptionKey :
+                                       @"Failed to get documents from server. (However, these "
+                                       @"documents may exist in the local cache. Run again "
+                                       @"without setting FIRSourceServer in the FIRGetOptions to "
+                                       @"retrieve the cached documents.)"
+                                 }]);
     } else {
       completion(snapshot, nil);
     }
