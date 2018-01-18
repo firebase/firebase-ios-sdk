@@ -42,17 +42,17 @@ bool Comparator<double>::operator()(double left, double right) const {
   }
 }
 
-static constexpr double LONG_MIN_VALUE_AS_DOUBLE =
+static constexpr double INT64_MIN_VALUE_AS_DOUBLE =
     static_cast<double>(std::numeric_limits<int64_t>::min());
 
-static constexpr double LONG_MAX_VALUE_AS_DOUBLE =
+static constexpr double INT64_MAX_VALUE_AS_DOUBLE =
     static_cast<double>(std::numeric_limits<int64_t>::max());
 
-ComparisonResult CompareMixedNumber(double doubleValue, int64_t longValue) {
+ComparisonResult CompareMixedNumber(double double_value, int64_t int64_value) {
   // LLONG_MIN has an exact representation as double, so to check for a value
   // outside the range representable by long, we have to check for strictly less
   // than LLONG_MIN. Note that this also handles negative infinity.
-  if (doubleValue < LONG_MIN_VALUE_AS_DOUBLE) {
+  if (double_value < INT64_MIN_VALUE_AS_DOUBLE) {
     return ComparisonResult::Ascending;
   }
 
@@ -60,25 +60,25 @@ ComparisonResult CompareMixedNumber(double doubleValue, int64_t longValue) {
   // makes 2^63, which is larger than LLONG_MAX), so consider any value greater
   // than or equal to the threshold to be out of range. This also handles
   // positive infinity.
-  if (doubleValue >= LONG_MAX_VALUE_AS_DOUBLE) {
+  if (double_value >= INT64_MAX_VALUE_AS_DOUBLE) {
     return ComparisonResult::Descending;
   }
 
   // In Firestore NaN is defined to compare before all other numbers.
-  if (isnan(doubleValue)) {
+  if (isnan(double_value)) {
     return ComparisonResult::Ascending;
   }
 
-  auto doubleAsLong = static_cast<int64_t>(doubleValue);
-  ComparisonResult cmp = Compare<int64_t>(doubleAsLong, longValue);
+  auto double_as_int64 = static_cast<int64_t>(double_value);
+  ComparisonResult cmp = Compare<int64_t>(double_as_int64, int64_value);
   if (cmp != ComparisonResult::Same) {
     return cmp;
   }
 
   // At this point the long representations are equal but this could be due to
   // rounding.
-  double longAsDouble = static_cast<double>(longValue);
-  return Compare<double>(doubleValue, longAsDouble);
+  double int64_as_double = static_cast<double>(int64_value);
+  return Compare<double>(double_value, int64_as_double);
 }
 
 /** Helper to normalize a double and then return the raw bits as a uint64_t. */

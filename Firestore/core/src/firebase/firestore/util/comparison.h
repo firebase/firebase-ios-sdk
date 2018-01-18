@@ -36,7 +36,7 @@ namespace firestore {
 namespace util {
 
 /**
- * An enumeration describing the result of a three-way comparison amang
+ * An enumeration describing the result of a three-way comparison among
  * strongly-ordered values (i.e. where comparison between values always yields
  * less-than, equal-to, or greater-than).
  *
@@ -62,7 +62,7 @@ enum class ComparisonResult {
 /**
  * Returns the reverse order (i.e. Ascending => Descending) etc.
  */
-inline ComparisonResult ReverseOrder(ComparisonResult result) {
+constexpr ComparisonResult ReverseOrder(ComparisonResult result) {
   return static_cast<ComparisonResult>(-static_cast<int>(result));
 }
 
@@ -85,9 +85,6 @@ struct Comparator<absl::string_view> {
   bool operator()(const absl::string_view& left,
                   const absl::string_view& right) const;
 };
-
-#if __OBJC__
-#endif
 
 /** Compares two bools: false < true. */
 template <>
@@ -131,6 +128,14 @@ ComparisonResult Compare(const T& left, const T& right) {
 
 #if __OBJC__
 /**
+ * Returns true if the given ComparisonResult and NSComparisonResult have the
+ * same integer values (at compile time).
+ */
+constexpr bool EqualValue(ComparisonResult lhs, NSComparisonResult rhs) {
+  return static_cast<int>(lhs) == static_cast<int>(rhs);
+}
+
+/**
  * Performs a three-way comparison, identically to Compare, but converts the
  * result to an NSComparisonResult.
  *
@@ -139,6 +144,13 @@ ComparisonResult Compare(const T& left, const T& right) {
  */
 template <typename T>
 inline NSComparisonResult WrapCompare(const T& left, const T& right) {
+  static_assert(EqualValue(ComparisonResult::Ascending, NSOrderedAscending),
+                "Ascending invalid");
+  static_assert(EqualValue(ComparisonResult::Same, NSOrderedSame),
+                "Same invalid");
+  static_assert(EqualValue(ComparisonResult::Descending, NSOrderedDescending),
+                "Descending invalid");
+
   return static_cast<NSComparisonResult>(Compare<T>(left, right));
 }
 #endif

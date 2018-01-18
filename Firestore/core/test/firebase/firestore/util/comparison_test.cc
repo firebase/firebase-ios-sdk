@@ -42,10 +42,18 @@ namespace util {
     ASSERT_EQ(ComparisonResult::Descending, comparison); \
   } while (0)
 
+TEST(Comparison, ReverseOrder) {
+  ASSERT_ASCENDING(ReverseOrder(ComparisonResult::Descending));
+  ASSERT_DESCENDING(ReverseOrder(ComparisonResult::Ascending));
+  ASSERT_SAME(ReverseOrder(ComparisonResult::Same));
+}
+
 TEST(Comparison, StringCompare) {
+  ASSERT_ASCENDING(Compare<absl::string_view>("", "a"));
   ASSERT_ASCENDING(Compare<absl::string_view>("a", "b"));
   ASSERT_ASCENDING(Compare<absl::string_view>("a", "aa"));
 
+  ASSERT_DESCENDING(Compare<absl::string_view>("a", ""));
   ASSERT_DESCENDING(Compare<absl::string_view>("b", "a"));
   ASSERT_DESCENDING(Compare<absl::string_view>("aa", "a"));
 
