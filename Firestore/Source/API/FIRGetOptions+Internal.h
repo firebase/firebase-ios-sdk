@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRGetOptions ()
 
 /** Where getDocument[s] calls should get their data from. */
-@property(nonatomic, readonly, getter=source) FIRSource source;
+@property(nonatomic, readonly, getter=source) FIRGetSource source;
 
 @end
 

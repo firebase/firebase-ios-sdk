@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getDocumentsWithOptions:(FIRGetOptions *)options
                      completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                           NSError *_Nullable error))completion {
-  if (options.source == FIRSourceCache) {
+  if (options.source == FIRGetSourceCache) {
     [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
     return;
   }
@@ -161,17 +161,17 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    if (snapshot.metadata.fromCache && options.source == FIRSourceServer) {
-      completion(nil,
-                 [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                     code:FIRFirestoreErrorCodeUnavailable
-                                 userInfo:@{
-                                   NSLocalizedDescriptionKey :
-                                       @"Failed to get documents from server. (However, these "
-                                       @"documents may exist in the local cache. Run again "
-                                       @"without setting FIRSourceServer in the FIRGetOptions to "
-                                       @"retrieve the cached documents.)"
-                                 }]);
+    if (snapshot.metadata.fromCache && options.source == FIRGetSourceServer) {
+      completion(
+          nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                   code:FIRFirestoreErrorCodeUnavailable
+                               userInfo:@{
+                                 NSLocalizedDescriptionKey :
+                                     @"Failed to get documents from server. (However, these "
+                                     @"documents may exist in the local cache. Run again "
+                                     @"without setting FIRGetSourceServer in the FIRGetOptions to "
+                                     @"retrieve the cached documents.)"
+                               }]);
     } else {
       completion(snapshot, nil);
     }

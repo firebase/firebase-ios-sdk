@@ -216,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getDocumentWithOptions:(FIRGetOptions *)options
                     completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                          NSError *_Nullable error))completion {
-  if (options.source == FIRSourceCache) {
+  if (options.source == FIRGetSourceCache) {
     [self.firestore.client getDocumentFromLocalCache:self completion:completion];
     return;
   }
@@ -256,17 +256,17 @@ NS_ASSUME_NONNULL_BEGIN
                                        @"Failed to get document because the client is offline.",
                                  }]);
     } else if (snapshot.exists && snapshot.metadata.fromCache &&
-               options.source == FIRSourceServer) {
-      completion(nil,
-                 [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                     code:FIRFirestoreErrorCodeUnavailable
-                                 userInfo:@{
-                                   NSLocalizedDescriptionKey :
-                                       @"Failed to get document from server. (However, this "
-                                       @"document does exist in the local cache. Run again "
-                                       @"without setting FIRSourceServer in the FIRGetOptions to "
-                                       @"retrieve the cached document.)"
-                                 }]);
+               options.source == FIRGetSourceServer) {
+      completion(
+          nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                   code:FIRFirestoreErrorCodeUnavailable
+                               userInfo:@{
+                                 NSLocalizedDescriptionKey :
+                                     @"Failed to get document from server. (However, this "
+                                     @"document does exist in the local cache. Run again "
+                                     @"without setting FIRGetSourceServer in the FIRGetOptions to "
+                                     @"retrieve the cached document.)"
+                               }]);
     } else {
       completion(snapshot, nil);
     }

@@ -145,7 +145,8 @@
   // get doc and ensure that it exists, *is* from the cache, and matches
   // the initialData.
   FIRDocumentSnapshot *result =
-      [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+      [self readDocumentForRef:doc
+                       options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertFalse(result.metadata.hasPendingWrites);
@@ -167,7 +168,7 @@
   // initialDocs.
   FIRQuerySnapshot *result =
       [self readDocumentSetForRef:col
-                          options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+                          options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
@@ -204,7 +205,8 @@
   // get doc and ensure it exists, *is* from the cache, and matches the
   // newData.
   FIRDocumentSnapshot *result =
-      [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+      [self readDocumentForRef:doc
+                       options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertTrue(result.metadata.hasPendingWrites);
@@ -236,7 +238,7 @@
   // data.
   FIRQuerySnapshot *result =
       [self readDocumentSetForRef:col
-                          options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+                          options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
@@ -262,7 +264,8 @@
   // get doc and ensure that it exists, is *not* from the cache, and matches
   // the initialData.
   FIRDocumentSnapshot *result =
-      [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
+      [self readDocumentForRef:doc
+                       options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]];
   XCTAssertTrue(result.exists);
   XCTAssertFalse(result.metadata.fromCache);
   XCTAssertFalse(result.metadata.hasPendingWrites);
@@ -284,7 +287,7 @@
   // initialData.
   FIRQuerySnapshot *result =
       [self readDocumentSetForRef:col
-                          options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
+                          options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]];
   XCTAssertFalse(result.metadata.fromCache);
   XCTAssertFalse(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
@@ -311,7 +314,7 @@
 
   // attempt to get doc and ensure it cannot be retreived
   XCTestExpectation *failedGetDocCompletion = [self expectationWithDescription:@"failedGetDoc"];
-  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]
+  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]
                    completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
@@ -337,7 +340,7 @@
 
   // attempt to get docs and ensure they cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
-  [col getDocumentsWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]
+  [col getDocumentsWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]
                     completion:^(FIRQuerySnapshot *snapshot, NSError *error) {
                       XCTAssertNotNil(error);
                       XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
@@ -377,15 +380,16 @@
   // get doc (from cache) and ensure it exists, *is* from the cache, and
   // matches the newData.
   FIRDocumentSnapshot *result =
-      [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+      [self readDocumentForRef:doc
+                       options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, newData);
 
   // attempt to get doc (with default get options)
-  result =
-      [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceDefault]];
+  result = [self readDocumentForRef:doc
+                            options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceDefault]];
   XCTAssertTrue(result.exists);
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertTrue(result.metadata.hasPendingWrites);
@@ -393,7 +397,7 @@
 
   // attempt to get doc (from the server) and ensure it cannot be retreived
   XCTestExpectation *failedGetDocCompletion = [self expectationWithDescription:@"failedGetDoc"];
-  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]
+  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]
                    completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
@@ -437,7 +441,7 @@
   // matches the updated data.
   FIRQuerySnapshot *result =
       [self readDocumentSetForRef:col
-                          options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+                          options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
@@ -454,7 +458,7 @@
 
   // attempt to get docs (with default get options)
   result = [self readDocumentSetForRef:col
-                               options:[[FIRGetOptions alloc] initWithSource:FIRSourceDefault]];
+                               options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceDefault]];
   XCTAssertTrue(result.metadata.fromCache);
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
                           @{@"key1" : @"value1"}, @{@"key2" : @"value2", @"key2b" : @"value2b"},
@@ -470,7 +474,7 @@
 
   // attempt to get docs (from the server) and ensure they cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
-  [col getDocumentsWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]
+  [col getDocumentsWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]
                     completion:^(FIRQuerySnapshot *snapshot, NSError *error) {
                       XCTAssertNotNil(error);
                       XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
@@ -543,7 +547,7 @@
   // certain documents *don't* exist.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
-  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]
+  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]
                    completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
@@ -559,7 +563,7 @@
   // get collection and ensure it's empty and that it *is* from the cache.
   FIRQuerySnapshot *snapshot =
       [self readDocumentSetForRef:col
-                          options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+                          options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertEqual(snapshot.count, 0);
   XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
@@ -577,7 +581,7 @@
   // certain documents *don't* exist.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
-  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]
+  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]
                    completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
@@ -596,7 +600,7 @@
   // get collection and ensure it's empty and that it *is* from the cache.
   FIRQuerySnapshot *snapshot =
       [self readDocumentSetForRef:col
-                          options:[[FIRGetOptions alloc] initWithSource:FIRSourceCache]];
+                          options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceCache]];
   XCTAssertEqual(snapshot.count, 0);
   XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertTrue(snapshot.metadata.fromCache);
@@ -608,7 +612,8 @@
 
   // get doc and ensure that it does not exist and is *not* from the cache.
   FIRDocumentSnapshot *snapshot =
-      [self readDocumentForRef:doc options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
+      [self readDocumentForRef:doc
+                       options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]];
   XCTAssertFalse(snapshot.exists);
   XCTAssertFalse(snapshot.metadata.fromCache);
   XCTAssertFalse(snapshot.metadata.hasPendingWrites);
@@ -620,7 +625,7 @@
   // get collection and ensure that it's empty and that it's *not* from the cache.
   FIRQuerySnapshot *snapshot =
       [self readDocumentSetForRef:col
-                          options:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]];
+                          options:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]];
   XCTAssertEqual(snapshot.count, 0);
   XCTAssertEqual(snapshot.documentChanges.count, 0);
   XCTAssertFalse(snapshot.metadata.fromCache);
@@ -638,7 +643,7 @@
   // certain documents *don't* exist.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
-  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]
+  [doc getDocumentWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]
                    completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
@@ -656,7 +661,7 @@
 
   // attempt to get collection and ensure that it cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
-  [col getDocumentsWithOptions:[[FIRGetOptions alloc] initWithSource:FIRSourceServer]
+  [col getDocumentsWithOptions:[[FIRGetOptions alloc] initWithSource:FIRGetSourceServer]
                     completion:^(FIRQuerySnapshot *snapshot, NSError *error) {
                       XCTAssertNotNil(error);
                       XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);

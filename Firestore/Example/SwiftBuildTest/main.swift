@@ -228,11 +228,11 @@ func readDocument(at docRef: DocumentReference) {
 func readDocumentWithOptions(at docRef: DocumentReference) {
   docRef.getDocument(options:GetOptions.defaultOptions()) { document, error in
   }
-  docRef.getDocument(options:GetOptions.init(source:Source.default)) { document, error in
+  docRef.getDocument(options:GetOptions.init(source:GetSource.default)) { document, error in
   }
-  docRef.getDocument(options:GetOptions.init(source:Source.server)) { document, error in
+  docRef.getDocument(options:GetOptions.init(source:GetSource.server)) { document, error in
   }
-  docRef.getDocument(options:GetOptions.init(source:Source.cache)) { document, error in
+  docRef.getDocument(options:GetOptions.init(source:GetSource.cache)) { document, error in
   }
 }
 
@@ -249,11 +249,11 @@ func readDocuments(matching query: Query) {
 func readDocumentsWithOptions(matching query: Query) {
   query.getDocuments(options:GetOptions.defaultOptions()) { querySnapshot, error in
   }
-  query.getDocuments(options:GetOptions.init(source:Source.default)) { querySnapshot, error in
+  query.getDocuments(options:GetOptions.init(source:GetSource.default)) { querySnapshot, error in
   }
-  query.getDocuments(options:GetOptions.init(source:Source.server)) { querySnapshot, error in
+  query.getDocuments(options:GetOptions.init(source:GetSource.server)) { querySnapshot, error in
   }
-  query.getDocuments(options:GetOptions.init(source:Source.cache)) { querySnapshot, error in
+  query.getDocuments(options:GetOptions.init(source:GetSource.cache)) { querySnapshot, error in
   }
 }
 
