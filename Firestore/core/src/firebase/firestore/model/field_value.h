@@ -24,9 +24,16 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
+
+struct ServerTimestamp {
+  Timestamp local;
+  Timestamp previous;
+};
 
 /**
  * tagged-union class representing an immutable data value as stored in
@@ -85,8 +92,9 @@ class FieldValue {
   static const FieldValue& NanValue();
   static FieldValue IntegerValue(int64_t value);
   static FieldValue DoubleValue(double value);
-  // static FieldValue TimestampValue();
-  // static FieldValue ServerTimestampValue();
+  static FieldValue TimestampValue(const Timestamp& value);
+  static FieldValue ServerTimestampValue(
+      const Timestamp& local, const Timestamp& previous = Timestamp::Origin());
   static FieldValue StringValue(const char* value);
   static FieldValue StringValue(const std::string& value);
   static FieldValue StringValue(std::string&& value);
@@ -95,8 +103,10 @@ class FieldValue {
   // static FieldValue GeoPointValue();
   static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
   static FieldValue ArrayValue(std::vector<const FieldValue>&& value);
-  static FieldValue ObjectValue(const std::map<const std::string, const FieldValue>& value);
-  static FieldValue ObjectValue(std::map<const std::string, const FieldValue>&& value);
+  static FieldValue ObjectValue(
+      const std::map<const std::string, const FieldValue>& value);
+  static FieldValue ObjectValue(
+      std::map<const std::string, const FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -115,7 +125,8 @@ class FieldValue {
     bool boolean_value_;
     int64_t integer_value_;
     double double_value_;
-    // Timestamp timestamp_value_;
+    Timestamp timestamp_value_;
+    ServerTimestamp server_timestamp_value_;
     std::string string_value_;
     // Blob blob_value_;
     // GeoPoint geopoint_value_;

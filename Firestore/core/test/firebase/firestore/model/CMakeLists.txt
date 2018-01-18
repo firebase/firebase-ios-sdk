@@ -15,6 +15,7 @@
 cc_test(
   firebase_firestore_model_test
   field_value_test.cc
+  timestamp_test.cc
 )
 target_link_libraries(
   firebase_firestore_model_test

@@ -15,6 +15,7 @@
 add_library(
   firebase_firestore_model
   field_value.cc
+  timestamp.cc
 )
 target_link_libraries(
   firebase_firestore_model
