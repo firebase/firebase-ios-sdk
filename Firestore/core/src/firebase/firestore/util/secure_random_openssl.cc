@@ -30,7 +30,7 @@ namespace util {
 SecureRandom::result_type SecureRandom::operator()() {
   result_type result;
   int rc = RAND_bytes(reinterpret_cast<uint8_t*>(&result), sizeof(result));
-  if (rc < 0) {
+  if (rc <= 0) {
     // OpenSSL's RAND_bytes can fail if there's not enough entropy. BoringSSL
     // won't fail this way.
     ERR_print_errors_fp(stderr);
