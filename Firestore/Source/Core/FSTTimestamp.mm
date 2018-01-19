@@ -16,8 +16,11 @@
 
 #import "Firestore/Source/Core/FSTTimestamp.h"
 
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
+
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTComparison.h"
+
+using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -110,11 +113,11 @@ static const int kNanosPerSecond = 1000000000;
 }
 
 - (NSComparisonResult)compare:(FSTTimestamp *)other {
-  NSComparisonResult result = FSTCompareInt64s(self.seconds, other.seconds);
+  NSComparisonResult result = WrapCompare<int64_t>(self.seconds, other.seconds);
   if (result != NSOrderedSame) {
     return result;
   }
-  return FSTCompareInt32s(self.nanos, other.nanos);
+  return WrapCompare<int32_t>(self.nanos, other.nanos);
 }
 
 @end

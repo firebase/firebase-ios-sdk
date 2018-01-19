@@ -30,6 +30,7 @@
 		54764FAB1FAA0C320085E60A /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAA1FAA0C320085E60A /* string_util_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
 		548DB927200D590300E00ABC /* assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 548DB926200D590300E00ABC /* assert_test.cc */; };
+		548DB929200D59F600E00ABC /* comparison_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 548DB928200D59F600E00ABC /* comparison_test.cc */; };
 		5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		5491BC731FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		54C2294F1FECABAE007D065B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
@@ -148,7 +149,6 @@
 		DE51B1FD1F0D492C0013853F /* FSTSpecTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1991F0D48AC0013853F /* FSTSpecTests.m */; };
 		DE51B1FE1F0D492C0013853F /* FSTSyncEngineTestDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B19B1F0D48AC0013853F /* FSTSyncEngineTestDriver.m */; };
 		DE51B1FF1F0D493A0013853F /* FSTAssertTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1861F0D48AC0013853F /* FSTAssertTests.m */; };
-		DE51B2001F0D493A0013853F /* FSTComparisonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */; };
 		DE51B2011F0D493E0013853F /* FSTHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1891F0D48AC0013853F /* FSTHelpers.m */; };
 		F104BBD69BC3F0796E3A77C1 /* Pods_Firestore_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F6A10DBD6187489481CD76 /* Pods_Firestore_Tests.framework */; };
 /* End PBXBuildFile section */
@@ -204,6 +204,7 @@
 		54764FAA1FAA0C320085E60A /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_util_test.cc; path = ../../Port/string_util_test.cc; sourceTree = "<group>"; };
 		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
 		548DB926200D590300E00ABC /* assert_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = assert_test.cc; path = ../../core/test/firebase/firestore/util/assert_test.cc; sourceTree = "<group>"; };
+		548DB928200D59F600E00ABC /* comparison_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = comparison_test.cc; path = ../../core/test/firebase/firestore/util/comparison_test.cc; sourceTree = "<group>"; };
 		5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTIntegrationTestCase.mm; sourceTree = "<group>"; };
 		54C2294E1FECABAE007D065B /* log_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = log_test.cc; path = ../../core/test/firebase/firestore/util/log_test.cc; sourceTree = "<group>"; };
 		54DA129C1F315EE100DD57A1 /* collection_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = collection_spec_test.json; sourceTree = "<group>"; };
@@ -308,7 +309,6 @@
 		DE51B1821F0D48AC0013853F /* FSTPathTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTPathTests.m; sourceTree = "<group>"; };
 		DE51B1841F0D48AC0013853F /* FIRGeoPointTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRGeoPointTests.m; sourceTree = "<group>"; };
 		DE51B1861F0D48AC0013853F /* FSTAssertTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTAssertTests.m; sourceTree = "<group>"; };
-		DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTComparisonTests.m; sourceTree = "<group>"; };
 		DE51B1881F0D48AC0013853F /* FSTHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTHelpers.h; sourceTree = "<group>"; };
 		DE51B1891F0D48AC0013853F /* FSTHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTHelpers.m; sourceTree = "<group>"; };
 		DE51B1941F0D48AC0013853F /* FSTLevelDBSpecTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTLevelDBSpecTests.m; sourceTree = "<group>"; };
@@ -400,6 +400,7 @@
 			children = (
 				548DB926200D590300E00ABC /* assert_test.cc */,
 				54740A521FC913E500713A1A /* autoid_test.cc */,
+				548DB928200D59F600E00ABC /* comparison_test.cc */,
 				54C2294E1FECABAE007D065B /* log_test.cc */,
 				54740A531FC913E500713A1A /* secure_random_test.cc */,
 				5436F32320008FAD006E51E3 /* string_printf_test.cc */,
@@ -646,7 +647,6 @@
 				54E9281E1F33950B00C1953E /* FSTIntegrationTestCase.h */,
 				5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */,
 				DE51B1861F0D48AC0013853F /* FSTAssertTests.m */,
-				DE51B1871F0D48AC0013853F /* FSTComparisonTests.m */,
 				DE51B1881F0D48AC0013853F /* FSTHelpers.h */,
 				DE51B1891F0D48AC0013853F /* FSTHelpers.m */,
 				54E9282A1F339CAD00C1953E /* XCTestCase+Await.h */,
@@ -1210,7 +1210,6 @@
 				DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */,
 				DE51B1FD1F0D492C0013853F /* FSTSpecTests.m in Sources */,
 				ABAEEF4F1FD5F8B100C966CB /* FIRQueryTests.m in Sources */,
-				DE51B2001F0D493A0013853F /* FSTComparisonTests.m in Sources */,
 				ABF341051FE860CA00C48322 /* FSTAPIHelpers.m in Sources */,
 				DE51B1CC1F0D48C00013853F /* FIRGeoPointTests.m in Sources */,
 				DE51B1E11F0D490D0013853F /* FSTMemoryRemoteDocumentCacheTests.m in Sources */,
@@ -1276,6 +1275,7 @@
 				DE51B1E41F0D490D0013853F /* FSTQueryCacheTests.m in Sources */,
 				DE51B1CD1F0D48CD0013853F /* FSTDatabaseInfoTests.m in Sources */,
 				AB382F7E1FE03059007CA955 /* FIRFieldPathTests.m in Sources */,
+				548DB929200D59F600E00ABC /* comparison_test.cc in Sources */,
 				DE51B1F21F0D49140013853F /* FSTPathTests.m in Sources */,
 				AB99452C1FE3018D00DFC1E6 /* FIRQuerySnapshotTests.m in Sources */,
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,

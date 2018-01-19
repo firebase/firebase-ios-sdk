@@ -49,6 +49,7 @@ cc_library(
     string_apple.h
   DEPENDS
     FirebaseCore
+    absl_strings
   EXCLUDE_FROM_ALL
 )
 
@@ -106,6 +107,8 @@ cc_library(
   SOURCES
     autoid.cc
     autoid.h
+    comparison.cc
+    comparison.h
     config.h
     firebase_assert.h
     log.h

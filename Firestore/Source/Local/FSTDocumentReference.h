@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTDocumentReference : NSObject <NSCopying>
 
 /** Initializes the document reference with the given key and ID. */
-- (instancetype)initWithKey:(FSTDocumentKey *)key ID:(int)ID NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithKey:(FSTDocumentKey *)key ID:(int32_t)ID NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The targetID of a referring target or the batchID of a referring mutation batch. (Which this
  * is depends upon which FSTReferenceSet this reference is a part of.)
  */
-@property(nonatomic, assign, readonly) int ID;
+@property(nonatomic, assign, readonly) int32_t ID;
 
 @end
 
