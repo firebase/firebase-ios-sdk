@@ -39,8 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FIRSetOptions *otherOptions = (FIRSetOptions *)other;
-
-  return otherOptions.merge != self.merge;
+  return otherOptions.merge == self.merge;
 }
 
 - (NSUInteger)hash {

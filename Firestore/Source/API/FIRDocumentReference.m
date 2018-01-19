@@ -124,10 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToReference:(nullable FIRDocumentReference *)reference {
   if (self == reference) return YES;
   if (reference == nil) return NO;
-  if (self.firestore != reference.firestore && ![self.firestore isEqual:reference.firestore])
-    return NO;
-  if (self.key != reference.key && ![self.key isEqualToKey:reference.key]) return NO;
-  return YES;
+  return [self.firestore isEqual:reference.firestore] && [self.key isEqualToKey:reference.key];
 }
 
 - (NSUInteger)hash {
