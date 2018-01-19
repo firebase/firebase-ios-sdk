@@ -16,8 +16,9 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
-#import "FirebaseFirestore/FIRFieldPath.h"
-#import "FirebaseFirestore/FIRGeoPoint.h"
+#import <FirebaseFirestore/FIRFieldPath.h>
+#import <FirebaseFirestore/FIRGeoPoint.h>
+
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"

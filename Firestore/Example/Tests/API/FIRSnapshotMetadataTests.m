@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRSnapshotMetadata.h>
+
 #import <XCTest/XCTest.h>
 
-#import "FirebaseFirestore/FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN

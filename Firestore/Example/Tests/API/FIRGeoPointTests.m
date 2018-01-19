@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseFirestore/FIRGeoPoint.h"
+#import <FirebaseFirestore/FIRGeoPoint.h>
 
 #import <XCTest/XCTest.h>
 
