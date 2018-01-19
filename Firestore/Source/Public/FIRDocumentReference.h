@@ -21,6 +21,7 @@
 @class FIRFirestore;
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
+@class FIRGetOptions;
 @class FIRSetOptions;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -194,6 +195,11 @@ NS_SWIFT_NAME(DocumentReference)
  */
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion
     NS_SWIFT_NAME(getDocument(completion:));
+
+// clang-format off
+- (void)getDocumentWithOptions:(FIRGetOptions *)options completion:(FIRDocumentSnapshotBlock)completion
+    NS_SWIFT_NAME(getDocument(options:completion:));
+// clang-format on
 
 /**
  * Attaches a listener for DocumentSnapshot events.

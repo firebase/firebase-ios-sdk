@@ -17,10 +17,12 @@
 #import "FIRQuery.h"
 
 #import "FIRDocumentReference.h"
+#import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRGetOptions+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
@@ -130,9 +132,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getDocumentsWithCompletion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                              NSError *_Nullable error))completion {
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:YES];
+  [self getDocumentsWithOptions:[FIRGetOptions defaultOptions] completion:completion];
+}
+
+- (void)getDocumentsWithOptions:(FIRGetOptions *)options
+                     completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                          NSError *_Nullable error))completion {
+  if (options.source == FIRGetSourceCache) {
+    [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
+    return;
+  }
+
+  FSTListenOptions *listenOptions =
+      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
+                                     includeDocumentMetadataChanges:YES
+                                              waitForSyncWhenOnline:YES];
 
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   __block id<FIRListenerRegistration> listenerRegistration;
@@ -147,10 +161,24 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    completion(snapshot, nil);
+    if (snapshot.metadata.fromCache && options.source == FIRGetSourceServer) {
+      completion(
+          nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                   code:FIRFirestoreErrorCodeUnavailable
+                               userInfo:@{
+                                 NSLocalizedDescriptionKey :
+                                     @"Failed to get documents from server. (However, these "
+                                     @"documents may exist in the local cache. Run again "
+                                     @"without setting FIRGetSourceServer in the FIRGetOptions to "
+                                     @"retrieve the cached documents.)"
+                               }]);
+    } else {
+      completion(snapshot, nil);
+    }
   };
 
-  listenerRegistration = [self addSnapshotListenerInternalWithOptions:options listener:listener];
+  listenerRegistration =
+      [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
   dispatch_semaphore_signal(registered);
 }
 

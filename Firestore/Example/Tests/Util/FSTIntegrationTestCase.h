@@ -23,6 +23,7 @@
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
+@class FIRGetOptions;
 @class FIRQuerySnapshot;
 @class FIRFirestore;
 @class FIRFirestoreSettings;
@@ -72,7 +73,12 @@ extern "C" {
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;
 
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
+                                    options:(FIRGetOptions *)options;
+
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
+
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query options:(FIRGetOptions *)options;
 
 - (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query
                               requireOnline:(BOOL)online;
@@ -104,6 +110,10 @@ NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(FIRQuerySnapsho
 
 /** Converts the FIRQuerySnapshot to an NSArray containing the document IDs in order. */
 NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs);
+
+/** Converts the FIRQuerySnapshot to an NSArray containing an NSArray containing the doc change data
+ * in order of { type, doc title, doc data }. */
+NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySnapshot *docs);
 
 #if __cplusplus
 }  // extern "C"
