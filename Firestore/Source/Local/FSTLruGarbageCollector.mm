@@ -13,6 +13,12 @@ class RollingSequenceNumberBuffer {
     queue_ = std::make_unique<priority_queue<FSTListenSequenceNumber> >();
   }
 
+  RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer& other) = delete;
+  RollingSequenceNumberBuffer(RollingSequenceNumberBuffer& other) = delete;
+
+  RollingSequenceNumberBuffer& operator=(const RollingSequenceNumberBuffer& other) = delete;
+  RollingSequenceNumberBuffer& operator=(RollingSequenceNumberBuffer& other) = delete;
+
   void AddElement(FSTListenSequenceNumber sequence_number) {
     if (queue_->size() < max_elements_) {
       queue_->push(sequence_number);
@@ -65,9 +71,10 @@ class RollingSequenceNumberBuffer {
   if (queryCount == 0) {
     return kFSTListenSequenceNumberInvalid;
   }
-  __block RollingSequenceNumberBuffer buffer(queryCount);
+  RollingSequenceNumberBuffer buffer(queryCount);
+  RollingSequenceNumberBuffer* ptr_to_buffer = &buffer;
   [self.queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop){
-    buffer.AddElement(queryData.sequenceNumber);
+    ptr_to_buffer->AddElement(queryData.sequenceNumber);
   }];
   return buffer.max_value();
 }
