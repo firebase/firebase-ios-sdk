@@ -418,6 +418,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(queryData, @"Tried to release nonexistent query: %@", query);
 
   [self.localViewReferences removeReferencesForID:queryData.targetID];
+  // TODO(gsoltis): kill this if statement, give GC a reference to query cache,
+  // call removeQueryData on GC, not queryCache.
   if (self.garbageCollector.isEager) {
     [self.queryCache removeQueryData:queryData group:group];
   }

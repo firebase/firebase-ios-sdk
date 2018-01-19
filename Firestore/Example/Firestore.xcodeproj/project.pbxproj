@@ -23,7 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		132E3DCA493C99C592FF748A /* FSTLruGarbageCollectorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 132E398C14613B2457AE19FD /* FSTLruGarbageCollectorTests.m */; };
+		132E3DCA493C99C592FF748A /* FSTLRUGarbageCollectorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 132E398C14613B2457AE19FD /* FSTLRUGarbageCollectorTests.m */; };
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
 		5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5436F32320008FAD006E51E3 /* string_printf_test.cc */; };
 		54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
@@ -195,7 +195,7 @@
 /* Begin PBXFileReference section */
 		04DF37A117F88A9891379ED6 /* Pods-Firestore_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests/Pods-Firestore_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		12F4357299652983A615F886 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		132E398C14613B2457AE19FD /* FSTLruGarbageCollectorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSTLruGarbageCollectorTests.m; sourceTree = "<group>"; };
+		132E398C14613B2457AE19FD /* FSTLRUGarbageCollectorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSTLRUGarbageCollectorTests.m; sourceTree = "<group>"; };
 		32AD40BF6B0E849B07FFD05E /* Pods_SwiftBuildTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftBuildTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		42491D7DC8C8CD245CC22B93 /* Pods-SwiftBuildTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBuildTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest.debug.xcconfig"; sourceTree = "<group>"; };
@@ -604,7 +604,7 @@
 				DE51B1661F0D48AC0013853F /* FSTLevelDBMutationQueueTests.mm */,
 				DE51B1681F0D48AC0013853F /* FSTLevelDBRemoteDocumentCacheTests.mm */,
 				DE51B17A1F0D48AC0013853F /* FSTWriteGroupTests.mm */,
-				132E398C14613B2457AE19FD /* FSTLruGarbageCollectorTests.m */,
+				132E398C14613B2457AE19FD /* FSTLRUGarbageCollectorTests.m */,
 			);
 			path = Local;
 			sourceTree = "<group>";
@@ -1284,7 +1284,7 @@
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
 				DE51B1DD1F0D490D0013853F /* FSTLocalStoreTests.m in Sources */,
 				D5B25474286C9800CE42B8C2 /* FSTTestDispatchQueue.m in Sources */,
-				132E3DCA493C99C592FF748A /* FSTLruGarbageCollectorTests.m in Sources */,
+				132E3DCA493C99C592FF748A /* FSTLRUGarbageCollectorTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

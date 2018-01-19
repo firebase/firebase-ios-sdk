@@ -1,6 +1,6 @@
 #import <memory>
 #import <queue>
-#import "Firestore/Source/Local/FSTLruGarbageCollector.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -44,13 +44,13 @@ class RollingSequenceNumberBuffer {
   const NSUInteger max_elements_;
 };
 
-@interface FSTLruGarbageCollector ()
+@interface FSTLRUGarbageCollector ()
 
 @property (nonatomic, strong, readonly) id <FSTQueryCache> queryCache;
 
 @end
 
-@implementation FSTLruGarbageCollector {
+@implementation FSTLRUGarbageCollector {
 }
 
 - (instancetype)initWithQueryCache:(id <FSTQueryCache>)queryCache {
@@ -77,6 +77,21 @@ class RollingSequenceNumberBuffer {
     ptr_to_buffer->AddElement(queryData.sequenceNumber);
   }];
   return buffer.max_value();
+}
+
+- (NSUInteger)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                                       liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
+                                             group:(FSTWriteGroup *)group {
+  __block NSUInteger count = 0;
+  [self.queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
+    if (queryData.sequenceNumber <= sequenceNumber) {
+      if (liveQueries[@(queryData.targetID)] == nil) {
+        [self.queryCache removeQueryData:queryData group:group];
+        count++;
+      }
+    }
+  }];
+  return count;
 }
 
 @end
