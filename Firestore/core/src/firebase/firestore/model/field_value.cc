@@ -66,6 +66,7 @@ bool LessThan(double lhs, double rhs) {
     return isnan(lhs) && !isnan(rhs);
   }
 }
+
 bool LessThan(double lhs, int64_t rhs) {
   // LLONG_MIN has an exact representation as double, so to check for a value
   // outside the range representable by long, we have to check for strictly less
@@ -128,6 +129,12 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::Double:
       double_value_ = value.double_value_;
       break;
+    case Type::Timestamp:
+      timestamp_value_ = value.timestamp_value_;
+      break;
+    case Type::ServerTimestamp:
+      server_timestamp_value_ = value.server_timestamp_value_;
+      break;
     case Type::String:
       string_value_ = value.string_value_;
       break;
@@ -135,6 +142,12 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       // copy-and-swap
       std::vector<const FieldValue> tmp = value.array_value_;
       std::swap(array_value_, tmp);
+      break;
+    }
+    case Type::Object: {
+      // copy-and-swap
+      std::map<const std::string, const FieldValue> tmp = value.object_value_;
+      std::swap(object_value_, tmp);
       break;
     }
     default:
@@ -153,6 +166,10 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
     case Type::Array:
       SwitchTo(Type::Array);
       std::swap(array_value_, value.array_value_);
+      return *this;
+    case Type::Object:
+      SwitchTo(Type::Object);
+      std::swap(object_value_, value.object_value_);
       return *this;
     default:
       // We just copy over POD union types.
@@ -198,6 +215,22 @@ FieldValue FieldValue::DoubleValue(double value) {
   return result;
 }
 
+FieldValue FieldValue::TimestampValue(const Timestamp& value) {
+  FieldValue result;
+  result.SwitchTo(Type::Timestamp);
+  result.timestamp_value_ = value;
+  return result;
+}
+
+FieldValue FieldValue::ServerTimestampValue(const Timestamp& local,
+                                            const Timestamp& previous) {
+  FieldValue result;
+  result.SwitchTo(Type::ServerTimestamp);
+  result.server_timestamp_value_.local = local;
+  result.server_timestamp_value_.previous = previous;
+  return result;
+}
+
 FieldValue FieldValue::StringValue(const char* value) {
   std::string copy(value);
   return StringValue(std::move(copy));
@@ -227,6 +260,20 @@ FieldValue FieldValue::ArrayValue(std::vector<const FieldValue>&& value) {
   return result;
 }
 
+FieldValue FieldValue::ObjectValue(
+    const std::map<const std::string, const FieldValue>& value) {
+  std::map<const std::string, const FieldValue> copy(value);
+  return ObjectValue(std::move(copy));
+}
+
+FieldValue FieldValue::ObjectValue(
+    std::map<const std::string, const FieldValue>&& value) {
+  FieldValue result;
+  result.SwitchTo(Type::Object);
+  std::swap(result.object_value_, value);
+  return result;
+}
+
 bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
   if (!Comparable(lhs.type(), rhs.type())) {
     return lhs.type() < rhs.type();
@@ -250,10 +297,25 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       } else {
         return LessThan(lhs.double_value_, rhs.integer_value_);
       }
+    case Type::Timestamp:
+      if (rhs.type() == Type::Timestamp) {
+        return lhs.timestamp_value_ < rhs.timestamp_value_;
+      } else {
+        return true;
+      }
+    case Type::ServerTimestamp:
+      if (rhs.type() == Type::ServerTimestamp) {
+        return lhs.server_timestamp_value_.local <
+               rhs.server_timestamp_value_.local;
+      } else {
+        return false;
+      }
     case Type::String:
       return lhs.string_value_.compare(rhs.string_value_) < 0;
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
+    case Type::Object:
+      return lhs.object_value_ < rhs.object_value_;
     default:
       FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
           false, lhs.type(), "Unsupported type %d", lhs.type());
@@ -270,22 +332,42 @@ void FieldValue::SwitchTo(const Type type) {
   // Not same type. Destruct old type first and then initialize new type.
   // Must call destructor explicitly for any non-POD type.
   switch (tag_) {
+    case Type::Timestamp:
+      timestamp_value_.~Timestamp();
+      break;
+    case Type::ServerTimestamp:
+      server_timestamp_value_.~ServerTimestamp();
+      break;
     case Type::String:
       string_value_.~basic_string();
       break;
     case Type::Array:
       array_value_.~vector();
       break;
+    case Type::Object:
+      object_value_.~map();
+      break;
     default: {}  // The other types where there is nothing to worry about.
   }
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
   switch (tag_) {
+    case Type::Timestamp:
+      new (&timestamp_value_) Timestamp(0, 0);
+      break;
+    case Type::ServerTimestamp:
+      // We initialize them to origin to avoid expensive calls to get `now'.
+      new (&server_timestamp_value_)
+          ServerTimestamp{Timestamp::Origin(), Timestamp::Origin()};
+      break;
     case Type::String:
       new (&string_value_) std::string();
       break;
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();
+      break;
+    case Type::Object:
+      new (&object_value_) std::map<const std::string, const FieldValue>();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
