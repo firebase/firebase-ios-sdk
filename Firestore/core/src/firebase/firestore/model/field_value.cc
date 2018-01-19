@@ -21,7 +21,10 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+
+using firebase::firestore::util::Comparator;
 
 namespace firebase {
 namespace firestore {
@@ -137,8 +140,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::Null:
       return false;
     case Type::Boolean:
-      // lhs < rhs iff lhs == false and rhs == true.
-      return !lhs.boolean_value_ && rhs.boolean_value_;
+      return Comparator<bool>()(lhs.boolean_value_, rhs.boolean_value_);
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
     default:
