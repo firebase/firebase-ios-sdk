@@ -55,7 +55,7 @@ FIRFirestore *FSTTestFirestore() {
 
 FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                         FSTTestSnapshotVersion version,
-                                        NSDictionary<NSString *, id> *data,
+                                        NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
   FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;

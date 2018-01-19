@@ -36,7 +36,7 @@ FIRFirestore *FSTTestFirestore();
 /** A convenience method for creating a doc snapshot for tests. */
 FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                         FSTTestSnapshotVersion version,
-                                        NSDictionary<NSString *, id> *data,
+                                        NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache);
 
