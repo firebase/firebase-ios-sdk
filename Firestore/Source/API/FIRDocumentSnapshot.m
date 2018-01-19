@@ -93,7 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   return [self.firestore isEqual:snapshot.firestore] &&
          [self.internalKey isEqual:snapshot.internalKey] &&
-         [self.internalDocument isEqual:snapshot.internalDocument] &&
+         (self.internalDocument == snapshot.internalDocument ||
+          [self.internalDocument isEqual:snapshot.internalDocument]) &&
          self.fromCache == snapshot.fromCache;
 }
 
