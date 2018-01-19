@@ -90,6 +90,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Removes the cached entry for the given query data (no-op if no entry exists). */
 - (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
 
+- (void)enumerateQueryDataUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block;
+
+- (NSUInteger)count;
+
 /**
  * Looks up an FSTQueryData entry in the cache.
  *
@@ -112,6 +116,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group;
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID;
+
+- (FSTListenSequenceNumber)sequenceNumberForPercentile:(NSUInteger)percentile;
 
 @end
 

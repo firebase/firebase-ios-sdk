@@ -99,6 +99,17 @@ NS_ASSUME_NONNULL_BEGIN
   return self.queries[query];
 }
 
+- (NSUInteger)count {
+  return [self.queries count];
+}
+
+- (void)enumerateQueryDataUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
+  return [self.queries enumerateKeysAndObjectsUsingBlock:
+                               ^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
+      block(queryData, stop);
+  }];
+}
+
 #pragma mark Reference tracking
 
 - (void)addMatchingKeys:(FSTDocumentKeySet *)keys
