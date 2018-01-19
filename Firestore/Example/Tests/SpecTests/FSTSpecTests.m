@@ -503,6 +503,7 @@ static NSString *const kNoIOSTag = @"no-ios";
         expectedActiveTargets[@(targetID)] =
             [[FSTQueryData alloc] initWithQuery:query
                                        targetID:targetID
+                           listenSequenceNumber:0
                                         purpose:FSTQueryPurposeListen
                                 snapshotVersion:[FSTSnapshotVersion noVersion]
                                     resumeToken:resumeToken];

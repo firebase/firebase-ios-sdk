@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithQuery:(FSTQuery *)query
                      targetID:(FSTTargetID)targetID
+         listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
               snapshotVersion:(FSTSnapshotVersion *)snapshotVersion
                   resumeToken:(NSData *)resumeToken {
@@ -32,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self) {
     _query = query;
     _targetID = targetID;
+    _sequenceNumber = sequenceNumber;
     _purpose = purpose;
     _snapshotVersion = snapshotVersion;
     _resumeToken = [resumeToken copy];
@@ -41,9 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithQuery:(FSTQuery *)query
                      targetID:(FSTTargetID)targetID
+         listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose {
   return [self initWithQuery:query
                     targetID:targetID
+        listenSequenceNumber:sequenceNumber
                      purpose:purpose
              snapshotVersion:[FSTSnapshotVersion noVersion]
                  resumeToken:[NSData data]];
@@ -83,6 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         resumeToken:(NSData *)resumeToken {
   return [[FSTQueryData alloc] initWithQuery:self.query
                                     targetID:self.targetID
+                        listenSequenceNumber:self.sequenceNumber
                                      purpose:self.purpose
                              snapshotVersion:snapshotVersion
                                  resumeToken:resumeToken];

@@ -468,8 +468,10 @@ static const int kOnlineAttemptsBeforeFailure = 2;
         [remoteEvent handleExistenceFilterMismatchForTargetID:target];
 
         // Clear the resume token for the query, since we're in a known mismatch state.
-        queryData =
-            [[FSTQueryData alloc] initWithQuery:query targetID:targetID purpose:queryData.purpose];
+        queryData = [[FSTQueryData alloc] initWithQuery:query
+                                               targetID:targetID
+                                   listenSequenceNumber:queryData.sequenceNumber
+                                                purpose:queryData.purpose];
         self.listenTargets[target] = queryData;
 
         // Cause a hard reset by unwatching and rewatching immediately, but deliberately don't
@@ -483,6 +485,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
         FSTQueryData *requestQueryData =
             [[FSTQueryData alloc] initWithQuery:query
                                        targetID:targetID
+                           listenSequenceNumber:queryData.sequenceNumber
                                         purpose:FSTQueryPurposeExistenceFilterMismatch];
         [self sendWatchRequestWithQueryData:requestQueryData];
       }

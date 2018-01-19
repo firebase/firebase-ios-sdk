@@ -26,6 +26,8 @@ typedef int32_t FSTBatchID;
 
 typedef int32_t FSTTargetID;
 
+typedef int64_t FSTListenSequenceNumber;
+
 typedef NSNumber FSTBoxedTargetID;
 
 /**

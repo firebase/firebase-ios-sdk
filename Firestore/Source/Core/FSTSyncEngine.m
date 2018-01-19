@@ -43,6 +43,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Limbo documents don't use persistence, and are eagerly GC'd. So, listens for them don't need
+// real sequence numbers.
+static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
+
 #pragma mark - FSTQueryView
 
 /**
@@ -490,6 +494,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQuery *query = [FSTQuery queryWithPath:key.path];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
+                                             listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
     self.limboKeysByTarget[@(limboTargetID)] = key;
     [self.remoteStore listenToTargetWithQueryData:queryData];

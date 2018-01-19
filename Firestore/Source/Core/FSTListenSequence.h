@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
+#import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/util/config.h"
+#import "FSTTypes.h"
 
-#if HAVE_ARC4RANDOM
+NS_ASSUME_NONNULL_BEGIN
 
-#include <stdlib.h>
+/**
+ * FSTListenSequence is a monotonic sequence. It is initialized with a minimum value to
+ * exceed. All subsequent calls to next will return increasing values.
+ */
+@interface FSTListenSequence : NSObject
 
-namespace firebase {
-namespace firestore {
-namespace util {
+- (instancetype)initStartingAfter:(FSTListenSequenceNumber)after NS_DESIGNATED_INITIALIZER;
 
-SecureRandom::result_type SecureRandom::operator()() {
-  return arc4random();
-}
+- (id)init NS_UNAVAILABLE;
 
-}  // namespace util
-}  // namespace firestore
-}  // namespace firebase
+- (FSTListenSequenceNumber)next;
 
-#endif  // HAVE_ARC4RANDOM
+@end
+
+NS_ASSUME_NONNULL_END
