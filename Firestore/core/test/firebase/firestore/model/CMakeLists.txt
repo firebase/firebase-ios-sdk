@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_model_test
   SOURCES
     field_value_test.cc
+    timestamp_test.cc
   DEPENDS
     firebase_firestore_model
 )
