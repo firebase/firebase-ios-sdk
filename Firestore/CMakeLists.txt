@@ -57,6 +57,9 @@ add_subdirectory(third_party/abseil-cpp)
 
 include(CompilerSetup)
 
+# Generated sources will be relative to the binary directory.
+include_directories(${FIREBASE_INSTALL_DIR})
+
 # Fully qualified imports, project wide
 include_directories(${FIREBASE_SOURCE_DIR})
 

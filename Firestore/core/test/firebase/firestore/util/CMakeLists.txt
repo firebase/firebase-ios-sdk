@@ -12,11 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(HAVE_ARC4RANDOM)
+  cc_test(
+    firebase_firestore_util_arc4random_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_arc4random
+  )
+endif()
+
+if(HAVE_OPENSSL_RAND_H)
+  cc_test(
+    firebase_firestore_util_openssl_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_openssl
+  )
+endif()
+
 cc_test(
   firebase_firestore_util_test
   SOURCES
     autoid_test.cc
-    secure_random_test.cc
     string_printf_test.cc
   DEPENDS
     firebase_firestore_util
