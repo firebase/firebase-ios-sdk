@@ -24,11 +24,13 @@
 namespace firebase {
 namespace firestore {
 
-Blob::Blob() : buffer_(nullptr), size_(0) {}
+Blob::Blob() : buffer_(nullptr), size_(0) {
+}
 
 Blob::Blob(const Blob& value)
     : buffer_(Blob::CopyFrom(value.Get(), value.size()).Release()),
-      size_(value.size()) {}
+      size_(value.size()) {
+}
 
 Blob::~Blob() {
   free(buffer_);
@@ -66,11 +68,12 @@ Blob& Blob::operator=(const Blob& value) {
 // equivalent to be used internally e.g. by FieldValue.
 void Blob::Swap(Blob& value) {
   std::swap(buffer_, value.buffer_);
-  std::swap(size_, value.size_);  
+  std::swap(size_, value.size_);
 }
 
 bool operator<(const Blob& lhs, const Blob& rhs) {
-  int comparison = memcmp(lhs.Get(), rhs.Get(), std::min(lhs.size(), rhs.size()));
+  int comparison =
+      memcmp(lhs.Get(), rhs.Get(), std::min(lhs.size(), rhs.size()));
   if (comparison == 0) {
     return lhs.size() < rhs.size();
   } else {

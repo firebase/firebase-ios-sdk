@@ -135,6 +135,15 @@ TEST(FieldValue, BlobType) {
   EXPECT_FALSE(a < a);
 }
 
+TEST(FieldValue, GeoPointType) {
+  const FieldValue a = FieldValue::GeoPointValue({1, 2});
+  const FieldValue b = FieldValue::GeoPointValue({3, 4});
+  EXPECT_EQ(Type::GeoPoint, a.type());
+  EXPECT_EQ(Type::GeoPoint, b.type());
+  EXPECT_TRUE(a < b);
+  EXPECT_FALSE(a < a);
+}
+
 TEST(FieldValue, ArrayType) {
   const FieldValue empty =
       FieldValue::ArrayValue(std::vector<const FieldValue>{});
@@ -263,6 +272,15 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
+  const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
+  clone = geo_point_value;
+  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
+  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), geo_point_value);
+  clone = clone;
+  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<const FieldValue>{
           FieldValue::TrueValue(), FieldValue::FalseValue()});
@@ -354,6 +372,12 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
+  const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
+  clone = std::move(geo_point_value);
+  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
   FieldValue array_value = FieldValue::ArrayValue(std::vector<const FieldValue>{
       FieldValue::TrueValue(), FieldValue::FalseValue()});
   clone = std::move(array_value);
@@ -384,6 +408,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   const FieldValue string_value = FieldValue::StringValue("abc");
   const FieldValue blob_value = FieldValue::BlobValue(Blob::CopyFrom("abc", 4));
+  const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<const FieldValue>());
   const FieldValue object_value =
@@ -393,7 +418,8 @@ TEST(FieldValue, CompareMixedType) {
   EXPECT_TRUE(number_value < timestamp_value);
   EXPECT_TRUE(timestamp_value < string_value);
   EXPECT_TRUE(string_value < blob_value);
-  EXPECT_TRUE(blob_value < array_value);
+  EXPECT_TRUE(blob_value < geo_point_value);
+  EXPECT_TRUE(geo_point_value < array_value);
   EXPECT_TRUE(array_value < object_value);
 }
 

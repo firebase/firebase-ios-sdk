@@ -270,6 +270,13 @@ FieldValue FieldValue::BlobValue(Blob&& value) {
   return result;
 }
 
+FieldValue FieldValue::GeoPointValue(const GeoPoint& value) {
+  FieldValue result;
+  result.SwitchTo(Type::GeoPoint);
+  result.geo_point_value_ = value;
+  return result;
+}
+
 FieldValue FieldValue::ArrayValue(const std::vector<const FieldValue>& value) {
   std::vector<const FieldValue> copy(value);
   return ArrayValue(std::move(copy));
@@ -336,6 +343,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return lhs.string_value_.compare(rhs.string_value_) < 0;
     case Type::Blob:
       return lhs.blob_value_ < rhs.blob_value_;
+    case Type::GeoPoint:
+      return lhs.geo_point_value_ < rhs.geo_point_value_;
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
     case Type::Object:
@@ -368,6 +377,9 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Blob:
       blob_value_.~Blob();
       break;
+    case Type::GeoPoint:
+      geo_point_value_.~GeoPoint();
+      break;
     case Type::Array:
       array_value_.~vector();
       break;
@@ -392,6 +404,9 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     case Type::Blob:
       new (&blob_value_) Blob(Blob::CopyFrom(nullptr, 0));
+      break;
+    case Type::GeoPoint:
+      new (&geo_point_value_) GeoPoint(0, 0);
       break;
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();
