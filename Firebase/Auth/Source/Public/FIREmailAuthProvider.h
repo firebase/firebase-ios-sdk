@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const FIREmailAuthProviderID NS_SWIFT_NAME(EmailAuthProviderID);
 
 /**
-    @brief please use `FIREmailAuthProviderID` instead.
+    @brief please use `EmailAuthProviderID` instead.
  */
 extern NSString *const FIREmailPasswordAuthProviderID __attribute__((deprecated));
 
