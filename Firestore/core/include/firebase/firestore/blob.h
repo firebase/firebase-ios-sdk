@@ -25,19 +25,32 @@ namespace firestore {
 /** Immutable class representing an array of bytes in Firestore. */
 class Blob {
  public:
+  Blob(const Blob& value);
   ~Blob();
 
-  static Blob FromAllocation(const void* source, size_t size);
+  /** Build a new Blob and copy the bytes from source. */
+  static Blob CopyFrom(const void* source, size_t size);
 
-  const void* get() const {
+  /** Build a new Blob and take the ownership of source. */
+  static Blob MoveFrom(void* source, size_t size);
+
+  const void* Get() const {
     return buffer_;
   }
+
+  void* Release();
+
+  Blob& operator=(const Blob& value);
+
+  void Swap(Blob& value);
 
   size_t size() const {
     return size_;
   }
 
  private:
+  Blob();
+
   void* buffer_;
   size_t size_;
 };

@@ -138,6 +138,12 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::String:
       string_value_ = value.string_value_;
       break;
+    case Type::Blob:
+      blob_value_ = value.blob_value_;
+      break;
+    case Type::GeoPoint:
+      geo_point_value_ = value.geo_point_value_;
+      break;
     case Type::Array: {
       // copy-and-swap
       std::vector<const FieldValue> tmp = value.array_value_;
@@ -162,6 +168,10 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
     case Type::String:
       SwitchTo(Type::String);
       string_value_.swap(value.string_value_);
+      return *this;
+    case Type::Blob:
+      SwitchTo(Type::Blob);
+      blob_value_.Swap(value.blob_value_);
       return *this;
     case Type::Array:
       SwitchTo(Type::Array);
@@ -248,6 +258,18 @@ FieldValue FieldValue::StringValue(std::string&& value) {
   return result;
 }
 
+FieldValue FieldValue::BlobValue(const Blob& value) {
+  Blob copy(value);
+  return FieldValue::BlobValue(std::move(copy));
+}
+
+FieldValue FieldValue::BlobValue(Blob&& value) {
+  FieldValue result;
+  result.SwitchTo(Type::Blob);
+  result.blob_value_.Swap(value);
+  return result;
+}
+
 FieldValue FieldValue::ArrayValue(const std::vector<const FieldValue>& value) {
   std::vector<const FieldValue> copy(value);
   return ArrayValue(std::move(copy));
@@ -312,6 +334,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       }
     case Type::String:
       return lhs.string_value_.compare(rhs.string_value_) < 0;
+    case Type::Blob:
+      return lhs.blob_value_ < rhs.blob_value_;
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
     case Type::Object:
@@ -341,6 +365,9 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::String:
       string_value_.~basic_string();
       break;
+    case Type::Blob:
+      blob_value_.~Blob();
+      break;
     case Type::Array:
       array_value_.~vector();
       break;
@@ -362,6 +389,9 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     case Type::String:
       new (&string_value_) std::string();
+      break;
+    case Type::Blob:
+      new (&blob_value_) Blob(Blob::CopyFrom(nullptr, 0));
       break;
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();

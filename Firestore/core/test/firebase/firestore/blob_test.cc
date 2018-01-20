@@ -22,18 +22,62 @@ namespace firebase {
 namespace firestore {
 
 TEST(Blob, Getter) {
-  const Blob& blob = Blob::FromAllocation("\1\2\3", 3);
-  const char* buffer = static_cast<const char*>(blob.get());
+  Blob a = Blob::CopyFrom("\1\2\3", 3);
+  char* bytes = new char[2];
+  bytes[0] = '\4';
+  bytes[1] = '\5';
+  Blob b = Blob::MoveFrom(bytes, 2);
+
+  // Get
+  const char* buffer = static_cast<const char*>(a.Get());
   EXPECT_EQ(1, buffer[0]);
   EXPECT_EQ(2, buffer[1]);
   EXPECT_EQ(3, buffer[2]);
+  buffer = static_cast<const char*>(b.Get());
+  EXPECT_EQ(4, buffer[0]);
+  EXPECT_EQ(5, buffer[1]);
   // Just do a naive comparison and let compiler auto-cast the integer type.
-  EXPECT_TRUE(3 == blob.size());
+  EXPECT_TRUE(3 == a.size());
+  EXPECT_TRUE(2 == b.size());
+
+  // Release
+  buffer = static_cast<const char*>(a.Release());
+  EXPECT_EQ(1, buffer[0]);
+  EXPECT_EQ(2, buffer[1]);
+  EXPECT_EQ(3, buffer[2]);
+  delete buffer;
+  buffer = static_cast<const char*>(b.Release());
+  EXPECT_EQ(4, buffer[0]);
+  EXPECT_EQ(5, buffer[1]);
+  delete buffer;
+  // Just do a naive comparison and let compiler auto-cast the integer type.
+  EXPECT_TRUE(0 == a.size());
+  EXPECT_TRUE(0 == b.size());
+}
+
+TEST(Blob, Copy) {
+  Blob a = Blob::CopyFrom("abc", 4);
+  Blob b = Blob::CopyFrom("def", 4);
+  EXPECT_EQ(0, strcmp("abc", static_cast<const char*>(a.Get())));
+  EXPECT_EQ(0, strcmp("def", static_cast<const char*>(b.Get())));
+  b = a;
+  EXPECT_EQ(0, strcmp("abc", static_cast<const char*>(a.Get())));
+  EXPECT_EQ(0, strcmp("abc", static_cast<const char*>(b.Get())));
+}
+
+TEST(Blob, Swap) {
+  Blob a = Blob::CopyFrom("abc", 4);
+  Blob b = Blob::CopyFrom("def", 4);
+  EXPECT_EQ(0, strcmp("abc", static_cast<const char*>(a.Get())));
+  EXPECT_EQ(0, strcmp("def", static_cast<const char*>(b.Get())));
+  b.Swap(a);
+  EXPECT_EQ(0, strcmp("def", static_cast<const char*>(a.Get())));
+  EXPECT_EQ(0, strcmp("abc", static_cast<const char*>(b.Get())));
 }
 
 TEST(Blob, Comparison) {
-  EXPECT_TRUE(Blob::FromAllocation("\1\2", 2) < Blob::FromAllocation("\1\2\3", 3));
-  EXPECT_TRUE(Blob::FromAllocation("\1\2\3", 3) < Blob::FromAllocation("\1\4", 2));
+  EXPECT_TRUE(Blob::CopyFrom("\1\2", 2) < Blob::CopyFrom("\1\2\3", 3));
+  EXPECT_TRUE(Blob::CopyFrom("\1\2\3", 3) < Blob::CopyFrom("\1\4", 2));
 }
 
 }  // namespace firestore

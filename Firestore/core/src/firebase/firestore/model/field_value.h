@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/include/firebase/firestore/blob.h"
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 
 namespace firebase {
@@ -98,9 +100,10 @@ class FieldValue {
   static FieldValue StringValue(const char* value);
   static FieldValue StringValue(const std::string& value);
   static FieldValue StringValue(std::string&& value);
-  // static FieldValue BlobValue();
+  static FieldValue BlobValue(const Blob& value);
+  static FieldValue BlobValue(Blob&& value);
   // static FieldValue ReferenceValue();
-  // static FieldValue GeoPointValue();
+  static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
   static FieldValue ArrayValue(std::vector<const FieldValue>&& value);
   static FieldValue ObjectValue(
@@ -128,8 +131,8 @@ class FieldValue {
     Timestamp timestamp_value_;
     ServerTimestamp server_timestamp_value_;
     std::string string_value_;
-    // Blob blob_value_;
-    // GeoPoint geopoint_value_;
+    Blob blob_value_;
+    GeoPoint geo_point_value_;
     std::vector<const FieldValue> array_value_;
     std::map<const std::string, const FieldValue> object_value_;
   };

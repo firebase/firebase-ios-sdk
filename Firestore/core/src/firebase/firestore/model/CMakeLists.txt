@@ -19,4 +19,5 @@ cc_library(
     timestamp.cc
   DEPENDS
     firebase_firestore_util
+    firebase_firestore_types
 )

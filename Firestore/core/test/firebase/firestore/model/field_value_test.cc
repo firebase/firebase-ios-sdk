@@ -125,6 +125,16 @@ TEST(FieldValue, StringType) {
   EXPECT_FALSE(a < a);
 }
 
+TEST(FieldValue, BlobType) {
+  const FieldValue a = FieldValue::BlobValue(Blob::CopyFrom("abc", 4));
+  const Blob& blob = Blob::CopyFrom("def", 4);
+  const FieldValue b = FieldValue::BlobValue(blob);
+  EXPECT_EQ(Type::Blob, a.type());
+  EXPECT_EQ(Type::Blob, b.type());
+  EXPECT_TRUE(a < b);
+  EXPECT_FALSE(a < a);
+}
+
 TEST(FieldValue, ArrayType) {
   const FieldValue empty =
       FieldValue::ArrayValue(std::vector<const FieldValue>{});
@@ -244,6 +254,15 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
+  const FieldValue blob_value = FieldValue::BlobValue(Blob::CopyFrom("abc", 4));
+  clone = blob_value;
+  EXPECT_EQ(FieldValue::BlobValue(Blob::CopyFrom("abc", 4)), clone);
+  EXPECT_EQ(FieldValue::BlobValue(Blob::CopyFrom("abc", 4)), blob_value);
+  clone = clone;
+  EXPECT_EQ(FieldValue::BlobValue(Blob::CopyFrom("abc", 4)), clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<const FieldValue>{
           FieldValue::TrueValue(), FieldValue::FalseValue()});
@@ -329,6 +348,12 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
+  const FieldValue blob_value = FieldValue::BlobValue(Blob::CopyFrom("abc", 4));
+  clone = std::move(blob_value);
+  EXPECT_EQ(FieldValue::BlobValue(Blob::CopyFrom("abc", 4)), clone);
+  clone = FieldValue::NullValue();
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
   FieldValue array_value = FieldValue::ArrayValue(std::vector<const FieldValue>{
       FieldValue::TrueValue(), FieldValue::FalseValue()});
   clone = std::move(array_value);
@@ -358,6 +383,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue number_value = FieldValue::NanValue();
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   const FieldValue string_value = FieldValue::StringValue("abc");
+  const FieldValue blob_value = FieldValue::BlobValue(Blob::CopyFrom("abc", 4));
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<const FieldValue>());
   const FieldValue object_value =
@@ -366,7 +392,8 @@ TEST(FieldValue, CompareMixedType) {
   EXPECT_TRUE(true_value < number_value);
   EXPECT_TRUE(number_value < timestamp_value);
   EXPECT_TRUE(timestamp_value < string_value);
-  EXPECT_TRUE(string_value < array_value);
+  EXPECT_TRUE(string_value < blob_value);
+  EXPECT_TRUE(blob_value < array_value);
   EXPECT_TRUE(array_value < object_value);
 }
 
