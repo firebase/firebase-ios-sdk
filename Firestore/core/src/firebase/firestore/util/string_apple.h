@@ -17,7 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_APPLE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_APPLE_H_
 
+// Everything in this header exists for compatibility with Objective-C.
+#if __OBJC__
+
 #import <Foundation/Foundation.h>
+
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -32,8 +37,16 @@ inline NSString* WrapNSStringNoCopy(const char* c_str) {
              freeWhenDone:NO];
 }
 
+// Creates an absl::string_view wrapper for the contents of the given NSString.
+inline absl::string_view MakeStringView(NSString* str) {
+  return absl::string_view(
+      [str UTF8String], [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // __OBJC__
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_APPLE_H_

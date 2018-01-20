@@ -16,6 +16,9 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
@@ -24,7 +27,14 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-#import "Firestore/Source/Util/FSTComparison.h"
+
+using firebase::firestore::util::Comparator;
+using firebase::firestore::util::CompareMixedNumber;
+using firebase::firestore::util::DoubleBitwiseEquals;
+using firebase::firestore::util::DoubleBitwiseHash;
+using firebase::firestore::util::MakeStringView;
+using firebase::firestore::util::ReverseOrder;
+using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -208,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTBooleanValue class]]) {
-    return FSTCompareBools(self.internalValue, ((FSTBooleanValue *)other).internalValue);
+    return WrapCompare<bool>(self.internalValue, ((FSTBooleanValue *)other).internalValue);
   } else {
     return [self defaultCompare:other];
   }
@@ -231,19 +241,22 @@ NS_ASSUME_NONNULL_BEGIN
     if ([self isKindOfClass:[FSTDoubleValue class]]) {
       double thisDouble = ((FSTDoubleValue *)self).internalValue;
       if ([other isKindOfClass:[FSTDoubleValue class]]) {
-        return FSTCompareDoubles(thisDouble, ((FSTDoubleValue *)other).internalValue);
+        return WrapCompare(thisDouble, ((FSTDoubleValue *)other).internalValue);
       } else {
         FSTAssert([other isKindOfClass:[FSTIntegerValue class]], @"Unknown number value: %@",
                   other);
-        return FSTCompareMixed(thisDouble, ((FSTIntegerValue *)other).internalValue);
+        auto result = CompareMixedNumber(thisDouble, ((FSTIntegerValue *)other).internalValue);
+        return static_cast<NSComparisonResult>(result);
       }
     } else {
       int64_t thisInt = ((FSTIntegerValue *)self).internalValue;
       if ([other isKindOfClass:[FSTIntegerValue class]]) {
-        return FSTCompareInt64s(thisInt, ((FSTIntegerValue *)other).internalValue);
+        return WrapCompare(thisInt, ((FSTIntegerValue *)other).internalValue);
       } else {
         FSTAssert([other isKindOfClass:[FSTDoubleValue class]], @"Unknown number value: %@", other);
-        return -1 * FSTCompareMixed(((FSTDoubleValue *)other).internalValue, thisInt);
+        double otherDouble = ((FSTDoubleValue *)other).internalValue;
+        auto result = ReverseOrder(CompareMixedNumber(otherDouble, thisInt));
+        return static_cast<NSComparisonResult>(result);
       }
     }
   }
@@ -334,11 +347,11 @@ NS_ASSUME_NONNULL_BEGIN
   // NOTE: isEqual: should compare NaN equal to itself and -0.0 not equal to 0.0.
 
   return [other isKindOfClass:[FSTDoubleValue class]] &&
-         FSTDoubleBitwiseEquals(self.internalValue, ((FSTDoubleValue *)other).internalValue);
+         DoubleBitwiseEquals(self.internalValue, ((FSTDoubleValue *)other).internalValue);
 }
 
 - (NSUInteger)hash {
-  return FSTDoubleBitwiseHash(self.internalValue);
+  return DoubleBitwiseHash(self.internalValue);
 }
 
 // NOTE: compare: is implemented in NumberValue.
@@ -346,6 +359,17 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark - FSTStringValue
+
+/**
+ * Specialization of Comparator for NSStrings.
+ */
+template <>
+struct Comparator<NSString *> {
+  bool operator()(NSString *left, NSString *right) const {
+    Comparator<absl::string_view> lessThan;
+    return lessThan(MakeStringView(left), MakeStringView(right));
+  }
+};
 
 @interface FSTStringValue ()
 @property(nonatomic, copy, readonly) NSString *internalValue;
@@ -385,7 +409,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTStringValue class]]) {
-    return FSTCompareStrings(self.internalValue, ((FSTStringValue *)other).internalValue);
+    return WrapCompare(self.internalValue, ((FSTStringValue *)other).internalValue);
   } else {
     return [self defaultCompare:other];
   }
@@ -556,6 +580,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTBlobValue
 
+static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
+  NSUInteger minLength = MIN(left.length, right.length);
+  int result = memcmp(left.bytes, right.bytes, minLength);
+  if (result < 0) {
+    return NSOrderedAscending;
+  } else if (result > 0) {
+    return NSOrderedDescending;
+  } else if (left.length < right.length) {
+    return NSOrderedAscending;
+  } else if (left.length > right.length) {
+    return NSOrderedDescending;
+  } else {
+    return NSOrderedSame;
+  }
+}
+
 @interface FSTBlobValue ()
 @property(nonatomic, copy, readonly) NSData *internalValue;
 @end
@@ -594,7 +634,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTBlobValue class]]) {
-    return FSTCompareBytes(self.internalValue, ((FSTBlobValue *)other).internalValue);
+    return CompareBytes(self.internalValue, ((FSTBlobValue *)other).internalValue);
   } else {
     return [self defaultCompare:other];
   }
@@ -664,6 +704,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTObjectValue
 
+static const NSComparator StringComparator = ^NSComparisonResult(NSString *left, NSString *right) {
+  return WrapCompare(left, right);
+};
+
 @interface FSTObjectValue ()
 @property(nonatomic, strong, readonly)
     FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *internalValue;
@@ -677,7 +721,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   dispatch_once(&onceToken, ^{
     FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *empty =
-        [FSTImmutableSortedDictionary dictionaryWithComparator:FSTStringComparator];
+        [FSTImmutableSortedDictionary dictionaryWithComparator:StringComparator];
     sharedEmptyInstance = [[FSTObjectValue alloc] initWithImmutableDictionary:empty];
   });
   return sharedEmptyInstance;
@@ -694,7 +738,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithDictionary:(NSDictionary<NSString *, FSTFieldValue *> *)value {
   FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *dictionary =
-      [FSTImmutableSortedDictionary dictionaryWithDictionary:value comparator:FSTStringComparator];
+      [FSTImmutableSortedDictionary dictionaryWithDictionary:value comparator:StringComparator];
   return [self initWithImmutableDictionary:dictionary];
 }
 
@@ -748,7 +792,7 @@ NS_ASSUME_NONNULL_BEGIN
       key2 = [enumerator2 nextObject];
     }
     // Only equal if both enumerators are exhausted.
-    return FSTCompareBools(key1 != nil, key2 != nil);
+    return WrapCompare(key1 != nil, key2 != nil);
   } else {
     return [self defaultCompare:other];
   }
@@ -876,7 +920,7 @@ NS_ASSUME_NONNULL_BEGIN
         return cmp;
       }
     }
-    return FSTCompareUIntegers(selfArray.count, otherArray.count);
+    return WrapCompare<int64_t>(selfArray.count, otherArray.count);
   } else {
     return [self defaultCompare:other];
   }

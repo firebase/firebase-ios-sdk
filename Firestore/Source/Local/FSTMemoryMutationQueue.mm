@@ -23,9 +23,12 @@
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTComparison.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left, NSNumber *right) {
+  return [left compare:right];
+};
 
 @interface FSTMemoryMutationQueue ()
 
@@ -260,7 +263,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Find unique batchIDs referenced by all documents potentially matching the query.
   __block FSTImmutableSortedSet<NSNumber *> *uniqueBatchIDs =
-      [FSTImmutableSortedSet setWithComparator:FSTNumberComparator];
+      [FSTImmutableSortedSet setWithComparator:NumberComparator];
   FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
     FSTResourcePath *rowKeyPath = reference.key.path;
     if (![prefix isPrefixOfPath:rowKeyPath]) {
