@@ -18,4 +18,5 @@ cc_test(
     array_sorted_map_test.cc
   DEPENDS
     firebase_firestore_immutable
+    firebase_firestore_util
 )
