@@ -15,11 +15,11 @@
  */
 
 #import <XCTest/XCTest.h>
-#import <Firestore/Source/Local/FSTMemoryMutationQueue.h>
-#import <Firestore/Source/Model/FSTMutation.h>
-#import <Firestore/Source/Model/FSTDocument.h>
-#import <Firestore/Source/Model/FSTFieldValue.h>
-#import <Firestore/Source/Core/FSTTimestamp.h>
+#import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
+#import "Firestore/Source/Model/FSTMutation.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
