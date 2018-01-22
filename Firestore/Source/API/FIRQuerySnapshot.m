@@ -88,14 +88,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToSnapshot:(nullable FIRQuerySnapshot *)snapshot {
   if (self == snapshot) return YES;
   if (snapshot == nil) return NO;
-  if (self.firestore != snapshot.firestore && ![self.firestore isEqual:snapshot.firestore])
-    return NO;
-  if (self.originalQuery != snapshot.originalQuery &&
-      ![self.originalQuery isEqual:snapshot.originalQuery])
-    return NO;
-  if (self.snapshot != snapshot.snapshot && ![self.snapshot isEqual:snapshot.snapshot]) return NO;
-  if (self.metadata != snapshot.metadata && ![self.metadata isEqual:snapshot.metadata]) return NO;
-  return YES;
+
+  return [self.firestore isEqual:snapshot.firestore] &&
+         [self.originalQuery isEqual:snapshot.originalQuery] &&
+         [self.snapshot isEqual:snapshot.snapshot] && [self.metadata isEqual:snapshot.metadata];
 }
 
 - (NSUInteger)hash {

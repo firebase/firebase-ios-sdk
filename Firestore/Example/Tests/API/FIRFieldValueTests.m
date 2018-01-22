@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
+#import <FirebaseFirestore/FIRFieldValue.h>
 
 #import <XCTest/XCTest.h>
-
-#import "FirebaseFirestore/FIRFieldValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

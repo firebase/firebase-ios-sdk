@@ -16,8 +16,13 @@
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 
-#import "Firestore/Source/Util/FSTComparison.h"
+#import "Firestore/core/src/firebase/firestore/util/comparison.h"
+
 #import "Firestore/Source/Util/FSTUsageValidation.h"
+
+using firebase::firestore::util::DoubleBitwiseEquals;
+using firebase::firestore::util::DoubleBitwiseHash;
+using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,11 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSComparisonResult)compare:(FIRGeoPoint *)other {
-  NSComparisonResult result = FSTCompareDoubles(self.latitude, other.latitude);
+  NSComparisonResult result = WrapCompare<double>(self.latitude, other.latitude);
   if (result != NSOrderedSame) {
     return result;
   } else {
-    return FSTCompareDoubles(self.longitude, other.longitude);
+    return WrapCompare<double>(self.longitude, other.longitude);
   }
 }
 
@@ -67,12 +72,12 @@ NS_ASSUME_NONNULL_BEGIN
     return NO;
   }
   FIRGeoPoint *otherGeoPoint = (FIRGeoPoint *)other;
-  return FSTDoubleBitwiseEquals(self.latitude, otherGeoPoint.latitude) &&
-         FSTDoubleBitwiseEquals(self.longitude, otherGeoPoint.longitude);
+  return DoubleBitwiseEquals(self.latitude, otherGeoPoint.latitude) &&
+         DoubleBitwiseEquals(self.longitude, otherGeoPoint.longitude);
 }
 
 - (NSUInteger)hash {
-  return 31 * FSTDoubleBitwiseHash(self.latitude) + FSTDoubleBitwiseHash(self.longitude);
+  return 31 * DoubleBitwiseHash(self.latitude) + DoubleBitwiseHash(self.longitude);
 }
 
 /** Implements NSCopying without actually copying because geopoints are immutable. */

@@ -115,9 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToQuery:(nullable FIRQuery *)query {
   if (self == query) return YES;
   if (query == nil) return NO;
-  if (self.firestore != query.firestore && ![self.firestore isEqual:query.firestore]) return NO;
-  if (self.query != query.query && ![self.query isEqual:query.query]) return NO;
-  return YES;
+
+  return [self.firestore isEqual:query.firestore] && [self.query isEqual:query.query];
 }
 
 - (NSUInteger)hash {

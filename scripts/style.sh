@@ -36,6 +36,7 @@ else
   options="-i"
 fi
 
+files=$(
 (
   if [[ $# -gt 0 ]]; then
     if git rev-parse "$1" -- >& /dev/null; then
@@ -58,6 +59,9 @@ fi
 \%/third_party/% d
 \%/Firestore/Port/% d
 
+# Generated source
+\%/Firestore/core/src/firebase/firestore/util/config.h% d
+
 # Sources pulled in by travis bundler
 \%/vendor/bundle/% d
 
@@ -69,10 +73,18 @@ fi
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p
-' | xargs clang-format -style=file $options \
-  | grep "<replacement " > /dev/null
+'
+)
+needs_formatting=false
+for f in $files; do
+  clang-format -style=file $options $f | grep "<replacement " > /dev/null
+  if [[ "$test_only" = true && $? -ne 1 ]]; then
+    echo "$f needs formatting."
+    needs_formatting=true
+  fi
+done
 
-if [[ "$test_only" = true && $? -ne 1 ]]; then
+if [[ "$needs_formatting" = true ]]; then
   echo "Proposed commit is not style compliant."
   echo "Run scripts/style.sh and git add the result."
   exit 1
