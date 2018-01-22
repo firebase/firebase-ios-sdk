@@ -16,9 +16,9 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "FirebaseFirestore/FIRFirestoreErrors.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"

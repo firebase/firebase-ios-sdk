@@ -77,10 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToReference:(nullable FIRCollectionReference *)reference {
   if (self == reference) return YES;
   if (reference == nil) return NO;
-  if (self.firestore != reference.firestore && ![self.firestore isEqual:reference.firestore])
-    return NO;
-  if (self.query != reference.query && ![self.query isEqual:reference.query]) return NO;
-  return YES;
+  return [self.firestore isEqual:reference.firestore] && [self.query isEqual:reference.query];
 }
 
 - (NSUInteger)hash {

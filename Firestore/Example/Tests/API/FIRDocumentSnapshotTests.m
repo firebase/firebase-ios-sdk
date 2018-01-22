@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import <FirebaseFirestore/FIRDocumentSnapshot.h>
 
-#import "FirebaseFirestore/FIRDocumentSnapshot.h"
+#import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
@@ -30,11 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEquals {
   FIRDocumentSnapshot *base = FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
   FIRDocumentSnapshot *baseDup = FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
   FIRDocumentSnapshot *nilData = FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO);
   FIRDocumentSnapshot *nilDataDup = FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO);
-#pragma clang diagnostic pop
   FIRDocumentSnapshot *differentPath = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO);
   FIRDocumentSnapshot *differentData = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"b" : @1 }, NO, NO);
   FIRDocumentSnapshot *hasMutations = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, YES, NO);

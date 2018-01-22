@@ -55,9 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToMetadata:(nullable FIRSnapshotMetadata *)metadata {
   if (self == metadata) return YES;
   if (metadata == nil) return NO;
-  if (self.pendingWrites != metadata.pendingWrites) return NO;
-  if (self.fromCache != metadata.fromCache) return NO;
-  return YES;
+
+  return self.pendingWrites == metadata.pendingWrites && self.fromCache == metadata.fromCache;
 }
 
 - (NSUInteger)hash {

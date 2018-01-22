@@ -16,8 +16,10 @@
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
-#import "FirebaseFirestore/FIRDocumentReference.h"
-#import "FirebaseFirestore/FIRSnapshotMetadata.h"
+#import <FirebaseFirestore/FIRDocumentChange.h>
+#import <FirebaseFirestore/FIRDocumentReference.h>
+#import <FirebaseFirestore/FIRSnapshotMetadata.h>
+
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -53,7 +55,7 @@ FIRFirestore *FSTTestFirestore() {
 
 FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                         FSTTestSnapshotVersion version,
-                                        NSDictionary<NSString *, id> *data,
+                                        NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
   FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;

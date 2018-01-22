@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import <FirebaseFirestore/FIRDocumentReference.h>
 
-#import "FirebaseFirestore/FIRDocumentReference.h"
+#import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 

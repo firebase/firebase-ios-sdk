@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRQuerySnapshot.h>
+
 #import <XCTest/XCTest.h>
 
-#import "FirebaseFirestore/FIRQuerySnapshot.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"

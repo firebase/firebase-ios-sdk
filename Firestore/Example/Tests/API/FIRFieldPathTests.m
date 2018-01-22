@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRFieldPath.h>
+
 #import <XCTest/XCTest.h>
 
-#import "FirebaseFirestore/FIRFieldPath.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
