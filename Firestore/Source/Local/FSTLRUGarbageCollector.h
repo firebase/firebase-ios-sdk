@@ -18,7 +18,8 @@ const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 - (FSTListenSequenceNumber)sequenceNumberForQueryCount:(NSUInteger)queryCount;
 
 - (NSUInteger)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                       liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
+                                       liveQueries:
+                                           (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
                                              group:(FSTWriteGroup *)group;
 
 - (NSUInteger)removeOrphanedDocuments:(id<FSTRemoteDocumentCache>)remoteDocumentCache

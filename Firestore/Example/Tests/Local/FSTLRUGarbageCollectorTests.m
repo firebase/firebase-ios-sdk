@@ -15,18 +15,18 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
-#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
+#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "Firestore/Source/Model/FSTMutation.h"
 
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,19 +61,13 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *path = [NSString stringWithFormat:@"docs/doc_%ul", ++_previousDocNum];
   FSTTestSnapshotVersion version = 2;
   BOOL hasMutations = NO;
-  return FSTTestDoc(path, version, @{@"baz": @YES, @"ok": @"fine"}, hasMutations);
+  return FSTTestDoc(path, version, @{ @"baz" : @YES, @"ok" : @"fine" }, hasMutations);
 }
 
 - (void)testPickSequenceNumberPercentile {
   const int numTestCases = 5;
   // 0 - number of queries to cache, 1 - number expected to be calculated as 10%
-  int testCases[numTestCases][2] = {
-          {0, 0},
-          {10, 1},
-          {9, 0},
-          {50, 5},
-          {49, 4}
-  };
+  int testCases[numTestCases][2] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 
   for (int i = 0; i < numTestCases; i++) {
     // Fill the query cache.
@@ -169,9 +163,8 @@ NS_ASSUME_NONNULL_BEGIN
   // GC up through 1015, which is 15%.
   // Expect to have GC'd 7 targets (even values of 1001-1015).
   FSTWriteGroup *gcGroup = [FSTWriteGroup groupWithAction:@"gc"];
-  NSUInteger removed = [gc removeQueriesUpThroughSequenceNumber:1015
-                                                    liveQueries:liveQueries
-                                                          group:gcGroup];
+  NSUInteger removed =
+      [gc removeQueriesUpThroughSequenceNumber:1015 liveQueries:liveQueries group:gcGroup];
   XCTAssertEqual(7, removed);
   [queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
     XCTAssertTrue(queryData.sequenceNumber > 1015 || queryData.targetID % 2 == 1);
@@ -186,7 +179,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
   [mutationQueue startWithGroup:group];
 
-  // Add docs to mutation queue, as well as keep some queries. verify that correct documents are removed.
+  // Add docs to mutation queue, as well as keep some queries. verify that correct documents are
+  // removed.
   NSMutableSet<FSTDocumentKey *> *toBeRetained = [NSMutableSet set];
 
   NSMutableArray *mutations = [NSMutableArray arrayWithCapacity:2];
@@ -205,9 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
     [toBeRetained addObject:doc2.key];
     [queryCache addMatchingKeys:keySet forTargetID:queryData.targetID group:group];
 
-    FSTObjectValue *newValue = [[FSTObjectValue alloc] initWithDictionary:@{
-            @"foo": @"@bar"
-    }];
+    FSTObjectValue *newValue = [[FSTObjectValue alloc] initWithDictionary:@{@"foo" : @"@bar"}];
     [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc2.key
                                                        value:newValue
                                                 precondition:[FSTPrecondition none]]];
@@ -235,9 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTTimestamp *writeTime = [FSTTimestamp timestamp];
-  [mutationQueue addMutationBatchWithWriteTime:writeTime
-                                     mutations:mutations
-                                         group:group];
+  [mutationQueue addMutationBatchWithWriteTime:writeTime mutations:mutations group:group];
 
   // Now add the docs we expect to get resolved.
   NSUInteger expectedRemoveCount = 5;
@@ -249,9 +239,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTWriteGroup *gcGroup = [FSTWriteGroup groupWithAction:@"gc"];
-  NSUInteger removed = [gc removeOrphanedDocuments:documentCache
-                                     mutationQueue:mutationQueue
-                                             group:gcGroup];
+  NSUInteger removed =
+      [gc removeOrphanedDocuments:documentCache mutationQueue:mutationQueue group:gcGroup];
 
   XCTAssertEqual(expectedRemoveCount, removed);
   for (FSTDocumentKey *key in toBeRemoved) {

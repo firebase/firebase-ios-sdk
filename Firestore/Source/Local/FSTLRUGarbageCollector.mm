@@ -1,6 +1,6 @@
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import <memory>
 #import <queue>
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
@@ -14,11 +14,11 @@ class RollingSequenceNumberBuffer {
     queue_ = std::make_unique<priority_queue<FSTListenSequenceNumber> >();
   }
 
-  RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer& other) = delete;
-  RollingSequenceNumberBuffer(RollingSequenceNumberBuffer& other) = delete;
+  RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer &other) = delete;
+  RollingSequenceNumberBuffer(RollingSequenceNumberBuffer &other) = delete;
 
-  RollingSequenceNumberBuffer& operator=(const RollingSequenceNumberBuffer& other) = delete;
-  RollingSequenceNumberBuffer& operator=(RollingSequenceNumberBuffer& other) = delete;
+  RollingSequenceNumberBuffer &operator=(const RollingSequenceNumberBuffer &other) = delete;
+  RollingSequenceNumberBuffer &operator=(RollingSequenceNumberBuffer &other) = delete;
 
   void AddElement(FSTListenSequenceNumber sequence_number) {
     if (queue_->size() < max_elements_) {
@@ -47,14 +47,14 @@ class RollingSequenceNumberBuffer {
 
 @interface FSTLRUGarbageCollector ()
 
-@property (nonatomic, strong, readonly) id <FSTQueryCache> queryCache;
+@property(nonatomic, strong, readonly) id<FSTQueryCache> queryCache;
 
 @end
 
 @implementation FSTLRUGarbageCollector {
 }
 
-- (instancetype)initWithQueryCache:(id <FSTQueryCache>)queryCache {
+- (instancetype)initWithQueryCache:(id<FSTQueryCache>)queryCache {
   self = [super init];
   if (self) {
     _queryCache = queryCache;
@@ -73,15 +73,16 @@ class RollingSequenceNumberBuffer {
     return kFSTListenSequenceNumberInvalid;
   }
   RollingSequenceNumberBuffer buffer(queryCount);
-  RollingSequenceNumberBuffer* ptr_to_buffer = &buffer;
-  [self.queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop){
+  RollingSequenceNumberBuffer *ptr_to_buffer = &buffer;
+  [self.queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
     ptr_to_buffer->AddElement(queryData.sequenceNumber);
   }];
   return buffer.max_value();
 }
 
 - (NSUInteger)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                       liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
+                                       liveQueries:
+                                           (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
                                              group:(FSTWriteGroup *)group {
   __block NSUInteger count = 0;
   [self.queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
