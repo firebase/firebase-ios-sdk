@@ -83,6 +83,14 @@ class FixedArray {
     size_ = static_cast<size_type>(copy_end - begin());
   }
 
+  /**
+   * Appends a single value to the array.
+   */
+  void append(T&& value) {
+    *end() = std::forward<T>(value);
+    size_ += 1;
+  }
+
   iterator begin() {
     return contents_.begin();
   }
@@ -148,6 +156,44 @@ class ArraySortedMap : public ArraySortedMapBase {
     auto array = std::make_shared<array_type>();
     array->append(entries.begin(), entries.end());
     array_ = array;
+  }
+
+  /**
+   * Creates a new map identical to this one, but with a key-value pair added or
+   * updated.
+   *
+   * @param key The key to insert/update.
+   * @param value The value to associate with the key.
+   * @return A new dictionary with the added/updated value.
+   */
+  this_type insert(const K& key, const V& value) const {
+    const_iterator current_end = end();
+    const_iterator pos = LowerBound(key);
+
+    // Copy the segment before the found position. If not found, this is
+    // everything.
+    auto copy = std::make_shared<array_type>();
+    copy->append(begin(), pos);
+
+    // Copy the value to be inserted.
+    copy->append({key, value});
+
+    // If inserting at the end or the key at pos is not equal to what we're
+    // inserting, then increase the size.
+    //
+    // If not at current_end then pos->first >= key. Reversing the argument
+    // order here tests key < pos->first. If true: pos->first != key.
+    if (pos == current_end || key_comparator_(key, *pos)) {
+      // Everything after pos is to be copied
+      assert(size() < kFixedSize);
+    } else {
+      // Skip the thing at pos because it compares the same as value.
+      ++pos;
+    }
+
+    // Copy everything after pos (if anything).
+    copy->append(pos, current_end);
+    return wrap(copy);
   }
 
   /**

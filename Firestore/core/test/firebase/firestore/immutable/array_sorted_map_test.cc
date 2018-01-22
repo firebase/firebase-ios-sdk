@@ -23,6 +23,8 @@ namespace firestore {
 namespace immutable {
 
 typedef ArraySortedMap<int, int> IntMap;
+constexpr ArraySortedMapBase::size_type kFixedSize =
+    ArraySortedMapBase::kFixedSize;
 
 template <typename K, typename V>
 testing::AssertionResult NotFound(const ArraySortedMap<K, V>& set,
@@ -74,10 +76,19 @@ TEST(ArraySortedMap, RemoveKeyValuePair) {
 }
 
 TEST(ArraySortedMap, MoreRemovals) {
-  // TODO(wilhuff): implement insert.
-  IntMap map{
-      {1, 20}, {3, 2}, {4, 71}, {7, 42}, {9, 88}, {18, 18}, {50, 50},
-  };
+  IntMap map = IntMap()
+                   .insert(1, 1)
+                   .insert(50, 50)
+                   .insert(3, 3)
+                   .insert(4, 4)
+                   .insert(7, 7)
+                   .insert(9, 9)
+                   .insert(1, 20)
+                   .insert(18, 18)
+                   .insert(3, 2)
+                   .insert(4, 71)
+                   .insert(7, 42)
+                   .insert(9, 88);
 
   ASSERT_TRUE(Found(map, 7, 42));
   ASSERT_TRUE(Found(map, 3, 2));
@@ -110,6 +121,35 @@ TEST(ArraySortedMap, RemoveMiddleBug) {
   ASSERT_TRUE(Found(s1, 1, 1));
   ASSERT_TRUE(NotFound(s1, 2));
   ASSERT_TRUE(Found(s1, 3, 3));
+}
+
+TEST(ArraySortedMap, Increasing) {
+  int total = static_cast<int>(kFixedSize);
+  IntMap map;
+
+  for (int i = 0; i < total; i++) {
+    map = map.insert(i, i);
+  }
+  ASSERT_EQ(kFixedSize, map.size());
+
+  for (int i = 0; i < total; i++) {
+    map = map.erase(i);
+  }
+  ASSERT_EQ(0u, map.size());
+}
+
+TEST(ArraySortedMap, Override) {
+  IntMap map = IntMap().insert(10, 10).insert(10, 8);
+
+  ASSERT_TRUE(Found(map, 10, 8));
+}
+
+TEST(ArraySortedMap, Empty) {
+  IntMap map = IntMap().insert(10, 10).erase(10);
+  EXPECT_TRUE(map.empty());
+  EXPECT_EQ(0u, map.size());
+  EXPECT_TRUE(NotFound(map, 1));
+  EXPECT_TRUE(NotFound(map, 10));
 }
 
 TEST(ArraySortedMap, EmptyGet) {
