@@ -171,6 +171,25 @@ TEST(ArraySortedMap, EmptyRemoval) {
   EXPECT_TRUE(NotFound(new_map, 1));
 }
 
+TEST(ArraySortedMap, AvoidsCopying) {
+  IntMap map;
+
+  // Verify that emplacing a pair does not copy.
+  IntMap inserted = map.insert(10, 20);
+  auto found = inserted.find(10);
+  ASSERT_NE(found, inserted.end());
+  EXPECT_EQ(20, found->second);
+
+  // Verify that inserting something with equal keys and values just returns
+  // this.
+  IntMap duped = inserted.insert(10, 20);
+  auto duped_found = duped.find(10);
+
+  // If everything worked correctly, the backing array should not have been
+  // copied and the pointer to the entry with 10 as key should be the same.
+  EXPECT_EQ(found, duped_found);
+}
+
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase

@@ -167,8 +167,26 @@ class ArraySortedMap : public ArraySortedMapBase {
    * @return A new dictionary with the added/updated value.
    */
   this_type insert(const K& key, const V& value) const {
+    value_type pair(key, value);
+
     const_iterator current_end = end();
-    const_iterator pos = LowerBound(key);
+    const_iterator pos = LowerBound(pair.first);
+    bool replacing_entry = false;
+
+    if (pos != current_end) {
+      // LowerBound found an entry where pos->first >= pair.first. Reversing the
+      // argument order here tests pair.first < pos->first.
+      bool keys_equal = !key_comparator_(pair.first, *pos);
+      if (keys_equal) {
+        const V& pos_value = pos->second;
+        const V& pair_value = pair.second;
+        if (pos_value == pair_value) {
+          return *this;
+        } else {
+          replacing_entry = true;
+        }
+      }
+    }
 
     // Copy the segment before the found position. If not found, this is
     // everything.
@@ -176,19 +194,15 @@ class ArraySortedMap : public ArraySortedMapBase {
     copy->append(begin(), pos);
 
     // Copy the value to be inserted.
-    copy->append({key, value});
+    copy->append(std::move(pair));
 
-    // If inserting at the end or the key at pos is not equal to what we're
-    // inserting, then increase the size.
-    //
-    // If not at current_end then pos->first >= key. Reversing the argument
-    // order here tests key < pos->first. If true: pos->first != key.
-    if (pos == current_end || key_comparator_(key, *pos)) {
-      // Everything after pos is to be copied
-      assert(size() < kFixedSize);
-    } else {
-      // Skip the thing at pos because it compares the same as value.
+    if (replacing_entry) {
+      // Skip the thing at pos because it compares the same as the pair above.
       ++pos;
+    } else {
+      // If inserting at the end or the key at pos is not equal to what we're
+      // inserting, then increase the size.
+      assert(size() < kFixedSize);
     }
 
     // Copy everything after pos (if anything).
