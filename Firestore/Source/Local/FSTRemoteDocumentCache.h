@@ -22,6 +22,8 @@
 @class FSTMaybeDocument;
 @class FSTQuery;
 @class FSTWriteGroup;
+@protocol FSTMutationQueue;
+@protocol FSTQueryCache;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,6 +73,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query;
 
+- (NSUInteger)removeOrphanedDocuments:(id<FSTQueryCache>)queryCache
+                        mutationQueue:(id<FSTMutationQueue>)mutationQueue
+                                group:(FSTWriteGroup *)group;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -117,8 +117,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID;
 
-- (FSTListenSequenceNumber)sequenceNumberForPercentile:(NSUInteger)percentile;
-
 @end
 
 NS_ASSUME_NONNULL_END

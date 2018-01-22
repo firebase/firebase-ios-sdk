@@ -15,8 +15,14 @@
  */
 
 #import <XCTest/XCTest.h>
-#import <Firestore/Source/Local/FSTQueryData.h>
+#import <Firestore/Source/Local/FSTMemoryMutationQueue.h>
+#import <Firestore/Source/Model/FSTMutation.h>
+#import <Firestore/Source/Model/FSTDocument.h>
+#import <Firestore/Source/Model/FSTFieldValue.h>
+#import <Firestore/Source/Core/FSTTimestamp.h>
+#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
@@ -30,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLRUGarbageCollectorTests {
   FSTListenSequenceNumber _previousSequenceNumber;
   FSTTargetID _previousTargetID;
+  NSUInteger _previousDocNum;
 }
 
 - (void)setUp {
@@ -37,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   _previousSequenceNumber = 1000;
   _previousTargetID = 500;
+  _previousDocNum = 10;
 }
 
 - (FSTQueryData *)nextTestQuery {
@@ -47,6 +55,13 @@ NS_ASSUME_NONNULL_BEGIN
                                     targetID:targetID
                         listenSequenceNumber:listenSequenceNumber
                                      purpose:FSTQueryPurposeListen];
+}
+
+- (FSTDocument *)nextTestDocument {
+  NSString *path = [NSString stringWithFormat:@"docs/doc_%ul", ++_previousDocNum];
+  FSTTestSnapshotVersion version = 2;
+  BOOL hasMutations = NO;
+  return FSTTestDoc(path, version, @{@"baz": @YES, @"ok": @"fine"}, hasMutations);
 }
 
 - (void)testPickSequenceNumberPercentile {
@@ -153,13 +168,98 @@ NS_ASSUME_NONNULL_BEGIN
 
   // GC up through 1015, which is 15%.
   // Expect to have GC'd 7 targets (even values of 1001-1015).
+  FSTWriteGroup *gcGroup = [FSTWriteGroup groupWithAction:@"gc"];
   NSUInteger removed = [gc removeQueriesUpThroughSequenceNumber:1015
                                                     liveQueries:liveQueries
-                                                          group:group];
+                                                          group:gcGroup];
   XCTAssertEqual(7, removed);
   [queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
     XCTAssertTrue(queryData.sequenceNumber > 1015 || queryData.targetID % 2 == 1);
   }];
+}
+
+- (void)testRemoveOrphanedDocuments {
+  FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+  FSTMemoryRemoteDocumentCache *documentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
+  FSTMemoryMutationQueue *mutationQueue = [[FSTMemoryMutationQueue alloc] init];
+  FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
+  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
+  [mutationQueue startWithGroup:group];
+
+  // Add docs to mutation queue, as well as keep some queries. verify that correct documents are removed.
+  NSMutableSet<FSTDocumentKey *> *toBeRetained = [NSMutableSet set];
+
+  NSMutableArray *mutations = [NSMutableArray arrayWithCapacity:2];
+  // Add two documents to first target, and register a mutation on the second one
+  {
+    FSTQueryData *queryData = [self nextTestQuery];
+    [queryCache addQueryData:queryData group:group];
+    FSTDocumentKeySet *keySet = [FSTImmutableSortedSet keySet];
+    FSTDocument *doc1 = [self nextTestDocument];
+    [documentCache addEntry:doc1 group:group];
+    keySet = [keySet setByAddingObject:doc1.key];
+    [toBeRetained addObject:doc1.key];
+    FSTDocument *doc2 = [self nextTestDocument];
+    [documentCache addEntry:doc2 group:group];
+    keySet = [keySet setByAddingObject:doc2.key];
+    [toBeRetained addObject:doc2.key];
+    [queryCache addMatchingKeys:keySet forTargetID:queryData.targetID group:group];
+
+    FSTObjectValue *newValue = [[FSTObjectValue alloc] initWithDictionary:@{
+            @"foo": @"@bar"
+    }];
+    [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc2.key
+                                                       value:newValue
+                                                precondition:[FSTPrecondition none]]];
+  }
+
+  // Add one document to the second target
+  {
+    FSTQueryData *queryData = [self nextTestQuery];
+    [queryCache addQueryData:queryData group:group];
+    FSTDocumentKeySet *keySet = [FSTImmutableSortedSet keySet];
+    FSTDocument *doc1 = [self nextTestDocument];
+    [documentCache addEntry:doc1 group:group];
+    keySet = [keySet setByAddingObject:doc1.key];
+    [toBeRetained addObject:doc1.key];
+    [queryCache addMatchingKeys:keySet forTargetID:queryData.targetID group:group];
+  }
+
+  {
+    FSTDocument *doc1 = [self nextTestDocument];
+    [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc1.key
+                                                       value:doc1.data
+                                                precondition:[FSTPrecondition none]]];
+    [documentCache addEntry:doc1 group:group];
+    [toBeRetained addObject:doc1.key];
+  }
+
+  FSTTimestamp *writeTime = [FSTTimestamp timestamp];
+  [mutationQueue addMutationBatchWithWriteTime:writeTime
+                                     mutations:mutations
+                                         group:group];
+
+  // Now add the docs we expect to get resolved.
+  NSUInteger expectedRemoveCount = 5;
+  NSMutableSet<FSTDocumentKey *> *toBeRemoved = [NSMutableSet setWithCapacity:expectedRemoveCount];
+  for (int i = 0; i < expectedRemoveCount; i++) {
+    FSTDocument *doc = [self nextTestDocument];
+    [toBeRemoved addObject:doc.key];
+    [documentCache addEntry:doc group:group];
+  }
+
+  FSTWriteGroup *gcGroup = [FSTWriteGroup groupWithAction:@"gc"];
+  NSUInteger removed = [gc removeOrphanedDocuments:documentCache
+                                     mutationQueue:mutationQueue
+                                             group:gcGroup];
+
+  XCTAssertEqual(expectedRemoveCount, removed);
+  for (FSTDocumentKey *key in toBeRemoved) {
+    XCTAssertNil([documentCache entryForKey:key]);
+  }
+  for (FSTDocumentKey *key in toBeRetained) {
+    XCTAssertNotNil([documentCache entryForKey:key], @"Missing document %@", key);
+  }
 }
 
 @end

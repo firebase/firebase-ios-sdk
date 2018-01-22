@@ -66,6 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns all of the document keys that have had references added for the given ID. */
 - (FSTDocumentKeySet *)referencedKeysForID:(int)ID;
 
+- (BOOL)containsKey:(FSTDocumentKey *)key;
+
 @end
 
 NS_ASSUME_NONNULL_END

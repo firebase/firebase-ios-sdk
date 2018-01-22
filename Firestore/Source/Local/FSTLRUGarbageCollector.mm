@@ -2,6 +2,7 @@
 #import <queue>
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
+#import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 
@@ -92,6 +93,14 @@ class RollingSequenceNumberBuffer {
     }
   }];
   return count;
+}
+
+- (NSUInteger)removeOrphanedDocuments:(id<FSTRemoteDocumentCache>)remoteDocumentCache
+                        mutationQueue:(id<FSTMutationQueue>)mutationQueue
+                                group:(FSTWriteGroup *)group {
+  return [remoteDocumentCache removeOrphanedDocuments:self.queryCache
+                                        mutationQueue:mutationQueue
+                                                group:group];
 }
 
 @end

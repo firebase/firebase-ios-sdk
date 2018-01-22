@@ -17,6 +17,8 @@
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTMutationQueue.h"
+#import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -77,6 +79,22 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return result;
+}
+
+- (NSUInteger)removeOrphanedDocuments:(id<FSTQueryCache>)queryCache
+                        mutationQueue:(id<FSTMutationQueue>)mutationQueue
+                                group:(FSTWriteGroup *)group {
+  NSUInteger count = 0;
+  FSTMaybeDocumentDictionary *updatedDocs = self.docs;
+  for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
+    if ([queryCache containsKey:docKey] || [mutationQueue containsKey:docKey]) {
+      continue;
+    }
+    updatedDocs = [updatedDocs dictionaryByRemovingObjectForKey:docKey];
+    count++;
+  }
+  self.docs = updatedDocs;
+  return count;
 }
 
 @end
