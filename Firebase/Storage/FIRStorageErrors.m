@@ -63,7 +63,7 @@
       NSString *totalString = total ? @(total).stringValue : @"unknown";
       NSString *sizeString = total ? @(size).stringValue : @"unknown";
       NSString *const kSizeExceededErrorFormat =
-          @"Attempeted to download object with size of %@ bytes, "
+          @"Attempted to download object with size of %@ bytes, "
           @"which exceeds the maximum size of %@ bytes. "
           @"Consider raising the maximum download size, or using "
           @"[FIRStorageReference writeToFile:]";
