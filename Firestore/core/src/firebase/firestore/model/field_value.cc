@@ -23,6 +23,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
@@ -30,6 +31,7 @@ namespace firestore {
 namespace model {
 
 using Type = FieldValue::Type;
+using firebase::firestore::util::ComparisonResult;
 
 namespace {
 /**
@@ -50,55 +52,6 @@ bool Comparable(Type lhs, Type rhs) {
     default:
       return lhs == rhs;
   }
-}
-
-/**
- * Do a comparison on numbers of different types. We provide functions to deal
- * with all combinations. This way is fool-proof w.r.t. the auto type cast.
- */
-bool LessThan(double lhs, double rhs) {
-  if (lhs < rhs) {
-    return true;
-  } else if (lhs >= rhs) {
-    return false;
-  } else {
-    // One or both sides is NaN. NaN is less than all numbers.
-    return isnan(lhs) && !isnan(rhs);
-  }
-}
-
-bool LessThan(double lhs, int64_t rhs) {
-  // LLONG_MIN has an exact representation as double, so to check for a value
-  // outside the range representable by long, we have to check for strictly less
-  // than LLONG_MIN. Note that this also handles negative infinity.
-  if (lhs < static_cast<double>(LLONG_MIN) || isnan(lhs)) {
-    return true;
-  }
-  // LLONG_MAX has no exact representation as double (casting as we've done
-  // makes 2^63, which is larger than LLONG_MAX), so consider any value greater
-  // than or equal to the threshold to be out of range. This also handles
-  // positive infinity.
-  if (lhs >= static_cast<double>(LLONG_MAX)) {
-    return false;
-  }
-  // Now lhs can be presented in int64_t after rounding.
-  if (static_cast<int64_t>(lhs) < rhs) {
-    return true;
-  } else if (static_cast<int64_t>(lhs) > rhs) {
-    return false;
-  }
-  // At this point the long representations are equal but this could be due to
-  // rounding.
-  return LessThan(lhs, static_cast<double>(rhs));
-}
-
-bool LessThan(int64_t lhs, double rhs) {
-  if (LessThan(rhs, lhs)) {
-    return false;
-  }
-  // Now we know lhs <= rhs and want to check the equality.
-  return rhs >= static_cast<double>(LLONG_MAX) ||
-         lhs != static_cast<double>(rhs) || static_cast<double>(lhs) != rhs;
 }
 
 }  // namespace
@@ -316,15 +269,15 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return !lhs.boolean_value_ && rhs.boolean_value_;
     case Type::Long:
       if (rhs.type() == Type::Long) {
-        return lhs.integer_value_ < rhs.integer_value_;
+        return util::Compare(lhs.integer_value_, rhs.integer_value_) == ComparisonResult::Ascending;
       } else {
-        return LessThan(lhs.integer_value_, rhs.double_value_);
+        return util::CompareMixedNumber(rhs.double_value_, lhs.integer_value_) == ComparisonResult::Descending;
       }
     case Type::Double:
       if (rhs.type() == Type::Double) {
-        return LessThan(lhs.double_value_, rhs.double_value_);
+        return util::Compare(lhs.double_value_, rhs.double_value_) == ComparisonResult::Ascending;
       } else {
-        return LessThan(lhs.double_value_, rhs.integer_value_);
+        return util::CompareMixedNumber(lhs.double_value_, rhs.integer_value_) == ComparisonResult::Ascending;
       }
     case Type::Timestamp:
       if (rhs.type() == Type::Timestamp) {
