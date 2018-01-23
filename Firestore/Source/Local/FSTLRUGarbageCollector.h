@@ -7,7 +7,7 @@
 
 @protocol FSTQueryCache;
 
-const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
+extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
 
 @interface FSTLRUGarbageCollector : NSObject
 

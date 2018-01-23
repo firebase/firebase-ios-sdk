@@ -1,10 +1,10 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-#import <memory>
 #import <queue>
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
+
+const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
 using std::priority_queue;
 
@@ -74,8 +74,8 @@ class RollingSequenceNumberBuffer {
   }
   RollingSequenceNumberBuffer buffer(queryCount);
   RollingSequenceNumberBuffer *ptr_to_buffer = &buffer;
-  [self.queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
-    ptr_to_buffer->AddElement(queryData.sequenceNumber);
+  [self.queryCache enumerateSequenceNumbersUsingBlock:^(FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+    ptr_to_buffer->AddElement(sequenceNumber);
   }];
   return buffer.max_value();
 }
@@ -84,16 +84,7 @@ class RollingSequenceNumberBuffer {
                                        liveQueries:
                                            (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
                                              group:(FSTWriteGroup *)group {
-  __block NSUInteger count = 0;
-  [self.queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
-    if (queryData.sequenceNumber <= sequenceNumber) {
-      if (liveQueries[@(queryData.targetID)] == nil) {
-        [self.queryCache removeQueryData:queryData group:group];
-        count++;
-      }
-    }
-  }];
-  return count;
+  return [self.queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries group:group];
 }
 
 - (NSUInteger)removeOrphanedDocuments:(id<FSTRemoteDocumentCache>)remoteDocumentCache

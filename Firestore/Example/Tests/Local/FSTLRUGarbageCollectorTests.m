@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTListenSequenceNumber _previousSequenceNumber;
   FSTTargetID _previousTargetID;
   NSUInteger _previousDocNum;
+  FSTObjectValue* _testValue;
 }
 
 - (void)setUp {
@@ -45,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
   _previousSequenceNumber = 1000;
   _previousTargetID = 500;
   _previousDocNum = 10;
+  _testValue = FSTTestObjectValue(@{ @"baz" : @YES, @"ok" : @"fine" });
 }
 
 - (FSTQueryData *)nextTestQuery {
@@ -57,11 +59,19 @@ NS_ASSUME_NONNULL_BEGIN
                                      purpose:FSTQueryPurposeListen];
 }
 
+- (FSTDocumentKey *)nextTestDocKey {
+  NSString *path = [NSString stringWithFormat:@"docs/doc_%lu", (unsigned long)++_previousDocNum];
+  return FSTTestDocKey(path);
+}
+
 - (FSTDocument *)nextTestDocument {
-  NSString *path = [NSString stringWithFormat:@"docs/doc_%ul", ++_previousDocNum];
+  FSTDocumentKey *key = [self nextTestDocKey];
   FSTTestSnapshotVersion version = 2;
   BOOL hasMutations = NO;
-  return FSTTestDoc(path, version, @{ @"baz" : @YES, @"ok" : @"fine" }, hasMutations);
+  return [FSTDocument documentWithData:_testValue
+                                   key:key
+                               version:FSTTestVersion(version)
+                     hasLocalMutations:hasMutations];
 }
 
 - (void)testPickSequenceNumberPercentile {
@@ -144,6 +154,50 @@ NS_ASSUME_NONNULL_BEGIN
     FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
     XCTAssertEqual(1001, highestToCollect);
   }
+
+  // A mutated doc at 1000, 50 queries 1001-1050. Should get 1009.
+  {
+    _previousSequenceNumber = 1000;
+    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
+    FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
+    FSTDocumentKey *key = [self nextTestDocKey];
+    FSTDocumentKeySet *set = [[FSTDocumentKeySet keySet] setByAddingObject:key];
+    [queryCache addMutatedDocuments:set atSequenceNumber:1000 group:group];
+    for (int i = 0; i < 50; i++) {
+      [queryCache addQueryData:[self nextTestQuery] group:group];
+    }
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    XCTAssertEqual(1009, highestToCollect);
+  }
+
+  // Add mutated docs, then add one of them to a query target so it doesn't get GC'd.
+  // Expect 1002.
+  {
+    _previousSequenceNumber = 1000;
+    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
+    FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
+    FSTDocument *docInQuery = [self nextTestDocument];
+    FSTDocumentKeySet *set = [[FSTDocumentKeySet keySet] setByAddingObject:docInQuery.key];
+    FSTDocumentKeySet *docInQuerySet = set;
+    for (int i = 0; i < 8; i++) {
+      set = [set setByAddingObject:[self nextTestDocKey]];
+    }
+    // Adding 9 doc keys at 1000. If we remove one of them, we'll have room for two actual queries.
+    [queryCache addMutatedDocuments:set atSequenceNumber:1000 group:group];
+    for (int i = 0; i < 49; i++) {
+      [queryCache addQueryData:[self nextTestQuery] group:group];
+    }
+    FSTQueryData *queryData = [self nextTestQuery];
+    [queryCache addQueryData:queryData group:group];
+    // This should bump one document out of the mutated documents cache.
+    [queryCache addMatchingKeys:docInQuerySet forTargetID:queryData.targetID group:group];
+
+    // This should catch the remaining 8 documents, plus the first two queries we added.
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    XCTAssertEqual(1002, highestToCollect);
+  }
 }
 
 - (void)testRemoveQueriesUpThroughSequenceNumber {
@@ -166,9 +220,6 @@ NS_ASSUME_NONNULL_BEGIN
   NSUInteger removed =
       [gc removeQueriesUpThroughSequenceNumber:1015 liveQueries:liveQueries group:gcGroup];
   XCTAssertEqual(7, removed);
-  [queryCache enumerateQueryDataUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
-    XCTAssertTrue(queryData.sequenceNumber > 1015 || queryData.targetID % 2 == 1);
-  }];
 }
 
 - (void)testRemoveOrphanedDocuments {
