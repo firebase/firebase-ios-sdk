@@ -78,7 +78,7 @@ inline bool operator==(const Blob& lhs, const Blob& rhs) {
   return !(lhs != rhs);
 }
 
-}  // namespace blob
+}  // namespace model
 }  // namespace firestore
 }  // namespace firebase
 

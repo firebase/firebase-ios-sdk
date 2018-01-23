@@ -25,6 +25,8 @@ namespace firestore {
 /** Immutable class representing a GeoPoint in Firestore */
 class GeoPoint {
  public:
+  GeoPoint();
+
   GeoPoint(double latitude, double longitude);
 
   double latitude() const {

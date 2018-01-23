@@ -22,6 +22,10 @@ namespace firebase {
 namespace firestore {
 
 TEST(GeoPoint, Getter) {
+  const GeoPoint zero;
+  EXPECT_EQ(0, zero.latitude());
+  EXPECT_EQ(0, zero.longitude());
+
   const GeoPoint point{12, 34};
   EXPECT_EQ(12, point.latitude());
   EXPECT_EQ(34, point.longitude());

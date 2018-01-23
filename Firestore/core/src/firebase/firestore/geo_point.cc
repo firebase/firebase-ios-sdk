@@ -27,6 +27,9 @@
 namespace firebase {
 namespace firestore {
 
+GeoPoint::GeoPoint() : GeoPoint(0, 0) {
+}
+
 GeoPoint::GeoPoint(double latitude, double longitude)
     : latitude_(latitude), longitude_(longitude) {
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(

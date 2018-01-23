@@ -187,12 +187,12 @@ FieldValue FieldValue::TimestampValue(const Timestamp& value) {
   return result;
 }
 
-FieldValue FieldValue::ServerTimestampValue(const Timestamp& local,
-                                            const Timestamp& previous) {
+FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
+                                            const Timestamp& previous_value) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
-  result.server_timestamp_value_.local = local;
-  result.server_timestamp_value_.previous = previous;
+  result.server_timestamp_value_.local_write_time = local_write_time;
+  result.server_timestamp_value_.previous_value = previous_value;
   return result;
 }
 
@@ -270,15 +270,19 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return Comparator<bool>()(lhs.boolean_value_, rhs.boolean_value_);
     case Type::Long:
       if (rhs.type() == Type::Long) {
-        return util::Compare(lhs.integer_value_, rhs.integer_value_) == ComparisonResult::Ascending;
+        return Comparator<int64_t>()(lhs.integer_value_, rhs.integer_value_);
       } else {
-        return util::CompareMixedNumber(rhs.double_value_, lhs.integer_value_) == ComparisonResult::Descending;
+        return util::CompareMixedNumber(rhs.double_value_,
+                                        lhs.integer_value_) ==
+               ComparisonResult::Descending;
       }
     case Type::Double:
       if (rhs.type() == Type::Double) {
-        return util::Compare(lhs.double_value_, rhs.double_value_) == ComparisonResult::Ascending;
+        return Comparator<double>()(lhs.double_value_, rhs.double_value_);
       } else {
-        return util::CompareMixedNumber(lhs.double_value_, rhs.integer_value_) == ComparisonResult::Ascending;
+        return util::CompareMixedNumber(lhs.double_value_,
+                                        rhs.integer_value_) ==
+               ComparisonResult::Ascending;
       }
     case Type::Timestamp:
       if (rhs.type() == Type::Timestamp) {
@@ -288,8 +292,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       }
     case Type::ServerTimestamp:
       if (rhs.type() == Type::ServerTimestamp) {
-        return lhs.server_timestamp_value_.local <
-               rhs.server_timestamp_value_.local;
+        return lhs.server_timestamp_value_.local_write_time <
+               rhs.server_timestamp_value_.local_write_time;
       } else {
         return false;
       }
@@ -361,7 +365,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&blob_value_) Blob(Blob::MoveFrom(nullptr, 0));
       break;
     case Type::GeoPoint:
-      new (&geo_point_value_) GeoPoint(0, 0);
+      new (&geo_point_value_) GeoPoint();
       break;
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();

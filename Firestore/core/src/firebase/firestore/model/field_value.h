@@ -33,8 +33,8 @@ namespace firestore {
 namespace model {
 
 struct ServerTimestamp {
-  Timestamp local;
-  Timestamp previous;
+  Timestamp local_write_time;
+  Timestamp previous_value;
 };
 
 /**
@@ -96,7 +96,8 @@ class FieldValue {
   static FieldValue DoubleValue(double value);
   static FieldValue TimestampValue(const Timestamp& value);
   static FieldValue ServerTimestampValue(
-      const Timestamp& local, const Timestamp& previous = Timestamp::Origin());
+      const Timestamp& local_write_time,
+      const Timestamp& previous_value = Timestamp::Origin());
   static FieldValue StringValue(const char* value);
   static FieldValue StringValue(const std::string& value);
   static FieldValue StringValue(std::string&& value);
