@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTListenSequenceNumber _previousSequenceNumber;
   FSTTargetID _previousTargetID;
   NSUInteger _previousDocNum;
-  FSTObjectValue* _testValue;
+  FSTObjectValue *_testValue;
 }
 
 - (void)setUp {

@@ -226,7 +226,9 @@ NS_ASSUME_NONNULL_BEGIN
         [self releaseBatchResults:@[ batchResult ] group:group remoteDocuments:remoteDocuments];
 
     [remoteDocuments applyToWriteGroup:group];
-    [self.queryCache addMutatedDocuments:affected atSequenceNumber:[self.listenSequence next] group:group];
+    [self.queryCache addMutatedDocuments:affected
+                        atSequenceNumber:[self.listenSequence next]
+                                   group:group];
   }
 
   [self.persistence commitGroup:group];

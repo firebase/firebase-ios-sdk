@@ -90,10 +90,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** Removes the cached entry for the given query data (no-op if no entry exists). */
 - (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
 
-- (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
+- (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber,
+                                                     BOOL *stop))block;
 
 - (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
+                                     liveQueries:
+                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
                                            group:(FSTWriteGroup *)group;
 
 - (NSUInteger)count;

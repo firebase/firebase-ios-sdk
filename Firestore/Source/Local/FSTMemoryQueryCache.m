@@ -28,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Maps a query to the data about that query. */
 @property(nonatomic, strong, readonly) NSMutableDictionary<FSTQuery *, FSTQueryData *> *queries;
 
-@property(nonatomic, strong, readonly) NSMutableDictionary<FSTDocumentKey *, NSNumber *> *mutatedDocumentSequenceNumbers;
+@property(nonatomic, strong, readonly)
+    NSMutableDictionary<FSTDocumentKey *, NSNumber *> *mutatedDocumentSequenceNumbers;
 
 /** A ordered bidirectional mapping between documents and the remote target IDs. */
 @property(nonatomic, strong, readonly) FSTReferenceSet *references;
@@ -106,28 +107,32 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.queries count];
 }
 
-- (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  [self.queries enumerateKeysAndObjectsUsingBlock:
-                               ^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
-    block(queryData.sequenceNumber, stop);
-  }];
-  [self.mutatedDocumentSequenceNumbers enumerateKeysAndObjectsUsingBlock:
-                                               ^(FSTDocumentKey *key, NSNumber *sequenceNumber, BOOL *stop) {
-    block([sequenceNumber longLongValue], stop);
-  }];
+- (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber,
+                                                     BOOL *stop))block {
+  [self.queries
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
+        block(queryData.sequenceNumber, stop);
+      }];
+  [self.mutatedDocumentSequenceNumbers
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, NSNumber *sequenceNumber,
+                                          BOOL *stop) {
+        block([sequenceNumber longLongValue], stop);
+      }];
 }
 
 - (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
+                                     liveQueries:
+                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
                                            group:(__unused FSTWriteGroup *)group {
   NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
-  [self.queries enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
-    if (queryData.sequenceNumber <= sequenceNumber) {
-      if (liveQueries[@(queryData.targetID)] == nil) {
-        [toRemove addObject:query];
-      }
-    }
-  }];
+  [self.queries
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
+        if (queryData.sequenceNumber <= sequenceNumber) {
+          if (liveQueries[@(queryData.targetID)] == nil) {
+            [toRemove addObject:query];
+          }
+        }
+      }];
   [self.queries removeObjectsForKeys:toRemove];
   return [toRemove count];
 }

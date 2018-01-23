@@ -74,9 +74,10 @@ class RollingSequenceNumberBuffer {
   }
   RollingSequenceNumberBuffer buffer(queryCount);
   RollingSequenceNumberBuffer *ptr_to_buffer = &buffer;
-  [self.queryCache enumerateSequenceNumbersUsingBlock:^(FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
-    ptr_to_buffer->AddElement(sequenceNumber);
-  }];
+  [self.queryCache
+      enumerateSequenceNumbersUsingBlock:^(FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+        ptr_to_buffer->AddElement(sequenceNumber);
+      }];
   return buffer.max_value();
 }
 
@@ -84,7 +85,9 @@ class RollingSequenceNumberBuffer {
                                        liveQueries:
                                            (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
                                              group:(FSTWriteGroup *)group {
-  return [self.queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries group:group];
+  return [self.queryCache removeQueriesThroughSequenceNumber:sequenceNumber
+                                                 liveQueries:liveQueries
+                                                       group:group];
 }
 
 - (NSUInteger)removeOrphanedDocuments:(id<FSTRemoteDocumentCache>)remoteDocumentCache
