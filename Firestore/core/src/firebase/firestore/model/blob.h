@@ -17,41 +17,41 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_BLOB_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_BLOB_H_
 
+#include <stdint.h>
 #include <string.h>
 
 namespace firebase {
 namespace firestore {
+namespace model {
 
 /** Immutable class representing an array of bytes in Firestore. */
 class Blob {
  public:
   Blob(const Blob& value);
+  Blob(Blob&& value);
   ~Blob();
 
   /** Build a new Blob and copy the bytes from source. */
-  static Blob CopyFrom(const void* source, size_t size);
+  static Blob CopyFrom(const uint8_t* source, size_t size);
 
   /** Build a new Blob and take the ownership of source. */
-  static Blob MoveFrom(void* source, size_t size);
+  static Blob MoveFrom(uint8_t* source, size_t size);
 
-  const void* Get() const {
+  const uint8_t* get() const {
     return buffer_;
   }
-
-  void* Release();
-
-  Blob& operator=(const Blob& value);
-
-  void Swap(Blob& value);
 
   size_t size() const {
     return size_;
   }
 
+  Blob& operator=(const Blob& value);
+  Blob& operator=(Blob&& value);
+
  private:
   Blob();
 
-  void* buffer_;
+  uint8_t* buffer_;
   size_t size_;
 };
 
@@ -78,6 +78,7 @@ inline bool operator==(const Blob& lhs, const Blob& rhs) {
   return !(lhs != rhs);
 }
 
+}  // namespace blob
 }  // namespace firestore
 }  // namespace firebase
 

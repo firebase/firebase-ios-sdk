@@ -171,7 +171,7 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       return *this;
     case Type::Blob:
       SwitchTo(Type::Blob);
-      blob_value_.Swap(value.blob_value_);
+      std::swap(blob_value_, value.blob_value_);
       return *this;
     case Type::Array:
       SwitchTo(Type::Array);
@@ -266,7 +266,7 @@ FieldValue FieldValue::BlobValue(const Blob& value) {
 FieldValue FieldValue::BlobValue(Blob&& value) {
   FieldValue result;
   result.SwitchTo(Type::Blob);
-  result.blob_value_.Swap(value);
+  std::swap(result.blob_value_, value);
   return result;
 }
 
@@ -403,7 +403,8 @@ void FieldValue::SwitchTo(const Type type) {
       new (&string_value_) std::string();
       break;
     case Type::Blob:
-      new (&blob_value_) Blob(Blob::CopyFrom(nullptr, 0));
+      // Do not even bother to allocate a new array of size 0.
+      new (&blob_value_) Blob(Blob::MoveFrom(nullptr, 0));
       break;
     case Type::GeoPoint:
       new (&geo_point_value_) GeoPoint(0, 0);

@@ -24,8 +24,8 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/include/firebase/firestore/blob.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
+#include "Firestore/core/src/firebase/firestore/model/blob.h"
 #include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 
 namespace firebase {

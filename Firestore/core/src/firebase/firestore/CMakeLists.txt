@@ -16,7 +16,6 @@
 cc_library(
   firebase_firestore_types
   SOURCES
-    blob.cc
     geo_point.cc
   DEPENDS
     firebase_firestore_util

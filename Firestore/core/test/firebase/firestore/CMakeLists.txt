@@ -15,7 +15,6 @@
 cc_test(
   firebase_firestore_types_test
   SOURCES
-    blob_test.cc
     geo_point_test.cc
   DEPENDS
     firebase_firestore_types
