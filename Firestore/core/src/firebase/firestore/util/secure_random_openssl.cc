@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,29 @@
 
 #include "Firestore/core/src/firebase/firestore/util/config.h"
 
-#if HAVE_ARC4RANDOM
+#if HAVE_OPENSSL_RAND_H
 
-#include <stdlib.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
 SecureRandom::result_type SecureRandom::operator()() {
-  return arc4random();
+  result_type result;
+  int rc = RAND_bytes(reinterpret_cast<uint8_t*>(&result), sizeof(result));
+  if (rc <= 0) {
+    // OpenSSL's RAND_bytes can fail if there's not enough entropy. BoringSSL
+    // won't fail this way.
+    ERR_print_errors_fp(stderr);
+    abort();
+  }
+  return result;
 }
 
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // HAVE_ARC4RANDOM
+#endif  // HAVE_OPENSSL_RAND_H
