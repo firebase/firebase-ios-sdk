@@ -46,7 +46,11 @@ Timestamp::Timestamp(long seconds, int nanos)
       "timestamp seconds out of range: %lld", seconds);
 }
 
-Timestamp::Timestamp() : seconds_(time(nullptr)), nanos_(0) {
+Timestamp::Timestamp() : seconds_(0), nanos_(0) {
+}
+
+Timestamp Timestamp::Now() {
+  return Timestamp(time(nullptr), 0);
 }
 
 bool Timestamp::IsOrigin() const {

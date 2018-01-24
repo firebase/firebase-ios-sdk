@@ -17,10 +17,6 @@
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 
 #include <math.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <algorithm>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 

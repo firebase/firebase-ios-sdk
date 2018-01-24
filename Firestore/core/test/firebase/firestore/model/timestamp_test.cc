@@ -25,11 +25,15 @@ namespace firestore {
 namespace model {
 
 TEST(Timestamp, Getter) {
+  const Timestamp timestamp_zero;
+  EXPECT_EQ(0, timestamp_zero.seconds());
+  EXPECT_EQ(0, timestamp_zero.nanos());
+
   const Timestamp timestamp(100, 200);
   EXPECT_EQ(100, timestamp.seconds());
   EXPECT_EQ(200, timestamp.nanos());
 
-  const Timestamp timestamp_now;
+  const Timestamp timestamp_now = Timestamp::Now();
   EXPECT_LT(0, timestamp_now.seconds());
   EXPECT_LE(0, timestamp_now.nanos());
 

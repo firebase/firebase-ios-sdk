@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_BLOB_H_
-#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_BLOB_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_BLOB_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_BLOB_H_
 
 #include <stdint.h>
 #include <string.h>
@@ -45,6 +45,14 @@ class Blob {
     return size_;
   }
 
+  const uint8_t* begin() const {
+    return buffer_;
+  }
+
+  const uint8_t* end() const {
+    return buffer_ + size_;
+  }
+
   Blob& operator=(const Blob& value);
   Blob& operator=(Blob&& value);
 
@@ -70,16 +78,14 @@ inline bool operator<=(const Blob& lhs, const Blob& rhs) {
   return !(lhs > rhs);
 }
 
-inline bool operator!=(const Blob& lhs, const Blob& rhs) {
-  return lhs < rhs || lhs > rhs;
-}
+bool operator==(const Blob& lhs, const Blob& rhs);
 
-inline bool operator==(const Blob& lhs, const Blob& rhs) {
-  return !(lhs != rhs);
+inline bool operator!=(const Blob& lhs, const Blob& rhs) {
+  return !(lhs == rhs);
 }
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_BLOB_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_BLOB_H_

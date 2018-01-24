@@ -64,13 +64,13 @@ Blob& Blob::operator=(Blob&& value) {
 }
 
 bool operator<(const Blob& lhs, const Blob& rhs) {
-  int comparison =
-      memcmp(lhs.get(), rhs.get(), std::min(lhs.size(), rhs.size()));
-  if (comparison == 0) {
-    return lhs.size() < rhs.size();
-  } else {
-    return comparison < 0;
-  }
+  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+                                      rhs.end());
+}
+
+bool operator==(const Blob& lhs, const Blob& rhs) {
+  return lhs.size() == rhs.size() &&
+         memcmp(lhs.get(), rhs.get(), lhs.size()) == 0;
 }
 
 }  // namespace model

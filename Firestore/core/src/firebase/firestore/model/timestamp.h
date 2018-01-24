@@ -30,6 +30,11 @@ namespace model {
 class Timestamp {
  public:
   /**
+   * Creates a new timestamp with seconds and nanos set to 0.
+   */
+  Timestamp();
+
+  /**
    * Creates a new timestamp.
    *
    * @param seconds the number of seconds since epoch.
@@ -37,8 +42,8 @@ class Timestamp {
    */
   Timestamp(long seconds, int nanos);
 
-  /** Creates a new timestamp with the current date / time. */
-  Timestamp();
+  /** Returns a timestamp with the current date / time. */
+  static Timestamp Now();
 
   long seconds() const {
     return seconds_;

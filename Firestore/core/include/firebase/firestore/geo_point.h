@@ -17,17 +17,35 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_GEO_POINT_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_GEO_POINT_H_
 
-#include <string.h>
-
 namespace firebase {
 namespace firestore {
 
-/** Immutable class representing a GeoPoint in Firestore */
+/**
+ * An immutable object representing a geographical point in Firestore. The point
+ * is represented as a latitude/longitude pair.
+ *
+ * Latitude values are in the range of [-90, 90].
+ * Longitude values are in the range of [-180, 180].
+ */
 class GeoPoint {
  public:
+  /**
+   * Creates a `GeoPoint` with both latitude and longitude being 0.
+   */
   GeoPoint();
 
+  /**
+   * Creates a `GeoPoint` from the provided latitude and longitude degrees.
+   *
+   * @param latitude The latitude as number between -90 and 90.
+   * @param longitude The longitude as number between -180 and 180.
+   */
   GeoPoint(double latitude, double longitude);
+
+  GeoPoint(const GeoPoint& other) = default;
+  GeoPoint(GeoPoint&& other) = default;
+  GeoPoint& operator=(const GeoPoint& other) = default;
+  GeoPoint& operator=(GeoPoint&& other) = default;
 
   double latitude() const {
     return latitude_;

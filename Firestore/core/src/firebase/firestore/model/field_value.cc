@@ -353,9 +353,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&timestamp_value_) Timestamp(0, 0);
       break;
     case Type::ServerTimestamp:
-      // We initialize them to origin to avoid expensive calls to get `now'.
-      new (&server_timestamp_value_)
-          ServerTimestamp{Timestamp::Origin(), Timestamp::Origin()};
+      new (&server_timestamp_value_) ServerTimestamp();
       break;
     case Type::String:
       new (&string_value_) std::string();
