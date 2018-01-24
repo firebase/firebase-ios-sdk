@@ -49,6 +49,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'gRPC-ProtoRPC', '~> 1.0'
+  s.dependency 'gRPC-C++'
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'Protobuf', '~> 3.1'
 
