@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
 #import <dlfcn.h>
 #import "FRepo.h"
 #import "FSnapshotUtilities.h"
@@ -53,7 +53,7 @@
 #import "FValueEventRegistration.h"
 #import "FEmptyNode.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 
@@ -546,7 +546,7 @@
         return;
 
     // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
-    #if TARGET_OS_IOS
+    #if TARGET_OS_IOS || TARGET_OS_TV
     // The idea is to wait until any outstanding sets get written to disk.  Since the sets might still be in our
     // dispatch queue, we wait for the dispatch queue to catch up and for persistence to catch up.
     // This may be undesirable though.  The dispatch queue might just be processing a bunch of incoming data or

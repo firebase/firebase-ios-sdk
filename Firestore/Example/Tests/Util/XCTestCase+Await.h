@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
+
 @interface XCTestCase (Await)
 
 /**
@@ -28,5 +30,11 @@
  * Returns a reasonable timeout for testing against Firestore.
  */
 - (double)defaultExpectationWaitSeconds;
+
+/**
+ * Returns a completion block that fulfills a newly-created expectation with the specified
+ * name.
+ */
+- (FSTVoidErrorBlock)completionForExpectationWithName:(NSString *)expectationName;
 
 @end

@@ -158,8 +158,10 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * Applies this mutation to the given FSTDocument, FSTDeletedDocument or nil, if we don't have
  * information about this document. Both the input and returned documents can be nil.
  *
- * @param maybeDoc The document to mutate. The input document should nil if it does not currently
- * exist.
+ * @param maybeDoc The current state of the document to mutate. The input document should be nil if
+ * it does not currently exist.
+ * @param baseDoc The state of the document prior to this mutation batch. The input document should
+ * be nil if it the document did not exist.
  * @param localWriteTime A timestamp indicating the local write time of the batch this mutation is
  * a part of.
  * @param mutationResult Optional result info from the backend. If omitted, it's assumed that
@@ -196,16 +198,18 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * apply the transform if the prior mutation resulted in an FSTDocument (always true for an
  * FSTSetMutation, but not necessarily for an FSTPatchMutation).
  */
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(FSTTimestamp *)localWriteTime
-                        mutationResult:(FSTMutationResult *_Nullable)mutationResult;
+                        mutationResult:(nullable FSTMutationResult *)mutationResult;
 
 /**
  * A helper version of applyTo for applying mutations locally (without a mutation result from the
  * backend).
  */
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime;
+- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
+                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
+                        localWriteTime:(nullable FSTTimestamp *)localWriteTime;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
 

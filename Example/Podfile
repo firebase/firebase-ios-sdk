@@ -8,11 +8,16 @@ target 'Core_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/Core', '4.6.0'
+  pod 'Firebase/Core', '4.8.1'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
+  end
+
+  target 'Analytics_Tests_iOS' do
+    inherit! :search_paths
+    pod 'FirebaseAnalytics'
   end
 end
 
@@ -150,4 +155,66 @@ target 'Storage_Example_macOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
+end
+
+target 'Core_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  target 'Core_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Auth_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseAuth', :path => '../'
+
+  target 'Auth_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Database_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseDatabase', :path => '../'
+
+  target 'Database_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+# TODO
+# target 'Database_IntegrationTests_tvOS' do
+#    inherit! :search_paths
+#    pod 'OCMock'
+#  end
+end
+
+target 'Storage_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseStorage', :path => '../'
+
+  target 'Storage_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+#TODO Storage_IntegrationTests_tvOS
+#  target 'Storage_IntegrationTests_tvOS' do
+#    inherit! :search_paths
+#    pod 'OCMock'
+#  end
+end
+
+# This post_install workaround should be removed when FirebaseAnalytics
+# removes its module includes to FirebaseCore.
+
+post_install do | installer |
+  print "Fix up FirebaseAnalytics module ... \n"
+  system 'cp ../patch/FirebaseAnalytics.h Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/'
 end

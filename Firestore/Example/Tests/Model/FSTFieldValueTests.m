@@ -16,9 +16,9 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#import <FirebaseFirestore/FIRGeoPoint.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseFirestore/FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
@@ -26,6 +26,7 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 /** Helper to wrap the values in a set of equality groups using FSTTestFieldValue(). */
@@ -39,10 +40,12 @@ NSArray *FSTWrapGroups(NSArray *groups) {
       // strings that can be used instead.
       if ([value isEqual:@"server-timestamp-1"]) {
         wrappedValue = [FSTServerTimestampValue
-            serverTimestampValueWithLocalWriteTime:FSTTestTimestamp(2016, 5, 20, 10, 20, 0)];
+            serverTimestampValueWithLocalWriteTime:FSTTestTimestamp(2016, 5, 20, 10, 20, 0)
+                                     previousValue:nil];
       } else if ([value isEqual:@"server-timestamp-2"]) {
         wrappedValue = [FSTServerTimestampValue
-            serverTimestampValueWithLocalWriteTime:FSTTestTimestamp(2016, 10, 21, 15, 32, 0)];
+            serverTimestampValueWithLocalWriteTime:FSTTestTimestamp(2016, 10, 21, 15, 32, 0)
+                                     previousValue:nil];
       } else if ([value isKindOfClass:[FSTDocumentKeyReference class]]) {
         // We directly convert these here so that the databaseIDs can be different.
         FSTDocumentKeyReference *reference = (FSTDocumentKeyReference *)value;
@@ -441,12 +444,15 @@ union DoubleBits {
     @[
       // NOTE: ServerTimestampValues can't be parsed via FSTTestFieldValue().
       [FSTServerTimestampValue
-          serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date1]],
+          serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date1]
+                                   previousValue:nil],
       [FSTServerTimestampValue
-          serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date1]]
+          serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date1]
+                                   previousValue:nil]
     ],
     @[ [FSTServerTimestampValue
-        serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date2]] ],
+        serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date2]
+                                 previousValue:nil] ],
     @[
       FSTTestFieldValue(FSTTestGeoPoint(0, 1)),
       [FSTGeoPointValue geoPointValue:FSTTestGeoPoint(0, 1)]

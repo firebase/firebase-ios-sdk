@@ -16,9 +16,9 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "FirebaseFirestore/FIRFirestoreErrors.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -103,11 +103,11 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (nullable FSTQuery *)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return [FSTQuery queryWithPath:[FSTResourcePath pathWithString:querySpec]];
+    return FSTTestQuery(querySpec);
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = [FSTQuery queryWithPath:[FSTResourcePath pathWithString:path]];
+    __block FSTQuery *query = FSTTestQuery(path);
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -156,7 +156,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   FSTTargetID actualID = [self.driver addUserListenerWithQuery:query];
 
   FSTTargetID expectedID = [listenSpec[0] intValue];
-  XCTAssertEqual(actualID, expectedID);
+  XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");
 }
 
 - (void)doUnlisten:(NSArray *)unlistenSpec {
@@ -237,7 +237,7 @@ static NSString *const kNoIOSTag = @"no-ios";
     }
   } else if (watchEntity[@"doc"]) {
     NSArray *docSpec = watchEntity[@"doc"];
-    FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:docSpec[0]];
+    FSTDocumentKey *key = FSTTestDocKey(docSpec[0]);
     FSTObjectValue *value = FSTTestObjectValue(docSpec[2]);
     FSTSnapshotVersion *version = [self parseVersion:docSpec[1]];
     FSTMaybeDocument *doc =
@@ -249,7 +249,7 @@ static NSString *const kNoIOSTag = @"no-ios";
                                                         document:doc];
     [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
   } else if (watchEntity[@"key"]) {
-    FSTDocumentKey *docKey = [FSTDocumentKey keyWithPathString:watchEntity[@"key"]];
+    FSTDocumentKey *docKey = FSTTestDocKey(watchEntity[@"key"]);
     FSTWatchChange *change =
         [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
@@ -503,6 +503,7 @@ static NSString *const kNoIOSTag = @"no-ios";
         expectedActiveTargets[@(targetID)] =
             [[FSTQueryData alloc] initWithQuery:query
                                        targetID:targetID
+                           listenSequenceNumber:0
                                         purpose:FSTQueryPurposeListen
                                 snapshotVersion:[FSTSnapshotVersion noVersion]
                                     resumeToken:resumeToken];

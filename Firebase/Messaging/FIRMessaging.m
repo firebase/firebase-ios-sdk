@@ -36,7 +36,9 @@
 #import "FIRMessagingSyncMessageManager.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
-#import "FIRReachabilityChecker.h"
+
+#import <FirebaseCore/FIRReachabilityChecker.h>
+
 #import "NSError+FIRMessaging.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
@@ -412,7 +414,10 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
     }];
 
   } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     [appDelegate application:application openURL:url options:@{}];
+#pragma clang diagnostic pop
 
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
@@ -763,7 +768,10 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
 - (void)receiver:(FIRMessagingReceiver *)receiver
       receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     [self.delegate messaging:self didReceiveMessage:remoteMessage];
+#pragma pop
   } else if ([self.delegate respondsToSelector:@selector(applicationReceivedRemoteMessage:)]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

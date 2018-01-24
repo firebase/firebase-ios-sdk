@@ -18,10 +18,11 @@
 
 #import "FIRAuth_Internal.h"
 
-#import "FIRAppAssociationRegistration.h"
+#import <FirebaseCore/FIRAppAssociationRegistration.h>
 #import <FirebaseCore/FIRAppInternal.h>
-#import "FIROptions.h"
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
+
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuthCredential_Internal.h"
@@ -656,12 +657,29 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         isReauthentication ? FIRAuthOperationTypeReauth : FIRAuthOperationTypeSignUpOrSignIn;
     [self signInWithPhoneCredential:phoneCredential
                           operation:operation
-                           callback:^(FIRUser *_Nullable user,
+                           callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
                                       NSError *_Nullable error) {
       if (callback) {
-        FIRAuthDataResult *result = user ?
-            [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil] : nil;
-        callback(result, error);
+        if (error) {
+          callback(nil, error);
+          return;
+        }
+
+        [self completeSignInWithAccessToken:response.IDToken
+                  accessTokenExpirationDate:response.approximateExpirationDate
+                               refreshToken:response.refreshToken
+                                  anonymous:NO
+                                   callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+          FIRAdditionalUserInfo *additionalUserInfo =
+              [[FIRAdditionalUserInfo alloc] initWithProviderID:FIRPhoneAuthProviderID
+                                                        profile:nil
+                                                       username:nil
+                                                      isNewUser:response.isNewUser];
+          FIRAuthDataResult *result = user ?
+              [[FIRAuthDataResult alloc] initWithUser:user
+                                   additionalUserInfo:additionalUserInfo] : nil;
+          callback(result, error);
+        }];
       }
     }];
     return;
@@ -1142,14 +1160,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 - (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
                         operation:(FIRAuthOperationType)operation
-                         callback:(FIRAuthResultCallback)callback {
+                         callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   if (credential.temporaryProof.length && credential.phoneNumber.length) {
     FIRVerifyPhoneNumberRequest *request =
       [[FIRVerifyPhoneNumberRequest alloc] initWithTemporaryProof:credential.temporaryProof
                                                       phoneNumber:credential.phoneNumber
                                                         operation:operation
                                              requestConfiguration:_requestConfiguration];
-    [self phoneNumberSignInWithRequest:request callback:callback];
+    [FIRAuthBackend verifyPhoneNumber:request callback:callback];
     return;
   }
 
@@ -1166,32 +1184,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                 verificationCode:credential.verificationCode
                                                        operation:operation
                                             requestConfiguration:_requestConfiguration];
-  [self phoneNumberSignInWithRequest:request callback:callback];
+  [FIRAuthBackend verifyPhoneNumber:request callback:callback];
 }
 
-
-/** @fn phoneNumberSignInWithVerificationID:pasverificationCodesword:callback:
-    @brief Signs in using a FIRVerifyPhoneNumberRequest object.
-    @param request THe FIRVerifyPhoneNumberRequest request object.
-    @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
-        asynchronously on the global auth work queue in the future.
- */
-- (void)phoneNumberSignInWithRequest:(FIRVerifyPhoneNumberRequest *)request
-                            callback:(FIRAuthResultCallback)callback {
-  [FIRAuthBackend verifyPhoneNumber:request
-                           callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
-                                      NSError *_Nullable error) {
-    if (error) {
-      callback(nil, error);
-      return;
-    }
-    [self completeSignInWithAccessToken:response.IDToken
-              accessTokenExpirationDate:response.approximateExpirationDate
-                           refreshToken:response.refreshToken
-                              anonymous:NO
-                               callback:callback];
-  }];
-}
 #endif
 
 /** @fn internalSignInAndRetrieveDataWithCustomToken:completion:

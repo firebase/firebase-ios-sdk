@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** The highest numbered target ID encountered. */
 @property(nonatomic, assign) FSTTargetID highestTargetID;
 
+@property(nonatomic, assign) FSTListenSequenceNumber highestListenSequenceNumber;
+
 @end
 
 @implementation FSTMemoryQueryCache {
@@ -65,6 +67,10 @@ NS_ASSUME_NONNULL_BEGIN
   return _highestTargetID;
 }
 
+- (FSTListenSequenceNumber)highestListenSequenceNumber {
+  return _highestListenSequenceNumber;
+}
+
 - (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
   return _lastRemoteSnapshotVersion;
 }
@@ -78,6 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
   self.queries[queryData.query] = queryData;
   if (queryData.targetID > self.highestTargetID) {
     self.highestTargetID = queryData.targetID;
+  }
+  if (queryData.sequenceNumber > self.highestListenSequenceNumber) {
+    self.highestListenSequenceNumber = queryData.sequenceNumber;
   }
 }
 

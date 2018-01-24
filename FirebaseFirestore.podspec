@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.9.3'
+  s.version          = '0.10.0'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -32,16 +32,23 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Source/**/*',
     'Firestore/Port/**/*',
     'Firestore/Protos/objc/**/*.[hm]',
-    'Firestore/core/src/**/*.{h,cc}',
-    'Firestore/third_party/**/*.[mh]'
+    'Firestore/core/src/**/*.{h,cc,mm}',
+    'Firestore/third_party/Immutable/*.[mh]',
+    'Firestore/third_party/abseil-cpp/absl/*.{h,cc}'
   ]
   s.requires_arc = [
     'Firestore/Source/**/*',
-    'Firestore/third_party/**/*.[mh]'
+    'Firestore/core/src/**/*.mm',
+    'Firestore/third_party/Immutable/*.[mh]'
   ]
   s.exclude_files = [
     'Firestore/Port/*test.cc',
-    'Firestore/third_party/**/Tests/**'
+    'Firestore/third_party/Immutable/Tests/**',
+
+    # Exclude alternate implementations for other platforms
+    'Firestore/core/src/firebase/firestore/util/assert_stdio.cc',
+    'Firestore/core/src/firebase/firestore/util/log_stdio.cc',
+    'Firestore/core/src/firebase/firestore/util/secure_random_openssl.cc'
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
@@ -54,9 +61,18 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.frameworks = 'MobileCoreServices'
   s.library = 'c++'
   s.pod_target_xcconfig = {
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ',
-      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-      'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ',
+    'HEADER_SEARCH_PATHS' =>
+      '"${PODS_TARGET_SRCROOT}" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp"',
+    'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s
   }
+
+  s.prepare_command = <<-CMD
+    # Generate a version of the config.h header suitable for building with
+    # CocoaPods.
+    sed '/^#cmakedefine/ d' \
+        Firestore/core/src/firebase/firestore/util/config.h.in > \
+        Firestore/core/src/firebase/firestore/util/config.h
+  CMD
 end

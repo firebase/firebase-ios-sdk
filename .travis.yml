@@ -1,4 +1,4 @@
-osx_image: xcode9.1
+osx_image: xcode9.2
 language: objective-c
 cache:
   - bundler
@@ -12,11 +12,37 @@ before_install:
   - gem install xcpretty
   - bundle exec pod install --project-directory=Example --repo-update
   - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+  - brew install clang-format
+  - echo "$TRAVIS_COMMIT_RANGE"
+  - echo "$TRAVIS_PULL_REQUEST"
+  - |
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      SKIP_FIREBASE=0
+      SKIP_FIRESTORE=0
+    else
+      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+      SKIP_FIREBASE="$?"
+      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+      SKIP_FIRESTORE="$?"
+    fi
 
 script:
   - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
-  - ./test.sh
-  - bundle exec pod lib lint FirebaseCore.podspec
+  - ./scripts/style.sh test-only # Validate clang-format compliance
+  - |
+    if [ $SKIP_FIREBASE != 1 ]; then
+      ./test.sh
+    fi
+  - |
+    if [ $SKIP_FIRESTORE != 1 ]; then
+      ./Firestore/test.sh
+    fi
+
+# TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
+  - |
+    if [ $SKIP_FIREBASE != 1 ]; then
+      bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
+    fi
 
 # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
 #  - bundle exec pod lib lint FirebaseAuth.podspec

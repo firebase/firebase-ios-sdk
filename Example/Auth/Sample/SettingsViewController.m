@@ -19,13 +19,13 @@
 #import <objc/runtime.h>
 
 #import "AppManager.h"
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 #import "FIRAuth_Internal.h"
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIROptions.h>
 #import "FirebaseAuth.h"
 #import "StaticContentTableViewManager.h"
 #import "UIViewController+Alerts.h"
@@ -43,7 +43,7 @@ static NSString *const kSecureTokenRequestClassName = @"FIRSecureTokenRequest";
 /** @var kIdentityToolkitSandboxHost
     @brief The host of Identity Toolkit sandbox server.
  */
-static NSString *const kIdentityToolkitSandboxHost = @"www-googleapis-staging.sandbox.google.com";
+static NSString *const kIdentityToolkitSandboxHost = @"staging-www.sandbox.googleapis.com";
 
 /** @var kSecureTokenSandboxHost
     @brief The host of Secure Token Service sandbox server.

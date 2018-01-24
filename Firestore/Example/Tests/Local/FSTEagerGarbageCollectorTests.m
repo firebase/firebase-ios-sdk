@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTReferenceSet *referenceSet = [[FSTReferenceSet alloc] init];
   [gc addGarbageSource:referenceSet];
 
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPathString:@"foo/bar"];
+  FSTDocumentKey *key = FSTTestDocKey(@"foo/bar");
   [referenceSet addReferenceToKey:key forID:1];
   FSTAssertEqualSets([gc collectGarbage], @[]);
   XCTAssertFalse([referenceSet isEmpty]);
@@ -50,9 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTReferenceSet *referenceSet = [[FSTReferenceSet alloc] init];
   [gc addGarbageSource:referenceSet];
 
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"foo/bar"];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"foo/baz"];
-  FSTDocumentKey *key3 = [FSTDocumentKey keyWithPathString:@"foo/blah"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
+  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
+  FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
   [referenceSet addReferenceToKey:key1 forID:1];
   [referenceSet addReferenceToKey:key2 forID:1];
   [referenceSet addReferenceToKey:key3 forID:2];
@@ -77,12 +77,12 @@ NS_ASSUME_NONNULL_BEGIN
   [gc addGarbageSource:localViews];
   [gc addGarbageSource:mutations];
 
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithPathString:@"foo/bar"];
+  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
   [remoteTargets addReferenceToKey:key1 forID:1];
   [localViews addReferenceToKey:key1 forID:1];
   [mutations addReferenceToKey:key1 forID:10];
 
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithPathString:@"foo/baz"];
+  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
   [mutations addReferenceToKey:key2 forID:10];
 
   XCTAssertFalse([remoteTargets isEmpty]);

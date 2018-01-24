@@ -1,3 +1,9 @@
+# v4.1.4
+- [added] Firebase Database is now community-supported on tvOS.
+
+# v4.1.3
+- [changed] Internal cleanup in the firebase-ios-sdk repository. Functionality of the RTDB SDK is not affected.
+
 # v4.1.2
 - [fixed] Addresses race condition that can occur during the initialization of empty snapshots.
 

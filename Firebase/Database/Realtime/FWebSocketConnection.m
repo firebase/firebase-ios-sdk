@@ -18,14 +18,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
 #import "FIRDatabaseReference.h"
 #import "FStringUtilities.h"
 #import "FIRDatabase_Private.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 
@@ -85,7 +85,7 @@
     BOOL hasUiDeviceClass = NO;
 
     // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
-    #if TARGET_OS_IOS
+    #if TARGET_OS_IOS || TARGET_OS_TV
     Class uiDeviceClass = NSClassFromString(@"UIDevice");
     if (uiDeviceClass) {
         systemVersion = [uiDeviceClass currentDevice].systemVersion;

@@ -16,8 +16,6 @@
 
 #import "FIRVerifyCustomTokenResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRVerifyCustomTokenResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 #import "FIRDatabaseReference.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIROptions.h>
 #import "FUtilities.h"
 #import "FNextPushId.h"
 #import "FIRDatabaseQuery_Private.h"
