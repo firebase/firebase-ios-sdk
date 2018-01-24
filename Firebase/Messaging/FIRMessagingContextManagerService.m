@@ -143,7 +143,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   }
   if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
     // |alertTitle| is iOS 8.2+, so check if we can set it
-      if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
+    if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
       notification.alertTitle = apsDictionary[kFIRMessagingContextManagerTitleKey];
     }
   }
