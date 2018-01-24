@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
 
   s.source = {
     :git => 'https://github.com/grpc/grpc.git',
-    :tag => "v#{version}",
+    :tag => "master",
   }
 
   # gRPC podspecs depend on fix for https://github.com/CocoaPods/CocoaPods/issues/6024,
