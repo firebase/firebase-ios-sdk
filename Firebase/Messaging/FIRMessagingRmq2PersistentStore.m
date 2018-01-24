@@ -18,7 +18,7 @@
 
 #import "sqlite3.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "third_party/firebase/ios/Source/FirebaseMessaging/Library/Protos/GtalkCore.pbobjc.h"
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
@@ -105,7 +105,7 @@ typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSD
 // Utility to create an NSString from a sqlite3 result code
 NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   const char *errorStr = sqlite3_errstr(result);
-  NSString *errorString = [NSString stringWithFormat:@"%d - %s", result, errorStr];
+  NSString *errorString = [NSString stringWithFormat:@"%d - %s", result, errorStr];
   return errorString;
 }
 

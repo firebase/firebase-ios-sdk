@@ -16,8 +16,16 @@
 
 #import "FIRMessaging+FIRApp.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#ifdef COCOAPODS
+#import "FIRAppInternal.h"
+#else
+#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRAppInternal.h"
+#endif
+#ifdef COCOAPODS
+#import "FIROptionsInternal.h"
+#else
+#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIROptionsInternal.h"
+#endif
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"

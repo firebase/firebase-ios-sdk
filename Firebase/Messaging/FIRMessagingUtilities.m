@@ -16,7 +16,7 @@
 
 #import "FIRMessagingUtilities.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "third_party/firebase/ios/Source/FirebaseMessaging/Library/Protos/GtalkCore.pbobjc.h"
 
 #import "FIRMessagingLogger.h"
 

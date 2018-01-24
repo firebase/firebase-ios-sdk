@@ -16,8 +16,8 @@
 
 #import "FIRMessagingConnection.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
-#import "Protos/GtalkExtensions.pbobjc.h"
+#import "third_party/firebase/ios/Source/FirebaseMessaging/Library/Protos/GtalkCore.pbobjc.h"
+#import "third_party/firebase/ios/Source/FirebaseMessaging/Library/Protos/GtalkExtensions.pbobjc.h"
 
 #import "FIRMessaging.h"
 #import "FIRMessagingDataMessageManager.h"

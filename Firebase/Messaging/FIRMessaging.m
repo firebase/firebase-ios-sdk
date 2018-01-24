@@ -37,7 +37,11 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
+#ifdef COCOAPODS
 #import "FIRReachabilityChecker.h"
+#else
+#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRReachabilityChecker.h"
+#endif
 
 #import "NSError+FIRMessaging.h"
 
@@ -69,6 +73,14 @@ NSString * const FIRMessagingConnectionStateChangedNotification =
 NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+
+NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
+    @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
+NSString *const kFIRMessagingSuiteName =
+    @"com.firebase.messaging.user_defaults";  // Suite name for NSUserDefaults
+
+static NSString *const kFIRMessagingPlistAutoInitEnabled =
+    @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
 // Copied from Apple's header in case it is missing in some cases (e.g. pre-Xcode 8 builds).
 #ifndef NSFoundationVersionNumber_iOS_8_x_Max
@@ -120,8 +132,8 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 @end
 
-@interface FIRMessaging ()
-    <FIRMessagingClientDelegate, FIRMessagingReceiverDelegate, FIRReachabilityDelegate>
+@interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
+                           FIRReachabilityDelegate>
 
 // FIRApp properties
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
@@ -141,6 +153,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, strong) FIRMessagingReceiver *receiver;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
+@property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
@@ -166,6 +179,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   if (self) {
     _loggedMessageIDs = [NSMutableSet set];
     _instanceIDProxy = [[FIRMessagingInstanceIDProxy alloc] init];
+    _messagingUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingSuiteName];
   }
   return self;
 }
@@ -447,6 +461,33 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 #pragma mark - FCM
+
+- (BOOL)isAutoInitEnabled {
+  // Check storage
+  id isAutoInitEnabledObject =
+      [_messagingUserDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+  if (isAutoInitEnabledObject) {
+    return [isAutoInitEnabledObject boolValue];
+  }
+
+  // Check Info.plist
+  isAutoInitEnabledObject =
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled];
+  if (isAutoInitEnabledObject) {
+    return [isAutoInitEnabledObject boolValue];
+  }
+  // If none of above exists, we default assume FCM auto init is enabled.
+  return YES;
+}
+
+- (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
+  BOOL isFCMAutoInitEnabled = [self isAutoInitEnabled];
+  [_messagingUserDefaults setBool:autoInitEnabled
+                           forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+  if (!isFCMAutoInitEnabled && autoInitEnabled) {
+    self.defaultFcmToken = [self FCMToken];
+  }
+}
 
 - (NSString *)FCMToken {
   NSString *token = self.defaultFcmToken;
