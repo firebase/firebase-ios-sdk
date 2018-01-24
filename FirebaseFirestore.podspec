@@ -34,7 +34,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Protos/objc/**/*.[hm]',
     'Firestore/core/src/**/*.{h,cc,mm}',
     'Firestore/third_party/Immutable/*.[mh]',
-    'Firestore/third_party/abseil-cpp/absl/*.{h,cc}'
+    'Firestore/third_party/abseil-cpp/**/*.{h,cc}'
   ]
   s.requires_arc = [
     'Firestore/Source/**/*',
