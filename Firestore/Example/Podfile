@@ -16,6 +16,11 @@ target 'Firestore_Example_iOS' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
+  pod 'gRPC', :podspec => 'gRPC.podspec'
+  pod 'gRPC-C++', :podspec => 'gRPC-C++.podspec'
+  pod 'gRPC-Core', :podspec => 'gRPC-Core.podspec'
+  pod 'gRPC-ProtoRPC', :podspec => 'gRPC-ProtoRPC.podspec'
+  pod 'gRPC-RxLibrary', :podspec => 'gRPC-RxLibrary.podspec'
 
   target 'Firestore_Tests_iOS' do
     inherit! :search_paths
