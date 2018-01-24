@@ -503,7 +503,6 @@ typedef struct GtalkHeartbeatConfig__storage_ {
 @dynamic hasDeviceId, deviceId;
 @dynamic hasLastRmqId, lastRmqId;
 @dynamic settingArray, settingArray_Count;
-@dynamic hasCompress, compress;
 @dynamic receivedPersistentIdArray, receivedPersistentIdArray_Count;
 @dynamic hasIncludeStreamIds, includeStreamIds;
 @dynamic hasHeartbeatStat, heartbeatStat;
@@ -517,12 +516,14 @@ typedef struct GtalkHeartbeatConfig__storage_ {
 @dynamic hasGcmStartTimeMs, gcmStartTimeMs;
 @dynamic clientEventArray, clientEventArray_Count;
 @dynamic hasOnFallback, onFallback;
+@dynamic hasNoPendingUpstream, noPendingUpstream;
+@dynamic hasReconnectRequestId, reconnectRequestId;
 
 typedef struct GtalkLoginRequest__storage_ {
   uint32_t _has_storage_[1];
-  int32_t compress;
   GtalkLoginRequest_AuthService authService;
   int32_t networkType;
+  int32_t reconnectRequestId;
   NSString *id_p;
   NSString *domain;
   NSString *user;
@@ -620,15 +621,6 @@ typedef struct GtalkLoginRequest__storage_ {
         .dataType = GPBDataTypeMessage,
       },
       {
-        .name = "compress",
-        .dataTypeSpecific.className = NULL,
-        .number = GtalkLoginRequest_FieldNumber_Compress,
-        .hasIndex = 7,
-        .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, compress),
-        .flags = GPBFieldOptional,
-        .dataType = GPBDataTypeInt32,
-      },
-      {
         .name = "receivedPersistentIdArray",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_ReceivedPersistentIdArray,
@@ -641,8 +633,8 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "includeStreamIds",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_IncludeStreamIds,
-        .hasIndex = 8,
-        .offset = 9,  // Stored in _has_storage_ to save space.
+        .hasIndex = 7,
+        .offset = 8,  // Stored in _has_storage_ to save space.
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeBool,
       },
@@ -650,7 +642,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "heartbeatStat",
         .dataTypeSpecific.className = GPBStringifySymbol(GtalkHeartbeatStat),
         .number = GtalkLoginRequest_FieldNumber_HeartbeatStat,
-        .hasIndex = 10,
+        .hasIndex = 9,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, heartbeatStat),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeMessage,
@@ -659,8 +651,8 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "useRmq2",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_UseRmq2,
-        .hasIndex = 11,
-        .offset = 12,  // Stored in _has_storage_ to save space.
+        .hasIndex = 10,
+        .offset = 11,  // Stored in _has_storage_ to save space.
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeBool,
       },
@@ -668,7 +660,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "accountId",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_AccountId,
-        .hasIndex = 13,
+        .hasIndex = 12,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, accountId),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeInt64,
@@ -677,7 +669,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "authService",
         .dataTypeSpecific.enumDescFunc = GtalkLoginRequest_AuthService_EnumDescriptor,
         .number = GtalkLoginRequest_FieldNumber_AuthService,
-        .hasIndex = 14,
+        .hasIndex = 13,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, authService),
         .flags = (GPBFieldFlags)(GPBFieldOptional | GPBFieldHasEnumDescriptor),
         .dataType = GPBDataTypeEnum,
@@ -686,7 +678,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "networkType",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_NetworkType,
-        .hasIndex = 15,
+        .hasIndex = 14,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, networkType),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeInt32,
@@ -695,7 +687,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "status",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_Status,
-        .hasIndex = 16,
+        .hasIndex = 15,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, status),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeInt64,
@@ -704,7 +696,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "tokenVersionInfo",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_TokenVersionInfo,
-        .hasIndex = 17,
+        .hasIndex = 16,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, tokenVersionInfo),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeString,
@@ -713,7 +705,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "cellTower",
         .dataTypeSpecific.className = GPBStringifySymbol(GtalkCellTower),
         .number = GtalkLoginRequest_FieldNumber_CellTower,
-        .hasIndex = 18,
+        .hasIndex = 17,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, cellTower),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeMessage,
@@ -722,7 +714,7 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "gcmStartTimeMs",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_GcmStartTimeMs,
-        .hasIndex = 19,
+        .hasIndex = 18,
         .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, gcmStartTimeMs),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeUInt64,
@@ -740,10 +732,28 @@ typedef struct GtalkLoginRequest__storage_ {
         .name = "onFallback",
         .dataTypeSpecific.className = NULL,
         .number = GtalkLoginRequest_FieldNumber_OnFallback,
-        .hasIndex = 20,
-        .offset = 21,  // Stored in _has_storage_ to save space.
+        .hasIndex = 19,
+        .offset = 20,  // Stored in _has_storage_ to save space.
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeBool,
+      },
+      {
+        .name = "noPendingUpstream",
+        .dataTypeSpecific.className = NULL,
+        .number = GtalkLoginRequest_FieldNumber_NoPendingUpstream,
+        .hasIndex = 21,
+        .offset = 22,  // Stored in _has_storage_ to save space.
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeBool,
+      },
+      {
+        .name = "reconnectRequestId",
+        .dataTypeSpecific.className = NULL,
+        .number = GtalkLoginRequest_FieldNumber_ReconnectRequestId,
+        .hasIndex = 23,
+        .offset = (uint32_t)offsetof(GtalkLoginRequest__storage_, reconnectRequestId),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeInt32,
       },
     };
     GPBDescriptor *localDescriptor =
@@ -2730,6 +2740,9 @@ typedef struct GtalkTalkMetadata__storage_ {
 
 #pragma mark - GtalkCellTower
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
 @implementation GtalkCellTower
 
 @dynamic hasId_p, id_p;
@@ -2782,6 +2795,8 @@ typedef struct GtalkCellTower__storage_ {
 
 @end
 
+#pragma clang diagnostic pop
+
 #pragma mark - GtalkClientEvent
 
 @implementation GtalkClientEvent
@@ -2794,6 +2809,7 @@ typedef struct GtalkCellTower__storage_ {
 @dynamic hasTimeConnectionEndedMs, timeConnectionEndedMs;
 @dynamic hasErrorCode, errorCode;
 @dynamic hasTimeConnectionEstablishedMs, timeConnectionEstablishedMs;
+@dynamic hasMcsReconnectAction, mcsReconnectAction;
 
 typedef struct GtalkClientEvent__storage_ {
   uint32_t _has_storage_[1];
@@ -2802,6 +2818,7 @@ typedef struct GtalkClientEvent__storage_ {
   int32_t networkType;
   int32_t networkPort;
   int32_t errorCode;
+  GtalkClientEvent_McsReconnectAction mcsReconnectAction;
   uint64_t timeConnectionStartedMs;
   uint64_t timeConnectionEndedMs;
   uint64_t timeConnectionEstablishedMs;
@@ -2885,6 +2902,15 @@ typedef struct GtalkClientEvent__storage_ {
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeUInt64,
       },
+      {
+        .name = "mcsReconnectAction",
+        .dataTypeSpecific.enumDescFunc = GtalkClientEvent_McsReconnectAction_EnumDescriptor,
+        .number = GtalkClientEvent_FieldNumber_McsReconnectAction,
+        .hasIndex = 8,
+        .offset = (uint32_t)offsetof(GtalkClientEvent__storage_, mcsReconnectAction),
+        .flags = (GPBFieldFlags)(GPBFieldOptional | GPBFieldHasEnumDescriptor),
+        .dataType = GPBDataTypeEnum,
+      },
     };
     GPBDescriptor *localDescriptor =
         [GPBDescriptor allocDescriptorForClass:[GtalkClientEvent class]
@@ -2909,12 +2935,17 @@ GPBEnumDescriptor *GtalkClientEvent_Type_EnumDescriptor(void) {
   if (!descriptor) {
     static const char *valueNames =
         "Unknown\000DiscardedEvents\000FailedConnection"
-        "\000SuccessfulConnection\000";
+        "\000SuccessfulConnection\000McsReconnectReques"
+        "t\000FailedSocketCreationMcsReconnect\000McsRe"
+        "connectLimited\000";
     static const int32_t values[] = {
         GtalkClientEvent_Type_Unknown,
         GtalkClientEvent_Type_DiscardedEvents,
         GtalkClientEvent_Type_FailedConnection,
         GtalkClientEvent_Type_SuccessfulConnection,
+        GtalkClientEvent_Type_McsReconnectRequest,
+        GtalkClientEvent_Type_FailedSocketCreationMcsReconnect,
+        GtalkClientEvent_Type_McsReconnectLimited,
     };
     GPBEnumDescriptor *worker =
         [GPBEnumDescriptor allocDescriptorForName:GPBNSStringifySymbol(GtalkClientEvent_Type)
@@ -2935,6 +2966,45 @@ BOOL GtalkClientEvent_Type_IsValidValue(int32_t value__) {
     case GtalkClientEvent_Type_DiscardedEvents:
     case GtalkClientEvent_Type_FailedConnection:
     case GtalkClientEvent_Type_SuccessfulConnection:
+    case GtalkClientEvent_Type_McsReconnectRequest:
+    case GtalkClientEvent_Type_FailedSocketCreationMcsReconnect:
+    case GtalkClientEvent_Type_McsReconnectLimited:
+      return YES;
+    default:
+      return NO;
+  }
+}
+
+#pragma mark - Enum GtalkClientEvent_McsReconnectAction
+
+GPBEnumDescriptor *GtalkClientEvent_McsReconnectAction_EnumDescriptor(void) {
+  static GPBEnumDescriptor *descriptor = NULL;
+  if (!descriptor) {
+    static const char *valueNames =
+        "None\000NotConnected\000TooSoon\000";
+    static const int32_t values[] = {
+        GtalkClientEvent_McsReconnectAction_None,
+        GtalkClientEvent_McsReconnectAction_NotConnected,
+        GtalkClientEvent_McsReconnectAction_TooSoon,
+    };
+    GPBEnumDescriptor *worker =
+        [GPBEnumDescriptor allocDescriptorForName:GPBNSStringifySymbol(GtalkClientEvent_McsReconnectAction)
+                                       valueNames:valueNames
+                                           values:values
+                                            count:(uint32_t)(sizeof(values) / sizeof(int32_t))
+                                     enumVerifier:GtalkClientEvent_McsReconnectAction_IsValidValue];
+    if (!OSAtomicCompareAndSwapPtrBarrier(nil, worker, (void * volatile *)&descriptor)) {
+      [worker release];
+    }
+  }
+  return descriptor;
+}
+
+BOOL GtalkClientEvent_McsReconnectAction_IsValidValue(int32_t value__) {
+  switch (value__) {
+    case GtalkClientEvent_McsReconnectAction_None:
+    case GtalkClientEvent_McsReconnectAction_NotConnected:
+    case GtalkClientEvent_McsReconnectAction_TooSoon:
       return YES;
     default:
       return NO;
