@@ -36,7 +36,6 @@
 #import "FIRMessagingSyncMessageManager.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
-
 #import "FIRReachabilityChecker.h"
 #import "NSError+FIRMessaging.h"
 
