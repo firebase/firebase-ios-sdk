@@ -26,6 +26,14 @@ namespace model {
 
 using Type = FieldValue::Type;
 
+namespace {
+
+const uint8_t* Bytes(const char* value) {
+  return reinterpret_cast<const uint8_t*>(value);
+}
+
+}  // namespace
+
 TEST(FieldValue, NullType) {
   const FieldValue value = FieldValue::NullValue();
   EXPECT_EQ(Type::Null, value.type());
@@ -89,7 +97,7 @@ TEST(FieldValue, NumberType) {
 }
 
 TEST(FieldValue, TimestampType) {
-  const FieldValue o = FieldValue::TimestampValue(Timestamp::Origin());
+  const FieldValue o = FieldValue::TimestampValue(Timestamp());
   const FieldValue a = FieldValue::TimestampValue({100, 0});
   const FieldValue b = FieldValue::TimestampValue({200, 0});
   EXPECT_EQ(Type::Timestamp, a.type());
@@ -126,10 +134,8 @@ TEST(FieldValue, StringType) {
 }
 
 TEST(FieldValue, BlobType) {
-  const FieldValue a = FieldValue::BlobValue(
-      Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4));
-  Blob blob = Blob::CopyFrom(reinterpret_cast<const uint8_t*>("def"), 4);
-  const FieldValue b = FieldValue::BlobValue(blob);
+  const FieldValue a = FieldValue::BlobValue(Bytes("abc"), 4);
+  const FieldValue b = FieldValue::BlobValue(Bytes("def"), 4);
   EXPECT_EQ(Type::Blob, a.type());
   EXPECT_EQ(Type::Blob, b.type());
   EXPECT_TRUE(a < b);
@@ -264,19 +270,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue blob_value = FieldValue::BlobValue(
-      Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4));
+  const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   clone = blob_value;
-  EXPECT_EQ(FieldValue::BlobValue(
-                Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4)),
-            clone);
-  EXPECT_EQ(FieldValue::BlobValue(
-                Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4)),
-            blob_value);
+  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
+  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), blob_value);
   clone = clone;
-  EXPECT_EQ(FieldValue::BlobValue(
-                Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4)),
-            clone);
+  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
@@ -374,12 +373,9 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue blob_value = FieldValue::BlobValue(
-      Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4));
+  const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   clone = std::move(blob_value);
-  EXPECT_EQ(FieldValue::BlobValue(
-                Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4)),
-            clone);
+  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
@@ -418,8 +414,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue number_value = FieldValue::NanValue();
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   const FieldValue string_value = FieldValue::StringValue("abc");
-  const FieldValue blob_value = FieldValue::BlobValue(
-      Blob::CopyFrom(reinterpret_cast<const uint8_t*>("abc"), 4));
+  const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<const FieldValue>());

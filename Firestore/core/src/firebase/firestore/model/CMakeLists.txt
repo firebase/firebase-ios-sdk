@@ -15,7 +15,6 @@
 cc_library(
   firebase_firestore_model
   SOURCES
-    blob.cc
     field_value.cc
     timestamp.cc
   DEPENDS

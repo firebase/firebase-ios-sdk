@@ -36,14 +36,10 @@ TEST(Timestamp, Getter) {
   const Timestamp timestamp_now = Timestamp::Now();
   EXPECT_LT(0, timestamp_now.seconds());
   EXPECT_LE(0, timestamp_now.nanos());
-
-  const Timestamp origin = Timestamp::Origin();
-  EXPECT_GT(0, origin.seconds());
-  EXPECT_EQ(0, origin.nanos());
 }
 
 TEST(Timestamp, Comparison) {
-  EXPECT_TRUE(Timestamp::Origin() < Timestamp(1, 2));
+  EXPECT_TRUE(Timestamp() < Timestamp(1, 2));
   EXPECT_TRUE(Timestamp(1, 2) < Timestamp(2, 1));
   EXPECT_TRUE(Timestamp(2, 1) < Timestamp(2, 2));
 }

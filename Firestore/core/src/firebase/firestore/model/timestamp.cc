@@ -24,10 +24,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-namespace {
-long kOriginSeconds = -62135596800L;
-}
-
 Timestamp::Timestamp(long seconds, int nanos)
     : seconds_(seconds), nanos_(nanos) {
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
@@ -38,7 +34,7 @@ Timestamp::Timestamp(long seconds, int nanos)
   // Midnight at the beginning of 1/1/1 is the earliest timestamp Firestore
   // supports.
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      seconds >= kOriginSeconds, seconds >= -62135596800L,
+      seconds >= -62135596800L, seconds >= -62135596800L,
       "timestamp seconds out of range: %lld", seconds);
   // This will break in the year 10,000.
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
@@ -51,15 +47,6 @@ Timestamp::Timestamp() : seconds_(0), nanos_(0) {
 
 Timestamp Timestamp::Now() {
   return Timestamp(time(nullptr), 0);
-}
-
-bool Timestamp::IsOrigin() const {
-  return seconds_ == kOriginSeconds && nanos_ == 0;
-}
-
-const Timestamp& Timestamp::Origin() {
-  static const Timestamp kOriginInstance(kOriginSeconds, 0);
-  return kOriginInstance;
 }
 
 }  // namespace model

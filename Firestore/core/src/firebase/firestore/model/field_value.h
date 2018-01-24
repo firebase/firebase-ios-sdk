@@ -25,7 +25,6 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
-#include "Firestore/core/src/firebase/firestore/model/blob.h"
 #include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 
 namespace firebase {
@@ -35,6 +34,8 @@ namespace model {
 struct ServerTimestamp {
   Timestamp local_write_time;
   Timestamp previous_value;
+  // TODO(zxu123): adopt absl::optional once abseil is ported.
+  bool has_previous_value_;
 };
 
 /**
@@ -95,14 +96,13 @@ class FieldValue {
   static FieldValue IntegerValue(int64_t value);
   static FieldValue DoubleValue(double value);
   static FieldValue TimestampValue(const Timestamp& value);
-  static FieldValue ServerTimestampValue(
-      const Timestamp& local_write_time,
-      const Timestamp& previous_value = Timestamp::Origin());
+  static FieldValue ServerTimestampValue(const Timestamp& local_write_time,
+                                         const Timestamp& previous_value);
+  static FieldValue ServerTimestampValue(const Timestamp& local_write_time);
   static FieldValue StringValue(const char* value);
   static FieldValue StringValue(const std::string& value);
   static FieldValue StringValue(std::string&& value);
-  static FieldValue BlobValue(const Blob& value);
-  static FieldValue BlobValue(Blob&& value);
+  static FieldValue BlobValue(const uint8_t* source, size_t size);
   // static FieldValue ReferenceValue();
   static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
@@ -132,7 +132,7 @@ class FieldValue {
     Timestamp timestamp_value_;
     ServerTimestamp server_timestamp_value_;
     std::string string_value_;
-    Blob blob_value_;
+    std::vector<const uint8_t> blob_value_;
     GeoPoint geo_point_value_;
     std::vector<const FieldValue> array_value_;
     std::map<const std::string, const FieldValue> object_value_;

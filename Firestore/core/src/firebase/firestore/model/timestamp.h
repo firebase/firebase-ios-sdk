@@ -31,6 +31,9 @@ class Timestamp {
  public:
   /**
    * Creates a new timestamp with seconds and nanos set to 0.
+   *
+   * PORTING NOTE: This does NOT set to current timestamp by default. To get the
+   * current timestamp, call Timestamp::Now().
    */
   Timestamp();
 
@@ -52,12 +55,6 @@ class Timestamp {
   int nanos() const {
     return nanos_;
   }
-
-  /** Returns whether it is the special timestamp of year 1 month 1 day 1. */
-  bool IsOrigin() const;
-
-  /** Returns the special timestamp of year 1 month 1 day 1. */
-  static const Timestamp& Origin();
 
  private:
   long seconds_;

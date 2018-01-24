@@ -15,7 +15,6 @@
 cc_test(
   firebase_firestore_model_test
   SOURCES
-    blob_test.cc
     field_value_test.cc
     timestamp_test.cc
   DEPENDS

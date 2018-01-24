@@ -93,9 +93,12 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::String:
       string_value_ = value.string_value_;
       break;
-    case Type::Blob:
-      blob_value_ = value.blob_value_;
+    case Type::Blob: {
+      // copy-and-swap
+      std::vector<const uint8_t> tmp = value.blob_value_;
+      std::swap(blob_value_, tmp);
       break;
+    }
     case Type::GeoPoint:
       geo_point_value_ = value.geo_point_value_;
       break;
@@ -193,6 +196,15 @@ FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;
   result.server_timestamp_value_.previous_value = previous_value;
+  result.server_timestamp_value_.has_previous_value_ = true;
+  return result;
+}
+
+FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time) {
+  FieldValue result;
+  result.SwitchTo(Type::ServerTimestamp);
+  result.server_timestamp_value_.local_write_time = local_write_time;
+  result.server_timestamp_value_.has_previous_value_ = false;
   return result;
 }
 
@@ -213,15 +225,11 @@ FieldValue FieldValue::StringValue(std::string&& value) {
   return result;
 }
 
-FieldValue FieldValue::BlobValue(const Blob& value) {
-  Blob copy(value);
-  return FieldValue::BlobValue(std::move(copy));
-}
-
-FieldValue FieldValue::BlobValue(Blob&& value) {
+FieldValue FieldValue::BlobValue(const uint8_t* source, size_t size) {
   FieldValue result;
   result.SwitchTo(Type::Blob);
-  std::swap(result.blob_value_, value);
+  std::vector<const uint8_t> copy(source, source + size);
+  std::swap(result.blob_value_, copy);
   return result;
 }
 
@@ -333,7 +341,7 @@ void FieldValue::SwitchTo(const Type type) {
       string_value_.~basic_string();
       break;
     case Type::Blob:
-      blob_value_.~Blob();
+      blob_value_.~vector();
       break;
     case Type::GeoPoint:
       geo_point_value_.~GeoPoint();
@@ -360,7 +368,7 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     case Type::Blob:
       // Do not even bother to allocate a new array of size 0.
-      new (&blob_value_) Blob(Blob::MoveFrom(nullptr, 0));
+      new (&blob_value_) std::vector<const uint8_t>();
       break;
     case Type::GeoPoint:
       new (&geo_point_value_) GeoPoint();
