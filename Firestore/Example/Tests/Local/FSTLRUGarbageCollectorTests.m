@@ -168,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
     FSTDocumentKey *key = [self nextTestDocKey];
     FSTDocumentKeySet *set = [[FSTDocumentKeySet keySet] setByAddingObject:key];
-    [queryCache addMutatedDocuments:set atSequenceNumber:1000 group:group];
+    [queryCache addPotentiallyOrphanedDocuments:set atSequenceNumber:1000 group:group];
     for (int i = 0; i < 50; i++) {
       [queryCache addQueryData:[self nextTestQuery] group:group];
     }
@@ -190,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
       set = [set setByAddingObject:[self nextTestDocKey]];
     }
     // Adding 9 doc keys at 1000. If we remove one of them, we'll have room for two actual queries.
-    [queryCache addMutatedDocuments:set atSequenceNumber:1000 group:group];
+    [queryCache addPotentiallyOrphanedDocuments:set atSequenceNumber:1000 group:group];
     for (int i = 0; i < 49; i++) {
       [queryCache addQueryData:[self nextTestQuery] group:group];
     }

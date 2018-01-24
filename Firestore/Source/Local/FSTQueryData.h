@@ -55,7 +55,8 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 
 /** Creates a new query data instance with an updated snapshot version and resume token. */
 - (instancetype)queryDataByReplacingSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-                                        resumeToken:(NSData *)resumeToken;
+                                        resumeToken:(NSData *)resumeToken
+                                     sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 /** The query being listened to. */
 @property(nonatomic, strong, readonly) FSTQuery *query;

@@ -231,9 +231,9 @@ NS_ASSUME_NONNULL_BEGIN
         [self releaseBatchResults:@[ batchResult ] group:group remoteDocuments:remoteDocuments];
 
     [remoteDocuments applyToWriteGroup:group];
-    [self.queryCache addMutatedDocuments:affected
-                        atSequenceNumber:[self.listenSequence next]
-                                   group:group];
+    [self.queryCache addPotentiallyOrphanedDocuments:affected
+                                    atSequenceNumber:[self.listenSequence next]
+                                               group:group];
   }
 
   [self.persistence commitGroup:group];
@@ -291,6 +291,18 @@ NS_ASSUME_NONNULL_BEGIN
       return;
     }
 
+    // Update the resume token if the change includes one. Don't clear any preexisting value.
+    // Bump the sequence number as well, so that documents being removed now are ordered later
+    // than documents that were previously removed from this target.
+    NSData *resumeToken = change.resumeToken;
+    if (resumeToken.length > 0) {
+      queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
+                                                     resumeToken:resumeToken
+                                                  sequenceNumber:[self.listenSequence next]];
+      self.targetIDs[targetIDNumber] = queryData;
+      [self.queryCache addQueryData:queryData group:group];
+    }
+
     FSTTargetMapping *mapping = change.mapping;
     if (mapping) {
       // First make sure that all references are deleted.
@@ -301,21 +313,15 @@ NS_ASSUME_NONNULL_BEGIN
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-        [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID group:group];
+        [queryCache removeMatchingKeys:update.removedDocuments
+                           forTargetID:targetID
+                      atSequenceNumber:queryData.sequenceNumber
+                                 group:group];
         [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID group:group];
 
       } else {
         FSTFail(@"Unknown mapping type: %@", mapping);
       }
-    }
-
-    // Update the resume token if the change includes one. Don't clear any preexisting value.
-    NSData *resumeToken = change.resumeToken;
-    if (resumeToken.length > 0) {
-      queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
-                                                     resumeToken:resumeToken];
-      self.targetIDs[targetIDNumber] = queryData;
-      [self.queryCache updateQueryData:queryData group:group];
     }
   }];
 

@@ -421,7 +421,7 @@ NS_ASSUME_NONNULL_BEGIN
   keys = [keys setByAddingObject:key];
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeMatchingKeys"];
-  [self.queryCache removeMatchingKeys:keys forTargetID:targetID group:group];
+  [self.queryCache removeMatchingKeys:keys forTargetID:targetID atSequenceNumber:0 group:group];
   [self.persistence commitGroup:group];
 }
 

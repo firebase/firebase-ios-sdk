@@ -114,7 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Snapshot version is ignored on the wire
   FSTQueryData *sentQueryData =
       [query queryDataByReplacingSnapshotVersion:[FSTSnapshotVersion noVersion]
-                                     resumeToken:query.resumeToken];
+                                     resumeToken:query.resumeToken
+                                  sequenceNumber:query.sequenceNumber];
   self.activeTargets[@(query.targetID)] = sentQueryData;
 }
 

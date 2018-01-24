@@ -84,10 +84,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)queryDataByReplacingSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-                                        resumeToken:(NSData *)resumeToken {
+                                        resumeToken:(NSData *)resumeToken
+                                     sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   return [[FSTQueryData alloc] initWithQuery:self.query
                                     targetID:self.targetID
-                        listenSequenceNumber:self.sequenceNumber
+                        listenSequenceNumber:sequenceNumber
                                      purpose:self.purpose
                              snapshotVersion:snapshotVersion
                                  resumeToken:resumeToken];
