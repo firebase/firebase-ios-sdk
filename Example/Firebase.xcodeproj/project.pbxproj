@@ -111,6 +111,7 @@
 		2C8B39CFF9898AE4B29AD114 /* Pods_Auth_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1015568683E2DFCC2719C754 /* Pods_Auth_Tests_macOS.framework */; };
 		2ECC6F80E47D2646FA82B940 /* Pods_Messaging_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CCB3CEB7BF2E4994FBDB2E7 /* Pods_Messaging_Tests_iOS.framework */; };
 		431EBDD6071EF1AE6F6DBE5F /* Pods_Core_Example_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84C51650773603D9F827CB3F /* Pods_Core_Example_macOS.framework */; };
+		519AF4702019445600EB8D64 /* Host in Resources */ = {isa = PBXBuildFile; fileRef = 519AF46F2019445500EB8D64 /* Host */; };
 		5207C8D12B9830DADB85FE67 /* Pods_Auth_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABC4448E5917769098A4EEF /* Pods_Auth_Tests_iOS.framework */; };
 		529BBEFBB6D7A3653B6B3874 /* Pods_Storage_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 910D7A5DE7D5AF153328D243 /* Pods_Storage_Tests_macOS.framework */; };
 		6232ED3272E9C78C2A0E127F /* Pods_Storage_IntegrationTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 979DF124E3D1146A81188F78 /* Pods_Storage_IntegrationTests_iOS.framework */; };
@@ -797,6 +798,7 @@
 		4CC7C8B9E821151509BB3B64 /* Pods-Database_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Example_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Example_macOS/Pods-Database_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		4D61AACC06F8E078EF051E4C /* Pods-Messaging_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messaging_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Messaging_Example_iOS/Pods-Messaging_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		4ECAA105379B7E664C7FF223 /* Pods-Storage_IntegrationTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_IntegrationTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_IntegrationTests_iOS/Pods-Storage_IntegrationTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		519AF46F2019445500EB8D64 /* Host */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Host; sourceTree = "<group>"; };
 		5CA5A85B5A80F118F3247910 /* Pods-Storage_IntegrationTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_IntegrationTests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_IntegrationTests_iOS/Pods-Storage_IntegrationTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		5DA6361D6B54362D073F3BA5 /* Pods-Database_Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Example_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Example_iOS/Pods-Database_Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -2002,6 +2004,7 @@
 		DE9315C21E8738B70083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				519AF46F2019445500EB8D64 /* Host */,
 				DE9315C81E8738B70083EDBF /* FIRMessagingFakeConnection.h */,
 				DE9315CA1E8738B70083EDBF /* FIRMessagingFakeSocket.h */,
 				DE9315D61E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.h */,
@@ -3015,6 +3018,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE93152B1E86C6FF0083EDBF /* GoogleService-Info.plist in Resources */,
+				519AF4702019445600EB8D64 /* Host in Resources */,
 				AFAF36F51EC28C25004BDEE5 /* Shared.xcassets in Resources */,
 				DE9315261E86C6FF0083EDBF /* LaunchScreen.storyboard in Resources */,
 				DE26D2131F70333E004AE1D3 /* Images.xcassets in Resources */,
