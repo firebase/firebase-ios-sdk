@@ -428,6 +428,7 @@
 - (NSURLSessionConfiguration *)backgroundSessionConfigWithSessionID:(NSString *)sessionID {
 #if (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&         \
      MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10) || \
+    TARGET_OS_TV ||                                              \
     (TARGET_OS_IOS && defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0)
 
   // iOS 8/10.10 builds require the new backgroundSessionConfiguration method name.

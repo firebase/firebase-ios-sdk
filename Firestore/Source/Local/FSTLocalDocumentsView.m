@@ -167,9 +167,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                  BOOL *stop) {
     FSTMaybeDocument *mutatedDoc = [self localDocument:remoteDocument key:key];
     if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      result = [documents dictionaryByRemovingObjectForKey:key];
+      result = [result dictionaryByRemovingObjectForKey:key];
     } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-      result = [documents dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
+      result = [result dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
     } else {
       FSTFail(@"Unknown document: %@", mutatedDoc);
     }

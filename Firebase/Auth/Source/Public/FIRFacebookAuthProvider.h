@@ -32,7 +32,7 @@ NS_SWIFT_NAME(FacebookAuthProvider)
 @interface FIRFacebookAuthProvider : NSObject
 
 /** @fn credentialWithAccessToken:
-    @brief Creates an @c FIRAuthCredential for a Facebook sign in.
+    @brief Creates an `FIRAuthCredential` for a Facebook sign in.
 
     @param accessToken The Access Token from Facebook.
     @return A FIRAuthCredential containing the Facebook credentials.

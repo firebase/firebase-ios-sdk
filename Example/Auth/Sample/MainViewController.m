@@ -38,11 +38,17 @@
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
-/*! @typedef textInputCompletionBlock
+/** @typedef textInputCompletionBlock
     @brief The type of callback used to report text input prompt results.
  */
 typedef void (^textInputCompletionBlock)(NSString *_Nullable userInput);
+
+/** @typedef testAutomationCallback
+    @brief The type of callback used when automatically testing an API.
+ */
+typedef void (^testAutomationCallback)(NSError *_Nullable error);
 
 /** @var kTokenGetButtonText
     @brief The text of the "Get Token" button.
@@ -2187,18 +2193,20 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after the provider is unlinked.
  */
 - (void)unlinkFromProvider:(NSString *)provider
-                completion:(void(^)(NSError *_Nullable))completion {
+                completion:(nullable testAutomationCallback)completion {
   [[self user] unlinkFromProvider:provider
                        completion:^(FIRUser *_Nullable user,
                                     NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"unlink auth provider failed" error:error];
-      completion(error);
-    } else {
-      [self logSuccess:@"unlink auth provider succeeded."];
       if (completion) {
-        completion(nil);
+        completion(error);
       }
+      return;
+    }
+    [self logSuccess:@"unlink auth provider succeeded."];
+    if (completion) {
+      completion(nil);
     }
     [self showTypicalUIForUserUpdateResultsWithTitle:kUnlinkTitle error:error];
   }];
@@ -2642,7 +2650,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after successful phone number sign in.
  */
 - (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
-                   completion:(void(^)(NSError *_Nullable))completion {
+                   completion:(nullable testAutomationCallback)completion {
   [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -2707,14 +2715,22 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     FIRAuthCredential *credential =
         [[AppManager phoneAuthProvider] credentialWithVerificationID:verificationID
                                                     verificationCode:verificationCode];
-    [[AppManager auth] signInWithCredential:credential
-                                 completion:^(FIRUser *_Nullable user,
-                                              NSError *_Nullable error) {
+    [[AppManager auth] signInAndRetrieveDataWithCredential:credential
+                                                completion:^(FIRAuthDataResult *_Nullable result,
+                                                             NSError *_Nullable error) {
       [self hideSpinner:^{
         if (error) {
           [self logFailure:@"failed to verify phone number" error:error];
           [self showMessagePrompt:error.localizedDescription];
           return;
+        }
+        if (_isNewUserToggleOn) {
+          NSString *newUserString = result.additionalUserInfo.isNewUser ?
+              @"New user" : @"Existing user";
+          [self showMessagePromptWithTitle:@"New or Existing"
+                                   message:newUserString
+                          showCancelButton:NO
+                                completion:nil];
         }
       }];
     }];
@@ -2727,7 +2743,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after phone number is updated.
  */
 - (void)updatePhoneNumber:(NSString *_Nullable)phoneNumber
-               completion:(void(^)(NSError *_Nullable))completion{
+               completion:(nullable testAutomationCallback)completion {
   [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -2736,7 +2752,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
      if (error) {
        [self logFailure:@"failed to send verification code" error:error];
        [self showMessagePrompt:error.localizedDescription];
-       completion(error);
+       if (completion) {
+         completion(error);
+       }
        return;
      }
      [self logSuccess:@"Code sent"];
@@ -2757,7 +2775,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
            if (error) {
              [self logFailure:@"update phone number failed" error:error];
              [self showMessagePrompt:error.localizedDescription];
-             completion(error);
+             if (completion) {
+               completion(error);
+             }
            } else {
              [self logSuccess:@"update phone number succeeded."];
              if (completion) {
@@ -2794,7 +2814,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @completion A completion block to be executed after linking phone number.
  */
 - (void)linkPhoneNumber:(NSString *_Nullable)phoneNumber
-             completion:(void(^)(NSError *_Nullable))completion{
+             completion:(nullable testAutomationCallback)completion {
     [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -2804,7 +2824,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         if (error) {
           [self logFailure:@"failed to send verification code" error:error];
           [self showMessagePrompt:error.localizedDescription];
-          completion(error);
+          if (completion) {
+            completion(error);
+          }
           return;
         }
         [self logSuccess:@"Code sent"];
@@ -2845,7 +2867,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                               if (error) {
                                 [self logFailure:@"failed to verify phone number" error:error];
                                 [self showMessagePrompt:error.localizedDescription];
-                                completion(error);
+                                if (completion) {
+                                  completion(error);
+                                }
                                 return;
                               }
                             }];
@@ -3147,3 +3171,5 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

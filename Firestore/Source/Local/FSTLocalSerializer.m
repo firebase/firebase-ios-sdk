@@ -156,6 +156,7 @@
 
   FSTPBTarget *proto = [FSTPBTarget message];
   proto.targetId = queryData.targetID;
+  proto.lastListenSequenceNumber = queryData.sequenceNumber;
   proto.snapshotVersion = [remoteSerializer encodedVersion:queryData.snapshotVersion];
   proto.resumeToken = queryData.resumeToken;
 
@@ -173,6 +174,7 @@
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   FSTTargetID targetID = target.targetId;
+  FSTListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
   FSTSnapshotVersion *version = [remoteSerializer decodedVersion:target.snapshotVersion];
   NSData *resumeToken = target.resumeToken;
 
@@ -192,6 +194,7 @@
 
   return [[FSTQueryData alloc] initWithQuery:query
                                     targetID:targetID
+                        listenSequenceNumber:sequenceNumber
                                      purpose:FSTQueryPurposeListen
                              snapshotVersion:version
                                  resumeToken:resumeToken];

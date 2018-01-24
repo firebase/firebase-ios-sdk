@@ -20,6 +20,7 @@
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
+#import "third_party/FIRAppEnvironmentUtil.h"
 
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
@@ -130,6 +131,23 @@ static FIRApp *sDefaultApp;
     if (!sDefaultApp.alreadySentConfigureNotification && sendNotifications) {
       [FIRApp sendNotificationsToSDKs:sDefaultApp];
       sDefaultApp.alreadySentConfigureNotification = YES;
+    }
+
+    if (![FIRAppEnvironmentUtil isFromAppStore]) {
+      // Support for iOS 7 has been deprecated, but will continue to function for the time being.
+      // Log a notice for developers who are still targeting iOS 7 as the minimum OS version
+      // supported.
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
+
+        NSString *minVersion = info[@"MinimumOSVersion"];
+        if ([minVersion hasPrefix:@"7."]) {
+          FIRLogNotice(kFIRLoggerCore, @"I-COR000026",
+                       @"Support for iOS 7 is deprecated and will "
+                       @"stop working in the future. Please upgrade your app to target iOS 8 or "
+                       @"above.");
+        }
+      });
     }
   }
 }
@@ -350,7 +368,9 @@ static FIRApp *sDefaultApp;
     NSLocalizedRecoverySuggestionErrorKey :
         @"Check formatting and location of GoogleService-Info.plist."
   };
-  return FIRCreateError(kFirebaseCoreErrorDomain, FIRErrorCodeInvalidPlistFile, errorDict);
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
+                             code:FIRErrorCodeInvalidPlistFile
+                         userInfo:errorDict];
 }
 
 + (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
@@ -361,7 +381,7 @@ static FIRApp *sDefaultApp;
       [NSString stringWithFormat:@"Configuration failed for service %@.", service];
   NSDictionary *errorDict =
       @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : reason};
-  return FIRCreateError(domain, code, errorDict);
+  return [NSError errorWithDomain:domain code:code userInfo:errorDict];
 }
 
 + (NSError *)errorForInvalidAppID {
@@ -371,7 +391,9 @@ static FIRApp *sDefaultApp;
         @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
         @"customized options."
   };
-  return FIRCreateError(kFirebaseCoreErrorDomain, FIRErrorCodeInvalidAppID, errorDict);
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
+                             code:FIRErrorCodeInvalidAppID
+                         userInfo:errorDict];
 }
 
 + (BOOL)isDefaultAppConfigured {

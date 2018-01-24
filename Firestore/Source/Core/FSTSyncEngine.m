@@ -43,6 +43,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Limbo documents don't use persistence, and are eagerly GC'd. So, listens for them don't need
+// real sequence numbers.
+static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
+
 #pragma mark - FSTQueryView
 
 /**
@@ -318,6 +322,21 @@ NS_ASSUME_NONNULL_BEGIN
   [self emitNewSnapshotsWithChanges:changes remoteEvent:remoteEvent];
 }
 
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+  NSMutableArray<FSTViewSnapshot *> *newViewSnapshots = [NSMutableArray array];
+  [self.queryViewsByQuery
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
+        FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
+        FSTAssert(viewChange.limboChanges.count == 0,
+                  @"OnlineState should not affect limbo documents.");
+        if (viewChange.snapshot) {
+          [newViewSnapshots addObject:viewChange.snapshot];
+        }
+      }];
+
+  [self.delegate handleViewSnapshots:newViewSnapshots];
+}
+
 - (void)rejectListenWithTargetID:(FSTBoxedTargetID *)targetID error:(NSError *)error {
   [self assertDelegateExistsForSelector:_cmd];
 
@@ -475,6 +494,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQuery *query = [FSTQuery queryWithPath:key.path];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
+                                             listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
     self.limboKeysByTarget[@(limboTargetID)] = key;
     [self.remoteStore listenToTargetWithQueryData:queryData];

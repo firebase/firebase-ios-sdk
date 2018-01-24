@@ -44,6 +44,27 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+// NSObject Methods
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (![[other class] isEqual:[self class]]) return NO;
+
+  return [self isEqualToMetadata:other];
+}
+
+- (BOOL)isEqualToMetadata:(nullable FIRSnapshotMetadata *)metadata {
+  if (self == metadata) return YES;
+  if (metadata == nil) return NO;
+
+  return self.pendingWrites == metadata.pendingWrites && self.fromCache == metadata.fromCache;
+}
+
+- (NSUInteger)hash {
+  NSUInteger hash = self.pendingWrites ? 1 : 0;
+  hash = hash * 31u + (self.fromCache ? 1 : 0);
+  return hash;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -12,8 +12,109 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_library(
+# firebase_firestore_util is the interface of this module. The rest of the
+# libraries in here are an implementation detail of making this a
+# mutli-platform build.
+
+include(CheckSymbolExists)
+include(CheckIncludeFiles)
+
+cc_library(
+  firebase_firestore_util_base
+  SOURCES
+    string_printf.cc
+    string_printf.h
+  DEPENDS
+    absl_base
+)
+
+## assert and log
+
+cc_library(
+  firebase_firestore_util_stdio
+  SOURCES
+    assert_stdio.cc
+    log_stdio.cc
+  DEPENDS
+    firebase_firestore_util_base
+    absl_base
+  EXCLUDE_FROM_ALL
+)
+
+cc_library(
+  firebase_firestore_util_apple
+  SOURCES
+    assert_apple.mm
+    log_apple.mm
+    string_apple.h
+  DEPENDS
+    FirebaseCore
+    absl_strings
+  EXCLUDE_FROM_ALL
+)
+
+# Export a dependency on the correct logging library for this platform. All
+# buildable libraries are built and tested but only the best fit is exported.
+if(APPLE)
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_apple)
+else()
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_stdio)
+endif()
+
+
+## secure_random
+
+check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
+cc_library(
+  firebase_firestore_util_arc4random
+  SOURCES
+    secure_random_arc4random.cc
+)
+
+get_target_property(
+  CMAKE_REQUIRED_INCLUDES
+  OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
+)
+check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
+cc_library(
+  firebase_firestore_util_openssl
+  SOURCES
+    secure_random_openssl.cc
+  DEPENDS
+    OpenSSL::Crypto
+)
+
+if(HAVE_ARC4RANDOM)
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_arc4random)
+
+elseif(HAVE_OPENSSL_RAND_H)
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_openssl)
+
+else()
+  message(FATAL_ERROR "No implementation for SecureRandom available.")
+
+endif()
+
+
+## main library
+configure_file(
+  config.h.in
+  config.h
+)
+
+cc_library(
   firebase_firestore_util
-  autoid.cc
-  secure_random_arc4random.cc
+  SOURCES
+    autoid.cc
+    autoid.h
+    comparison.cc
+    comparison.h
+    config.h
+    firebase_assert.h
+    log.h
+    secure_random.h
+  DEPENDS
+    ${UTIL_DEPENDS}
+    firebase_firestore_util_base
+    absl_base
 )

@@ -94,6 +94,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self.type == otherChange.type && [self.key isEqual:otherChange.key];
 }
 
+- (NSUInteger)hash {
+  NSUInteger hash = self.type;
+  hash = hash * 31u + [self.key hash];
+  return hash;
+}
+
 @end
 
 #pragma mark - FSTViewChange
@@ -327,6 +333,24 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
                               syncStateChanged:syncStateChanged];
 
     return [FSTViewChange changeWithSnapshot:snapshot limboChanges:limboChanges];
+  }
+}
+
+- (FSTViewChange *)applyChangedOnlineState:(FSTOnlineState)onlineState {
+  if (self.isCurrent && onlineState == FSTOnlineStateFailed) {
+    // If we're offline, set `current` to NO and then call applyChanges to refresh our syncState
+    // and generate an FSTViewChange as appropriate. We are guaranteed to get a new FSTTargetChange
+    // that sets `current` back to YES once the client is back online.
+    self.current = NO;
+    return
+        [self applyChangesToDocuments:[[FSTViewDocumentChanges alloc]
+                                          initWithDocumentSet:self.documentSet
+                                                    changeSet:[FSTDocumentViewChangeSet changeSet]
+                                                  needsRefill:NO
+                                                  mutatedKeys:self.mutatedKeys]];
+  } else {
+    // No effect, just return a no-op FSTViewChange.
+    return [[FSTViewChange alloc] initWithSnapshot:nil limboChanges:@[]];
   }
 }
 

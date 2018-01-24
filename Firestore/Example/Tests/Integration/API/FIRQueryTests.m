@@ -18,9 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
@@ -111,6 +112,23 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"b", @"a" ]));
 }
 
+- (void)testQueryWithPredicate {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"a" : @1},
+    @"b" : @{@"a" : @2},
+    @"c" : @{@"a" : @3}
+  }];
+
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"a < 3"];
+  FIRQuery *query = [collRef queryFilteredUsingPredicate:predicate];
+  query = [query queryOrderedByFieldPath:[[FIRFieldPath alloc] initWithFields:@[ @"a" ]]
+                              descending:YES];
+
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:query];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"b", @"a" ]));
+}
+
 - (void)testFilterOnInfinity {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"a" : @{@"inf" : @(INFINITY)},
@@ -192,6 +210,92 @@
                                 queryWhereFieldPath:[FIRFieldPath documentID]
                                 isLessThanOrEqualTo:[collection documentWithPath:@"ba"]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(docs), (@[ testDocs[@"ab"], testDocs[@"ba"] ]));
+}
+
+- (void)testWatchSurvivesNetworkDisconnect {
+  XCTestExpectation *testExpectiation =
+      [self expectationWithDescription:@"testWatchSurvivesNetworkDisconnect"];
+
+  FIRCollectionReference *collectionRef = [self collectionRef];
+  FIRDocumentReference *docRef = [collectionRef documentWithAutoID];
+
+  FIRFirestore *firestore = collectionRef.firestore;
+
+  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
+      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
+
+  [collectionRef addSnapshotListenerWithOptions:options
+                                       listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+                                         XCTAssertNil(error);
+                                         if (!snapshot.empty && !snapshot.metadata.fromCache) {
+                                           [testExpectiation fulfill];
+                                         }
+                                       }];
+
+  [firestore disableNetworkWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [docRef setData:@{@"foo" : @"bar"}];
+    [firestore enableNetworkWithCompletion:^(NSError *error) {
+      XCTAssertNil(error);
+    }];
+  }];
+
+  [self awaitExpectations];
+}
+
+- (void)testQueriesFireFromCacheWhenOffline {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"foo" : @1},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
+      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
+  id<FIRListenerRegistration> registration =
+      [collection addSnapshotListenerWithOptions:options
+                                        listener:self.eventAccumulator.valueEventHandler];
+
+  FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), @[ @{ @"foo" : @1 } ]);
+  XCTAssertEqual(querySnap.metadata.isFromCache, NO);
+
+  [self disableNetwork];
+  querySnap = [self.eventAccumulator awaitEventWithName:@"offline event with isFromCache=YES"];
+  XCTAssertEqual(querySnap.metadata.isFromCache, YES);
+
+  // TODO(b/70631617): There's currently a backend bug that prevents us from using a resume token
+  // right away (against hexa at least). So we sleep. :-( :-( Anything over ~10ms seems to be
+  // sufficient.
+  [NSThread sleepForTimeInterval:0.2f];
+
+  [self enableNetwork];
+  querySnap = [self.eventAccumulator awaitEventWithName:@"back online event with isFromCache=NO"];
+  XCTAssertEqual(querySnap.metadata.isFromCache, NO);
+
+  [registration remove];
+}
+
+- (void)testCanHaveMultipleMutationsWhileOffline {
+  FIRCollectionReference *col = [self collectionRef];
+
+  // set a few docs to known values
+  NSDictionary *initialDocs =
+      @{ @"doc1" : @{@"key1" : @"value1"},
+         @"doc2" : @{@"key2" : @"value2"} };
+  [self writeAllDocuments:initialDocs toCollection:col];
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+  // apply *multiple* mutations while offline
+  [[col documentWithPath:@"doc1"] setData:@{@"key1b" : @"value1b"}];
+  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"}];
+
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
+                          @{@"key1b" : @"value1b"},
+                          @{@"key2b" : @"value2b"},
+                        ]));
 }
 
 @end

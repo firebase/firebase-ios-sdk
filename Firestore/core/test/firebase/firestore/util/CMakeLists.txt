@@ -12,12 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(HAVE_ARC4RANDOM)
+  cc_test(
+    firebase_firestore_util_arc4random_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_arc4random
+  )
+endif()
+
+if(HAVE_OPENSSL_RAND_H)
+  cc_test(
+    firebase_firestore_util_openssl_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_openssl
+  )
+endif()
+
 cc_test(
   firebase_firestore_util_test
-  autoid_test.cc
-  secure_random_test.cc
+  SOURCES
+    autoid_test.cc
+    comparison_test.cc
+    string_printf_test.cc
+  DEPENDS
+    firebase_firestore_util
 )
-target_link_libraries(
-  firebase_firestore_util_test
-  firebase_firestore_util
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_util_apple_test
+    SOURCES
+      assert_test.cc
+      log_test.cc
+    DEPENDS
+      firebase_firestore_util_apple
+  )
+endif(APPLE)
+
+cc_test(
+  firebase_firestore_util_stdio_test
+  SOURCES
+    assert_test.cc
+    log_test.cc
+  DEPENDS
+    firebase_firestore_util_stdio
 )

@@ -28,7 +28,7 @@
 #import "FRepoInfo.h"
 #import "FIRDatabaseConfig.h"
 #import "FIRDatabaseReference_Private.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIROptions.h>
 
 @interface FIRDatabase ()
 @property (nonatomic, strong) FRepoInfo *repoInfo;

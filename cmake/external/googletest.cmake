@@ -13,42 +13,26 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(ExternalProjectFlags)
+
+ExternalProject_GitSource(
+  GOOGLETEST_GIT
+  GIT_REPOSITORY "https://github.com/google/googletest.git"
+  GIT_TAG "release-1.8.0"
+)
+
 ExternalProject_Add(
-  googletest_external
-  PREFIX googletest
-  URL "https://github.com/google/googletest/archive/release-1.8.0.tar.gz"
-  URL_HASH "SHA256=58a6f4277ca2bc8565222b3bbd58a177609e9c488e8a72649359ba51450db7d8"
+  googletest
+  DEPENDS
+    FirebaseCore  # for sequencing
 
-  CMAKE_ARGS
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DBUILD_GMOCK:BOOL=OFF
-      -DBUILD_GTEST:BOOL=ON
+  ${GOOGLETEST_GIT}
 
-  # Cut down on scary log output
-  LOG_DOWNLOAD ON
-  LOG_CONFIGURE ON
+  PREFIX ${PROJECT_BINARY_DIR}/external/googletest
 
+  # Just download the sources without building.
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
   INSTALL_COMMAND ""
-  UPDATE_COMMAND ""
   TEST_COMMAND ""
 )
-
-ExternalProject_Get_Property(googletest_external source_dir binary_dir)
-
-# CMake requires paths in include_directories to exist at configure time
-file(MAKE_DIRECTORY ${source_dir}/googletest/include)
-
-add_library(gtest STATIC IMPORTED GLBOAL)
-set_target_properties(
-  gtest PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES ${source_dir}/googletest/include
-  IMPORTED_LOCATION ${binary_dir}/googletest/${CMAKE_FIND_LIBRARY_PREFIXES}gtest.a
-)
-add_dependencies(gtest googletest_external)
-
-add_library(gtest_main STATIC IMPORTED GLOBAL)
-set_target_properties(
-  gtest_main PROPERTIES
-  IMPORTED_LOCATION ${binary_dir}/googletest/${CMAKE_FIND_LIBRARY_PREFIXES}gtest_main.a
-)
-add_dependencies(gtest_main googletest_external)

@@ -16,7 +16,8 @@
 
 #import "Firestore/Source/Util/FSTLogger.h"
 
-#import "FIRLogger.h"
+#import <FirebaseCore/FIRLogger.h>
+
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN

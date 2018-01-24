@@ -42,7 +42,7 @@ NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 NSString *const kFIRLibraryVersionID =
     @"4"     // Major version (one or more digits)
     @"00"    // Minor version (exactly 2 digits)
-    @"12"    // Build number (exactly 2 digits)
+    @"14"    // Build number (exactly 2 digits)
     @"000";  // Fixed "000"
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
@@ -62,10 +62,17 @@ NSString *const kFIRExceptionBadModification =
 @property(nonatomic, readwrite) NSMutableDictionary *optionsDictionary;
 
 /**
- * Combination of analytics options from both the main plist and the GoogleService-Info.plist.
+ * Calls `analyticsOptionsDictionaryWithInfoDictionary:` using [NSBundle mainBundle].infoDictionary.
+ * It combines analytics options from both the infoDictionary and the GoogleService-Info.plist.
  * Values which are present in the main plist override values from the GoogleService-Info.plist.
  */
 @property(nonatomic, readonly) NSDictionary *analyticsOptionsDictionary;
+
+/**
+ * Combination of analytics options from both the infoDictionary and the GoogleService-Info.plist.
+ * Values which are present in the infoDictionary override values from the GoogleService-Info.plist.
+ */
+- (NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:(NSDictionary *)infoDictionary;
 
 /**
  * Throw exception if editing is locked when attempting to modify an option.
@@ -346,16 +353,15 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 #pragma mark - Internal instance methods
 
-- (NSDictionary *)analyticsOptionsDictionary {
+- (NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:(NSDictionary *)infoDictionary {
   dispatch_once(&_createAnalyticsOptionsDictionaryOnce, ^{
     NSMutableDictionary *tempAnalyticsOptions = [[NSMutableDictionary alloc] init];
-    NSDictionary *mainInfoDictionary = [NSBundle mainBundle].infoDictionary;
     NSArray *measurementKeys = @[
       kFIRIsMeasurementEnabled, kFIRIsAnalyticsCollectionEnabled,
       kFIRIsAnalyticsCollectionDeactivated
     ];
     for (NSString *key in measurementKeys) {
-      id value = mainInfoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
+      id value = infoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
       if (!value) {
         continue;
       }
@@ -364,6 +370,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     _analyticsOptionsDictionary = tempAnalyticsOptions;
   });
   return _analyticsOptionsDictionary;
+}
+
+- (NSDictionary *)analyticsOptionsDictionary {
+  return [self analyticsOptionsDictionaryWithInfoDictionary:[NSBundle mainBundle].infoDictionary];
 }
 
 /**

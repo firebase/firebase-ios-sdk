@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesMutationBatch {
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{ @"a" : @"b", @"num" : @1 });
   FSTMutation *patch = [[FSTPatchMutation alloc]
-       initWithKey:[FSTDocumentKey keyWithPathString:@"bar/baz"]
+       initWithKey:FSTTestDocKey(@"bar/baz")
          fieldMask:[[FSTFieldMask alloc] initWithFields:@[ FSTTestFieldPath(@"a") ]]
              value:FSTTestObjectValue(
                        @{ @"a" : @"b",
@@ -157,6 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                        targetID:targetID
+                                           listenSequenceNumber:10
                                                         purpose:FSTQueryPurposeListen
                                                 snapshotVersion:version
                                                     resumeToken:resumeToken];
@@ -166,6 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTPBTarget *expected = [FSTPBTarget message];
   expected.targetId = targetID;
+  expected.lastListenSequenceNumber = 10;
   expected.snapshotVersion.nanos = 1039000;
   expected.resumeToken = [resumeToken copy];
   expected.query.parent = queryTarget.parent;

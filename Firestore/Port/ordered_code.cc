@@ -18,11 +18,17 @@
 
 #include <assert.h>
 
+#include <absl/base/internal/endian.h>
+#include <absl/base/internal/unaligned_access.h>
+#include <absl/base/port.h>
+#include <leveldb/db.h>  // For Slice
+
 #include "Firestore/Port/bits.h"
 
-#include "Firestore/Port/absl/absl_endian.h"
-#include "Firestore/Port/absl/absl_port.h"
-#include <leveldb/db.h>  // For Slice
+#define UNALIGNED_LOAD32 ABSL_INTERNAL_UNALIGNED_LOAD32
+#define UNALIGNED_LOAD64 ABSL_INTERNAL_UNALIGNED_LOAD64
+#define UNALIGNED_STORE32 ABSL_INTERNAL_UNALIGNED_STORE32
+#define UNALIGNED_STORE64 ABSL_INTERNAL_UNALIGNED_STORE64
 
 // We encode a string in different ways depending on whether the item
 // should be in lexicographically increasing or decreasing order.

@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
 #import "Firestore/Source/Auth/FSTUser.h"
+#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTargetIDGenerator.h"
@@ -75,6 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Used to generate targetIDs for queries tracked locally. */
 @property(nonatomic, strong) FSTTargetIDGenerator *targetIDGenerator;
+
+@property(nonatomic, strong) FSTListenSequence *listenSequence;
 
 /**
  * A heldBatchResult is a mutation batch result (from a write acknowledgement) that arrived before
@@ -148,6 +151,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTTargetID targetID = [self.queryCache highestTargetID];
   self.targetIDGenerator = [FSTTargetIDGenerator generatorForLocalStoreStartingAfterID:targetID];
+  FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
+  self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
 - (void)shutdown {
@@ -380,6 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
   FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
   FSTTargetID targetID;
+  FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
   if (cached) {
     // This query has been listened to previously, so reuse the previous targetID.
     // TODO(mcg): freshen last accessed date?
@@ -388,8 +394,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Allocate query"];
 
     targetID = [self.targetIDGenerator nextID];
-    cached =
-        [[FSTQueryData alloc] initWithQuery:query targetID:targetID purpose:FSTQueryPurposeListen];
+    cached = [[FSTQueryData alloc] initWithQuery:query
+                                        targetID:targetID
+                            listenSequenceNumber:sequenceNumber
+                                         purpose:FSTQueryPurposeListen];
     [self.queryCache addQueryData:cached group:group];
 
     [self.persistence commitGroup:group];

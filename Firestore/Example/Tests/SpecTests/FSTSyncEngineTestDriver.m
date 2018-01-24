@@ -16,9 +16,9 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "FirebaseFirestore/FIRFirestoreErrors.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -119,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
     _remoteStore.syncEngine = _syncEngine;
     _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
 
-    _remoteStore.onlineStateDelegate = _eventManager;
+    _remoteStore.onlineStateDelegate = self;
 
     // Set up internal event tracking for the spec tests.
     NSMutableArray<FSTQueryEvent *> *events = [NSMutableArray array];
@@ -137,6 +137,11 @@ NS_ASSUME_NONNULL_BEGIN
     _currentUser = initialUser;
   }
   return self;
+}
+
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+  [self.syncEngine applyChangedOnlineState:onlineState];
+  [self.eventManager applyChangedOnlineState:onlineState];
 }
 
 - (void)start {

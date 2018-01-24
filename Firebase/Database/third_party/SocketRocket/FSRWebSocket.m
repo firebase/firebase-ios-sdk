@@ -18,7 +18,7 @@
 
 #import "FSRWebSocket.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #define HAS_ICU
 #endif
 
@@ -28,7 +28,7 @@
 #import <unicode/utf8.h>
 #endif
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <Endian.h>
 #elif TARGET_OS_OSX
 #import <CoreServices/CoreServices.h>

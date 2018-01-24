@@ -12,22 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Superbuild for Firebase
+
 cmake_minimum_required(VERSION 2.8.11)
 project(firebase C CXX)
 
-# We use C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# If no build type is specified, make it a debug build
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
 
-# Fully qualified imports, project wide
-include_directories("${PROJECT_SOURCE_DIR}")
+if(APPLE)
+  # When building on the apple platform certain Objective-C++ classes bridge
+  # back into other Firebase Cocoapods. This requires shelling out to xcodebuild
+  # to verify the built frameworks are up-to-date. You can disable this to speed
+  # up the build.
+  option(BUILD_PODS, "Always build dependent cocoapods." ON)
+endif(APPLE)
 
-# CMake's test target does not build tests before running them. This adds a
-# check target that
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
+list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 
-include(cmake/utils.cmake)
+set(FIREBASE_INSTALL_DIR ${PROJECT_BINARY_DIR})
 
 enable_testing()
-add_subdirectory(Firestore)
+
+include(external/FirebaseCore)
+include(external/googletest)
+include(external/leveldb)
+include(external/grpc)
+include(external/firestore)

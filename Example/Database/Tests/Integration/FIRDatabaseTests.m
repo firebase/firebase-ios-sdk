@@ -22,7 +22,7 @@
 #import "FIRDatabaseReference_Private.h"
 #import "FIRDatabase.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FIROptions.h"
+#import <FirebaseCore/FIROptions.h>
 #import "FTestHelpers.h"
 #import "FMockStorageEngine.h"
 #import "FTestBase.h"
