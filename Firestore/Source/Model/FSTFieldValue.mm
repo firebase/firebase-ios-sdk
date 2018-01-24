@@ -21,7 +21,7 @@
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
@@ -420,19 +420,19 @@ struct Comparator<NSString *> {
 #pragma mark - FSTTimestampValue
 
 @interface FSTTimestampValue ()
-@property(nonatomic, strong, readonly) FSTTimestamp *internalValue;
+@property(nonatomic, strong, readonly) FIRTimestamp *internalValue;
 @end
 
 @implementation FSTTimestampValue
 
-+ (instancetype)timestampValue:(FSTTimestamp *)value {
++ (instancetype)timestampValue:(FIRTimestamp *)value {
   return [[FSTTimestampValue alloc] initWithValue:value];
 }
 
-- (id)initWithValue:(FSTTimestamp *)value {
+- (id)initWithValue:(FIRTimestamp *)value {
   self = [super init];
   if (self) {
-    _internalValue = value;  // FSTTimestamp is immutable.
+    _internalValue = value;  // FIRTimestamp is immutable.
   }
   return self;
 }
@@ -472,13 +472,13 @@ struct Comparator<NSString *> {
 
 @implementation FSTServerTimestampValue
 
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FIRTimestamp *)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue {
   return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime
                                                    previousValue:previousValue];
 }
 
-- (id)initWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+- (id)initWithLocalWriteTime:(FIRTimestamp *)localWriteTime
                previousValue:(nullable FSTFieldValue *)previousValue {
   self = [super init];
   if (self) {

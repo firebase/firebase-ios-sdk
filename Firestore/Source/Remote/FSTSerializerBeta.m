@@ -28,9 +28,9 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -61,15 +61,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTSnapshotVersion <=> GPBTimestamp
 
-- (GPBTimestamp *)encodedTimestamp:(FSTTimestamp *)timestamp {
+- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp {
   GPBTimestamp *result = [GPBTimestamp message];
   result.seconds = timestamp.seconds;
   result.nanos = timestamp.nanos;
   return result;
 }
 
-- (FSTTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
-  return [[FSTTimestamp alloc] initWithSeconds:timestamp.seconds nanos:timestamp.nanos];
+- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
+  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds nanos:timestamp.nanos];
 }
 
 - (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version {
@@ -275,7 +275,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedTimestampValue:(FSTTimestamp *)value {
+- (GCFSValue *)encodedTimestampValue:(FIRTimestamp *)value {
   GCFSValue *result = [GCFSValue message];
   result.timestampValue = [self encodedTimestamp:value];
   return result;

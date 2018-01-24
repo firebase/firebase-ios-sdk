@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 
 #import <XCTest/XCTest.h>
 
@@ -24,58 +24,58 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTTimestampTests : XCTestCase
+@interface FIRTimestampTests : XCTestCase
 @end
 
-@implementation FSTTimestampTests
+@implementation FIRTimestampTests
 
 - (void)testFromDate {
   // Very carefully construct an NSDate that won't lose precision with its milliseconds.
   NSDate *input = [NSDate dateWithTimeIntervalSinceReferenceDate:1.5];
 
-  FSTTimestamp *actual = [FSTTimestamp timestampWithDate:input];
+  FIRTimestamp *actual = [FIRTimestamp timestampWithDate:input];
   static const int64_t kSecondsFromEpochToReferenceDate = 978307200;
   XCTAssertEqual(kSecondsFromEpochToReferenceDate + 1, actual.seconds);
   XCTAssertEqual(500000000, actual.nanos);
 
-  FSTTimestamp *expected =
-      [[FSTTimestamp alloc] initWithSeconds:(kSecondsFromEpochToReferenceDate + 1) nanos:500000000];
+  FIRTimestamp *expected =
+      [[FIRTimestamp alloc] initWithSeconds:(kSecondsFromEpochToReferenceDate + 1) nanos:500000000];
   XCTAssertEqualObjects(expected, actual);
 }
 
 - (void)testSO8601String {
   NSDate *date = FSTTestDate(1912, 4, 14, 23, 40, 0);
-  FSTTimestamp *timestamp =
-      [[FSTTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970 nanos:543000000];
+  FIRTimestamp *timestamp =
+      [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970 nanos:543000000];
   XCTAssertEqualObjects(timestamp.ISO8601String, @"1912-04-14T23:40:00.543000000Z");
 }
 
 - (void)testISO8601String_withLowMilliseconds {
   NSDate *date = FSTTestDate(1912, 4, 14, 23, 40, 0);
-  FSTTimestamp *timestamp =
-      [[FSTTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970 nanos:7000000];
+  FIRTimestamp *timestamp =
+      [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970 nanos:7000000];
   XCTAssertEqualObjects(timestamp.ISO8601String, @"1912-04-14T23:40:00.007000000Z");
 }
 
 - (void)testISO8601String_withLowNanos {
-  FSTTimestamp *timestamp = [[FSTTimestamp alloc] initWithSeconds:0 nanos:1];
+  FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:0 nanos:1];
   XCTAssertEqualObjects(timestamp.ISO8601String, @"1970-01-01T00:00:00.000000001Z");
 }
 
 - (void)testISO8601String_withNegativeSeconds {
-  FSTTimestamp *timestamp = [[FSTTimestamp alloc] initWithSeconds:-1 nanos:999999999];
+  FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:-1 nanos:999999999];
   XCTAssertEqualObjects(timestamp.ISO8601String, @"1969-12-31T23:59:59.999999999Z");
 }
 
 - (void)testCompare {
-  NSArray<FSTTimestamp *> *timestamps = @[
-    [[FSTTimestamp alloc] initWithSeconds:12344 nanos:999999999],
-    [[FSTTimestamp alloc] initWithSeconds:12345 nanos:0],
-    [[FSTTimestamp alloc] initWithSeconds:12345 nanos:000000001],
-    [[FSTTimestamp alloc] initWithSeconds:12345 nanos:99999999],
-    [[FSTTimestamp alloc] initWithSeconds:12345 nanos:100000000],
-    [[FSTTimestamp alloc] initWithSeconds:12345 nanos:100000001],
-    [[FSTTimestamp alloc] initWithSeconds:12346 nanos:0],
+  NSArray<FIRTimestamp *> *timestamps = @[
+    [[FIRTimestamp alloc] initWithSeconds:12344 nanos:999999999],
+    [[FIRTimestamp alloc] initWithSeconds:12345 nanos:0],
+    [[FIRTimestamp alloc] initWithSeconds:12345 nanos:000000001],
+    [[FIRTimestamp alloc] initWithSeconds:12345 nanos:99999999],
+    [[FIRTimestamp alloc] initWithSeconds:12345 nanos:100000000],
+    [[FIRTimestamp alloc] initWithSeconds:12345 nanos:100000001],
+    [[FIRTimestamp alloc] initWithSeconds:12346 nanos:0],
   ];
   for (int i = 0; i < timestamps.count - 1; ++i) {
     XCTAssertEqual(NSOrderedAscending, [timestamps[i] compare:timestamps[i + 1]]);

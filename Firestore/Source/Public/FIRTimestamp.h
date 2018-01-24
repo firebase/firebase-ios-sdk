@@ -19,23 +19,22 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * An FSTTimestamp represents an absolute time from the backend at up to nanosecond precision.
- * An FSTTimestamp is represented in terms of UTC and does not have an associated timezone.
+ * An FIRTimestamp represents an absolute time from the backend at up to microsecond precision.
+ * An FIRTimestamp is represented in terms of UTC and does not have an associated timezone.
  */
-@interface FSTTimestamp : NSObject <NSCopying>
+NS_SWIFT_NAME(Timestamp)
+@interface FIRTimestamp : NSObject <NSCopying>
 
+/** */
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
  * Creates a new timestamp.
  *
  * @param seconds the number of seconds since epoch.
- * @param nanos the number of nanoseconds after the seconds.
+ * @param microseconds the number of microseconds after the seconds.
  */
-- (instancetype)initWithSeconds:(int64_t)seconds nanos:(int32_t)nanos NS_DESIGNATED_INITIALIZER;
-
-/** Creates a new timestamp with the current date / time. */
-+ (instancetype)timestamp;
++ (instancetype)timestampWithSeconds:(int64_t)seconds microseconds:(int32_t)microseconds;
 
 /** Creates a new timestamp from the given date. */
 + (instancetype)timestampWithDate:(NSDate *)date;
@@ -44,28 +43,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDate *)approximateDateValue;
 
 /**
- * Converts the given date to a an ISO 8601 timestamp string, useful for rendering in JSON.
- *
- * ISO 8601 dates times in UTC look like this: "1912-04-14T23:40:00.000000000Z".
- *
- * @see http://www.ecma-international.org/ecma-262/6.0/#sec-date-time-string-format
- */
-- (NSString *)ISO8601String;
-
-- (NSComparisonResult)compare:(FSTTimestamp *)other;
-
-/**
  * Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
  * Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.
  */
 @property(nonatomic, assign, readonly) int64_t seconds;
 
 /**
- * Non-negative fractions of a second at nanosecond resolution. Negative second values with
- * fractions must still have non-negative nanos values that count forward in time.
- * Must be from 0 to 999,999,999 inclusive.
+ * Non-negative fractions of a second at microsecond resolution. Negative second values with
+ * fractions must still have non-negative micros values that count forward in time.
+ * Must be from 0 to 999,999 inclusive.
  */
-@property(nonatomic, assign, readonly) int32_t nanos;
+@property(nonatomic, assign, readonly) int32_t microseconds;
 
 @end
 

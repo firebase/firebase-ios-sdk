@@ -27,7 +27,7 @@
 @class FSTQuery;
 @class FSTQueryData;
 @class FSTSnapshotVersion;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTWatchChange;
 
 @class GCFSBatchGetDocumentsResponse;
@@ -59,8 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID NS_DESIGNATED_INITIALIZER;
 
-- (GPBTimestamp *)encodedTimestamp:(FSTTimestamp *)timestamp;
-- (FSTTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp;
+- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp;
+- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp;
 
 - (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version;
 - (FSTSnapshotVersion *)decodedVersion:(GPBTimestamp *)version;

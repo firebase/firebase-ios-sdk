@@ -140,22 +140,26 @@ NS_ASSUME_NONNULL_BEGIN
                              options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
 }
 
+- (nullable FSTFieldValue*)fieldValueForKey:(id)key {
+  FIRFieldPath *fieldPath;
+
+  if ([key isKindOfClass:[NSString class]]) {
+    fieldPath = [FIRFieldPath pathWithDotSeparatedString:key];
+  } else if ([key isKindOfClass:[FIRFieldPath class]]) {
+    fieldPath = key;
+  } else {
+    FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
+  }
+
+  return [[self.internalDocument data] valueForPath:fieldPath.internalValue];
+}
+
 - (nullable id)valueForField:(id)field {
   return [self valueForField:field options:[FIRSnapshotOptions defaultOptions]];
 }
 
 - (nullable id)valueForField:(id)field options:(FIRSnapshotOptions *)options {
-  FIRFieldPath *fieldPath;
-
-  if ([field isKindOfClass:[NSString class]]) {
-    fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
-  } else if ([field isKindOfClass:[FIRFieldPath class]]) {
-    fieldPath = field;
-  } else {
-    FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
-  }
-
-  FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
+  FSTFieldValue *fieldValue = [self fieldValueForKey: field];
   return fieldValue == nil
              ? nil
              : [self convertedValue:fieldValue
@@ -209,6 +213,14 @@ NS_ASSUME_NONNULL_BEGIN
     [result addObject:[self convertedValue:value options:options]];
   }];
   return result;
+}
+
+- (nullable FIRTimestamp*)getTimestamp:(id)key {
+  FSTFieldValue* fieldValue = [self fieldValueForKey:key];
+  if (fieldValue != nil && ![fieldValue isKindOfClass:[FSTTimestampValue class]]) {
+    FSTThrowInvalidArgument(@"The field corresponding to the given key is not of type timestamp");
+  }
+  return ((FSTTimestampValue*)fieldValue).internalValue;
 }
 
 @end

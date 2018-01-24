@@ -16,9 +16,9 @@
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -256,7 +256,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"New mutation batch"];
   for (FSTMutation *mutation in mutations) {
     FSTMutationBatch *batch =
-        [self.mutationQueue addMutationBatchWithWriteTime:[FSTTimestamp timestamp]
+        [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
                                                 mutations:@[ mutation ]
                                                     group:group];
     [batches addObject:batch];
@@ -293,7 +293,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"New mutation batch"];
   for (FSTMutation *mutation in mutations) {
     FSTMutationBatch *batch =
-        [self.mutationQueue addMutationBatchWithWriteTime:[FSTTimestamp timestamp]
+        [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
                                                 mutations:@[ mutation ]
                                                     group:group];
     [batches addObject:batch];
@@ -438,7 +438,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"New mutation batch"];
   FSTMutationBatch *batch =
-      [self.mutationQueue addMutationBatchWithWriteTime:[FSTTimestamp timestamp]
+      [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
                                               mutations:@[ mutation ]
                                                   group:group];
   [self.persistence commitGroup:group];

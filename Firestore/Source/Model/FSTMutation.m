@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -238,14 +238,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(nullable FSTTimestamp *)localWriteTime {
+                        localWriteTime:(nullable FIRTimestamp *)localWriteTime {
   return
       [self applyTo:maybeDoc baseDocument:baseDoc localWriteTime:localWriteTime mutationResult:nil];
 }
@@ -292,7 +292,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTSetMutation.");
@@ -368,7 +368,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTPatchMutation.");
@@ -458,7 +458,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(mutationResult.transformResults,
@@ -500,7 +500,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSArray<FSTFieldValue *> *)localTransformResultsWithBaseDocument:
                                   (FSTMaybeDocument *_Nullable)baseDocument
-                                                          writeTime:(FSTTimestamp *)localWriteTime {
+                                                          writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (FSTFieldTransform *fieldTransform in self.fieldTransforms) {
     if ([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]]) {
@@ -570,7 +570,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults,

@@ -31,9 +31,9 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -370,7 +370,7 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.currentDocument.updateTime =
-      [self.serializer encodedTimestamp:[[FSTTimestamp alloc] initWithSeconds:0 nanos:4000]];
+      [self.serializer encodedTimestamp:[[FIRTimestamp alloc] initWithSeconds:0 nanos:4000]];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }

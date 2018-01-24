@@ -27,9 +27,9 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
                           @"num" : @1 })
       precondition:[FSTPrecondition preconditionWithExists:YES]];
   FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
-  FSTTimestamp *writeTime = [FSTTimestamp timestamp];
+  FIRTimestamp *writeTime = [FIRTimestamp timestamp];
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
                                                        localWriteTime:writeTime
                                                             mutations:@[ set, patch, del ]];

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "FIRTimestamp+Internal.h"
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -24,15 +24,43 @@ using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 
-static const int kNanosPerSecond = 1000000000;
+static const int kMicrosPerSecond = 1000000;
 
-@implementation FSTTimestamp
+@implementation FIRTimestamp (Internal)
 
-#pragma mark - Constructors
+#pragma mark - Internal constructors
 
 + (instancetype)timestamp {
-  return [FSTTimestamp timestampWithDate:[NSDate date]];
+  return [FIRTimestamp timestampWithDate:[NSDate date]];
 }
+
+#pragma mark - Internal public methods
+
+- (NSComparisonResult)compare:(FIRTimestamp *)other {
+  NSComparisonResult result = WrapCompare<int64_t>(self.seconds, other.seconds);
+  if (result != NSOrderedSame) {
+    return result;
+  }
+  return WrapCompare<int32_t>(self.nanos, other.nanos);
+}
+
+- (NSString *)ISO8601String {
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss";
+  formatter.timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
+  NSDate *secondsDate = [NSDate dateWithTimeIntervalSince1970:self.seconds];
+  NSString *secondsString = [formatter stringFromDate:secondsDate];
+  FSTAssert(secondsString.length == 19, @"Invalid ISO string: %@", secondsString);
+
+  NSString *nanosString = [NSString stringWithFormat:@"%09d", self.nanos];
+  return [NSString stringWithFormat:@"%@.%@Z", secondsString, nanosString];
+}
+
+@end
+
+@implementation FIRTimestamp
+
+#pragma mark - Constructors
 
 + (instancetype)timestampWithDate:(NSDate *)date {
   double secondsDouble;
@@ -43,8 +71,12 @@ static const int kNanosPerSecond = 1000000000;
     secondsDouble -= 1.0;
   }
   int64_t seconds = (int64_t)secondsDouble;
-  int32_t nanos = (int32_t)(fraction * kNanosPerSecond);
-  return [[FSTTimestamp alloc] initWithSeconds:seconds nanos:nanos];
+  int32_t micros = (int32_t)(fraction * kMicrosPerSecond);
+  return [[FIRTimestamp alloc] initWithSeconds:seconds nanos:micros * 1000];
+}
+
++ (instancetype)timestampWithSeconds:(int64_t)seconds microseconds:(int32_t)micros {
+  return [[FIRTimestamp alloc] initWithSeconds:seconds nanos:micros * 1000];
 }
 
 - (instancetype)initWithSeconds:(int64_t)seconds nanos:(int32_t)nanos {
@@ -69,10 +101,10 @@ static const int kNanosPerSecond = 1000000000;
   if (self == object) {
     return YES;
   }
-  if (![object isKindOfClass:[FSTTimestamp class]]) {
+  if (![object isKindOfClass:[FIRTimestamp class]]) {
     return NO;
   }
-  return [self isEqualToTimestamp:(FSTTimestamp *)object];
+  return [self isEqualToTimestamp:(FIRTimestamp *)object];
 }
 
 - (NSUInteger)hash {
@@ -81,7 +113,7 @@ static const int kNanosPerSecond = 1000000000;
 
 - (NSString *)description {
   return [NSString
-      stringWithFormat:@"<FSTTimestamp: seconds=%lld nanos=%d>", self.seconds, self.nanos];
+      stringWithFormat:@"FIRTimestamp: seconds=%lld micros=%d>", self.seconds, self.microseconds];
 }
 
 /** Implements NSCopying without actually copying because timestamps are immutable. */
@@ -91,33 +123,19 @@ static const int kNanosPerSecond = 1000000000;
 
 #pragma mark - Public methods
 
+@dynamic microseconds;
+
+- (int32_t)microseconds {
+  return self.nanos / 1000;
+}
+
 - (NSDate *)approximateDateValue {
   NSTimeInterval interval = (NSTimeInterval)self.seconds + ((NSTimeInterval)self.nanos) / 1e9;
   return [NSDate dateWithTimeIntervalSince1970:interval];
 }
 
-- (BOOL)isEqualToTimestamp:(FSTTimestamp *)other {
+- (BOOL)isEqualToTimestamp:(FIRTimestamp *)other {
   return [self compare:other] == NSOrderedSame;
-}
-
-- (NSString *)ISO8601String {
-  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-  formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss";
-  formatter.timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
-  NSDate *secondsDate = [NSDate dateWithTimeIntervalSince1970:self.seconds];
-  NSString *secondsString = [formatter stringFromDate:secondsDate];
-  FSTAssert(secondsString.length == 19, @"Invalid ISO string: %@", secondsString);
-
-  NSString *nanosString = [NSString stringWithFormat:@"%09d", self.nanos];
-  return [NSString stringWithFormat:@"%@.%@Z", secondsString, nanosString];
-}
-
-- (NSComparisonResult)compare:(FSTTimestamp *)other {
-  NSComparisonResult result = WrapCompare<int64_t>(self.seconds, other.seconds);
-  if (result != NSOrderedSame) {
-    return result;
-  }
-  return WrapCompare<int32_t>(self.nanos, other.nanos);
 }
 
 @end
