@@ -16,11 +16,7 @@
 
 #import "FIRMessagingLogger.h"
 
-#ifdef COCOAPODS
 #import "FIRLogger.h"
-#else
-#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRLogger.h"
-#endif
 
 @implementation FIRMessagingLogger
 

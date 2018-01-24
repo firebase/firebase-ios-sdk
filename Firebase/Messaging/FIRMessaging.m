@@ -37,12 +37,7 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
-#ifdef COCOAPODS
 #import "FIRReachabilityChecker.h"
-#else
-#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRReachabilityChecker.h"
-#endif
-
 #import "NSError+FIRMessaging.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
