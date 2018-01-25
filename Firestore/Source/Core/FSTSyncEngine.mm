@@ -142,15 +142,14 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     NSMutableDictionary<FSTUser *, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *>
         *mutationCompletionBlocks;
 
-/** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
-@property(nonatomic, assign, readonly)
-    firebase::firestore::core::TargetIdGenerator *targetIdGenerator;
-
 @property(nonatomic, strong) FSTUser *currentUser;
 
 @end
 
-@implementation FSTSyncEngine
+@implementation FSTSyncEngine {
+  /** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
+  firebase::firestore::core::TargetIdGenerator _targetIdGenerator;
+}
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                        remoteStore:(FSTRemoteStore *)remoteStore
@@ -169,17 +168,11 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     [_limboCollector addGarbageSource:_limboDocumentRefs];
 
     _mutationCompletionBlocks = [NSMutableDictionary dictionary];
-    _targetIdGenerator = new firebase::firestore::core::TargetIdGenerator(
-        firebase::firestore::core::TargetIdGenerator::SyncEngineTargetIdGenerator(0));
+    _targetIdGenerator =
+        firebase::firestore::core::TargetIdGenerator::SyncEngineTargetIdGenerator(0);
     _currentUser = initialUser;
   }
   return self;
-}
-
-- (void)dealloc {
-  // C++ object is not managed by the Objective-C reference-counting and thus need
-  // to deallocate manually.
-  delete _targetIdGenerator;
 }
 
 - (FSTTargetID)listenToQuery:(FSTQuery *)query {
@@ -499,7 +492,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
   if (!self.limboTargetsByKey[key]) {
     FSTLog(@"New document in limbo: %@", key);
-    FSTTargetID limboTargetID = self.targetIdGenerator->NextId();
+    FSTTargetID limboTargetID = _targetIdGenerator.NextId();
     FSTQuery *query = [FSTQuery queryWithPath:key.path];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
