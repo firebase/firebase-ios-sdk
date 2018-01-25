@@ -22,7 +22,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-TEST(Util, PrefixSuccessor) {
+TEST(StringUtil, PrefixSuccessor) {
   EXPECT_EQ(PrefixSuccessor("a"), "b");
   EXPECT_EQ(PrefixSuccessor("aaAA"), "aaAB");
   EXPECT_EQ(PrefixSuccessor("aaa\xff"), "aab");
@@ -32,7 +32,7 @@ TEST(Util, PrefixSuccessor) {
   EXPECT_EQ(PrefixSuccessor(""), "");
 }
 
-TEST(Util, ImmediateSuccessor) {
+TEST(StringUtil, ImmediateSuccessor) {
   EXPECT_EQ(ImmediateSuccessor("hello"), std::string("hello\0", 6));
   EXPECT_EQ(ImmediateSuccessor(""), std::string("\0", 1));
 }
