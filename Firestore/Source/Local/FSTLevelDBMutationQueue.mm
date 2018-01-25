@@ -34,8 +34,8 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "Firestore/Port/ordered_code.h"
+#include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
