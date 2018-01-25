@@ -19,6 +19,7 @@
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
@@ -80,19 +81,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testPickSequenceNumberPercentileLevelDB {
   const int numTestCases = 5;
-  // 0 - number of queries to cache, 1 - number expected to be calculated as 10%
-  int testCases[numTestCases][2] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
+  struct Case {
+      // number of queries to cache
+      int queries;
+      // number expected to be calculated as 10%
+      int expected;
+  };
+  struct Case testCases[numTestCases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 
   for (int i = 0; i < numTestCases; i++) {
     // Fill the query cache.
-    FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
-    int numQueries = testCases[i][0];
-    int expectedTenthPercentile = testCases[i][1];
+    int numQueries = testCases[i].queries;
+    int expectedTenthPercentile = testCases[i].expected;
     FSTLevelDB *persistence = [FSTPersistenceTestHelpers levelDBPersistence];
+    FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
     FSTMemoryQueryCache *queryCache = [persistence queryCache];
     for (int j = 0; j < numQueries; j++) {
       [queryCache addQueryData:[self nextTestQuery] group:group];
     }
+    [persistence commitGroup:group];
 
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTListenSequenceNumber tenth = [gc queryCountForPercentile:10];
@@ -102,22 +109,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testPickSequenceNumberPercentile {
   const int numTestCases = 5;
-  // 0 - number of queries to cache, 1 - number expected to be calculated as 10%
   struct Case {
+    // number of queries to cache
     int queries;
+    // number expected to be calculated as 10%
     int expected;
   };
   struct Case testCases[numTestCases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 
   for (int i = 0; i < numTestCases; i++) {
     // Fill the query cache.
-    FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
     int numQueries = testCases[i].queries;
     int expectedTenthPercentile = testCases[i].expected;
-    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    FSTMemoryPersistence *persistence = [FSTPersistenceTestHelpers memoryPersistence];
+    FSTWriteGroup *group = [persistence startGroupWithAction:@"Ignored"];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
     for (int j = 0; j < numQueries; j++) {
       [queryCache addQueryData:[self nextTestQuery] group:group];
     }
+    [persistence commitGroup:group];
 
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTListenSequenceNumber tenth = [gc queryCountForPercentile:10];

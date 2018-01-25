@@ -609,6 +609,13 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
++ (std::string)maxKey {
+  std::string result;
+  WriteTableName(&result, kTargetsTable);
+  WriteTerminator(&result);
+  return result;
+}
+
 + (std::string)keyWithTargetID:(FSTTargetID)targetID {
   std::string result;
   WriteTableName(&result, kTargetsTable);

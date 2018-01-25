@@ -263,7 +263,17 @@ using leveldb::WriteOptions;
 }
 
 - (NSUInteger)count {
+  // It seems that the only wait to get the size of a range of keys is to count.
+  std::unique_ptr<Iterator> it(_db->NewIterator(GetStandardReadOptions()));
+  Slice start_key = [FSTLevelDBTargetKey keyPrefix];
+  it->Seek(start_key);
 
+  NSUInteger count = 0;
+  while (it->Valid() && it->key().starts_with(start_key)) {
+    count++;
+    it->Next();
+  }
+  return count;
 }
 
 #pragma mark Matching Key tracking
