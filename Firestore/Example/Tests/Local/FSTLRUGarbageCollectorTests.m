@@ -79,8 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
   const int numTestCases = 5;
   // 0 - number of queries to cache, 1 - number expected to be calculated as 10%
   struct Case {
-      int queries;
-      int expected;
+    int queries;
+    int expected;
   };
   struct Case testCases[numTestCases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 

@@ -9,8 +9,8 @@ const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
 class RollingSequenceNumberBuffer {
  public:
-  RollingSequenceNumberBuffer(NSUInteger max_elements) : max_elements_(max_elements),
-                                                         queue_(std::priority_queue<FSTListenSequenceNumber>()) {
+  RollingSequenceNumberBuffer(NSUInteger max_elements)
+      : max_elements_(max_elements), queue_(std::priority_queue<FSTListenSequenceNumber>()) {
   }
 
   RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer &other) = delete;
