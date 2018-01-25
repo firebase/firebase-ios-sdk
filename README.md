@@ -31,7 +31,7 @@ locations described via the Podfile syntax documented
 
 **CocoaPods 1.4.0** or later is required.
 
-If source pods are included, FirebaseCore must also be included.
+If source pods are included, **FirebaseCore** must also be included.
 
 For example, to access FirebaseMessaging via a checked out version of the
 firebase-ios-sdk repo do:
