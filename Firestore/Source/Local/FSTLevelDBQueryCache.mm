@@ -262,6 +262,10 @@ using leveldb::WriteOptions;
   return nil;
 }
 
+- (NSUInteger)count {
+
+}
+
 #pragma mark Matching Key tracking
 
 - (void)addMatchingKeys:(FSTDocumentKeySet *)keys

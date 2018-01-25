@@ -16,7 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
@@ -26,6 +28,7 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
@@ -73,6 +76,28 @@ NS_ASSUME_NONNULL_BEGIN
                                    key:key
                                version:FSTTestVersion(version)
                      hasLocalMutations:hasMutations];
+}
+
+- (void)testPickSequenceNumberPercentileLevelDB {
+  const int numTestCases = 5;
+  // 0 - number of queries to cache, 1 - number expected to be calculated as 10%
+  int testCases[numTestCases][2] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
+
+  for (int i = 0; i < numTestCases; i++) {
+    // Fill the query cache.
+    FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
+    int numQueries = testCases[i][0];
+    int expectedTenthPercentile = testCases[i][1];
+    FSTLevelDB *persistence = [FSTPersistenceTestHelpers levelDBPersistence];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    for (int j = 0; j < numQueries; j++) {
+      [queryCache addQueryData:[self nextTestQuery] group:group];
+    }
+
+    FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
+    FSTListenSequenceNumber tenth = [gc queryCountForPercentile:10];
+    XCTAssertEqual(expectedTenthPercentile, tenth, @"Total query count: %i", numQueries);
+  }
 }
 
 - (void)testPickSequenceNumberPercentile {
