@@ -113,6 +113,8 @@ cc_library(
     firebase_assert.h
     log.h
     secure_random.h
+    string_util.cc
+    string_util.h
   DEPENDS
     ${UTIL_DEPENDS}
     firebase_firestore_util_base

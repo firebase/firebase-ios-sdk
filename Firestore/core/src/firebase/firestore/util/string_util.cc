@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "Firestore/Port/string_util.h"
+#include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
-#include <leveldb/db.h>
+namespace firebase {
+namespace firestore {
+namespace util {
 
-namespace Firestore {
-
-std::string PrefixSuccessor(leveldb::Slice prefix) {
+std::string PrefixSuccessor(absl::string_view prefix) {
   // We can increment the last character in the string and be done
   // unless that character is 255 (0xff), in which case we have to erase the
   // last character and increment the previous character, unless that
   // is 255, etc. If the string is empty or consists entirely of
   // 255's, we just return the empty string.
-  std::string limit(prefix.data(), prefix.size());
+  std::string limit(prefix);
   while (!limit.empty()) {
     size_t index = limit.length() - 1;
     if (limit[index] == '\xff') {  // char literal avoids signed/unsigned.
@@ -39,7 +39,7 @@ std::string PrefixSuccessor(leveldb::Slice prefix) {
   return limit;
 }
 
-std::string ImmediateSuccessor(leveldb::Slice s) {
+std::string ImmediateSuccessor(absl::string_view s) {
   // Return the input string, with an additional NUL byte appended.
   std::string out;
   out.reserve(s.size() + 1);
@@ -48,4 +48,6 @@ std::string ImmediateSuccessor(leveldb::Slice s) {
   return out;
 }
 
-}  // namespace Firestore
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
