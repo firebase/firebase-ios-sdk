@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Public types to be used both internally and externally.
 cc_library(
-  firebase_firestore_model
+  firebase_firestore_types
   SOURCES
-    field_value.cc
-    timestamp.cc
+    geo_point.cc
   DEPENDS
     firebase_firestore_util
-    firebase_firestore_types
 )
