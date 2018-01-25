@@ -1,4 +1,5 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
+
 #import <queue>
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
@@ -6,12 +7,10 @@
 
 const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
-using std::priority_queue;
-
 class RollingSequenceNumberBuffer {
  public:
-  RollingSequenceNumberBuffer(NSUInteger max_elements) : max_elements_(max_elements) {
-    queue_ = std::make_unique<priority_queue<FSTListenSequenceNumber> >();
+  RollingSequenceNumberBuffer(NSUInteger max_elements) : max_elements_(max_elements),
+                                                         queue_(std::priority_queue<FSTListenSequenceNumber>()) {
   }
 
   RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer &other) = delete;
@@ -21,27 +20,27 @@ class RollingSequenceNumberBuffer {
   RollingSequenceNumberBuffer &operator=(RollingSequenceNumberBuffer &other) = delete;
 
   void AddElement(FSTListenSequenceNumber sequence_number) {
-    if (queue_->size() < max_elements_) {
-      queue_->push(sequence_number);
+    if (queue_.size() < max_elements_) {
+      queue_.push(sequence_number);
     } else {
-      FSTListenSequenceNumber highestValue = queue_->top();
+      FSTListenSequenceNumber highestValue = queue_.top();
       if (sequence_number < highestValue) {
-        queue_->pop();
-        queue_->push(sequence_number);
+        queue_.pop();
+        queue_.push(sequence_number);
       }
     }
   }
 
   FSTListenSequenceNumber max_value() const {
-    return queue_->top();
+    return queue_.top();
   }
 
   std::size_t size() const {
-    return queue_->size();
+    return queue_.size();
   }
 
  private:
-  std::unique_ptr<priority_queue<FSTListenSequenceNumber> > queue_;
+  std::priority_queue<FSTListenSequenceNumber> queue_;
   const NSUInteger max_elements_;
 };
 

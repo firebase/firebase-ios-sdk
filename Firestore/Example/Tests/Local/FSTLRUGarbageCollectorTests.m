@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
@@ -77,13 +78,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testPickSequenceNumberPercentile {
   const int numTestCases = 5;
   // 0 - number of queries to cache, 1 - number expected to be calculated as 10%
-  int testCases[numTestCases][2] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
+  struct Case {
+      int queries;
+      int expected;
+  };
+  struct Case testCases[numTestCases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
 
   for (int i = 0; i < numTestCases; i++) {
     // Fill the query cache.
     FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
-    int numQueries = testCases[i][0];
-    int expectedTenthPercentile = testCases[i][1];
+    int numQueries = testCases[i].queries;
+    int expectedTenthPercentile = testCases[i].expected;
     FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
     for (int j = 0; j < numQueries; j++) {
       [queryCache addQueryData:[self nextTestQuery] group:group];
