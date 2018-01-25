@@ -37,6 +37,9 @@ enum class TargetIdGeneratorId { LocalStore = 0, SyncEngine = 1 };
  */
 class TargetIdGenerator {
  public:
+  // Makes Objective-C++ code happy to provide a default ctor.
+  TargetIdGenerator() = default;
+
   TargetIdGenerator(const TargetIdGenerator& value);
 
   /**

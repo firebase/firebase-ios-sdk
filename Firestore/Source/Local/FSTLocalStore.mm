@@ -20,7 +20,6 @@
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTargetIDGenerator.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
@@ -41,6 +40,8 @@
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,9 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Maps a targetID to data about its query. */
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, FSTQueryData *> *targetIDs;
 
-/** Used to generate targetIDs for queries tracked locally. */
-@property(nonatomic, strong) FSTTargetIDGenerator *targetIDGenerator;
-
 @property(nonatomic, strong) FSTListenSequence *listenSequence;
 
 /**
@@ -92,7 +90,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTLocalStore
+@implementation FSTLocalStore {
+  /** Used to generate targetIDs for queries tracked locally. */
+  firebase::firestore::core::TargetIdGenerator _targetIDGenerator;
+}
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector
@@ -113,6 +114,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     _targetIDs = [NSMutableDictionary dictionary];
     _heldBatchResults = [NSMutableArray array];
+
+    _targetIDGenerator =
+        firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(0);
   }
   return self;
 }
@@ -150,7 +154,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queryCache start];
 
   FSTTargetID targetID = [self.queryCache highestTargetID];
-  self.targetIDGenerator = [FSTTargetIDGenerator generatorForLocalStoreStartingAfterID:targetID];
+  _targetIDGenerator =
+      firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
   FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
   self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
@@ -393,7 +398,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Allocate query"];
 
-    targetID = [self.targetIDGenerator nextID];
+    targetID = _targetIDGenerator.NextId();
     cached = [[FSTQueryData alloc] initWithQuery:query
                                         targetID:targetID
                             listenSequenceNumber:sequenceNumber
