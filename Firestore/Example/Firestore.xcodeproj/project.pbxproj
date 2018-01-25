@@ -65,6 +65,7 @@
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB356EF6200EA5EB0089B766 /* field_value_test.cc */; };
+		AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380CF82019382300D97691 /* target_id_generator_test.cc */; };
 		AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380CFC201A2EE200D97691 /* string_util_test.cc */; };
 		AB382F7C1FE02A1F007CA955 /* FIRDocumentReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB382F7B1FE02A1F007CA955 /* FIRDocumentReferenceTests.m */; };
 		AB382F7E1FE03059007CA955 /* FIRFieldPathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB382F7D1FE03059007CA955 /* FIRFieldPathTests.m */; };
@@ -249,6 +250,7 @@
 		9D52E67EE96AA7E5D6F69748 /* Pods-Firestore_IntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests/Pods-Firestore_IntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
 		9EF477AD4B2B643FD320867A /* Pods-Firestore_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example/Pods-Firestore_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		AB356EF6200EA5EB0089B766 /* field_value_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = field_value_test.cc; sourceTree = "<group>"; };
+		AB380CF82019382300D97691 /* target_id_generator_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = target_id_generator_test.cc; sourceTree = "<group>"; };
 		AB380CFC201A2EE200D97691 /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_util_test.cc; path = ../../core/test/firebase/firestore/util/string_util_test.cc; sourceTree = "<group>"; };
 		AB382F7B1FE02A1F007CA955 /* FIRDocumentReferenceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDocumentReferenceTests.m; sourceTree = "<group>"; };
 		AB382F7D1FE03059007CA955 /* FIRFieldPathTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRFieldPathTests.m; sourceTree = "<group>"; };
@@ -416,6 +418,7 @@
 		54764FAC1FAA0C390085E60A /* GoogleTests */ = {
 			isa = PBXGroup;
 			children = (
+				AB380CF7201937B800D97691 /* core */,
 				AB356EF5200E9D1A0089B766 /* model */,
 				54764FAD1FAA0C650085E60A /* Port */,
 				54740A561FC913EB00713A1A /* util */,
@@ -557,6 +560,15 @@
 			);
 			name = model;
 			path = ../../core/test/firebase/firestore/model;
+			sourceTree = "<group>";
+		};
+		AB380CF7201937B800D97691 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				AB380CF82019382300D97691 /* target_id_generator_test.cc */,
+			);
+			name = core;
+			path = ../../core/test/firebase/firestore/core;
 			sourceTree = "<group>";
 		};
 		DE0761E51F2FE611003233AF /* SwiftBuildTest */ = {
@@ -1227,6 +1239,7 @@
 				DE51B1EB1F0D490D0013853F /* FSTWriteGroupTests.mm in Sources */,
 				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
 				DE51B2011F0D493E0013853F /* FSTHelpers.m in Sources */,
+				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
 				DE51B1F61F0D491B0013853F /* FSTSerializerBetaTests.m in Sources */,
 				DE51B1F01F0D49140013853F /* FSTFieldValueTests.m in Sources */,
 				AB9945281FE2DE0C00DFC1E6 /* FIRSnapshotMetadataTests.m in Sources */,

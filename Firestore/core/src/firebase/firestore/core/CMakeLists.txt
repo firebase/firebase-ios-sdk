@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,14 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(src/firebase/firestore)
-add_subdirectory(src/firebase/firestore/core)
-add_subdirectory(src/firebase/firestore/model)
-add_subdirectory(src/firebase/firestore/remote)
-add_subdirectory(src/firebase/firestore/util)
-
-add_subdirectory(test/firebase/firestore)
-add_subdirectory(test/firebase/firestore/core)
-add_subdirectory(test/firebase/firestore/model)
-add_subdirectory(test/firebase/firestore/remote)
-add_subdirectory(test/firebase/firestore/util)
+cc_library(
+  firebase_firestore_core
+  SOURCES
+    target_id_generator.cc
+    target_id_generator.h
+)
