@@ -1,4 +1,6 @@
-# v4.0.14 -- M21.1
+# Unreleased
+
+# 2018-01-18 -- v4.0.14 -- M21.1
 - [changed] Removed AppKit dependency for community macOS build.
 
 # 2017-11-30 -- v4.0.12 -- M20.2
