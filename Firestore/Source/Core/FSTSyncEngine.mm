@@ -143,7 +143,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         *mutationCompletionBlocks;
 
 /** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
-@property(nonatomic, assign, readonly) firebase::firestore::core::TargetIdGenerator *targetIdGenerator;
+@property(nonatomic, assign, readonly)
+    firebase::firestore::core::TargetIdGenerator *targetIdGenerator;
 
 @property(nonatomic, strong) FSTUser *currentUser;
 
@@ -168,7 +169,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     [_limboCollector addGarbageSource:_limboDocumentRefs];
 
     _mutationCompletionBlocks = [NSMutableDictionary dictionary];
-    _targetIdGenerator = new firebase::firestore::core::TargetIdGenerator(firebase::firestore::core::TargetIdGenerator::SyncEngineTargetIdGenerator(0));
+    _targetIdGenerator = new firebase::firestore::core::TargetIdGenerator(
+        firebase::firestore::core::TargetIdGenerator::SyncEngineTargetIdGenerator(0));
     _currentUser = initialUser;
   }
   return self;

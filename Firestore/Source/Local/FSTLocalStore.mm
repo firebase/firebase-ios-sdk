@@ -115,15 +115,16 @@ NS_ASSUME_NONNULL_BEGIN
     _targetIDs = [NSMutableDictionary dictionary];
     _heldBatchResults = [NSMutableArray array];
 
-    _targetIDGenerator = new firebase::firestore::core::TargetIdGenerator(firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(0));
+    _targetIDGenerator = new firebase::firestore::core::TargetIdGenerator(
+        firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(0));
   }
   return self;
 }
 
 - (void)dealloc {
-    // C++ object is not managed by the Objective-C reference-counting and thus need
-    // to deallocate manually.
-    delete _targetIDGenerator;
+  // C++ object is not managed by the Objective-C reference-counting and thus need
+  // to deallocate manually.
+  delete _targetIDGenerator;
 }
 
 - (void)start {
@@ -160,7 +161,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTTargetID targetID = [self.queryCache highestTargetID];
   delete self.targetIDGenerator;
-  self.targetIDGenerator = new firebase::firestore::core::TargetIdGenerator(firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(targetID));
+  self.targetIDGenerator = new firebase::firestore::core::TargetIdGenerator(
+      firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(targetID));
   FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
   self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
