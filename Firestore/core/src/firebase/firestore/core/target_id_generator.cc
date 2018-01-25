@@ -16,16 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
-#include <stdio.h>
-#include <atomic>
-
 namespace firebase {
 namespace firestore {
 namespace core {
 
 TargetIdGenerator::TargetIdGenerator(const TargetIdGenerator& value)
-    : generator_id_(value.generator_id_),
-      previous_id_(value.previous_id_.load()) {
+    : generator_id_(value.generator_id_), previous_id_(value.previous_id_) {
 }
 
 TargetIdGenerator::TargetIdGenerator(TargetIdGeneratorId generator_id,
@@ -57,10 +53,8 @@ TargetIdGenerator::TargetIdGenerator(TargetIdGeneratorId generator_id,
 }
 
 TargetId TargetIdGenerator::NextId() {
-  TargetId increment = 1 << kReservedBits;
-  // This guarantees previous_id_ is incremented atomically and the return
-  // result is the result of the increment.
-  return previous_id_.fetch_add(increment) + increment;
+  previous_id_ += 1 << kReservedBits;
+  return previous_id_;
 }
 
 }  // namespace core

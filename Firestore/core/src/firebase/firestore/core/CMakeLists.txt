@@ -16,4 +16,5 @@ cc_library(
   firebase_firestore_core
   SOURCES
     target_id_generator.cc
+    target_id_generator.h
 )

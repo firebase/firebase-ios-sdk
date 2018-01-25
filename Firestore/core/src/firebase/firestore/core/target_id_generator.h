@@ -19,8 +19,6 @@
 
 #include "Firestore/core/src/firebase/firestore/core/types.h"
 
-#include <atomic>
-
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -34,6 +32,8 @@ enum class TargetIdGeneratorId { LocalStore = 0, SyncEngine = 1 };
  * each other, they are scoped, such that no two generators will ever produce
  * the same ID. This is useful, because sometimes the backend may group IDs from
  * separate parts of the client into the same ID space.
+ *
+ * Not thread-safe.
  */
 class TargetIdGenerator {
  public:
@@ -43,7 +43,7 @@ class TargetIdGenerator {
    * Creates and returns the TargetIdGenerator for the local store.
    *
    * @param after An ID to start at. Every call to NextId returns a larger id.
-   * @return A shared instance of TargetIdGenerator.
+   * @return An instance of TargetIdGenerator.
    */
   static TargetIdGenerator LocalStoreTargetIdGenerator(TargetId after) {
     return TargetIdGenerator(TargetIdGeneratorId::LocalStore, after);
@@ -53,7 +53,7 @@ class TargetIdGenerator {
    * Creates and returns the TargetIdGenerator for the sync engine.
    *
    * @param after An ID to start at. Every call to NextId returns a larger id.
-   * @return A shared instance of TargetIdGenerator.
+   * @return An instance of TargetIdGenerator.
    */
   static TargetIdGenerator SyncEngineTargetIdGenerator(TargetId after) {
     return TargetIdGenerator(TargetIdGeneratorId::SyncEngine, after);
@@ -68,7 +68,7 @@ class TargetIdGenerator {
  private:
   TargetIdGenerator(TargetIdGeneratorId generator_id, TargetId after);
   TargetIdGeneratorId generator_id_;
-  std::atomic<TargetId> previous_id_;
+  TargetId previous_id_;
 
   static const int kReservedBits = 1;
 };
