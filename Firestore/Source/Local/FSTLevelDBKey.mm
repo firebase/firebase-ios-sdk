@@ -19,14 +19,12 @@
 #include <string>
 
 #include "Firestore/Port/ordered_code.h"
-#include "Firestore/Port/string_util.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using Firestore::OrderedCode;
-using Firestore::PrefixSuccessor;
 using Firestore::StringView;
 using leveldb::Slice;
 
