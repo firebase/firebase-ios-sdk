@@ -111,7 +111,6 @@
 		DE51B1CE1F0D48CD0013853F /* FSTEventManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1AA1F0D48AC0013853F /* FSTEventManagerTests.m */; };
 		DE51B1CF1F0D48CD0013853F /* FSTQueryListenerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1AB1F0D48AC0013853F /* FSTQueryListenerTests.m */; };
 		DE51B1D01F0D48CD0013853F /* FSTQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1AC1F0D48AC0013853F /* FSTQueryTests.m */; };
-		DE51B1D11F0D48CD0013853F /* FSTTargetIDGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1AE1F0D48AC0013853F /* FSTTargetIDGeneratorTests.m */; };
 		DE51B1D21F0D48CD0013853F /* FSTTimestampTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1AF1F0D48AC0013853F /* FSTTimestampTests.m */; };
 		DE51B1D31F0D48CD0013853F /* FSTViewSnapshotTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1B01F0D48AC0013853F /* FSTViewSnapshotTest.m */; };
 		DE51B1D41F0D48CD0013853F /* FSTViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE51B1B11F0D48AC0013853F /* FSTViewTests.m */; };
@@ -331,7 +330,6 @@
 		DE51B1AB1F0D48AC0013853F /* FSTQueryListenerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTQueryListenerTests.m; sourceTree = "<group>"; };
 		DE51B1AC1F0D48AC0013853F /* FSTQueryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTQueryTests.m; sourceTree = "<group>"; };
 		DE51B1AD1F0D48AC0013853F /* FSTSyncEngine+Testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FSTSyncEngine+Testing.h"; sourceTree = "<group>"; };
-		DE51B1AE1F0D48AC0013853F /* FSTTargetIDGeneratorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTTargetIDGeneratorTests.m; sourceTree = "<group>"; };
 		DE51B1AF1F0D48AC0013853F /* FSTTimestampTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTTimestampTests.m; sourceTree = "<group>"; };
 		DE51B1B01F0D48AC0013853F /* FSTViewSnapshotTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTViewSnapshotTest.m; sourceTree = "<group>"; };
 		DE51B1B11F0D48AC0013853F /* FSTViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSTViewTests.m; sourceTree = "<group>"; };
@@ -718,7 +716,6 @@
 				DE51B1AA1F0D48AC0013853F /* FSTEventManagerTests.m */,
 				DE51B1AB1F0D48AC0013853F /* FSTQueryListenerTests.m */,
 				DE51B1AC1F0D48AC0013853F /* FSTQueryTests.m */,
-				DE51B1AE1F0D48AC0013853F /* FSTTargetIDGeneratorTests.m */,
 				DE51B1AF1F0D48AC0013853F /* FSTTimestampTests.m */,
 				DE51B1B01F0D48AC0013853F /* FSTViewSnapshotTest.m */,
 				DE51B1B11F0D48AC0013853F /* FSTViewTests.m */,
@@ -1253,7 +1250,6 @@
 				DE51B1F41F0D491B0013853F /* FSTRemoteEventTests.m in Sources */,
 				548DB927200D590300E00ABC /* assert_test.cc in Sources */,
 				54E928241F33953300C1953E /* FSTEventAccumulator.m in Sources */,
-				DE51B1D11F0D48CD0013853F /* FSTTargetIDGeneratorTests.m in Sources */,
 				5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */,
 				DE51B1EF1F0D49140013853F /* FSTDocumentTests.m in Sources */,
 				DE51B1DC1F0D490D0013853F /* FSTLocalSerializerTests.m in Sources */,

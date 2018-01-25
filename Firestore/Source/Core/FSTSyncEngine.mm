@@ -22,7 +22,6 @@
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTargetIDGenerator.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
@@ -40,6 +39,8 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -142,7 +143,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         *mutationCompletionBlocks;
 
 /** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
-@property(nonatomic, strong, readonly) FSTTargetIDGenerator *targetIdGenerator;
+@property(nonatomic, assign, readonly) firebase::firestore::core::TargetIdGenerator *targetIdGenerator;
 
 @property(nonatomic, strong) FSTUser *currentUser;
 
@@ -167,10 +168,16 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     [_limboCollector addGarbageSource:_limboDocumentRefs];
 
     _mutationCompletionBlocks = [NSMutableDictionary dictionary];
-    _targetIdGenerator = [FSTTargetIDGenerator generatorForSyncEngineStartingAfterID:0];
+    _targetIdGenerator = new firebase::firestore::core::TargetIdGenerator(firebase::firestore::core::TargetIdGenerator::SyncEngineTargetIdGenerator(0));
     _currentUser = initialUser;
   }
   return self;
+}
+
+- (void)dealloc {
+  // C++ object is not managed by the Objective-C reference-counting and thus need
+  // to deallocate manually.
+  delete _targetIdGenerator;
 }
 
 - (FSTTargetID)listenToQuery:(FSTQuery *)query {
@@ -490,7 +497,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
   if (!self.limboTargetsByKey[key]) {
     FSTLog(@"New document in limbo: %@", key);
-    FSTTargetID limboTargetID = [self.targetIdGenerator nextID];
+    FSTTargetID limboTargetID = self.targetIdGenerator->NextId();
     FSTQuery *query = [FSTQuery queryWithPath:key.path];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
