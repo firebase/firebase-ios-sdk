@@ -17,12 +17,26 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
+#include <stdint.h>
+
+#include <map>
 #include <memory>
+#include <string>
 #include <vector>
+
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
+#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
+
+struct ServerTimestamp {
+  Timestamp local_write_time;
+  Timestamp previous_value;
+  // TODO(zxu123): adopt absl::optional once abseil is ported.
+  bool has_previous_value_;
+};
 
 /**
  * tagged-union class representing an immutable data value as stored in
@@ -78,8 +92,25 @@ class FieldValue {
   static const FieldValue& TrueValue();
   static const FieldValue& FalseValue();
   static const FieldValue& BooleanValue(bool value);
+  static const FieldValue& NanValue();
+  static FieldValue IntegerValue(int64_t value);
+  static FieldValue DoubleValue(double value);
+  static FieldValue TimestampValue(const Timestamp& value);
+  static FieldValue ServerTimestampValue(const Timestamp& local_write_time,
+                                         const Timestamp& previous_value);
+  static FieldValue ServerTimestampValue(const Timestamp& local_write_time);
+  static FieldValue StringValue(const char* value);
+  static FieldValue StringValue(const std::string& value);
+  static FieldValue StringValue(std::string&& value);
+  static FieldValue BlobValue(const uint8_t* source, size_t size);
+  // static FieldValue ReferenceValue();
+  static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
   static FieldValue ArrayValue(std::vector<const FieldValue>&& value);
+  static FieldValue ObjectValue(
+      const std::map<const std::string, const FieldValue>& value);
+  static FieldValue ObjectValue(
+      std::map<const std::string, const FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -96,7 +127,15 @@ class FieldValue {
   union {
     // There is no null type as tag_ alone is enough for Null FieldValue.
     bool boolean_value_;
+    int64_t integer_value_;
+    double double_value_;
+    Timestamp timestamp_value_;
+    ServerTimestamp server_timestamp_value_;
+    std::string string_value_;
+    std::vector<const uint8_t> blob_value_;
+    GeoPoint geo_point_value_;
     std::vector<const FieldValue> array_value_;
+    std::map<const std::string, const FieldValue> object_value_;
   };
 };
 

@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
-  firebase_firestore_model
+cc_test(
+  firebase_firestore_types_test
   SOURCES
-    field_value.cc
-    timestamp.cc
+    geo_point_test.cc
   DEPENDS
-    firebase_firestore_util
     firebase_firestore_types
 )

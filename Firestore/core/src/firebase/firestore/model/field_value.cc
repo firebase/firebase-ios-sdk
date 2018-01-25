@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#include <math.h>
+
 #include <algorithm>
 #include <memory>
 #include <utility>
@@ -31,6 +33,7 @@ namespace firestore {
 namespace model {
 
 using Type = FieldValue::Type;
+using firebase::firestore::util::ComparisonResult;
 
 namespace {
 /**
@@ -75,10 +78,40 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::Boolean:
       boolean_value_ = value.boolean_value_;
       break;
+    case Type::Long:
+      integer_value_ = value.integer_value_;
+      break;
+    case Type::Double:
+      double_value_ = value.double_value_;
+      break;
+    case Type::Timestamp:
+      timestamp_value_ = value.timestamp_value_;
+      break;
+    case Type::ServerTimestamp:
+      server_timestamp_value_ = value.server_timestamp_value_;
+      break;
+    case Type::String:
+      string_value_ = value.string_value_;
+      break;
+    case Type::Blob: {
+      // copy-and-swap
+      std::vector<const uint8_t> tmp = value.blob_value_;
+      std::swap(blob_value_, tmp);
+      break;
+    }
+    case Type::GeoPoint:
+      geo_point_value_ = value.geo_point_value_;
+      break;
     case Type::Array: {
       // copy-and-swap
       std::vector<const FieldValue> tmp = value.array_value_;
       std::swap(array_value_, tmp);
+      break;
+    }
+    case Type::Object: {
+      // copy-and-swap
+      std::map<const std::string, const FieldValue> tmp = value.object_value_;
+      std::swap(object_value_, tmp);
       break;
     }
     default:
@@ -90,9 +123,21 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
 
 FieldValue& FieldValue::operator=(FieldValue&& value) {
   switch (value.tag_) {
+    case Type::String:
+      SwitchTo(Type::String);
+      string_value_.swap(value.string_value_);
+      return *this;
+    case Type::Blob:
+      SwitchTo(Type::Blob);
+      std::swap(blob_value_, value.blob_value_);
+      return *this;
     case Type::Array:
       SwitchTo(Type::Array);
       std::swap(array_value_, value.array_value_);
+      return *this;
+    case Type::Object:
+      SwitchTo(Type::Object);
+      std::swap(object_value_, value.object_value_);
       return *this;
     default:
       // We just copy over POD union types.
@@ -119,6 +164,82 @@ const FieldValue& FieldValue::BooleanValue(bool value) {
   return value ? TrueValue() : FalseValue();
 }
 
+const FieldValue& FieldValue::NanValue() {
+  static const FieldValue kNanInstance = FieldValue::DoubleValue(NAN);
+  return kNanInstance;
+}
+
+FieldValue FieldValue::IntegerValue(int64_t value) {
+  FieldValue result;
+  result.SwitchTo(Type::Long);
+  result.integer_value_ = value;
+  return result;
+}
+
+FieldValue FieldValue::DoubleValue(double value) {
+  FieldValue result;
+  result.SwitchTo(Type::Double);
+  result.double_value_ = value;
+  return result;
+}
+
+FieldValue FieldValue::TimestampValue(const Timestamp& value) {
+  FieldValue result;
+  result.SwitchTo(Type::Timestamp);
+  result.timestamp_value_ = value;
+  return result;
+}
+
+FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
+                                            const Timestamp& previous_value) {
+  FieldValue result;
+  result.SwitchTo(Type::ServerTimestamp);
+  result.server_timestamp_value_.local_write_time = local_write_time;
+  result.server_timestamp_value_.previous_value = previous_value;
+  result.server_timestamp_value_.has_previous_value_ = true;
+  return result;
+}
+
+FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time) {
+  FieldValue result;
+  result.SwitchTo(Type::ServerTimestamp);
+  result.server_timestamp_value_.local_write_time = local_write_time;
+  result.server_timestamp_value_.has_previous_value_ = false;
+  return result;
+}
+
+FieldValue FieldValue::StringValue(const char* value) {
+  std::string copy(value);
+  return StringValue(std::move(copy));
+}
+
+FieldValue FieldValue::StringValue(const std::string& value) {
+  std::string copy(value);
+  return StringValue(std::move(copy));
+}
+
+FieldValue FieldValue::StringValue(std::string&& value) {
+  FieldValue result;
+  result.SwitchTo(Type::String);
+  result.string_value_.swap(value);
+  return result;
+}
+
+FieldValue FieldValue::BlobValue(const uint8_t* source, size_t size) {
+  FieldValue result;
+  result.SwitchTo(Type::Blob);
+  std::vector<const uint8_t> copy(source, source + size);
+  std::swap(result.blob_value_, copy);
+  return result;
+}
+
+FieldValue FieldValue::GeoPointValue(const GeoPoint& value) {
+  FieldValue result;
+  result.SwitchTo(Type::GeoPoint);
+  result.geo_point_value_ = value;
+  return result;
+}
+
 FieldValue FieldValue::ArrayValue(const std::vector<const FieldValue>& value) {
   std::vector<const FieldValue> copy(value);
   return ArrayValue(std::move(copy));
@@ -128,6 +249,20 @@ FieldValue FieldValue::ArrayValue(std::vector<const FieldValue>&& value) {
   FieldValue result;
   result.SwitchTo(Type::Array);
   std::swap(result.array_value_, value);
+  return result;
+}
+
+FieldValue FieldValue::ObjectValue(
+    const std::map<const std::string, const FieldValue>& value) {
+  std::map<const std::string, const FieldValue> copy(value);
+  return ObjectValue(std::move(copy));
+}
+
+FieldValue FieldValue::ObjectValue(
+    std::map<const std::string, const FieldValue>&& value) {
+  FieldValue result;
+  result.SwitchTo(Type::Object);
+  std::swap(result.object_value_, value);
   return result;
 }
 
@@ -141,8 +276,45 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return false;
     case Type::Boolean:
       return Comparator<bool>()(lhs.boolean_value_, rhs.boolean_value_);
+    case Type::Long:
+      if (rhs.type() == Type::Long) {
+        return Comparator<int64_t>()(lhs.integer_value_, rhs.integer_value_);
+      } else {
+        return util::CompareMixedNumber(rhs.double_value_,
+                                        lhs.integer_value_) ==
+               ComparisonResult::Descending;
+      }
+    case Type::Double:
+      if (rhs.type() == Type::Double) {
+        return Comparator<double>()(lhs.double_value_, rhs.double_value_);
+      } else {
+        return util::CompareMixedNumber(lhs.double_value_,
+                                        rhs.integer_value_) ==
+               ComparisonResult::Ascending;
+      }
+    case Type::Timestamp:
+      if (rhs.type() == Type::Timestamp) {
+        return lhs.timestamp_value_ < rhs.timestamp_value_;
+      } else {
+        return true;
+      }
+    case Type::ServerTimestamp:
+      if (rhs.type() == Type::ServerTimestamp) {
+        return lhs.server_timestamp_value_.local_write_time <
+               rhs.server_timestamp_value_.local_write_time;
+      } else {
+        return false;
+      }
+    case Type::String:
+      return lhs.string_value_.compare(rhs.string_value_) < 0;
+    case Type::Blob:
+      return lhs.blob_value_ < rhs.blob_value_;
+    case Type::GeoPoint:
+      return lhs.geo_point_value_ < rhs.geo_point_value_;
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
+    case Type::Object:
+      return lhs.object_value_ < rhs.object_value_;
     default:
       FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
           false, lhs.type(), "Unsupported type %d", lhs.type());
@@ -159,16 +331,53 @@ void FieldValue::SwitchTo(const Type type) {
   // Not same type. Destruct old type first and then initialize new type.
   // Must call destructor explicitly for any non-POD type.
   switch (tag_) {
+    case Type::Timestamp:
+      timestamp_value_.~Timestamp();
+      break;
+    case Type::ServerTimestamp:
+      server_timestamp_value_.~ServerTimestamp();
+      break;
+    case Type::String:
+      string_value_.~basic_string();
+      break;
+    case Type::Blob:
+      blob_value_.~vector();
+      break;
+    case Type::GeoPoint:
+      geo_point_value_.~GeoPoint();
+      break;
     case Type::Array:
       array_value_.~vector();
+      break;
+    case Type::Object:
+      object_value_.~map();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
   switch (tag_) {
+    case Type::Timestamp:
+      new (&timestamp_value_) Timestamp(0, 0);
+      break;
+    case Type::ServerTimestamp:
+      new (&server_timestamp_value_) ServerTimestamp();
+      break;
+    case Type::String:
+      new (&string_value_) std::string();
+      break;
+    case Type::Blob:
+      // Do not even bother to allocate a new array of size 0.
+      new (&blob_value_) std::vector<const uint8_t>();
+      break;
+    case Type::GeoPoint:
+      new (&geo_point_value_) GeoPoint();
+      break;
     case Type::Array:
       new (&array_value_) std::vector<const FieldValue>();
+      break;
+    case Type::Object:
+      new (&object_value_) std::map<const std::string, const FieldValue>();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
