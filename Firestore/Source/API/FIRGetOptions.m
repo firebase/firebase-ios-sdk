@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-+ (instancetype)source:(FIRGetSource)source {
++ (instancetype)optionsWithSource:(FIRGetSource)source {
   return [[FIRGetOptions alloc] initWithSource:source];
 }
 

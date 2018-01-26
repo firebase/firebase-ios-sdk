@@ -65,7 +65,7 @@ typedef NS_ENUM(NSUInteger, FIRGetSource) {
 /**
  * Initializes the get options with the specified source.
  */
-+ (instancetype)source:(FIRGetSource)source;
++ (instancetype)optionsWithSource:(FIRGetSource)source NS_SWIFT_NAME(source(source:));
 
 @end
 
