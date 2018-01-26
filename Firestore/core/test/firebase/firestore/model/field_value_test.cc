@@ -153,15 +153,14 @@ TEST(FieldValue, GeoPointType) {
 }
 
 TEST(FieldValue, ArrayType) {
-  const FieldValue empty =
-      FieldValue::ArrayValue(std::vector<FieldValue>{});
+  const FieldValue empty = FieldValue::ArrayValue(std::vector<FieldValue>{});
   std::vector<FieldValue> array{FieldValue::NullValue(),
                                 FieldValue::BooleanValue(true),
                                 FieldValue::BooleanValue(false)};
   // copy the array
   const FieldValue small = FieldValue::ArrayValue(array);
   std::vector<FieldValue> another_array{FieldValue::BooleanValue(true),
-                                              FieldValue::BooleanValue(false)};
+                                        FieldValue::BooleanValue(false)};
   // move the array
   const FieldValue large = FieldValue::ArrayValue(std::move(another_array));
   EXPECT_EQ(Type::Array, empty.type());
@@ -289,9 +288,8 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue array_value =
-      FieldValue::ArrayValue(std::vector<FieldValue>{
-          FieldValue::TrueValue(), FieldValue::FalseValue()});
+  const FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
+      FieldValue::TrueValue(), FieldValue::FalseValue()});
   clone = array_value;
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
