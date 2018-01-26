@@ -38,6 +38,7 @@ cc_test(
     autoid_test.cc
     bits_test.cc
     comparison_test.cc
+    ordered_code_test.cc
     string_printf_test.cc
     string_util_test.cc
   DEPENDS

@@ -127,7 +127,7 @@ inline static const char* SkipToNextSpecialByte(const char* start,
                                                 const char* limit) {
   // If these constants were ever changed, this routine needs to change
   FIREBASE_ASSERT(kEscape1 == 0);
-  FIREBASE_ASSERT((kEscape2 & '\0xff') == '\255');
+  FIREBASE_ASSERT((kEscape2 & 0xff) == 255);
   const char* p = start;
   while (p + 8 <= limit) {
     // Find out if any of the next 8 bytes are either 0 or 255 (our
