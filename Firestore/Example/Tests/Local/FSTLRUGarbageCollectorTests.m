@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
+
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -35,9 +37,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTLRUGarbageCollectorTests : XCTestCase
-@end
-
 @implementation FSTLRUGarbageCollectorTests {
   FSTListenSequenceNumber _previousSequenceNumber;
   FSTTargetID _previousTargetID;
@@ -52,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
   _previousTargetID = 500;
   _previousDocNum = 10;
   _testValue = FSTTestObjectValue(@{ @"baz" : @YES, @"ok" : @"fine" });
+}
+
+- (BOOL)isTestBaseClass {
+  return ([self class] == [FSTLRUGarbageCollectorTests class]);
 }
 
 - (FSTQueryData *)nextTestQuery {
@@ -79,7 +82,9 @@ NS_ASSUME_NONNULL_BEGIN
                      hasLocalMutations:hasMutations];
 }
 
-- (void)testPickSequenceNumberPercentileLevelDB {
+- (void)testPickSequenceNumberPercentile {
+  if ([self isTestBaseClass]) return;
+
   const int numTestCases = 5;
   struct Case {
       // number of queries to cache
@@ -93,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Fill the query cache.
     int numQueries = testCases[i].queries;
     int expectedTenthPercentile = testCases[i].expected;
-    FSTLevelDB *persistence = [FSTPersistenceTestHelpers levelDBPersistence];
+    id<FSTPersistence> persistence = [self newPersistence];
     FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
     FSTMemoryQueryCache *queryCache = [persistence queryCache];
     for (int j = 0; j < numQueries; j++) {
@@ -107,35 +112,9 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)testPickSequenceNumberPercentile {
-  const int numTestCases = 5;
-  struct Case {
-    // number of queries to cache
-    int queries;
-    // number expected to be calculated as 10%
-    int expected;
-  };
-  struct Case testCases[numTestCases] = {{0, 0}, {10, 1}, {9, 0}, {50, 5}, {49, 4}};
-
-  for (int i = 0; i < numTestCases; i++) {
-    // Fill the query cache.
-    int numQueries = testCases[i].queries;
-    int expectedTenthPercentile = testCases[i].expected;
-    FSTMemoryPersistence *persistence = [FSTPersistenceTestHelpers memoryPersistence];
-    FSTWriteGroup *group = [persistence startGroupWithAction:@"Ignored"];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
-    for (int j = 0; j < numQueries; j++) {
-      [queryCache addQueryData:[self nextTestQuery] group:group];
-    }
-    [persistence commitGroup:group];
-
-    FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
-    FSTListenSequenceNumber tenth = [gc queryCountForPercentile:10];
-    XCTAssertEqual(expectedTenthPercentile, tenth, @"Total query count: %i", numQueries);
-  }
-}
-
 - (void)testSequenceNumberForQueryCount {
+  if ([self isTestBaseClass]) return;
+
   // Sequence numbers in this test start at 1001 and are incremented by one.
 
   // No queries... should get invalid sequence number (-1)
