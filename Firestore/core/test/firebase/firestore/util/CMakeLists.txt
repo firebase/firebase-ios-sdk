@@ -36,6 +36,7 @@ cc_test(
   firebase_firestore_util_test
   SOURCES
     autoid_test.cc
+    bits_test.cc
     comparison_test.cc
     string_printf_test.cc
     string_util_test.cc
