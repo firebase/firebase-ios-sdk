@@ -43,8 +43,8 @@ TEST(TargetIdGenerator, SkipPast) {
   for (int i = 4; i < 12; ++i) {
     TargetIdGenerator a = TargetIdGenerator::LocalStoreTargetIdGenerator(i);
     TargetIdGenerator b = TargetIdGenerator::SyncEngineTargetIdGenerator(i);
-    EXPECT_EQ(i + 2 & ~1, a.NextId());
-    EXPECT_EQ(i + 1 | 1, b.NextId());
+    EXPECT_EQ((i + 2) & ~1, a.NextId());
+    EXPECT_EQ((i + 1) | 1, b.NextId());
   }
 
   EXPECT_EQ(13, TargetIdGenerator::SyncEngineTargetIdGenerator(12).NextId());
