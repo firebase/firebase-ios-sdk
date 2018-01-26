@@ -119,7 +119,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // No queries... should get invalid sequence number (-1)
   {
-    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    id<FSTPersistence> persistence = [self newPersistence];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:0];
     XCTAssertEqual(kFSTListenSequenceNumberInvalid, highestToCollect);
@@ -128,7 +129,8 @@ NS_ASSUME_NONNULL_BEGIN
   // 50 queries, want 10. Should get 1010.
   {
     _previousSequenceNumber = 1000;
-    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    id<FSTPersistence> persistence = [self newPersistence];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
     for (int i = 0; i < 50; i++) {
@@ -141,7 +143,8 @@ NS_ASSUME_NONNULL_BEGIN
   // 50 queries, 9 with 1001, incrementing from there. Should get 1002.
   {
     _previousSequenceNumber = 1000;
-    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    id<FSTPersistence> persistence = [self newPersistence];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
     for (int i = 0; i < 9; i++) {
@@ -159,7 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
   // 50 queries, 11 with 1001, incrementing from there. Should get 1001.
   {
     _previousSequenceNumber = 1000;
-    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    id<FSTPersistence> persistence = [self newPersistence];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
     for (int i = 0; i < 11; i++) {
@@ -177,7 +181,8 @@ NS_ASSUME_NONNULL_BEGIN
   // A mutated doc at 1000, 50 queries 1001-1050. Should get 1009.
   {
     _previousSequenceNumber = 1000;
-    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    id<FSTPersistence> persistence = [self newPersistence];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
     FSTDocumentKey *key = [self nextTestDocKey];
@@ -194,7 +199,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Expect 1002.
   {
     _previousSequenceNumber = 1000;
-    FSTMemoryQueryCache *queryCache = [[FSTMemoryQueryCache alloc] init];
+    id<FSTPersistence> persistence = [self newPersistence];
+    FSTMemoryQueryCache *queryCache = [persistence queryCache];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
     FSTDocument *docInQuery = [self nextTestDocument];
