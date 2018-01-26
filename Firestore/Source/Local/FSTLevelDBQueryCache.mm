@@ -104,6 +104,17 @@ using leveldb::WriteOptions;
 
 #pragma mark - FSTQueryCache implementation
 
+- (void)setTargetCount:(int32_t)targetCount {
+  FSTAssert(targetCount >= 0, @"Attempting to set a negative targetCount");
+  int32_t toSet = targetCount == 0 ? kTargetCountZero : targetCount;
+  self.metadata.targetCount = toSet;
+}
+
+- (int32_t)getTargetCount {
+  FSTAssert(self.metadata.targetCount != kTargetCountUnset, @"Trying to access an unset targetCount");
+  return self.metadata.targetCount == kTargetCountZero ? 0 : self.metadata.targetCount;
+}
+
 - (FSTTargetID)highestTargetID {
   return self.metadata.highestTargetId;
 }
@@ -125,6 +136,20 @@ using leveldb::WriteOptions;
 
 - (void)shutdown {
   _db.reset();
+}
+
+- (int32_t)countQueryData {
+  // It seems that the only wait to get the size of a range of keys is to count.
+  std::unique_ptr<Iterator> it(_db->NewIterator(GetStandardReadOptions()));
+  Slice start_key = [FSTLevelDBTargetKey keyPrefix];
+  it->Seek(start_key);
+
+  NSUInteger count = 0;
+  while (it->Valid() && it->key().starts_with(start_key)) {
+    count++;
+    it->Next();
+  }
+  return count;
 }
 
 - (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
@@ -161,7 +186,7 @@ using leveldb::WriteOptions;
   std::string emptyBuffer;
   [group setData:emptyBuffer forKey:indexKey];
 
-  // TODO(gsoltis): update count of queries
+  [self setTargetCount:[self getTargetCount] + 1];
   [self updateMetadataForQueryData:queryData];
   [self saveMetadataInGroup:group];
 }
