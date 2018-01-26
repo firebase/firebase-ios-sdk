@@ -114,8 +114,8 @@ cc_library(
     config.h
     firebase_assert.h
     log.h
-#    ordered_code.cc
-#    ordered_code.h
+    ordered_code.cc
+    ordered_code.h
     secure_random.h
     string_util.cc
     string_util.h
