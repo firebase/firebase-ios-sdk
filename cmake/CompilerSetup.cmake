@@ -41,6 +41,10 @@ if(CLANG OR GNU)
 
     # Delete unused things
     -Wunused-function -Wunused-value -Wunused-variable
+  )
+
+  set(
+    cxx_flags
 
     # Cut down on symbol clutter
     # TODO(wilhuff) try -fvisibility=hidden
@@ -64,7 +68,7 @@ if(CLANG OR GNU)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
   endforeach()
 
-  foreach(flag ${common_flags})
+  foreach(flag ${common_flags} ${cxx_flags})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
   endforeach()
 endif()
