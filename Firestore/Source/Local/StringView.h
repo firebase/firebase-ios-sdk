@@ -25,6 +25,7 @@
 
 #include <leveldb/slice.h>
 #include <string>
+#include "absl/strings/string_view.h"
 
 namespace Firestore {
 
@@ -64,6 +65,10 @@ class StringView {
   StringView(leveldb::Slice slice) : data_(slice.data()), size_(slice.size()) {
   }
 
+  // Creates a StringView from the absl::string_view.
+  StringView(absl::string_view s) : data_(s.data()), size_(s.size()) {
+  }
+
   // Creates a StringView from the given std::string. The string must be an
   // lvalue for the lifetime requirements to be satisfied.
   StringView(const std::string &str) : data_(str.data()), size_(str.size()) {
@@ -74,6 +79,13 @@ class StringView {
   // StringView.
   operator leveldb::Slice() {
     return leveldb::Slice(data_, size_);
+  }
+
+  // Converts this StringView to a absl::string_view, which is an equivalent (and more
+  // functional) type. The returned string_view has the same lifetime as this
+  // StringView.
+  operator absl::string_view() {
+    return absl::string_view(data_, size_);
   }
 
  private:

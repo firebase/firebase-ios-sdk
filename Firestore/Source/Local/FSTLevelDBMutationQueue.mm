@@ -34,12 +34,10 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/Port/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::OrderedCode;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Iterator;
