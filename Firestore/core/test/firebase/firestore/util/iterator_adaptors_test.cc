@@ -28,7 +28,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/algorithm/container.h"
 #include "absl/base/macros.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -599,7 +598,7 @@ TEST_F(IteratorAdaptorTest, DefaultAdaptorConstructorUsesDefaultValue) {
   ASSERT_TRUE(ptr_default == ptr_null);
 }
 
-// Non C++11 test.  We use c_copy() to avoid having to spell out the types.
+// Non C++11 test.
 TEST_F(IteratorAdaptorTest, ValueView) {
   typedef unordered_map<int, std::string> MapType;
   MapType my_map;
@@ -609,7 +608,8 @@ TEST_F(IteratorAdaptorTest, ValueView) {
   const MapType c_map(my_map);
 
   std::set<std::string> vals;
-  absl::c_copy(value_view(c_map), inserter(vals, vals.end()));
+  auto view = value_view(c_map);
+  std::copy(view.begin(), view.end(), inserter(vals, vals.end()));
 
   EXPECT_THAT(vals, ElementsAre("a", "b", "c"));
 }
@@ -623,8 +623,8 @@ TEST_F(IteratorAdaptorTest, ValueView_Modify) {
   EXPECT_THAT(my_map, ElementsAre(Pair(0, 0), Pair(1, 1), Pair(2, 2)));
 
   value_view_type<MapType>::type vv = value_view(my_map);
-  absl::c_replace(vv, 2, 3);
-  absl::c_replace(vv, 1, 2);
+  std::replace(vv.begin(), vv.end(), 2, 3);
+  std::replace(vv.begin(), vv.end(), 1, 2);
 
   EXPECT_THAT(my_map, ElementsAre(Pair(0, 0), Pair(1, 2), Pair(2, 3)));
 }
@@ -668,8 +668,12 @@ TEST_F(IteratorAdaptorTest, ValueViewAndKeyViewCopy) {
   my_map[2] = "2";
   std::set<int> keys;
   std::set<std::string> vals;
-  absl::c_copy(key_view(my_map), inserter(keys, keys.end()));
-  absl::c_copy(value_view(my_map), inserter(vals, vals.end()));
+
+  auto kv = key_view(my_map);
+  std::copy(kv.begin(), kv.end(), inserter(keys, keys.end()));
+
+  auto vv = value_view(my_map);
+  std::copy(vv.begin(), vv.end(), inserter(vals, vals.end()));
   EXPECT_THAT(keys, ElementsAre(0, 1, 2));
   EXPECT_THAT(vals, ElementsAre("0", "1", "2"));
 }
@@ -743,8 +747,11 @@ TEST_F(IteratorAdaptorTest, ValueViewWithPoorlyTypedHomeGrownContainer) {
   EXPECT_EQ(container.at(2), std::make_pair(2, std::string("2")));
   std::vector<int> keys;
   std::vector<std::string> vals;
-  absl::c_copy(key_view(container), back_inserter(keys));
-  absl::c_copy(value_view(container), back_inserter(vals));
+
+  auto kv = key_view(container);
+  std::copy(kv.begin(), kv.end(), back_inserter(keys));
+  auto vv = value_view(container);
+  std::copy(vv.begin(), vv.end(), back_inserter(vals));
   EXPECT_THAT(keys, ElementsAre(0, 1, 2));
   EXPECT_THAT(vals, ElementsAre("0", "1", "2"));
 }

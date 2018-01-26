@@ -48,7 +48,6 @@ cc_test(
     string_printf_test.cc
     string_util_test.cc
   DEPENDS
-    absl_algorithm
     absl_base
     firebase_firestore_util
     gmock
