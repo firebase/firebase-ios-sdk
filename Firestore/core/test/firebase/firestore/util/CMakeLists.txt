@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set(CMAKE_CXX_EXTENSIONS ON)
 if(HAVE_ARC4RANDOM)
   cc_test(
     firebase_firestore_util_arc4random_test
