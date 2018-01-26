@@ -161,6 +161,9 @@
 		C8847EBD201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
 		C8847EBE201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
 		C8847EBF201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
+		C8847EC1201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
+		C8847EC2201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
+		C8847EC3201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
 		D018534D1EDACED4003A645C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D01853491EDACED4003A645C /* LaunchScreen.storyboard */; };
 		D018534E1EDACED4003A645C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D018534B1EDACED4003A645C /* Main.storyboard */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -1083,6 +1086,7 @@
 		BC23B1A7390BEA04DE724F7C /* Pods-Database_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Tests_iOS/Pods-Database_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		C2C9D2EB11B351A0EEB3B93D /* Pods-Messaging_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messaging_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMutableDictionaryTest.m; sourceTree = "<group>"; };
+		C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRReachabilityCheckerTest.m; sourceTree = "<group>"; };
 		CDEE84B9D494E05B9F9D46FF /* Pods-Core_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests_macOS/Pods-Core_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D018534A1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D018534C1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -2560,6 +2564,7 @@
 				DEE14D791E844677006FA992 /* FIRLoggerTest.m */,
 				C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */,
 				DEE14D7A1E844677006FA992 /* FIROptionsTest.m */,
+				C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */,
 				DEE14D7C1E844677006FA992 /* FIRTestCase.m */,
 				DEE14D7D1E844677006FA992 /* Tests-Info.plist */,
 			);
@@ -5840,6 +5845,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8847EC2201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */,
 				D064E6AF1ED9B31C001956DF /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				D064E6B01ED9B31C001956DF /* FIRAppTest.m in Sources */,
 				D064E6B11ED9B31C001956DF /* FIRConfigurationTest.m in Sources */,
@@ -6280,6 +6286,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8847EC3201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */,
 				DEAAD3DA1FBA34250053BF48 /* FIROptionsTest.m in Sources */,
 				DEAAD3D51FBA34250053BF48 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				DEAAD3D91FBA34250053BF48 /* FIRLoggerTest.m in Sources */,
@@ -6368,6 +6375,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8847EC1201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */,
 				DEE14D8E1E84468D006FA992 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				DEE14D8F1E84468D006FA992 /* FIRAppTest.m in Sources */,
 				DEE14D911E84468D006FA992 /* FIRConfigurationTest.m in Sources */,
