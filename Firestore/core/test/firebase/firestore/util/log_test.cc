@@ -30,7 +30,7 @@ namespace util {
 //
 // You can fix it with:
 //
-//   defaults write firebase_firestore_util_log_apple_test \
+//   defaults write firebase_firestore_util_log_apple_test
 //       /google/firebase/debug_mode NO
 TEST(Log, SetAndGet) {
   LogSetLevel(kLogLevelVerbose);
