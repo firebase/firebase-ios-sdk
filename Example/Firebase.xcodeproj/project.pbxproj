@@ -158,12 +158,18 @@
 		BD84035FA14A8647DCB7AEE7 /* Pods_Database_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CCF6BD7264693FD98E10850 /* Pods_Database_Tests_iOS.framework */; };
 		C344068A9C3B2487279AB0BC /* Pods_Auth_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACEE1E8A4E9B9D4455A09AB /* Pods_Auth_Sample.framework */; };
 		C521E0D6D9027DB7B2254B19 /* Pods_Storage_IntegrationTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249A92EF1ADB4E2186F9F788 /* Pods_Storage_IntegrationTests_macOS.framework */; };
+		C8847EB92019110600033F6B /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EB82019110600033F6B /* FIRNetworkTest.m */; };
+		C8847EBA2019110600033F6B /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EB82019110600033F6B /* FIRNetworkTest.m */; };
+		C8847EBB2019110600033F6B /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EB82019110600033F6B /* FIRNetworkTest.m */; };
 		C8847EBD201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
 		C8847EBE201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
 		C8847EBF201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
 		C8847EC1201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
 		C8847EC2201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
 		C8847EC3201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
+		C8847ECE201BB44600033F6B /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC9201B97A900033F6B /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		C8847ECF201BB44600033F6B /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC9201B97A900033F6B /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		C8847ED0201BB44700033F6B /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC9201B97A900033F6B /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D018534D1EDACED4003A645C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D01853491EDACED4003A645C /* LaunchScreen.storyboard */; };
 		D018534E1EDACED4003A645C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D018534B1EDACED4003A645C /* Main.storyboard */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -1085,8 +1091,11 @@
 		BA1FFE4321DBF890ADDCAAEE /* Pods-Storage_Tests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests_macOS/Pods-Storage_Tests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		BC23B1A7390BEA04DE724F7C /* Pods-Database_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Tests_iOS/Pods-Database_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		C2C9D2EB11B351A0EEB3B93D /* Pods-Messaging_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messaging_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		C8847EB82019110600033F6B /* FIRNetworkTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRNetworkTest.m; sourceTree = "<group>"; };
 		C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMutableDictionaryTest.m; sourceTree = "<group>"; };
 		C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRReachabilityCheckerTest.m; sourceTree = "<group>"; };
+		C8847EC9201B97A900033F6B /* GTMHTTPServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GTMHTTPServer.m; sourceTree = "<group>"; };
+		C8847ECA201B97A900033F6B /* GTMHTTPServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GTMHTTPServer.h; sourceTree = "<group>"; };
 		CDEE84B9D494E05B9F9D46FF /* Pods-Core_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests_macOS/Pods-Core_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D018534A1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D018534C1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -1990,6 +1999,15 @@
 			name = App;
 			sourceTree = "<group>";
 		};
+		C8847EC4201B971E00033F6B /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				C8847ECA201B97A900033F6B /* GTMHTTPServer.h */,
+				C8847EC9201B97A900033F6B /* GTMHTTPServer.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		D01853461EDACC10003A645C /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -2556,6 +2574,7 @@
 		DEE14D741E844677006FA992 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				C8847EC4201B971E00033F6B /* Utils */,
 				DEE14D7B1E844677006FA992 /* FIRTestCase.h */,
 				DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */,
 				DEE14D761E844677006FA992 /* FIRAppTest.m */,
@@ -2563,6 +2582,7 @@
 				DEE14D781E844677006FA992 /* FIRConfigurationTest.m */,
 				DEE14D791E844677006FA992 /* FIRLoggerTest.m */,
 				C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */,
+				C8847EB82019110600033F6B /* FIRNetworkTest.m */,
 				DEE14D7A1E844677006FA992 /* FIROptionsTest.m */,
 				C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */,
 				DEE14D7C1E844677006FA992 /* FIRTestCase.m */,
@@ -5851,6 +5871,8 @@
 				D064E6B11ED9B31C001956DF /* FIRConfigurationTest.m in Sources */,
 				D064E6B21ED9B31C001956DF /* FIRLoggerTest.m in Sources */,
 				D064E6B31ED9B31C001956DF /* FIROptionsTest.m in Sources */,
+				C8847ECF201BB44600033F6B /* GTMHTTPServer.m in Sources */,
+				C8847EBA2019110600033F6B /* FIRNetworkTest.m in Sources */,
 				D064E6B41ED9B31C001956DF /* FIRBundleUtilTest.m in Sources */,
 				D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */,
 				C8847EBE201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */,
@@ -6292,6 +6314,8 @@
 				DEAAD3D91FBA34250053BF48 /* FIRLoggerTest.m in Sources */,
 				DEAAD3D61FBA34250053BF48 /* FIRAppTest.m in Sources */,
 				DEAAD3D81FBA34250053BF48 /* FIRConfigurationTest.m in Sources */,
+				C8847ED0201BB44700033F6B /* GTMHTTPServer.m in Sources */,
+				C8847EBB2019110600033F6B /* FIRNetworkTest.m in Sources */,
 				DEAAD3DB1FBA34250053BF48 /* FIRTestCase.m in Sources */,
 				DEAAD3D71FBA34250053BF48 /* FIRBundleUtilTest.m in Sources */,
 				C8847EBF201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */,
@@ -6381,6 +6405,8 @@
 				DEE14D911E84468D006FA992 /* FIRConfigurationTest.m in Sources */,
 				DEE14D921E84468D006FA992 /* FIRLoggerTest.m in Sources */,
 				DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */,
+				C8847ECE201BB44600033F6B /* GTMHTTPServer.m in Sources */,
+				C8847EB92019110600033F6B /* FIRNetworkTest.m in Sources */,
 				DEE14D901E84468D006FA992 /* FIRBundleUtilTest.m in Sources */,
 				DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */,
 				C8847EBD201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */,
