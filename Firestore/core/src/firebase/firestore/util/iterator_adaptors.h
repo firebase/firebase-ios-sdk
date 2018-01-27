@@ -92,18 +92,35 @@ class IteratorAdaptorBase {
   using reference = typename OutTraits::reference;
   using difference_type = typename OutTraits::difference_type;
 
-  IteratorAdaptorBase() : it_() {}
-  IteratorAdaptorBase(Iterator it) : it_(it) {}  // NOLINT(runtime/explicit)
+  IteratorAdaptorBase() : it_() {
+  }
+  // NOLINTNEXTLINE(runtime/explicit)
+  IteratorAdaptorBase(Iterator it) : it_(it) {
+  }
 
-  Sub& sub() { return static_cast<Sub&>(*this); }
-  const Sub& sub() const { return static_cast<const Sub&>(*this); }
+  Sub& sub() {
+    return static_cast<Sub&>(*this);
+  }
+  const Sub& sub() const {
+    return static_cast<const Sub&>(*this);
+  }
 
-  const Iterator& base() const { return it_; }
+  const Iterator& base() const {
+    return it_;
+  }
 
-  reference get() const { return Extract(base()); }
-  reference operator*() const { return get(); }
-  pointer operator->() const { return &get(); }
-  reference operator[](difference_type d) const { return *(sub() + d); }
+  reference get() const {
+    return Extract(base());
+  }
+  reference operator*() const {
+    return get();
+  }
+  pointer operator->() const {
+    return &get();
+  }
+  reference operator[](difference_type d) const {
+    return *(sub() + d);
+  }
 
   Sub& operator++() {
     ++it_;
@@ -113,8 +130,12 @@ class IteratorAdaptorBase {
     --it_;
     return sub();
   }
-  Sub operator++(int /*unused*/) { return it_++; }
-  Sub operator--(int /*unused*/) { return it_--; }
+  Sub operator++(int /*unused*/) {
+    return it_++;
+  }
+  Sub operator--(int /*unused*/) {
+    return it_--;
+  }
 
   Sub& operator+=(difference_type d) {
     it_ += d;
@@ -125,22 +146,46 @@ class IteratorAdaptorBase {
     return sub();
   }
 
-  bool operator==(Sub b) const { return base() == b.base(); }
-  bool operator!=(Sub b) const { return base() != b.base(); }
+  bool operator==(Sub b) const {
+    return base() == b.base();
+  }
+  bool operator!=(Sub b) const {
+    return base() != b.base();
+  }
   // These shouldn't be necessary, as implicit conversion from 'Iterator'
   // should be enough to make such comparisons work.
-  bool operator==(Iterator b) const { return *this == Sub(b); }
-  bool operator!=(Iterator b) const { return *this != Sub(b); }
+  bool operator==(Iterator b) const {
+    return *this == Sub(b);
+  }
+  bool operator!=(Iterator b) const {
+    return *this != Sub(b);
+  }
 
-  friend Sub operator+(Sub it, difference_type d) { return it.base() + d; }
-  friend Sub operator+(difference_type d, Sub it) { return it + d; }
-  friend Sub operator-(Sub it, difference_type d) { return it.base() - d; }
-  friend difference_type operator-(Sub a, Sub b) { return a.base() - b.base(); }
+  friend Sub operator+(Sub it, difference_type d) {
+    return it.base() + d;
+  }
+  friend Sub operator+(difference_type d, Sub it) {
+    return it + d;
+  }
+  friend Sub operator-(Sub it, difference_type d) {
+    return it.base() - d;
+  }
+  friend difference_type operator-(Sub a, Sub b) {
+    return a.base() - b.base();
+  }
 
-  friend bool operator<(Sub a, Sub b) { return a.base() < b.base(); }
-  friend bool operator>(Sub a, Sub b) { return a.base() > b.base(); }
-  friend bool operator<=(Sub a, Sub b) { return a.base() <= b.base(); }
-  friend bool operator>=(Sub a, Sub b) { return a.base() >= b.base(); }
+  friend bool operator<(Sub a, Sub b) {
+    return a.base() < b.base();
+  }
+  friend bool operator>(Sub a, Sub b) {
+    return a.base() > b.base();
+  }
+  friend bool operator<=(Sub a, Sub b) {
+    return a.base() <= b.base();
+  }
+  friend bool operator>=(Sub a, Sub b) {
+    return a.base() >= b.base();
+  }
 
  private:
   Iterator it_;
@@ -221,12 +266,15 @@ struct iterator_first
                                     internal::FirstPolicy<It>> {
   using Base = internal::IteratorAdaptorBase<iterator_first<It>,
                                              internal::FirstPolicy<It>>;
-  iterator_first() {}
+  iterator_first() {
+  }
   iterator_first(It it)  // NOLINT(runtime/explicit)
-      : Base(it) {}
+      : Base(it) {
+  }
   template <typename It2>
   iterator_first(iterator_first<It2> o)  // NOLINT(runtime/explicit)
-      : Base(o.base()) {}
+      : Base(o.base()) {
+  }
 };
 
 template <typename It>
@@ -252,12 +300,15 @@ struct iterator_second
                                     internal::SecondPolicy<It>> {
   using Base = internal::IteratorAdaptorBase<iterator_second<It>,
                                              internal::SecondPolicy<It>>;
-  iterator_second() {}
+  iterator_second() {
+  }
   iterator_second(It it)  // NOLINT(runtime/explicit)
-      : Base(it) {}
+      : Base(it) {
+  }
   template <typename It2>
   iterator_second(iterator_second<It2> o)  // NOLINT(runtime/explicit)
-      : Base(o.base()) {}
+      : Base(o.base()) {
+  }
 };
 
 template <typename It>
@@ -295,12 +346,15 @@ struct iterator_second_ptr
                                     internal::SecondPtrPolicy<It>> {
   using Base = internal::IteratorAdaptorBase<iterator_second_ptr<It>,
                                              internal::SecondPtrPolicy<It>>;
-  iterator_second_ptr() {}
+  iterator_second_ptr() {
+  }
   iterator_second_ptr(It it)  // NOLINT(runtime/explicit)
-      : Base(it) {}
+      : Base(it) {
+  }
   template <typename It2>
   iterator_second_ptr(iterator_second_ptr<It2> o)  // NOLINT(runtime/explicit)
-      : Base(o.base()) {}
+      : Base(o.base()) {
+  }
 };
 
 template <typename It>
@@ -337,12 +391,15 @@ struct iterator_ptr : internal::IteratorAdaptorBase<iterator_ptr<It, Ptr>,
                                                     internal::PtrPolicy<It>> {
   using Base = internal::IteratorAdaptorBase<iterator_ptr<It, Ptr>,
                                              internal::PtrPolicy<It>>;
-  iterator_ptr() {}
+  iterator_ptr() {
+  }
   iterator_ptr(It it)  // NOLINT(runtime/explicit)
-      : Base(it) {}
+      : Base(it) {
+  }
   template <typename It2>
   iterator_ptr(iterator_ptr<It2> o)  // NOLINT(runtime/explicit)
-      : Base(o.base()) {}
+      : Base(o.base()) {
+  }
 };
 
 template <typename It>
@@ -395,8 +452,12 @@ struct IterGenerator {
   static iterator end(container_type& c) {  // NOLINT(runtime/references)
     return c.end();
   }
-  static const_iterator begin(const container_type& c) { return c.begin(); }
-  static const_iterator end(const container_type& c) { return c.end(); }
+  static const_iterator begin(const container_type& c) {
+    return c.begin();
+  }
+  static const_iterator end(const container_type& c) {
+    return c.end();
+  }
 };
 
 template <typename SubIterGenerator>
@@ -424,7 +485,9 @@ struct ReversingIterGeneratorAdaptor {
 // Iter:          the type of mutable iterator to generate
 // ConstIter:     the type of constant iterator to generate
 // IterGenerator: a policy type that returns native iterators from a C
-template <typename C, typename Iter, typename ConstIter,
+template <typename C,
+          typename Iter,
+          typename ConstIter,
           typename IterGenerator = internal::IterGenerator<C>>
 class iterator_view_helper {
  public:
@@ -436,29 +499,47 @@ class iterator_view_helper {
 
   explicit iterator_view_helper(
       container_type& c)  // NOLINT(runtime/references)
-      : c_(&c) {}
+      : c_(&c) {
+  }
 
-  iterator begin() { return iterator(IterGenerator::begin(container())); }
-  iterator end() { return iterator(IterGenerator::end(container())); }
+  iterator begin() {
+    return iterator(IterGenerator::begin(container()));
+  }
+  iterator end() {
+    return iterator(IterGenerator::end(container()));
+  }
   const_iterator begin() const {
     return const_iterator(IterGenerator::begin(container()));
   }
   const_iterator end() const {
     return const_iterator(IterGenerator::end(container()));
   }
-  const_iterator cbegin() const { return begin(); }
-  const_iterator cend() const { return end(); }
-  const container_type& container() const { return *c_; }
-  container_type& container() { return *c_; }
+  const_iterator cbegin() const {
+    return begin();
+  }
+  const_iterator cend() const {
+    return end();
+  }
+  const container_type& container() const {
+    return *c_;
+  }
+  container_type& container() {
+    return *c_;
+  }
 
-  bool empty() const { return begin() == end(); }
-  size_type size() const { return c_->size(); }
+  bool empty() const {
+    return begin() == end();
+  }
+  size_type size() const {
+    return c_->size();
+  }
 
  private:
   container_type* c_;
 };
 
-template <typename C, typename ConstIter,
+template <typename C,
+          typename ConstIter,
           typename IterGenerator = internal::IterGenerator<C>>
 class const_iterator_view_helper {
  public:
@@ -467,7 +548,8 @@ class const_iterator_view_helper {
   using value_type = typename std::iterator_traits<const_iterator>::value_type;
   using size_type = typename internal::container_traits<C>::size_type;
 
-  explicit const_iterator_view_helper(const container_type& c) : c_(&c) {}
+  explicit const_iterator_view_helper(const container_type& c) : c_(&c) {
+  }
 
   // Allow implicit conversion from the corresponding iterator_view_helper.
   // Erring on the side of constness should be allowed. E.g.:
@@ -475,10 +557,12 @@ class const_iterator_view_helper {
   //    key_view_type<MyMap>::type keys = key_view(m);  // ok
   //    key_view_type<const MyMap>::type const_keys = key_view(m);  // ok
   template <typename Iter>
-  const_iterator_view_helper(
-      const iterator_view_helper<container_type, Iter, const_iterator,
-                                 IterGenerator>& v)
-      : c_(&v.container()) {}
+  const_iterator_view_helper(const iterator_view_helper<container_type,
+                                                        Iter,
+                                                        const_iterator,
+                                                        IterGenerator>& v)
+      : c_(&v.container()) {
+  }
 
   const_iterator begin() const {
     return const_iterator(IterGenerator::begin(container()));
@@ -486,12 +570,22 @@ class const_iterator_view_helper {
   const_iterator end() const {
     return const_iterator(IterGenerator::end(container()));
   }
-  const_iterator cbegin() const { return begin(); }
-  const_iterator cend() const { return end(); }
-  const container_type& container() const { return *c_; }
+  const_iterator cbegin() const {
+    return begin();
+  }
+  const_iterator cend() const {
+    return end();
+  }
+  const container_type& container() const {
+    return *c_;
+  }
 
-  bool empty() const { return begin() == end(); }
-  size_type size() const { return c_->size(); }
+  bool empty() const {
+    return begin() == end();
+  }
+  size_type size() const {
+    return c_->size();
+  }
 
  private:
   const container_type* c_;
@@ -517,27 +611,30 @@ class const_iterator_view_helper {
 template <typename C>
 struct key_view_type {
   using type = internal::iterator_view_helper<
-      C, iterator_first<typename C::iterator>,
+      C,
+      iterator_first<typename C::iterator>,
       iterator_first<typename C::const_iterator>>;
 };
 
 template <typename C>
 struct key_view_type<const C> {
-  using type = internal::const_iterator_view_helper<
-      C, iterator_first<typename C::const_iterator>>;
+  using type = internal::
+      const_iterator_view_helper<C, iterator_first<typename C::const_iterator>>;
 };
 
 template <typename C>
 struct value_view_type {
-  using type =  internal::iterator_view_helper<
-      C, iterator_second<typename C::iterator>,
+  using type = internal::iterator_view_helper<
+      C,
+      iterator_second<typename C::iterator>,
       iterator_second<typename C::const_iterator>>;
 };
 
 template <typename C>
 struct value_view_type<const C> {
   using type = internal::const_iterator_view_helper<
-      C, iterator_second<typename C::const_iterator>>;
+      C,
+      iterator_second<typename C::const_iterator>>;
 };
 
 // The key_view and value_view functions provide pretty ways to iterate either
@@ -599,14 +696,16 @@ typename value_view_type<const C>::type value_view(const C& map) {
 template <typename C>
 struct deref_second_view_type {
   using type = internal::iterator_view_helper<
-      C, iterator_second_ptr<typename C::iterator>,
+      C,
+      iterator_second_ptr<typename C::iterator>,
       iterator_second_ptr<typename C::const_iterator>>;
 };
 
 template <typename C>
 struct deref_second_view_type<const C> {
   using type = internal::const_iterator_view_helper<
-      C, iterator_second_ptr<typename C::const_iterator>>;
+      C,
+      iterator_second_ptr<typename C::const_iterator>>;
 };
 
 template <typename C>
@@ -635,15 +734,16 @@ typename deref_second_view_type<const C>::type deref_second_view(const C& map) {
 
 template <typename C>
 struct deref_view_type {
-  using type = internal::iterator_view_helper<
-      C, iterator_ptr<typename C::iterator>,
-      iterator_ptr<typename C::const_iterator>>;
+  using type =
+      internal::iterator_view_helper<C,
+                                     iterator_ptr<typename C::iterator>,
+                                     iterator_ptr<typename C::const_iterator>>;
 };
 
 template <typename C>
 struct deref_view_type<const C> {
-  using type = internal::const_iterator_view_helper<
-      C, iterator_ptr<typename C::const_iterator>>;
+  using type = internal::
+      const_iterator_view_helper<C, iterator_ptr<typename C::const_iterator>>;
 };
 
 template <typename C>
@@ -677,9 +777,10 @@ struct reversed_view_type {
       internal::ReversingIterGeneratorAdaptor<internal::IterGenerator<C>>;
 
  public:
-  using type =
-      internal::iterator_view_helper<C, typename policy::iterator,
-                                     typename policy::const_iterator, policy>;
+  using type = internal::iterator_view_helper<C,
+                                              typename policy::iterator,
+                                              typename policy::const_iterator,
+                                              policy>;
 };
 
 template <typename C>
@@ -689,9 +790,8 @@ struct reversed_view_type<const C> {
       internal::ReversingIterGeneratorAdaptor<internal::IterGenerator<C>>;
 
  public:
-  using type =
-      internal::const_iterator_view_helper<C, typename policy::const_iterator,
-                                           policy>;
+  using type = internal::
+      const_iterator_view_helper<C, typename policy::const_iterator, policy>;
 };
 
 template <typename C>

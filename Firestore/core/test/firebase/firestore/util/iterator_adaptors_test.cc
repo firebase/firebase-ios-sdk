@@ -35,6 +35,20 @@
 using std::unordered_map;
 using std::unordered_set;
 
+using firebase::firestore::util::deref_second_view;
+using firebase::firestore::util::deref_view;
+using firebase::firestore::util::iterator_first;
+using firebase::firestore::util::iterator_ptr;
+using firebase::firestore::util::iterator_second;
+using firebase::firestore::util::iterator_second_ptr;
+using firebase::firestore::util::key_view;
+using firebase::firestore::util::key_view_type;
+using firebase::firestore::util::make_iterator_first;
+using firebase::firestore::util::make_iterator_ptr;
+using firebase::firestore::util::make_iterator_second;
+using firebase::firestore::util::make_iterator_second_ptr;
+using firebase::firestore::util::value_view;
+using firebase::firestore::util::value_view_type;
 using testing::ElementsAre;
 using testing::Eq;
 using testing::IsEmpty;
@@ -42,30 +56,19 @@ using testing::Not;
 using testing::Pair;
 using testing::Pointwise;
 using testing::SizeIs;
-using firebase::firestore::util::deref_view;
-using firebase::firestore::util::deref_second_view;
-using firebase::firestore::util::iterator_first;
-using firebase::firestore::util::iterator_second;
-using firebase::firestore::util::iterator_ptr;
-using firebase::firestore::util::iterator_second_ptr;
-using firebase::firestore::util::make_iterator_first;
-using firebase::firestore::util::make_iterator_second;
-using firebase::firestore::util::make_iterator_ptr;
-using firebase::firestore::util::make_iterator_second_ptr;
-using firebase::firestore::util::key_view;
-using firebase::firestore::util::key_view_type;
-using firebase::firestore::util::value_view;
-using firebase::firestore::util::value_view_type;
 
 namespace {
 
-const char * kFirst[]    = {"foo", "bar"};
-int          kSecond[]   = {1, 2};
+const char* kFirst[] = {"foo", "bar"};
+int kSecond[] = {1, 2};
 const int kCount = ABSL_ARRAYSIZE(kFirst);
 
-template <typename T> struct IsConst : std::false_type {};
-template <typename T> struct IsConst<const T> : std::true_type {};
-template <typename T> struct IsConst<T&> : IsConst<T> {};
+template <typename T>
+struct IsConst : std::false_type {};
+template <typename T>
+struct IsConst<const T> : std::true_type {};
+template <typename T>
+struct IsConst<T&> : IsConst<T> {};
 
 class IteratorAdaptorTest : public testing::Test {
  protected:
@@ -81,17 +84,24 @@ class IteratorAdaptorTest : public testing::Test {
   template <typename T>
   class InlineStorageIter : public std::iterator<std::input_iterator_tag, T> {
    public:
-    T* operator->() const { return get(); }
-    T& operator*() const { return *get(); }
+    T* operator->() const {
+      return get();
+    }
+    T& operator*() const {
+      return *get();
+    }
 
    private:
-    T* get() const { return &v_; }
+    T* get() const {
+      return &v_;
+    }
     mutable T v_;
   };
 
-  struct X { int d; };
+  struct X {
+    int d;
+  };
 };
-
 
 TEST_F(IteratorAdaptorTest, HashMapFirst) {
   // Adapts an iterator to return the first value of a unordered_map::iterator.
@@ -138,7 +148,7 @@ TEST_F(IteratorAdaptorTest, IteratorFirstConvertsToConst) {
 
 TEST_F(IteratorAdaptorTest, IteratorFirstConstEqNonConst) {
   // verify that const and non-const iterators return the same reference.
-  typedef std::vector<std::pair<int, int> > my_container;
+  typedef std::vector<std::pair<int, int>> my_container;
   typedef iterator_first<my_container::iterator> my_iterator;
   typedef iterator_first<my_container::const_iterator> my_const_iterator;
   my_container values;
@@ -169,7 +179,7 @@ TEST_F(IteratorAdaptorTest, HashMapSecond) {
     values[kFirst[i]] = kSecond[i];
   }
   for (iterator_second<my_container::iterator> it = values.begin();
-      it != values.end(); ++it) {
+       it != values.end(); ++it) {
     int v = *it;
     ASSERT_GT(v, 0);
   }
@@ -192,7 +202,7 @@ TEST_F(IteratorAdaptorTest, IteratorSecondConvertsToConst) {
 
 TEST_F(IteratorAdaptorTest, IteratorSecondConstEqNonConst) {
   // verify that const and non-const iterators return the same reference.
-  typedef std::vector<std::pair<int, int> > my_container;
+  typedef std::vector<std::pair<int, int>> my_container;
   typedef iterator_second<my_container::iterator> my_iterator;
   typedef iterator_second<my_container::const_iterator> my_const_iterator;
   my_container values;
@@ -255,7 +265,7 @@ TEST_F(IteratorAdaptorTest, IteratorPtrConst) {
 
 TEST_F(IteratorAdaptorTest, IteratorSecondPtrConstEqNonConst) {
   // verify that const and non-const iterators return the same reference.
-  typedef std::vector<std::pair<int, int*> > my_container;
+  typedef std::vector<std::pair<int, int*>> my_container;
   typedef iterator_second_ptr<my_container::iterator> my_iterator;
   typedef iterator_second_ptr<my_container::const_iterator> my_const_iterator;
   my_container values;
@@ -321,25 +331,24 @@ TEST_F(IteratorAdaptorTest, ListSecondConst) {
   int i = 0;
   const my_list* cvalues = &values;
   for (iterator_second<my_list::const_iterator> it = cvalues->begin();
-      it != cvalues->end(); ++it) {
+       it != cvalues->end(); ++it) {
     ASSERT_EQ(*it, kSecond[i++]);
   }
 }
 
 TEST_F(IteratorAdaptorTest, VectorSecond) {
   // Adapts an iterator to return the second value of a vector::iterator.
-  std::vector<std::pair<std::string, int> > values;
+  std::vector<std::pair<std::string, int>> values;
   for (int i = 0; i < kCount; ++i) {
     values.push_back(std::pair<std::string, int>(kFirst[i], kSecond[i]));
   }
   int i = 0;
-  for (iterator_second< std::vector<std::pair<std::string, int> >::iterator >
-           it = values.begin();
+  for (iterator_second<std::vector<std::pair<std::string, int>>::iterator> it =
+           values.begin();
        it != values.end(); ++it) {
     ASSERT_EQ(*it, kSecond[i++]);
   }
 }
-
 
 // Tests iterator_second_ptr with a map where values are regular pointers.
 TEST_F(IteratorAdaptorTest, HashMapSecondPtr) {
@@ -363,7 +372,7 @@ TEST_F(IteratorAdaptorTest, HashMapSecondPtr) {
 // Tests iterator_second_ptr with a map where values are wrapped into
 // linked_ptr.
 TEST_F(IteratorAdaptorTest, HashMapSecondPtrLinkedPtr) {
-  typedef unordered_map<std::string, std::shared_ptr<int> > my_container;
+  typedef unordered_map<std::string, std::shared_ptr<int>> my_container;
   typedef iterator_second_ptr<my_container::iterator> my_iterator;
   my_container values;
   for (int i = 0; i < kCount; ++i) {
@@ -417,8 +426,8 @@ TEST_F(IteratorAdaptorTest, IteratorPtrtConstEqNonConst) {
   my_const_iterator c_iter1 = iter1;
   const my_const_iterator c_iter2 = iter1;
   for (int i = 0; i < kCount; ++i) {
-    int &v1 = iter1[i];
-    int &v2 = iter2[i];
+    int& v1 = iter1[i];
+    int& v2 = iter2[i];
     EXPECT_EQ(&v1, kSecond + i);
     EXPECT_EQ(&v1, &v2);
     const int& cv1 = c_iter1[i];
@@ -428,9 +437,10 @@ TEST_F(IteratorAdaptorTest, IteratorPtrtConstEqNonConst) {
   }
 }
 
-// Tests iterator_ptr with a vector where values are wrapped into std::shared_ptr.
+// Tests iterator_ptr with a vector where values are wrapped into
+// std::shared_ptr.
 TEST_F(IteratorAdaptorTest, IteratorPtrLinkedPtr) {
-  typedef std::vector<std::shared_ptr<int> > my_container;
+  typedef std::vector<std::shared_ptr<int>> my_container;
   typedef iterator_ptr<my_container::iterator> my_iterator;
   my_container values;
   for (int i = 0; i < kCount; ++i) {
@@ -455,7 +465,7 @@ TEST_F(IteratorAdaptorTest, IteratorPtrConvertsToConst) {
 }
 
 TEST_F(IteratorAdaptorTest, IteratorFirstHasRandomAccessMethods) {
-  typedef std::vector<std::pair<std::string, int> > my_container;
+  typedef std::vector<std::pair<std::string, int>> my_container;
   typedef iterator_first<my_container::iterator> my_iterator;
 
   my_container values;
@@ -480,7 +490,7 @@ TEST_F(IteratorAdaptorTest, IteratorFirstHasRandomAccessMethods) {
 }
 
 TEST_F(IteratorAdaptorTest, IteratorSecondHasRandomAccessMethods) {
-  typedef std::vector<std::pair<std::string, int> > my_container;
+  typedef std::vector<std::pair<std::string, int>> my_container;
   typedef iterator_second<my_container::iterator> my_iterator;
 
   my_container values;
@@ -505,7 +515,7 @@ TEST_F(IteratorAdaptorTest, IteratorSecondHasRandomAccessMethods) {
 }
 
 TEST_F(IteratorAdaptorTest, IteratorSecondPtrHasRandomAccessMethods) {
-  typedef std::vector<std::pair<std::string, int*> > my_container;
+  typedef std::vector<std::pair<std::string, int*>> my_container;
   typedef iterator_second_ptr<my_container::iterator> my_iterator;
 
   ASSERT_GE(kCount, 2);
@@ -557,15 +567,21 @@ TEST_F(IteratorAdaptorTest, IteratorPtrHasRandomAccessMethods) {
   EXPECT_EQ(88, value2);
 }
 
-class MyInputIterator :
-    public std::iterator<std::input_iterator_tag, const int*> {
+class MyInputIterator
+    : public std::iterator<std::input_iterator_tag, const int*> {
  public:
-  explicit MyInputIterator(int* x) : x_(x) {}
-  const int* operator*() const { return x_; }
-  MyInputIterator& operator++() { ++*x_; return *this; }
+  explicit MyInputIterator(int* x) : x_(x) {
+  }
+  const int* operator*() const {
+    return x_;
+  }
+  MyInputIterator& operator++() {
+    ++*x_;
+    return *this;
+  }
 
  private:
-  int *x_;
+  int* x_;
 };
 
 TEST_F(IteratorAdaptorTest, IteratorPtrCanWrapInputIterator) {
@@ -573,9 +589,12 @@ TEST_F(IteratorAdaptorTest, IteratorPtrCanWrapInputIterator) {
   MyInputIterator it(&x);
   iterator_ptr<MyInputIterator> it1(it);
 
-  EXPECT_EQ(0, *it1); ++it1;
-  EXPECT_EQ(1, *it1); ++it1;
-  EXPECT_EQ(2, *it1); ++it1;
+  EXPECT_EQ(0, *it1);
+  ++it1;
+  EXPECT_EQ(1, *it1);
+  ++it1;
+  EXPECT_EQ(2, *it1);
+  ++it1;
 }
 
 // Tests that a default-constructed adaptor is equal to an adaptor explicitly
@@ -644,15 +663,14 @@ TEST_F(IteratorAdaptorTest, ValueViewOfValueView) {
 
   static_assert(
       (std::is_same<pair_int_str,
-       value_view_map_int_pair_int_str_type::value_type>::value),
+                    value_view_map_int_pair_int_str_type::value_type>::value),
       "value_view_value_type_");
 
   typedef value_view_type<value_view_map_int_pair_int_str_type>::type
       view_view_type;
 
-  static_assert(
-      (std::is_same<std::string, view_view_type::value_type>::value),
-      "view_view_type_");
+  static_assert((std::is_same<std::string, view_view_type::value_type>::value),
+                "view_view_type_");
 
   value_view_map_int_pair_int_str_type vv = value_view(my_map);
   view_view_type helper = value_view(vv);
@@ -695,7 +713,7 @@ TEST_F(IteratorAdaptorTest, ValueViewAndKeyViewRangeBasedLoop) {
   EXPECT_THAT(vals, ElementsAre("0", "1", "2"));
 }
 
-template<int N, typename Value, typename Key>
+template <int N, typename Value, typename Key>
 class FixedSizeContainer {
  public:
   // NOTE: the container does on purpose not define:
@@ -705,17 +723,33 @@ class FixedSizeContainer {
   typedef value_type* iterator;
   typedef const value_type* const_iterator;
 
-  FixedSizeContainer() {}
-  const_iterator begin() const { return &values[0]; }
-  iterator begin() { return &values[0]; }
-  const_iterator end() const { return &values[N]; }
-  iterator end() { return &values[N]; }
-  value_type at(int n) const { return values[n]; }
-  value_type& operator[](int n) { return values[n]; }
-  int size() const { return N; }
+  FixedSizeContainer() {
+  }
+  const_iterator begin() const {
+    return &values[0];
+  }
+  iterator begin() {
+    return &values[0];
+  }
+  const_iterator end() const {
+    return &values[N];
+  }
+  iterator end() {
+    return &values[N];
+  }
+  value_type at(int n) const {
+    return values[n];
+  }
+  value_type& operator[](int n) {
+    return values[n];
+  }
+  int size() const {
+    return N;
+  }
 
  private:
-  value_type values[N ? N : 1];
+  static constexpr int kAllocatedSize = N ? N : 1;
+  value_type values[kAllocatedSize];
   // NOTE: the container does on purpose not define:
   // reference, const_reference, pointer, const_pointer, size_type,
   // difference_type, empty().
@@ -787,8 +821,8 @@ TEST_F(IteratorAdaptorTest, ValueViewInConstContext) {
   const iterator_view_helper<
       unordered_map<int, std::string>,
       iterator_second<unordered_map<int, std::string>::iterator>,
-      iterator_second<unordered_map<int, std::string>::const_iterator> > const_view =
-          value_view(my_map);
+      iterator_second<unordered_map<int, std::string>::const_iterator>>
+      const_view = value_view(my_map);
   for (iterator_second<unordered_map<int, std::string>::const_iterator> it =
            const_view.begin();
        it != const_view.end(); ++it) {
@@ -851,8 +885,8 @@ TEST_F(IteratorAdaptorTest, ConstValueViewInConstContext) {
   const unordered_map<int, std::string>& const_map = my_map;
 
   std::set<std::string> vals;
-  const value_view_type<const unordered_map<int, std::string> >::type const_view =
-      value_view(const_map);
+  const value_view_type<const unordered_map<int, std::string>>::type
+      const_view = value_view(const_map);
   for (iterator_second<unordered_map<int, std::string>::const_iterator> it =
            const_view.begin();
        it != const_view.end(); ++it) {
@@ -909,7 +943,7 @@ TEST_F(IteratorAdaptorTest, KeyViewInConstContext) {
   my_map[2] = "c";
 
   std::set<int> vals;
-  const key_view_type<unordered_map<int, std::string> >::type const_view =
+  const key_view_type<unordered_map<int, std::string>>::type const_view =
       key_view(my_map);
   for (iterator_first<unordered_map<int, std::string>::const_iterator> it =
            const_view.begin();
@@ -973,7 +1007,7 @@ TEST_F(IteratorAdaptorTest, ConstKeyViewInConstContext) {
   const unordered_map<int, std::string>& const_map = my_map;
 
   std::set<int> vals;
-  const key_view_type<const unordered_map<int, std::string> >::type const_view =
+  const key_view_type<const unordered_map<int, std::string>>::type const_view =
       key_view(const_map);
   for (iterator_first<unordered_map<int, std::string>::const_iterator> it =
            const_view.begin();
@@ -993,9 +1027,9 @@ TEST_F(IteratorAdaptorTest, IteratorViewHelperDefinesIterator) {
   my_set.insert(0);
   my_set.insert(2);
 
-  typedef iterator_view_helper<unordered_set<int>,
-                               unordered_set<int>::iterator,
-                               unordered_set<int>::const_iterator> SetView;
+  typedef iterator_view_helper<unordered_set<int>, unordered_set<int>::iterator,
+                               unordered_set<int>::const_iterator>
+      SetView;
   SetView set_view(my_set);
   unordered_set<int> vals;
   for (SetView::iterator it = set_view.begin(); it != set_view.end(); ++it) {
@@ -1014,13 +1048,13 @@ TEST_F(IteratorAdaptorTest, IteratorViewHelperDefinesConstIterator) {
   my_set.insert(0);
   my_set.insert(2);
 
-  typedef iterator_view_helper<unordered_set<int>,
-                               unordered_set<int>::iterator,
-                               unordered_set<int>::const_iterator> SetView;
+  typedef iterator_view_helper<unordered_set<int>, unordered_set<int>::iterator,
+                               unordered_set<int>::const_iterator>
+      SetView;
   SetView set_view(my_set);
   unordered_set<int> vals;
-  for (SetView::const_iterator it = set_view.begin();
-       it != set_view.end(); ++it) {
+  for (SetView::const_iterator it = set_view.begin(); it != set_view.end();
+       ++it) {
     vals.insert(*it);
   }
 
