@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-Timestamp::Timestamp(long seconds, int nanos)
+Timestamp::Timestamp(int64_t seconds, int32_t nanos)
     : seconds_(seconds), nanos_(nanos) {
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
       nanos >= 0, nanos >= 0, "timestamp nanoseconds out of range: %d", nanos);
