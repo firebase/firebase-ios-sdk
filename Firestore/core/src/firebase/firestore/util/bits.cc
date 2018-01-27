@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/Port/bits.h"
+#include "Firestore/core/src/firebase/firestore/util/bits.h"
 
-#include <assert.h>
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
-namespace Firestore {
+namespace firebase {
+namespace firestore {
+namespace util {
 
 int Bits::Log2Floor_Portable(uint32_t n) {
   if (n == 0) return -1;
@@ -32,8 +34,10 @@ int Bits::Log2Floor_Portable(uint32_t n) {
       log += shift;
     }
   }
-  assert(value == 1);
+  FIREBASE_ASSERT(value == 1);
   return log;
 }
 
-}  // namespace Firestore
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase

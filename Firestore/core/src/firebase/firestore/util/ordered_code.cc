@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-#include "Firestore/Port/ordered_code.h"
-
-#include <assert.h>
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 
 #include <absl/base/internal/endian.h>
 #include <absl/base/internal/unaligned_access.h>
 #include <absl/base/port.h>
-#include <leveldb/db.h>  // For Slice
 
-#include "Firestore/Port/bits.h"
+#include "Firestore/core/src/firebase/firestore/util/bits.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 #define UNALIGNED_LOAD32 ABSL_INTERNAL_UNALIGNED_LOAD32
 #define UNALIGNED_LOAD64 ABSL_INTERNAL_UNALIGNED_LOAD64
@@ -65,9 +63,9 @@
 // turn is the same as the ordering of the encodings of those two
 // characters.  Moreover, for every finite string x, F(x) < F(<infinity>).
 
-namespace Firestore {
-
-using leveldb::Slice;
+namespace firebase {
+namespace firestore {
+namespace util {
 
 static const char kEscape1 = '\000';
 static const char kNullCharacter = '\xff';  // Combined with kEscape1
@@ -79,50 +77,57 @@ static const char kFFCharacter = '\000';  // Combined with kEscape2
 
 static const char kEscape1_Separator[2] = {kEscape1, kSeparator};
 
-// Append to "*dest" the "len" bytes starting from "*src".
+/** Append to "*dest" the "len" bytes starting from "*src". */
 inline static void AppendBytes(std::string* dest, const char* src, size_t len) {
   dest->append(src, len);
 }
 
-inline bool IsSpecialByte(char c) { return ((unsigned char)(c + 1)) < 2; }
+inline static bool IsSpecialByte(char c) {
+  return ((unsigned char)(c + 1)) < 2;
+}
 
-// Returns 0 if one or more of the bytes in the specified uint32 value
-// are the special values 0 or 255, and returns 4 otherwise.  The
-// result of this routine can be added to "p" to either advance past
-// the next 4 bytes if they do not contain a special byte, or to
-// remain on this set of four bytes if they contain the next special
-// byte occurrence.
-//
-// REQUIRES: v is the value of loading the next 4 bytes from "*p" (we
-// pass in v rather than loading it because in some cases, the client
-// may already have the value in a register: "p" is just used for
-// assertion checking).
-inline int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
-  assert(UNALIGNED_LOAD32(p) == v_32);
+/**
+ * Returns 0 if one or more of the bytes in the specified uint32 value
+ * are the special values 0 or 255, and returns 4 otherwise.  The
+ * result of this routine can be added to "p" to either advance past
+ * the next 4 bytes if they do not contain a special byte, or to
+ * remain on this set of four bytes if they contain the next special
+ * byte occurrence.
+ *
+ * REQUIRES: v_32 is the value of loading the next 4 bytes from "*p" (we
+ * pass in v_32 rather than loading it because in some cases, the client
+ * may already have the value in a register: "p" is just used for
+ * assertion checking).
+ */
+inline static int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
+  FIREBASE_ASSERT(UNALIGNED_LOAD32(p) == v_32);
   // See comments in SkipToNextSpecialByte if you wish to
   // understand this expression (which checks for the occurrence
   // of the special byte values 0 or 255 in any of the bytes of v_32).
   if ((v_32 - 0x01010101u) & ~(v_32 + 0x01010101u) & 0x80808080u) {
     // Special byte is in p[0..3]
-    assert(IsSpecialByte(p[0]) || IsSpecialByte(p[1]) || IsSpecialByte(p[2]) ||
-           IsSpecialByte(p[3]));
+    FIREBASE_ASSERT(IsSpecialByte(p[0]) || IsSpecialByte(p[1]) ||
+                    IsSpecialByte(p[2]) || IsSpecialByte(p[3]));
     return 0;
   } else {
-    assert(!IsSpecialByte(p[0]));
-    assert(!IsSpecialByte(p[1]));
-    assert(!IsSpecialByte(p[2]));
-    assert(!IsSpecialByte(p[3]));
+    FIREBASE_ASSERT(!IsSpecialByte(p[0]));
+    FIREBASE_ASSERT(!IsSpecialByte(p[1]));
+    FIREBASE_ASSERT(!IsSpecialByte(p[2]));
+    FIREBASE_ASSERT(!IsSpecialByte(p[3]));
     return 4;
   }
 }
 
-// Return a pointer to the first byte in the range "[start..limit)"
-// whose value is 0 or 255 (kEscape1 or kEscape2).  If no such byte
-// exists in the range, returns "limit".
-inline const char* SkipToNextSpecialByte(const char* start, const char* limit) {
+/**
+ * Return a pointer to the first byte in the range "[start..limit)"
+ * whose value is 0 or 255 (kEscape1 or kEscape2).  If no such byte
+ * exists in the range, returns "limit".
+ */
+inline static const char* SkipToNextSpecialByte(const char* start,
+                                                const char* limit) {
   // If these constants were ever changed, this routine needs to change
-  assert(kEscape1 == 0);
-  assert((kEscape2 & 0xffu) == 255u);
+  FIREBASE_ASSERT(kEscape1 == 0);
+  FIREBASE_ASSERT((kEscape2 & 0xff) == 255);
   const char* p = start;
   while (p + 8 <= limit) {
     // Find out if any of the next 8 bytes are either 0 or 255 (our
@@ -160,7 +165,8 @@ inline const char* SkipToNextSpecialByte(const char* start, const char* limit) {
       if (IsSpecialByte(p[0])) return p;
       if (IsSpecialByte(p[1])) return p + 1;
       if (IsSpecialByte(p[2])) return p + 2;
-      assert(IsSpecialByte(p[3]));  // Last byte must be the special one
+      FIREBASE_ASSERT(
+          IsSpecialByte(p[3]));  // Last byte must be the special one
       return p + 3;
     }
   }
@@ -180,9 +186,12 @@ const char* OrderedCode::TEST_SkipToNextSpecialByte(const char* start,
   return SkipToNextSpecialByte(start, limit);
 }
 
-// Helper routine to encode "s" and append to "*dest", escaping special
-// characters.
-inline static void EncodeStringFragment(std::string* dest, Slice s) {
+/**
+ * Helper routine to encode "s" and append to "*dest", escaping special
+ * characters.
+ */
+inline static void EncodeStringFragment(std::string* dest,
+                                        absl::string_view s) {
   const char* p = s.data();
   const char* limit = p + s.size();
   const char* copy_start = p;
@@ -190,44 +199,49 @@ inline static void EncodeStringFragment(std::string* dest, Slice s) {
     p = SkipToNextSpecialByte(p, limit);
     if (p >= limit) break;  // No more special characters that need escaping
     char c = *(p++);
-    assert(IsSpecialByte(c));
+    FIREBASE_ASSERT(IsSpecialByte(c));
     if (c == kEscape1) {
-      AppendBytes(dest, copy_start, p - copy_start - 1);
+      AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start) - 1);
       dest->push_back(kEscape1);
       dest->push_back(kNullCharacter);
       copy_start = p;
     } else {
-      assert(c == kEscape2);
-      AppendBytes(dest, copy_start, p - copy_start - 1);
+      FIREBASE_ASSERT(c == kEscape2);
+      AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start) - 1);
       dest->push_back(kEscape2);
       dest->push_back(kFFCharacter);
       copy_start = p;
     }
   }
   if (p > copy_start) {
-    AppendBytes(dest, copy_start, p - copy_start);
+    AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start));
   }
 }
 
-void OrderedCode::WriteString(std::string* dest, Slice s) {
+void OrderedCode::WriteString(std::string* dest, absl::string_view s) {
   EncodeStringFragment(dest, s);
   AppendBytes(dest, kEscape1_Separator, 2);
 }
 
-// Return number of bytes needed to encode the non-length portion
-// of val in ordered coding.  Returns number in range [0,8].
+/**
+ * Return number of bytes needed to encode the non-length portion
+ * of val in ordered coding.  Returns number in range [0,8].
+ */
 static inline unsigned int OrderedNumLength(uint64_t val) {
   const int lg = Bits::Log2Floor64(val);  // -1 if val==0
   return static_cast<unsigned int>(lg + 1 + 7) / 8;
 }
 
-// Append n bytes from src to *dst.
-// REQUIRES: n <= 9
-// REQUIRES: src[0..8] are readable bytes (even if n is smaller)
-//
-// If we use string::append() instead of this routine, it increases the
-// runtime of WriteNumIncreasing from ~9ns to ~13ns.
-static inline void AppendUpto9(std::string* dst, const char* src,
+/**
+ * Append n bytes from src to *dst.
+ * REQUIRES: n <= 9
+ * REQUIRES: src[0..8] are readable bytes (even if n is smaller)
+ *
+ * If we use string::append() instead of this routine, it increases the
+ * runtime of WriteNumIncreasing from ~9ns to ~13ns.
+ */
+static inline void AppendUpto9(std::string* dst,
+                               const char* src,
                                unsigned int n) {
   dst->append(src, 9);         // Fixed-length append
   const size_t extra = 9 - n;  // How many extra bytes we added
@@ -244,10 +258,11 @@ void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t val) {
   // call on *dest.
   char buf[17];
 
-  UNALIGNED_STORE64(buf + 1, absl::ghtonll(val));  // buf[0] may be needed for length
+  UNALIGNED_STORE64(buf + 1,
+                    absl::ghtonll(val));  // buf[0] may be needed for length
   const unsigned int length = OrderedNumLength(val);
   char* start = buf + 9 - length - 1;
-  *start = length;
+  *start = static_cast<char>(length);
   AppendUpto9(dest, start, length + 1);
 }
 
@@ -261,15 +276,19 @@ void OrderedCode::WriteInfinity(std::string* dest) {
   WriteInfinityInternal(dest);
 }
 
-void OrderedCode::WriteTrailingString(std::string* dest, Slice str) {
+void OrderedCode::WriteTrailingString(std::string* dest,
+                                      absl::string_view str) {
   dest->append(str.data(), str.size());
 }
 
-// Parse the encoding of a string previously encoded with or without
-// inversion.  If parse succeeds, return true, consume encoding from
-// "*src", and if result != NULL append the decoded string to "*result".
-// Otherwise, return false and leave both undefined.
-inline static bool ReadStringInternal(Slice* src, std::string* result) {
+/**
+ * Parse the encoding of a string previously encoded with or without
+ * inversion.  If parse succeeds, return true, consume encoding from
+ * "*src", and if result != NULL append the decoded string to "*result".
+ * Otherwise, return false and leave both undefined.
+ */
+inline static bool ReadStringInternal(absl::string_view* src,
+                                      std::string* result) {
   const char* start = src->data();
   const char* string_limit = src->data() + src->size();
 
@@ -284,16 +303,17 @@ inline static bool ReadStringInternal(Slice* src, std::string* result) {
     // If inversion is required, instead of inverting 'c', we invert the
     // character constants to which 'c' is compared.  We get the same
     // behavior but save the runtime cost of inverting 'c'.
-    assert(IsSpecialByte(c));
+    FIREBASE_ASSERT(IsSpecialByte(c));
     if (c == kEscape1) {
       if (result) {
-        AppendBytes(result, copy_start, start - copy_start - 1);
+        AppendBytes(result, copy_start,
+                    static_cast<size_t>(start - copy_start) - 1);
       }
       // kEscape1 kSeparator ends component
       // kEscape1 kNullCharacter represents '\0'
       const char next = *(start++);
       if (next == kSeparator) {
-        src->remove_prefix(start - src->data());
+        src->remove_prefix(static_cast<size_t>(start - src->data()));
         return true;
       } else if (next == kNullCharacter) {
         if (result) {
@@ -304,9 +324,10 @@ inline static bool ReadStringInternal(Slice* src, std::string* result) {
       }
       copy_start = start;
     } else {
-      assert(c == kEscape2);
+      FIREBASE_ASSERT(c == kEscape2);
       if (result) {
-        AppendBytes(result, copy_start, start - copy_start - 1);
+        AppendBytes(result, copy_start,
+                    static_cast<size_t>(start - copy_start) - 1);
       }
       // kEscape2 kFFCharacter represents '\xff'
       // kEscape2 kInfinity is an error
@@ -324,22 +345,22 @@ inline static bool ReadStringInternal(Slice* src, std::string* result) {
   return false;
 }
 
-bool OrderedCode::ReadString(Slice* src, std::string* result) {
+bool OrderedCode::ReadString(absl::string_view* src, std::string* result) {
   return ReadStringInternal(src, result);
 }
 
-bool OrderedCode::ReadNumIncreasing(Slice* src, uint64_t* result) {
+bool OrderedCode::ReadNumIncreasing(absl::string_view* src, uint64_t* result) {
   if (src->empty()) {
     return false;  // Not enough bytes
   }
 
   // Decode length byte
-  const int len = static_cast<unsigned char>((*src)[0]);
+  const size_t len = static_cast<size_t>((*src)[0]);
 
   // If len > 0 and src is longer than 1, the first byte of "payload"
   // must be non-zero (otherwise the encoding is not minimal).
   // In opt mode, we don't enforce that encodings must be minimal.
-  assert(0 == len || src->size() == 1 || (*src)[1] != '\0');
+  FIREBASE_ASSERT(0 == len || src->size() == 1 || (*src)[1] != '\0');
 
   if (len + 1 > src->size() || len > 8) {
     return false;  // Not enough bytes or too many bytes
@@ -347,7 +368,7 @@ bool OrderedCode::ReadNumIncreasing(Slice* src, uint64_t* result) {
 
   if (result) {
     uint64_t tmp = 0;
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
       tmp <<= 8;
       tmp |= static_cast<unsigned char>((*src)[1 + i]);
     }
@@ -357,7 +378,7 @@ bool OrderedCode::ReadNumIncreasing(Slice* src, uint64_t* result) {
   return true;
 }
 
-inline static bool ReadInfinityInternal(Slice* src) {
+inline static bool ReadInfinityInternal(absl::string_view* src) {
   if (src->size() >= 2 && ((*src)[0] == kEscape2) && ((*src)[1] == kInfinity)) {
     src->remove_prefix(2);
     return true;
@@ -366,9 +387,12 @@ inline static bool ReadInfinityInternal(Slice* src) {
   }
 }
 
-bool OrderedCode::ReadInfinity(Slice* src) { return ReadInfinityInternal(src); }
+bool OrderedCode::ReadInfinity(absl::string_view* src) {
+  return ReadInfinityInternal(src);
+}
 
-inline static bool ReadStringOrInfinityInternal(Slice* src, std::string* result,
+inline static bool ReadStringOrInfinityInternal(absl::string_view* src,
+                                                std::string* result,
                                                 bool* inf) {
   if (ReadInfinityInternal(src)) {
     if (inf) *inf = true;
@@ -387,12 +411,14 @@ inline static bool ReadStringOrInfinityInternal(Slice* src, std::string* result,
   }
 }
 
-bool OrderedCode::ReadStringOrInfinity(Slice* src, std::string* result,
+bool OrderedCode::ReadStringOrInfinity(absl::string_view* src,
+                                       std::string* result,
                                        bool* inf) {
   return ReadStringOrInfinityInternal(src, result, inf);
 }
 
-bool OrderedCode::ReadTrailingString(Slice* src, std::string* result) {
+bool OrderedCode::ReadTrailingString(absl::string_view* src,
+                                     std::string* result) {
   if (result) result->assign(src->data(), src->size());
   src->remove_prefix(src->size());
   return true;
@@ -400,7 +426,7 @@ bool OrderedCode::ReadTrailingString(Slice* src, std::string* result) {
 
 void OrderedCode::TEST_Corrupt(std::string* str, int k) {
   int seen_seps = 0;
-  for (int i = 0; i < str->size() - 1; i++) {
+  for (size_t i = 0; i < str->size() - 1; i++) {
     if ((*str)[i] == kEscape1 && (*str)[i + 1] == kSeparator) {
       seen_seps++;
       if (seen_seps == k) {
@@ -506,61 +532,70 @@ static const int8_t kBitsToLength[1 + 63] = {
     4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7,
     7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 10};
 
-// Calculates the encoding length in bytes of the signed number n.
+/** Calculates the encoding length in bytes of the signed number n. */
 static inline int SignedEncodingLength(int64_t n) {
-  return kBitsToLength[Bits::Log2Floor64(n < 0 ? ~n : n) + 1];
+  return kBitsToLength[Bits::Log2Floor64(
+                           static_cast<uint64_t>(n < 0 ? ~n : n)) +
+                       1];
 }
 
-// Slightly faster version for n > 0.
+/** Slightly faster version for n > 0. */
 static inline int SignedEncodingLengthPositive(int64_t n) {
-  return kBitsToLength[Bits::Log2FloorNonZero64(n) + 1];
+  return kBitsToLength[Bits::Log2FloorNonZero64(static_cast<uint64_t>(n)) + 1];
 }
 
 void OrderedCode::WriteSignedNumIncreasing(std::string* dest, int64_t val) {
-  const uint64_t x = val < 0 ? ~val : val;
+  const int64_t x = val < 0 ? ~val : val;
   if (x < 64) {  // fast path for encoding length == 1
-    *dest += kLengthToHeaderBits[1][0] ^ val;
+    *dest += static_cast<char>(kLengthToHeaderBits[1][0] ^ val);
     return;
   }
   // buf = val in network byte order, sign extended to 10 bytes
   const char sign_byte = val < 0 ? '\xff' : '\0';
   char buf[10] = {
-      sign_byte, sign_byte,
+      sign_byte,
+      sign_byte,
   };
-  UNALIGNED_STORE64(buf + 2, absl::ghtonll(val));
+  UNALIGNED_STORE64(buf + 2, absl::ghtonll(static_cast<uint64_t>(val)));
 
-  static_assert(sizeof(buf) == kMaxSigned64Length, "max length size mismatch");
-  const int len = SignedEncodingLengthPositive(x);
-  assert(len >= 2);
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(sizeof(buf) == kMaxSigned64Length,
+                                          sizeof(buf) == kMaxSigned64Length,
+                                          "max length size mismatch");
+  const size_t len = static_cast<size_t>(SignedEncodingLengthPositive(x));
+  FIREBASE_ASSERT(len >= 2);
   char* const begin = buf + sizeof(buf) - len;
   begin[0] ^= kLengthToHeaderBits[len][0];
   begin[1] ^= kLengthToHeaderBits[len][1];  // ok because len >= 2
   dest->append(begin, len);
 }
 
-bool OrderedCode::ReadSignedNumIncreasing(Slice* src, int64_t* result) {
+bool OrderedCode::ReadSignedNumIncreasing(absl::string_view* src,
+                                          int64_t* result) {
   if (src->empty()) return false;
   const uint64_t xor_mask = (!((*src)[0] & 0x80)) ? ~0ULL : 0ULL;
-  const unsigned char first_byte = (*src)[0] ^ (xor_mask & 0xff);
+  const unsigned char first_byte = static_cast<unsigned char>(
+      static_cast<uint64_t>((*src)[0]) ^ (xor_mask & 0xff));
 
   // now calculate and test length, and set x to raw (unmasked) result
-  int len;
+  size_t len;
   uint64_t x;
   if (first_byte != 0xff) {
-    len = 7 - Bits::Log2FloorNonZero(first_byte ^ 0xff);
+    len = static_cast<size_t>(7 - Bits::Log2FloorNonZero(first_byte ^ 0xff));
     if (src->size() < len) return false;
     x = xor_mask;  // sign extend using xor_mask
-    for (int i = 0; i < len; ++i)
+    for (size_t i = 0; i < len; ++i)
       x = (x << 8) | static_cast<unsigned char>((*src)[i]);
   } else {
     len = 8;
     if (src->size() < len) return false;
-    const unsigned char second_byte = (*src)[1] ^ (xor_mask & 0xff);
+    const unsigned char second_byte = static_cast<unsigned char>(
+        static_cast<uint64_t>((*src)[1]) ^ (xor_mask & 0xff));
     if (second_byte >= 0x80) {
       if (second_byte < 0xc0) {
         len = 9;
       } else {
-        const unsigned char third_byte = (*src)[2] ^ (xor_mask & 0xff);
+        const unsigned char third_byte = static_cast<unsigned char>(
+            static_cast<uint64_t>((*src)[2]) ^ (xor_mask & 0xff));
         if (second_byte == 0xc0 && third_byte < 0x80) {
           len = 10;
         } else {
@@ -574,12 +609,14 @@ bool OrderedCode::ReadSignedNumIncreasing(Slice* src, int64_t* result) {
 
   x ^= kLengthToMask[len];  // remove spurious header bits
 
-  assert(len == SignedEncodingLength(x));
+  FIREBASE_ASSERT(len == static_cast<size_t>(
+                             SignedEncodingLength(static_cast<int64_t>(x))));
 
-  if (result) *result = x;
-  src->remove_prefix(len);
+  if (result) *result = static_cast<int64_t>(x);
+  src->remove_prefix(static_cast<size_t>(len));
   return true;
 }
 
-}  // namespace Firestore
-
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase

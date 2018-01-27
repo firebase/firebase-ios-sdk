@@ -107,11 +107,15 @@ cc_library(
   SOURCES
     autoid.cc
     autoid.h
+    bits.cc
+    bits.h
     comparison.cc
     comparison.h
     config.h
     firebase_assert.h
     log.h
+    ordered_code.cc
+    ordered_code.h
     secure_random.h
     string_util.cc
     string_util.h

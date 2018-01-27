@@ -29,11 +29,8 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/Port/ordered_code.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::OrderedCode;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Iterator;

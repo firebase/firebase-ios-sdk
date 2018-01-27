@@ -32,11 +32,8 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/Port/ordered_code.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::OrderedCode;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::ReadOptions;
