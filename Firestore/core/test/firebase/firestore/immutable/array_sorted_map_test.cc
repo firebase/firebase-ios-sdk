@@ -301,8 +301,6 @@ TEST(ArraySortedMap, BalanceProblem) {
   ASSERT_SEQ_EQ(Pairs(Sorted(to_insert)), map);
 }
 
-// TODO(wilhuff): PredecessorKey
-
 // TODO(wilhuff): Iterators
 
 // TODO(wilhuff): IndexOf

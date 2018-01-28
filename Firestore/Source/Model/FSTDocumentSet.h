@@ -59,16 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocument *_Nullable)lastDocument;
 
 /**
- * Returns the document previous to the document associated with the given key in the set according
- * to its built in ordering. Returns nil if the document associated with the given key is the
- * first document.
- *
- * @param key A key that must be present in the DocumentSet.
- * @throws NSInvalidArgumentException if key is not present.
- */
-- (FSTDocument *_Nullable)predecessorDocumentForKey:(FSTDocumentKey *)key;
-
-/**
  * Returns the index of the document with the provided key in the document set. Returns NSNotFound
  * if the key is not present.
  */
