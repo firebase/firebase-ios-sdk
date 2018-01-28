@@ -95,7 +95,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       break;
     case Type::Blob: {
       // copy-and-swap
-      std::vector<const uint8_t> tmp = value.blob_value_;
+      std::vector<uint8_t> tmp = value.blob_value_;
       std::swap(blob_value_, tmp);
       break;
     }
@@ -104,7 +104,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       break;
     case Type::Array: {
       // copy-and-swap
-      std::vector<const FieldValue> tmp = value.array_value_;
+      std::vector<FieldValue> tmp = value.array_value_;
       std::swap(array_value_, tmp);
       break;
     }
@@ -228,7 +228,7 @@ FieldValue FieldValue::StringValue(std::string&& value) {
 FieldValue FieldValue::BlobValue(const uint8_t* source, size_t size) {
   FieldValue result;
   result.SwitchTo(Type::Blob);
-  std::vector<const uint8_t> copy(source, source + size);
+  std::vector<uint8_t> copy(source, source + size);
   std::swap(result.blob_value_, copy);
   return result;
 }
@@ -240,12 +240,12 @@ FieldValue FieldValue::GeoPointValue(const GeoPoint& value) {
   return result;
 }
 
-FieldValue FieldValue::ArrayValue(const std::vector<const FieldValue>& value) {
-  std::vector<const FieldValue> copy(value);
+FieldValue FieldValue::ArrayValue(const std::vector<FieldValue>& value) {
+  std::vector<FieldValue> copy(value);
   return ArrayValue(std::move(copy));
 }
 
-FieldValue FieldValue::ArrayValue(std::vector<const FieldValue>&& value) {
+FieldValue FieldValue::ArrayValue(std::vector<FieldValue>&& value) {
   FieldValue result;
   result.SwitchTo(Type::Array);
   std::swap(result.array_value_, value);
@@ -368,13 +368,13 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     case Type::Blob:
       // Do not even bother to allocate a new array of size 0.
-      new (&blob_value_) std::vector<const uint8_t>();
+      new (&blob_value_) std::vector<uint8_t>();
       break;
     case Type::GeoPoint:
       new (&geo_point_value_) GeoPoint();
       break;
     case Type::Array:
-      new (&array_value_) std::vector<const FieldValue>();
+      new (&array_value_) std::vector<FieldValue>();
       break;
     case Type::Object:
       new (&object_value_) std::map<const std::string, const FieldValue>();

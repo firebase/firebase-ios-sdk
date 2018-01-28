@@ -105,8 +105,8 @@ class FieldValue {
   static FieldValue BlobValue(const uint8_t* source, size_t size);
   // static FieldValue ReferenceValue();
   static FieldValue GeoPointValue(const GeoPoint& value);
-  static FieldValue ArrayValue(const std::vector<const FieldValue>& value);
-  static FieldValue ArrayValue(std::vector<const FieldValue>&& value);
+  static FieldValue ArrayValue(const std::vector<FieldValue>& value);
+  static FieldValue ArrayValue(std::vector<FieldValue>&& value);
   static FieldValue ObjectValue(
       const std::map<const std::string, const FieldValue>& value);
   static FieldValue ObjectValue(
@@ -132,9 +132,9 @@ class FieldValue {
     Timestamp timestamp_value_;
     ServerTimestamp server_timestamp_value_;
     std::string string_value_;
-    std::vector<const uint8_t> blob_value_;
+    std::vector<uint8_t> blob_value_;
     GeoPoint geo_point_value_;
-    std::vector<const FieldValue> array_value_;
+    std::vector<FieldValue> array_value_;
     std::map<const std::string, const FieldValue> object_value_;
   };
 };

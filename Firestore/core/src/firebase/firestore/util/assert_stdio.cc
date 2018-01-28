@@ -16,7 +16,7 @@
 
 #include <stdarg.h>
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"

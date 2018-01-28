@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#include <limits.h>
+
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -152,15 +154,14 @@ TEST(FieldValue, GeoPointType) {
 }
 
 TEST(FieldValue, ArrayType) {
-  const FieldValue empty =
-      FieldValue::ArrayValue(std::vector<const FieldValue>{});
-  std::vector<const FieldValue> array{FieldValue::NullValue(),
-                                      FieldValue::BooleanValue(true),
-                                      FieldValue::BooleanValue(false)};
+  const FieldValue empty = FieldValue::ArrayValue(std::vector<FieldValue>{});
+  std::vector<FieldValue> array{FieldValue::NullValue(),
+                                FieldValue::BooleanValue(true),
+                                FieldValue::BooleanValue(false)};
   // copy the array
   const FieldValue small = FieldValue::ArrayValue(array);
-  std::vector<const FieldValue> another_array{FieldValue::BooleanValue(true),
-                                              FieldValue::BooleanValue(false)};
+  std::vector<FieldValue> another_array{FieldValue::BooleanValue(true),
+                                        FieldValue::BooleanValue(false)};
   // move the array
   const FieldValue large = FieldValue::ArrayValue(std::move(another_array));
   EXPECT_EQ(Type::Array, empty.type());
@@ -288,18 +289,17 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue array_value =
-      FieldValue::ArrayValue(std::vector<const FieldValue>{
-          FieldValue::TrueValue(), FieldValue::FalseValue()});
+  const FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
+      FieldValue::TrueValue(), FieldValue::FalseValue()});
   clone = array_value;
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             clone);
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             array_value);
   clone = clone;
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             clone);
   clone = null_value;
@@ -385,10 +385,10 @@ TEST(FieldValue, Move) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  FieldValue array_value = FieldValue::ArrayValue(std::vector<const FieldValue>{
+  FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
       FieldValue::TrueValue(), FieldValue::FalseValue()});
   clone = std::move(array_value);
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<const FieldValue>{
+  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             clone);
   clone = FieldValue::NullValue();
@@ -417,7 +417,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   const FieldValue array_value =
-      FieldValue::ArrayValue(std::vector<const FieldValue>());
+      FieldValue::ArrayValue(std::vector<FieldValue>());
   const FieldValue object_value =
       FieldValue::ObjectValue(std::map<const std::string, const FieldValue>());
   EXPECT_TRUE(null_value < true_value);
