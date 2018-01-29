@@ -119,6 +119,10 @@ class FixedArray {
     return begin() + size_;
   }
 
+  size_type size() const {
+    return size_;
+  }
+
  private:
   iterator begin() {
     return contents_.begin();
@@ -130,9 +134,6 @@ class FixedArray {
 
   array_type contents_;
   size_type size_;
-
-  template <typename K, typename V, typename C>
-  friend class firebase::firestore::immutable::ArraySortedMap;
 };
 
 }  // namespace impl
@@ -265,7 +266,7 @@ class ArraySortedMap {
 
   /** Returns the number of items in this map. */
   size_type size() const {
-    return array_->size_;
+    return array_->size();
   }
 
   /**
