@@ -15,8 +15,12 @@
 cc_library(
   firebase_firestore_model
   SOURCES
+    database_id.cc
+    database_id.h
     field_value.cc
+    field_value.h
     timestamp.cc
+    timestamp.h
   DEPENDS
     firebase_firestore_util
     firebase_firestore_types
