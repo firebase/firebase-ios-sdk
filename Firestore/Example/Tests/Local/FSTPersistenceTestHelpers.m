@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSError *error;
   NSFileManager *files = [NSFileManager defaultManager];
   NSString *dir =
-          [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
+      [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
   if ([files fileExistsAtPath:dir]) {
     // Delete the directory first to ensure isolation between runs.
     BOOL success = [files removeItemAtPath:dir error:&error];

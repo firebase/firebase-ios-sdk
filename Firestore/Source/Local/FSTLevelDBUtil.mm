@@ -32,7 +32,7 @@ using leveldb::WriteOptions;
   }
 
   NSData *data =
-          [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
 
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];

@@ -82,7 +82,9 @@ static ReadOptions GetStandardReadOptions() {
 
 - (void)start {
   FSTPBTargetGlobal *metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db.get()];
-  FSTAssert(metadata != nil, @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
+  FSTAssert(
+      metadata != nil,
+      @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
   _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
 
   self.metadata = metadata;

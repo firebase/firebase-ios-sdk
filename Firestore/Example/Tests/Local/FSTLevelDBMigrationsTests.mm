@@ -1,9 +1,9 @@
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
 
-#import "Firestore/Source/Local/FSTLevelDBUtil.h"
-#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
+#import "Firestore/Source/Local/FSTLevelDBUtil.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
