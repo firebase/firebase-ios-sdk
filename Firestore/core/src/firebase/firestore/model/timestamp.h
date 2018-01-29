@@ -43,22 +43,22 @@ class Timestamp {
    * @param seconds the number of seconds since epoch.
    * @param nanos the number of nanoseconds after the seconds.
    */
-  Timestamp(long seconds, int nanos);
+  Timestamp(int64_t seconds, int32_t nanos);
 
   /** Returns a timestamp with the current date / time. */
   static Timestamp Now();
 
-  long seconds() const {
+  int64_t seconds() const {
     return seconds_;
   }
 
-  int nanos() const {
+  int32_t nanos() const {
     return nanos_;
   }
 
  private:
-  long seconds_;
-  int nanos_;
+  int64_t seconds_;
+  int32_t nanos_;
 };
 
 /** Compares against another Timestamp. */
@@ -91,4 +91,4 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TIMESTAMP_H_
