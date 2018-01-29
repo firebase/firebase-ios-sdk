@@ -78,6 +78,7 @@
 		AB99452C1FE3018D00DFC1E6 /* FIRQuerySnapshotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB99452B1FE3018D00DFC1E6 /* FIRQuerySnapshotTests.m */; };
 		AB99452E1FE30AC800DFC1E6 /* FIRFieldValueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB99452D1FE30AC800DFC1E6 /* FIRFieldValueTests.m */; };
 		ABAEEF4F1FD5F8B100C966CB /* FIRQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ABAEEF4E1FD5F8B100C966CB /* FIRQueryTests.m */; };
+		ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		ABF341051FE860CA00C48322 /* FSTAPIHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = ABF341021FE8593500C48322 /* FSTAPIHelpers.m */; };
 		ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF6506B201131F8005F2C74 /* timestamp_test.cc */; };
 		AFE6114F0D4DAECBA7B7C089 /* Pods_Firestore_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */; };
@@ -257,6 +258,7 @@
 		AB380D03201BC6E400D97691 /* ordered_code_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ordered_code_test.cc; path = ../../core/test/firebase/firestore/util/ordered_code_test.cc; sourceTree = "<group>"; };
 		AB382F7B1FE02A1F007CA955 /* FIRDocumentReferenceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDocumentReferenceTests.m; sourceTree = "<group>"; };
 		AB382F7D1FE03059007CA955 /* FIRFieldPathTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRFieldPathTests.m; sourceTree = "<group>"; };
+		AB71064B201FA60300344F18 /* database_id_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = database_id_test.cc; sourceTree = "<group>"; };
 		AB7BAB332012B519001E0872 /* geo_point_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = geo_point_test.cc; path = ../../core/test/firebase/firestore/geo_point_test.cc; sourceTree = "<group>"; };
 		AB9945251FE2D71100DFC1E6 /* FIRCollectionReferenceTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRCollectionReferenceTests.m; sourceTree = "<group>"; };
 		AB9945271FE2DE0C00DFC1E6 /* FIRSnapshotMetadataTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRSnapshotMetadataTests.m; sourceTree = "<group>"; };
@@ -553,6 +555,7 @@
 			children = (
 				AB356EF6200EA5EB0089B766 /* field_value_test.cc */,
 				ABF6506B201131F8005F2C74 /* timestamp_test.cc */,
+				AB71064B201FA60300344F18 /* database_id_test.cc */,
 			);
 			name = model;
 			path = ../../core/test/firebase/firestore/model;
@@ -1222,6 +1225,7 @@
 			files = (
 				DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */,
 				DE51B1FD1F0D492C0013853F /* FSTSpecTests.m in Sources */,
+				ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */,
 				ABAEEF4F1FD5F8B100C966CB /* FIRQueryTests.m in Sources */,
 				ABF341051FE860CA00C48322 /* FSTAPIHelpers.m in Sources */,
 				DE51B1CC1F0D48C00013853F /* FIRGeoPointTests.m in Sources */,
