@@ -23,6 +23,7 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLevelDBUtil.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
@@ -80,11 +81,8 @@ static ReadOptions GetStandardReadOptions() {
 }
 
 - (void)start {
-  std::string key = [FSTLevelDBTargetGlobalKey key];
-  FSTPBTargetGlobal *metadata = [self metadataForKey:key];
-  if (!metadata) {
-    metadata = [FSTPBTargetGlobal message];
-  }
+  FSTPBTargetGlobal *metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db.get()];
+  FSTAssert(metadata != nil, @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
   _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
 
   self.metadata = metadata;
@@ -154,34 +152,6 @@ static ReadOptions GetStandardReadOptions() {
   std::string indexKey =
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
   [group removeMessageForKey:indexKey];
-}
-
-/**
- * Looks up the query global metadata associated with the given key.
- *
- * @return the parsed protocol buffer message or nil if the row referenced by the given key does
- *     not exist.
- */
-- (nullable FSTPBTargetGlobal *)metadataForKey:(const std::string &)key {
-  std::string value;
-  Status status = _db->Get(GetStandardReadOptions(), key, &value);
-  if (status.IsNotFound()) {
-    return nil;
-  } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
-  }
-
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
-
-  NSError *error;
-  FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
-  if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
-  }
-
-  return proto;
 }
 
 /**

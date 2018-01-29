@@ -20,6 +20,7 @@
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
@@ -33,6 +34,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kReservedPathComponent = @"firestore";
+static FSTLevelDBSchemaVersion kSchemaVersion = 1;
 
 using leveldb::DB;
 using leveldb::Options;
@@ -115,7 +117,7 @@ using leveldb::WriteOptions;
   if (!database) {
     return NO;
   }
-
+  [FSTLevelDBMigrations runMigrationsToVersion:kSchemaVersion onDB:database];
   _ptr.reset(database);
   return YES;
 }
