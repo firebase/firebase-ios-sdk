@@ -37,10 +37,14 @@ class User {
   /** Construct an authenticated user with the given UID. */
   User(const absl::string_view uid);
 
-  const std::string& uid();
+  const std::string& uid() {
+    return uid_;
+  }
 
   // PORTING NOTE: Here use more clear naming is_authenticated() instead of is_unauthenticated().
-  bool is_authenticated();
+  bool is_authenticated() {
+    return is_authenticated_;
+  }
 
   friend bool operator==(const User& lhs, const User& rhs);
 
@@ -49,9 +53,9 @@ class User {
   const bool is_authenticated_;
 };
 
-inline bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
+inline bool operator==(const User& lhs, const User& rhs) {
   return lhs.is_authenticated_ == rhs.is_authenticated_ &&
-      (!lhs.is_authenicated_ || lhs.uid_ == rhs.uid_);
+      (!lhs.is_authenticated_ || lhs.uid_ == rhs.uid_);
 }
 
 inline bool operator!=(const User& lhs, const User& rhs) {

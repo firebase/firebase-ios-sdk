@@ -32,7 +32,7 @@ TEST(User, Getter) {
   EXPECT_TRUE(signin.is_authenticated());
 }
 
-TEST(Timestamp, Comparison) {
+TEST(User, Comparison) {
   EXPECT_EQ(User(), User());
   EXPECT_EQ(User("abc"), User("abc"));
   EXPECT_NE(User(), User("abc"));
