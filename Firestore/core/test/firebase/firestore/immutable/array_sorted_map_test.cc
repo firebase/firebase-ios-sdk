@@ -27,7 +27,7 @@ namespace firestore {
 namespace immutable {
 
 typedef ArraySortedMap<int, int> IntMap;
-constexpr IntMap::size_type kFixedSize = impl::kFixedSize;
+constexpr IntMap::size_type kFixedSize = IntMap::kFixedSize;
 
 template <typename K, typename V>
 testing::AssertionResult NotFound(const ArraySortedMap<K, V>& set,

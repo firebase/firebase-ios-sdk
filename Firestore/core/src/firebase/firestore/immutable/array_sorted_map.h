@@ -31,29 +31,37 @@ namespace firebase {
 namespace firestore {
 namespace immutable {
 
-template <typename K, typename V, typename C>
-class ArraySortedMap;
-
 namespace impl {
 
 /**
- * The type of size() methods on immutable collections. Note that this is not
- * size_t specifically to save space in the TreeSortedMap implementation.
- */
-using size_type = uint32_t;
-
-/**
- * The maximum size of an ArraySortedMap.
+ * A base class for implementing ArraySortedMap, containing types and constants
+ * that don't depend upon the template parameters to the main class.
  *
- * This is the size threshold where we use a tree backed sorted map instead of
- * an array backed sorted map. This is a more or less arbitrary chosen value,
- * that was chosen to be large enough to fit most of object kind of Firebase
- * data, but small enough to not notice degradation in performance for inserting
- * and lookups. Feel free to empirically determine this constant, but don't
- * expect much gain in real world performance.
+ * Note that this exists as a base class rather than as just a namespace in
+ * order to make it possible for users of ArraySortedMap to avoid needing to
+ * declare storage for each instantiation of the template.
  */
-// TODO(wilhuff): actually use this for switching implementations.
-constexpr size_type kFixedSize = 25;
+class ArraySortedMapBase {
+ public:
+  /**
+   * The type of size() methods on immutable collections. Note that this is not
+   * size_t specifically to save space in the TreeSortedMap implementation.
+   */
+  using size_type = uint32_t;
+
+  /**
+   * The maximum size of an ArraySortedMap.
+   *
+   * This is the size threshold where we use a tree backed sorted map instead of
+   * an array backed sorted map. This is a more or less arbitrary chosen value,
+   * that was chosen to be large enough to fit most of object kind of Firebase
+   * data, but small enough to not notice degradation in performance for
+   * inserting and lookups. Feel free to empirically determine this constant,
+   * but don't expect much gain in real world performance.
+   */
+  // TODO(wilhuff): actually use this for switching implementations.
+  static constexpr size_type kFixedSize = 25;
+};
 
 /**
  * A bounded-size array that allocates its contents directly in itself. This
@@ -70,10 +78,10 @@ constexpr size_type kFixedSize = 25;
  * @tparam T The type of an element in the array.
  * @tparam fixed_size the fixed size to use in creating the FixedArray.
  */
-template <typename T, size_type fixed_size>
+template <typename T, ArraySortedMapBase::size_type fixed_size>
 class FixedArray {
  public:
-  using size_type = impl::size_type;
+  using size_type = ArraySortedMapBase::size_type;
   using array_type = std::array<T, fixed_size>;
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
@@ -143,12 +151,10 @@ class FixedArray {
  * methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = std::less<K>>
-class ArraySortedMap {
+class ArraySortedMap : public impl::ArraySortedMapBase {
  public:
   using this_type = ArraySortedMap<K, V, C>;
   using key_comparator_type = KeyComparator<K, V, C>;
-
-  using size_type = impl::size_type;
 
   /**
    * The type of the entries stored in the map.
@@ -158,7 +164,7 @@ class ArraySortedMap {
   /**
    * The type of the fixed-size array containing entries of value_type.
    */
-  using array_type = impl::FixedArray<value_type, impl::kFixedSize>;
+  using array_type = impl::FixedArray<value_type, kFixedSize>;
   using const_iterator = typename array_type::const_iterator;
 
   using array_pointer = std::shared_ptr<const array_type>;

@@ -19,11 +19,12 @@
 namespace firebase {
 namespace firestore {
 namespace immutable {
+namespace impl {
 
-// Create a symbol to prevent ranlib from complaining.
-void FakeSymbol() {
-}
+// Define external storage for constants:
+constexpr ArraySortedMapBase::size_type ArraySortedMapBase::kFixedSize;
 
+}  // namespace impl
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase
