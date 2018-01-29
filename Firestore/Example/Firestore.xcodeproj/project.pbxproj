@@ -44,6 +44,7 @@
 		54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */; };
 		54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A51F315EE100DD57A1 /* write_spec_test.json */; };
 		54DA12B11F315F3800DD57A1 /* FIRValidationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 54DA12B01F315F3800DD57A1 /* FIRValidationTests.m */; };
+		54E001ED201EF0FC00D83E67 /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54E001EC201EF0FC00D83E67 /* array_sorted_map_test.cc */; };
 		54E928241F33953300C1953E /* FSTEventAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E9281D1F33950B00C1953E /* FSTEventAccumulator.m */; };
 		54E928251F33953400C1953E /* FSTEventAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E9281D1F33950B00C1953E /* FSTEventAccumulator.m */; };
 		54E9282C1F339CAD00C1953E /* XCTestCase+Await.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E9282B1F339CAD00C1953E /* XCTestCase+Await.m */; };
@@ -221,6 +222,7 @@
 		54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = resume_token_spec_test.json; sourceTree = "<group>"; };
 		54DA12A51F315EE100DD57A1 /* write_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = write_spec_test.json; sourceTree = "<group>"; };
 		54DA12B01F315F3800DD57A1 /* FIRValidationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRValidationTests.m; sourceTree = "<group>"; };
+		54E001EC201EF0FC00D83E67 /* array_sorted_map_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = array_sorted_map_test.cc; path = ../../../core/test/firebase/firestore/immutable/array_sorted_map_test.cc; sourceTree = "<group>"; };
 		54E9281C1F33950B00C1953E /* FSTEventAccumulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTEventAccumulator.h; sourceTree = "<group>"; };
 		54E9281D1F33950B00C1953E /* FSTEventAccumulator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSTEventAccumulator.m; sourceTree = "<group>"; };
 		54E9281E1F33950B00C1953E /* FSTIntegrationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTIntegrationTestCase.h; sourceTree = "<group>"; };
@@ -423,12 +425,21 @@
 			isa = PBXGroup;
 			children = (
 				AB380CF7201937B800D97691 /* core */,
+				54E001EB201EF0CE00D83E67 /* immutable */,
 				AB356EF5200E9D1A0089B766 /* model */,
 				54740A561FC913EB00713A1A /* util */,
 				54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */,
 				AB7BAB332012B519001E0872 /* geo_point_test.cc */,
 			);
 			name = GoogleTests;
+			sourceTree = "<group>";
+		};
+		54E001EB201EF0CE00D83E67 /* immutable */ = {
+			isa = PBXGroup;
+			children = (
+				54E001EC201EF0FC00D83E67 /* array_sorted_map_test.cc */,
+			);
+			path = immutable;
 			sourceTree = "<group>";
 		};
 		6003F581195388D10070C39A = {
@@ -1276,6 +1287,7 @@
 				DE51B1E61F0D490D0013853F /* FSTRemoteDocumentCacheTests.m in Sources */,
 				61E1D8B11FCF6C5700753285 /* StringViewTests.mm in Sources */,
 				DE51B1D91F0D490D0013853F /* FSTEagerGarbageCollectorTests.m in Sources */,
+				54E001ED201EF0FC00D83E67 /* array_sorted_map_test.cc in Sources */,
 				DE51B1E21F0D490D0013853F /* FSTMutationQueueTests.m in Sources */,
 				DE51B1E81F0D490D0013853F /* FSTLevelDBKeyTests.mm in Sources */,
 				AB9945261FE2D71100DFC1E6 /* FIRCollectionReferenceTests.m in Sources */,
