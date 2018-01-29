@@ -34,7 +34,6 @@ class DatabaseId {
    *
    * @param project_id The project for the database.
    * @param database_id The database in the project to use.
-   * @return A new instance of DatabaseId.
    */
   DatabaseId(const std::string& project_id, const std::string& database_id);
 
