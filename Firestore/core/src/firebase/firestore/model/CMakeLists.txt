@@ -22,6 +22,7 @@ cc_library(
     timestamp.cc
     timestamp.h
   DEPENDS
+    absl_strings
     firebase_firestore_util
     firebase_firestore_types
 )

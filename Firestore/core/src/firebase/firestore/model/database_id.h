@@ -19,6 +19,8 @@
 
 #include <string>
 
+#include "absl/strings/string_view.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -27,7 +29,7 @@ namespace model {
 class DatabaseId {
  public:
   /** The default name for "unset" database ID in resource names. */
-  static const char* kDefaultDatabaseId;
+  static constexpr const char* kDefaultDatabaseId = "(default)";
 
   /**
    * Creates and returns a new DatabaseId.
@@ -35,13 +37,13 @@ class DatabaseId {
    * @param project_id The project for the database.
    * @param database_id The database in the project to use.
    */
-  DatabaseId(const std::string& project_id, const std::string& database_id);
+  DatabaseId(const absl::string_view project_id, const absl::string_view database_id);
 
-  std::string project_id() const {
+  const std::string& project_id() const {
     return project_id_;
   }
 
-  std::string database_id() const {
+  const std::string& database_id() const {
     return database_id_;
   }
 

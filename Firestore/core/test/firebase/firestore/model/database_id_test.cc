@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
-#include <vector>
-
 #include "gtest/gtest.h"
 
 namespace firebase {

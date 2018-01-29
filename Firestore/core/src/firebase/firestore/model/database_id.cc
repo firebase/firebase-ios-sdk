@@ -16,18 +16,16 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
-#include <time.h>
-
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-const char* DatabaseId::kDefaultDatabaseId = "(default)";
+constexpr const char* DatabaseId::kDefaultDatabaseId;
 
-DatabaseId::DatabaseId(const std::string& project_id,
-                       const std::string& database_id)
+DatabaseId::DatabaseId(const absl::string_view project_id,
+                       const absl::string_view database_id)
     : project_id_(project_id), database_id_(database_id) {
   FIREBASE_ASSERT(!project_id.empty());
   FIREBASE_ASSERT(!database_id.empty());
