@@ -342,8 +342,8 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
 
   for (int n = 2; n <= 9; ++n) {
     // The zero in non_minimal[1] is "redundant".
-    std::string non_minimal =
-        std::string(1, static_cast<char>(n - 1)) + std::string(1, 0) + RandomString(&rnd, n - 2);
+    std::string non_minimal = std::string(1, static_cast<char>(n - 1)) +
+                              std::string(1, 0) + RandomString(&rnd, n - 2);
     EXPECT_EQ(static_cast<size_t>(n), non_minimal.length());
 
     EXPECT_NE(OCWrite<uint64_t>(0, INCREASING), non_minimal);
@@ -359,7 +359,8 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
   for (int n = 2; n <= 10; ++n) {
     // Header with 1 sign bit and n-1 size bits.
     std::string header =
-        std::string(n / 8, static_cast<char>(0xff)) + std::string(1, static_cast<char>(0xff << (8 - (n % 8))));
+        std::string(n / 8, static_cast<char>(0xff)) +
+        std::string(1, static_cast<char>(0xff << (8 - (n % 8))));
     // There are more than 7 zero bits between header bits and "payload".
     std::string non_minimal =
         header +
