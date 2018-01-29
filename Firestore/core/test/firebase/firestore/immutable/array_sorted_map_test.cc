@@ -27,8 +27,7 @@ namespace firestore {
 namespace immutable {
 
 typedef ArraySortedMap<int, int> IntMap;
-constexpr ArraySortedMapBase::size_type kFixedSize =
-    ArraySortedMapBase::kFixedSize;
+constexpr IntMap::size_type kFixedSize = impl::kFixedSize;
 
 template <typename K, typename V>
 testing::AssertionResult NotFound(const ArraySortedMap<K, V>& set,
@@ -59,129 +58,13 @@ testing::AssertionResult Found(const ArraySortedMap<K, V>& map,
   }
 }
 
-TEST(ArraySortedMap, SearchForSpecificKey) {
-  IntMap map{{1, 3}, {2, 4}};
-
-  ASSERT_TRUE(Found(map, 1, 3));
-  ASSERT_TRUE(Found(map, 2, 4));
-  ASSERT_TRUE(NotFound(map, 3));
-}
-
-TEST(ArraySortedMap, RemoveKeyValuePair) {
-  IntMap map{{1, 3}, {2, 4}};
-
-  IntMap new_set = map.erase(1);
-  ASSERT_TRUE(Found(new_set, 2, 4));
-  ASSERT_TRUE(NotFound(new_set, 1));
-
-  // Make sure the original one is not mutated
-  ASSERT_TRUE(Found(map, 1, 3));
-  ASSERT_TRUE(Found(map, 2, 4));
-}
-
-TEST(ArraySortedMap, MoreRemovals) {
-  IntMap map = IntMap()
-                   .insert(1, 1)
-                   .insert(50, 50)
-                   .insert(3, 3)
-                   .insert(4, 4)
-                   .insert(7, 7)
-                   .insert(9, 9)
-                   .insert(1, 20)
-                   .insert(18, 18)
-                   .insert(3, 2)
-                   .insert(4, 71)
-                   .insert(7, 42)
-                   .insert(9, 88);
-
-  ASSERT_TRUE(Found(map, 7, 42));
-  ASSERT_TRUE(Found(map, 3, 2));
-  ASSERT_TRUE(Found(map, 1, 20));
-
-  IntMap s1 = map.erase(7);
-  IntMap s2 = map.erase(3);
-  IntMap s3 = map.erase(1);
-
-  ASSERT_TRUE(NotFound(s1, 7));
-  ASSERT_TRUE(Found(s1, 3, 2));
-  ASSERT_TRUE(Found(s1, 1, 20));
-
-  ASSERT_TRUE(Found(s2, 7, 42));
-  ASSERT_TRUE(NotFound(s2, 3));
-  ASSERT_TRUE(Found(s2, 1, 20));
-
-  ASSERT_TRUE(Found(s3, 7, 42));
-  ASSERT_TRUE(Found(s3, 3, 2));
-  ASSERT_TRUE(NotFound(s3, 1));
-}
-
-TEST(ArraySortedMap, RemoveMiddleBug) {
-  IntMap map{{1, 1}, {2, 2}, {3, 3}};
-  ASSERT_TRUE(Found(map, 1, 1));
-  ASSERT_TRUE(Found(map, 2, 2));
-  ASSERT_TRUE(Found(map, 3, 3));
-
-  IntMap s1 = map.erase(2);
-  ASSERT_TRUE(Found(s1, 1, 1));
-  ASSERT_TRUE(NotFound(s1, 2));
-  ASSERT_TRUE(Found(s1, 3, 3));
-}
-
-TEST(ArraySortedMap, Increasing) {
-  auto total = static_cast<int>(kFixedSize);
-  IntMap map;
-
-  for (int i = 0; i < total; i++) {
-    map = map.insert(i, i);
-  }
-  ASSERT_EQ(kFixedSize, map.size());
-
-  for (int i = 0; i < total; i++) {
-    map = map.erase(i);
-  }
-  ASSERT_EQ(0u, map.size());
-}
-
-TEST(ArraySortedMap, Override) {
-  IntMap map = IntMap().insert(10, 10).insert(10, 8);
-
-  ASSERT_TRUE(Found(map, 10, 8));
-}
-
-TEST(ArraySortedMap, Empty) {
-  IntMap map = IntMap().insert(10, 10).erase(10);
-  EXPECT_TRUE(map.empty());
-  EXPECT_EQ(0u, map.size());
-  EXPECT_TRUE(NotFound(map, 1));
-  EXPECT_TRUE(NotFound(map, 10));
-}
-
-TEST(ArraySortedMap, EmptyGet) {
-  IntMap map;
-  EXPECT_TRUE(NotFound(map, 10));
-}
-
-TEST(ArraySortedMap, EmptySize) {
-  IntMap map;
-  EXPECT_TRUE(map.empty());
-  EXPECT_EQ(0u, map.size());
-}
-
-TEST(ArraySortedMap, EmptyRemoval) {
-  IntMap map;
-  IntMap new_map = map.erase(1);
-  EXPECT_TRUE(new_map.empty());
-  EXPECT_EQ(0u, new_map.size());
-  EXPECT_TRUE(NotFound(new_map, 1));
-}
-
 /**
  * Creates a vector containing a sequence of integers from the given starting
  * element up to, but not including, the given end element, with values
  * incremented by the given step.
  *
  * If step is negative the sequence is in descending order (but still starting
- * at start ane ending before end).
+ * at start and ending before end).
  */
 std::vector<int> Sequence(int start, int end, int step = 1) {
   std::vector<int> result;
@@ -237,7 +120,8 @@ std::vector<std::pair<int, int>> Pairs(const std::vector<int>& values) {
 }
 
 /**
- * Creates an ArraySortedMap containing
+ * Creates an ArraySortedMap by inserting a pair for each value in the vector.
+ * Each pair will have the same key and value.
  */
 IntMap ToMap(const std::vector<int>& values) {
   IntMap result;
@@ -247,9 +131,11 @@ IntMap ToMap(const std::vector<int>& values) {
   return result;
 }
 
+/**
+ * Appends the contents of the given container to a new vector.
+ */
 template <typename Container>
-std::vector<typename Container::value_type> Accumulate(
-    const Container& container) {
+std::vector<typename Container::value_type> Append(const Container& container) {
   std::vector<typename Container::value_type> result;
   result.insert(result.begin(), container.begin(), container.end());
   return result;
@@ -257,8 +143,136 @@ std::vector<typename Container::value_type> Accumulate(
 
 // TODO(wilhuff): ReverseTraversal
 
-#define ASSERT_SEQ_EQ(x, y) ASSERT_EQ((x), Accumulate(y));
-#define EXPECT_SEQ_EQ(x, y) EXPECT_EQ((x), Accumulate(y));
+#define ASSERT_SEQ_EQ(x, y) ASSERT_EQ((x), Append(y));
+#define EXPECT_SEQ_EQ(x, y) EXPECT_EQ((x), Append(y));
+
+TEST(ArraySortedMap, SearchForSpecificKey) {
+  IntMap map{{1, 3}, {2, 4}};
+
+  ASSERT_TRUE(Found(map, 1, 3));
+  ASSERT_TRUE(Found(map, 2, 4));
+  ASSERT_TRUE(NotFound(map, 3));
+}
+
+TEST(ArraySortedMap, RemoveKeyValuePair) {
+  IntMap map{{1, 3}, {2, 4}};
+
+  IntMap new_map = map.erase(1);
+  ASSERT_TRUE(Found(new_map, 2, 4));
+  ASSERT_TRUE(NotFound(new_map, 1));
+
+  // Make sure the original one is not mutated
+  ASSERT_TRUE(Found(map, 1, 3));
+  ASSERT_TRUE(Found(map, 2, 4));
+}
+
+TEST(ArraySortedMap, MoreRemovals) {
+  IntMap map = IntMap()
+                   .insert(1, 1)
+                   .insert(50, 50)
+                   .insert(3, 3)
+                   .insert(4, 4)
+                   .insert(7, 7)
+                   .insert(9, 9)
+                   .insert(1, 20)
+                   .insert(18, 18)
+                   .insert(3, 2)
+                   .insert(4, 71)
+                   .insert(7, 42)
+                   .insert(9, 88);
+
+  ASSERT_TRUE(Found(map, 7, 42));
+  ASSERT_TRUE(Found(map, 3, 2));
+  ASSERT_TRUE(Found(map, 1, 20));
+
+  IntMap s1 = map.erase(7);
+  IntMap s2 = map.erase(3);
+  IntMap s3 = map.erase(1);
+
+  ASSERT_TRUE(NotFound(s1, 7));
+  ASSERT_TRUE(Found(s1, 3, 2));
+  ASSERT_TRUE(Found(s1, 1, 20));
+
+  ASSERT_TRUE(Found(s2, 7, 42));
+  ASSERT_TRUE(NotFound(s2, 3));
+  ASSERT_TRUE(Found(s2, 1, 20));
+
+  ASSERT_TRUE(Found(s3, 7, 42));
+  ASSERT_TRUE(Found(s3, 3, 2));
+  ASSERT_TRUE(NotFound(s3, 1));
+}
+
+TEST(ArraySortedMap, RemovesMiddle) {
+  IntMap map{{1, 1}, {2, 2}, {3, 3}};
+  ASSERT_TRUE(Found(map, 1, 1));
+  ASSERT_TRUE(Found(map, 2, 2));
+  ASSERT_TRUE(Found(map, 3, 3));
+
+  IntMap s1 = map.erase(2);
+  ASSERT_TRUE(Found(s1, 1, 1));
+  ASSERT_TRUE(NotFound(s1, 2));
+  ASSERT_TRUE(Found(s1, 3, 3));
+}
+
+TEST(ArraySortedMap, Increasing) {
+  auto total = static_cast<int>(kFixedSize);
+  IntMap map;
+
+  for (int i = 0; i < total; i++) {
+    map = map.insert(i, i);
+  }
+  ASSERT_EQ(kFixedSize, map.size());
+
+  for (int i = 0; i < total; i++) {
+    map = map.erase(i);
+  }
+  ASSERT_EQ(0u, map.size());
+}
+
+TEST(ArraySortedMap, Override) {
+  IntMap map = IntMap().insert(10, 10).insert(10, 8);
+
+  ASSERT_TRUE(Found(map, 10, 8));
+  ASSERT_FALSE(Found(map, 10, 10));
+}
+
+TEST(ArraySortedMap, ChecksSize) {
+  std::vector<int> to_insert = Sequence(kFixedSize);
+  IntMap map = ToMap(to_insert);
+
+  // Replacing an existing entry should not hit increase size
+  map = map.insert(5, 10);
+
+  int next = kFixedSize;
+  ASSERT_DEATH_IF_SUPPORTED(map.insert(next, next), "new_size <= fixed_size");
+}
+
+TEST(ArraySortedMap, Empty) {
+  IntMap map = IntMap().insert(10, 10).erase(10);
+  EXPECT_TRUE(map.empty());
+  EXPECT_EQ(0u, map.size());
+  EXPECT_TRUE(NotFound(map, 1));
+  EXPECT_TRUE(NotFound(map, 10));
+}
+
+TEST(ArraySortedMap, EmptyGet) {
+  IntMap map;
+  EXPECT_TRUE(NotFound(map, 10));
+}
+
+TEST(ArraySortedMap, EmptySize) {
+  IntMap map;
+  EXPECT_TRUE(map.empty());
+  EXPECT_EQ(0u, map.size());
+}
+
+TEST(ArraySortedMap, EmptyRemoval) {
+  IntMap map;
+  IntMap new_map = map.erase(1);
+  EXPECT_TRUE(new_map.empty());
+  EXPECT_EQ(0u, new_map.size());
+  EXPECT_TRUE(NotFound(new_map, 1));
+}
 
 TEST(ArraySortedMap, InsertionAndRemovalOfMaxItems) {
   auto expected_size = kFixedSize;
@@ -294,17 +308,14 @@ TEST(ArraySortedMap, BalanceProblem) {
 // TODO(wilhuff): IndexOf
 
 TEST(ArraySortedMap, AvoidsCopying) {
-  IntMap map;
-
-  // Verify that emplacing a pair does not copy.
-  IntMap inserted = map.insert(10, 20);
-  auto found = inserted.find(10);
-  ASSERT_NE(found, inserted.end());
+  IntMap map = IntMap().insert(10, 20);
+  auto found = map.find(10);
+  ASSERT_NE(found, map.end());
   EXPECT_EQ(20, found->second);
 
   // Verify that inserting something with equal keys and values just returns
-  // this.
-  IntMap duped = inserted.insert(10, 20);
+  // the same underlying array.
+  IntMap duped = map.insert(10, 20);
   auto duped_found = duped.find(10);
 
   // If everything worked correctly, the backing array should not have been

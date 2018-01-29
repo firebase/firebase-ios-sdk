@@ -20,8 +20,9 @@ namespace firebase {
 namespace firestore {
 namespace immutable {
 
-// Define external storage for constants:
-constexpr ArraySortedMapBase::size_type ArraySortedMapBase::kFixedSize;
+// Create a symbol to prevent ranlib from complaining.
+void FakeSymbol() {
+}
 
 }  // namespace immutable
 }  // namespace firestore

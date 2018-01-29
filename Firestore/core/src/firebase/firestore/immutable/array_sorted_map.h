@@ -31,47 +31,60 @@ namespace firebase {
 namespace firestore {
 namespace immutable {
 
+template <typename K, typename V, typename C>
+class ArraySortedMap;
+
+namespace impl {
+
 /**
- * A base class for implementing ArraySortedMap, which contains constants and
- * types that don't depend upon the type of ArraySortedMap's type parameters.
+ * The type of size() methods on immutable collections. Note that this is not
+ * size_t specifically to save space in the TreeSortedMap implementation.
  */
-class ArraySortedMapBase {
- public:
-  /**
-   * The type of size(). Note that this is not size_t specifically to save
-   * space in the TreeSortedMap implementation.
-   */
-  typedef uint32_t size_type;
-
-  /**
-   * The maximum size of an ArraySortedMap.
-   *
-   * This is the size threshold where we use a tree backed sorted map instead
-   * of an array backed sorted map. This is a more or less arbitrary chosen
-   * value, that was chosen to be large enough to fit most of object kind of
-   * Firebase data, but small enough to not notice degradation in performance
-   * for inserting and lookups. Feel free to empirically determine this
-   * constant, but don't expect much gain in real world performance.
-   */
-  static constexpr size_type kFixedSize = 25;
-};
+using size_type = uint32_t;
 
 /**
- * A thin wrapper around std::array that also maintains a dynamic size.
+ * The maximum size of an ArraySortedMap.
  *
- * ArraySortedMap does not actually contain its array: it contains a
- * shared_ptr to a FixedArray
+ * This is the size threshold where we use a tree backed sorted map instead of
+ * an array backed sorted map. This is a more or less arbitrary chosen value,
+ * that was chosen to be large enough to fit most of object kind of Firebase
+ * data, but small enough to not notice degradation in performance for inserting
+ * and lookups. Feel free to empirically determine this constant, but don't
+ * expect much gain in real world performance.
+ */
+// TODO(wilhuff): actually use this for switching implementations.
+constexpr size_type kFixedSize = 25;
+
+/**
+ * A bounded-size array that allocates its contents directly in itself. This
+ * saves a heap allocation when compared with std::vector (though std::vector
+ * can resize itself while FixedArray cannot).
  *
- * @tparam T The contents of an element in the array.
+ * Unlike std::array, FixedArray keeps track of its size and grows up to the
+ * fixed_size limit. Inserting more elements than fixed_size will trigger an
+ * assertion failure.
+ *
+ * ArraySortedMap does not actually contain its array: it contains a shared_ptr
+ * to a FixedArray.
+ *
+ * @tparam T The type of an element in the array.
  * @tparam fixed_size the fixed size to use in creating the FixedArray.
  */
-template <typename T, ArraySortedMapBase::size_type fixed_size>
+template <typename T, size_type fixed_size>
 class FixedArray {
  public:
-  typedef ArraySortedMapBase::size_type size_type;
-  typedef std::array<T, fixed_size> array_type;
-  typedef typename array_type::iterator iterator;
-  typedef typename array_type::const_iterator const_iterator;
+  using size_type = impl::size_type;
+  using array_type = std::array<T, fixed_size>;
+  using iterator = typename array_type::iterator;
+  using const_iterator = typename array_type::const_iterator;
+
+  FixedArray() : size_(0) {
+  }
+
+  template <typename SourceIterator>
+  FixedArray(SourceIterator src_begin, SourceIterator src_end) : FixedArray() {
+    append(src_begin, src_end);
+  }
 
   /**
    * Appends to this array, copying from the given src_begin up to but not
@@ -79,28 +92,27 @@ class FixedArray {
    */
   template <typename SourceIterator>
   void append(SourceIterator src_begin, SourceIterator src_end) {
-    auto copy_end = std::copy(src_begin, src_end, end());
-    size_ = static_cast<size_type>(copy_end - begin());
+    size_type appending = static_cast<size_type>(src_end - src_begin);
+    size_type new_size = size_ + appending;
+    assert(new_size <= fixed_size);
+
+    std::copy(src_begin, src_end, end());
+    size_ = new_size;
   }
 
   /**
    * Appends a single value to the array.
    */
   void append(T&& value) {
-    *end() = std::forward<T>(value);
-    size_ += 1;
-  }
+    size_type new_size = size_ + 1;
+    assert(new_size <= fixed_size);
 
-  iterator begin() {
-    return contents_.begin();
+    *end() = std::move(value);
+    size_ = new_size;
   }
 
   const_iterator begin() const {
     return contents_.begin();
-  }
-
-  iterator end() {
-    return begin() + size_;
   }
 
   const_iterator end() const {
@@ -108,35 +120,47 @@ class FixedArray {
   }
 
  private:
+  iterator begin() {
+    return contents_.begin();
+  }
+
+  iterator end() {
+    return begin() + size_;
+  }
+
   array_type contents_;
   size_type size_;
 
   template <typename K, typename V, typename C>
-  friend class ArraySortedMap;
+  friend class firebase::firestore::immutable::ArraySortedMap;
 };
+
+}  // namespace impl
 
 /**
  * ArraySortedMap is a value type containing a map. It is immutable, but has
  * methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = std::less<K>>
-class ArraySortedMap : public ArraySortedMapBase {
+class ArraySortedMap {
  public:
-  typedef ArraySortedMap<K, V, C> this_type;
-  typedef KeyComparator<K, V, C> key_comparator_type;
+  using this_type = ArraySortedMap<K, V, C>;
+  using key_comparator_type = KeyComparator<K, V, C>;
+
+  using size_type = impl::size_type;
 
   /**
    * The type of the entries stored in the map.
    */
-  typedef std::pair<K, V> value_type;
+  using value_type = std::pair<K, V>;
 
   /**
    * The type of the fixed-size array containing entries of value_type.
    */
-  typedef FixedArray<value_type, kFixedSize> array_type;
-  typedef typename array_type::const_iterator const_iterator;
+  using array_type = impl::FixedArray<value_type, impl::kFixedSize>;
+  using const_iterator = typename array_type::const_iterator;
 
-  typedef std::shared_ptr<const array_type> array_pointer;
+  using array_pointer = std::shared_ptr<const array_type>;
 
   /**
    * Creates an empty ArraySortedMap.
@@ -148,14 +172,10 @@ class ArraySortedMap : public ArraySortedMapBase {
   /**
    * Creates an ArraySortedMap containing the given entries.
    */
-  explicit ArraySortedMap(std::initializer_list<value_type> entries,
-                          const C& comparator = C())
-      : array_(), key_comparator_(comparator) {
-    assert(static_cast<size_type>(entries.size()) <= kFixedSize);
-
-    auto array = std::make_shared<array_type>();
-    array->append(entries.begin(), entries.end());
-    array_ = array;
+  ArraySortedMap(std::initializer_list<value_type> entries,
+                 const C& comparator = C())
+      : array_(std::make_shared<array_type>(entries.begin(), entries.end())),
+        key_comparator_(comparator) {
   }
 
   /**
@@ -167,24 +187,16 @@ class ArraySortedMap : public ArraySortedMapBase {
    * @return A new dictionary with the added/updated value.
    */
   this_type insert(const K& key, const V& value) const {
-    value_type pair(key, value);
-
     const_iterator current_end = end();
-    const_iterator pos = LowerBound(pair.first);
+    const_iterator pos = LowerBound(key);
     bool replacing_entry = false;
 
     if (pos != current_end) {
       // LowerBound found an entry where pos->first >= pair.first. Reversing the
       // argument order here tests pair.first < pos->first.
-      bool keys_equal = !key_comparator_(pair.first, *pos);
-      if (keys_equal) {
-        const V& pos_value = pos->second;
-        const V& pair_value = pair.second;
-        if (pos_value == pair_value) {
-          return *this;
-        } else {
-          replacing_entry = true;
-        }
+      replacing_entry = !key_comparator_(key, *pos);
+      if (replacing_entry && value == pos->second) {
+        return *this;
       }
     }
 
@@ -194,19 +206,14 @@ class ArraySortedMap : public ArraySortedMapBase {
     copy->append(begin(), pos);
 
     // Copy the value to be inserted.
-    copy->append(std::move(pair));
+    copy->append(value_type(key, value));
 
     if (replacing_entry) {
       // Skip the thing at pos because it compares the same as the pair above.
-      ++pos;
+      copy->append(pos + 1, current_end);
     } else {
-      // If inserting at the end or the key at pos is not equal to what we're
-      // inserting, then increase the size.
-      assert(size() < kFixedSize);
+      copy->append(pos, current_end);
     }
-
-    // Copy everything after pos (if anything).
-    copy->append(pos, current_end);
     return wrap(copy);
   }
 
@@ -221,13 +228,13 @@ class ArraySortedMap : public ArraySortedMapBase {
     const_iterator pos = find(key);
     if (pos == current_end) {
       return *this;
+    } else if (size() <= 1) {
+      // If the key was found and it's the last entry, removing it would make
+      // the result empty.
+      return wrap(EmptyArray());
     } else {
-      auto copy = std::make_shared<array_type>();
-      copy->size_ = size() - 1;
-      auto copy_end = std::copy(begin(), pos, copy->begin());
-      if (pos + 1 < current_end) {
-        std::copy(pos + 1, end(), copy_end);
-      }
+      auto copy = std::make_shared<array_type>(begin(), pos);
+      copy->append(pos + 1, current_end);
       return wrap(copy);
     }
   }
@@ -248,7 +255,8 @@ class ArraySortedMap : public ArraySortedMapBase {
       return not_found;
     }
   }
-  // indexof
+
+  // TODO(wilhuff): indexof
 
   /** Returns true if the map contains no elements. */
   bool empty() const {
