@@ -225,7 +225,7 @@ TEST(OrderedCode, SkipToNextSpecialByte) {
     SecureRandom rnd;
     std::string x;
     while (x.size() < len) {
-      char c = 1 + static_cast<char>(rnd.Uniform(254));
+      char c = static_cast<char>(1 + rnd.Uniform(254));
       ASSERT_NE(c, 0);
       ASSERT_NE(c, 255);
       x += c;  // No 0 bytes, no 255 bytes
@@ -309,7 +309,7 @@ TEST(OrderedCodeInt64, Ordering) {
 // Returns the bitwise complement of s.
 static inline std::string StrNot(const std::string& s) {
   std::string result;
-  for (const char c : s) result.push_back(~c);
+  for (const char c : s) result.push_back(static_cast<char>(~c));
   return result;
 }
 
@@ -342,8 +342,8 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
 
   for (int n = 2; n <= 9; ++n) {
     // The zero in non_minimal[1] is "redundant".
-    std::string non_minimal =
-        std::string(1, n - 1) + std::string(1, 0) + RandomString(&rnd, n - 2);
+    std::string non_minimal = std::string(1, static_cast<char>(n - 1)) +
+                              std::string(1, 0) + RandomString(&rnd, n - 2);
     EXPECT_EQ(static_cast<size_t>(n), non_minimal.length());
 
     EXPECT_NE(OCWrite<uint64_t>(0, INCREASING), non_minimal);
@@ -359,12 +359,13 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
   for (int n = 2; n <= 10; ++n) {
     // Header with 1 sign bit and n-1 size bits.
     std::string header =
-        std::string(n / 8, 0xff) + std::string(1, 0xff << (8 - (n % 8)));
+        std::string(n / 8, '\xff') +
+        std::string(1, static_cast<char>(0xff << (8 - (n % 8))));
     // There are more than 7 zero bits between header bits and "payload".
     std::string non_minimal =
         header +
         std::string(1,
-                    static_cast<char>(rnd.Uniform(256)) & ~*header.rbegin()) +
+                    static_cast<char>(rnd.Uniform(256) & ~*header.rbegin())) +
         RandomString(&rnd, n - static_cast<int>(header.length()) - 1);
     EXPECT_EQ(static_cast<size_t>(n), non_minimal.length());
 

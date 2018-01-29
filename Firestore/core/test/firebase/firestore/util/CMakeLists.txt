@@ -48,6 +48,7 @@ cc_test(
     string_util_test.cc
   DEPENDS
     firebase_firestore_util
+    absl_strings
 )
 
 if(APPLE)
