@@ -71,7 +71,6 @@
 		AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D03201BC6E400D97691 /* ordered_code_test.cc */; };
 		AB382F7C1FE02A1F007CA955 /* FIRDocumentReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB382F7B1FE02A1F007CA955 /* FIRDocumentReferenceTests.m */; };
 		AB382F7E1FE03059007CA955 /* FIRFieldPathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB382F7D1FE03059007CA955 /* FIRFieldPathTests.m */; };
-		AB71064C201FA60300344F18 /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB7BAB332012B519001E0872 /* geo_point_test.cc */; };
 		AB9945261FE2D71100DFC1E6 /* FIRCollectionReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9945251FE2D71100DFC1E6 /* FIRCollectionReferenceTests.m */; };
 		AB9945281FE2DE0C00DFC1E6 /* FIRSnapshotMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9945271FE2DE0C00DFC1E6 /* FIRSnapshotMetadataTests.m */; };
@@ -79,6 +78,7 @@
 		AB99452C1FE3018D00DFC1E6 /* FIRQuerySnapshotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB99452B1FE3018D00DFC1E6 /* FIRQuerySnapshotTests.m */; };
 		AB99452E1FE30AC800DFC1E6 /* FIRFieldValueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB99452D1FE30AC800DFC1E6 /* FIRFieldValueTests.m */; };
 		ABAEEF4F1FD5F8B100C966CB /* FIRQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ABAEEF4E1FD5F8B100C966CB /* FIRQueryTests.m */; };
+		ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		ABF341051FE860CA00C48322 /* FSTAPIHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = ABF341021FE8593500C48322 /* FSTAPIHelpers.m */; };
 		ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF6506B201131F8005F2C74 /* timestamp_test.cc */; };
 		AFE6114F0D4DAECBA7B7C089 /* Pods_Firestore_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */; };
@@ -1214,7 +1214,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F59E195388D20070C39A /* FIRAppDelegate.m in Sources */,
-				AB71064C201FA60300344F18 /* database_id_test.cc in Sources */,
 				6003F5A7195388D20070C39A /* FIRViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
@@ -1226,6 +1225,7 @@
 			files = (
 				DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */,
 				DE51B1FD1F0D492C0013853F /* FSTSpecTests.m in Sources */,
+				ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */,
 				ABAEEF4F1FD5F8B100C966CB /* FIRQueryTests.m in Sources */,
 				ABF341051FE860CA00C48322 /* FSTAPIHelpers.m in Sources */,
 				DE51B1CC1F0D48C00013853F /* FIRGeoPointTests.m in Sources */,
