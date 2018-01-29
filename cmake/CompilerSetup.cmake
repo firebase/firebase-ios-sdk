@@ -30,7 +30,7 @@ endif()
 if(CLANG OR GNU)
   set(
     common_flags
-    -Wall -Wextra -Wconversion -Werror
+    -Wall -Wextra -Werror
 
     # Be super pedantic about format strings
     -Wformat

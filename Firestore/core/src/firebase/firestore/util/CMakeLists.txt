@@ -113,6 +113,7 @@ cc_library(
     comparison.h
     config.h
     firebase_assert.h
+    iterator_adaptors.h
     log.h
     ordered_code.cc
     ordered_code.h
