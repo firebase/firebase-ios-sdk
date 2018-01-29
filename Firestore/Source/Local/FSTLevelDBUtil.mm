@@ -38,7 +38,7 @@ using leveldb::WriteOptions;
   return options;
 }
 
-+ (FSTPBTargetGlobal *)readTargetMetadataFromDB:(DB *)db {
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(DB *)db {
   std::string key = [FSTLevelDBTargetGlobalKey key];
   std::string value;
   Status status = db->Get([FSTLevelDBUtil standardReadOptions], key, &value);
