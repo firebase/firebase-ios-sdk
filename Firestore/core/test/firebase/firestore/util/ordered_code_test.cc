@@ -26,9 +26,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-static std::string RandomString(SecureRandom* rnd, int len) {
+static std::string RandomString(SecureRandom* rnd, size_t len) {
   std::string x;
-  for (int i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     x += static_cast<char>(rnd->Uniform(256));
   }
   return x;
@@ -340,7 +340,7 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
 
   SecureRandom rnd;
 
-  for (int n = 2; n <= 9; ++n) {
+  for (size_t n = 2; n <= 9; ++n) {
     // The zero in non_minimal[1] is "redundant".
     std::string non_minimal = std::string(1, static_cast<char>(n - 1)) +
                               std::string(1, 0) + RandomString(&rnd, n - 2);
@@ -356,7 +356,7 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
 #endif  // defined(NDEBUG)
   }
 
-  for (int n = 2; n <= 10; ++n) {
+  for (size_t n = 2; n <= 10; ++n) {
     // Header with 1 sign bit and n-1 size bits.
     std::string header =
         std::string(n / 8, '\xff') +
@@ -364,9 +364,10 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
     // There are more than 7 zero bits between header bits and "payload".
     std::string non_minimal =
         header +
-        std::string(1,
-                    static_cast<char>(rnd.Uniform(256) & ~*header.rbegin())) +
-        RandomString(&rnd, n - static_cast<int>(header.length()) - 1);
+        std::string(
+            1, static_cast<char>(rnd.Uniform(256) & ~static_cast<unsigned int>(
+                                                        *header.rbegin()))) +
+        RandomString(&rnd, n - header.length() - 1);
     EXPECT_EQ(static_cast<size_t>(n), non_minimal.length());
 
     EXPECT_NE(OCWrite<int64_t>(0, INCREASING), non_minimal);
@@ -421,10 +422,10 @@ TEST(OrderedCodeString, EncodeDecode) {
   for (int i = 0; i < 1; ++i) {
     const Direction d = static_cast<Direction>(i);
 
-    for (int len = 0; len < 256; len++) {
+    for (size_t len = 0; len < 256; len++) {
       const std::string a = RandomString(&rnd, len);
       TestWriteRead(d, a);
-      for (int len2 = 0; len2 < 64; len2++) {
+      for (size_t len2 = 0; len2 < 64; len2++) {
         const std::string b = RandomString(&rnd, len2);
 
         TestWriteAppends(d, a, b);
