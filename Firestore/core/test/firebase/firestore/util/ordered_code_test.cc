@@ -359,7 +359,7 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
   for (int n = 2; n <= 10; ++n) {
     // Header with 1 sign bit and n-1 size bits.
     std::string header =
-        std::string(n / 8, static_cast<char>(0xff)) +
+        std::string(n / 8, '\xff') +
         std::string(1, static_cast<char>(0xff << (8 - (n % 8))));
     // There are more than 7 zero bits between header bits and "payload".
     std::string non_minimal =
