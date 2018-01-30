@@ -19,7 +19,7 @@
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
-#import "Firestore/Source/Local/FSTLevelDBUtil.h"
+#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
@@ -53,10 +53,10 @@ using leveldb::Status;
 }
 
 - (void)testAddsTargetGlobal {
-  FSTPBTargetGlobal *metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db];
+  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
   [FSTLevelDBMigrations runMigrationsToVersion:0 onDB:_db];
-  metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db];
+  metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
 }
 

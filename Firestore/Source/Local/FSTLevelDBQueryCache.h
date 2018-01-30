@@ -28,11 +28,19 @@ class DB;
 
 @class FSTLocalSerializer;
 @protocol FSTGarbageCollector;
+@class FSTPBTargetGlobal;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Cached Queries backed by LevelDB. */
 @interface FSTLevelDBQueryCache : NSObject <FSTQueryCache>
+
+#ifdef __cplusplus
+/**
+ * Retrieves the global singleton metadata row from the given database, if it exists.
+ */
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<leveldb::DB>)db;
+#endif
 
 - (instancetype)init NS_UNAVAILABLE;
 

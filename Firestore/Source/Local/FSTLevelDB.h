@@ -23,6 +23,7 @@
 
 namespace leveldb {
 class DB;
+class ReadOptions;
 class Status;
 }
 #endif
@@ -70,6 +71,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #ifdef __cplusplus
 // What follows is the Objective-C++ extension to the API.
+/**
+ * @return A standard set of read options
+ */
++ (const leveldb::ReadOptions)standardReadOptions;
 
 /**
  * Creates an NSError based on the given status if the status is not ok.

@@ -38,6 +38,7 @@ static FSTLevelDBSchemaVersion kSchemaVersion = 1;
 
 using leveldb::DB;
 using leveldb::Options;
+using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
 
@@ -51,6 +52,15 @@ using leveldb::WriteOptions;
 @end
 
 @implementation FSTLevelDB
+
+/**
+ * For now this is paranoid, but perhaps disable that in production builds.
+ */
++ (const ReadOptions)standardReadOptions {
+  ReadOptions options;
+  options.verify_checksums = true;
+  return options;
+}
 
 - (instancetype)initWithDirectory:(NSString *)directory
                        serializer:(FSTLocalSerializer *)serializer {

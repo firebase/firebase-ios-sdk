@@ -20,9 +20,10 @@
 #include <leveldb/write_batch.h>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
-#import "Firestore/Source/Local/FSTLevelDBUtil.h"
-#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,26 +32,26 @@ using leveldb::Status;
 using leveldb::Slice;
 using leveldb::WriteOptions;
 
-static void EnsureTargetGlobal(std::shared_ptr<DB> db) {
-  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBUtil readTargetMetadataFromDB:db];
+/**
+ * Ensures that the global singleton target metadata row exists in LevelDB.
+ * @param db The db in which to require the row.
+ */
+static void EnsureTargetGlobal(std::shared_ptr<DB> db, FSTWriteGroup *group) {
+  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBQueryCache readTargetMetadataFromDB:db];
   if (!targetGlobal) {
-    targetGlobal = [FSTPBTargetGlobal message];
-    NSData *data = [targetGlobal data];
-    Slice value((const char *)data.bytes, data.length);
-    Status status = db->Put(WriteOptions(), [FSTLevelDBTargetGlobalKey key], value);
-    if (!status.ok()) {
-      FSTCFail(@"Failed to save  metadata: %s", status.ToString().c_str());
-    }
+    [group setMessage:[FSTPBTargetGlobal message] forKey:[FSTLevelDBTargetGlobalKey key]];
   }
 }
 
-static void SaveVersion(std::shared_ptr<DB> db, FSTLevelDBSchemaVersion version) {
+/**
+ * Save the given version number as the current version of the schema of the database.
+ * @param version The version to save
+ * @param group The transaction in which to save the new version number
+ */
+static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string = std::to_string(version);
-  Status status = db->Put(WriteOptions(), key, version_string);
-  if (!status.ok()) {
-    FSTCFail(@"Saving schema version failed with status: %s", status.ToString().c_str());
-  }
+  [group setData:version_string forKey:key];
 }
 
 @implementation FSTLevelDBMigrations
@@ -58,7 +59,7 @@ static void SaveVersion(std::shared_ptr<DB> db, FSTLevelDBSchemaVersion version)
 + (FSTLevelDBSchemaVersion)schemaVersionForDB:(std::shared_ptr<DB>)db {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string;
-  Status status = db->Get([FSTLevelDBUtil standardReadOptions], key, &version_string);
+  Status status = db->Get([FSTLevelDB standardReadOptions], key, &version_string);
   if (status.IsNotFound()) {
     return 0;
   } else {
@@ -67,15 +68,19 @@ static void SaveVersion(std::shared_ptr<DB> db, FSTLevelDBSchemaVersion version)
 }
 
 + (void)runMigrationsToVersion:(FSTLevelDBSchemaVersion)version onDB:(std::shared_ptr<DB>)db {
+  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Migrations"];
   FSTLevelDBSchemaVersion currentVersion = [self schemaVersionForDB:db];
   switch (currentVersion) {
     case 0:
-      EnsureTargetGlobal(db);
+      EnsureTargetGlobal(db, group);
       // Fallthrough
     default:
       if (currentVersion < version) {
-        SaveVersion(db, version);
+        SaveVersion(version, group);
       }
+  }
+  if (!group.isEmpty) {
+    [group writeToDB:db];
   }
 }
 
