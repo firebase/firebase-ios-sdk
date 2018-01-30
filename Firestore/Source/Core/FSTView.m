@@ -312,8 +312,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     }
     return self.query.comparator(c1.document, c2.document);
   }];
-
-  NSArray<FSTLimboDocumentChange *> *limboChanges = [self applyTargetChange:targetChange];
+  [self applyTargetChange:targetChange];
+  NSArray<FSTLimboDocumentChange *> *limboChanges = [self updateLimboDocuments];
   BOOL synced = self.limboDocuments.count == 0 && self.isCurrent;
   FSTSyncState newSyncState = synced ? FSTSyncStateSynced : FSTSyncStateLocal;
   BOOL syncStateChanged = newSyncState != self.syncState;
@@ -378,10 +378,9 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 }
 
 /**
- * Updates syncedDocuments, isAcked, and limbo docs based on the given change.
- * @return the list of changes to which docs are in limbo.
+ * Updates syncedDocuments and current based on the given change.
  */
-- (NSArray<FSTLimboDocumentChange *> *)applyTargetChange:(nullable FSTTargetChange *)targetChange {
+- (void)applyTargetChange:(nullable FSTTargetChange *)targetChange {
   if (targetChange) {
     FSTTargetMapping *targetMapping = targetChange.mapping;
     if ([targetMapping isKindOfClass:[FSTResetMapping class]]) {
@@ -408,16 +407,21 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
         break;
     }
   }
+}
 
-  // Recompute the set of limbo docs.
+/** Updates limboDocuments and returns any changes as FSTLimboDocumentChanges. */
+- (NSArray<FSTLimboDocumentChange *> *)updateLimboDocuments {
+  // We can only determine limbo documents when we're in-sync with the server.
+  if (!self.isCurrent) {
+    return @[];
+  }
+
   // TODO(klimt): Do this incrementally so that it's not quadratic when updating many documents.
   FSTDocumentKeySet *oldLimboDocuments = self.limboDocuments;
   self.limboDocuments = [FSTDocumentKeySet keySet];
-  if (self.isCurrent) {
-    for (FSTDocument *doc in self.documentSet.documentEnumerator) {
-      if ([self shouldBeLimboDocumentKey:doc.key]) {
-        self.limboDocuments = [self.limboDocuments setByAddingObject:doc.key];
-      }
+  for (FSTDocument *doc in self.documentSet.documentEnumerator) {
+    if ([self shouldBeLimboDocumentKey:doc.key]) {
+      self.limboDocuments = [self.limboDocuments setByAddingObject:doc.key];
     }
   }
 

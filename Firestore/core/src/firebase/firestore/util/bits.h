@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef IPHONE_FIRESTORE_PORT_BITS_H_
-#define IPHONE_FIRESTORE_PORT_BITS_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_BITS_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_BITS_H_
 
 // Various bit-twiddling functions, all of which are static members of the Bits
 // class (making it effectively a namespace). Operands are unsigned integers.
@@ -27,16 +27,20 @@
 class Bits_Port32_Test;
 class Bits_Port64_Test;
 
-namespace Firestore {
+namespace firebase {
+namespace firestore {
+namespace util {
 
 class Bits {
  public:
-  // Return floor(log2(n)) for positive integer n.  Returns -1 iff n == 0.
+  /** Return floor(log2(n)) for positive integer n.  Returns -1 iff n == 0. */
   static int Log2Floor(uint32_t n);
   static int Log2Floor64(uint64_t n);
 
-  // Potentially faster version of Log2Floor() that returns an
-  // undefined value if n == 0
+  /**
+   * Potentially faster version of Log2Floor() that returns an
+   * undefined value if n == 0.
+   */
   static int Log2FloorNonZero(uint32_t n);
   static int Log2FloorNonZero64(uint64_t n);
 
@@ -51,8 +55,8 @@ class Bits {
   void operator=(Bits const&) = delete;
 
   // Allow tests to call _Portable variants directly.
-  friend class ::Bits_Port32_Test;
-  friend class ::Bits_Port64_Test;
+  friend class Bits_Port32_Test;
+  friend class Bits_Port64_Test;
 };
 
 // ------------------------------------------------------------------------
@@ -155,6 +159,8 @@ inline int Bits::Log2FloorNonZero64_Portable(uint64_t n) {
   }
 }
 
-}  // namespace Firestore
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
 
-#endif  // IPHONE_FIRESTORE_PORT_BITS_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_BITS_H_

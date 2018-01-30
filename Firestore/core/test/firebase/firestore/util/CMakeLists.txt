@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set(CMAKE_CXX_EXTENSIONS ON)
+
+# Required to allow 0 length printf style strings for testing purposes.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-zero-length")
+
 if(HAVE_ARC4RANDOM)
   cc_test(
     firebase_firestore_util_arc4random_test
@@ -36,10 +41,17 @@ cc_test(
   firebase_firestore_util_test
   SOURCES
     autoid_test.cc
+    bits_test.cc
     comparison_test.cc
+    iterator_adaptors_test.cc
+    ordered_code_test.cc
     string_printf_test.cc
+    string_util_test.cc
   DEPENDS
+    absl_base
+    absl_strings
     firebase_firestore_util
+    gmock
 )
 
 if(APPLE)

@@ -18,15 +18,14 @@
 
 #include <string>
 
-#include "Firestore/Port/ordered_code.h"
-#include "Firestore/Port/string_util.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::OrderedCode;
-using Firestore::PrefixSuccessor;
+using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
@@ -111,11 +110,11 @@ void WriteComponentLabel(std::string *dest, FSTComponentLabel label) {
  */
 BOOL ReadComponentLabel(leveldb::Slice *contents, FSTComponentLabel *label) {
   int64_t rawResult = 0;
-  Slice tmp = *contents;
+  absl::string_view tmp(contents->data(), contents->size());
   if (OrderedCode::ReadSignedNumIncreasing(&tmp, &rawResult)) {
     if (rawResult >= FSTComponentLabelTerminator && rawResult <= FSTComponentLabelUnknown) {
       *label = static_cast<FSTComponentLabel>(rawResult);
-      *contents = tmp;
+      *contents = leveldb::Slice(tmp.data(), tmp.size());
       return YES;
     }
   }
@@ -130,9 +129,9 @@ BOOL ReadComponentLabel(leveldb::Slice *contents, FSTComponentLabel *label) {
  *
  * If the read is successful, returns YES and contents will be updated to the next unread byte.
  */
-BOOL ReadComponentLabelMatching(Slice *contents, FSTComponentLabel expectedLabel) {
+BOOL ReadComponentLabelMatching(absl::string_view *contents, FSTComponentLabel expectedLabel) {
   int64_t rawResult = 0;
-  Slice tmp = *contents;
+  absl::string_view tmp = *contents;
   if (OrderedCode::ReadSignedNumIncreasing(&tmp, &rawResult)) {
     if (rawResult == expectedLabel) {
       *contents = tmp;
@@ -154,10 +153,10 @@ BOOL ReadComponentLabelMatching(Slice *contents, FSTComponentLabel expectedLabel
  */
 BOOL ReadInt32(Slice *contents, int32_t *result) {
   int64_t rawResult = 0;
-  Slice tmp = *contents;
+  absl::string_view tmp(contents->data(), contents->size());
   if (OrderedCode::ReadSignedNumIncreasing(&tmp, &rawResult)) {
     if (rawResult >= INT32_MIN && rawResult <= INT32_MAX) {
-      *contents = tmp;
+      *contents = leveldb::Slice(tmp.data(), tmp.size());
       *result = static_cast<int32_t>(rawResult);
       return YES;
     }
@@ -182,10 +181,11 @@ void WriteLabeledInt32(std::string *dest, FSTComponentLabel label, int32_t value
  * value will be set to the decoded integer value.
  */
 BOOL ReadLabeledInt32(Slice *contents, FSTComponentLabel expectedLabel, int32_t *value) {
-  Slice tmp = *contents;
+  absl::string_view tmp(contents->data(), contents->size());
   if (ReadComponentLabelMatching(&tmp, expectedLabel)) {
-    if (ReadInt32(&tmp, value)) {
-      *contents = tmp;
+    Slice tmpSlice = leveldb::Slice(tmp.data(), tmp.size());
+    if (ReadInt32(&tmpSlice, value)) {
+      *contents = tmpSlice;
       return YES;
     }
   }
@@ -209,10 +209,10 @@ void WriteLabeledString(std::string *dest, FSTComponentLabel label, StringView v
  * value will be set to the decoded string value.
  */
 BOOL ReadLabeledString(Slice *contents, FSTComponentLabel expectedLabel, std::string *value) {
-  Slice tmp = *contents;
+  absl::string_view tmp(contents->data(), contents->size());
   if (ReadComponentLabelMatching(&tmp, expectedLabel)) {
     if (OrderedCode::ReadString(&tmp, value)) {
-      *contents = tmp;
+      *contents = leveldb::Slice(tmp.data(), tmp.size());
       return YES;
     }
   }
@@ -274,7 +274,7 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
   for (;;) {
     // Advance a temporary slice to avoid advancing contents into the next key component which may
     // not be a path segment.
-    Slice readPosition = completeSegments;
+    absl::string_view readPosition(completeSegments.data(), completeSegments.size());
     if (!ReadComponentLabelMatching(&readPosition, FSTComponentLabelPathSegment)) {
       break;
     }
@@ -286,7 +286,7 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
     [pathSegments addObject:pathSegment];
     segment.clear();
 
-    completeSegments = readPosition;
+    completeSegments = leveldb::Slice(readPosition.data(), readPosition.size());
   }
 
   FSTResourcePath *path = [FSTResourcePath pathWithSegments:pathSegments];
@@ -306,7 +306,10 @@ inline void WriteTerminator(std::string *dest) {
 }
 
 inline BOOL ReadTerminator(Slice *contents) {
-  return ReadComponentLabelMatching(contents, FSTComponentLabelTerminator);
+  absl::string_view tmp(contents->data(), contents->size());
+  BOOL result = ReadComponentLabelMatching(&tmp, FSTComponentLabelTerminator);
+  *contents = leveldb::Slice(tmp.data(), tmp.size());
+  return result;
 }
 
 inline void WriteTableName(std::string *dest, const char *tableName) {

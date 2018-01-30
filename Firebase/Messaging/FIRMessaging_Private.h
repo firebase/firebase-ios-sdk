@@ -25,6 +25,9 @@ typedef NS_ENUM(int8_t, FIRMessagingNetworkStatus) {
   kFIRMessagingReachabilityReachableViaWWAN,
 };
 
+FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled;
+FOUNDATION_EXPORT NSString *const kFIRMessagingSuiteName;
+
 @interface FIRMessagingRemoteMessage ()
 
 @property(nonatomic, strong) NSDictionary *appData;

@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#include "Firestore/Port/bits.h"
+#include "Firestore/core/src/firebase/firestore/util/bits.h"
 
+#include <algorithm>
 #include <iostream>
+#include <limits>
 
-#include "base/commandlineflags.h"
-#include "testing/base/public/gunit.h"
-#include "util/random/mt_random.h"
+#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
+#include "gtest/gtest.h"
 
-using Firestore::Bits;
+namespace firebase {
+namespace firestore {
+namespace util {
 
-DEFINE_int32(num_iterations, 10000, "Number of test iterations to run.");
+const int kNumIterations = 10000;  // "Number of test iterations to run.
 
 class BitsTest : public testing::Test {
- public:
-  BitsTest() : random_(testing::FLAGS_gunit_random_seed) {}
-
  protected:
-  MTRandom random_;
+  SecureRandom random_;
 };
 
 TEST_F(BitsTest, Log2EdgeCases) {
@@ -41,7 +41,7 @@ TEST_F(BitsTest, Log2EdgeCases) {
   EXPECT_EQ(-1, Bits::Log2Floor64(0));
 
   for (int i = 0; i < 32; i++) {
-    uint32 n = 1U << i;
+    uint32_t n = 1U << i;
     EXPECT_EQ(i, Bits::Log2Floor(n));
     EXPECT_EQ(i, Bits::Log2FloorNonZero(n));
     if (n > 2) {
@@ -53,7 +53,7 @@ TEST_F(BitsTest, Log2EdgeCases) {
   }
 
   for (int i = 0; i < 64; i++) {
-    uint64 n = 1ULL << i;
+    uint64_t n = 1ULL << i;
     EXPECT_EQ(i, Bits::Log2Floor64(n));
     EXPECT_EQ(i, Bits::Log2FloorNonZero64(n));
     if (n > 2) {
@@ -68,11 +68,11 @@ TEST_F(BitsTest, Log2EdgeCases) {
 TEST_F(BitsTest, Log2Random) {
   std::cout << "TestLog2Random" << std::endl;
 
-  for (int i = 0; i < FLAGS_num_iterations; i++) {
+  for (int i = 0; i < kNumIterations; i++) {
     int maxbit = -1;
-    uint32 n = 0;
-    while (!random_.OneIn(32)) {
-      int bit = random_.Uniform(32);
+    uint32_t n = 0;
+    while (!random_.OneIn(32u)) {
+      int bit = static_cast<int>(random_.Uniform(32u));
       n |= (1U << bit);
       maxbit = std::max(bit, maxbit);
     }
@@ -86,11 +86,11 @@ TEST_F(BitsTest, Log2Random) {
 TEST_F(BitsTest, Log2Random64) {
   std::cout << "TestLog2Random64" << std::endl;
 
-  for (int i = 0; i < FLAGS_num_iterations; i++) {
+  for (int i = 0; i < kNumIterations; i++) {
     int maxbit = -1;
-    uint64 n = 0;
-    while (!random_.OneIn(64)) {
-      int bit = random_.Uniform(64);
+    uint64_t n = 0;
+    while (!random_.OneIn(64u)) {
+      int bit = static_cast<int>(random_.Uniform(64u));
       n |= (1ULL << bit);
       maxbit = std::max(bit, maxbit);
     }
@@ -103,8 +103,8 @@ TEST_F(BitsTest, Log2Random64) {
 
 TEST(Bits, Port32) {
   for (int shift = 0; shift < 32; shift++) {
-    for (int delta = -1; delta <= +1; delta++) {
-      const uint32 v = (static_cast<uint32>(1) << shift) + delta;
+    for (uint32_t delta = 0; delta <= 2; delta++) {
+      const uint32_t v = (static_cast<uint32_t>(1) << shift) - 1 + delta;
       EXPECT_EQ(Bits::Log2Floor_Portable(v), Bits::Log2Floor(v)) << v;
       if (v != 0) {
         EXPECT_EQ(Bits::Log2FloorNonZero_Portable(v), Bits::Log2FloorNonZero(v))
@@ -112,7 +112,7 @@ TEST(Bits, Port32) {
       }
     }
   }
-  static const uint32 M32 = kuint32max;
+  static const uint32_t M32 = std::numeric_limits<uint32_t>::max();
   EXPECT_EQ(Bits::Log2Floor_Portable(M32), Bits::Log2Floor(M32)) << M32;
   EXPECT_EQ(Bits::Log2FloorNonZero_Portable(M32), Bits::Log2FloorNonZero(M32))
       << M32;
@@ -120,8 +120,8 @@ TEST(Bits, Port32) {
 
 TEST(Bits, Port64) {
   for (int shift = 0; shift < 64; shift++) {
-    for (int delta = -1; delta <= +1; delta++) {
-      const uint64 v = (static_cast<uint64>(1) << shift) + delta;
+    for (uint64_t delta = 0; delta <= 2; delta++) {
+      const uint64_t v = (static_cast<uint64_t>(1) << shift) - 1 + delta;
       EXPECT_EQ(Bits::Log2Floor64_Portable(v), Bits::Log2Floor64(v)) << v;
       if (v != 0) {
         EXPECT_EQ(Bits::Log2FloorNonZero64_Portable(v),
@@ -130,9 +130,13 @@ TEST(Bits, Port64) {
       }
     }
   }
-  static const uint64 M64 = kuint64max;
+  static const uint64_t M64 = std::numeric_limits<uint64_t>::max();
   EXPECT_EQ(Bits::Log2Floor64_Portable(M64), Bits::Log2Floor64(M64)) << M64;
   EXPECT_EQ(Bits::Log2FloorNonZero64_Portable(M64),
             Bits::Log2FloorNonZero64(M64))
       << M64;
 }
+
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
