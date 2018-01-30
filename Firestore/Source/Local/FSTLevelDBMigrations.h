@@ -30,8 +30,14 @@ typedef int32_t FSTLevelDBSchemaVersion;
 
 @interface FSTLevelDBMigrations : NSObject
 
+/**
+ * Returns the current version of the schema for the given database
+ */
 + (FSTLevelDBSchemaVersion)schemaVersionForDB:(std::shared_ptr<leveldb::DB>)db;
 
+/**
+ * Runs any migrations needed to bring the given database up to the supplied schema version
+ */
 + (void)runMigrationsToVersion:(FSTLevelDBSchemaVersion)version onDB:(std::shared_ptr<leveldb::DB>)db;
 
 @end
