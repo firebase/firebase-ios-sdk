@@ -19,7 +19,6 @@
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 #include <string>
-#import <Firestore/Protos/objc/firestore/local/Target.pbobjc.h>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
