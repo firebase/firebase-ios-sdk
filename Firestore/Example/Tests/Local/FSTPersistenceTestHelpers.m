@@ -26,10 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTPersistenceTestHelpers
 
-+ (FSTLevelDB *)levelDBPersistence {
++ (NSString *)levelDBDir {
   NSError *error;
   NSFileManager *files = [NSFileManager defaultManager];
-
   NSString *dir =
       [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
   if ([files fileExistsAtPath:dir]) {
@@ -40,12 +39,18 @@ NS_ASSUME_NONNULL_BEGIN
                   format:@"Failed to clean up leveldb path %@: %@", dir, error];
     }
   }
+  return dir;
+}
+
++ (FSTLevelDB *)levelDBPersistence {
+  NSString *dir = [self levelDBDir];
 
   FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:@"p" database:@"d"];
   FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseID];
   FSTLocalSerializer *serializer =
       [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
   FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+  NSError *error;
   BOOL success = [db start:&error];
   if (!success) {
     [NSException raise:NSInternalInconsistencyException

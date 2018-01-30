@@ -82,6 +82,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/** A key to a singleton row storing the version of the schema. */
+@interface FSTLevelDBVersionKey : NSObject
+
+/** Returns the key pointing to the singleton row storing the schema version. */
++ (std::string)key;
+
+@end
+
 /** A key in the mutations table. */
 @interface FSTLevelDBMutationKey : NSObject
 
