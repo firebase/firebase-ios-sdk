@@ -117,8 +117,8 @@ using leveldb::WriteOptions;
   if (!database) {
     return NO;
   }
-  [FSTLevelDBMigrations runMigrationsToVersion:kSchemaVersion onDB:database];
   _ptr.reset(database);
+  [FSTLevelDBMigrations runMigrationsToVersion:kSchemaVersion onDB:_ptr];
   return YES;
 }
 

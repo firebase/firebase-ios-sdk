@@ -33,7 +33,7 @@ using leveldb::Status;
 @end
 
 @implementation FSTLevelDBMigrationsTests {
-  std::unique_ptr<DB> _db;
+  std::shared_ptr<DB> _db;
 }
 
 - (void)setUp {
@@ -53,21 +53,21 @@ using leveldb::Status;
 }
 
 - (void)testAddsTargetGlobal {
-  FSTPBTargetGlobal *metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db.get()];
+  FSTPBTargetGlobal *metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
-  [FSTLevelDBMigrations runMigrationsToVersion:0 onDB:_db.get()];
-  metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db.get()];
+  [FSTLevelDBMigrations runMigrationsToVersion:0 onDB:_db];
+  metadata = [FSTLevelDBUtil readTargetMetadataFromDB:_db];
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
 }
 
 - (void)testSetsVersionNumber {
-  FSTLevelDBSchemaVersion initial = [FSTLevelDBMigrations schemaVersionForDB:_db.get()];
+  FSTLevelDBSchemaVersion initial = [FSTLevelDBMigrations schemaVersionForDB:_db];
   XCTAssertEqual(0, initial, "No version should be equivalent to 0");
 
   // Pick an arbitrary high migration number and migrate to it.
   FSTLevelDBSchemaVersion target = 1000;
-  [FSTLevelDBMigrations runMigrationsToVersion:target onDB:_db.get()];
-  FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionForDB:_db.get()];
+  [FSTLevelDBMigrations runMigrationsToVersion:target onDB:_db];
+  FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionForDB:_db];
   XCTAssertEqual(target, actual, @"Expected to save the target version that we migrated to");
 }
 

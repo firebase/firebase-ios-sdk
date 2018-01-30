@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#include <memory>
 
 #ifdef __cplusplus
 
@@ -29,9 +30,9 @@ typedef int32_t FSTLevelDBSchemaVersion;
 
 @interface FSTLevelDBMigrations : NSObject
 
-+ (FSTLevelDBSchemaVersion)schemaVersionForDB:(leveldb::DB *)db;
++ (FSTLevelDBSchemaVersion)schemaVersionForDB:(std::shared_ptr<leveldb::DB>)db;
 
-+ (void)runMigrationsToVersion:(FSTLevelDBSchemaVersion)version onDB:(leveldb::DB *)db;
++ (void)runMigrationsToVersion:(FSTLevelDBSchemaVersion)version onDB:(std::shared_ptr<leveldb::DB>)db;
 
 @end
 

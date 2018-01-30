@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#include <memory>
 
 @class FSTPBTargetGlobal;
 
@@ -29,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (const leveldb::ReadOptions)standardReadOptions;
 
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(leveldb::DB *)db;
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<leveldb::DB>)db;
 
 @end
 
