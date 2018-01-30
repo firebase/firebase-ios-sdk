@@ -140,18 +140,14 @@ NS_ASSUME_NONNULL_BEGIN
                              options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
 }
 
-- (nullable FSTFieldValue*)fieldValueForKey:(id)key {
-  FIRFieldPath *fieldPath;
-
-  if ([key isKindOfClass:[NSString class]]) {
-    fieldPath = [FIRFieldPath pathWithDotSeparatedString:key];
-  } else if ([key isKindOfClass:[FIRFieldPath class]]) {
-    fieldPath = key;
+- (nullable FSTFieldPath *)fieldPathForFieldArgument:(id)field {
+  if ([field isKindOfClass:[NSString class]]) {
+    return [FIRFieldPath pathWithDotSeparatedString:field].internalValue;
+  } else if ([field isKindOfClass:[FIRFieldPath class]]) {
+    return field.internalValue;
   } else {
-    FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
+    FSTThrowInvalidArgument(@"Field argument must be an NSString or FIRFieldPath.");
   }
-
-  return [[self.internalDocument data] valueForPath:fieldPath.internalValue];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -159,7 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable id)valueForField:(id)field options:(FIRSnapshotOptions *)options {
-  FSTFieldValue *fieldValue = [self fieldValueForKey: field];
+  FSTFieldPath *fieldPath = [self fieldPathForFieldArgument:field];
+  FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath];
   return fieldValue == nil
              ? nil
              : [self convertedValue:fieldValue
@@ -215,12 +212,13 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (nullable FIRTimestamp*)getTimestamp:(id)key {
-  FSTFieldValue* fieldValue = [self fieldValueForKey:key];
+- (nullable FIRTimestamp *)timestampForField:(id)field {
+  FSTFieldPath *fieldPath = [self fieldPathForFieldArgument:field];
+  FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath];
   if (fieldValue != nil && ![fieldValue isKindOfClass:[FSTTimestampValue class]]) {
-    FSTThrowInvalidArgument(@"The field corresponding to the given key is not of type timestamp");
+    FSTThrowInvalidArgument(@"The specified field is not of type timestamp");
   }
-  return ((FSTTimestampValue*)fieldValue).internalValue;
+  return ((FSTTimestampValue *)fieldValue).internalValue;
 }
 
 @end

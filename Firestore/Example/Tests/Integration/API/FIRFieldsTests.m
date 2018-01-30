@@ -220,4 +220,53 @@
   [self awaitExpectations];
 }
 
+- (NSDictionary<NSString *, id> *)testDataWithTimestamp:(FIRTimestamp *)timestamp {
+  return @{
+    @"timestamp" : timestamp,
+    @"notTimestamp" : @"this is not a timestamp",
+    @"metadata" : @{@"nestedTimestamp" : timestamp}
+  };
+}
+
+- (void)testTimestampForField {
+  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:[NSDate date]];
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:[self testDataWithTimestamp:timestamp]];
+
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects([result timestampForField:@"timestamp"], timestamp);
+  XCTAssertEqualObjects([result timestampForField:@"metadata.nestedTimestamp"], timestamp);
+}
+
+- (void)testTimestampForFieldReturnsNilIfNoFieldValue {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertNil([result timestampForField:@"nofield"]);
+}
+
+- (void)testTimestampForFieldThrowsIfWrongType {
+  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:[NSDate date]];
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:[self testDataWithTimestamp:timestamp]];
+
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertThrows([result timestampForField:@"notTimestamp"]);
+}
+
+- (void)testThatDataContainsNativeDateType {
+  NSDate *date = [NSDate date];
+  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:date];
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:[self testDataWithTimestamp:timestamp]];
+
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  NSDate *resultDate = result.data[@"timestamp"];
+  XCTAssertEqualWithAccuracy([resultDate timeIntervalSince1970], [date timeIntervalSince1970],
+                             0.000001);
+  XCTAssertEqualObjects(result.data[@"timestamp"], resultDate);
+  NSDate *resultNestedDate = result[@"metadata.nestedTimestamp"];
+  XCTAssertEqualWithAccuracy([resultNestedDate timeIntervalSince1970], [date timeIntervalSince1970],
+                             0.000001);
+}
+
 @end

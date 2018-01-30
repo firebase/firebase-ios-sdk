@@ -170,7 +170,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  *
  * @return The timestamp contained in the field or `nil` if the field doesn't exist.
  */
-- (nullable FIRTimestamp *)getTimestamp:(id)key;
+- (nullable FIRTimestamp *)timestampForField:(id)field;
 
 @end
 
