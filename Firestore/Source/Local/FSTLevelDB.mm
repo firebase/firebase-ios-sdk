@@ -34,7 +34,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kReservedPathComponent = @"firestore";
-static FSTLevelDBSchemaVersion kSchemaVersion = 1;
 
 using leveldb::DB;
 using leveldb::Options;
@@ -128,7 +127,7 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  [FSTLevelDBMigrations runMigrationsToVersion:kSchemaVersion onDB:_ptr];
+  [FSTLevelDBMigrations runMigrationsOnDB:_ptr];
   return YES;
 }
 

@@ -55,7 +55,7 @@ using leveldb::Status;
 - (void)testAddsTargetGlobal {
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
-  [FSTLevelDBMigrations runMigrationsToVersion:0 onDB:_db];
+  [FSTLevelDBMigrations runMigrationsOnDB:_db];
   metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
 }
@@ -65,10 +65,9 @@ using leveldb::Status;
   XCTAssertEqual(0, initial, "No version should be equivalent to 0");
 
   // Pick an arbitrary high migration number and migrate to it.
-  FSTLevelDBSchemaVersion target = 1000;
-  [FSTLevelDBMigrations runMigrationsToVersion:target onDB:_db];
+  [FSTLevelDBMigrations runMigrationsOnDB:_db];
   FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionForDB:_db];
-  XCTAssertEqual(target, actual, @"Expected to save the target version that we migrated to");
+  XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
 }
 
 @end

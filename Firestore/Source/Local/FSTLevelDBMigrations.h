@@ -38,7 +38,7 @@ typedef int32_t FSTLevelDBSchemaVersion;
 /**
  * Runs any migrations needed to bring the given database up to the supplied schema version
  */
-+ (void)runMigrationsToVersion:(FSTLevelDBSchemaVersion)version onDB:(std::shared_ptr<leveldb::DB>)db;
++ (void)runMigrationsOnDB:(std::shared_ptr<leveldb::DB>)db;
 
 @end
 

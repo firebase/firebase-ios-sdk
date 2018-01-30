@@ -27,6 +27,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Current version of the schema defined in this file.
+static FSTLevelDBSchemaVersion kSchemaVersion = 1;
+
 using leveldb::DB;
 using leveldb::Status;
 using leveldb::Slice;
@@ -67,16 +70,19 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
   }
 }
 
-+ (void)runMigrationsToVersion:(FSTLevelDBSchemaVersion)version onDB:(std::shared_ptr<DB>)db {
++ (void)runMigrationsOnDB:(std::shared_ptr<DB>)db {
   FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Migrations"];
   FSTLevelDBSchemaVersion currentVersion = [self schemaVersionForDB:db];
+  // Each case in this switch statement intentionally falls through. This lets us
+  // start at the current schema version and apply any migrations that have not yet
+  // been applied, to bring us up to current, as defined by the kSchemaVersion constant.
   switch (currentVersion) {
     case 0:
       EnsureTargetGlobal(db, group);
       // Fallthrough
     default:
-      if (currentVersion < version) {
-        SaveVersion(version, group);
+      if (currentVersion < kSchemaVersion) {
+        SaveVersion(kSchemaVersion, group);
       }
   }
   if (!group.isEmpty) {
