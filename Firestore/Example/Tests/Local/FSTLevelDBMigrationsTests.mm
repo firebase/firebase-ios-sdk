@@ -80,7 +80,7 @@ using leveldb::Status;
     std::string key = [FSTLevelDBTargetKey keyWithTargetID:i];
     [group setData:"dummy" forKey:key];
   }
-  Status status = [group writeToDB:db];
+  Status status = [group writeToDB:_db];
 }
 
 @end
