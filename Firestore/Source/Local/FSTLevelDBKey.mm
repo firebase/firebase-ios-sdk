@@ -29,7 +29,7 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kVersionTableGlobal = "version";
+static const char *kVersionGlobalTable = "version";
 static const char *kMutationsTable = "mutation";
 static const char *kDocumentMutationsTable = "document_mutation";
 static const char *kMutationQueuesTable = "mutation_queue";
@@ -453,7 +453,7 @@ NSString *InvalidKey(const Slice &key) {
 
 + (std::string)key {
   std::string result;
-  WriteTableName(&result, kVersionTableGlobal);
+  WriteTableName(&result, kVersionGlobalTable);
   WriteTerminator(&result);
   return result;
 }
