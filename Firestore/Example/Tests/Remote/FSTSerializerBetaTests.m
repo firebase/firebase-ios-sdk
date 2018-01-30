@@ -370,7 +370,7 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.currentDocument.updateTime =
-      [self.serializer encodedTimestamp:[[FIRTimestamp alloc] initWithSeconds:0 nanos:4000]];
+      [self.serializer encodedTimestamp:[[FIRTimestamp alloc] initWithSeconds:0 nanoseconds:4000]];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }

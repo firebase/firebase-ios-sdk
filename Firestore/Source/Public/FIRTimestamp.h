@@ -32,9 +32,9 @@ NS_SWIFT_NAME(Timestamp)
  * Creates a new timestamp.
  *
  * @param seconds the number of seconds since epoch.
- * @param microseconds the number of microseconds after the seconds.
+ * @param nanoseconds the number of nanoseconds after the seconds.
  */
-+ (instancetype)timestampWithSeconds:(int64_t)seconds microseconds:(int32_t)microseconds;
++ (instancetype)timestampWithSeconds:(int64_t)seconds nanoseconds:(int32_t)nanoseconds;
 
 /** Creates a new timestamp from the given date. */
 + (instancetype)timestampWithDate:(NSDate *)date;
@@ -49,11 +49,11 @@ NS_SWIFT_NAME(Timestamp)
 @property(nonatomic, assign, readonly) int64_t seconds;
 
 /**
- * Non-negative fractions of a second at microsecond resolution. Negative second values with
- * fractions must still have non-negative micros values that count forward in time.
- * Must be from 0 to 999,999 inclusive.
+ * Non-negative fractions of a second at nanosecond resolution. Negative second values with
+ * fractions must still have non-negative nanos values that count forward in time.
+ * Must be from 0 to 999,999,999 inclusive.
  */
-@property(nonatomic, assign, readonly) int32_t microseconds;
+@property(nonatomic, assign, readonly) int32_t nanoseconds;
 
 @end
 

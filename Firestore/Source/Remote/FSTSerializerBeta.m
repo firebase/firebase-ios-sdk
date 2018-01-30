@@ -64,12 +64,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp {
   GPBTimestamp *result = [GPBTimestamp message];
   result.seconds = timestamp.seconds;
-  result.nanos = timestamp.nanos;
+  result.nanos = timestamp.nanoseconds;
   return result;
 }
 
 - (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
-  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds nanos:timestamp.nanos];
+  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds nanoseconds:timestamp.nanos];
 }
 
 - (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version {

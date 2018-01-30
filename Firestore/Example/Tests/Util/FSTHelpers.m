@@ -132,7 +132,7 @@ FSTSnapshotVersion *FSTTestVersion(FSTTestSnapshotVersion versionMicroseconds) {
   int64_t seconds = versionMicroseconds / kMicrosPerSec;
   int32_t nanos = (int32_t)(versionMicroseconds % kMicrosPerSec) * kMillisPerSec;
 
-  FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:seconds nanos:nanos];
+  FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:seconds nanoseconds:nanos];
   return [FSTSnapshotVersion versionWithTimestamp:timestamp];
 }
 

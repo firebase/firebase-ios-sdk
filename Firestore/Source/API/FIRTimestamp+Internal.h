@@ -18,22 +18,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRTimestamp ()
+@interface FIRTimestamp()
 
 /**
  * Creates a new timestamp.
  *
  * @param seconds the number of seconds since epoch.
- * @param nanos the number of nanoseconds after the seconds.
+ * @param nanoseconds¨ the number of nanoseconds after the seconds.
  */
-- (instancetype)initWithSeconds:(int64_t)seconds nanos:(int32_t)nanos NS_DESIGNATED_INITIALIZER;
-
-/**
- * Non-negative fractions of a second at nanosecond resolution. Negative second values with
- * fractions must still have non-negative nanos values that count forward in time.
- * Must be from 0 to 999,999,999 inclusive.
- */
-@property(nonatomic, assign, readonly) int32_t nanos;
+- (instancetype)initWithSeconds:(int64_t)seconds
+                    nanoseconds:(int32_t)nanoseconds NS_DESIGNATED_INITIALIZER;
 
 @end
 

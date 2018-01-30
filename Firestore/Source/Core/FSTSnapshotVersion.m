@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
   static FSTSnapshotVersion *min;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:0 nanos:0];
+    FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:0 nanoseconds:0];
     min = [FSTSnapshotVersion versionWithTimestamp:timestamp];
   });
   return min;

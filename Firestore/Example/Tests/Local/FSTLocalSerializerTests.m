@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   GPBTimestamp *writeTimeProto = [GPBTimestamp message];
   writeTimeProto.seconds = writeTime.seconds;
-  writeTimeProto.nanos = writeTime.nanos;
+  writeTimeProto.nanos = writeTime.nanoseconds;
 
   FSTPBWriteBatch *batchProto = [FSTPBWriteBatch message];
   batchProto.batchId = 42;
