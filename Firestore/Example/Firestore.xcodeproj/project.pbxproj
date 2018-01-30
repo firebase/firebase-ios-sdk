@@ -71,6 +71,8 @@
 		AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D03201BC6E400D97691 /* ordered_code_test.cc */; };
 		AB382F7C1FE02A1F007CA955 /* FIRDocumentReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB382F7B1FE02A1F007CA955 /* FIRDocumentReferenceTests.m */; };
 		AB382F7E1FE03059007CA955 /* FIRFieldPathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB382F7D1FE03059007CA955 /* FIRFieldPathTests.m */; };
+		AB414A4A20210E7D0006939E /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB414A4820210E6F0006939E /* empty_credentials_provider_test.cc */; };
+		AB414A4D20210E970006939E /* credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB414A4B20210E8B0006939E /* credentials_provider_test.cc */; };
 		AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB7BAB332012B519001E0872 /* geo_point_test.cc */; };
 		AB9945261FE2D71100DFC1E6 /* FIRCollectionReferenceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9945251FE2D71100DFC1E6 /* FIRCollectionReferenceTests.m */; };
 		AB9945281FE2DE0C00DFC1E6 /* FIRSnapshotMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9945271FE2DE0C00DFC1E6 /* FIRSnapshotMetadataTests.m */; };
@@ -258,6 +260,8 @@
 		AB380D03201BC6E400D97691 /* ordered_code_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ordered_code_test.cc; path = ../../core/test/firebase/firestore/util/ordered_code_test.cc; sourceTree = "<group>"; };
 		AB382F7B1FE02A1F007CA955 /* FIRDocumentReferenceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDocumentReferenceTests.m; sourceTree = "<group>"; };
 		AB382F7D1FE03059007CA955 /* FIRFieldPathTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRFieldPathTests.m; sourceTree = "<group>"; };
+		AB414A4820210E6F0006939E /* empty_credentials_provider_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = empty_credentials_provider_test.cc; sourceTree = "<group>"; };
+		AB414A4B20210E8B0006939E /* credentials_provider_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = credentials_provider_test.cc; sourceTree = "<group>"; };
 		AB7BAB332012B519001E0872 /* geo_point_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = geo_point_test.cc; path = ../../core/test/firebase/firestore/geo_point_test.cc; sourceTree = "<group>"; };
 		AB9945251FE2D71100DFC1E6 /* FIRCollectionReferenceTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRCollectionReferenceTests.m; sourceTree = "<group>"; };
 		AB9945271FE2DE0C00DFC1E6 /* FIRSnapshotMetadataTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRSnapshotMetadataTests.m; sourceTree = "<group>"; };
@@ -574,6 +578,8 @@
 			isa = PBXGroup;
 			children = (
 				ABE6637D201FCC9E00ED349A /* user_test.cc */,
+				AB414A4820210E6F0006939E /* empty_credentials_provider_test.cc */,
+				AB414A4B20210E8B0006939E /* credentials_provider_test.cc */,
 			);
 			name = auth;
 			path = ../../core/test/firebase/firestore/auth;
@@ -1239,10 +1245,12 @@
 				DE51B1CC1F0D48C00013853F /* FIRGeoPointTests.m in Sources */,
 				DE51B1E11F0D490D0013853F /* FSTMemoryRemoteDocumentCacheTests.m in Sources */,
 				DE51B1FF1F0D493A0013853F /* FSTAssertTests.m in Sources */,
+				AB414A4A20210E7D0006939E /* empty_credentials_provider_test.cc in Sources */,
 				DE51B1D31F0D48CD0013853F /* FSTViewSnapshotTest.m in Sources */,
 				AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */,
 				DE51B1F91F0D491F0013853F /* FSTWatchChangeTests.m in Sources */,
 				DE51B1F81F0D491F0013853F /* FSTWatchChange+Testing.m in Sources */,
+				AB414A4D20210E970006939E /* credentials_provider_test.cc in Sources */,
 				DE51B1EB1F0D490D0013853F /* FSTWriteGroupTests.mm in Sources */,
 				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
 				DE51B2011F0D493E0013853F /* FSTHelpers.m in Sources */,

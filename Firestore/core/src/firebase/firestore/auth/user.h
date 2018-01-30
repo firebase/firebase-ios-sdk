@@ -26,8 +26,8 @@ namespace firestore {
 namespace auth {
 
 /**
- * Simple wrapper around a nullable UID. Mostly exists to make code more readable and for use as
- * a key in dictionaries (since keys cannot be nil).
+ * Simple wrapper around a nullable UID. Mostly exists to make code more
+ * readable and for use as a key in dictionaries (since keys cannot be nil).
  */
 class User {
  public:
@@ -37,12 +37,13 @@ class User {
   /** Construct an authenticated user with the given UID. */
   User(const absl::string_view uid);
 
-  const std::string& uid() {
+  const std::string& uid() const {
     return uid_;
   }
 
-  // PORTING NOTE: Here use more clear naming is_authenticated() instead of is_unauthenticated().
-  bool is_authenticated() {
+  // PORTING NOTE: Here use more clear naming is_authenticated() instead of
+  // is_unauthenticated().
+  bool is_authenticated() const {
     return is_authenticated_;
   }
 
@@ -55,7 +56,7 @@ class User {
 
 inline bool operator==(const User& lhs, const User& rhs) {
   return lhs.is_authenticated_ == rhs.is_authenticated_ &&
-      (!lhs.is_authenticated_ || lhs.uid_ == rhs.uid_);
+         (!lhs.is_authenticated_ || lhs.uid_ == rhs.uid_);
 }
 
 inline bool operator!=(const User& lhs, const User& rhs) {

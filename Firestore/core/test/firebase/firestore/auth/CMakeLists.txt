@@ -15,6 +15,8 @@
 cc_test(
   firebase_firestore_auth_test
   SOURCES
+    credentials_provider_test.cc
+    empty_credentials_provider_test.cc
     user_test.cc
   DEPENDS
     firebase_firestore_auth
