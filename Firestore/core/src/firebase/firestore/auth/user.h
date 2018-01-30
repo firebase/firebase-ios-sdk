@@ -47,11 +47,13 @@ class User {
     return is_authenticated_;
   }
 
+  User& operator=(const User& other) = default;
+
   friend bool operator==(const User& lhs, const User& rhs);
 
  private:
-  const std::string uid_;
-  const bool is_authenticated_;
+  std::string uid_;
+  bool is_authenticated_;
 };
 
 inline bool operator==(const User& lhs, const User& rhs) {

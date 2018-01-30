@@ -24,19 +24,20 @@ cc_library(
     firebase_firestore_util
 )
 
-#cc_library(
-#  firebase_firestore_auth_apple
-#  SOURCES
-#    firebase_credentials_provider.h
-#    firebase_credentials_provider.mm
-#  DEPENDS
-#    firebase_firestore_auth_base
-#  EXCLUDE_FROM_ALL
-#)
+cc_library(
+  firebase_firestore_auth_apple
+  SOURCES
+    firebase_credentials_provider.h
+    firebase_credentials_provider_apple.mm
+  DEPENDS
+    FirebaseCore
+    firebase_firestore_auth_base
+  EXCLUDE_FROM_ALL
+)
 
-#if(APPLE)
-#  list(APPEND AUTH_DEPENDS firebase_firestore_auth_apple)
-#endif()
+if(APPLE)
+  list(APPEND AUTH_DEPENDS firebase_firestore_auth_apple)
+endif()
 
 cc_library(
   firebase_firestore_auth

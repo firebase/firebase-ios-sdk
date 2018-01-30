@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 
 #include "gtest/gtest.h"
 
@@ -22,25 +22,10 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-TEST(User, Getter) {
-  User anonymous;
-  EXPECT_EQ("", anonymous.uid());
-  EXPECT_FALSE(anonymous.is_authenticated());
-
-  User signin("abc");
-  EXPECT_EQ("abc", signin.uid());
-  EXPECT_TRUE(signin.is_authenticated());
-
-  User copy;
-  copy = signin;
-  EXPECT_EQ(signin, copy);
-}
-
-TEST(User, Comparison) {
-  EXPECT_EQ(User(), User());
-  EXPECT_EQ(User("abc"), User("abc"));
-  EXPECT_NE(User(), User("abc"));
-  EXPECT_NE(User("abc"), User("xyz"));
+TEST(Token, Getter) {
+  Token token("token", User("abc"));
+  EXPECT_EQ("token", token.token());
+  EXPECT_EQ(User("abc"), token.user());
 }
 
 }  // namespace auth
