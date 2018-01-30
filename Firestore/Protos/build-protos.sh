@@ -19,8 +19,13 @@ rm -rf Pods
 rm Podfile.lock
 pod update
 
-# Generate the objective C files from the protos.
-./Pods/!ProtoCompiler/protoc --plugin=protoc-gen-grpc=Pods/\!ProtoCompiler-gRPCPlugin/grpc_objective_c_plugin -I protos --objc_out=objc --grpc_out=objc `find protos -name *.proto -print | xargs`
+# Generate the objective C and nanopb files from the protos.
+./Pods/\!ProtoCompiler/protoc \
+  --plugin=protoc-gen-grpc=Pods/\!ProtoCompiler-gRPCPlugin/grpc_objective_c_plugin \
+  --plugin=../../build/external/nanopb/src/nanopb-build/generator/protoc-gen-nanopb \
+  -I protos --objc_out=objc --grpc_out=objc \
+  --nanopb_out="--options-file=protos/%s.options:nanopb" \
+  `find protos -name *.proto -print | xargs`
 
 # CocoaPods does not like paths in library imports, flatten them.
 

@@ -1,0 +1,6 @@
+google.firestore.v1beta1.GetDocumentRequest.consistency_selector no_unions:true
+google.firestore.v1beta1.ListDocumentsRequest.consistency_selector no_unions:true
+google.firestore.v1beta1.RunQueryRequest.consistency_selector no_unions:true
+google.firestore.v1beta1.BatchGetDocumentsRequest.consistency_selector no_unions:true
+google.firestore.v1beta1.BatchGetDocumentsResponse.result no_unions:true
+google.firestore.v1beta1.Target.resume_type no_unions:true

@@ -1,5 +1,15 @@
 ## Usage
 
+First, build nanopb:
+```
+cd firebase-ios-sdk
+mkdir build
+cd build
+cmake ..
+make nanopb
+```
+
+Next, build the protos:
 ```
 cd firebase-ios-sdk/Firestore/Protos
 ./build-protos.sh
