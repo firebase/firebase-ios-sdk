@@ -229,7 +229,7 @@
 }
 
 - (void)testTimestampForField {
-  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:[NSDate date]];
+    FIRTimestamp *timestamp = [FIRTimestamp timestampWithSeconds: 123 nanoseconds:123456000];
   FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:[self testDataWithTimestamp:timestamp]];
 

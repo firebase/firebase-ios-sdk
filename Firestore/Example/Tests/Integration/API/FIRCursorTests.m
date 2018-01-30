@@ -194,19 +194,19 @@
 
 - (void)testTimestampsCanBePassedToQueriesAsLimits {
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
-    @"a" : @{@"k" : @"a", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:1]},
-    @"b" : @{@"k" : @"b", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:2]},
-    @"c" : @{@"k" : @"c", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:3]},
-    @"d" : @{@"k" : @"d", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:4]},
-    @"e" : @{@"k" : @"e", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5]},
+    @"a" : @{@"k" : @"a", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:1000]},
+    @"b" : @{@"k" : @"b", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:2000]},
+    @"c" : @{@"k" : @"c", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:3000]},
+    @"d" : @{@"k" : @"d", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:4000]},
+    @"e" : @{@"k" : @"e", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5000]},
     // Number of nanoseconds deliberately repeated.
-    @"f" : @{@"k" : @"f", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5]},
+    @"f" : @{@"k" : @"f", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5000]},
   }];
   FIRQuery *query = [testCollection queryOrderedByField:@"timestamp"];
   FIRQuerySnapshot *querySnapshot =
       [self readDocumentSetForRef:[[query queryStartingAfterValues:@[
-              [FIRTimestamp timestampWithSeconds:100 nanoseconds:2]
-            ]] queryEndingAtValues:@[ [FIRTimestamp timestampWithSeconds:100 nanoseconds:5] ]]];
+              [FIRTimestamp timestampWithSeconds:100 nanoseconds:2000]
+            ]] queryEndingAtValues:@[ [FIRTimestamp timestampWithSeconds:100 nanoseconds:5000] ]]];
   NSMutableArray<NSString *> *actual = [NSMutableArray array];
   [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
                                                         NSUInteger idx, BOOL *_Nonnull stop) {
@@ -216,12 +216,13 @@
 }
 
 - (void)testTimestampsCanBePassedToQueriesInWhereClause {
-  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:[NSDate date]];
+  FIRTimestamp *currentTimestamp = [FIRTimestamp timestampWithDate:[NSDate date]];
+    FIRTimestamp* timestamp = [FIRTimestamp timestampWithSeconds:currentTimestamp.seconds nanoseconds:currentTimestamp.nanoseconds / 1000 * 1000];
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"k" : @"a",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds - 1],
+                                            nanoseconds:timestamp.nanoseconds - 1000],
     },
     @"b" : @{
       @"k" : @"b",
@@ -231,17 +232,17 @@
     @"c" : @{
       @"k" : @"c",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds + 1],
+                                            nanoseconds:timestamp.nanoseconds + 1000],
     },
     @"d" : @{
       @"k" : @"d",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds + 2],
+                                            nanoseconds:timestamp.nanoseconds + 2000],
     },
     @"e" : @{
       @"k" : @"e",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds + 3],
+                                            nanoseconds:timestamp.nanoseconds + 3000],
     }
   }];
 
@@ -252,7 +253,7 @@
                                      isLessThan:[FIRTimestamp
                                                     timestampWithSeconds:timestamp.seconds
                                                              nanoseconds:timestamp.nanoseconds +
-                                                                         3]]];
+                                                                         3000]]];
   NSMutableArray<NSString *> *actual = [NSMutableArray array];
   [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
                                                         NSUInteger idx, BOOL *_Nonnull stop) {

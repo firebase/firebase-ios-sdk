@@ -533,7 +533,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     return [FSTTimestampValue timestampValue:[FIRTimestamp timestampWithDate:input]];
 
   } else if ([input isKindOfClass:[FIRTimestamp class]]) {
-    return [FSTTimestampValue timestampValue:input];
+    FIRTimestamp *originalTimestamp = (FIRTimestamp *)input;
+    FIRTimestamp *truncatedTimestamp =
+        [FIRTimestamp timestampWithSeconds:originalTimestamp.seconds
+                               nanoseconds:originalTimestamp.nanoseconds / 1000 * 1000];
+    return [FSTTimestampValue timestampValue:truncatedTimestamp];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
     return [FSTGeoPointValue geoPointValue:input];

@@ -24,7 +24,7 @@ using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 
-static const int kNanosPerSecond = 1000000;
+static const int kNanosPerSecond = 1000000000;
 
 @implementation FIRTimestamp (Internal)
 
