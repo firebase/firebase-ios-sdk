@@ -144,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([field isKindOfClass:[NSString class]]) {
     return [FIRFieldPath pathWithDotSeparatedString:field].internalValue;
   } else if ([field isKindOfClass:[FIRFieldPath class]]) {
-    return field.internalValue;
+    return ((FIRFieldPath*)field).internalValue;
   } else {
     FSTThrowInvalidArgument(@"Field argument must be an NSString or FIRFieldPath.");
   }
