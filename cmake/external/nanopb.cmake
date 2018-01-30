@@ -9,20 +9,19 @@ ExternalProject_GitSource(
 
 ExternalProject_Add(
   nanopb
+  DEPENDS
+    leveldb  # for sequencing
+
   ${NANOPB_GIT}
+
   PREFIX ${PROJECT_BINARY_DIR}/external/nanopb
-)
 
-ExternalProject_Add_Step(
-  nanopb
-  configure_generator
-  DEPENDEES configure
-  COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/generator <BINARY_DIR>/generator
-)
+  CMAKE_ARGS
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DBUILD_SHARED_LIBS:BOOL=OFF
 
-ExternalProject_Add_Step(
-  nanopb
-  build_generator
-  DEPENDEES configure_generator build
-  COMMAND make -C <BINARY_DIR>/generator/proto
+  BUILD_COMMAND
+    ${CMAKE_COMMAND} --build . --target protobuf-nanopb
+# COMMAND
+#   ${CMAKE_COMMAND} --build . --target something-else
 )
