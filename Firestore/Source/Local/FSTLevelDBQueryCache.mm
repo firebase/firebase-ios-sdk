@@ -18,7 +18,6 @@
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
-#include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -138,20 +137,6 @@ using leveldb::WriteOptions;
   _db.reset();
 }
 
-- (int32_t)countQueryData {
-  // It seems that the only wait to get the size of a range of keys is to count.
-  std::unique_ptr<Iterator> it(_db->NewIterator(GetStandardReadOptions()));
-  Slice start_key = [FSTLevelDBTargetKey keyPrefix];
-  it->Seek(start_key);
-
-  NSUInteger count = 0;
-  while (it->Valid() && it->key().starts_with(start_key)) {
-    count++;
-    it->Next();
-  }
-  return count;
-}
-
 - (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
@@ -186,7 +171,7 @@ using leveldb::WriteOptions;
   std::string emptyBuffer;
   [group setData:emptyBuffer forKey:indexKey];
 
-  [self setTargetCount:[self getTargetCount] + 1];
+  self.metadata.targetCount += 1;
   [self updateMetadataForQueryData:queryData];
   [self saveMetadataInGroup:group];
 }
@@ -210,6 +195,8 @@ using leveldb::WriteOptions;
   std::string indexKey =
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
   [group removeMessageForKey:indexKey];
+  self.metadata.targetCount -= 1;
+  [self saveMetadataInGroup:group];
 }
 
 /**

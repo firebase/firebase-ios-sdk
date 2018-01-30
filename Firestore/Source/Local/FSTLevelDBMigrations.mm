@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 static FSTLevelDBSchemaVersion kSchemaVersion = 1;
 
 using leveldb::DB;
+using leveldb::Iterator;
 using leveldb::Status;
 using leveldb::Slice;
 using leveldb::WriteOptions;
@@ -57,6 +58,23 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
   [group setData:version_string forKey:key];
 }
 
+static void AddTargetCount(std::shared_ptr<DB> db) {
+  std::unique_ptr<Iterator> it(db->NewIterator([FSTLevelDBUtil standardReadOptions]));
+  Slice start_key = [FSTLevelDBTargetKey keyPrefix];
+  it->Seek(start_key);
+
+  NSUInteger count = 0;
+  while (it->Valid() && it->key().starts_with(start_key)) {
+    count++;
+    it->Next();
+  }
+
+  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBUtil readTargetMetadataFromDB:db];
+  FSTCAssert(targetGlobal != nil, @"We should have a metadata row as it was added in an earlier migration");
+  targetGlobal.targetCount = count;
+  SaveTargetGlobal(targetGlobal, db);
+}
+
 @implementation FSTLevelDBMigrations
 
 + (FSTLevelDBSchemaVersion)schemaVersionForDB:(std::shared_ptr<DB>)db {
@@ -79,6 +97,9 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
   switch (currentVersion) {
     case 0:
       EnsureTargetGlobal(db, group);
+      // Fallthrough
+    case 1:
+      AddTargetCount(db);
       // Fallthrough
     default:
       if (currentVersion < kSchemaVersion) {

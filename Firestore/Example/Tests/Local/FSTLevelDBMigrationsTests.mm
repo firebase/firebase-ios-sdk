@@ -16,6 +16,9 @@
 
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
+#import <Firestore/Source/Local/FSTWriteGroup.h>
+#import <Firestore/Source/Local/FSTLevelDBKey.h>
+#import <Firestore/Source/Local/FSTQueryData.h>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
@@ -68,6 +71,16 @@ using leveldb::Status;
   [FSTLevelDBMigrations runMigrationsOnDB:_db];
   FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionForDB:_db];
   XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
+}
+
+- (void)testCountsQueries {
+  NSUInteger expected = 50;
+  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Setup"];
+  for (int i = 0; i < expected; i++) {
+    std::string key = [FSTLevelDBTargetKey keyWithTargetID:i];
+    [group setData:"dummy" forKey:key];
+  }
+  Status status = [group writeToDB:db];
 }
 
 @end
