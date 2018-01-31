@@ -288,15 +288,12 @@
 - (void)testEnumerator {
   NSUInteger n = 100;
   NSMutableArray *toInsert = [NSMutableArray arrayWithCapacity:n];
-  NSMutableArray *toRemove = [NSMutableArray arrayWithCapacity:n];
 
   for (int i = 0; i < n; i++) {
     [toInsert addObject:@(i)];
-    [toRemove addObject:@(i)];
   }
 
   [self shuffleArray:toInsert];
-  [self shuffleArray:toRemove];
 
   FSTArraySortedDictionary *map =
       [[FSTArraySortedDictionary alloc] initWithComparator:self.defaultComparator];
