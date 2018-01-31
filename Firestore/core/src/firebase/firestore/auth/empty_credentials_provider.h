@@ -24,7 +24,7 @@ namespace firestore {
 namespace auth {
 
 /** `EmptyCredentialsProvider` always yields an empty token. */
-class EmptyCredentialsProvider : CredentialsProvider {
+class EmptyCredentialsProvider : public CredentialsProvider {
  public:
   void GetToken(bool force_refresh, TokenListener completion) override;
   void set_user_change_listener(UserListener listener) override;

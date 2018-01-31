@@ -28,6 +28,7 @@ cc_library(
   firebase_firestore_auth_apple
   SOURCES
     firebase_credentials_provider.h
+    firebase_credentials_provider_apple.h
     firebase_credentials_provider_apple.mm
   DEPENDS
     FirebaseCore

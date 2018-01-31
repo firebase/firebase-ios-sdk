@@ -40,6 +40,7 @@ TEST(EmptyCredentialsProvider, SetListener) {
     EXPECT_EQ("", user.uid());
     EXPECT_FALSE(user.is_authenticated());
   });
+  credentials_provider.RemoveUserChangeListener();
 }
 
 }  // namespace auth

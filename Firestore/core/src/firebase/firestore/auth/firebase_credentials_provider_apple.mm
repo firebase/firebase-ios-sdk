@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider.h"
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-
-#define UNUSED(x) (void)(x)
 
 namespace firebase {
 namespace firestore {
 namespace auth {
 
-FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
-    : app_(app),
+FirebaseCredentialsProvider::FirebaseCredentialsProvider()
+    : FirebaseCredentialsProvider([FIRApp defaultApp]) {
+}
+
+FirebaseCredentialsProvider::FirebaseCredentialsProvider(const AppImpl& app)
+    : auth_(new AuthImpl{app, nullptr}),
       current_user_(firebase::firestore::util::MakeStringView([app getUID])),
       user_counter_(0) {
-  auth_listener_handle_ = [[NSNotificationCenter defaultCenter]
+  auth_->auth_listener_handle = [[NSNotificationCenter defaultCenter]
       addObserverForName:FIRAuthStateDidChangeInternalNotification
                   object:nil
                    queue:nil
@@ -43,7 +47,7 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
                 // ensure we're only notifiying for the current app.
                 FIRApp* notified_app =
                     user_info[FIRAuthStateDidChangeInternalNotificationAppKey];
-                if (![this->app_ isEqual:notified_app]) {
+                if (![this->auth_->app isEqual:notified_app]) {
                   return;
                 }
 
@@ -62,10 +66,14 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
               }];
 }
 
+FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
+  auth_.reset(nullptr);
+}
+
 void FirebaseCredentialsProvider::GetToken(bool force_refresh,
                                            TokenListener completion) {
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      this->auth_listener_handle_, this->auth_listener_handle_,
+      this->auth_->auth_listener_handle, this->auth_->auth_listener_handle,
       "GetToken cannot be called after listener removed.");
 
   // Take note of the current value of the userCounter so that this method can
@@ -89,8 +97,8 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
         }
       };
 
-  [this->app_ getTokenForcingRefresh:force_refresh
-                        withCallback:get_token_callback];
+  [this->auth_->app getTokenForcingRefresh:force_refresh
+                              withCallback:get_token_callback];
 }
 
 void FirebaseCredentialsProvider::set_user_change_listener(
@@ -104,16 +112,33 @@ void FirebaseCredentialsProvider::set_user_change_listener(
     listener(this->current_user_);
   } else {
     FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        this->auth_listener_handle_, this->auth_listener_handle_,
+        this->auth_->auth_listener_handle, this->auth_->auth_listener_handle,
         "removed user_change_listener twice!");
     FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
         this->user_change_listener_, this->user_change_listener_,
         "user_change_listener removed without being set!");
     [[NSNotificationCenter defaultCenter]
-        removeObserver:this->auth_listener_handle_];
-    this->auth_listener_handle_ = nullptr;
+        removeObserver:this->auth_->auth_listener_handle];
+    this->auth_->auth_listener_handle = nullptr;
   }
   this->user_change_listener_ = listener;
+}
+
+void FirebaseCredentialsProvider::PlatformDependentTestSetup(
+    const absl::string_view config_path) {
+  static dispatch_once_t once_token;
+  dispatch_once(&once_token, ^{
+    NSString* file_path =
+        firebase::firestore::util::WrapNSStringNoCopy(config_path.data());
+    FIROptions* options = [[FIROptions alloc] initWithContentsOfFile:file_path];
+    [FIRApp configureWithOptions:options];
+  });
+
+  // Set getUID implementation.
+  FIRApp* default_app = [FIRApp defaultApp];
+  default_app.getUIDImplementation = ^NSString* {
+    return @"I'm a fake uid.";
+  };
 }
 
 }  // namespace auth

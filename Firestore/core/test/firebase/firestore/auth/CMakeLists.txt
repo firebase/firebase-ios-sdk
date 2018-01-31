@@ -21,3 +21,13 @@ cc_test(
   DEPENDS
     firebase_firestore_auth
 )
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_auth_apple_test
+    SOURCES
+      firebase_credentials_provider_test.cc
+    DEPENDS
+      firebase_firestore_auth_apple
+  )
+endif(APPLE)

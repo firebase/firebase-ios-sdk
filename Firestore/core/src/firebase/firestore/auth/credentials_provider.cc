@@ -24,6 +24,9 @@ Token::Token(const absl::string_view token, const User& user)
     : token_(token), user_(user) {
 }
 
+CredentialsProvider::CredentialsProvider() : user_change_listener_(nullptr) {
+}
+
 }  // namespace auth
 }  // namespace firestore
 }  // namespace firebase

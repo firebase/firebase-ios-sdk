@@ -72,6 +72,8 @@ typedef void (*UserListener)(const User& user);
  * listen for changes. */
 class CredentialsProvider {
  public:
+  CredentialsProvider();
+
   /** Requests token for the current user, optionally forcing a refreshed token
    * to be fetched. */
   virtual void GetToken(bool force_refresh, TokenListener completion) = 0;

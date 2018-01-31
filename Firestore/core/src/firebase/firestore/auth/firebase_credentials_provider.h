@@ -20,20 +20,19 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_H_
 
-#import <Foundation/Foundation.h>
-
+#include <memory>
 #include <mutex>
-#include <string>
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "absl/strings/string_view.h"
 
-@class FIRApp;
-
 namespace firebase {
 namespace firestore {
 namespace auth {
+
+class AppImpl;
+struct AuthImpl;
 
 /**
  * `FirebaseCredentialsProvider` uses Firebase Auth via `FIRApp` to get an auth
@@ -49,27 +48,34 @@ namespace auth {
  *
  * For non-Apple desktop build, this is right now just a stub.
  */
-class FirebaseCredentialsProvider : CredentialsProvider {
+class FirebaseCredentialsProvider : public CredentialsProvider {
  public:
   // TODO(zxu123): Provide a ctor to accept the C++ Firebase Games App, which
-  // deals all platforms.
+  // deals all platforms. Right now, AppImpl is only a wrapper for FIRApp*.
   /**
    * Initializes a new FirebaseCredentialsProvider.
    *
    * @param app The Firebase app from which to get credentials.
    */
-  FirebaseCredentialsProvider(FIRApp* app);
+  FirebaseCredentialsProvider(const AppImpl& app);
+
+  ~FirebaseCredentialsProvider();
 
   void GetToken(bool force_refresh, TokenListener completion) override;
 
   void set_user_change_listener(UserListener listener) override;
 
- private:
-  const FIRApp* app_;
+  friend class FirebaseCredentialsProvider_GetToken_Test;
+  friend class FirebaseCredentialsProvider_SetListener_Test;
 
-  /** Handle used to stop receiving auth changes once userChangeListener is
-   * removed. */
-  id<NSObject> auth_listener_handle_;
+ private:
+  /** Initialize with default app for internal usage such as test. */
+  FirebaseCredentialsProvider();
+
+  static void PlatformDependentTestSetup(const absl::string_view config_path);
+
+  /** Platform-dependent members defined inside. */
+  std::unique_ptr<AuthImpl> auth_;
 
   /** The current user as reported to us via our AuthStateDidChangeListener. */
   User current_user_;

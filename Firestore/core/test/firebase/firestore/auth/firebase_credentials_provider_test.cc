@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider.h"
 
 #include "gtest/gtest.h"
 
@@ -22,10 +22,44 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-TEST(Token, Getter) {
-  Token token("token", User("abc"));
-  EXPECT_EQ("token", token.token());
-  EXPECT_EQ(User("abc"), token.user());
+// Set a .plist file here to enable the test-case.
+static const char* kPlist = "";
+
+// Set kPlist above before enable.
+TEST(DISABLED_FirebaseCredentialsProvider, GetToken) {
+  absl::string_view plist(kPlist);
+  if (plist.substr(plist.length() - 6) != ".plist") {
+    return;
+  }
+
+  FirebaseCredentialsProvider::PlatformDependentTestSetup(
+      "/Users/zxu/Downloads/GoogleService-Info.plist");
+  FirebaseCredentialsProvider credentials_provider;
+  credentials_provider.GetToken(
+      true, [](const Token& token, const absl::string_view error) {
+        EXPECT_EQ("", token.token());
+        const User& user = token.user();
+        EXPECT_EQ("I'm a fake uid.", user.uid());
+        EXPECT_TRUE(user.is_authenticated());
+        EXPECT_EQ("", error) << error;
+      });
+}
+
+// Set kPlist above before enable.
+TEST(DISABLED_FirebaseCredentialsProvider, SetListener) {
+  absl::string_view plist(kPlist);
+  if (plist.substr(plist.length() - 6) != ".plist") {
+    return;
+  }
+
+  FirebaseCredentialsProvider::PlatformDependentTestSetup(
+      "/Users/zxu/Downloads/GoogleService-Info.plist");
+  FirebaseCredentialsProvider credentials_provider;
+  credentials_provider.set_user_change_listener([](const User& user) {
+    EXPECT_EQ("I'm a fake uid.", user.uid());
+    EXPECT_TRUE(user.is_authenticated());
+  });
+  credentials_provider.RemoveUserChangeListener();
 }
 
 }  // namespace auth
