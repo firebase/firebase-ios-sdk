@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   [self.datastore
       lookupDocuments:keys
-           completion:^(NSArray<FSTDocument *> *_Nullable documents, NSError *_Nullable error) {
+           completion:^(NSArray<FSTMaybeDocument *> *_Nullable documents, NSError *_Nullable error) {
              if (error) {
                completion(nil, error);
                return;
