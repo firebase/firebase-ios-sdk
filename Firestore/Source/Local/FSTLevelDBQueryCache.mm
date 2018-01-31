@@ -103,17 +103,6 @@ using leveldb::WriteOptions;
 
 #pragma mark - FSTQueryCache implementation
 
-- (void)setTargetCount:(int32_t)targetCount {
-  FSTAssert(targetCount >= 0, @"Attempting to set a negative targetCount");
-  int32_t toSet = targetCount == 0 ? kTargetCountZero : targetCount;
-  self.metadata.targetCount = toSet;
-}
-
-- (int32_t)getTargetCount {
-  FSTAssert(self.metadata.targetCount != kTargetCountUnset, @"Trying to access an unset targetCount");
-  return self.metadata.targetCount == kTargetCountZero ? 0 : self.metadata.targetCount;
-}
-
 - (FSTTargetID)highestTargetID {
   return self.metadata.highestTargetId;
 }
@@ -197,6 +186,10 @@ using leveldb::WriteOptions;
   [group removeMessageForKey:indexKey];
   self.metadata.targetCount -= 1;
   [self saveMetadataInGroup:group];
+}
+
+- (int32_t)count {
+  return self.metadata.targetCount;
 }
 
 /**

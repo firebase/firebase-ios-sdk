@@ -21,7 +21,6 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
@@ -73,7 +72,6 @@ using leveldb::Status;
   XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
 }
 
-<<<<<<< HEAD
 - (void)testCountsQueries {
   NSUInteger expected = 50;
   FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Setup"];
@@ -82,10 +80,13 @@ using leveldb::Status;
     [group setData:"dummy" forKey:key];
   }
   Status status = [group writeToDB:_db];
+  XCTAssertTrue(status.ok(), @"Failed to write targets");
+
+  [FSTLevelDBMigrations runMigrationsOnDB:_db];
+  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+  XCTAssertEqual(expected, metadata.targetCount, @"Failed to count all of the targets we added");
 }
 
-=======
->>>>>>> master
 @end
 
 NS_ASSUME_NONNULL_END

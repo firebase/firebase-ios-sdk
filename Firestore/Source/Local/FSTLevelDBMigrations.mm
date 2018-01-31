@@ -24,11 +24,12 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 // Current version of the schema defined in this file.
-static FSTLevelDBSchemaVersion kSchemaVersion = 1;
+static FSTLevelDBSchemaVersion kSchemaVersion = 2;
 
 using leveldb::DB;
 using leveldb::Iterator;
@@ -58,21 +59,21 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
   [group setData:version_string forKey:key];
 }
 
-static void AddTargetCount(std::shared_ptr<DB> db) {
-  std::unique_ptr<Iterator> it(db->NewIterator([FSTLevelDBUtil standardReadOptions]));
+static void AddTargetCount(std::shared_ptr<DB> db, FSTWriteGroup *group) {
+  std::unique_ptr<Iterator> it(db->NewIterator([FSTLevelDB standardReadOptions]));
   Slice start_key = [FSTLevelDBTargetKey keyPrefix];
   it->Seek(start_key);
 
-  NSUInteger count = 0;
+  int32_t count = 0;
   while (it->Valid() && it->key().starts_with(start_key)) {
     count++;
     it->Next();
   }
 
-  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBUtil readTargetMetadataFromDB:db];
+  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBQueryCache readTargetMetadataFromDB:db];
   FSTCAssert(targetGlobal != nil, @"We should have a metadata row as it was added in an earlier migration");
   targetGlobal.targetCount = count;
-  SaveTargetGlobal(targetGlobal, db);
+  [group setMessage:targetGlobal forKey:[FSTLevelDBTargetGlobalKey key]];
 }
 
 @implementation FSTLevelDBMigrations
@@ -99,7 +100,14 @@ static void AddTargetCount(std::shared_ptr<DB> db) {
       EnsureTargetGlobal(db, group);
       // Fallthrough
     case 1:
-      AddTargetCount(db);
+      // We need to make sure we have metadata, since we're going to read and modify it
+      // in this migration. Commit the current transaction and start a new one. Since we're
+      // committing, we need to save a version. It's safe to save this one, if we crash
+      // after saving we'll resume from this step when we try to migrate.
+      SaveVersion(1, group);
+      [group writeToDB:db];
+      group = [FSTWriteGroup groupWithAction:@"Migrations"];
+      AddTargetCount(db, group);
       // Fallthrough
     default:
       if (currentVersion < kSchemaVersion) {
