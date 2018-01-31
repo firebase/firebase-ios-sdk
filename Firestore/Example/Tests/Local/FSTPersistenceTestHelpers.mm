@@ -19,8 +19,12 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,8 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTLevelDB *)levelDBPersistence {
   NSString *dir = [self levelDBDir];
 
-  FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:@"p" database:@"d"];
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseID];
+  DatabaseId database_id("p", "d");
+  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:database_id];
   FSTLocalSerializer *serializer =
       [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
   FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];

@@ -31,7 +31,6 @@
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -41,6 +40,11 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,8 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLocalSerializerTests
 
 - (void)setUp {
-  FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:@"p" database:@"d"];
-  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseID];
+  DatabaseId database_id("p", "d");
+  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:database_id];
   self.serializer = [[FSTLocalSerializer alloc] initWithRemoteSerializer:self.remoteSerializer];
 }
 

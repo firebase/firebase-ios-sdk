@@ -29,7 +29,6 @@
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -42,6 +41,11 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -154,10 +158,10 @@ NS_ASSUME_NONNULL_BEGIN
     [GRPCCall useInsecureConnectionsForHost:settings.host];
   }
 
-  FSTDatabaseID *databaseID =
-      [FSTDatabaseID databaseIDWithProject:projectID database:kDefaultDatabaseID];
+  DatabaseId database_id(firebase::firestore::util::MakeStringView(projectID),
+                         DatabaseId::kDefaultDatabaseId);
 
-  FSTDatabaseInfo *databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:databaseID
+  FSTDatabaseInfo *databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:database_id
                                                                persistenceKey:@"test-key"
                                                                          host:settings.host
                                                                    sslEnabled:settings.sslEnabled];

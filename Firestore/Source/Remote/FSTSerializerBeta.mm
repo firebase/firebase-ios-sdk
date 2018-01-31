@@ -32,7 +32,6 @@
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -43,15 +42,20 @@
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTSerializerBeta ()
-@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
+@property(nonatomic, strong, readonly) DatabaseId databaseID;
 @end
 
 @implementation FSTSerializerBeta
 
-- (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID {
+- (instancetype)initWithDatabaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
     _databaseID = databaseID;
@@ -101,14 +105,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
   FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:name];
-  FSTAssert([[path segmentAtIndex:1] isEqualToString:self.databaseID.projectID],
+  FSTAssert([[path segmentAtIndex:1]
+             isEqualToString:firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.project_id())],
             @"Tried to deserialize key from different project.");
-  FSTAssert([[path segmentAtIndex:3] isEqualToString:self.databaseID.databaseID],
+  FSTAssert([[path segmentAtIndex:3]
+             isEqualToString:firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.database_id())],
             @"Tried to deserialize key from different datbase.");
   return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
 }
 
-- (NSString *)encodedResourcePathForDatabaseID:(FSTDatabaseID *)databaseID
+- (NSString *)encodedResourcePathForDatabaseID:(DatabaseId)databaseID
                                           path:(FSTResourcePath *)path {
   return [[[[self encodedResourcePathForDatabaseID:databaseID] pathByAppendingSegment:@"documents"]
       pathByAppendingPath:path] canonicalString];
@@ -137,9 +143,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FSTResourcePath *)encodedResourcePathForDatabaseID:(FSTDatabaseID *)databaseID {
+- (FSTResourcePath *)encodedResourcePathForDatabaseID:(DatabaseId)databaseID {
   return [FSTResourcePath
-      pathWithSegments:@[ @"projects", databaseID.projectID, @"databases", databaseID.databaseID ]];
+      pathWithSegments:@[ @"projects",
+                          firebase::firestore::util::WrapNSStringNoCopy(databaseID.project_id()),
+                          @"databases",
+                          firebase::firestore::util::WrapNSStringNoCopy(databaseID.database_id()) ]];
 }
 
 - (FSTResourcePath *)localResourcePathForQualifiedResourcePath:(FSTResourcePath *)resourceName {
@@ -293,7 +302,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedReferenceValueForDatabaseID:(FSTDatabaseID *)databaseID
+- (GCFSValue *)encodedReferenceValueForDatabaseID:(DatabaseId)databaseID
                                               key:(FSTDocumentKey *)key {
   GCFSValue *result = [GCFSValue message];
   result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];

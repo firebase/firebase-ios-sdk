@@ -25,7 +25,6 @@
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -36,6 +35,11 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -168,9 +172,11 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 }
 
 /** Returns the string to be used as google-cloud-resource-prefix header value. */
-+ (NSString *)googleCloudResourcePrefixForDatabaseID:(FSTDatabaseID *)databaseID {
++ (NSString *)googleCloudResourcePrefixForDatabaseID:(DatabaseId)databaseID {
   return [NSString
-      stringWithFormat:@"projects/%@/databases/%@", databaseID.projectID, databaseID.databaseID];
+      stringWithFormat:@"projects/%@/databases/%@",
+          firebase::firestore::util::WrapNSStringNoCopy(databaseID.project_id()),
+          firebase::firestore::util::WrapNSStringNoCopy(databaseID.database_id())];
 }
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
@@ -322,7 +328,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(FSTDatabaseID *)databaseID
+                  databaseID:(DatabaseId)databaseID
                        token:(nullable NSString *)token {
   rpc.oauth2AccessToken = token;
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];

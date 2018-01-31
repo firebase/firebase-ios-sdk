@@ -23,13 +23,17 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -271,7 +275,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 @implementation FSTDocumentKeyReference
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key databaseID:(FSTDatabaseID *)databaseID {
+- (instancetype)initWithKey:(FSTDocumentKey *)key databaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
     _key = key;
@@ -285,13 +289,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 #pragma mark - FSTUserDataConverter
 
 @interface FSTUserDataConverter ()
-@property(strong, nonatomic, readonly) FSTDatabaseID *databaseID;
+@property(strong, nonatomic, readonly) DatabaseId databaseID;
 @property(strong, nonatomic, readonly) FSTPreConverterBlock preConverter;
 @end
 
 @implementation FSTUserDataConverter
 
-- (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID
+- (instancetype)initWithDatabaseID:(DatabaseId)databaseID
                       preConverter:(FSTPreConverterBlock)preConverter {
   self = [super init];
   if (self) {
@@ -540,11 +544,14 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   } else if ([input isKindOfClass:[FSTDocumentKeyReference class]]) {
     FSTDocumentKeyReference *reference = input;
-    if (![reference.databaseID isEqual:self.databaseID]) {
-      FSTDatabaseID *other = reference.databaseID;
+    if (reference.databaseID != self.databaseID) {
+      DatabaseId other = reference.databaseID;
       FSTThrowInvalidArgument(
           @"Document Reference is for database %@/%@ but should be for database %@/%@%@",
-          other.projectID, other.databaseID, self.databaseID.projectID, self.databaseID.databaseID,
+          firebase::firestore::util::WrapNSStringNoCopy(other.project_id()),
+          firebase::firestore::util::WrapNSStringNoCopy(other.database_id()),
+          firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.project_id()),
+          firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.database_id()),
           [context fieldDescription]);
     }
     return [FSTReferenceValue referenceValue:reference.key databaseID:self.databaseID];

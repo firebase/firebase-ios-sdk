@@ -19,12 +19,16 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -305,6 +309,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                ascending:YES]];
 
   // clang-format off
+  NSString *kDefaultDatabaseID =
+    firebase::firestore::util::WrapNSStringNoCopy(firebase::firestore::model::DatabaseId::kDefaultDatabaseId);
   NSArray<FSTDocument *> *docs = @[
       FSTTestDoc(@"collection/1", 0, @{@"sort": [NSNull null]}, NO),
       FSTTestDoc(@"collection/1", 0, @{@"sort": @NO}, NO),

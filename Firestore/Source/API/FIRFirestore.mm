@@ -31,7 +31,6 @@
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -39,13 +38,18 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
+
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 @interface FIRFirestore ()
 
-@property(nonatomic, strong) FSTDatabaseID *databaseID;
+@property(nonatomic, strong) firebase::firestore::model::DatabaseId databaseID;
 @property(nonatomic, strong) NSString *persistenceKey;
 @property(nonatomic, strong) id<FSTCredentialsProvider> credentialsProvider;
 @property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
@@ -79,11 +83,13 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
                          @"before using Firestore");
   }
-  return [self firestoreForApp:app database:kDefaultDatabaseID];
+  return [self firestoreForApp:app
+                      database:firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
 }
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
-  return [self firestoreForApp:app database:kDefaultDatabaseID];
+  return [self firestoreForApp:app
+                      database:firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
 }
 
 // TODO(b/62410906): make this public
@@ -97,7 +103,7 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FSTThrowInvalidArgument(
         @"database identifier may not be nil. Use '%@' if you want the default "
          "database",
-        kDefaultDatabaseID);
+        firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId));
   }
   NSString *key = [NSString stringWithFormat:@"%@|%@", app.name, database];
 
@@ -136,7 +142,8 @@ NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _databaseID = [FSTDatabaseID databaseIDWithProject:projectID database:database];
+    _databaseID = DatabaseId(firebase::firestore::util::MakeStringView(projectID),
+                             firebase::firestore::util::MakeStringView(database));
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;

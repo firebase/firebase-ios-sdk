@@ -23,10 +23,14 @@
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 /** Exposes otherwise private methods for testing. */
 @interface FSTStream (Testing)
@@ -140,14 +144,13 @@
   [super setUp];
 
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
-  FSTDatabaseID *databaseID =
-      [FSTDatabaseID databaseIDWithProject:[FSTIntegrationTestCase projectID]
-                                  database:kDefaultDatabaseID];
+  DatabaseId database_id(firebase::firestore::util::MakeStringView([FSTIntegrationTestCase projectID]),
+                         DatabaseId::kDefaultDatabaseId);
 
   _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _workerDispatchQueue = [[FSTTestDispatchQueue alloc] initWithQueue:_testQueue];
 
-  _databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:databaseID
+  _databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:database_id
                                                persistenceKey:@"test-key"
                                                          host:settings.host
                                                    sslEnabled:settings.sslEnabled];

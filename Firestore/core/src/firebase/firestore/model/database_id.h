@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 
+#include <stdint.h>
+
 #include <string>
 
 #include "absl/strings/string_view.h"
@@ -30,6 +32,10 @@ class DatabaseId {
  public:
   /** The default name for "unset" database ID in resource names. */
   static constexpr const char* kDefaultDatabaseId = "(default)";
+
+  // For objective-c++ initialization; to be removed after migration.
+  // Do NOT use in C++ code.
+  DatabaseId() = default;
 
   /**
    * Creates and returns a new DatabaseId.
@@ -50,6 +56,13 @@ class DatabaseId {
 
   /** Whether this is the default database of the project. */
   bool IsDefaultDatabase();
+
+  // For objective-c++ hash; to be removed after migration.
+  // Do NOT use in C++ code.
+  uint32_t Hash() {
+    std::hash<std::string> hash_fn;
+    return static_cast<uint32_t>(hash_fn(project_id_) * 31u + hash_fn(database_id_));
+  }
 
   friend bool operator<(const DatabaseId& lhs, const DatabaseId& rhs);
 

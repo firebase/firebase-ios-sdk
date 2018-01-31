@@ -18,6 +18,8 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
 @class FSTDatabaseInfo;
 @class FSTDocumentKey;
 @class FSTDispatchQueue;
@@ -33,7 +35,6 @@
 @class GRXWriter;
 
 @protocol FSTCredentialsProvider;
-@class FSTDatabaseID;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -81,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(FSTDatabaseID *)databaseID
+                  databaseID:(firebase::firestore::model::DatabaseId)databaseID
                        token:(nullable NSString *)token;
 
 /** Looks up a list of documents in datastore. */

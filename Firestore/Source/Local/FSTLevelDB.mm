@@ -26,10 +26,13 @@
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Local/FSTWriteGroupTracker.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -101,9 +104,10 @@ using leveldb::WriteOptions;
   NSString *directory = documentsDirectory;
   directory = [directory stringByAppendingPathComponent:databaseInfo.persistenceKey];
 
-  NSString *segment = databaseInfo.databaseID.projectID;
-  if (![databaseInfo.databaseID isDefaultDatabase]) {
-    segment = [NSString stringWithFormat:@"%@.%@", segment, databaseInfo.databaseID.databaseID];
+  NSString *segment = firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.databaseID.project_id());
+  if (!databaseInfo.databaseID.IsDefaultDatabase()) {
+    segment = [NSString stringWithFormat:@"%@.%@", segment,
+               firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.databaseID.database_id())];
   }
   directory = [directory stringByAppendingPathComponent:segment];
 

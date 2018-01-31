@@ -35,6 +35,11 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTFirestoreClient ()
@@ -289,7 +294,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (FSTDatabaseID *)databaseID {
+- (DatabaseId)databaseID {
   return self.databaseInfo.databaseID;
 }
 

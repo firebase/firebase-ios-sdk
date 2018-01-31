@@ -20,7 +20,8 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
-@class FSTDatabaseID;
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
 @class FSTDatabaseInfo;
 @class FSTDispatchQueue;
 @class FSTDocument;
@@ -80,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
                     completion:(FSTVoidIDErrorBlock)completion;
 
 /** The database ID of the databaseInfo this client was initialized with. */
-@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
+@property(nonatomic, strong, readonly) firebase::firestore::model::DatabaseId databaseID;
 
 /**
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the

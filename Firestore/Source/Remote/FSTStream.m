@@ -24,7 +24,6 @@
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTBufferedWriter.h"
 #import "Firestore/Source/Remote/FSTExponentialBackoff.h"
