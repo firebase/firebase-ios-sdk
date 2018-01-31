@@ -15,14 +15,10 @@
  */
 
 #import <Foundation/Foundation.h>
+
 #include <memory>
 
-#ifdef __cplusplus
-
-namespace leveldb {
-class DB;
-}
-#endif
+#include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
