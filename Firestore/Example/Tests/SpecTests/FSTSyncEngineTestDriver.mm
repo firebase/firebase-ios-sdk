@@ -140,7 +140,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *)outstandingWrites {
-  return static_cast<NSDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *>(_outstandingWrites);
+  return static_cast<NSDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *>(
+      _outstandingWrites);
 }
 
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState {

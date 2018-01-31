@@ -21,7 +21,6 @@
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #include "leveldb/db.h"
 
-
 @class FSTLocalSerializer;
 
 NS_ASSUME_NONNULL_BEGIN
