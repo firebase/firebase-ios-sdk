@@ -146,16 +146,18 @@ static NSString *const kPendingSubscriptionsListKey =
   }];
 }
 
-- (void)subscribeToTopic:(NSString *)topic {
+- (void)subscribeToTopic:(NSString *)topic
+                 handler:(nullable FIRMessagingTopicOperationCompletion)handler {
   [self.pendingTopicUpdates addOperationForTopic:topic
                                       withAction:FIRMessagingTopicActionSubscribe
-                                      completion:nil];
+                                      completion:handler];
 }
 
-- (void)unsubscribeFromTopic:(NSString *)topic {
+- (void)unsubscribeFromTopic:(NSString *)topic
+                     handler:(nullable FIRMessagingTopicOperationCompletion)handler {
   [self.pendingTopicUpdates addOperationForTopic:topic
                                       withAction:FIRMessagingTopicActionUnsubscribe
-                                      completion:nil];
+                                      completion:handler];
 }
 
 - (void)scheduleSync:(BOOL)immediately {
