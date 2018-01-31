@@ -27,6 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRelationFilterOperator functions
 
+/**
+ * Returns the reverse order (i.e. Ascending => Descending) etc.
+ */
+static constexpr NSComparisonResult ReverseOrder(NSComparisonResult result) {
+  return static_cast<NSComparisonResult>(-static_cast<NSInteger>(result));
+}
+
 NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOperator) {
   switch (filterOperator) {
     case FSTRelationFilterOperatorLessThan:
@@ -287,16 +294,20 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Public methods
 
 - (NSComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2 {
-  int modifier = self.isAscending ? 1 : -1;
+  NSComparisonResult result;
   if ([self.field isEqual:[FSTFieldPath keyFieldPath]]) {
-    return (NSComparisonResult)(modifier * FSTDocumentKeyComparator(document1.key, document2.key));
+    result = FSTDocumentKeyComparator(document1.key, document2.key);
   } else {
     FSTFieldValue *value1 = [document1 fieldForPath:self.field];
     FSTFieldValue *value2 = [document2 fieldForPath:self.field];
     FSTAssert(value1 != nil && value2 != nil,
               @"Trying to compare documents on fields that don't exist.");
-    return modifier * [value1 compare:value2];
+    result = [value1 compare:value2];
   }
+  if (!self.isAscending) {
+    result = ReverseOrder(result);
+  }
+  return result;
 }
 
 - (NSString *)canonicalID {
@@ -377,7 +388,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     if ([sortOrderComponent.field isEqual:[FSTFieldPath keyFieldPath]]) {
       FSTAssert([fieldValue isKindOfClass:[FSTReferenceValue class]],
                 @"FSTBound has a non-key value where the key path is being used %@", fieldValue);
-      comparison = [fieldValue.value compare:document.key];
+      FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
+      comparison = [refValue.value compare:document.key];
     } else {
       FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
       FSTAssert(docValue != nil, @"Field should exist since document matched the orderBy already.");
@@ -385,7 +397,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     }
 
     if (!sortOrderComponent.isAscending) {
-      comparison = comparison * -1;
+      comparison = ReverseOrder(comparison);
     }
 
     if (comparison != 0) {

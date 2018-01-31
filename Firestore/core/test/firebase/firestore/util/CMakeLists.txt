@@ -49,6 +49,7 @@ cc_test(
     string_util_test.cc
   DEPENDS
     absl_base
+    absl_strings
     firebase_firestore_util
     gmock
 )

@@ -41,7 +41,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
+extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 @interface FIRFirestore ()
 

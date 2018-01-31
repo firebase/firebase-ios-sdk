@@ -24,6 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTPersistenceTestHelpers : NSObject
 
 /**
+ * @return The directory where a leveldb instance can store data files. Any files that existed
+ * there will be deleted first.
+ */
++ (NSString *)levelDBDir;
+
+/**
  * Creates and starts a new FSTLevelDB instance for testing, destroying any previous contents
  * if they existed.
  *

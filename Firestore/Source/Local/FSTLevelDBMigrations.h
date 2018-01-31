@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,23 @@
 
 #include <memory>
 
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #include "leveldb/db.h"
-
-@class FSTLocalSerializer;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Cached Remote Documents backed by leveldb. */
-@interface FSTLevelDBRemoteDocumentCache : NSObject <FSTRemoteDocumentCache>
+typedef int32_t FSTLevelDBSchemaVersion;
 
-- (instancetype)init NS_UNAVAILABLE;
+@interface FSTLevelDBMigrations : NSObject
 
 /**
- * Creates a new remote documents cache in the given leveldb.
- *
- * @param db The leveldb in which to create the cache.
+ * Returns the current version of the schema for the given database
  */
-- (instancetype)initWithDB:(std::shared_ptr<leveldb::DB>)db
-                serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
++ (FSTLevelDBSchemaVersion)schemaVersionForDB:(std::shared_ptr<leveldb::DB>)db;
+
+/**
+ * Runs any migrations needed to bring the given database up to the current schema version
+ */
++ (void)runMigrationsOnDB:(std::shared_ptr<leveldb::DB>)db;
 
 @end
 

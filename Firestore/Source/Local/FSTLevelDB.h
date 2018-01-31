@@ -16,16 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Local/FSTPersistence.h"
-
-#ifdef __cplusplus
 #include <memory>
 
-namespace leveldb {
-class DB;
-class Status;
-}
-#endif
+#import "Firestore/Source/Local/FSTPersistence.h"
+#include "leveldb/db.h"
 
 @class FSTDatabaseInfo;
 @class FSTLocalSerializer;
@@ -68,8 +62,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)start:(NSError **)error;
 
-#ifdef __cplusplus
 // What follows is the Objective-C++ extension to the API.
+/**
+ * @return A standard set of read options
+ */
++ (const leveldb::ReadOptions)standardReadOptions;
 
 /**
  * Creates an NSError based on the given status if the status is not ok.
@@ -97,8 +94,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) std::shared_ptr<leveldb::DB> ptr;
-
-#endif
 
 @end
 

@@ -22,6 +22,7 @@
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -38,17 +39,6 @@ using leveldb::ReadOptions;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
-
-/**
- * Returns a standard set of read options.
- *
- * For now this is paranoid, but perhaps disable that in production builds.
- */
-static ReadOptions GetStandardReadOptions() {
-  ReadOptions options;
-  options.verify_checksums = true;
-  return options;
-}
 
 @interface FSTLevelDBQueryCache ()
 
@@ -70,6 +60,29 @@ static ReadOptions GetStandardReadOptions() {
   FSTSnapshotVersion *_lastRemoteSnapshotVersion;
 }
 
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<DB>)db {
+  std::string key = [FSTLevelDBTargetGlobalKey key];
+  std::string value;
+  Status status = db->Get([FSTLevelDB standardReadOptions], key, &value);
+  if (status.IsNotFound()) {
+    return nil;
+  } else if (!status.ok()) {
+    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
+            status.ToString().c_str());
+  }
+
+  NSData *data =
+      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+
+  NSError *error;
+  FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
+  if (!proto) {
+    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+  }
+
+  return proto;
+}
+
 - (instancetype)initWithDB:(std::shared_ptr<DB>)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     FSTAssert(db, @"db must not be NULL");
@@ -80,11 +93,10 @@ static ReadOptions GetStandardReadOptions() {
 }
 
 - (void)start {
-  std::string key = [FSTLevelDBTargetGlobalKey key];
-  FSTPBTargetGlobal *metadata = [self metadataForKey:key];
-  if (!metadata) {
-    metadata = [FSTPBTargetGlobal message];
-  }
+  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+  FSTAssert(
+      metadata != nil,
+      @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
   _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
 
   self.metadata = metadata;
@@ -157,34 +169,6 @@ static ReadOptions GetStandardReadOptions() {
 }
 
 /**
- * Looks up the query global metadata associated with the given key.
- *
- * @return the parsed protocol buffer message or nil if the row referenced by the given key does
- *     not exist.
- */
-- (nullable FSTPBTargetGlobal *)metadataForKey:(const std::string &)key {
-  std::string value;
-  Status status = _db->Get(GetStandardReadOptions(), key, &value);
-  if (status.IsNotFound()) {
-    return nil;
-  } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
-  }
-
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
-
-  NSError *error;
-  FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
-  if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
-  }
-
-  return proto;
-}
-
-/**
  * Parses the given bytes as an FSTPBTarget protocol buffer and then converts to the equivalent
  * query data.
  */
@@ -206,7 +190,7 @@ static ReadOptions GetStandardReadOptions() {
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
   Slice canonicalID = StringView(query.canonicalID);
-  std::unique_ptr<Iterator> indexItererator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexItererator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   std::string indexPrefix = [FSTLevelDBQueryTargetKey keyPrefixWithCanonicalID:canonicalID];
   indexItererator->Seek(indexPrefix);
 
@@ -214,7 +198,7 @@ static ReadOptions GetStandardReadOptions() {
   // unique and ordered, so when scanning a table prefixed by exactly one canonicalID, all the
   // targetIDs will be unique and in order.
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
-  std::unique_ptr<Iterator> targetIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> targetIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
 
   FSTLevelDBQueryTargetKey *rowKey = [[FSTLevelDBQueryTargetKey alloc] init];
   for (; indexItererator->Valid(); indexItererator->Next()) {
@@ -286,7 +270,7 @@ static ReadOptions GetStandardReadOptions() {
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
@@ -309,7 +293,7 @@ static ReadOptions GetStandardReadOptions() {
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
   FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
@@ -332,7 +316,7 @@ static ReadOptions GetStandardReadOptions() {
 
 - (BOOL)containsKey:(FSTDocumentKey *)key {
   std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
   if (indexIterator->Valid()) {
