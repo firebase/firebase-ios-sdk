@@ -683,10 +683,15 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)subscribeToTopic:(NSString *)topic {
+  [self subscribeToTopic:topic completion:nil];
+}
+
+- (void)subscribeToTopic:(NSString *)topic
+              completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
     if (normalizeTopic.length) {
-      [self.pubsub subscribeToTopic:normalizeTopic];
+      [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
                               @"Cannot parse topic name %@. Will not subscribe.", topic);
@@ -699,10 +704,15 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
+  [self unsubscribeFromTopic:topic completion:nil];
+}
+
+- (void)unsubscribeFromTopic:(NSString *)topic
+                  completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class] normalizeTopic:topic];
     if (normalizeTopic.length) {
-      [self.pubsub unsubscribeFromTopic:normalizeTopic];
+      [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
                               @"Cannot parse topic name %@. Will not unsubscribe.", topic);
