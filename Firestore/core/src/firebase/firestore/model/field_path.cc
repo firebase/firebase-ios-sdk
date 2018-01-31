@@ -23,13 +23,16 @@
 #include <utility>
 #include <vector>
 
+#include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
+#include "absl/strings/str_split.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
 namespace {
+
 bool IsValidIdentifier(const std::string& segment) {
   if (segment.empty()) {
     return false;
@@ -45,23 +48,26 @@ bool IsValidIdentifier(const std::string& segment) {
 
   return true;
 }
+
+std::string EscapedSegment(const std::string& segment) {
+  // OBC dot
+  auto escaped = absl::StrReplaceAll(segment, {{"\\", "\\\\"}, {"`", "\\`"}});
+  const bool needs_escaping = !IsValidIdentifier(escaped);
+  if (needs_escaping) {
+    escaped.push_front('`');
+    escaped.push_back('`');
+  }
+  return escaped;
+}
+
 }  // namespace
 
-class FieldPath {
+class BasePath {
+ protected:
   using SegmentsT = std::vector<std::string>;
 
  public:
   using const_iterator = SegmentsT::const_iterator;
-
-  FieldPath() = default;
-
-  template <typename IterT>
-  FieldPath(const IterT begin, const IterT end) : segments_{begin, end} {
-  }
-
-  FieldPath(std::initializer_list<std::string> list)
-      : segments_{list.begin(), list.end()} {
-  }
 
   const std::string& operator[](const size_t index) const {
     return at(index);
@@ -112,12 +118,15 @@ class FieldPath {
   }
 
   FieldPath PopFront(const size_t count = 1) const {
-    // OBC ASSERT
+    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+        count <= size(), "Cannot call PopFront(%u) on path of length %u", count,
+        size());
     return FieldPath{segments_.begin() + count, segments_.end()};
   }
 
   FieldPath PopBack() const {
-    // OBC ASSERT
+    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+        !empty(), "Cannot call PopBack() on empty path);
     return FieldPath{segments_.begin(), segments_.end() - 1};
   }
 
@@ -130,9 +139,32 @@ class FieldPath {
   // std::hash
   // to_string
 
-  //////////////////////////////////////////////////////////////////////////////
+ protected:
+  BasePath() = default;
+  template <typename IterT>
+  BasePath(const IterT begin, const IterT end) : segments_{begin, end} {
+  }
+  BasePath(std::initializer_list<std::string> list)
+      : segments_{list.begin(), list.end()} {
+  }
+  FieldPath(SegmentsT&& segments) : segments_{std::move(segments)} {
+  }
+  ~BasePath() = default;
 
-  static FieldPath FromServerFormat(const std::string& path) {
+ private:
+  SegmentsT segments_;
+};
+
+class FieldPath : public BasePath {
+ public:
+  FieldPath() = default;
+  template <typename IterT>
+  FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
+  }
+  FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
+  }
+
+  static FieldPath ParseServerFormat(const std::string& path) {
     // TODO(b/37244157): Once we move to v1beta1, we should make this more
     // strict. Right now, it allows non-identifier path components, even if they
     // aren't escaped. Technically, this will mangle paths with backticks in
@@ -202,39 +234,15 @@ class FieldPath {
     return FieldPath{std::move(segments)};
   }
 
-  // OBC: do we really need emptypath? shared keypath?
-
   std::string CanonicalString() const {
-    std::string result;
-    bool is_first_segment = true;
-
-    for (const auto& segment : segments) {
-      if (!is_first_segment) {
-        is_first_segment = false;
-      } else {
-        result += '.';
-      }
-
-      // OBC dot
-      const auto escaped =
-          absl::StrReplaceAll(segment, {{"\\", "\\\\"}, {"`", "\\`"}});
-      const bool is_valid_id = IsValidIdentifier(escaped);
-      if (!is_valid_id) {
-        result += '`';
-      }
-      result += escaped;
-      if (!is_valid_id) {
-        result += '`';
-      }
-    }
-
-    return result;
+    return absl::StrJoin(begin(), end(), '.',
+                         [](std::string* out, const std::string& segment) {
+                           out->append(EscapedSegment(segment));
+                         });
   }
 
- private:
-  FieldPath(SegmentsT&& segments) : segments_{std::move(segments)} {
-  }
-  SegmentsT segments_;
+  // OBC: do we really need emptypath?
+  // OBC: do we really need *shared* keypath?
 };
 
 bool operator<(const FieldPath& lhs, const FieldPath& rhs) {
@@ -246,6 +254,43 @@ bool operator==(const FieldPath& lhs, const FieldPath& rhs) {
   return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
                                       rhs.end());
 }
+
+class ResourcePath : public BasePath {
+ public:
+  ResourcePath() = default;
+  template <typename IterT>
+  ResourcePath(const IterT begin, const IterT end) : BasePath{begin, end} {
+  }
+  ResourcePath(std::initializer_list<std::string> list) : BasePath{list} {
+  }
+
+  static ResourcePath Parse(const std::string& path) {
+    // NOTE: The client is ignorant of any path segments containing escape
+    // sequences (e.g. __id123__) and just passes them through raw (they exist
+    // for legacy reasons and should not be used frequently).
+
+    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+        path.find("//") == std::string::npos,
+        "Invalid path (%s). Paths must not contain // in them.", path.c_str());
+
+    // SkipEmpty because we may still have an empty segment at the beginning or
+    // end if they had a leading or trailing slash (which we allow).
+    auto segments = absl::StrSplit(path, '/', absl::SkipEmpty());
+    return ResourcePath{std::move(segments)};
+  }
+
+  std::string CanonicalString() const {
+    // NOTE: The client is ignorant of any path segments containing escape
+    // sequences (e.g. __id123__) and just passes them through raw (they exist
+    // for legacy reasons and should not be used frequently).
+
+    return absl::StrJoin(begin(), end(), '/');
+  }
+
+ private:
+  ResourcePath(SegmentsT&& segments) : BasePath{segments} {
+  }
+};
 
 }  // namespace model
 }  // namespace firestore
