@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
+#include <inttypes.h>
+
 #import <GRPCClient/GRPCCall.h>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
