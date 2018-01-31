@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
+#import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <GRPCClient/GRPCCall+ChannelCredentials.h>
 #import <GRPCClient/GRPCCall+Tests.h>

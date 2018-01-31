@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 
+#include <inttypes.h>
+
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"

@@ -104,22 +104,22 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidUsage(@"FIRIllegalStateException",
                          @"All reads in a transaction must be done before any writes.");
   }
-  [self.datastore
-      lookupDocuments:keys
-           completion:^(NSArray<FSTDocument *> *_Nullable documents, NSError *_Nullable error) {
-             if (error) {
-               completion(nil, error);
-               return;
-             }
-             for (FSTMaybeDocument *doc in documents) {
-               NSError *recordError = nil;
-               if (![self recordVersionForDocument:doc error:&recordError]) {
-                 completion(nil, recordError);
-                 return;
-               }
-             }
-             completion(documents, nil);
-           }];
+  [self.datastore lookupDocuments:keys
+                       completion:^(NSArray<FSTMaybeDocument *> *_Nullable documents,
+                                    NSError *_Nullable error) {
+                         if (error) {
+                           completion(nil, error);
+                           return;
+                         }
+                         for (FSTMaybeDocument *doc in documents) {
+                           NSError *recordError = nil;
+                           if (![self recordVersionForDocument:doc error:&recordError]) {
+                             completion(nil, recordError);
+                             return;
+                           }
+                         }
+                         completion(documents, nil);
+                       }];
 }
 
 /** Stores mutations to be written when commitWithCompletion is called. */

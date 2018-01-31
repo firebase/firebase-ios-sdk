@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
+#import <FirebaseFirestore/FirebaseFirestore.h>
 
-#import <FirebaseFirestore/FIRFirestore.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
