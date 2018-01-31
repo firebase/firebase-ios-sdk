@@ -17,10 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_ARRAY_SORTED_MAP_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_ARRAY_SORTED_MAP_H_
 
-#include <assert.h>
-
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <utility>
@@ -86,11 +85,11 @@ class FixedArray {
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
 
-  FixedArray() : size_(0) {
+  FixedArray() {
   }
 
   template <typename SourceIterator>
-  FixedArray(SourceIterator src_begin, SourceIterator src_end) : FixedArray() {
+  FixedArray(SourceIterator src_begin, SourceIterator src_end) {
     append(src_begin, src_end);
   }
 
@@ -141,7 +140,7 @@ class FixedArray {
   }
 
   array_type contents_;
-  size_type size_;
+  size_type size_ = 0;
 };
 
 }  // namespace impl
@@ -153,7 +152,6 @@ class FixedArray {
 template <typename K, typename V, typename C = std::less<K>>
 class ArraySortedMap : public impl::ArraySortedMapBase {
  public:
-  using this_type = ArraySortedMap<K, V, C>;
   using key_comparator_type = KeyComparator<K, V, C>;
 
   /**
@@ -193,7 +191,7 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
    * @param value The value to associate with the key.
    * @return A new dictionary with the added/updated value.
    */
-  this_type insert(const K& key, const V& value) const {
+  ArraySortedMap insert(const K& key, const V& value) const {
     const_iterator current_end = end();
     const_iterator pos = LowerBound(key);
     bool replacing_entry = false;
@@ -209,8 +207,7 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
 
     // Copy the segment before the found position. If not found, this is
     // everything.
-    auto copy = std::make_shared<array_type>();
-    copy->append(begin(), pos);
+    auto copy = std::make_shared<array_type>(begin(), pos);
 
     // Copy the value to be inserted.
     copy->append(value_type(key, value));
@@ -230,7 +227,7 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
    * @param key The key to remove.
    * @return A new dictionary without that value.
    */
-  this_type erase(const K& key) const {
+  ArraySortedMap erase(const K& key) const {
     const_iterator current_end = end();
     const_iterator pos = find(key);
     if (pos == current_end) {
@@ -302,8 +299,8 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
       : array_(array), key_comparator_(key_comparator) {
   }
 
-  this_type wrap(const array_pointer& array) const noexcept {
-    return this_type(array, key_comparator_);
+  ArraySortedMap wrap(const array_pointer& array) const noexcept {
+    return ArraySortedMap(array, key_comparator_);
   }
 
   const_iterator LowerBound(const K& key) const {
