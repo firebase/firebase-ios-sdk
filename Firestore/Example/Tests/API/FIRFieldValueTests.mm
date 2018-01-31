@@ -26,19 +26,19 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFieldValueTests
 
 - (void)testEquals {
-  FIRFieldValue *delete = [FIRFieldValue fieldValueForDelete];
+  FIRFieldValue *deleted = [FIRFieldValue fieldValueForDelete];
   FIRFieldValue *deleteDup = [FIRFieldValue fieldValueForDelete];
   FIRFieldValue *serverTimestamp = [FIRFieldValue fieldValueForServerTimestamp];
   FIRFieldValue *serverTimestampDup = [FIRFieldValue fieldValueForServerTimestamp];
-  XCTAssertEqualObjects(delete, deleteDup);
-  XCTAssertNotEqualObjects(delete, nil);
+  XCTAssertEqualObjects(deleted, deleteDup);
+  XCTAssertNotEqualObjects(deleted, nil);
   XCTAssertEqualObjects(serverTimestamp, serverTimestampDup);
   XCTAssertNotEqualObjects(serverTimestamp, nil);
-  XCTAssertNotEqualObjects(delete, serverTimestamp);
+  XCTAssertNotEqualObjects(deleted, serverTimestamp);
 
-  XCTAssertEqual([delete hash], [deleteDup hash]);
+  XCTAssertEqual([deleted hash], [deleteDup hash]);
   XCTAssertEqual([serverTimestamp hash], [serverTimestamp hash]);
-  XCTAssertNotEqual([delete hash], [serverTimestamp hash]);
+  XCTAssertNotEqual([deleted hash], [serverTimestamp hash]);
 }
 
 @end

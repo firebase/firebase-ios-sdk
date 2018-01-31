@@ -278,6 +278,14 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   return self;
 }
 
+- (NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges {
+  return static_cast<NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *>(_targetChanges);
+}
+
+- (NSDictionary<FSTDocumentKey *, FSTMaybeDocument *> *)documentUpdates {
+  return static_cast<NSDictionary<FSTDocumentKey *, FSTMaybeDocument *> *>(_documentUpdates);
+}
+
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document {
   _documentUpdates[document.key] = document;
@@ -350,6 +358,10 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
     _documentUpdates = [NSMutableDictionary dictionary];
   }
   return self;
+}
+
+- (NSDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *)existenceFilters {
+  return static_cast<NSDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *>(_existenceFilters);
 }
 
 - (FSTTargetChange *)targetChangeForTargetID:(FSTBoxedTargetID *)targetID {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import FirebaseFirestore;
+#import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
 

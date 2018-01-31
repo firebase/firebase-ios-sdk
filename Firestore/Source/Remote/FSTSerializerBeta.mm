@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
+#include <inttypes.h>
+
 #import <GRPCClient/GRPCCall.h>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
@@ -161,41 +163,41 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTFieldValue <=> Value proto
 
 - (GCFSValue *)encodedFieldValue:(FSTFieldValue *)fieldValue {
-  Class class = [fieldValue class];
-  if (class == [FSTNullValue class]) {
+  Class fieldClass = [fieldValue class];
+  if (fieldClass == [FSTNullValue class]) {
     return [self encodedNull];
 
-  } else if (class == [FSTBooleanValue class]) {
+  } else if (fieldClass == [FSTBooleanValue class]) {
     return [self encodedBool:[[fieldValue value] boolValue]];
 
-  } else if (class == [FSTIntegerValue class]) {
+  } else if (fieldClass == [FSTIntegerValue class]) {
     return [self encodedInteger:[[fieldValue value] longLongValue]];
 
-  } else if (class == [FSTDoubleValue class]) {
+  } else if (fieldClass == [FSTDoubleValue class]) {
     return [self encodedDouble:[[fieldValue value] doubleValue]];
 
-  } else if (class == [FSTStringValue class]) {
+  } else if (fieldClass == [FSTStringValue class]) {
     return [self encodedString:[fieldValue value]];
 
-  } else if (class == [FSTTimestampValue class]) {
+  } else if (fieldClass == [FSTTimestampValue class]) {
     return [self encodedTimestampValue:((FSTTimestampValue *)fieldValue).internalValue];
 
-  } else if (class == [FSTGeoPointValue class]) {
+  } else if (fieldClass == [FSTGeoPointValue class]) {
     return [self encodedGeoPointValue:[fieldValue value]];
 
-  } else if (class == [FSTBlobValue class]) {
+  } else if (fieldClass == [FSTBlobValue class]) {
     return [self encodedBlobValue:[fieldValue value]];
 
-  } else if (class == [FSTReferenceValue class]) {
+  } else if (fieldClass == [FSTReferenceValue class]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
     return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:[ref value]];
 
-  } else if (class == [FSTObjectValue class]) {
+  } else if (fieldClass == [FSTObjectValue class]) {
     GCFSValue *result = [GCFSValue message];
     result.mapValue = [self encodedMapValue:(FSTObjectValue *)fieldValue];
     return result;
 
-  } else if (class == [FSTArrayValue class]) {
+  } else if (fieldClass == [FSTArrayValue class]) {
     GCFSValue *result = [GCFSValue message];
     result.arrayValue = [self encodedArrayValue:(FSTArrayValue *)fieldValue];
     return result;
@@ -438,8 +440,8 @@ NS_ASSUME_NONNULL_BEGIN
     proto.currentDocument.exists = YES;
 
   } else if (mutationClass == [FSTDeleteMutation class]) {
-    FSTDeleteMutation *delete = (FSTDeleteMutation *)mutation;
-    proto.delete_p = [self encodedDocumentKey:delete.key];
+    FSTDeleteMutation *deleteMutation = (FSTDeleteMutation *)mutation;
+    proto.delete_p = [self encodedDocumentKey:deleteMutation.key];
 
   } else {
     FSTFail(@"Unknown mutation type %@", NSStringFromClass(mutationClass));

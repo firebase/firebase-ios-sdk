@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#ifndef __cplusplus
-#error "FSTLevelDBKey is Objective-C++ and can only be included from .mm files"
-#endif
-
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
