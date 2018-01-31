@@ -17,10 +17,6 @@
 #ifndef IPHONE_FIRESTORE_SOURCE_LOCAL_STRING_VIEW_H_
 #define IPHONE_FIRESTORE_SOURCE_LOCAL_STRING_VIEW_H_
 
-#ifndef __cplusplus
-#error "StringView is Objective-C++ and can only be included from .mm files"
-#endif
-
 #import <Foundation/Foundation.h>
 
 #include <leveldb/slice.h>

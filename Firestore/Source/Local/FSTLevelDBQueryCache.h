@@ -16,15 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Local/FSTQueryCache.h"
-
-#ifdef __cplusplus
 #include <memory>
 
-namespace leveldb {
-class DB;
-}
-#endif
+#import "Firestore/Source/Local/FSTQueryCache.h"
+#include "leveldb/db.h"
 
 @class FSTLocalSerializer;
 @protocol FSTGarbageCollector;
@@ -47,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** The garbage collector to notify about potential garbage keys. */
 @property(nonatomic, weak, readwrite, nullable) id<FSTGarbageCollector> garbageCollector;
 
-#ifdef __cplusplus
 /**
  * Creates a new query cache in the given LevelDB.
  *
@@ -55,7 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDB:(std::shared_ptr<leveldb::DB>)db
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
-#endif
 
 @end
 
