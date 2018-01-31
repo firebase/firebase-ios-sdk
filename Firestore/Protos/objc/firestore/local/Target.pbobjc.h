@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,6 +160,7 @@ typedef GPB_ENUM(FSTPBTargetGlobal_FieldNumber) {
   FSTPBTargetGlobal_FieldNumber_HighestTargetId = 1,
   FSTPBTargetGlobal_FieldNumber_HighestListenSequenceNumber = 2,
   FSTPBTargetGlobal_FieldNumber_LastRemoteSnapshotVersion = 3,
+  FSTPBTargetGlobal_FieldNumber_TargetCount = 4,
 };
 
 /**
@@ -196,6 +197,9 @@ typedef GPB_ENUM(FSTPBTargetGlobal_FieldNumber) {
 @property(nonatomic, readwrite, strong, null_resettable) GPBTimestamp *lastRemoteSnapshotVersion;
 /** Test to see if @c lastRemoteSnapshotVersion has been set. */
 @property(nonatomic, readwrite) BOOL hasLastRemoteSnapshotVersion;
+
+/** On platforms that need it, holds the number of targets persisted. */
+@property(nonatomic, readwrite) int32_t targetCount;
 
 @end
 

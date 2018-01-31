@@ -31,20 +31,25 @@ locations described via the Podfile syntax documented
 
 **CocoaPods 1.4.0** or later is required.
 
+If source pods are included, **FirebaseCore** must also be included.
+
 For example, to access FirebaseMessaging via a checked out version of the
 firebase-ios-sdk repo do:
 
 ```
 pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
+pod 'FirebaseCore', :path => '/path/to/firebase-ios-sdk'
 ```
 To access via a branch:
 ```
 pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 ```
 
 To access via a tag (Release tags will be available starting with Firebase 4.7.0:
 ```
 pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
 ```
 
 If your Podfile does not include *use_frameworks!*, you need to workaround

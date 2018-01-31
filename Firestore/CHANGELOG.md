@@ -1,12 +1,17 @@
 # Unreleased
+- [fixed] Fixed a regression in Firebase iOS release 4.8.1 that could in certain
+  cases result in an "OnlineState should not affect limbo documents." assertion
+  crash when the client loses its network connection.
 
 # v0.10.0
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
   to avoid confusion with the factory method of the same name.
 - [changed] Added a commit method that takes no completion handler to FIRWriteBatch.
 - [feature] Queries can now be created from an NSPredicate.
-- [added] Added SnapshotOptions API to control how DocumentSnapshots return unresolved
+- [feature] Added SnapshotOptions API to control how DocumentSnapshots return unresolved
   server timestamps.
+- [feature] Added `disableNetwork()` and `enableNetwork()` methods to
+  `Firestore` class, allowing for explicit network management.
 - [changed] For non-existing documents, DocumentSnapshot.data() now returns `nil`
   instead of throwing an exception. A non-nullable QueryDocumentSnapshot is
   introduced for Queries to reduce the number of nil-checks in your code.
@@ -17,6 +22,8 @@
   connection is restored and the query is in sync with the backend again.
 - [fixed] Multiple offline mutations now properly reflected in retrieved
   documents. Previously, only the last mutation would be visible. (#643)
+- [fixed] Fixed a crash in `closeWithFinaleState:` that could be triggered by
+  signing out when the app didn't have a network connection.
 
 # v0.9.4
 - [changed] Firestore no longer has a direct dependency on FirebaseAuth.
