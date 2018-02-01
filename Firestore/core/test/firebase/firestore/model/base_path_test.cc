@@ -34,7 +34,8 @@ struct Path : impl::BasePath<Path> {
   }
   Path(std::initializer_list<std::string> list) : BasePath{list} {
   }
-  Path(SegmentsT&& segments) : BasePath{std::move(segments)} {}
+  Path(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  }
 
   bool operator==(const Path& rhs) const {
     return BasePath::operator==(rhs);
@@ -121,8 +122,12 @@ TEST(BasePath, Concatenation) {
 
   EXPECT_EQ(a, path.Concatenated("rooms"));
   EXPECT_EQ(ab, path.Concatenated("rooms").Concatenated("Eros"));
-  EXPECT_EQ(abc, path.Concatenated("rooms").Concatenated("Eros").Concatenated("messages"));
+  EXPECT_EQ(abc, path.Concatenated("rooms").Concatenated("Eros").Concatenated(
+                     "messages"));
   EXPECT_EQ(abc, path.Concatenated(Path{"rooms", "Eros", "messages"}));
+
+  const Path bcd{"Eros", "messages", "this_week"};
+  EXPECT_EQ(bcd, abc.WithoutFirstElement().Concatenated("this_week"));
 }
 
 TEST(BasePath, Comparison) {
@@ -183,7 +188,18 @@ TEST(BasePath, IsPrefixOf) {
   EXPECT_FALSE(abc.IsPrefixOf(ba));
 }
 
-// throws on invalid
+TEST(BasePath, Failures) {
+  const Path path;
+  ASSERT_DEATH_IF_SUPPORTED(path.front(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.back(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path[0], "");
+  ASSERT_DEATH_IF_SUPPORTED(path[1], "");
+  ASSERT_DEATH_IF_SUPPORTED(path.at(0), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElement(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElements(2), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.WithoutLastElement(), "");
+}
+
 // canonical string
 // --//-- of substr?
 
