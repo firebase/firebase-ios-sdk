@@ -146,7 +146,42 @@ TEST(BasePath, Comparison) {
   EXPECT_TRUE(ab > a);
 }
 
-// isPrefixOf
+TEST(BasePath, IsPrefixOf) {
+  const Path empty;
+  const Path a{"a"};
+  const Path ab{"a", "b"};
+  const Path abc{"a", "b", "c"};
+  const Path b{"b"};
+  const Path ba{"b", "a"};
+
+  EXPECT_TRUE(empty.IsPrefixOf(empty));
+  EXPECT_TRUE(empty.IsPrefixOf(a));
+  EXPECT_TRUE(empty.IsPrefixOf(ab));
+  EXPECT_TRUE(empty.IsPrefixOf(abc));
+  EXPECT_TRUE(empty.IsPrefixOf(b));
+  EXPECT_TRUE(empty.IsPrefixOf(ba));
+
+  EXPECT_FALSE(a.IsPrefixOf(empty));
+  EXPECT_TRUE(a.IsPrefixOf(a));
+  EXPECT_TRUE(a.IsPrefixOf(ab));
+  EXPECT_TRUE(a.IsPrefixOf(abc));
+  EXPECT_FALSE(a.IsPrefixOf(b));
+  EXPECT_FALSE(a.IsPrefixOf(ba));
+
+  EXPECT_FALSE(ab.IsPrefixOf(empty));
+  EXPECT_FALSE(ab.IsPrefixOf(a));
+  EXPECT_TRUE(ab.IsPrefixOf(ab));
+  EXPECT_TRUE(ab.IsPrefixOf(abc));
+  EXPECT_FALSE(ab.IsPrefixOf(b));
+  EXPECT_FALSE(ab.IsPrefixOf(ba));
+
+  EXPECT_FALSE(abc.IsPrefixOf(empty));
+  EXPECT_FALSE(abc.IsPrefixOf(a));
+  EXPECT_FALSE(abc.IsPrefixOf(ab));
+  EXPECT_TRUE(abc.IsPrefixOf(abc));
+  EXPECT_FALSE(abc.IsPrefixOf(b));
+  EXPECT_FALSE(abc.IsPrefixOf(ba));
+}
 
 // throws on invalid
 // canonical string

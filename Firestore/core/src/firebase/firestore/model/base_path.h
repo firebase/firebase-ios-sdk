@@ -107,8 +107,7 @@ class BasePath {
   }
 
   bool IsPrefixOf(const T& rhs) const {
-    return size() < rhs.size() &&
-           std::equal(begin(), end(), rhs.begin(), rhs.begin() + size());
+    return size() <= rhs.size() && std::equal(begin(), end(), rhs.begin());
   }
 
   bool operator==(const BasePath& rhs) const {
