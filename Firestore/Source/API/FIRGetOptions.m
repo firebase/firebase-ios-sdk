@@ -21,18 +21,19 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGetOptions
 
 + (instancetype)defaultOptions {
-  return [[FIRGetOptions alloc] initWithSource:FIRGetSourceDefault];
+  return [[FIRGetOptions alloc] init];
 }
 
-- (instancetype)initWithSource:(FIRGetSource)source {
+- (instancetype)init {
   if (self = [super init]) {
-    _source = source;
+    _source = FIRGetSourceDefault;
   }
   return self;
 }
 
-+ (instancetype)optionsWithSource:(FIRGetSource)source {
-  return [[FIRGetOptions alloc] initWithSource:source];
+- (instancetype)optionsWithSource:(FIRGetSource)source {
+  _source = source;
+  return self;
 }
 
 @end
