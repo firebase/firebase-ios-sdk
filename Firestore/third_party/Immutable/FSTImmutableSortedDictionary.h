@@ -71,14 +71,6 @@ extern const int kSortedDictionaryArrayToRBTreeSizeThreshold;
 - (ValueType)objectForKeyedSubscript:(KeyType)key;
 
 /**
- * Gets the key before the given key in sorted order.
- *
- * @param key The key to look before.
- * @return The key before the given one.
- */
-- (nullable KeyType)predecessorKey:(KeyType)key;
-
-/**
  * Returns the index of the key or NSNotFound if the key is not found.
  *
  * @param key The key to return the index for.
