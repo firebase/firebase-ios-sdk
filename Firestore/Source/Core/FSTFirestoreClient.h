@@ -20,9 +20,9 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
-@class FSTDatabaseInfo;
 @class FSTDispatchQueue;
 @class FSTDocument;
 @class FSTListenOptions;
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * All callbacks and events will be triggered on the provided userDispatchQueue.
  */
-+ (instancetype)clientWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
++ (instancetype)clientWithDatabaseInfo:(firebase::firestore::core::DatabaseInfo)databaseInfo
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
                      userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue

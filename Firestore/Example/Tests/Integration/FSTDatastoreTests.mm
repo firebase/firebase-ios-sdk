@@ -23,7 +23,6 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -42,9 +41,11 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -161,10 +162,9 @@ NS_ASSUME_NONNULL_BEGIN
   DatabaseId database_id(firebase::firestore::util::MakeStringView(projectID),
                          DatabaseId::kDefaultDatabaseId);
 
-  FSTDatabaseInfo *databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:database_id
-                                                               persistenceKey:@"test-key"
-                                                                         host:settings.host
-                                                                   sslEnabled:settings.sslEnabled];
+  DatabaseInfo database_info(database_id, "test-key",
+                             firebase::firestore::util::MakeStringView(settings.host),
+                             settings.sslEnabled);
 
   _testWorkerQueue = [FSTDispatchQueue
       queueWith:dispatch_queue_create("com.google.firestore.FSTDatastoreTestsWorkerQueue",
@@ -172,7 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   _credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
-  _datastore = [FSTDatastore datastoreWithDatabase:databaseInfo
+  _datastore = [FSTDatastore datastoreWithDatabase:database_info
                                workerDispatchQueue:_testWorkerQueue
                                        credentials:_credentials];
 

@@ -18,9 +18,9 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
-@class FSTDatabaseInfo;
 @class FSTDocumentKey;
 @class FSTDispatchQueue;
 @class FSTMutation;
@@ -53,13 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTDatastore : NSObject
 
 /** Creates a new Datastore instance with the given database info. */
-+ (instancetype)datastoreWithDatabase:(FSTDatabaseInfo *)database
++ (instancetype)datastoreWithDatabase:(firebase::firestore::core::DatabaseInfo)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                           credentials:(id<FSTCredentialsProvider>)credentials;
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
-- (instancetype)initWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
+- (instancetype)initWithDatabaseInfo:(firebase::firestore::core::DatabaseInfo)databaseInfo
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                          credentials:(id<FSTCredentialsProvider>)credentials
     NS_DESIGNATED_INITIALIZER;
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTWriteStream *)createWriteStream;
 
 /** The name of the database and the backend. */
-@property(nonatomic, strong, readonly) FSTDatabaseInfo *databaseInfo;
+@property(nonatomic, strong, readonly) firebase::firestore::core::DatabaseInfo databaseInfo;
 
 @end
 

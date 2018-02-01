@@ -23,7 +23,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRFirestoreVersion.h"
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -36,9 +35,11 @@
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -75,7 +76,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @implementation FSTDatastore
 
-+ (instancetype)datastoreWithDatabase:(FSTDatabaseInfo *)databaseInfo
++ (instancetype)datastoreWithDatabase:(DatabaseInfo)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                           credentials:(id<FSTCredentialsProvider>)credentials {
   return [[FSTDatastore alloc] initWithDatabaseInfo:databaseInfo
@@ -83,25 +84,30 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                         credentials:credentials];
 }
 
-- (instancetype)initWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
+- (instancetype)initWithDatabaseInfo:(DatabaseInfo)databaseInfo
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                          credentials:(id<FSTCredentialsProvider>)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    if (!databaseInfo.isSSLEnabled) {
-      GRPCHost *hostConfig = [GRPCHost hostWithAddress:databaseInfo.host];
+    NSString *host = firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.host());
+    if (!databaseInfo.ssl_enabled()) {
+      GRPCHost *hostConfig = [GRPCHost hostWithAddress:host];
       hostConfig.secure = NO;
     }
-    _service = [GCFSFirestore serviceWithHost:databaseInfo.host];
+    _service = [GCFSFirestore serviceWithHost:host];
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
-    _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseInfo.databaseID];
+    _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseInfo.database_id()];
   }
   return self;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDatastore: %@>", self.databaseInfo];
+  return [NSString
+      stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%@ host:%@>>",
+                       firebase::firestore::util::WrapNSStringNoCopy(
+                           self.databaseInfo.database_id().database_id()),
+                       firebase::firestore::util::WrapNSStringNoCopy(self.databaseInfo.host())];
 }
 
 /**
@@ -304,7 +310,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                       } else {
                         GRPCProtoCall *rpc = rpcFactory();
                         [FSTDatastore prepareHeadersForRPC:rpc
-                                                databaseID:self.databaseInfo.databaseID
+                                                databaseID:self.databaseInfo.database_id()
                                                      token:result.token];
                         [rpc start];
                       }

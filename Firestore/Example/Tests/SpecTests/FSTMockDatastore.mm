@@ -17,7 +17,6 @@
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -28,9 +27,11 @@
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
 @class GRPCProtoCall;
@@ -46,12 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
                       credentials:(id<FSTCredentialsProvider>)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(DatabaseInfo)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(DatabaseInfo)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
@@ -172,12 +173,12 @@ NS_ASSUME_NONNULL_BEGIN
                       credentials:(id<FSTCredentialsProvider>)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(DatabaseInfo)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(DatabaseInfo)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
@@ -286,14 +287,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   DatabaseId database_id("project", "database");
-  FSTDatabaseInfo *databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:database_id
-                                                               persistenceKey:@"persistence"
-                                                                         host:@"host"
-                                                                   sslEnabled:NO];
+  DatabaseInfo database_info(database_id, "persistence", "host", false);
 
   FSTEmptyCredentialsProvider *credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
-  return [[FSTMockDatastore alloc] initWithDatabaseInfo:databaseInfo
+  return [[FSTMockDatastore alloc] initWithDatabaseInfo:database_info
                                     workerDispatchQueue:workerDispatchQueue
                                             credentials:credentials];
 }
@@ -301,24 +299,24 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Overridden FSTDatastore methods.
 
 - (FSTWatchStream *)createWatchStream {
-  FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
+  // FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
   self.watchStream = [[FSTMockWatchStream alloc]
         initWithDatastore:self
       workerDispatchQueue:self.workerDispatchQueue
               credentials:self.credentials
                serializer:[[FSTSerializerBeta alloc]
-                              initWithDatabaseID:self.databaseInfo.databaseID]];
+                              initWithDatabaseID:self.databaseInfo.database_id()]];
   return self.watchStream;
 }
 
 - (FSTWriteStream *)createWriteStream {
-  FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
+  // FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
   self.writeStream = [[FSTMockWriteStream alloc]
         initWithDatastore:self
       workerDispatchQueue:self.workerDispatchQueue
               credentials:self.credentials
                serializer:[[FSTSerializerBeta alloc]
-                              initWithDatabaseID:self.databaseInfo.databaseID]];
+                              initWithDatabaseID:self.databaseInfo.database_id()]];
   return self.writeStream;
 }
 

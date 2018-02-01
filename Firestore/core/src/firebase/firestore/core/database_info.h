@@ -26,15 +26,15 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-/** FSTDatabaseInfo contains data about the database. */
+/** DatabaseInfo contains data about the database. */
 class DatabaseInfo {
  public:
   /**
-   * Creates and returns a new FSTDatabaseInfo.
+   * Creates a new DatabaseInfo.
    *
    * @param database_id The project/database to use.
    * @param persistence_key A unique identifier for this Firestore's local
-   * storage. Usually derived from -[FIRApp appName].
+   *        storage. Usually derived from -[FIRApp appName].
    * @param host The hostname of the datastore backend.
    * @param ssl_enabled Whether to use SSL when connecting.
    */

@@ -55,11 +55,11 @@ class DatabaseId {
   }
 
   /** Whether this is the default database of the project. */
-  bool IsDefaultDatabase();
+  bool IsDefaultDatabase() const;
 
   // For objective-c++ hash; to be removed after migration.
   // Do NOT use in C++ code.
-  uint32_t Hash() {
+  uint32_t Hash() const {
     std::hash<std::string> hash_fn;
     return static_cast<uint32_t>(hash_fn(project_id_) * 31u +
                                  hash_fn(database_id_));

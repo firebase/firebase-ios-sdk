@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
@@ -38,9 +37,11 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -202,15 +203,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
       FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
-      FSTDatabaseInfo *databaseInfo =
-          [FSTDatabaseInfo databaseInfoWithDatabaseID:_databaseID
-                                       persistenceKey:_persistenceKey
-                                                 host:_settings.host
-                                           sslEnabled:_settings.sslEnabled];
+      DatabaseInfo database_info(firebase::firestore::util::MakeStringView(_databaseID),
+                                 firebase::firestore::util::MakeStringView(_persistenceKey),
+                                 firebase::firestore::util::MakeStringView(_settings.host),
+                                 _settings.sslEnabled);
 
       FSTDispatchQueue *userDispatchQueue = [FSTDispatchQueue queueWith:_settings.dispatchQueue];
 
-      _client = [FSTFirestoreClient clientWithDatabaseInfo:databaseInfo
+      _client = [FSTFirestoreClient clientWithDatabaseInfo:database_info
                                             usePersistence:_settings.persistenceEnabled
                                        credentialsProvider:_credentialsProvider
                                          userDispatchQueue:userDispatchQueue

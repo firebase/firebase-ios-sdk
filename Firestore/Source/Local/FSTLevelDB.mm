@@ -19,7 +19,6 @@
 #include <leveldb/db.h>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
@@ -30,8 +29,11 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -92,7 +94,7 @@ using leveldb::WriteOptions;
 #endif
 }
 
-+ (NSString *)storageDirectoryForDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
++ (NSString *)storageDirectoryForDatabaseInfo:(DatabaseInfo)databaseInfo
                            documentsDirectory:(NSString *)documentsDirectory {
   // Use two different path formats:
   //
@@ -102,14 +104,16 @@ using leveldb::WriteOptions;
   // projectIDs are DNS-compatible names and cannot contain dots so there's
   // no danger of collisions.
   NSString *directory = documentsDirectory;
-  directory = [directory stringByAppendingPathComponent:databaseInfo.persistenceKey];
+  directory =
+      [directory stringByAppendingPathComponent:firebase::firestore::util::WrapNSStringNoCopy(
+                                                    databaseInfo.persistence_key())];
 
   NSString *segment =
-      firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.databaseID.project_id());
-  if (!databaseInfo.databaseID.IsDefaultDatabase()) {
+      firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.database_id().project_id());
+  if (!databaseInfo.database_id().IsDefaultDatabase()) {
     segment = [NSString stringWithFormat:@"%@.%@", segment,
                                          firebase::firestore::util::WrapNSStringNoCopy(
-                                             databaseInfo.databaseID.database_id())];
+                                             databaseInfo.database_id().database_id())];
   }
   directory = [directory stringByAppendingPathComponent:segment];
 
