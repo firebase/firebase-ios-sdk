@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
@@ -28,7 +28,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-static ResourcePath ResourcePath::Parse(const std::string& path) {
+ResourcePath ResourcePath::Parse(const std::string& path) {
   // NOTE: The client is ignorant of any path segments containing escape
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).
@@ -48,7 +48,7 @@ std::string ResourcePath::CanonicalString() const {
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).
 
-  return absl::StrJoin(begin(), end(), '/');
+  return absl::StrJoin(begin(), end(), "/");
 }
 
 }  // namespace model

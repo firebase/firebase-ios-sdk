@@ -45,7 +45,7 @@ class BasePath {
     return at(index);
   }
 
-  const std::string& at(const size_t index) const {
+  const std::string& at(const size_t i) const {
     FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(index < segments_.size(),
                                             "index %u out of range", index);
     return segments_[i];
@@ -99,7 +99,7 @@ class BasePath {
 
   T WithoutLastElement() const {
     FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        !empty(), "Cannot call WithoutLastElement() on empty path);
+        !empty(), "Cannot call WithoutLastElement() on empty path");
     return T{segments_.begin(), segments_.end() - 1};
   }
 
@@ -120,7 +120,7 @@ class BasePath {
   BasePath(std::initializer_list<std::string> list)
       : segments_{list.begin(), list.end()} {
   }
-  FieldPath(SegmentsT&& segments) : segments_{std::move(segments)} {
+  BasePath(SegmentsT&& segments) : segments_{std::move(segments)} {
   }
   ~BasePath() = default;
 

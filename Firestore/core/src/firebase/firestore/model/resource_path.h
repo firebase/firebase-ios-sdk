@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_PATH_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_PATH_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_RESOURCE_PATH_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_RESOURCE_PATH_H_
 
 #include <initializer_list>
 #include <string>
@@ -39,10 +39,12 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   std::string CanonicalString() const;
 
  private:
-  ResourcePath(SegmentsT&& segments) : BasePath{segments} {
+    ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 };
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
+
+#endif

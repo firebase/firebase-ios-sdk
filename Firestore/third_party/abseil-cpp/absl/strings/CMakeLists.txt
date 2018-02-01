@@ -18,6 +18,8 @@
 list(APPEND STRINGS_PUBLIC_HEADERS
   "ascii.h"
   "match.h"
+  "strip.h"
+  "str_cat.h"
   "str_join.h"
   "str_replace.h"
   "str_split.h"
@@ -27,7 +29,10 @@ list(APPEND STRINGS_PUBLIC_HEADERS
 
 list(APPEND STRINGS_INTERNAL_HEADERS
   "internal/memutil.h"
+  "internal/ostringstream.h"
   "internal/resize_uninitialized.h"
+  "internal/str_join_internal.h"
+  "internal/str_split_internal.h"
 )
 
 
@@ -36,7 +41,10 @@ list(APPEND STRINGS_INTERNAL_HEADERS
 list(APPEND STRINGS_SRC
   "ascii.cc"
   "internal/memutil.cc"
+  "internal/ostringstream.cc"
   "match.cc"
+  "strip.cc"
+  "str_cat.cc"
   "str_join.cc"
   "str_replace.cc"
   "str_split.cc"
