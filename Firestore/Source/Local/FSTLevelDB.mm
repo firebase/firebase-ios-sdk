@@ -104,10 +104,12 @@ using leveldb::WriteOptions;
   NSString *directory = documentsDirectory;
   directory = [directory stringByAppendingPathComponent:databaseInfo.persistenceKey];
 
-  NSString *segment = firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.databaseID.project_id());
+  NSString *segment =
+      firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.databaseID.project_id());
   if (!databaseInfo.databaseID.IsDefaultDatabase()) {
     segment = [NSString stringWithFormat:@"%@.%@", segment,
-               firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.databaseID.database_id())];
+                                         firebase::firestore::util::WrapNSStringNoCopy(
+                                             databaseInfo.databaseID.database_id())];
   }
   directory = [directory stringByAppendingPathComponent:segment];
 

@@ -696,13 +696,13 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   if ([other isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
     NSComparisonResult cmp =
-      [firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.project_id())
-        compare:firebase::firestore::util::WrapNSStringNoCopy(ref.databaseID.project_id())];
+        [firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.project_id())
+            compare:firebase::firestore::util::WrapNSStringNoCopy(ref.databaseID.project_id())];
     if (cmp != NSOrderedSame) {
       return cmp;
     }
     cmd = [firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.database_id()())
-            compare:firebase::firestore::util::WrapNSStringNoCopy(ref.databaseID.database_id())];
+        compare:firebase::firestore::util::WrapNSStringNoCopy(ref.databaseID.database_id())];
     return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
   } else {
     return [self defaultCompare:other];

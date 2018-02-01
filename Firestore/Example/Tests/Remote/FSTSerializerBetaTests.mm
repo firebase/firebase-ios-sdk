@@ -35,7 +35,6 @@
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -46,6 +45,11 @@
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
++ #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+    using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -86,8 +90,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTSerializerBetaTests
 
 - (void)setUp {
-  FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:@"p" database:@"d"];
-  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseID];
+  DatabaseId database_id("p", "d");
+  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:database_id];
 }
 
 - (void)testEncodesNull {
@@ -231,7 +235,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResourceNames {
-  FSTDocumentKeyReference *reference = FSTTestRef(@"project", kDefaultDatabaseID, @"foo/bar");
+  FSTDocumentKeyReference *reference = FSTTestRef(
+      @"project", firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId),
+      @"foo/bar");
   GCFSValue *proto = [GCFSValue message];
   proto.referenceValue = @"projects/project/databases/(default)/documents/foo/bar";
 

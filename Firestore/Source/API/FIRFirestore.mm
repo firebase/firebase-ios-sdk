@@ -84,12 +84,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          @"before using Firestore");
   }
   return [self firestoreForApp:app
-                      database:firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
+                      database:firebase::firestore::util::WrapNSStringNoCopy(
+                                   DatabaseId::kDefaultDatabaseId)];
 }
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
   return [self firestoreForApp:app
-                      database:firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
+                      database:firebase::firestore::util::WrapNSStringNoCopy(
+                                   DatabaseId::kDefaultDatabaseId)];
 }
 
 // TODO(b/62410906): make this public

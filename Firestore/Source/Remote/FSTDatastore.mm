@@ -175,8 +175,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 + (NSString *)googleCloudResourcePrefixForDatabaseID:(DatabaseId)databaseID {
   return [NSString
       stringWithFormat:@"projects/%@/databases/%@",
-          firebase::firestore::util::WrapNSStringNoCopy(databaseID.project_id()),
-          firebase::firestore::util::WrapNSStringNoCopy(databaseID.database_id())];
+                       firebase::firestore::util::WrapNSStringNoCopy(databaseID.project_id()),
+                       firebase::firestore::util::WrapNSStringNoCopy(databaseID.database_id())];
 }
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers

@@ -30,7 +30,6 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
@@ -40,6 +39,11 @@
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -100,10 +104,9 @@ FSTFieldPath *FSTTestFieldPath(NSString *field) {
 }
 
 FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
-  FSTDatabaseID *databaseID =
-      [FSTDatabaseID databaseIDWithProject:@"project" database:kDefaultDatabaseID];
+  DatabaseId database_id("project", DatabaseId::kDefaultDatabaseId);
   FSTUserDataConverter *converter =
-      [[FSTUserDataConverter alloc] initWithDatabaseID:databaseID
+      [[FSTUserDataConverter alloc] initWithDatabaseID:database_id
                                           preConverter:^id _Nullable(id _Nullable input) {
                                             return input;
                                           }];
@@ -167,8 +170,9 @@ FSTResourcePath *FSTTestPath(NSString *path) {
 }
 
 FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSString *path) {
-  FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:projectID database:database];
-  return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path) databaseID:databaseID];
+  DatabaseId database_id(firebase::firestore::util::MakeStringView(projectID),
+                         firebase::firestore::util::MakeStringView(database));
+  return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path) databaseID:database_id];
 }
 
 FSTQuery *FSTTestQuery(NSString *path) {

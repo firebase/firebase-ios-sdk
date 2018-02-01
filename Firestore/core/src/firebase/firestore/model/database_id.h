@@ -61,7 +61,8 @@ class DatabaseId {
   // Do NOT use in C++ code.
   uint32_t Hash() {
     std::hash<std::string> hash_fn;
-    return static_cast<uint32_t>(hash_fn(project_id_) * 31u + hash_fn(database_id_));
+    return static_cast<uint32_t>(hash_fn(project_id_) * 31u +
+                                 hash_fn(database_id_));
   }
 
   friend bool operator<(const DatabaseId& lhs, const DatabaseId& rhs);

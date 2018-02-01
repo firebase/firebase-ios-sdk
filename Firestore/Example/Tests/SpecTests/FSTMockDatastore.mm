@@ -20,7 +20,6 @@
 #import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -28,6 +27,11 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::model::DatabaseId;
 
 @class GRPCProtoCall;
 
@@ -281,8 +285,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTMockDatastore
 
 + (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
-  FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:@"project" database:@"database"];
-  FSTDatabaseInfo *databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:databaseID
+  DatabaseId database_id("project", "database");
+  FSTDatabaseInfo *databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:database_id
                                                                persistenceKey:@"persistence"
                                                                          host:@"host"
                                                                    sslEnabled:NO];

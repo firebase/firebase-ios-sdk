@@ -88,7 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithKey:(FSTDocumentKey *)key
-                 databaseID:(firebase::firestore::model::DatabaseId)databaseID NS_DESIGNATED_INITIALIZER;
+                 databaseID:(firebase::firestore::model::DatabaseId)databaseID
+    NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @property(nonatomic, strong, readonly) firebase::firestore::model::DatabaseId databaseID;
