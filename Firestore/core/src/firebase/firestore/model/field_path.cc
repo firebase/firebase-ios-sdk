@@ -53,7 +53,7 @@ std::string EscapedSegment(const std::string& segment) {
   auto escaped = absl::StrReplaceAll(segment, {{"\\", "\\\\"}, {"`", "\\`"}});
   const bool needs_escaping = !IsValidIdentifier(escaped);
   if (needs_escaping) {
-    escaped.push_front('`');
+    escaped.insert(escaped.begin(), '`');
     escaped.push_back('`');
   }
   return escaped;
@@ -71,7 +71,7 @@ FieldPath FieldPath::ParseServerFormat(const std::string& path) {
   std::string segment;
   segment.reserve(path.size());
 
-  const auto finish_segment = [&segments, &segment] {
+  const auto finish_segment = [&segments, &segment, &path] {
     FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
         !segment.empty(),
         "Invalid field path (%s). Paths must not be empty, begin with "
@@ -132,7 +132,7 @@ FieldPath FieldPath::ParseServerFormat(const std::string& path) {
 }
 
 std::string FieldPath::CanonicalString() const {
-  return absl::StrJoin(begin(), end(), '.',
+  return absl::StrJoin(begin(), end(), ".",
                         [](std::string* out, const std::string& segment) {
                           out->append(EscapedSegment(segment));
                         });
@@ -140,7 +140,6 @@ std::string FieldPath::CanonicalString() const {
 
 // OBC: do we really need emptypath?
 // OBC: do we really need *shared* keypath?
-};
 
 bool operator<(const FieldPath& lhs, const FieldPath& rhs) {
 return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),

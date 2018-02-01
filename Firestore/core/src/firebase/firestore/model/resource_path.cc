@@ -39,7 +39,8 @@ ResourcePath ResourcePath::Parse(const std::string& path) {
 
   // SkipEmpty because we may still have an empty segment at the beginning or
   // end if they had a leading or trailing slash (which we allow).
-  auto segments = absl::StrSplit(path, '/', absl::SkipEmpty());
+  std::vector<std::string> segments =
+      absl::StrSplit(path, '/', absl::SkipEmpty());
   return ResourcePath{std::move(segments)};
 }
 

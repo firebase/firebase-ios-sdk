@@ -19,6 +19,7 @@
 
 #include <initializer_list>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
 
@@ -40,6 +41,8 @@ class FieldPath : public impl::BasePath<FieldPath> {
 
   // OBC: do we really need emptypath?
   // OBC: do we really need *shared* keypath?
+ private:
+  FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {}
 };
 
 bool operator<(const FieldPath& lhs, const FieldPath& rhs);
