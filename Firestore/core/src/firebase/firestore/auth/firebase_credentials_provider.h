@@ -67,6 +67,8 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
 
   friend class FirebaseCredentialsProvider_GetToken_Test;
   friend class FirebaseCredentialsProvider_SetListener_Test;
+  friend class DISABLED_FirebaseCredentialsProvider_GetToken_Test;
+  friend class DISABLED_FirebaseCredentialsProvider_SetListener_Test;
 
  private:
   /** Initialize with default app for internal usage such as test. */

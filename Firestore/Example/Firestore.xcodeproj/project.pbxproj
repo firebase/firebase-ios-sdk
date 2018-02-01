@@ -141,10 +141,10 @@
 		AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380CFC201A2EE200D97691 /* string_util_test.cc */; };
 		AB380D02201BC69F00D97691 /* bits_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D01201BC69F00D97691 /* bits_test.cc */; };
 		AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D03201BC6E400D97691 /* ordered_code_test.cc */; };
-		AB38D93320239654000A432D /* user_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93220239654000A432D /* user_test.cc */; };
-		AB38D9352023966E000A432D /* credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D9342023966E000A432D /* credentials_provider_test.cc */; };
-		AB38D93720239689000A432D /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93620239689000A432D /* empty_credentials_provider_test.cc */; };
 		AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB7BAB332012B519001E0872 /* geo_point_test.cc */; };
+		ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D9342023966E000A432D /* credentials_provider_test.cc */; };
+		ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93620239689000A432D /* empty_credentials_provider_test.cc */; };
+		ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93220239654000A432D /* user_test.cc */; };
 		ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF6506B201131F8005F2C74 /* timestamp_test.cc */; };
 		AFE6114F0D4DAECBA7B7C089 /* Pods_Firestore_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */; };
@@ -1238,10 +1238,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB38D9352023966E000A432D /* credentials_provider_test.cc in Sources */,
-				AB38D93320239654000A432D /* user_test.cc in Sources */,
 				6003F59E195388D20070C39A /* FIRAppDelegate.m in Sources */,
-				AB38D93720239689000A432D /* empty_credentials_provider_test.cc in Sources */,
 				6003F5A7195388D20070C39A /* FIRViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
@@ -1269,7 +1266,9 @@
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
 				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
 				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
+				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
 				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
+				ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */,
 				DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */,
 				5492E03120213FFC00B64F25 /* FSTLevelDBSpecTests.mm in Sources */,
 				5492E0B12021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm in Sources */,
@@ -1316,6 +1315,7 @@
 				5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */,
 				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
 				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
+				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
 				5492E059202154AB00B64F25 /* FIRQuerySnapshotTests.mm in Sources */,
 				5492E050202154AA00B64F25 /* FIRCollectionReferenceTests.mm in Sources */,
 				5492E0A02021552D00B64F25 /* FSTLevelDBMutationQueueTests.mm in Sources */,
