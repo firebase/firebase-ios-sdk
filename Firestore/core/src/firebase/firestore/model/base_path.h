@@ -24,6 +24,8 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
 #include "absl/strings/str_split.h"
@@ -41,24 +43,21 @@ class BasePath {
  public:
   using const_iterator = SegmentsT::const_iterator;
 
-  const std::string& operator[](const size_t index) const {
-    return at(index);
+  const std::string& operator[](const size_t i) const {
+    return at(i);
   }
 
   const std::string& at(const size_t i) const {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(index < segments_.size(),
-                                            "index %u out of range", index);
+    FIREBASE_ASSERT_MESSAGE(i < segments_.size(), "index %u out of range", i);
     return segments_[i];
   }
 
   const std::string& front() const {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(!empty(),
-                                            "Cannot call front on empty path");
+    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call front on empty path");
     return at(0);
   }
   const std::string& back() const {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(!empty(),
-                                            "Cannot call back on empty path");
+    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call back on empty path");
     return at(size() - 1);
   }
 
@@ -90,7 +89,7 @@ class BasePath {
   }
 
   T WithoutFirstElements(const size_t count = 1) const {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+    FIREBASE_ASSERT_MESSAGE(
         count <= size(),
         "Cannot call WithoutFirstElements(%u) on path of length %u", count,
         size());
@@ -98,13 +97,12 @@ class BasePath {
   }
 
   T WithoutLastElement() const {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        !empty(), "Cannot call WithoutLastElement() on empty path");
+    FIREBASE_ASSERT_MESSAGE(!empty(),
+                            "Cannot call WithoutLastElement() on empty path");
     return T{segments_.begin(), segments_.end() - 1};
   }
 
   bool IsPrefixOf(const T& rhs) const {
-    // OBC empty range
     return size() < rhs.size() &&
            std::equal(begin(), end(), rhs.begin(), rhs.begin() + size());
   }
