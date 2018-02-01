@@ -20,6 +20,7 @@
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -105,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int32_t)count {
-  return [self.queries count];
+  return (int32_t)[self.queries count];
 }
 
 - (void)removeQueryData:(FSTQueryData *)queryData group:(__unused FSTWriteGroup *)group {
@@ -115,10 +116,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTQueryData *)queryDataForQuery:(FSTQuery *)query {
   return self.queries[query];
-}
-
-- (NSUInteger)count {
-  return [self.queries count];
 }
 
 - (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber,
