@@ -82,7 +82,6 @@
 		ABF341051FE860CA00C48322 /* FSTAPIHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = ABF341021FE8593500C48322 /* FSTAPIHelpers.m */; };
 		ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF6506B201131F8005F2C74 /* timestamp_test.cc */; };
 		AFE6114F0D4DAECBA7B7C089 /* Pods_Firestore_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */; };
-		B69E7F1120239853003C7930 /* base_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B69E7F1020239852003C7930 /* base_path_test.cc */; };
 		B69E7F122023985A003C7930 /* base_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B69E7F1020239852003C7930 /* base_path_test.cc */; };
 		C4E749275AD0FBDF9F4716A8 /* Pods_SwiftBuildTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AD40BF6B0E849B07FFD05E /* Pods_SwiftBuildTest.framework */; };
 		D5B2532E4676014F57A7EAB9 /* FSTStreamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B25C0D4AADFCA3ADB883E4 /* FSTStreamTests.m */; };
@@ -1220,7 +1219,6 @@
 				6003F59E195388D20070C39A /* FIRAppDelegate.m in Sources */,
 				6003F5A7195388D20070C39A /* FIRViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
-				B69E7F1120239853003C7930 /* base_path_test.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
