@@ -135,16 +135,6 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   return [self.sortedSet lastObject];
 }
 
-- (FSTDocument *_Nullable)predecessorDocumentForKey:(FSTDocumentKey *)key {
-  FSTDocument *doc = [self.index objectForKey:key];
-  if (!doc) {
-    @throw [NSException exceptionWithName:NSInvalidArgumentException
-                                   reason:[NSString stringWithFormat:@"Key %@ does not exist", key]
-                                 userInfo:nil];
-  }
-  return [self.sortedSet predecessorObject:doc];
-}
-
 - (NSUInteger)indexOfKey:(FSTDocumentKey *)key {
   FSTDocument *doc = [self.index objectForKey:key];
   return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
