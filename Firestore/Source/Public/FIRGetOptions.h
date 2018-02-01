@@ -28,9 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(GetOptions)
 @interface FIRGetOptions : NSObject
 
-/**   */
-- (instancetype)init __attribute((unavailable("FIRGetOptions cannot be created directly.")));
-
 /**
  * Returns the default options.
  *
@@ -65,7 +62,7 @@ typedef NS_ENUM(NSUInteger, FIRGetSource) {
 /**
  * Initializes the get options with the specified source.
  */
-+ (instancetype)optionsWithSource:(FIRGetSource)source NS_SWIFT_NAME(source(_:));
+- (instancetype)optionsWithSource:(FIRGetSource)source NS_SWIFT_NAME(source(_:));
 
 @end
 
