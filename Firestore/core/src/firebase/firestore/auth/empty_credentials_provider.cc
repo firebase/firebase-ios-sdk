@@ -26,13 +26,14 @@ void EmptyCredentialsProvider::GetToken(bool force_refresh,
                                         TokenListener completion) {
   UNUSED(force_refresh);
   if (completion) {
-    completion({"", User()}, "");
+    completion({"", User::Unauthenticated()}, "");
   }
 }
 
-void EmptyCredentialsProvider::set_user_change_listener(UserListener listener) {
+void EmptyCredentialsProvider::SetUserChangeListener(
+    UserChangeListener listener) {
   if (listener) {
-    listener({});
+    listener(User::Unauthenticated());
   }
 }
 

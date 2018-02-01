@@ -16,36 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 
-#include "gtest/gtest.h"
-
 namespace firebase {
 namespace firestore {
 namespace auth {
 
-#define UNUSED(x) (void)(x)
-
-TEST(CredentialsProvider, Typedef) {
-  TokenListener token_listener = [](const Token& token,
-                                    const absl::string_view error) {
-    UNUSED(token);
-    UNUSED(error);
-  };
-  EXPECT_NE(nullptr, token_listener);
-  EXPECT_TRUE(token_listener);
-
-  token_listener = nullptr;
-  EXPECT_EQ(nullptr, token_listener);
-  EXPECT_FALSE(token_listener);
-
-  UserChangeListener user_change_listener = [](const User& user) {
-    UNUSED(user);
-  };
-  EXPECT_NE(nullptr, user_change_listener);
-  EXPECT_TRUE(user_change_listener);
-
-  user_change_listener = nullptr;
-  EXPECT_EQ(nullptr, user_change_listener);
-  EXPECT_FALSE(user_change_listener);
+Token::Token(const absl::string_view token, const User& user)
+    : token_(token), user_(user) {
 }
 
 }  // namespace auth

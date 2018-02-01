@@ -17,6 +17,8 @@ cc_library(
   SOURCES
     credentials_provider.cc
     credentials_provider.h
+    token.cc
+    token.h
     user.cc
     user.h
   DEPENDS
@@ -27,7 +29,6 @@ cc_library(
 cc_library(
   firebase_firestore_auth_apple
   SOURCES
-    firebase_credentials_provider.h
     firebase_credentials_provider_apple.h
     firebase_credentials_provider_apple.mm
   DEPENDS

@@ -25,7 +25,8 @@ namespace auth {
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
   credentials_provider.GetToken(
-      true, [](const Token& token, const absl::string_view error) {
+      /*force_refresh=*/true,
+      [](const Token& token, const absl::string_view error) {
         EXPECT_EQ("", token.token());
         const User& user = token.user();
         EXPECT_EQ("", user.uid());
@@ -36,11 +37,12 @@ TEST(EmptyCredentialsProvider, GetToken) {
 
 TEST(EmptyCredentialsProvider, SetListener) {
   EmptyCredentialsProvider credentials_provider;
-  credentials_provider.set_user_change_listener([](const User& user) {
+  credentials_provider.SetUserChangeListener([](const User& user) {
     EXPECT_EQ("", user.uid());
     EXPECT_FALSE(user.is_authenticated());
   });
-  credentials_provider.RemoveUserChangeListener();
+
+  credentials_provider.SetUserChangeListener(nullptr);
 }
 
 }  // namespace auth

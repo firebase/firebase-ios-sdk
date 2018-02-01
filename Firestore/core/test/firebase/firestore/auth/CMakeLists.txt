@@ -17,6 +17,7 @@ cc_test(
   SOURCES
     credentials_provider_test.cc
     empty_credentials_provider_test.cc
+    token_test.cc
     user_test.cc
   DEPENDS
     firebase_firestore_auth
@@ -26,7 +27,7 @@ if(APPLE)
   cc_test(
     firebase_firestore_auth_apple_test
     SOURCES
-      firebase_credentials_provider_test.cc
+      firebase_credentials_provider_test.mm
     DEPENDS
       firebase_firestore_auth_apple
   )

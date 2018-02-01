@@ -27,7 +27,7 @@ namespace auth {
 class EmptyCredentialsProvider : public CredentialsProvider {
  public:
   void GetToken(bool force_refresh, TokenListener completion) override;
-  void set_user_change_listener(UserListener listener) override;
+  void SetUserChangeListener(UserChangeListener listener) override;
 };
 
 }  // namespace auth

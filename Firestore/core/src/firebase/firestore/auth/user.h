@@ -27,7 +27,8 @@ namespace auth {
 
 /**
  * Simple wrapper around a nullable UID. Mostly exists to make code more
- * readable and for use as a key in dictionaries (since keys cannot be nil).
+ * readable and for compatibility with other clients where map keys cannot be
+ * null.
  */
 class User {
  public:
@@ -46,6 +47,9 @@ class User {
   bool is_authenticated() const {
     return is_authenticated_;
   }
+
+  /** Returns an unauthenticated instance. */
+  static const User& Unauthenticated();
 
   User& operator=(const User& other) = default;
 

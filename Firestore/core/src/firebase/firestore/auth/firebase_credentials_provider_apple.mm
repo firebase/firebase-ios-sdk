@@ -15,7 +15,6 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
-#include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider.h"
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -32,22 +31,22 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider()
     : FirebaseCredentialsProvider([FIRApp defaultApp]) {
 }
 
-FirebaseCredentialsProvider::FirebaseCredentialsProvider(const AppImpl& app)
-    : auth_(new AuthImpl{app, nullptr}),
+FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
+    : app_(app),
       current_user_(firebase::firestore::util::MakeStringView([app getUID])),
       user_counter_(0) {
-  auth_->auth_listener_handle = [[NSNotificationCenter defaultCenter]
+  auth_listener_handle_ = [[NSNotificationCenter defaultCenter]
       addObserverForName:FIRAuthStateDidChangeInternalNotification
                   object:nil
                    queue:nil
               usingBlock:^(NSNotification* notification) {
-                std::unique_lock<std::mutex> lock(this->mutex_);
+                std::unique_lock<std::mutex> lock(mutex_);
                 NSDictionary* user_info = notification.userInfo;
 
                 // ensure we're only notifiying for the current app.
                 FIRApp* notified_app =
                     user_info[FIRAuthStateDidChangeInternalNotificationAppKey];
-                if (![this->auth_->app isEqual:notified_app]) {
+                if (![app_ isEqual:notified_app]) {
                   return;
                 }
 
@@ -55,90 +54,63 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(const AppImpl& app)
                     user_info[FIRAuthStateDidChangeInternalNotificationUIDKey];
                 User new_user(
                     firebase::firestore::util::MakeStringView(user_id));
-                if (new_user != this->current_user_) {
-                  this->current_user_ = new_user;
-                  this->user_counter_++;
-                  UserListener listener = this->user_change_listener_;
+                if (new_user != current_user_) {
+                  current_user_ = new_user;
+                  user_counter_++;
+                  UserChangeListener listener = user_change_listener_;
                   if (listener) {
-                    listener(this->current_user_);
+                    listener(current_user_);
                   }
                 }
               }];
 }
 
-FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
-  auth_.reset(nullptr);
-}
-
 void FirebaseCredentialsProvider::GetToken(bool force_refresh,
                                            TokenListener completion) {
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      this->auth_->auth_listener_handle, this->auth_->auth_listener_handle,
-      "GetToken cannot be called after listener removed.");
+  FIREBASE_ASSERT_MESSAGE(auth_listener_handle_,
+                          "GetToken cannot be called after listener removed.");
 
   // Take note of the current value of the userCounter so that this method can
   // fail if there is a user change while the request is outstanding.
-  int initial_user_counter = this->user_counter_;
+  int initial_user_counter = user_counter_;
 
   void (^get_token_callback)(NSString*, NSError*) =
       ^(NSString* _Nullable token, NSError* _Nullable error) {
-        std::unique_lock<std::mutex> lock(this->mutex_);
-        if (initial_user_counter != this->user_counter_) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (initial_user_counter != user_counter_) {
           // Cancel the request since the user changed while the request was
           // outstanding so the response is likely for a previous user (which
           // user, we can't be sure).
           completion({"", User()}, "getToken aborted due to user change.");
         } else {
-          completion({firebase::firestore::util::MakeStringView(token),
-                      this->current_user_},
-                     error == nil ? ""
-                                  : firebase::firestore::util::MakeStringView(
-                                        (NSString*)error));
+          completion(
+              {firebase::firestore::util::MakeStringView(token), current_user_},
+              error == nil ? ""
+                           : firebase::firestore::util::MakeStringView(
+                                 error.localizedDescription));
         }
       };
 
-  [this->auth_->app getTokenForcingRefresh:force_refresh
-                              withCallback:get_token_callback];
+  [app_ getTokenForcingRefresh:force_refresh withCallback:get_token_callback];
 }
 
-void FirebaseCredentialsProvider::set_user_change_listener(
-    UserListener listener) {
-  std::unique_lock<std::mutex> lock(this->mutex_);
+void FirebaseCredentialsProvider::SetUserChangeListener(
+    UserChangeListener listener) {
+  std::unique_lock<std::mutex> lock(mutex_);
   if (listener) {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(!this->user_change_listener_,
-                                            !this->user_change_listener_,
-                                            "set user_change_listener twice!");
+    FIREBASE_ASSERT_MESSAGE(!user_change_listener_,
+                            "set user_change_listener twice!");
     // Fire initial event.
-    listener(this->current_user_);
+    listener(current_user_);
   } else {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        this->auth_->auth_listener_handle, this->auth_->auth_listener_handle,
-        "removed user_change_listener twice!");
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        this->user_change_listener_, this->user_change_listener_,
-        "user_change_listener removed without being set!");
-    [[NSNotificationCenter defaultCenter]
-        removeObserver:this->auth_->auth_listener_handle];
-    this->auth_->auth_listener_handle = nullptr;
+    FIREBASE_ASSERT_MESSAGE(auth_listener_handle_,
+                            "removed user_change_listener twice!");
+    FIREBASE_ASSERT_MESSAGE(user_change_listener_,
+                            "user_change_listener removed without being set!");
+    [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
+    auth_listener_handle_ = nullptr;
   }
-  this->user_change_listener_ = listener;
-}
-
-void FirebaseCredentialsProvider::PlatformDependentTestSetup(
-    const absl::string_view config_path) {
-  static dispatch_once_t once_token;
-  dispatch_once(&once_token, ^{
-    NSString* file_path =
-        firebase::firestore::util::WrapNSStringNoCopy(config_path.data());
-    FIROptions* options = [[FIROptions alloc] initWithContentsOfFile:file_path];
-    [FIRApp configureWithOptions:options];
-  });
-
-  // Set getUID implementation.
-  FIRApp* default_app = [FIRApp defaultApp];
-  default_app.getUIDImplementation = ^NSString* {
-    return @"I'm a fake uid.";
-  };
+  user_change_listener_ = listener;
 }
 
 }  // namespace auth

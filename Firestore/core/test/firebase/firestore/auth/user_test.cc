@@ -36,6 +36,12 @@ TEST(User, Getter) {
   EXPECT_EQ(signin, copy);
 }
 
+TEST(User, Unauthenticated) {
+  User unauthenticated = User::Unauthenticated();
+  EXPECT_EQ("", unauthenticated.uid());
+  EXPECT_FALSE(unauthenticated.is_authenticated());
+}
+
 TEST(User, Comparison) {
   EXPECT_EQ(User(), User());
   EXPECT_EQ(User("abc"), User("abc"));

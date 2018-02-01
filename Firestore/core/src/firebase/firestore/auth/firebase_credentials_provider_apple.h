@@ -15,12 +15,21 @@
  */
 
 // Right now, FirebaseCredentialsProvider only support APPLE build.
-// TODO(zxu123): Make it for desktop workflow as well.
+#if !defined(__OBJC__)
+#error "This .header can only be used in .mm file for iOS build."
+#endif  // !defined(__OBJC__)
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_H_
 
 #import <Foundation/Foundation.h>
+
+#include <memory>
+#include <mutex>
+
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "absl/strings/string_view.h"
 
 @class FIRApp;
 
@@ -28,29 +37,68 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-class AppImpl {
+/**
+ * `FirebaseCredentialsProvider` uses Firebase Auth via `FIRApp` to get an auth
+ * token.
+ *
+ * NOTE: To simplify the implementation, it requires that you set
+ * `userChangeListener` with a non-`nil` value no more than once and don't call
+ * `getTokenForcingRefresh:` after setting it to `nil`.
+ *
+ * This class must be implemented in a thread-safe manner since it is accessed
+ * from the thread backing our internal worker queue and the callbacks from
+ * FIRAuth will be executed on an arbitrary different thread.
+ *
+ * For non-Apple desktop build, this is right now just a stub.
+ */
+class FirebaseCredentialsProvider : public CredentialsProvider {
  public:
-  AppImpl(FIRApp* app) : app_(app) {
-  }
+  // TODO(zxu123): Provide a ctor to accept the C++ Firebase Games App, which
+  // deals all platforms. Right now, only works for FIRApp*.
+  /**
+   * Initializes a new FirebaseCredentialsProvider.
+   *
+   * @param app The Firebase app from which to get credentials.
+   */
+  FirebaseCredentialsProvider(FIRApp* app);
 
-  operator FIRApp*() const {
-    return app_;
-  }
+  void GetToken(bool force_refresh, TokenListener completion) override;
+
+  void SetUserChangeListener(UserChangeListener listener) override;
+
+  friend class FirebaseCredentialsProviderTest_GetToken_Test;
+  friend class FirebaseCredentialsProviderTest_SetListener_Test;
+  friend class DISABLED_FirebaseCredentialsProviderTest_GetToken_Test;
+  friend class DISABLED_FirebaseCredentialsProviderTest_SetListener_Test;
 
  private:
-  FIRApp* app_;
-};
+  /** Initialize with default app for internal usage such as test. */
+  FirebaseCredentialsProvider();
 
-struct AuthImpl {
-  const FIRApp* app;
+  static void PlatformDependentTestSetup(const absl::string_view config_path);
 
-  /** Handle used to stop receiving auth changes once userChangeListener is
-   * removed. */
-  id<NSObject> auth_listener_handle;
+  const FIRApp* app_;
+
+  /**
+   * Handle used to stop receiving auth changes once userChangeListener is
+   * removed.
+   */
+  id<NSObject> auth_listener_handle_;
+
+  /** The current user as reported to us via our AuthStateDidChangeListener. */
+  User current_user_;
+
+  /**
+   * Counter used to detect if the user changed while a -getTokenForcingRefresh:
+   * request was outstanding.
+   */
+  int user_counter_;
+
+  std::mutex mutex_;
 };
 
 }  // namespace auth
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_CREDENTIALS_PROVIDER_APPLE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_CREDENTIALS_PROVIDER_H_

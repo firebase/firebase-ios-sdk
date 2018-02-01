@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace auth {
 
-User::User() : is_authenticated_(false) {
-}
-
-User::User(const absl::string_view uid) : uid_(uid), is_authenticated_(true) {
-  FIREBASE_ASSERT(!uid.empty());
-}
-
-const User& User::Unauthenticated() {
-  static const User kUnauthenticated;
-  return kUnauthenticated;
+TEST(Token, Getter) {
+  Token token("token", User("abc"));
+  EXPECT_EQ("token", token.token());
+  EXPECT_EQ(User("abc"), token.user());
 }
 
 }  // namespace auth
