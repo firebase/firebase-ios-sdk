@@ -60,15 +60,15 @@ TEST(BasePath, Indexing) {
   const Path path{{"rooms", "Eros", "messages"}};
 
   EXPECT_EQ(path.front(), "rooms");
-  // EXPECT_EQ(path[0], "rooms");
-  // EXPECT_EQ(path.at(0), "rooms");
+  EXPECT_EQ(path[0], "rooms");
+  EXPECT_EQ(path.at(0), "rooms");
 
-  // EXPECT_EQ(path[1], "Eros");
-  // EXPECT_EQ(path.at(1), "Eros");
+  EXPECT_EQ(path[1], "Eros");
+  EXPECT_EQ(path.at(1), "Eros");
 
-  // EXPECT_EQ(path[2], "messages");
-  // EXPECT_EQ(path.at(2), "messages");
-  // EXPECT_EQ(path.back(), "messages");
+  EXPECT_EQ(path[2], "messages");
+  EXPECT_EQ(path.at(2), "messages");
+  EXPECT_EQ(path.back(), "messages");
 }
 
 // WithoutFirst
