@@ -114,6 +114,9 @@ class BasePath {
   bool operator==(const BasePath& rhs) const {
     return segments_ == rhs.segments_;
   }
+  bool operator!=(const BasePath& rhs) const {
+    return segments_ != rhs.segments_;
+  }
 
   // std::hash
   // to_string

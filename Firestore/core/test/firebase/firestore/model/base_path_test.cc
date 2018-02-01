@@ -34,9 +34,13 @@ struct Path : impl::BasePath<Path> {
   }
   Path(std::initializer_list<std::string> list) : BasePath{list} {
   }
+  Path(SegmentsT&& segments) : BasePath{std::move(segments)} {}
 
   bool operator==(const Path& rhs) const {
     return BasePath::operator==(rhs);
+  }
+  bool operator!=(const Path& rhs) const {
+    return BasePath::operator!=(rhs);
   }
 };
 
@@ -75,10 +79,14 @@ TEST(BasePath, Indexing) {
 
 TEST(BasePath, WithoutFirst) {
   const Path abc{"rooms", "Eros", "messages"};
-  const Path bc = {"Eros", "messages"};
+  const Path bc{"Eros", "messages"};
   const Path c{"messages"};
   const Path empty;
   const Path abc_dupl{"rooms", "Eros", "messages"};
+
+  EXPECT_NE(empty, c);
+  EXPECT_NE(c, bc);
+  EXPECT_NE(bc, abc);
 
   EXPECT_EQ(bc, abc.WithoutFirstElement());
   EXPECT_EQ(c, abc.WithoutFirstElements(2));
@@ -88,7 +96,7 @@ TEST(BasePath, WithoutFirst) {
 
 TEST(BasePath, WithoutLast) {
   const Path abc{"rooms", "Eros", "messages"};
-  const Path ab = {"rooms", "Eros"};
+  const Path ab{"rooms", "Eros"};
   const Path a{"rooms"};
   const Path empty;
   const Path abc_dupl{"rooms", "Eros", "messages"};
@@ -97,6 +105,18 @@ TEST(BasePath, WithoutLast) {
   EXPECT_EQ(a, abc.WithoutLastElement().WithoutLastElement());
   EXPECT_EQ(empty,
             abc.WithoutLastElement().WithoutLastElement().WithoutLastElement());
+}
+
+TEST(BasePath, Concatenation) {
+  const Path path;
+  const Path a{"rooms"};
+  const Path ab{"rooms", "Eros"};
+  const Path abc{"rooms", "Eros", "messages"};
+
+  EXPECT_EQ(a, path.Concatenated("rooms"));
+  EXPECT_EQ(ab, path.Concatenated("rooms").Concatenated("Eros"));
+  EXPECT_EQ(abc, path.Concatenated("rooms").Concatenated("Eros").Concatenated("messages"));
+  EXPECT_EQ(abc, path.Concatenated(Path{"rooms", "Eros", "messages"}));
 }
 
 // Concatenated
