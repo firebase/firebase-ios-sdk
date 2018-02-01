@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include <inttypes.h>
+
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 

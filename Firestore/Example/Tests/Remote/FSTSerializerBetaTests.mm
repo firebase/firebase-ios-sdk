@@ -550,8 +550,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)unaryFilterTestWithValue:(id)value
-           expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)
-                                 operator{
+           expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
   FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"==", value)];
   FSTQueryData *model = [self queryDataForQuery:q];
 
@@ -565,7 +564,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   GCFSStructuredQuery_UnaryFilter *filter = expected.query.structuredQuery.where.unaryFilter;
   filter.field.fieldPath = @"prop";
-  filter.op = operator;
+  filter.op = op;
   expected.targetId = 1;
 
   [self assertRoundTripForQueryData:model proto:expected];
