@@ -28,7 +28,7 @@ namespace model {
 
 // A simple struct to be able to instantiate BasePath.
 struct Path : impl::BasePath<Path> {
-   Path() = default;
+  Path() = default;
   template <typename IterT>
   Path(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
@@ -86,7 +86,19 @@ TEST(BasePath, WithoutFirst) {
   EXPECT_EQ(abc_dupl, abc);
 }
 
-// WithoutLast
+TEST(BasePath, WithoutLast) {
+  const Path abc{"rooms", "Eros", "messages"};
+  const Path ab = {"rooms", "Eros"};
+  const Path a{"rooms"};
+  const Path empty;
+  const Path abc_dupl{"rooms", "Eros", "messages"};
+
+  EXPECT_EQ(ab, abc.WithoutLastElement());
+  EXPECT_EQ(a, abc.WithoutLastElement().WithoutLastElement());
+  EXPECT_EQ(empty,
+            abc.WithoutLastElement().WithoutLastElement().WithoutLastElement());
+}
+
 // Concatenated
 // <
 // isPrefixOf
