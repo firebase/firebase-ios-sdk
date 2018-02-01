@@ -252,25 +252,6 @@
   XCTAssertEqual((int)next, (int)toInsert.count, @"Check we traversed all of the items");
 }
 
-- (void)testPredecessorKey {
-  FSTArraySortedDictionary *map =
-      [[FSTArraySortedDictionary alloc] initWithComparator:[self defaultComparator]];
-  map = [map dictionaryBySettingObject:@1 forKey:@1];
-  map = [map dictionaryBySettingObject:@50 forKey:@50];
-  map = [map dictionaryBySettingObject:@3 forKey:@3];
-  map = [map dictionaryBySettingObject:@4 forKey:@4];
-  map = [map dictionaryBySettingObject:@7 forKey:@7];
-  map = [map dictionaryBySettingObject:@9 forKey:@9];
-
-  XCTAssertNil([map predecessorKey:@1], @"First object doesn't have a predecessor");
-  XCTAssertEqualObjects([map predecessorKey:@3], @1, @"@1");
-  XCTAssertEqualObjects([map predecessorKey:@4], @3, @"@3");
-  XCTAssertEqualObjects([map predecessorKey:@7], @4, @"@4");
-  XCTAssertEqualObjects([map predecessorKey:@9], @7, @"@7");
-  XCTAssertEqualObjects([map predecessorKey:@50], @9, @"@9");
-  XCTAssertThrows([map predecessorKey:@777], @"Expect exception about nonexistent key");
-}
-
 // This is a macro instead of a method so that the failures show on the proper lines.
 #define ASSERT_ENUMERATOR(enumerator, start, end, step)                                   \
   do {                                                                                    \
