@@ -17,9 +17,21 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_BASE_PATH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_BASE_PATH_H_
 
+#include <algorithm>
+#include <cctype>
+#include <initializer_list>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_replace.h"
+#include "absl/strings/str_split.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
+namespace impl {
 
 template <typename T>
 class BasePath {
@@ -65,32 +77,33 @@ class BasePath {
     return segments_.end();
   }
 
-  T Append(const std::string& segment) const {
-    auto appended = segments_;
-    appended.push_back(segment);
-    return FieldPath{std::move(appended)};
+  T Concatenated(const std::string& segment) const {
+    auto concatenated = segments_;
+    concatenated.push_back(segment);
+    return T{std::move(concatenated)};
   }
 
-  FieldPath Append(const FieldPath& path) const {
-    auto appended = segments_;
-    appended.insert(appended.end(), path.begin(), path.end());
-    return FieldPath{std::move(appended)};
+  T Concatenated(const T& path) const {
+    auto concatenated = segments_;
+    concatenated.insert(concatenated.end(), path.begin(), path.end());
+    return T{std::move(concatenated)};
   }
 
-  FieldPath PopFront(const size_t count = 1) const {
+  T WithoutFirstElements(const size_t count = 1) const {
     FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        count <= size(), "Cannot call PopFront(%u) on path of length %u", count,
+        count <= size(),
+        "Cannot call WithoutFirstElements(%u) on path of length %u", count,
         size());
-    return FieldPath{segments_.begin() + count, segments_.end()};
+    return T{segments_.begin() + count, segments_.end()};
   }
 
-  FieldPath PopBack() const {
+  T WithoutLastElement() const {
     FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        !empty(), "Cannot call PopBack() on empty path);
-    return FieldPath{segments_.begin(), segments_.end() - 1};
+        !empty(), "Cannot call WithoutLastElement() on empty path);
+    return T{segments_.begin(), segments_.end() - 1};
   }
 
-  bool IsPrefixOf(const FieldPath& rhs) const {
+  bool IsPrefixOf(const T& rhs) const {
     // OBC empty range
     return size() < rhs.size() &&
            std::equal(begin(), end(), rhs.begin(), rhs.begin() + size());
@@ -115,6 +128,7 @@ class BasePath {
   SegmentsT segments_;
 };
 
+}  // namespace impl
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

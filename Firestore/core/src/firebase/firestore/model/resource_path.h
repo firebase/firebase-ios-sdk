@@ -26,27 +26,23 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-class FieldPath : public impl::BasePath<FieldPath> {
+class ResourcePath : public impl::BasePath<ResourcePath> {
  public:
-  FieldPath() = default;
+  ResourcePath() = default;
   template <typename IterT>
-  FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
+  ResourcePath(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
-  FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
+  ResourcePath(std::initializer_list<std::string> list) : BasePath{list} {
   }
-  static FieldPath ParseServerFormat(const std::string& path);
+  static ResourcePath Parse(const std::string& path);
 
   std::string CanonicalString() const;
 
-  // OBC: do we really need emptypath?
-  // OBC: do we really need *shared* keypath?
+ private:
+  ResourcePath(SegmentsT&& segments) : BasePath{segments} {
+  }
 };
-
-bool operator<(const FieldPath& lhs, const FieldPath& rhs);
-bool operator==(const FieldPath& lhs, const FieldPath& rhs);
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_PATH_H_

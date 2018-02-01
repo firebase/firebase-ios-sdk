@@ -20,10 +20,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <initializer_list>
-#include <string>
 #include <utility>
-#include <vector>
 
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
@@ -64,142 +61,96 @@ std::string EscapedSegment(const std::string& segment) {
 
 }  // namespace
 
-class FieldPath : public BasePath {
- public:
-  FieldPath() = default;
-  template <typename IterT>
-  FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
-  }
-  FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
-  }
+FieldPath FieldPath::ParseServerFormat(const std::string& path) {
+  // TODO(b/37244157): Once we move to v1beta1, we should make this more
+  // strict. Right now, it allows non-identifier path components, even if they
+  // aren't escaped. Technically, this will mangle paths with backticks in
+  // them used in v1alpha1, but that's fine.
 
-  static FieldPath ParseServerFormat(const std::string& path) {
-    // TODO(b/37244157): Once we move to v1beta1, we should make this more
-    // strict. Right now, it allows non-identifier path components, even if they
-    // aren't escaped. Technically, this will mangle paths with backticks in
-    // them used in v1alpha1, but that's fine.
+  SegmentsT segments;
+  std::string segment;
+  segment.reserve(path.size());
 
-    SegmentsT segments;
-    std::string segment;
-    segment.reserve(path.size());
+  const auto finish_segment = [&segments, &segment] {
+    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+        !segment.empty(),
+        "Invalid field path (%s). Paths must not be empty, begin with "
+        "'.', end with '.', or contain '..'",
+        path.c_str());
+    // Move operation will clear segment, but capacity will remain the same
+    // (not strictly speaking required by the standard, but true in practice).
+    segments.push_back(std::move(segment));
+  };
 
-    const auto finish_segment = [&segments, &segment] {
-      FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-          !segment.empty(),
-          "Invalid field path (%s). Paths must not be empty, begin with "
-          "'.', end with '.', or contain '..'",
-          path.c_str());
-      // Move operation will clear segment, but capacity will remain the same
-      // (not strictly speaking required by the standard, but true in practice).
-      segments.push_back(std::move(segment));
-    };
+  // Inside backticks, dots are treated literally.
+  bool insideBackticks = false;
+  // Whether to treat '\' literally or as an escape character.
+  bool escapedCharacter = false;
 
-    // Inside backticks, dots are treated literally.
-    bool insideBackticks = false;
-    // Whether to treat '\' literally or as an escape character.
-    bool escapedCharacter = false;
-
-    for (const char c : path) {
-      if (c == '\0') {
-        break;
-      }
-      if (escapedCharacter) {
-        escapedCharacter = false;
-        segment += c;
-        continue;
-      }
-
-      switch (c) {
-        case '.':
-          if (!insideBackticks) {
-            finish_segment();
-          } else {
-            segment += c;
-          }
-          break;
-
-        case '`':
-          insideBackticks = !insideBackticks;
-          break;
-
-        case '\\':
-          escapedCharacter = true;
-          break;
-
-        default:
-          segment += c;
-          break;
-      }
+  for (const char c : path) {
+    if (c == '\0') {
+      break;
+    }
+    if (escapedCharacter) {
+      escapedCharacter = false;
+      segment += c;
+      continue;
     }
 
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        !insideBackticks, "Unterminated ` in path %s", path.c_str());
-    // TODO(b/37244157): Make this a user-facing exception once we
-    // finalize field escaping.
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        !escapedCharacter, "Trailing escape characters not allowed in %s",
-        path.c_str());
+    switch (c) {
+      case '.':
+        if (!insideBackticks) {
+          finish_segment();
+        } else {
+          segment += c;
+        }
+        break;
 
-    return FieldPath{std::move(segments)};
+      case '`':
+        insideBackticks = !insideBackticks;
+        break;
+
+      case '\\':
+        escapedCharacter = true;
+        break;
+
+      default:
+        segment += c;
+        break;
+    }
   }
 
-  std::string CanonicalString() const {
-    return absl::StrJoin(begin(), end(), '.',
-                         [](std::string* out, const std::string& segment) {
-                           out->append(EscapedSegment(segment));
-                         });
-  }
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+      !insideBackticks, "Unterminated ` in path %s", path.c_str());
+  // TODO(b/37244157): Make this a user-facing exception once we
+  // finalize field escaping.
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+      !escapedCharacter, "Trailing escape characters not allowed in %s",
+      path.c_str());
 
-  // OBC: do we really need emptypath?
-  // OBC: do we really need *shared* keypath?
+  return FieldPath{std::move(segments)};
+}
+
+std::string FieldPath::CanonicalString() const {
+  return absl::StrJoin(begin(), end(), '.',
+                        [](std::string* out, const std::string& segment) {
+                          out->append(EscapedSegment(segment));
+                        });
+}
+
+// OBC: do we really need emptypath?
+// OBC: do we really need *shared* keypath?
 };
 
 bool operator<(const FieldPath& lhs, const FieldPath& rhs) {
-  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
-                                      rhs.end());
+return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+                                    rhs.end());
 }
 
 bool operator==(const FieldPath& lhs, const FieldPath& rhs) {
-  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
-                                      rhs.end());
+return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+                                    rhs.end());
 }
-
-class ResourcePath : public BasePath {
- public:
-  ResourcePath() = default;
-  template <typename IterT>
-  ResourcePath(const IterT begin, const IterT end) : BasePath{begin, end} {
-  }
-  ResourcePath(std::initializer_list<std::string> list) : BasePath{list} {
-  }
-
-  static ResourcePath Parse(const std::string& path) {
-    // NOTE: The client is ignorant of any path segments containing escape
-    // sequences (e.g. __id123__) and just passes them through raw (they exist
-    // for legacy reasons and should not be used frequently).
-
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-        path.find("//") == std::string::npos,
-        "Invalid path (%s). Paths must not contain // in them.", path.c_str());
-
-    // SkipEmpty because we may still have an empty segment at the beginning or
-    // end if they had a leading or trailing slash (which we allow).
-    auto segments = absl::StrSplit(path, '/', absl::SkipEmpty());
-    return ResourcePath{std::move(segments)};
-  }
-
-  std::string CanonicalString() const {
-    // NOTE: The client is ignorant of any path segments containing escape
-    // sequences (e.g. __id123__) and just passes them through raw (they exist
-    // for legacy reasons and should not be used frequently).
-
-    return absl::StrJoin(begin(), end(), '/');
-  }
-
- private:
-  ResourcePath(SegmentsT&& segments) : BasePath{segments} {
-  }
-};
 
 }  // namespace model
 }  // namespace firestore
