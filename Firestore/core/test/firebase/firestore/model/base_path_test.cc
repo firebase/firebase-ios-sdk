@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
 
+#include <initializer_list>
+#include <string>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -24,11 +26,33 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+// A simple struct to be able to instantiate BasePath.
 struct Path : impl::BasePath<Path> {
+  Path() = default;
+  template <typename IterT>
+  Path(const IterT begin, const IterT end) : BasePath{begin, end} {
+  }
+  Path(std::initializer_list<std::string> list) : BasePath{list} {
+  }
 };
 
 TEST(BasePath, Constructor) {
-  const Path path;
+  const Path empty_path;
+  EXPECT_TRUE(empty_path.empty());
+  EXPECT_EQ(0, empty_path.size());
+  EXPECT_TRUE(empty_path.begin() == empty_path.end());
+
+  const Path path_from_list{{"rooms", "Eros", "messages"}};
+  EXPECT_FALSE(path_from_list.empty());
+  EXPECT_EQ(3, path_from_list.size());
+  EXPECT_TRUE(path_from_list.begin() + 3 == path_from_list.end());
+
+  std::vector<std::string> segments{"rooms", "Eros", "messages"};
+  const Path path_from_segments{segments.begin(), segments.end()};
+  EXPECT_FALSE(path_from_segments.empty());
+  EXPECT_EQ(3, path_from_segments.size());
+  EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
+
   // EXPECT_EQ(0, timestamp_zero.seconds());
 }
 
