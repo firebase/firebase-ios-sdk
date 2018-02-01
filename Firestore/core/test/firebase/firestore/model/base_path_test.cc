@@ -42,6 +42,12 @@ struct Path : impl::BasePath<Path> {
   bool operator!=(const Path& rhs) const {
     return BasePath::operator!=(rhs);
   }
+  bool operator<(const Path& rhs) const {
+    return BasePath::operator<(rhs);
+  }
+  bool operator>(const Path& rhs) const {
+    return BasePath::operator>(rhs);
+  }
 };
 
 TEST(BasePath, Constructor) {
@@ -119,8 +125,27 @@ TEST(BasePath, Concatenation) {
   EXPECT_EQ(abc, path.Concatenated(Path{"rooms", "Eros", "messages"}));
 }
 
-// Concatenated
-// <
+TEST(BasePath, Comparison) {
+  const Path abc{"a", "b", "c"};
+  const Path abc2{"a", "b", "c"};
+  const Path xyz{"x", "y", "z"};
+  EXPECT_EQ(abc, abc2);
+  EXPECT_NE(abc, xyz);
+
+  const Path empty;
+  const Path a{"a"};
+  const Path b{"b"};
+  const Path ab{"a", "b"};
+
+  EXPECT_TRUE(empty < a);
+  EXPECT_TRUE(a < b);
+  EXPECT_TRUE(a < ab);
+
+  EXPECT_TRUE(a > empty);
+  EXPECT_TRUE(b > a);
+  EXPECT_TRUE(ab > a);
+}
+
 // isPrefixOf
 
 // throws on invalid
