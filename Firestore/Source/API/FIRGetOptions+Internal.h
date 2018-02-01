@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Where getDocument[s] calls should get their data from. */
 @property(nonatomic, readonly, getter=source) FIRGetSource source;
 
+- (instancetype)initWithSource:(FIRGetSource)source;
+
 @end
 
 NS_ASSUME_NONNULL_END

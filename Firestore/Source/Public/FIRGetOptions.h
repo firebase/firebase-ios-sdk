@@ -28,13 +28,16 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(GetOptions)
 @interface FIRGetOptions : NSObject
 
+/**   */
+- (instancetype)init __attribute((unavailable("FIRGetOptions cannot be created directly.")));
+
 /**
  * Returns the default options.
  *
- * Equiavlent to `[[FIRGetOptions alloc] initWithSource:FIRGetSourceDefault]` in
+ * Equiavlent to `[FIRGetOptions source:FIRGetSourceDefault]` in
  * objective-c.
  */
-+ (FIRGetOptions *)defaultOptions NS_SWIFT_NAME(defaultOptions());
++ (instancetype)defaultOptions NS_SWIFT_NAME(defaultOptions());
 
 /**
  * Describes whether we should get from server or cache.
@@ -62,7 +65,7 @@ typedef NS_ENUM(NSUInteger, FIRGetSource) {
 /**
  * Initializes the get options with the specified source.
  */
-- (instancetype)initWithSource:(FIRGetSource)source NS_SWIFT_NAME(init(source:));
++ (instancetype)optionsWithSource:(FIRGetSource)source NS_SWIFT_NAME(source(_:));
 
 @end
 
