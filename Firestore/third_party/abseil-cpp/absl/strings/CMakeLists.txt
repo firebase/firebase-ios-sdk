@@ -18,6 +18,9 @@
 list(APPEND STRINGS_PUBLIC_HEADERS
   "ascii.h"
   "match.h"
+  "str_join.h"
+  "str_replace.h"
+  "str_split.h"
   "string_view.h"
 )
 
@@ -34,6 +37,9 @@ list(APPEND STRINGS_SRC
   "ascii.cc"
   "internal/memutil.cc"
   "match.cc"
+  "str_join.cc"
+  "str_replace.cc"
+  "str_split.cc"
   "string_view.cc"
   ${STRINGS_PUBLIC_HEADERS}
   ${STRINGS_INTERNAL_HEADERS}
