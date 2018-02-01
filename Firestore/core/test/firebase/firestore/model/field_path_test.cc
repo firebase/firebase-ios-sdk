@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/base_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 #include <initializer_list>
 #include <string>
@@ -26,51 +26,26 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-// A simple struct to be able to instantiate BasePath.
-struct Path : impl::BasePath<Path> {
-  Path() = default;
-  template <typename IterT>
-  Path(const IterT begin, const IterT end) : BasePath{begin, end} {
-  }
-  Path(std::initializer_list<std::string> list) : BasePath{list} {
-  }
-  Path(SegmentsT&& segments) : BasePath{std::move(segments)} {
-  }
-
-  bool operator==(const Path& rhs) const {
-    return BasePath::operator==(rhs);
-  }
-  bool operator!=(const Path& rhs) const {
-    return BasePath::operator!=(rhs);
-  }
-  bool operator<(const Path& rhs) const {
-    return BasePath::operator<(rhs);
-  }
-  bool operator>(const Path& rhs) const {
-    return BasePath::operator>(rhs);
-  }
-};
-
-TEST(BasePath, Constructor) {
-  const Path empty_path;
+TEST(FieldPath, Constructor) {
+  const FieldPath empty_path;
   EXPECT_TRUE(empty_path.empty());
   EXPECT_EQ(0, empty_path.size());
   EXPECT_TRUE(empty_path.begin() == empty_path.end());
 
-  const Path path_from_list{{"rooms", "Eros", "messages"}};
+  const FieldPath path_from_list{{"rooms", "Eros", "messages"}};
   EXPECT_FALSE(path_from_list.empty());
   EXPECT_EQ(3, path_from_list.size());
   EXPECT_TRUE(path_from_list.begin() + 3 == path_from_list.end());
 
   std::vector<std::string> segments{"rooms", "Eros", "messages"};
-  const Path path_from_segments{segments.begin(), segments.end()};
+  const FieldPath path_from_segments{segments.begin(), segments.end()};
   EXPECT_FALSE(path_from_segments.empty());
   EXPECT_EQ(3, path_from_segments.size());
   EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
 }
 
-TEST(BasePath, Indexing) {
-  const Path path{{"rooms", "Eros", "messages"}};
+TEST(FieldPath, Indexing) {
+  const FieldPath path{{"rooms", "Eros", "messages"}};
 
   EXPECT_EQ(path.front(), "rooms");
   EXPECT_EQ(path[0], "rooms");
@@ -84,12 +59,12 @@ TEST(BasePath, Indexing) {
   EXPECT_EQ(path.back(), "messages");
 }
 
-TEST(BasePath, WithoutFirst) {
-  const Path abc{"rooms", "Eros", "messages"};
-  const Path bc{"Eros", "messages"};
-  const Path c{"messages"};
-  const Path empty;
-  const Path abc_dupl{"rooms", "Eros", "messages"};
+TEST(FieldPath, WithoutFirst) {
+  const FieldPath abc{"rooms", "Eros", "messages"};
+  const FieldPath bc{"Eros", "messages"};
+  const FieldPath c{"messages"};
+  const FieldPath empty;
+  const FieldPath abc_dupl{"rooms", "Eros", "messages"};
 
   EXPECT_NE(empty, c);
   EXPECT_NE(c, bc);
@@ -101,12 +76,12 @@ TEST(BasePath, WithoutFirst) {
   EXPECT_EQ(abc_dupl, abc);
 }
 
-TEST(BasePath, WithoutLast) {
-  const Path abc{"rooms", "Eros", "messages"};
-  const Path ab{"rooms", "Eros"};
-  const Path a{"rooms"};
-  const Path empty;
-  const Path abc_dupl{"rooms", "Eros", "messages"};
+TEST(FieldPath, WithoutLast) {
+  const FieldPath abc{"rooms", "Eros", "messages"};
+  const FieldPath ab{"rooms", "Eros"};
+  const FieldPath a{"rooms"};
+  const FieldPath empty;
+  const FieldPath abc_dupl{"rooms", "Eros", "messages"};
 
   EXPECT_EQ(ab, abc.WithoutLastElement());
   EXPECT_EQ(a, abc.WithoutLastElement().WithoutLastElement());
@@ -114,33 +89,33 @@ TEST(BasePath, WithoutLast) {
             abc.WithoutLastElement().WithoutLastElement().WithoutLastElement());
 }
 
-TEST(BasePath, Concatenation) {
-  const Path path;
-  const Path a{"rooms"};
-  const Path ab{"rooms", "Eros"};
-  const Path abc{"rooms", "Eros", "messages"};
+TEST(FieldPath, Concatenation) {
+  const FieldPath path;
+  const FieldPath a{"rooms"};
+  const FieldPath ab{"rooms", "Eros"};
+  const FieldPath abc{"rooms", "Eros", "messages"};
 
   EXPECT_EQ(a, path.Concatenated("rooms"));
   EXPECT_EQ(ab, path.Concatenated("rooms").Concatenated("Eros"));
   EXPECT_EQ(abc, path.Concatenated("rooms").Concatenated("Eros").Concatenated(
                      "messages"));
-  EXPECT_EQ(abc, path.Concatenated(Path{"rooms", "Eros", "messages"}));
+  EXPECT_EQ(abc, path.Concatenated(FieldPath{"rooms", "Eros", "messages"}));
 
-  const Path bcd{"Eros", "messages", "this_week"};
+  const FieldPath bcd{"Eros", "messages", "this_week"};
   EXPECT_EQ(bcd, abc.WithoutFirstElement().Concatenated("this_week"));
 }
 
-TEST(BasePath, Comparison) {
-  const Path abc{"a", "b", "c"};
-  const Path abc2{"a", "b", "c"};
-  const Path xyz{"x", "y", "z"};
+TEST(FieldPath, Comparison) {
+  const FieldPath abc{"a", "b", "c"};
+  const FieldPath abc2{"a", "b", "c"};
+  const FieldPath xyz{"x", "y", "z"};
   EXPECT_EQ(abc, abc2);
   EXPECT_NE(abc, xyz);
 
-  const Path empty;
-  const Path a{"a"};
-  const Path b{"b"};
-  const Path ab{"a", "b"};
+  const FieldPath empty;
+  const FieldPath a{"a"};
+  const FieldPath b{"b"};
+  const FieldPath ab{"a", "b"};
 
   EXPECT_TRUE(empty < a);
   EXPECT_TRUE(a < b);
@@ -151,13 +126,13 @@ TEST(BasePath, Comparison) {
   EXPECT_TRUE(ab > a);
 }
 
-TEST(BasePath, IsPrefixOf) {
-  const Path empty;
-  const Path a{"a"};
-  const Path ab{"a", "b"};
-  const Path abc{"a", "b", "c"};
-  const Path b{"b"};
-  const Path ba{"b", "a"};
+TEST(FieldPath, IsPrefixOf) {
+  const FieldPath empty;
+  const FieldPath a{"a"};
+  const FieldPath ab{"a", "b"};
+  const FieldPath abc{"a", "b", "c"};
+  const FieldPath b{"b"};
+  const FieldPath ba{"b", "a"};
 
   EXPECT_TRUE(empty.IsPrefixOf(empty));
   EXPECT_TRUE(empty.IsPrefixOf(a));
@@ -188,8 +163,8 @@ TEST(BasePath, IsPrefixOf) {
   EXPECT_FALSE(abc.IsPrefixOf(ba));
 }
 
-TEST(BasePath, Failures) {
-  const Path path;
+TEST(FieldPath, AccessFailures) {
+  const FieldPath path;
   ASSERT_DEATH_IF_SUPPORTED(path.front(), "");
   ASSERT_DEATH_IF_SUPPORTED(path.back(), "");
   ASSERT_DEATH_IF_SUPPORTED(path[0], "");
@@ -200,8 +175,21 @@ TEST(BasePath, Failures) {
   ASSERT_DEATH_IF_SUPPORTED(path.WithoutLastElement(), "");
 }
 
-// canonical string
-// --//-- of substr?
+TEST(FieldPath, Parsing) {
+  EXPECT_EQ(FieldPath{"foo"}, FieldPath::ParseServerFormat("foo"));
+}
+
+TEST(FieldPath, ParseFailures) {
+  // const FieldPath path;
+  // ASSERT_DEATH_IF_SUPPORTED(path.front(), "");
+  // ASSERT_DEATH_IF_SUPPORTED(path.back(), "");
+  // ASSERT_DEATH_IF_SUPPORTED(path[0], "");
+  // ASSERT_DEATH_IF_SUPPORTED(path[1], "");
+  // ASSERT_DEATH_IF_SUPPORTED(path.at(0), "");
+  // ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElement(), "");
+  // ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElements(2), "");
+  // ASSERT_DEATH_IF_SUPPORTED(path.WithoutLastElement(), "");
+}
 
 }  // namespace model
 }  // namespace firestore
