@@ -28,11 +28,15 @@ namespace model {
 
 // A simple struct to be able to instantiate BasePath.
 struct Path : impl::BasePath<Path> {
-  Path() = default;
+   Path() = default;
   template <typename IterT>
   Path(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
   Path(std::initializer_list<std::string> list) : BasePath{list} {
+  }
+
+  bool operator==(const Path& rhs) const {
+    return BasePath::operator==(rhs);
   }
 };
 
@@ -52,8 +56,6 @@ TEST(BasePath, Constructor) {
   EXPECT_FALSE(path_from_segments.empty());
   EXPECT_EQ(3, path_from_segments.size());
   EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
-
-  // EXPECT_EQ(0, timestamp_zero.seconds());
 }
 
 TEST(BasePath, Indexing) {
@@ -71,7 +73,19 @@ TEST(BasePath, Indexing) {
   EXPECT_EQ(path.back(), "messages");
 }
 
-// WithoutFirst
+TEST(BasePath, WithoutFirst) {
+  const Path abc{"rooms", "Eros", "messages"};
+  const Path bc = {"Eros", "messages"};
+  const Path c{"messages"};
+  const Path empty;
+  const Path abc_dupl{"rooms", "Eros", "messages"};
+
+  EXPECT_EQ(bc, abc.WithoutFirstElement());
+  EXPECT_EQ(c, abc.WithoutFirstElements(2));
+  EXPECT_EQ(empty, abc.WithoutFirstElements(3));
+  EXPECT_EQ(abc_dupl, abc);
+}
+
 // WithoutLast
 // Concatenated
 // <

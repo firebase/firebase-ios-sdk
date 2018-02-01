@@ -88,7 +88,11 @@ class BasePath {
     return T{std::move(concatenated)};
   }
 
-  T WithoutFirstElements(const size_t count = 1) const {
+  T WithoutFirstElement() const {
+    return WithoutFirstElements(1);
+  }
+
+  T WithoutFirstElements(const size_t count) const {
     FIREBASE_ASSERT_MESSAGE(
         count <= size(),
         "Cannot call WithoutFirstElements(%u) on path of length %u", count,
@@ -107,6 +111,10 @@ class BasePath {
            std::equal(begin(), end(), rhs.begin(), rhs.begin() + size());
   }
 
+  bool operator==(const BasePath& rhs) const {
+    return segments_ == rhs.segments_;
+  }
+
   // std::hash
   // to_string
 
@@ -115,8 +123,7 @@ class BasePath {
   template <typename IterT>
   BasePath(const IterT begin, const IterT end) : segments_{begin, end} {
   }
-  BasePath(std::initializer_list<std::string> list)
-      : segments_{list.begin(), list.end()} {
+  BasePath(std::initializer_list<std::string> list) : segments_{list} {
   }
   BasePath(SegmentsT&& segments) : segments_{std::move(segments)} {
   }
