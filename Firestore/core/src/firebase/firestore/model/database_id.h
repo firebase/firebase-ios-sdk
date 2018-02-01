@@ -68,8 +68,8 @@ class DatabaseId {
   friend bool operator<(const DatabaseId& lhs, const DatabaseId& rhs);
 
  private:
-  const std::string project_id_;
-  const std::string database_id_;
+  std::string project_id_;
+  std::string database_id_;
 };
 
 /** Compares against another DatabaseId. */

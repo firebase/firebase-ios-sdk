@@ -701,7 +701,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
     if (cmp != NSOrderedSame) {
       return cmp;
     }
-    cmd = [firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.database_id()())
+    cmp = [firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.database_id())
         compare:firebase::firestore::util::WrapNSStringNoCopy(ref.databaseID.database_id())];
     return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
   } else {

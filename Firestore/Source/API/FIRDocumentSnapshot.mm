@@ -177,9 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self convertedArray:(FSTArrayValue *)value options:options];
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
-    const DatabaseId refDatabase(
-        firebase::firestore::util::MakeStringView(ref.databaseID.projectID),
-        firebase::firestore::util::MakeStringView(ref.databaseID.databaseID));
+    const DatabaseId refDatabase(ref.databaseID.project_id(), ref.databaseID.database_id());
     const DatabaseId &database = self.firestore.databaseID;
     if (refDatabase != database) {
       // TODO(b/32073923): Log this as a proper warning.

@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
     NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
-@property(nonatomic, strong, readonly) firebase::firestore::model::DatabaseId databaseID;
+@property(nonatomic, assign, readonly) firebase::firestore::model::DatabaseId databaseID;
 
 @end
 

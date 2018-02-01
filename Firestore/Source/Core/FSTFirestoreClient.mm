@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
                    userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                  workerDispatchQueue:(FSTDispatchQueue *)queue NS_DESIGNATED_INITIALIZER;
 
-@property(nonatomic, strong, readonly) DatabaseInfo databaseInfo;
+@property(nonatomic, assign, readonly) DatabaseInfo databaseInfo;
 @property(nonatomic, strong, readonly) FSTEventManager *eventManager;
 @property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;

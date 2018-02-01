@@ -264,7 +264,7 @@ union DoubleBits {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTReferenceValue class]);
     XCTAssertEqualObjects([wrapped value], value.key);
-    XCTAssertEqualObjects(((DatabaseId)wrapped).databaseID, value.databaseID);
+    XCTAssertTrue(((FSTReferenceValue *)wrapped).databaseID == (DatabaseId)(value.databaseID));
   }
 }
 
@@ -471,7 +471,7 @@ union DoubleBits {
                              databaseID:DatabaseId("project", DatabaseId::kDefaultDatabaseId)],
       FSTTestFieldValue(FSTTestRef(@"project", firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"coll/doc1"))
     ],
-    @[ FSTTestRef(@"project", "(default)", @"coll/doc2") ],
+    @[ FSTTestRef(@"project", @"(default)", @"coll/doc2") ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar" ]), FSTTestFieldValue(@[ @"foo", @"bar" ]) ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar", @"baz" ]) ], @[ FSTTestFieldValue(@[ @"foo" ]) ],
     @[

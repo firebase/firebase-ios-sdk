@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
                     completion:(FSTVoidIDErrorBlock)completion;
 
 /** The database ID of the databaseInfo this client was initialized with. */
-@property(nonatomic, strong, readonly) firebase::firestore::model::DatabaseId databaseID;
+@property(nonatomic, assign, readonly) firebase::firestore::model::DatabaseId databaseID;
 
 /**
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the

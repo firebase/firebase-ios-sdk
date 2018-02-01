@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabaseID:(firebase::firestore::model:DatabaseId)databaseID
+- (instancetype)initWithDatabaseID:(firebase::firestore::model::DatabaseId)databaseID
     NS_DESIGNATED_INITIALIZER;
 
 - (GPBTimestamp *)encodedTimestamp:(FSTTimestamp *)timestamp;

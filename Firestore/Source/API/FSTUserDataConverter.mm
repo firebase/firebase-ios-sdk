@@ -289,7 +289,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 #pragma mark - FSTUserDataConverter
 
 @interface FSTUserDataConverter ()
-@property(strong, nonatomic, readonly) DatabaseId databaseID;
+@property(assign, nonatomic, readonly) DatabaseId databaseID;
 @property(strong, nonatomic, readonly) FSTPreConverterBlock preConverter;
 @end
 

@@ -31,7 +31,7 @@ DatabaseId::DatabaseId(const absl::string_view project_id,
   FIREBASE_ASSERT(!database_id.empty());
 }
 
-bool DatabaseId::IsDefaultDatabase() {
+bool DatabaseId::IsDefaultDatabase() const {
   return database_id_ == kDefaultDatabaseId;
 }
 

@@ -50,7 +50,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 @interface FIRFirestore ()
 
-@property(nonatomic, strong) firebase::firestore::model::DatabaseId databaseID;
+@property(nonatomic, assign) DatabaseId databaseID;
 @property(nonatomic, strong) NSString *persistenceKey;
 @property(nonatomic, strong) id<FSTCredentialsProvider> credentialsProvider;
 @property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
@@ -203,10 +203,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
       FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
-      DatabaseInfo database_info(firebase::firestore::util::MakeStringView(_databaseID),
-                                 firebase::firestore::util::MakeStringView(_persistenceKey),
-                                 firebase::firestore::util::MakeStringView(_settings.host),
-                                 _settings.sslEnabled);
+      DatabaseInfo database_info(
+          _databaseID, firebase::firestore::util::MakeStringView(_persistenceKey),
+          firebase::firestore::util::MakeStringView(_settings.host), _settings.sslEnabled);
 
       FSTDispatchQueue *userDispatchQueue = [FSTDispatchQueue queueWith:_settings.dispatchQueue];
 

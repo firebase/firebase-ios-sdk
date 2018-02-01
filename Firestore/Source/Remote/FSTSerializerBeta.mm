@@ -52,7 +52,7 @@ using firebase::firestore::model::DatabaseId;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTSerializerBeta ()
-@property(nonatomic, strong, readonly) DatabaseId databaseID;
+@property(nonatomic, assign, readonly) DatabaseId databaseID;
 @end
 
 @implementation FSTSerializerBeta

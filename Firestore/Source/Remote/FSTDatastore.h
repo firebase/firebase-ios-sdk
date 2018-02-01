@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTWriteStream *)createWriteStream;
 
 /** The name of the database and the backend. */
-@property(nonatomic, strong, readonly) firebase::firestore::core::DatabaseInfo databaseInfo;
+@property(nonatomic, assign, readonly) firebase::firestore::core::DatabaseInfo databaseInfo;
 
 @end
 

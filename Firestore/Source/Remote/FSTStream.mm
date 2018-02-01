@@ -119,7 +119,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @interface FSTStream () <GRXWriteable>
 
-@property(nonatomic, strong, readonly) DatabaseInfo databaseInfo;
+@property(nonatomic, assign, readonly) DatabaseInfo databaseInfo;
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
 @property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentials;
 @property(nonatomic, unsafe_unretained, readonly) Class responseMessageClass;

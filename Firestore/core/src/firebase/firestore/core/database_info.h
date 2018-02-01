@@ -29,6 +29,10 @@ namespace core {
 /** DatabaseInfo contains data about the database. */
 class DatabaseInfo {
  public:
+  // For objective-c++ initialization; to be removed after migration.
+  // Do NOT use in C++ code.
+  DatabaseInfo() = default;
+
   /**
    * Creates a new DatabaseInfo.
    *

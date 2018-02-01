@@ -212,7 +212,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 + (instancetype)referenceValue:(FSTDocumentKey *)value
                     databaseID:(firebase::firestore::model::DatabaseId)databaseID;
 - (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
-@property(nonatomic, strong, readonly) firebase::firestore::model::DatabaseId databaseID;
+@property(nonatomic, assign, readonly) firebase::firestore::model::DatabaseId databaseID;
 @end
 
 /**
