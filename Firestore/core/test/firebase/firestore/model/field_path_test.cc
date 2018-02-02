@@ -202,7 +202,6 @@ TEST(FieldPath, Parsing) {
   expected = make_expected(R"(foo.`\``.bar)", 3);
   EXPECT_EQ(expected, parse(expected));
 
-  // OBC this is probably a bug (behavior equivalent to Obj-C)
   const auto path_with_dot = FieldPath::ParseServerFormat(R"(foo\.bar)");
   EXPECT_EQ(path_with_dot.CanonicalString(), "`foo.bar`");
   EXPECT_EQ(path_with_dot.size(), 1);
