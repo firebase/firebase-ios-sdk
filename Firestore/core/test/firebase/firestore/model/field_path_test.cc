@@ -175,6 +175,15 @@ TEST(FieldPath, AccessFailures) {
   ASSERT_DEATH_IF_SUPPORTED(path.WithoutLastElement(), "");
 }
 
+// DIVE IN:
+//   canonical string/roundtrip
+//   parse failures
+//   concat/skip gives expected canonical string
+//   SKIP
+//   copy/move constructor
+//
+//   resourcepathtest
+
 TEST(FieldPath, Parsing) {
   EXPECT_EQ(FieldPath{"foo"}, FieldPath::ParseServerFormat("foo"));
   const FieldPath foo_bar{"foo", "bar"};

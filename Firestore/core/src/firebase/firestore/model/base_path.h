@@ -138,7 +138,7 @@ class BasePath {
   ~BasePath() = default;
 
  private:
-  SegmentsT segments_;
+  const SegmentsT segments_;
 };
 
 }  // namespace impl
