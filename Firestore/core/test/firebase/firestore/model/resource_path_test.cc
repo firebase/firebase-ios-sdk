@@ -50,6 +50,27 @@ TEST(ResourcePath, Constructor) {
   EXPECT_EQ(copied, moved);
 }
 
+TEST(ResourcePath, Comparison) {
+  const ResourcePath abc{"a", "b", "c"};
+  const ResourcePath abc2{"a", "b", "c"};
+  const ResourcePath xyz{"x", "y", "z"};
+  EXPECT_EQ(abc, abc2);
+  EXPECT_NE(abc, xyz);
+
+  const ResourcePath empty;
+  const ResourcePath a{"a"};
+  const ResourcePath b{"b"};
+  const ResourcePath ab{"a", "b"};
+
+  EXPECT_TRUE(empty < a);
+  EXPECT_TRUE(a < b);
+  EXPECT_TRUE(a < ab);
+
+  EXPECT_TRUE(a > empty);
+  EXPECT_TRUE(b > a);
+  EXPECT_TRUE(ab > a);
+}
+
 TEST(ResourcePath, Parsing) {
   const auto parse = [](const std::pair<std::string, size_t> expected) {
     const auto path = ResourcePath::Parse(expected.first);

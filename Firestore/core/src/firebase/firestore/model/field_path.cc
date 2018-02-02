@@ -140,19 +140,6 @@ std::string FieldPath::CanonicalString() const {
                        });
 }
 
-// OBC: do we really need emptypath?
-// OBC: do we really need *shared* keypath?
-
-// bool operator<(const FieldPath& lhs, const FieldPath& rhs) {
-// return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
-//                                     rhs.end());
-// }
-
-// bool operator==(const FieldPath& lhs, const FieldPath& rhs) {
-// return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
-//                                     rhs.end());
-// }
-
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

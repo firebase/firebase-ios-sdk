@@ -40,6 +40,25 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
 
   std::string CanonicalString() const;
 
+  bool operator==(const ResourcePath& rhs) const {
+    return BasePath::operator==(rhs);
+  }
+  bool operator!=(const ResourcePath& rhs) const {
+    return BasePath::operator!=(rhs);
+  }
+  bool operator<(const ResourcePath& rhs) const {
+    return BasePath::operator<(rhs);
+  }
+  bool operator>(const ResourcePath& rhs) const {
+    return BasePath::operator>(rhs);
+  }
+  bool operator<=(const ResourcePath& rhs) const {
+    return BasePath::operator<=(rhs);
+  }
+  bool operator>=(const ResourcePath& rhs) const {
+    return BasePath::operator>=(rhs);
+  }
+
  private:
   ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }

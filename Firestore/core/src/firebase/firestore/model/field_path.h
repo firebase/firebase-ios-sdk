@@ -53,17 +53,19 @@ class FieldPath : public impl::BasePath<FieldPath> {
   bool operator>(const FieldPath& rhs) const {
     return BasePath::operator>(rhs);
   }
+  bool operator<=(const FieldPath& rhs) const {
+    return BasePath::operator<=(rhs);
+  }
+  bool operator>=(const FieldPath& rhs) const {
+    return BasePath::operator>=(rhs);
+  }
 
-  // OBC: do we really need emptypath?
-  // OBC: do we really need *shared* keypath?
  private:
-  FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {}
+  FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  }
 
   friend class BasePath;
 };
-
-// bool operator<(const FieldPath& lhs, const FieldPath& rhs);
-// bool operator==(const FieldPath& lhs, const FieldPath& rhs);
 
 }  // namespace model
 }  // namespace firestore
