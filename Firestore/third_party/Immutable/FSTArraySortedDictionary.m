@@ -142,19 +142,6 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (nullable id)predecessorKey:(id)key {
-  NSInteger pos = [self findKey:key];
-  if (pos == NSNotFound) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Can't get predecessor key for non-existent key"];
-    return nil;
-  } else if (pos == 0) {
-    return nil;
-  } else {
-    return self.keys[pos - 1];
-  }
-}
-
 - (NSUInteger)indexOfKey:(id)key {
   return [self findKey:key];
 }
