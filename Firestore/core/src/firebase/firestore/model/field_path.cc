@@ -16,12 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-
 #include <algorithm>
 #include <cctype>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
 #include "absl/strings/str_split.h"

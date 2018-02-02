@@ -97,6 +97,11 @@ class BasePath {
     concatenated.push_back(segment);
     return T{std::move(concatenated)};
   }
+  T Concat(std::string&& segment) const {
+    auto concatenated = segments_;
+    concatenated.push_back(std::move(segment));
+    return T{std::move(concatenated)};
+  }
 
   /**
    * Returns a new path which is the result of concatenating this path with an
