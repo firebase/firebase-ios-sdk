@@ -27,6 +27,10 @@ pod update
   --nanopb_out="--options-file=protos/%s.options:nanopb" \
   `find protos -name *.proto -print | xargs`
 
+# Remove "well-known" protos from objc. (We get these for free. We only need
+# them for nanopb.)
+rm -rf objc/google/protobuf/
+
 # If a proto uses a field named 'delete', nanopb happily uses that in the
 # message definition. Works fine for C; not so much for C++. Rename uses of this
 # to delete_ (which is how protoc does it for c++ files.)
