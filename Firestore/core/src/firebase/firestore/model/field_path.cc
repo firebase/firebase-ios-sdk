@@ -32,6 +32,9 @@ namespace model {
 
 namespace {
 
+// TODO(varconst): move to C++ equivalent of FSTDocumentKey.{h,cc}
+const char* const kDocumentKeyPath = "__name__";
+
 bool IsValidIdentifier(const std::string& segment) {
   if (segment.empty()) {
     return false;
@@ -131,6 +134,14 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
                           to_string(path).c_str());
 
   return FieldPath{std::move(segments)};
+}
+
+FieldPath FieldPath::KeyFieldPath() {
+  return FieldPath{kDocumentFieldKeyPath};
+}
+
+bool FieldPath::IsKeyFieldPath() const {
+  return size() == 1 && front() == kDocumentFieldKeyPath;
 }
 
 std::string FieldPath::CanonicalString() const {

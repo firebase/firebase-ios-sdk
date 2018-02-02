@@ -38,8 +38,10 @@ class FieldPath : public impl::BasePath<FieldPath> {
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
   }
   static FieldPath ParseServerFormat(absl::string_view path);
+  static FieldPath KeyFieldPath();
 
   std::string CanonicalString() const;
+  bool IsKeyFieldPath() const;
 
   bool operator==(const FieldPath& rhs) const {
     return BasePath::operator==(rhs);

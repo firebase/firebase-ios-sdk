@@ -258,10 +258,14 @@ TEST(FieldPath, CanonicalStringEscaping) {
   EXPECT_EQ(FieldPath::ParseServerFormat("a_").CanonicalString(), "a_");
 }
 
-// TODO:
-//   empty path, shared key path
-//   port comments
-//   variable names, include order
+TEST(FieldPath, CreateKeyFieldPath) {
+  const auto key_field_path = FieldPath::KeyFieldPath();
+  EXPECT_EQ(key_field_path, FieldPath{key_field_path});
+  EXPECT_EQ(key_field_path,
+            FieldPath::ParseServerFormat(key_field_path.CanonicalString()));
+  EXPECT_NE(key_field_path, FieldPath::ParseServerFormat(
+                                key_field_path.CanonicalString().substr(1)));
+}
 
 }  // namespace model
 }  // namespace firestore
