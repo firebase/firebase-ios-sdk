@@ -27,6 +27,8 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
+std::mutex FirebaseCredentialsProvider::mutex_;
+
 FirebaseCredentialsProvider::FirebaseCredentialsProvider()
     : FirebaseCredentialsProvider([FIRApp defaultApp]) {
 }
@@ -81,7 +83,8 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
           // Cancel the request since the user changed while the request was
           // outstanding so the response is likely for a previous user (which
           // user, we can't be sure).
-          completion({"", User()}, "getToken aborted due to user change.");
+          completion({"", User::Unauthenticated()},
+                     "getToken aborted due to user change.");
         } else {
           completion(
               {firebase::firestore::util::MakeStringView(token), current_user_},
@@ -108,7 +111,7 @@ void FirebaseCredentialsProvider::SetUserChangeListener(
     FIREBASE_ASSERT_MESSAGE(user_change_listener_,
                             "user_change_listener removed without being set!");
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
-    auth_listener_handle_ = nullptr;
+    auth_listener_handle_ = nil;
   }
   user_change_listener_ = listener;
 }

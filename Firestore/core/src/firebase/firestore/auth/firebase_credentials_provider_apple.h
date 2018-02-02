@@ -94,7 +94,9 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    */
   int user_counter_;
 
-  std::mutex mutex_;
+  // Make it static as as it is used in some of the callbacks. Otherwise, we saw
+  // mutex lock failed: Invalid argument.
+  static std::mutex mutex_;
 };
 
 }  // namespace auth

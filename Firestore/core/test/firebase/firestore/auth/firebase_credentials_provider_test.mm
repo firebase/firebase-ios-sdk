@@ -29,11 +29,17 @@ namespace firestore {
 namespace auth {
 
 // Set a .plist file here to enable the test-case.
-static const char* kPlist = "/Users/zxu/Downloads/GoogleService-Info.plist";
+static const char* kPlist = "";
 
 class FirebaseCredentialsProviderTest : public ::testing::Test {
  protected:
   void SetUp() override {
+    app_ready_ = false;
+    absl::string_view plist(kPlist);
+    if (plist.length() < 6 || plist.substr(plist.length() - 6) != ".plist") {
+      return;
+    }
+
     static dispatch_once_t once_token;
     dispatch_once(&once_token, ^{
       NSString* file_path =
@@ -48,14 +54,16 @@ class FirebaseCredentialsProviderTest : public ::testing::Test {
     default_app.getUIDImplementation = ^NSString* {
       return @"I'm a fake uid.";
     };
+    app_ready_ = true;
   }
+
+  bool app_ready_;
 };
 
 // Set kPlist above before enable.
-// TEST(DISABLED_FirebaseCredentialsProvider, GetToken) {
+// TEST_F(DISABLED_FirebaseCredentialsProviderTest, GetToken) {
 TEST_F(FirebaseCredentialsProviderTest, GetToken) {
-  absl::string_view plist(kPlist);
-  if (plist.substr(plist.length() - 6) != ".plist") {
+  if (!app_ready_) {
     return;
   }
 
@@ -71,10 +79,9 @@ TEST_F(FirebaseCredentialsProviderTest, GetToken) {
 }
 
 // Set kPlist above before enable.
-// TEST(DISABLED_FirebaseCredentialsProvider, SetListener) {
+//TEST_F(DISABLED_FirebaseCredentialsProviderTest, SetListener) {
 TEST_F(FirebaseCredentialsProviderTest, SetListener) {
-  absl::string_view plist(kPlist);
-  if (plist.substr(plist.length() - 6) != ".plist") {
+  if (!app_ready_) {
     return;
   }
 
