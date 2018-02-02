@@ -48,8 +48,10 @@ class Token {
     return token_;
   }
 
-  /** The user with which the token is associated (used for persisting user
-   * state on disk, etc.). */
+  /**
+   * The user with which the token is associated (used for persisting user
+   * state on disk, etc.).
+   */
   const User& user() const {
     return user_;
   }

@@ -146,7 +146,7 @@
 		ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93620239689000A432D /* empty_credentials_provider_test.cc */; };
 		ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93220239654000A432D /* user_test.cc */; };
 		ABC1D7E12023A40C00BA84F0 /* token_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABC1D7DF2023A3EF00BA84F0 /* token_test.cc */; };
-		ABC1D7E32023CDC500BA84F0 /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABC1D7E22023CDC500BA84F0 /* firebase_credentials_provider_test.mm */; };
+		ABC1D7E42024AFDE00BA84F0 /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABC1D7E22023CDC500BA84F0 /* firebase_credentials_provider_test.mm */; };
 		ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF6506B201131F8005F2C74 /* timestamp_test.cc */; };
 		AFE6114F0D4DAECBA7B7C089 /* Pods_Firestore_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */; };
@@ -1246,7 +1246,6 @@
 			files = (
 				6003F59E195388D20070C39A /* FIRAppDelegate.m in Sources */,
 				6003F5A7195388D20070C39A /* FIRViewController.m in Sources */,
-				ABC1D7E32023CDC500BA84F0 /* firebase_credentials_provider_test.mm in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1321,6 +1320,7 @@
 				5492E068202154B900B64F25 /* FSTQueryTests.mm in Sources */,
 				5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */,
 				5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */,
+				ABC1D7E42024AFDE00BA84F0 /* firebase_credentials_provider_test.mm in Sources */,
 				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
 				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
 				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
