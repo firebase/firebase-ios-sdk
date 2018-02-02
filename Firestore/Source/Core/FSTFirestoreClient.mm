@@ -253,9 +253,11 @@ NS_ASSUME_NONNULL_BEGIN
             completion:(nullable FSTVoidErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
     if (mutations.count == 0) {
-      [self.userDispatchQueue dispatchAsync:^{
-        completion(nil);
-      }];
+      if (completion) {
+        [self.userDispatchQueue dispatchAsync:^{
+          completion(nil);
+        }];
+      }
     } else {
       [self.syncEngine writeMutations:mutations
                            completion:^(NSError *error) {
