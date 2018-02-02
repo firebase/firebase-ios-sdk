@@ -67,7 +67,7 @@ TEST(ResourcePath, Parsing) {
   EXPECT_EQ(expected, parse(expected));
   expected = make_expected("foo/bar/baz", 3);
   EXPECT_EQ(expected, parse(expected));
-  expected = make_expected(R"(foo/__..`..\`/baz)", 3);
+  expected = make_expected(R"(foo/__!?#@..`..\`/baz)", 3);
   EXPECT_EQ(expected, parse(expected));
 
   EXPECT_EQ(ResourcePath::Parse("/foo/").CanonicalString(), "foo");

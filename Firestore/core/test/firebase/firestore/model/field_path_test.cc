@@ -260,11 +260,8 @@ TEST(FieldPath, CanonicalStringEscaping) {
 
 // TODO:
 //   empty path, shared key path
-//
 //   port comments
 //   variable names, include order
-//
-//   PUBLIC CLASS
 
 }  // namespace model
 }  // namespace firestore
