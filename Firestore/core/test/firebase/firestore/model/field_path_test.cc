@@ -176,26 +176,31 @@ TEST(FieldPath, AccessFailures) {
 }
 
 // DIVE IN:
-//   canonical string/roundtrip
 //   parse failures
 //   concat/skip gives expected canonical string
 //   SKIP
 //   copy/move constructor
 //
 //   resourcepathtest
+//
+//   port comments
+//
+//   PUBLIC CLASS
 
 TEST(FieldPath, Parsing) {
-  EXPECT_EQ(FieldPath{"foo"}, FieldPath::ParseServerFormat("foo"));
-  const FieldPath foo_bar{"foo", "bar"};
-  EXPECT_EQ(foo_bar, FieldPath::ParseServerFormat("foo.bar"));
-  const FieldPath foo_bar_baz{"foo", "bar", "baz"};
-  EXPECT_EQ(foo_bar_baz, FieldPath::ParseServerFormat("foo.bar.baz"));
-  const FieldPath foo_slash{R"(.foo\)"};
-  EXPECT_EQ(foo_slash, FieldPath::ParseServerFormat(R"(`.foo\\`)"));
-  const FieldPath foo_slash_foo{R"(.foo\)", ".foo"};
-  EXPECT_EQ(foo_slash_foo, FieldPath::ParseServerFormat(R"(`.foo\\`.`.foo`)"));
-  const FieldPath foo_tilde_bar{"foo", "`", "bar"};
-  EXPECT_EQ(foo_tilde_bar, FieldPath::ParseServerFormat(R"(foo.`\``.bar)"));
+  const auto expect_round_trip = [](const std::string& str,
+                                    const size_t expected_segments) {
+    const auto path = FieldPath::ParseServerFormat(str);
+    EXPECT_EQ(str, path.CanonicalString());
+    EXPECT_EQ(expected_segments, path.size());
+  };
+
+  expect_round_trip("foo", 1);
+  expect_round_trip("foo.bar", 2);
+  expect_round_trip("foo.bar.baz", 3);
+  expect_round_trip(R"(`.foo\\`)", 1);
+  expect_round_trip(R"(`.foo\\`.`.foo`)", 2);
+  expect_round_trip(R"(foo.`\``.bar)", 3);
 }
 
 TEST(FieldPath, ParseFailures) {
