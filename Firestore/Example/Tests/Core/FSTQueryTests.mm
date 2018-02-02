@@ -326,7 +326,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc(@"collection/1", 0, @{@"sort": @"ab"}, NO),
       FSTTestDoc(@"collection/1", 0, @{@"sort": @"b"}, NO),
       FSTTestDoc(@"collection/1", 0, @{@"sort":
-          FSTTestRef(@"project", kDefaultDatabaseID, @"collection/id1")}, NO),
+          FSTTestRef(@"project", defaultDatabaseID, @"collection/id1")}, NO),
   ];
   // clang-format on
 
