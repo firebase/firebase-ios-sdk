@@ -266,6 +266,7 @@ TEST(FieldPath, CanonicalStringEscaping) {
 //   empty path, shared key path
 //
 //   port comments
+//   variable names, include order
 //
 //   PUBLIC CLASS
 

@@ -19,6 +19,7 @@ cc_test(
     field_path_test.cc
     field_value_test.cc
     timestamp_test.cc
+    resource_path_test.cc
   DEPENDS
     firebase_firestore_model
 )
