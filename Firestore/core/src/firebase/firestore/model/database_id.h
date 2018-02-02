@@ -33,9 +33,11 @@ class DatabaseId {
   /** The default name for "unset" database ID in resource names. */
   static constexpr const char* kDefaultDatabaseId = "(default)";
 
+#if defined(__OBJC__)
   // For objective-c++ initialization; to be removed after migration.
   // Do NOT use in C++ code.
   DatabaseId() = default;
+#endif  // defined(__OBJC__)
 
   /**
    * Creates and returns a new DatabaseId.
@@ -55,15 +57,18 @@ class DatabaseId {
   }
 
   /** Whether this is the default database of the project. */
-  bool IsDefaultDatabase() const;
+  bool IsDefaultDatabase() const {
+    return database_id_ == kDefaultDatabaseId;
+  }
 
+#if defined(__OBJC__)
   // For objective-c++ hash; to be removed after migration.
   // Do NOT use in C++ code.
-  uint32_t Hash() const {
+  uint64_t Hash() const {
     std::hash<std::string> hash_fn;
-    return static_cast<uint32_t>(hash_fn(project_id_) * 31u +
-                                 hash_fn(database_id_));
+    return hash_fn(project_id_) * 31u + hash_fn(database_id_);
   }
+#endif  // defined(__OBJC__)
 
   friend bool operator<(const DatabaseId& lhs, const DatabaseId& rhs);
 
