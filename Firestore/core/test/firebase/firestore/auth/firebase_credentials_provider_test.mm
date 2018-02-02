@@ -61,7 +61,6 @@ class FirebaseCredentialsProviderTest : public ::testing::Test {
 };
 
 // Set kPlist above before enable.
-// TEST_F(DISABLED_FirebaseCredentialsProviderTest, GetToken) {
 TEST_F(FirebaseCredentialsProviderTest, GetToken) {
   if (!app_ready_) {
     return;
@@ -79,7 +78,6 @@ TEST_F(FirebaseCredentialsProviderTest, GetToken) {
 }
 
 // Set kPlist above before enable.
-//TEST_F(DISABLED_FirebaseCredentialsProviderTest, SetListener) {
 TEST_F(FirebaseCredentialsProviderTest, SetListener) {
   if (!app_ready_) {
     return;
