@@ -18,9 +18,8 @@
 
 // TODO(rsgowman): These are (currently!) unnecessary includes. Adding for now
 // to ensure we can find nanopb's generated header files.
-#include "Firestore/Protos/nanopb/google/protobuf/timestamp.pb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
-
+#include "Firestore/Protos/nanopb/google/protobuf/timestamp.pb.h"
 
 namespace firebase {
 namespace firestore {

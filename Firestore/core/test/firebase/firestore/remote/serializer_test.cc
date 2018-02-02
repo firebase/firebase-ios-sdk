@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
-#include <pb_encode.h>
 #include <gtest/gtest.h>
+#include <pb_encode.h>
 
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
