@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -185,11 +186,10 @@ NS_ASSUME_NONNULL_BEGIN
           @"WARNING: Document %@ contains a document reference within a different database "
            "(%@/%@) which is not supported. It will be treated as a reference within the "
            "current database (%@/%@) instead.",
-          self.reference.path,
-          firebase::firestore::util::WrapNSStringNoCopy(refDatabase.project_id()),
-          firebase::firestore::util::WrapNSStringNoCopy(refDatabase.database_id()),
-          firebase::firestore::util::WrapNSStringNoCopy(database.project_id()),
-          firebase::firestore::util::WrapNSStringNoCopy(database.database_id()));
+          self.reference.path, util::WrapNSStringNoCopy(refDatabase.project_id()),
+          util::WrapNSStringNoCopy(refDatabase.database_id()),
+          util::WrapNSStringNoCopy(database.project_id()),
+          util::WrapNSStringNoCopy(database.database_id()));
     }
     return [FIRDocumentReference referenceWithKey:[ref valueWithOptions:options]
                                         firestore:self.firestore];

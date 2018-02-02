@@ -43,6 +43,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -170,8 +171,7 @@ FSTResourcePath *FSTTestPath(NSString *path) {
 }
 
 FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSString *path) {
-  DatabaseId database_id(firebase::firestore::util::MakeStringView(projectID),
-                         firebase::firestore::util::MakeStringView(database));
+  DatabaseId database_id(util::MakeStringView(projectID), util::MakeStringView(database));
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path) databaseID:database_id];
 }
 

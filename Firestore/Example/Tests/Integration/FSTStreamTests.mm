@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -145,16 +146,14 @@ using firebase::firestore::model::DatabaseId;
   [super setUp];
 
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
-  DatabaseId database_id(
-      firebase::firestore::util::MakeStringView([FSTIntegrationTestCase projectID]),
-      DatabaseId::kDefaultDatabaseId);
+  DatabaseId database_id(util::MakeStringView([FSTIntegrationTestCase projectID]),
+                         DatabaseId::kDefaultDatabaseId);
 
   _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _workerDispatchQueue = [[FSTTestDispatchQueue alloc] initWithQueue:_testQueue];
 
-  _databaseInfo =
-      DatabaseInfo(database_id, "test-key",
-                   firebase::firestore::util::MakeStringView(settings.host), settings.sslEnabled);
+  _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
+                               settings.sslEnabled);
   _credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
   _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];

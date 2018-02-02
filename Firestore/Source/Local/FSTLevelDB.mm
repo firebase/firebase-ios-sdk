@@ -33,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -104,16 +105,14 @@ using leveldb::WriteOptions;
   // projectIDs are DNS-compatible names and cannot contain dots so there's
   // no danger of collisions.
   NSString *directory = documentsDirectory;
-  directory =
-      [directory stringByAppendingPathComponent:firebase::firestore::util::WrapNSStringNoCopy(
-                                                    databaseInfo.persistence_key())];
+  directory = [directory
+      stringByAppendingPathComponent:util::WrapNSStringNoCopy(databaseInfo.persistence_key())];
 
-  NSString *segment =
-      firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.database_id().project_id());
+  NSString *segment = util::WrapNSStringNoCopy(databaseInfo.database_id().project_id());
   if (!databaseInfo.database_id().IsDefaultDatabase()) {
-    segment = [NSString stringWithFormat:@"%@.%@", segment,
-                                         firebase::firestore::util::WrapNSStringNoCopy(
-                                             databaseInfo.database_id().database_id())];
+    segment = [NSString
+        stringWithFormat:@"%@.%@", segment,
+                         util::WrapNSStringNoCopy(databaseInfo.database_id().database_id())];
   }
   directory = [directory stringByAppendingPathComponent:segment];
 

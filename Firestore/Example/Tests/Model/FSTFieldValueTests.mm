@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 
 /** Helper to wrap the values in a set of equality groups using FSTTestFieldValue(). */
@@ -253,12 +254,8 @@ union DoubleBits {
 
 - (void)testWrapResourceNames {
   NSArray *values = @[
-    FSTTestRef(@"project",
-               firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId),
-               @"foo/bar"),
-    FSTTestRef(@"project",
-               firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId),
-               @"foo/baz")
+    FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/bar"),
+    FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/baz")
   ];
   for (FSTDocumentKeyReference *value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
@@ -469,7 +466,7 @@ union DoubleBits {
     @[
       [FSTReferenceValue referenceValue:FSTTestDocKey(@"coll/doc1")
                              databaseID:DatabaseId("project", DatabaseId::kDefaultDatabaseId)],
-      FSTTestFieldValue(FSTTestRef(@"project", firebase::firestore::util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"coll/doc1"))
+      FSTTestFieldValue(FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"coll/doc1"))
     ],
     @[ FSTTestRef(@"project", @"(default)", @"coll/doc2") ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar" ]), FSTTestFieldValue(@[ @"foo", @"bar" ]) ],

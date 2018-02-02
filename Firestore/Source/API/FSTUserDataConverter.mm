@@ -33,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -548,11 +549,10 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       DatabaseId other = reference.databaseID;
       FSTThrowInvalidArgument(
           @"Document Reference is for database %@/%@ but should be for database %@/%@%@",
-          firebase::firestore::util::WrapNSStringNoCopy(other.project_id()),
-          firebase::firestore::util::WrapNSStringNoCopy(other.database_id()),
-          firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.project_id()),
-          firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.database_id()),
-          [context fieldDescription]);
+          util::WrapNSStringNoCopy(other.project_id()),
+          util::WrapNSStringNoCopy(other.database_id()),
+          util::WrapNSStringNoCopy(self.databaseID.project_id()),
+          util::WrapNSStringNoCopy(self.databaseID.database_id()), [context fieldDescription]);
     }
     return [FSTReferenceValue referenceValue:reference.key databaseID:self.databaseID];
 

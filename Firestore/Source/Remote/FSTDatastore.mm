@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -89,7 +90,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                          credentials:(id<FSTCredentialsProvider>)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    NSString *host = firebase::firestore::util::WrapNSStringNoCopy(databaseInfo.host());
+    NSString *host = util::WrapNSStringNoCopy(databaseInfo.host());
     if (!databaseInfo.ssl_enabled()) {
       GRPCHost *hostConfig = [GRPCHost hostWithAddress:host];
       hostConfig.secure = NO;
@@ -105,9 +106,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 - (NSString *)description {
   return [NSString
       stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%@ host:%@>>",
-                       firebase::firestore::util::WrapNSStringNoCopy(
-                           self.databaseInfo.database_id().database_id()),
-                       firebase::firestore::util::WrapNSStringNoCopy(self.databaseInfo.host())];
+                       util::WrapNSStringNoCopy(self.databaseInfo.database_id().database_id()),
+                       util::WrapNSStringNoCopy(self.databaseInfo.host())];
 }
 
 /**
@@ -179,10 +179,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 /** Returns the string to be used as google-cloud-resource-prefix header value. */
 + (NSString *)googleCloudResourcePrefixForDatabaseID:(DatabaseId)databaseID {
-  return [NSString
-      stringWithFormat:@"projects/%@/databases/%@",
-                       firebase::firestore::util::WrapNSStringNoCopy(databaseID.project_id()),
-                       firebase::firestore::util::WrapNSStringNoCopy(databaseID.database_id())];
+  return [NSString stringWithFormat:@"projects/%@/databases/%@",
+                                    util::WrapNSStringNoCopy(databaseID.project_id()),
+                                    util::WrapNSStringNoCopy(databaseID.database_id())];
 }
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers

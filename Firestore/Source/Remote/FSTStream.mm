@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -612,10 +613,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc]
-        initWithHost:firebase::firestore::util::WrapNSStringNoCopy(self.databaseInfo.host())
-                path:@"/google.firestore.v1beta1.Firestore/Listen"
-      requestsWriter:requestsWriter];
+  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo.host())
+                                   path:@"/google.firestore.v1beta1.Firestore/Listen"
+                         requestsWriter:requestsWriter];
 }
 
 - (void)notifyStreamOpen {
@@ -696,10 +696,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc]
-        initWithHost:firebase::firestore::util::WrapNSStringNoCopy(self.databaseInfo.host())
-                path:@"/google.firestore.v1beta1.Firestore/Write"
-      requestsWriter:requestsWriter];
+  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo.host())
+                                   path:@"/google.firestore.v1beta1.Firestore/Write"
+                         requestsWriter:requestsWriter];
 }
 
 - (void)startWithDelegate:(id)delegate {

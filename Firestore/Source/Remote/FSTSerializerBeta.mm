@@ -47,6 +47,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -107,11 +108,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
   FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:name];
-  FSTAssert([[path segmentAtIndex:1] isEqualToString:firebase::firestore::util::WrapNSStringNoCopy(
-                                                         self.databaseID.project_id())],
+  FSTAssert([[path segmentAtIndex:1]
+                isEqualToString:util::WrapNSStringNoCopy(self.databaseID.project_id())],
             @"Tried to deserialize key from different project.");
-  FSTAssert([[path segmentAtIndex:3] isEqualToString:firebase::firestore::util::WrapNSStringNoCopy(
-                                                         self.databaseID.database_id())],
+  FSTAssert([[path segmentAtIndex:3]
+                isEqualToString:util::WrapNSStringNoCopy(self.databaseID.database_id())],
             @"Tried to deserialize key from different datbase.");
   return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
 }
@@ -146,8 +147,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTResourcePath *)encodedResourcePathForDatabaseID:(DatabaseId)databaseID {
   return [FSTResourcePath pathWithSegments:@[
-    @"projects", firebase::firestore::util::WrapNSStringNoCopy(databaseID.project_id()),
-    @"databases", firebase::firestore::util::WrapNSStringNoCopy(databaseID.database_id())
+    @"projects", util::WrapNSStringNoCopy(databaseID.project_id()), @"databases",
+    util::WrapNSStringNoCopy(databaseID.database_id())
   ]];
 }
 
@@ -312,8 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:resourceName];
   NSString *project = [path segmentAtIndex:1];
   NSString *database = [path segmentAtIndex:3];
-  DatabaseId database_id(firebase::firestore::util::MakeStringView(project),
-                         firebase::firestore::util::MakeStringView(database));
+  DatabaseId database_id(util::MakeStringView(project), util::MakeStringView(database));
   FSTDocumentKey *key =
       [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
   return [FSTReferenceValue referenceValue:key databaseID:database_id];

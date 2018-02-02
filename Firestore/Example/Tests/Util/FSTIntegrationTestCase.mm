@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
 
@@ -140,14 +141,13 @@ NS_ASSUME_NONNULL_BEGIN
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
-  FIRFirestore *firestore =
-      [[FIRFirestore alloc] initWithProjectID:projectID
-                                     database:firebase::firestore::util::WrapNSStringNoCopy(
-                                                  DatabaseId::kDefaultDatabaseId)
-                               persistenceKey:persistenceKey
-                          credentialsProvider:credentialsProvider
-                          workerDispatchQueue:workerDispatchQueue
-                                  firebaseApp:app];
+  FIRFirestore *firestore = [[FIRFirestore alloc]
+        initWithProjectID:projectID
+                 database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
+           persistenceKey:persistenceKey
+      credentialsProvider:credentialsProvider
+      workerDispatchQueue:workerDispatchQueue
+              firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
 

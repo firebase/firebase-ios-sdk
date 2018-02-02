@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
@@ -695,14 +696,13 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp =
-        [firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.project_id())
-            compare:firebase::firestore::util::WrapNSStringNoCopy(ref.databaseID.project_id())];
+    NSComparisonResult cmp = [util::WrapNSStringNoCopy(self.databaseID.project_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID.project_id())];
     if (cmp != NSOrderedSame) {
       return cmp;
     }
-    cmp = [firebase::firestore::util::WrapNSStringNoCopy(self.databaseID.database_id())
-        compare:firebase::firestore::util::WrapNSStringNoCopy(ref.databaseID.database_id())];
+    cmp = [util::WrapNSStringNoCopy(self.databaseID.database_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID.database_id())];
     return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
   } else {
     return [self defaultCompare:other];

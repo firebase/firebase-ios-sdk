@@ -45,6 +45,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -159,11 +160,9 @@ NS_ASSUME_NONNULL_BEGIN
     [GRPCCall useInsecureConnectionsForHost:settings.host];
   }
 
-  DatabaseId database_id(firebase::firestore::util::MakeStringView(projectID),
-                         DatabaseId::kDefaultDatabaseId);
+  DatabaseId database_id(util::MakeStringView(projectID), DatabaseId::kDefaultDatabaseId);
 
-  DatabaseInfo database_info(database_id, "test-key",
-                             firebase::firestore::util::MakeStringView(settings.host),
+  DatabaseInfo database_info(database_id, "test-key", util::MakeStringView(settings.host),
                              settings.sslEnabled);
 
   _testWorkerQueue = [FSTDispatchQueue
