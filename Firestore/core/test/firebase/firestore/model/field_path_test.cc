@@ -181,12 +181,12 @@ TEST(FieldPath, Parsing) {
   EXPECT_EQ(foo_bar, FieldPath::ParseServerFormat("foo.bar"));
   const FieldPath foo_bar_baz{"foo", "bar", "baz"};
   EXPECT_EQ(foo_bar_baz, FieldPath::ParseServerFormat("foo.bar.baz"));
-  const FieldPath foo_slash{".foo\\"};
-  EXPECT_EQ(foo_slash, FieldPath::ParseServerFormat("`.foo\\\\`"));
-  const FieldPath foo_slash_foo{".foo\\", ".foo"};
-  EXPECT_EQ(foo_slash_foo, FieldPath::ParseServerFormat("`.foo\\\\`.`.foo`"));
+  const FieldPath foo_slash{R"(.foo\)"};
+  EXPECT_EQ(foo_slash, FieldPath::ParseServerFormat(R"(`.foo\\`)"));
+  const FieldPath foo_slash_foo{R"(.foo\)", ".foo"};
+  EXPECT_EQ(foo_slash_foo, FieldPath::ParseServerFormat(R"(`.foo\\`.`.foo`)"));
   const FieldPath foo_tilde_bar{"foo", "`", "bar"};
-  EXPECT_EQ(foo_tilde_bar, FieldPath::ParseServerFormat("foo.`\\``.bar"));
+  EXPECT_EQ(foo_tilde_bar, FieldPath::ParseServerFormat(R"(foo.`\``.bar)"));
 }
 
 TEST(FieldPath, ParseFailures) {
