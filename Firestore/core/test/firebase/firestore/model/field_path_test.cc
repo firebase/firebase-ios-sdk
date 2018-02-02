@@ -221,21 +221,17 @@ TEST(FieldPath, ParseEmbeddedNull) {
 }
 
 TEST(FieldPath, ParseFailures) {
-  const auto expect_fail = [](const absl::string_view str) {
-    ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(str), "");
-  };
-
-  expect_fail("");
-  expect_fail(".");
-  expect_fail("..");
-  expect_fail("foo.");
-  expect_fail(".bar");
-  expect_fail("foo..bar");
-  expect_fail(R"(foo\)");
-  expect_fail(R"(foo.\)");
-  expect_fail("foo`");
-  expect_fail("foo```");
-  expect_fail("`foo");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(""), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("."), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(".."), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo."), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(".bar"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo..bar"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(R"(foo\)"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(R"(foo.\)"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo`"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo```"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("`foo"), "");
 }
 
 TEST(FieldPath, CanonicalStringOfSubstring) {

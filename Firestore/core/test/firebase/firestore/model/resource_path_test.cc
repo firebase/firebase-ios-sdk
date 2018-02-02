@@ -51,29 +51,31 @@ TEST(ResourcePath, Constructor) {
 }
 
 TEST(ResourcePath, Parsing) {
-  const auto expect_round_trip = [](const std::string& str,
-                                    const size_t expected_segments) {
-    const auto path = ResourcePath::Parse(str);
-    EXPECT_EQ(str, path.CanonicalString());
-    EXPECT_EQ(expected_segments, path.size());
+  const auto parse = [](const std::pair<std::string, size_t> expected) {
+    const auto path = ResourcePath::Parse(expected.first);
+    return std::make_pair(path.CanonicalString(), path.size());
+  };
+  const auto make_expected = [](const std::string& str, const size_t size) {
+    return std::make_pair(str, size);
   };
 
-  expect_round_trip("", 0);
-  expect_round_trip("foo", 1);
-  expect_round_trip("foo/bar", 2);
-  expect_round_trip("foo/bar/baz", 3);
-  expect_round_trip(R"(foo/__..`..\`/baz)", 3);
+  auto expected = make_expected("", 0);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected("foo", 1);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected("foo/bar", 2);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected("foo/bar/baz", 3);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected(R"(foo/__..`..\`/baz)", 3);
+  EXPECT_EQ(expected, parse(expected));
 
-  EXPECT_EQ("foo", ResourcePath::Parse("/foo/").CanonicalString());
+  EXPECT_EQ(ResourcePath::Parse("/foo/").CanonicalString(), "foo");
 }
 
 TEST(ResourcePath, ParseFailures) {
-  const auto expect_fail = [](const absl::string_view str) {
-    ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse(str), "");
-  };
-
-  expect_fail("//");
-  expect_fail("foo//bar");
+  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("//"), "");
+  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("foo//bar"), "");
 }
 
 }  // namespace model
