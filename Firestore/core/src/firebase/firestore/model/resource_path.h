@@ -22,6 +22,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
 
+#include "absl/strings/string_view.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -34,13 +36,15 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   }
   ResourcePath(std::initializer_list<std::string> list) : BasePath{list} {
   }
-  static ResourcePath Parse(const std::string& path);
+  static ResourcePath Parse(absl::string_view path);
 
   std::string CanonicalString() const;
 
  private:
-    ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
+
+  friend class BasePath;
 };
 
 }  // namespace model

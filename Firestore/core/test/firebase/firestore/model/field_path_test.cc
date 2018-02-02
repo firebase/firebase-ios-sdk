@@ -26,13 +26,13 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-TEST(FieldPath, Constructor) {
+TEST(FieldPath, Constructors) {
   const FieldPath empty_path;
   EXPECT_TRUE(empty_path.empty());
   EXPECT_EQ(0, empty_path.size());
   EXPECT_TRUE(empty_path.begin() == empty_path.end());
 
-  const FieldPath path_from_list{{"rooms", "Eros", "messages"}};
+  const FieldPath path_from_list = {"rooms", "Eros", "messages"};
   EXPECT_FALSE(path_from_list.empty());
   EXPECT_EQ(3, path_from_list.size());
   EXPECT_TRUE(path_from_list.begin() + 3 == path_from_list.end());
@@ -42,10 +42,16 @@ TEST(FieldPath, Constructor) {
   EXPECT_FALSE(path_from_segments.empty());
   EXPECT_EQ(3, path_from_segments.size());
   EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
+
+  FieldPath copied = path_from_list;
+  EXPECT_EQ(path_from_list, copied);
+  const FieldPath moved = std::move(copied);
+  // Because FieldPath is immutable, move constructor performs a copy.
+  EXPECT_EQ(copied, moved);
 }
 
 TEST(FieldPath, Indexing) {
-  const FieldPath path{{"rooms", "Eros", "messages"}};
+  const FieldPath path{"rooms", "Eros", "messages"};
 
   EXPECT_EQ(path.front(), "rooms");
   EXPECT_EQ(path[0], "rooms");
@@ -59,7 +65,7 @@ TEST(FieldPath, Indexing) {
   EXPECT_EQ(path.back(), "messages");
 }
 
-TEST(FieldPath, WithoutFirst) {
+TEST(FieldPath, DropFirst) {
   const FieldPath abc{"rooms", "Eros", "messages"};
   const FieldPath bc{"Eros", "messages"};
   const FieldPath c{"messages"};
@@ -70,23 +76,22 @@ TEST(FieldPath, WithoutFirst) {
   EXPECT_NE(c, bc);
   EXPECT_NE(bc, abc);
 
-  EXPECT_EQ(bc, abc.WithoutFirstElement());
-  EXPECT_EQ(c, abc.WithoutFirstElements(2));
-  EXPECT_EQ(empty, abc.WithoutFirstElements(3));
+  EXPECT_EQ(bc, abc.DropFirst());
+  EXPECT_EQ(c, abc.DropFirst(2));
+  EXPECT_EQ(empty, abc.DropFirst(3));
   EXPECT_EQ(abc_dupl, abc);
 }
 
-TEST(FieldPath, WithoutLast) {
+TEST(FieldPath, DropLast) {
   const FieldPath abc{"rooms", "Eros", "messages"};
   const FieldPath ab{"rooms", "Eros"};
   const FieldPath a{"rooms"};
   const FieldPath empty;
   const FieldPath abc_dupl{"rooms", "Eros", "messages"};
 
-  EXPECT_EQ(ab, abc.WithoutLastElement());
-  EXPECT_EQ(a, abc.WithoutLastElement().WithoutLastElement());
-  EXPECT_EQ(empty,
-            abc.WithoutLastElement().WithoutLastElement().WithoutLastElement());
+  EXPECT_EQ(ab, abc.DropLast());
+  EXPECT_EQ(a, abc.DropLast().DropLast());
+  EXPECT_EQ(empty, abc.DropLast().DropLast().DropLast());
 }
 
 TEST(FieldPath, Concatenation) {
@@ -95,14 +100,13 @@ TEST(FieldPath, Concatenation) {
   const FieldPath ab{"rooms", "Eros"};
   const FieldPath abc{"rooms", "Eros", "messages"};
 
-  EXPECT_EQ(a, path.Concatenated("rooms"));
-  EXPECT_EQ(ab, path.Concatenated("rooms").Concatenated("Eros"));
-  EXPECT_EQ(abc, path.Concatenated("rooms").Concatenated("Eros").Concatenated(
-                     "messages"));
-  EXPECT_EQ(abc, path.Concatenated(FieldPath{"rooms", "Eros", "messages"}));
+  EXPECT_EQ(a, path.Concat("rooms"));
+  EXPECT_EQ(ab, path.Concat("rooms").Concat("Eros"));
+  EXPECT_EQ(abc, path.Concat("rooms").Concat("Eros").Concat("messages"));
+  EXPECT_EQ(abc, path.Concat(FieldPath{"rooms", "Eros", "messages"}));
 
   const FieldPath bcd{"Eros", "messages", "this_week"};
-  EXPECT_EQ(bcd, abc.WithoutFirstElement().Concatenated("this_week"));
+  EXPECT_EQ(bcd, abc.DropFirst().Concat("this_week"));
 }
 
 TEST(FieldPath, Comparison) {
@@ -170,50 +174,100 @@ TEST(FieldPath, AccessFailures) {
   ASSERT_DEATH_IF_SUPPORTED(path[0], "");
   ASSERT_DEATH_IF_SUPPORTED(path[1], "");
   ASSERT_DEATH_IF_SUPPORTED(path.at(0), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElement(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElements(2), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.WithoutLastElement(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.DropFirst(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.DropFirst(2), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.DropLast(), "");
 }
 
-// DIVE IN:
-//   parse failures
-//   concat/skip gives expected canonical string
-//   SKIP
-//   copy/move constructor
-//
-//   resourcepathtest
+TEST(FieldPath, Parsing) {
+  const auto parse = [](const std::pair<std::string, size_t> expected) {
+    const auto path = FieldPath::ParseServerFormat(expected.first);
+    return std::make_pair(path.CanonicalString(), path.size());
+  };
+  const auto make_expected = [](const std::string& str, const size_t size) {
+    return std::make_pair(str, size);
+  };
+
+  auto expected = make_expected("foo", 1);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected("foo.bar", 2);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected("foo.bar.baz", 3);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected(R"(`.foo\\`)", 1);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected(R"(`.foo\\`.`.foo`)", 2);
+  EXPECT_EQ(expected, parse(expected));
+  expected = make_expected(R"(foo.`\``.bar)", 3);
+  EXPECT_EQ(expected, parse(expected));
+
+  // OBC this is probably a bug (behavior equivalent to Obj-C)
+  const auto path_with_dot = FieldPath::ParseServerFormat(R"(foo\.bar)");
+  EXPECT_EQ(path_with_dot.CanonicalString(), "`foo.bar`");
+  EXPECT_EQ(path_with_dot.size(), 1);
+}
+
+// This is a special case in C++: std::string may contain embedded nulls. To
+// fully mimic behavior of Objective-C code, parsing must terminate upon
+// encountering the first null terminator in the string.
+TEST(FieldPath, ParseEmbeddedNull) {
+  std::string str{"foo"};
+  str += '\0';
+  str += ".bar";
+
+  const auto path = FieldPath::ParseServerFormat(str);
+  EXPECT_EQ(path.size(), 1);
+  EXPECT_EQ(path.CanonicalString(), "foo");
+}
+
+TEST(FieldPath, ParseFailures) {
+  const auto expect_fail = [](const absl::string_view str) {
+    ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(str), "");
+  };
+
+  expect_fail("");
+  expect_fail(".");
+  expect_fail("..");
+  expect_fail("foo.");
+  expect_fail(".bar");
+  expect_fail("foo..bar");
+  expect_fail(R"(foo\)");
+  expect_fail(R"(foo.\)");
+  expect_fail("foo`");
+  expect_fail("foo```");
+  expect_fail("`foo");
+}
+
+TEST(FieldPath, CanonicalStringOfSubstring) {
+  const auto path = FieldPath::ParseServerFormat("foo.bar.baz");
+  EXPECT_EQ(path.CanonicalString(), "foo.bar.baz");
+  EXPECT_EQ(path.DropFirst().CanonicalString(), "bar.baz");
+  EXPECT_EQ(path.DropLast().CanonicalString(), "foo.bar");
+  EXPECT_EQ(path.DropFirst().DropLast().CanonicalString(), "bar");
+  EXPECT_EQ(path.DropFirst().DropLast().CanonicalString(), "bar");
+  EXPECT_EQ(path.DropLast().DropFirst().DropLast().CanonicalString(), "");
+}
+
+TEST(FieldPath, CanonicalStringEscaping) {
+  // Should be escaped
+  EXPECT_EQ(FieldPath::ParseServerFormat("1").CanonicalString(), "`1`");
+  EXPECT_EQ(FieldPath::ParseServerFormat("1ab").CanonicalString(), "`1ab`");
+  EXPECT_EQ(FieldPath::ParseServerFormat("ab!").CanonicalString(), "`ab!`");
+  EXPECT_EQ(FieldPath::ParseServerFormat("/ab").CanonicalString(), "`/ab`");
+  EXPECT_EQ(FieldPath::ParseServerFormat("a#b").CanonicalString(), "`a#b`");
+
+  // Should not be escaped
+  EXPECT_EQ(FieldPath::ParseServerFormat("_ab").CanonicalString(), "_ab");
+  EXPECT_EQ(FieldPath::ParseServerFormat("a1").CanonicalString(), "a1");
+  EXPECT_EQ(FieldPath::ParseServerFormat("a_").CanonicalString(), "a_");
+}
+
+// TODO:
+//   empty path, shared key path
 //
 //   port comments
 //
 //   PUBLIC CLASS
-
-TEST(FieldPath, Parsing) {
-  const auto expect_round_trip = [](const std::string& str,
-                                    const size_t expected_segments) {
-    const auto path = FieldPath::ParseServerFormat(str);
-    EXPECT_EQ(str, path.CanonicalString());
-    EXPECT_EQ(expected_segments, path.size());
-  };
-
-  expect_round_trip("foo", 1);
-  expect_round_trip("foo.bar", 2);
-  expect_round_trip("foo.bar.baz", 3);
-  expect_round_trip(R"(`.foo\\`)", 1);
-  expect_round_trip(R"(`.foo\\`.`.foo`)", 2);
-  expect_round_trip(R"(foo.`\``.bar)", 3);
-}
-
-TEST(FieldPath, ParseFailures) {
-  // const FieldPath path;
-  // ASSERT_DEATH_IF_SUPPORTED(path.front(), "");
-  // ASSERT_DEATH_IF_SUPPORTED(path.back(), "");
-  // ASSERT_DEATH_IF_SUPPORTED(path[0], "");
-  // ASSERT_DEATH_IF_SUPPORTED(path[1], "");
-  // ASSERT_DEATH_IF_SUPPORTED(path.at(0), "");
-  // ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElement(), "");
-  // ASSERT_DEATH_IF_SUPPORTED(path.WithoutFirstElements(2), "");
-  // ASSERT_DEATH_IF_SUPPORTED(path.WithoutLastElement(), "");
-}
 
 }  // namespace model
 }  // namespace firestore

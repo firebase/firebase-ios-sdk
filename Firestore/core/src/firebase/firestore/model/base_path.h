@@ -76,33 +76,27 @@ class BasePath {
     return segments_.end();
   }
 
-  T Concatenated(const std::string& segment) const {
+  T Concat(const std::string& segment) const {
     auto concatenated = segments_;
     concatenated.push_back(segment);
     return T{std::move(concatenated)};
   }
 
-  T Concatenated(const T& path) const {
+  T Concat(const T& path) const {
     auto concatenated = segments_;
     concatenated.insert(concatenated.end(), path.begin(), path.end());
     return T{std::move(concatenated)};
   }
 
-  T WithoutFirstElement() const {
-    return WithoutFirstElements(1);
-  }
-
-  T WithoutFirstElements(const size_t count) const {
-    FIREBASE_ASSERT_MESSAGE(
-        count <= size(),
-        "Cannot call WithoutFirstElements(%u) on path of length %u", count,
-        size());
+  T DropFirst(const size_t count = 1) const {
+    FIREBASE_ASSERT_MESSAGE(count <= size(),
+                            "Cannot call DropFirst(%u) on path of length %u",
+                            count, size());
     return T{segments_.begin() + count, segments_.end()};
   }
 
-  T WithoutLastElement() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(),
-                            "Cannot call WithoutLastElement() on empty path");
+  T DropLast() const {
+    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call DropLast() on empty path");
     return T{segments_.begin(), segments_.end() - 1};
   }
 

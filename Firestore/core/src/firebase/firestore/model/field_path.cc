@@ -49,7 +49,6 @@ bool IsValidIdentifier(const std::string& segment) {
 }
 
 std::string EscapedSegment(const std::string& segment) {
-  // OBC dot
   auto escaped = absl::StrReplaceAll(segment, {{"\\", "\\\\"}, {"`", "\\`"}});
   const bool needs_escaping = !IsValidIdentifier(escaped);
   if (needs_escaping) {
@@ -61,7 +60,7 @@ std::string EscapedSegment(const std::string& segment) {
 
 }  // namespace
 
-FieldPath FieldPath::ParseServerFormat(const std::string& path) {
+FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
   // TODO(b/37244157): Once we move to v1beta1, we should make this more
   // strict. Right now, it allows non-identifier path components, even if they
   // aren't escaped. Technically, this will mangle paths with backticks in
@@ -71,12 +70,15 @@ FieldPath FieldPath::ParseServerFormat(const std::string& path) {
   std::string segment;
   segment.reserve(path.size());
 
-  const auto finish_segment = [&segments, &segment, &path] {
-    FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+  const auto to_string = [](const absl::string_view view) {
+    return std::string{view.data(), view.data() + view.size()};
+  };
+  const auto finish_segment = [&segments, &segment, &path, &to_string] {
+    FIREBASE_ASSERT_MESSAGE(
         !segment.empty(),
         "Invalid field path (%s). Paths must not be empty, begin with "
         "'.', end with '.', or contain '..'",
-        path.c_str());
+        to_string(path).c_str());
     // Move operation will clear segment, but capacity will remain the same
     // (not strictly speaking required by the standard, but true in practice).
     segments.push_back(std::move(segment));
@@ -120,22 +122,22 @@ FieldPath FieldPath::ParseServerFormat(const std::string& path) {
   }
   finish_segment();
 
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      !insideBackticks, "Unterminated ` in path %s", path.c_str());
+  FIREBASE_ASSERT_MESSAGE(!insideBackticks, "Unterminated ` in path %s",
+                          to_string(path).c_str());
   // TODO(b/37244157): Make this a user-facing exception once we
   // finalize field escaping.
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      !escapedCharacter, "Trailing escape characters not allowed in %s",
-      path.c_str());
+  FIREBASE_ASSERT_MESSAGE(!escapedCharacter,
+                          "Trailing escape characters not allowed in %s",
+                          to_string(path).c_str());
 
   return FieldPath{std::move(segments)};
 }
 
 std::string FieldPath::CanonicalString() const {
   return absl::StrJoin(begin(), end(), ".",
-                        [](std::string* out, const std::string& segment) {
-                          out->append(EscapedSegment(segment));
-                        });
+                       [](std::string* out, const std::string& segment) {
+                         out->append(EscapedSegment(segment));
+                       });
 }
 
 // OBC: do we really need emptypath?

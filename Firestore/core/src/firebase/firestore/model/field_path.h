@@ -23,6 +23,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
 
+#include "absl/strings/string_view.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -35,7 +37,7 @@ class FieldPath : public impl::BasePath<FieldPath> {
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
   }
-  static FieldPath ParseServerFormat(const std::string& path);
+  static FieldPath ParseServerFormat(absl::string_view path);
 
   std::string CanonicalString() const;
 

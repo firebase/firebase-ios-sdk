@@ -28,14 +28,15 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-ResourcePath ResourcePath::Parse(const std::string& path) {
+ResourcePath ResourcePath::Parse(const absl::string_view path) {
   // NOTE: The client is ignorant of any path segments containing escape
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).
 
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+  FIREBASE_ASSERT_MESSAGE(
       path.find("//") == std::string::npos,
-      "Invalid path (%s). Paths must not contain // in them.", path.c_str());
+      "Invalid path (%s). Paths must not contain // in them.",
+      std::string{path.data(), path.data() + path.size()}.c_str());
 
   // SkipEmpty because we may still have an empty segment at the beginning or
   // end if they had a leading or trailing slash (which we allow).
