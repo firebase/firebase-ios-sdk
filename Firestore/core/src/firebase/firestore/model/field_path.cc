@@ -95,9 +95,9 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
   };
 
   // Inside backticks, dots are treated literally.
-  bool insideBackticks = false;
+  bool inside_backticks = false;
   // Whether to treat '\' literally or as an escape character.
-  bool escapedCharacter = false;
+  bool escaped_character = false;
   for (const char c : path) {
     // std::string (and string_view) may contain embedded nulls. For full
     // compatibility with Objective C behavior, finish upon encountering the
@@ -105,15 +105,15 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
     if (c == '\0') {
       break;
     }
-    if (escapedCharacter) {
-      escapedCharacter = false;
+    if (escaped_character) {
+      escaped_character = false;
       segment += c;
       continue;
     }
 
     switch (c) {
       case '.':
-        if (!insideBackticks) {
+        if (!inside_backticks) {
           finish_segment();
         } else {
           segment += c;
@@ -121,11 +121,11 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
         break;
 
       case '`':
-        insideBackticks = !insideBackticks;
+        inside_backticks = !inside_backticks;
         break;
 
       case '\\':
-        escapedCharacter = true;
+        escaped_character = true;
         break;
 
       default:
@@ -135,11 +135,11 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
   }
   finish_segment();
 
-  FIREBASE_ASSERT_MESSAGE(!insideBackticks, "Unterminated ` in path %s",
+  FIREBASE_ASSERT_MESSAGE(!inside_backticks, "Unterminated ` in path %s",
                           to_string(path).c_str());
   // TODO(b/37244157): Make this a user-facing exception once we
   // finalize field escaping.
-  FIREBASE_ASSERT_MESSAGE(!escapedCharacter,
+  FIREBASE_ASSERT_MESSAGE(!escaped_character,
                           "Trailing escape characters not allowed in %s",
                           to_string(path).c_str());
 
