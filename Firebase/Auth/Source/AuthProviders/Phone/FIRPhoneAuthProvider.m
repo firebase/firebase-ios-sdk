@@ -353,7 +353,19 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
                                                 callback:(FIRVerificationResultCallback)callback {
   [self verifyClientWithCompletion:^(FIRAuthAppCredential *_Nullable appCredential,
                                      NSError *_Nullable error) {
-    if (error) {
+    BOOL isErrorSimulatorError = NO;
+
+#if TARGET_OS_SIMULATOR
+    NSError *_Nullable underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    isErrorSimulatorError = error.code == FIRAuthErrorCodeMissingAppToken
+        // This is undocumented by Apple, most likely because it's a simulator-only error.
+        // Since it's sim-only, though, future undocumented breaking changes from Apple are
+        // unlikely to break clients in production. This is here because client verification
+        // should always fall back to captcha on the simulator.
+        && underlyingError.code == 3010;
+#endif // TARGET_OS_SIMULATOR
+
+    if (error && !isErrorSimulatorError) {
       callback(nil, error);
       return;
     }
