@@ -86,7 +86,6 @@ FieldPath FieldPath::ParseServerFormat(const std::string& path) {
   bool insideBackticks = false;
   // Whether to treat '\' literally or as an escape character.
   bool escapedCharacter = false;
-
   for (const char c : path) {
     if (c == '\0') {
       break;
@@ -119,6 +118,7 @@ FieldPath FieldPath::ParseServerFormat(const std::string& path) {
         break;
     }
   }
+  finish_segment();
 
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
       !insideBackticks, "Unterminated ` in path %s", path.c_str());
@@ -141,15 +141,15 @@ std::string FieldPath::CanonicalString() const {
 // OBC: do we really need emptypath?
 // OBC: do we really need *shared* keypath?
 
-bool operator<(const FieldPath& lhs, const FieldPath& rhs) {
-return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
-                                    rhs.end());
-}
+// bool operator<(const FieldPath& lhs, const FieldPath& rhs) {
+// return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+//                                     rhs.end());
+// }
 
-bool operator==(const FieldPath& lhs, const FieldPath& rhs) {
-return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
-                                    rhs.end());
-}
+// bool operator==(const FieldPath& lhs, const FieldPath& rhs) {
+// return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+//                                     rhs.end());
+// }
 
 }  // namespace model
 }  // namespace firestore
