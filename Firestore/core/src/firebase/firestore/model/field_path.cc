@@ -35,6 +35,10 @@ namespace {
 // TODO(varconst): move to C++ equivalent of FSTDocumentKey.{h,cc}
 const char* const kDocumentKeyPath = "__name__";
 
+/**
+ * True if the string could be used as a segment in a field path without
+ * escaping.
+ */
 bool IsValidIdentifier(const std::string& segment) {
   if (segment.empty()) {
     return false;
@@ -73,6 +77,9 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
   std::string segment;
   segment.reserve(path.size());
 
+  // string_view doesn't have a c_str() method, because it might not be
+  // null-terminated. Assertions expect C strings, so construct std::string on
+  // the fly, so that c_str() might be called on it.
   const auto to_string = [](const absl::string_view view) {
     return std::string{view.data(), view.data() + view.size()};
   };
@@ -83,7 +90,7 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
         "'.', end with '.', or contain '..'",
         to_string(path).c_str());
     // Move operation will clear segment, but capacity will remain the same
-    // (not strictly speaking required by the standard, but true in practice).
+    // (not, strictly speaking, required by the standard, but true in practice).
     segments.push_back(std::move(segment));
   };
 
@@ -92,6 +99,9 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
   // Whether to treat '\' literally or as an escape character.
   bool escapedCharacter = false;
   for (const char c : path) {
+    // std::string (and string_view) may contain embedded nulls. For full
+    // compatibility with Objective C behavior, finish upon encountering the
+    // first terminating null.
     if (c == '\0') {
       break;
     }

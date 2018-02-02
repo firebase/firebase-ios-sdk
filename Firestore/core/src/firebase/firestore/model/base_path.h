@@ -26,15 +26,26 @@
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
-#include "absl/strings/str_join.h"
-#include "absl/strings/str_replace.h"
-#include "absl/strings/str_split.h"
-
 namespace firebase {
 namespace firestore {
 namespace model {
 namespace impl {
 
+/**
+ * BasePath represents a path sequence in the Firestore database. It is composed
+ * of an ordered sequence of string segments.
+ *
+ * BasePath is immutable. All mutating operations return new independent
+ * instances.
+ *
+ * ## Subclassing Notes
+ *
+ * BasePath is strictly meant as a base class for concrete implementations. It
+ * doesn't contain a single virtual method, can't be instantiated, and should
+ * never be used in any polymorphic way. BasePath is templated to allow static
+ * factory methods to return objects of the derived class (the expected
+ * inheritance involves CRTP: struct Derived : BasePath<Derived>).
+ */
 template <typename T>
 class BasePath {
  protected:
@@ -43,19 +54,21 @@ class BasePath {
  public:
   using const_iterator = SegmentsT::const_iterator;
 
+  /** Returns i-th segment of the path. */
   const std::string& operator[](const size_t i) const {
     return at(i);
   }
-
   const std::string& at(const size_t i) const {
     FIREBASE_ASSERT_MESSAGE(i < segments_.size(), "index %u out of range", i);
     return segments_[i];
   }
 
+  /** Returns first segment of the path. */
   const std::string& front() const {
     FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call front on empty path");
     return at(0);
   }
+  /** Returns last segment of the path. */
   const std::string& back() const {
     FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call back on empty path");
     return at(size() - 1);
@@ -64,7 +77,6 @@ class BasePath {
   size_t size() const {
     return segments_.size();
   }
-
   bool empty() const {
     return segments_.empty();
   }
@@ -76,30 +88,51 @@ class BasePath {
     return segments_.end();
   }
 
+  /**
+   * Returns a new path which is the result of concatenating this path with an
+   * additional segment.
+   */
   T Concat(const std::string& segment) const {
     auto concatenated = segments_;
     concatenated.push_back(segment);
     return T{std::move(concatenated)};
   }
 
+  /**
+   * Returns a new path which is the result of concatenating this path with an
+   * another path.
+   */
   T Concat(const T& path) const {
     auto concatenated = segments_;
     concatenated.insert(concatenated.end(), path.begin(), path.end());
     return T{std::move(concatenated)};
   }
 
-  T DropFirst(const size_t count = 1) const {
-    FIREBASE_ASSERT_MESSAGE(count <= size(),
-                            "Cannot call DropFirst(%u) on path of length %u",
-                            count, size());
-    return T{segments_.begin() + count, segments_.end()};
+  /**
+   * Returns a new path which is the result of dropping the first n segments of
+   * this path.
+   */
+  T DropFirst(const size_t n = 1) const {
+    FIREBASE_ASSERT_MESSAGE(n <= size(),
+                            "Cannot call DropFirst(%u) on path of length %u", n,
+                            size());
+    return T{begin() + n, end()};
   }
 
+  /**
+   * Returns a new path which is the result of dropping the last segment of
+   * this path.
+   */
   T DropLast() const {
     FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call DropLast() on empty path");
-    return T{segments_.begin(), segments_.end() - 1};
+    return T{begin(), end() - 1};
   }
 
+  /**
+   * Returns true if this path is a prefix of the given path.
+   *
+   * Empty path is prefix of any path. Any path is prefix of itself.
+   */
   bool IsPrefixOf(const T& rhs) const {
     return size() <= rhs.size() && std::equal(begin(), end(), rhs.begin());
   }
@@ -122,9 +155,6 @@ class BasePath {
   bool operator>=(const BasePath& rhs) const {
     return segments_ >= rhs.segments_;
   }
-
-  // std::hash
-  // to_string
 
  protected:
   BasePath() = default;

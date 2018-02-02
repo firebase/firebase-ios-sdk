@@ -28,16 +28,26 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+/**
+ * A slash-separated path for navigating resources (documents and collections)
+ * within Firestore. Immutable; all instances are fully independent.
+ */
 class ResourcePath : public impl::BasePath<ResourcePath> {
  public:
   ResourcePath() = default;
+  /** Constructs the path from segments. */
   template <typename IterT>
   ResourcePath(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
   ResourcePath(std::initializer_list<std::string> list) : BasePath{list} {
   }
+  /**
+   * Creates and returns a new path from the given resource-path string, where
+   * the path segments are separated by a slash "/".
+   */
   static ResourcePath Parse(absl::string_view path);
 
+  /** Returns a standardized string representation of this path. */
   std::string CanonicalString() const;
 
   bool operator==(const ResourcePath& rhs) const {
@@ -63,6 +73,8 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
+  // So that methods of base can construct ResourcePath using the private
+  // constructor.
   friend class BasePath;
 };
 

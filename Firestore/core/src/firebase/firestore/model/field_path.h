@@ -29,18 +29,33 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+/**
+ * A dot-separated path for navigating sub-objects within a document.
+ *
+ * Immutable; all instances are fully independent.
+ */
 class FieldPath : public impl::BasePath<FieldPath> {
  public:
   FieldPath() = default;
+  /** Constructs the path from segments. */
   template <typename IterT>
   FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
   }
+
+  /**
+   * Creates and returns a new path from the server formatted field-path string,
+   * where path segments are separated by a dot "." and optionally encoded using
+   * backticks.
+   */
   static FieldPath ParseServerFormat(absl::string_view path);
+  /** Returns a field path that represents a document key. */
   static FieldPath KeyFieldPath();
 
+  /** Returns a standardized string representation of this path. */
   std::string CanonicalString() const;
+  /** True if this FieldPath represents a document key. */
   bool IsKeyFieldPath() const;
 
   bool operator==(const FieldPath& rhs) const {
@@ -66,6 +81,8 @@ class FieldPath : public impl::BasePath<FieldPath> {
   FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
+  // So that methods of base can construct ResourcePath using the private
+  // constructor.
   friend class BasePath;
 };
 

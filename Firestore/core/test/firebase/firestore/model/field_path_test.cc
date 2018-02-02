@@ -104,6 +104,7 @@ TEST(FieldPath, Concatenation) {
   EXPECT_EQ(ab, path.Concat("rooms").Concat("Eros"));
   EXPECT_EQ(abc, path.Concat("rooms").Concat("Eros").Concat("messages"));
   EXPECT_EQ(abc, path.Concat(FieldPath{"rooms", "Eros", "messages"}));
+  EXPECT_EQ(abc, path.Concat({"rooms", "Eros", "messages"}));
 
   const FieldPath bcd{"Eros", "messages", "this_week"};
   EXPECT_EQ(bcd, abc.DropFirst().Concat("this_week"));
