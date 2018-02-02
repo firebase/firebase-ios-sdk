@@ -23,8 +23,6 @@ ExternalProject_GitSource(
 
 ExternalProject_Add(
   googletest
-  DEPENDS
-    FirebaseCore  # for sequencing
 
   ${GOOGLETEST_GIT}
 

@@ -63,8 +63,6 @@ else()
 
   ExternalProject_Add(
     grpc
-    DEPENDS
-      leveldb  # for sequencing
 
     ${GRPC_GIT}
 

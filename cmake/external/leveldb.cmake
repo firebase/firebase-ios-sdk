@@ -50,8 +50,6 @@ else()
 
   ExternalProject_Add(
     leveldb
-    DEPENDS
-      googletest  # for sequencing
 
     ${LEVELDB_GIT}
 
