@@ -137,11 +137,11 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
 }
 
 FieldPath FieldPath::KeyFieldPath() {
-  return FieldPath{kDocumentFieldKeyPath};
+  return FieldPath{kDocumentKeyPath};
 }
 
 bool FieldPath::IsKeyFieldPath() const {
-  return size() == 1 && front() == kDocumentFieldKeyPath;
+  return size() == 1 && front() == kDocumentKeyPath;
 }
 
 std::string FieldPath::CanonicalString() const {
