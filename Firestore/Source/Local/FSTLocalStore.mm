@@ -304,21 +304,27 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     FSTTargetMapping *mapping = change.mapping;
+    FSTListenSequenceNumber sequenceNumber = queryData.sequenceNumber;
     if (mapping) {
       // First make sure that all references are deleted.
       if ([mapping isKindOfClass:[FSTResetMapping class]]) {
         FSTResetMapping *reset = (FSTResetMapping *)mapping;
         [queryCache removeMatchingKeysForTargetID:targetID group:group];
-        [queryCache addMatchingKeys:reset.documents forTargetID:targetID group:group];
+        [queryCache addMatchingKeys:reset.documents
+                        forTargetID:targetID
+                   atSequenceNumber:sequenceNumber
+                              group:group];
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
         [queryCache removeMatchingKeys:update.removedDocuments
                            forTargetID:targetID
-                      atSequenceNumber:queryData.sequenceNumber
+                      atSequenceNumber:sequenceNumber
                                  group:group];
-        [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID group:group];
-
+        [queryCache addMatchingKeys:update.addedDocuments
+                        forTargetID:targetID
+                   atSequenceNumber:sequenceNumber
+                              group:group];
       } else {
         FSTFail(@"Unknown mapping type: %@", mapping);
       }

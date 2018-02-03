@@ -124,6 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Adds the given document keys to cached query results of the given target ID. */
 - (void)addMatchingKeys:(FSTDocumentKeySet *)keys
             forTargetID:(FSTTargetID)targetID
+       atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                   group:(FSTWriteGroup *)group;
 
 /** Removes the given document keys from the cached query results of the given target ID. */

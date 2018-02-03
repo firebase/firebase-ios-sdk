@@ -296,6 +296,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Creates a key that points to a specific document-target entry. */
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)documentKey targetID:(FSTTargetID)targetID;
 
++ (std::string)sentinelKeyWithDocumentKey:(FSTDocumentKey *)documentKey;
+
 /** Decodes the contents of a document target key into properties on this instance. */
 - (BOOL)decodeKey:(Firestore::StringView)key;
 
@@ -304,6 +306,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The path to the document, as encoded in the key. */
 @property(nonatomic, strong, readonly, nullable) FSTDocumentKey *documentKey;
+
+@property(nonatomic, readonly, getter=isSentinel) BOOL sentinel;
 
 @end
 

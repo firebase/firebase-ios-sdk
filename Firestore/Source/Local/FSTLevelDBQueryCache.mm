@@ -19,6 +19,7 @@
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -31,6 +32,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Iterator;
@@ -124,6 +126,56 @@ using leveldb::WriteOptions;
 
 - (void)shutdown {
   _db.reset();
+}
+
+- (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber,
+        BOOL *stop))block {
+  // Enumerate all targets, give their sequence numbers.
+  // Also enumerate all orphaned documents, give their sequence numbers.
+  std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
+  std::unique_ptr<Iterator> it(_db->NewIterator([FSTLevelDB standardReadOptions]));
+  it->Seek(targetPrefix);
+  BOOL stop = NO;
+  while (!stop && it->Valid() && it->key().starts_with(targetPrefix)) {
+    FSTQueryData *target = [self decodedTargetWithSlice:it->value()];
+    block(target.sequenceNumber, &stop);
+    it->Next();
+  }
+
+  std::string documentTargetPrefix = [FSTLevelDBDocumentTargetKey keyPrefix];
+  it->Seek(documentTargetPrefix);
+  FSTListenSequenceNumber nextToReport = 0;
+  FSTLevelDBDocumentTargetKey *key = [[FSTLevelDBDocumentTargetKey alloc] init];
+  while (!stop && it->Valid() && it->key().starts_with(documentTargetPrefix)) {
+    [key decodeKey:it->key()];
+    if (key.isSentinel) {
+      // if nextToReport is non-zero, report it, this is a new key so the last one
+      // must be orphaned.
+      if (nextToReport != 0) {
+        block(nextToReport, &stop);
+      }
+      // set nextToReport to be this sequence number. It's the next one we might
+      // report, if we don't find any targets for this document.
+      int64_t decoded;
+      Slice slice = it->value();
+      absl::string_view tmp(slice.data(), slice.size());
+      if (OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
+        nextToReport = (FSTListenSequenceNumber)decoded;
+      } else {
+        FSTFail(@"Failed to read sequence number from a sentinel row");
+      }
+    } else {
+      // set nextToReport to be 0, we know we don't need to report this one since
+      // we found a target for it.
+      nextToReport = 0;
+    }
+    it->Next();
+  }
+  // if not stop and nextToReport is non-zero, report it. We didn't find any targets for
+  // that document, and we weren't asked to stop.
+  if (!stop && nextToReport != 0) {
+    block(nextToReport, &stop);
+  }
 }
 
 - (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
@@ -262,40 +314,40 @@ using leveldb::WriteOptions;
   return nil;
 }
 
-- (NSUInteger)count {
-  // It seems that the only wait to get the size of a range of keys is to count.
-  std::unique_ptr<Iterator> it(_db->NewIterator(GetStandardReadOptions()));
-  Slice start_key = [FSTLevelDBTargetKey keyPrefix];
-  it->Seek(start_key);
-
-  NSUInteger count = 0;
-  while (it->Valid() && it->key().starts_with(start_key)) {
-    count++;
-    it->Next();
-  }
-  return count;
-}
-
 #pragma mark Matching Key tracking
+
+- (void)addPotentiallyOrphanedDocuments:(FSTDocumentKeySet *)keys
+                       atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                                  group:(FSTWriteGroup *)group {
+  std::string encodedSequenceNumber;
+  OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, sequenceNumber);
+  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
+    [group setData:encodedSequenceNumber forKey:[FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:documentKey]];
+  }];
+}
 
 - (void)addMatchingKeys:(FSTDocumentKeySet *)keys
             forTargetID:(FSTTargetID)targetID
+       atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                   group:(FSTWriteGroup *)group {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
-
+  std::string encodedSequenceNumber;
+  OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, sequenceNumber);
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
     [group setData:emptyBuffer
             forKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey]];
     [group setData:emptyBuffer
             forKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]];
+    [group setData:encodedSequenceNumber forKey:[FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:documentKey]];
   }];
 }
 
 - (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
                forTargetID:(FSTTargetID)targetID
+          atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                      group:(FSTWriteGroup *)group {
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
     [group

@@ -62,7 +62,7 @@ class RollingSequenceNumberBuffer {
 }
 
 - (NSUInteger)queryCountForPercentile:(NSUInteger)percentile {
-  NSUInteger totalCount = [self.queryCache count];
+  NSUInteger totalCount = (NSUInteger)[self.queryCache count];
   NSUInteger setSize = (NSUInteger)((percentile / 100.0f) * totalCount);
   return setSize;
 }
