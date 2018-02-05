@@ -18,17 +18,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** Logs to NSLog if [FIRFirestore isLoggingEnabled] is YES. */
 void FSTLog(NSString *format, ...) NS_FORMAT_FUNCTION(1, 2);
 
 void FSTWarn(NSString *format, ...) NS_FORMAT_FUNCTION(1, 2);
-
-#ifdef __cplusplus
-}  // extern "C"
-#endif
 
 NS_ASSUME_NONNULL_END

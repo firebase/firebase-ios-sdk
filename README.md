@@ -31,20 +31,25 @@ locations described via the Podfile syntax documented
 
 **CocoaPods 1.4.0** or later is required.
 
+If source pods are included, **FirebaseCore** must also be included.
+
 For example, to access FirebaseMessaging via a checked out version of the
 firebase-ios-sdk repo do:
 
 ```
 pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
+pod 'FirebaseCore', :path => '/path/to/firebase-ios-sdk'
 ```
 To access via a branch:
 ```
 pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 ```
 
 To access via a tag (Release tags will be available starting with Firebase 4.7.0:
 ```
 pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
 ```
 
 If your Podfile does not include *use_frameworks!*, you need to workaround
@@ -132,16 +137,18 @@ We've seen an amazing amount of interest and contributions to improve the Fireba
 very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
 participate in the Firebase community.
 
-### macOS
+### macOS and tvOS
 FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and
-work on macOS, thanks to contributions from the community. There are a few tweaks needed, like
-ensuring iOS-only or macOS-only code is correctly guarded with checks for `TARGET_OS_IOS` and
-`TARGET_OS_OSX`.
+work on macOS and tvOS, thanks to contributions from the community. There are a few tweaks needed,
+like ensuring iOS-only, macOS-only, or tvOS-only code is correctly guarded with checks for
+`TARGET_OS_IOS`, `TARGET_OS_OSX` and `TARGET_OS_TV`.
 
-Keep in mind that macOS is not officially supported by Firebase, and this repository is actively
-developed primarily for iOS. While we can catch basic unit test issues with Travis, there may be
-some changes where the SDK no longer works as expected on macOS. If you encounter this, please
-[file an issue](https://github.com/firebase/firebase-ios-sdk/issues) for it.
+For tvOS, checkout the [Sample](Example/tvOSSample).
+
+Keep in mind that macOS and tvOS are not officially supported by Firebase, and this repository is
+actively developed primarily for iOS. While we can catch basic unit test issues with Travis, there
+may be some changes where the SDK no longer works as expected on macOS or tvOS. If you encounter
+this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
 ## Roadmap
 

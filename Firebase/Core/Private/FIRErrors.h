@@ -31,13 +31,3 @@ extern NSString *const kFirebaseDurableDeepLinkErrorDomain;
 extern NSString *const kFirebaseInstanceIDErrorDomain;
 extern NSString *const kFirebasePerfErrorDomain;
 extern NSString *const kFirebaseStorageErrorDomain;
-
-/**
- * Factory for a NSError in the Firebase error domain.
- *
- * @param domain   Domain of Firebase error.
- * @param code     Error code that NSError should have.
- * @param userInfo User info that NSError should have.
- * @return An NSError in the Firebase domain.
- */
-extern NSError *FIRCreateError(NSString *domain, FIRErrorCode code, NSDictionary *userInfo);

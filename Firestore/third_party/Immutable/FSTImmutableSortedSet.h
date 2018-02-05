@@ -23,8 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)count;
 - (BOOL)isEmpty;
 
-- (KeyType)predecessorObject:(KeyType)entry;
-
 /**
  * Returns the index of the object or NSNotFound if the object is not found.
  *

@@ -170,7 +170,7 @@ static NSString *const kVerificationID = @"55432";
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 1;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @var kWaitInterval
     @brief The time waiting for background tasks to finish before continue when necessary.
@@ -430,6 +430,8 @@ static const NSTimeInterval kWaitInterval = .5;
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
       id mockVerifyPhoneResponse = OCMClassMock([FIRVerifyPhoneNumberResponse class]);
       [self stubTokensWithMockResponse:mockVerifyPhoneResponse];
+      // Stub isNewUser flag in the response.
+      OCMStub([mockVerifyPhoneResponse isNewUser]).andReturn(YES);
       callback(mockVerifyPhoneResponse, nil);
     });
   });
@@ -440,10 +442,12 @@ static const NSTimeInterval kWaitInterval = .5;
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                    verificationCode:kVerificationCode];
 
-  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
-                                                               NSError *_Nullable error) {
+  [[FIRAuth auth] signInAndRetrieveDataWithCredential:credential
+                                           completion:^(FIRAuthDataResult *_Nullable authDataResult,
+                                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:authDataResult.user];
+    XCTAssertTrue(authDataResult.additionalUserInfo.isNewUser);
     XCTAssertNil(error);
     [expectation fulfill];
   }];

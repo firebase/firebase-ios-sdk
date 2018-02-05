@@ -20,6 +20,7 @@
 
 #import "FIRMessaging.h"
 #import "FIRMessagingInstanceIDProxy.h"
+#import "FIRMessaging_Private.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
@@ -28,6 +29,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
+@property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
 
 - (instancetype)initPrivately;
 // Direct Channel Methods
@@ -52,12 +54,24 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   _mockMessaging = OCMPartialMock(self.messaging);
   _mockInstanceIDProxy = OCMPartialMock(self.messaging.instanceIDProxy);
   self.messaging.instanceIDProxy = _mockInstanceIDProxy;
+  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingSuiteName];
+  self.messaging.messagingUserDefaults =
+      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingSuiteName];
 }
 
 - (void)tearDown {
   _messaging = nil;
   _mockMessaging = nil;
   [super tearDown];
+}
+
+- (void)testAutoInitEnableFlag {
+  // Should read from Info.plist
+  XCTAssertFalse(_messaging.isAutoInitEnabled);
+
+  // Now set the flag should overwrite Info.plist value.
+  _messaging.autoInitEnabled = YES;
+  XCTAssertTrue(_messaging.isAutoInitEnabled);
 }
 
 #pragma mark - Direct Channel Establishment Testing

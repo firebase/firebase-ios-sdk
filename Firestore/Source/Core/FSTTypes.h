@@ -26,6 +26,8 @@ typedef int32_t FSTBatchID;
 
 typedef int32_t FSTTargetID;
 
+typedef int64_t FSTListenSequenceNumber;
+
 typedef NSNumber FSTBoxedTargetID;
 
 /**
@@ -67,8 +69,8 @@ typedef void (^FSTTransactionBlock)(FSTTransaction *transaction,
 typedef NS_ENUM(NSUInteger, FSTOnlineState) {
   /**
    * The Firestore client is in an unknown online state. This means the client is either not
-   * actively trying to establish a connection or it was previously in an unknown state and is
-   * trying to establish a connection.
+   * actively trying to establish a connection or it is currently trying to establish a connection,
+   * but it has not succeeded or failed yet.
    */
   FSTOnlineStateUnknown,
 
@@ -80,9 +82,8 @@ typedef NS_ENUM(NSUInteger, FSTOnlineState) {
   FSTOnlineStateHealthy,
 
   /**
-   * The client has tried to establish a connection but has failed.
-   * This state is reached after either a connection attempt failed or a healthy stream was closed
-   * for unexpected reasons.
+   * The client considers itself offline. It is either trying to establish a connection but
+   * failing, or it has been explicitly marked offline via a call to `disableNetwork`.
    */
   FSTOnlineStateFailed
 };

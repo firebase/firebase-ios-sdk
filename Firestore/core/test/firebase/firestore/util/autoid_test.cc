@@ -18,15 +18,15 @@
 
 #include <ctype.h>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using firebase::firestore::util::CreateAutoId;
 
 TEST(AutoId, IsSane) {
   for (int i = 0; i < 50; i++) {
     std::string auto_id = CreateAutoId();
-    EXPECT_EQ(20, auto_id.length());
-    for (int pos = 0; pos < 20; pos++) {
+    EXPECT_EQ(20u, auto_id.length());
+    for (size_t pos = 0; pos < 20; pos++) {
       char c = auto_id[pos];
       EXPECT_TRUE(isalpha(c) || isdigit(c))
           << "Should be printable ascii character: '" << c << "' in \""

@@ -79,7 +79,7 @@
 }
 
 - (void)testInitWithNilURL {
-  XCTAssertThrows([FIRStorage storageForApp:self.app URL:nil]);
+  XCTAssertThrows([FIRStorage storageForApp:self.app URL:(id _Nonnull)nil]);
 }
 
 - (void)testInitWithPath {

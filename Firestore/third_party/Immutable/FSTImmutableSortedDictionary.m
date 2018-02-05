@@ -82,10 +82,6 @@ const int kSortedDictionaryArrayToRBTreeSizeThreshold = 25;
   return [self objectForKey:key];
 }
 
-- (nullable id)predecessorKey:(id)key {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
 - (NSUInteger)indexOfKey:(id)key {
   @throw FSTAbstractMethodException();  // NOLINT
 }

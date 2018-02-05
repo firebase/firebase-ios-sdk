@@ -27,6 +27,8 @@ func main() {
 
     writeDocument(at: documentRef);
 
+    writeDocuments(at: documentRef, database: db);
+
     addDocument(to: collectionRef);
 
     readDocument(at: documentRef);
@@ -36,6 +38,8 @@ func main() {
     listenToDocument(at: documentRef);
 
     listenToDocuments(matching: query);
+
+    enableDisableNetwork(database: db);
 
     types();
 }
@@ -129,6 +133,47 @@ func writeDocument(at docRef: DocumentReference) {
     }
 }
 
+func enableDisableNetwork(database db: Firestore) {
+    // closure syntax
+    db.disableNetwork(completion: { (error) in
+        if let e = error {
+            print("Uh oh! \(e)")
+            return
+        }
+    })
+    // trailing block syntax
+    db.enableNetwork { (error) in
+        if let e = error {
+            print("Uh oh! \(e)")
+            return
+        }
+    }
+}
+
+func writeDocuments(at docRef: DocumentReference, database db: Firestore) {
+  var batch: WriteBatch;
+
+  batch = db.batch();
+  batch.setData(["a" : "b"], forDocument:docRef);
+  batch.setData(["c" : "d"], forDocument:docRef);
+  // commit without completion callback.
+  batch.commit();
+  print("Batch write without completion complete!");
+
+  batch = db.batch();
+  batch.setData(["a" : "b"], forDocument:docRef);
+  batch.setData(["c" : "d"], forDocument:docRef);
+  // commit with completion callback via trailing closure syntax.
+  batch.commit() { error in
+    if let error = error {
+      print("Uh oh! \(error)");
+      return;
+    }
+    print("Batch write callback complete!");
+  }
+  print("Batch write with completion complete!");
+}
+
 func addDocument(to collectionRef: CollectionReference) {
 
     collectionRef.addDocument(data: ["foo": 42]);
@@ -141,11 +186,20 @@ func readDocument(at docRef: DocumentReference) {
     // Trailing closure syntax.
     docRef.getDocument() { document, error in
         if let document = document {
-            // NOTE that document is nullable.
-            let data = document.data();
+          // Note that both document and document.data() is nullable.
+          if let data = document.data() {
             print("Read document: \(data)")
-
-            // Fields are read via subscript notation.
+          }
+          if let data = document.data(with:SnapshotOptions.serverTimestampBehavior(.estimate)) {
+            print("Read document: \(data)")
+          }
+          if let foo = document.get("foo") {
+            print("Field: \(foo)")
+          }
+          if let foo = document.get("foo", options: SnapshotOptions.serverTimestampBehavior(.previous)) {
+            print("Field: \(foo)")
+          }
+          // Fields can also be read via subscript notation.
           if let foo = document["foo"] {
             print("Field: \(foo)")
           }
@@ -181,24 +235,27 @@ func readDocuments(matching query: Query) {
 
 func listenToDocument(at docRef: DocumentReference) {
 
-    let listener = docRef.addSnapshotListener() { document, error in
-        if let error = error {
-            print("Uh oh! Listen canceled: \(error)")
-            return
-        }
-
-        if let document = document {
-            print("Current document: \(document.data())");
-            if (document.metadata.isFromCache) {
-                print("From Cache")
-            } else {
-                print("From Server")
-            }
-        }
+  let listener = docRef.addSnapshotListener() { document, error in
+    if let error = error {
+      print("Uh oh! Listen canceled: \(error)")
+      return
     }
 
-    // Unsubscribe.
-    listener.remove();
+    if let document = document {
+      // Note that document.data() is nullable.
+      if let data : [String:Any] = document.data() {
+        print("Current document: \(data)");
+      }
+      if document.metadata.isFromCache {
+        print("From Cache")
+      } else {
+        print("From Server")
+      }
+    }
+  }
+
+  // Unsubscribe.
+  listener.remove();
 }
 
 func listenToDocuments(matching query: Query) {
@@ -215,7 +272,9 @@ func listenToDocuments(matching query: Query) {
             // TODO(mikelehen): Figure out how to make "for..in" syntax work
             // directly on documentSet.
             for document in snap.documents {
-              print("Doc: ", document.data())
+              // Note that document.data() is not nullable.
+              let data : [String:Any] = document.data()
+              print("Doc: ", data)
             }
         }
     }
@@ -258,7 +317,7 @@ func transactions() {
             let balanceA = try transaction.getDocument(accA)["balance"] as! Double
             let balanceB = try transaction.getDocument(accB)["balance"] as! Double
 
-            if (balanceA < amount) {
+            if balanceA < amount {
                 errorPointer?.pointee = NSError(domain: "Foo", code: 123, userInfo: nil)
                 return nil
             }

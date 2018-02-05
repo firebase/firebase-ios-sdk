@@ -31,7 +31,7 @@ static const NSTimeInterval kRegistrationTimeout = .5;
     @brief The test expectation timeout.
     @remarks This must be considerably greater than @c kVerificationTimeout .
  */
-static const NSTimeInterval kExpectationTimeout = 1;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @class FIRAuthLegacyUIApplication
     @brief A fake legacy (< iOS 7) UIApplication class.

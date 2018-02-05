@@ -28,13 +28,13 @@ extern const char *kFIRLoggerASLClientFacilityName;
 
 extern const char *kFIRLoggerCustomASLMessageFormat;
 
-extern void FIRResetLogger();
+extern void FIRResetLogger(void);
 
-extern aslclient getFIRLoggerClient();
+extern aslclient getFIRLoggerClient(void);
 
-extern dispatch_queue_t getFIRClientQueue();
+extern dispatch_queue_t getFIRClientQueue(void);
 
-extern BOOL getFIRLoggerDebugMode();
+extern BOOL getFIRLoggerDebugMode(void);
 
 // Define the message format again to make sure the format doesn't accidentally change.
 static NSString *const kCorrectASLMessageFormat =
@@ -148,8 +148,12 @@ static NSString *const kMessageCode = @"I-COR000001";
   // Lowercase should fail.
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, @"I-app000001", @"Message."));
 
-  // nil or empty message code should fail.
+// nil or empty message code should fail.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, nil, @"Message."));
+#pragma clang diagnostic pop
+
   XCTAssertThrows(FIRLogError(kFIRLoggerCore, @"", @"Message."));
 
   // Android message code should fail.
@@ -241,6 +245,8 @@ static NSString *const kMessageCode = @"I-COR000001";
 }
 
 - (BOOL)messageWasLogged:(NSString *)message {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   aslmsg query = asl_new(ASL_TYPE_QUERY);
   asl_set_query(query, ASL_KEY_FACILITY, kFIRLoggerASLClientFacilityName, ASL_QUERY_OP_EQUAL);
   aslresponse r = asl_search(getFIRLoggerClient(), query);
@@ -257,6 +263,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   asl_free(m);
   asl_release(r);
   return [allMsg containsObject:message];
+#pragma clang pop
 }
 
 @end

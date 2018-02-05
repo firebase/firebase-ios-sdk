@@ -53,6 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTTargetID)highestTargetID;
 
 /**
+ * Returns the highest listen sequence number of any query seen by the cache.
+ */
+- (FSTListenSequenceNumber)highestListenSequenceNumber;
+
+/**
  * A global snapshot version representing the last consistent snapshot we received from the
  * backend. This is monotonically increasing and any snapshots received from the backend prior to
  * this version (e.g. for targets resumed with a resume_token) should be suppressed (buffered)

@@ -76,10 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.dictionary maxKey];
 }
 
-- (id)predecessorObject:(id)entry {
-  return [self.dictionary predecessorKey:entry];
-}
-
 - (NSUInteger)indexOfObject:(id)object {
   return [self.dictionary indexOfKey:object];
 }
