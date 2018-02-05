@@ -27,6 +27,8 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
+std::mutex FirebaseCredentialsProvider::mutex_;
+
 FirebaseCredentialsProvider::FirebaseCredentialsProvider()
     : FirebaseCredentialsProvider([FIRApp defaultApp]) {
 }
@@ -35,8 +37,7 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
     : app_(app),
       auth_listener_handle_(nil),
       current_user_(firebase::firestore::util::MakeStringView([app getUID])),
-      user_counter_(0),
-      mutex_() {
+      user_counter_(0) {
   auth_listener_handle_ = [[NSNotificationCenter defaultCenter]
       addObserverForName:FIRAuthStateDidChangeInternalNotification
                   object:nil
