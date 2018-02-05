@@ -48,7 +48,7 @@ class FieldPath : public impl::BasePath<FieldPath> {
    * where path segments are separated by a dot "." and optionally encoded using
    * backticks.
    */
-  static FieldPath ParseServerFormat(absl::string_view path);
+  static FieldPath FromServerFormat(absl::string_view path);
   /** Returns a field path that represents a document key. */
   static FieldPath KeyFieldPath();
 

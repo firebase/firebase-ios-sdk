@@ -46,26 +46,24 @@ TEST(FieldPath, Constructors) {
   FieldPath copied = path_from_list;
   EXPECT_EQ(path_from_list, copied);
   const FieldPath moved = std::move(copied);
-  // Because FieldPath is immutable, move constructor performs a copy.
-  EXPECT_EQ(copied, moved);
+  EXPECT_EQ(path_from_list, moved);
+  EXPECT_NE(copied, moved);
+  EXPECT_EQ(empty_path, copied);
 }
 
 TEST(FieldPath, Indexing) {
   const FieldPath path{"rooms", "Eros", "messages"};
 
-  EXPECT_EQ(path.front(), "rooms");
+  EXPECT_EQ(path.first_segment(), "rooms");
   EXPECT_EQ(path[0], "rooms");
-  EXPECT_EQ(path.at(0), "rooms");
 
   EXPECT_EQ(path[1], "Eros");
-  EXPECT_EQ(path.at(1), "Eros");
 
   EXPECT_EQ(path[2], "messages");
-  EXPECT_EQ(path.at(2), "messages");
-  EXPECT_EQ(path.back(), "messages");
+  EXPECT_EQ(path.last_segment(), "messages");
 }
 
-TEST(FieldPath, DropFirst) {
+TEST(FieldPath, PopFirst) {
   const FieldPath abc{"rooms", "Eros", "messages"};
   const FieldPath bc{"Eros", "messages"};
   const FieldPath c{"messages"};
@@ -76,22 +74,22 @@ TEST(FieldPath, DropFirst) {
   EXPECT_NE(c, bc);
   EXPECT_NE(bc, abc);
 
-  EXPECT_EQ(bc, abc.DropFirst());
-  EXPECT_EQ(c, abc.DropFirst(2));
-  EXPECT_EQ(empty, abc.DropFirst(3));
+  EXPECT_EQ(bc, abc.PopFirst());
+  EXPECT_EQ(c, abc.PopFirst(2));
+  EXPECT_EQ(empty, abc.PopFirst(3));
   EXPECT_EQ(abc_dupl, abc);
 }
 
-TEST(FieldPath, DropLast) {
+TEST(FieldPath, PopLast) {
   const FieldPath abc{"rooms", "Eros", "messages"};
   const FieldPath ab{"rooms", "Eros"};
   const FieldPath a{"rooms"};
   const FieldPath empty;
   const FieldPath abc_dupl{"rooms", "Eros", "messages"};
 
-  EXPECT_EQ(ab, abc.DropLast());
-  EXPECT_EQ(a, abc.DropLast().DropLast());
-  EXPECT_EQ(empty, abc.DropLast().DropLast().DropLast());
+  EXPECT_EQ(ab, abc.PopLast());
+  EXPECT_EQ(a, abc.PopLast().PopLast());
+  EXPECT_EQ(empty, abc.PopLast().PopLast().PopLast());
 }
 
 TEST(FieldPath, Concatenation) {
@@ -100,14 +98,14 @@ TEST(FieldPath, Concatenation) {
   const FieldPath ab{"rooms", "Eros"};
   const FieldPath abc{"rooms", "Eros", "messages"};
 
-  EXPECT_EQ(a, path.Concat("rooms"));
-  EXPECT_EQ(ab, path.Concat("rooms").Concat("Eros"));
-  EXPECT_EQ(abc, path.Concat("rooms").Concat("Eros").Concat("messages"));
-  EXPECT_EQ(abc, path.Concat(FieldPath{"rooms", "Eros", "messages"}));
-  EXPECT_EQ(abc, path.Concat({"rooms", "Eros", "messages"}));
+  EXPECT_EQ(a, path.Append("rooms"));
+  EXPECT_EQ(ab, path.Append("rooms").Append("Eros"));
+  EXPECT_EQ(abc, path.Append("rooms").Append("Eros").Append("messages"));
+  EXPECT_EQ(abc, path.Append(FieldPath{"rooms", "Eros", "messages"}));
+  EXPECT_EQ(abc, path.Append({"rooms", "Eros", "messages"}));
 
   const FieldPath bcd{"Eros", "messages", "this_week"};
-  EXPECT_EQ(bcd, abc.DropFirst().Concat("this_week"));
+  EXPECT_EQ(bcd, abc.PopFirst().Append("this_week"));
 }
 
 TEST(FieldPath, Comparison) {
@@ -170,19 +168,18 @@ TEST(FieldPath, IsPrefixOf) {
 
 TEST(FieldPath, AccessFailures) {
   const FieldPath path;
-  ASSERT_DEATH_IF_SUPPORTED(path.front(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.back(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.first_segment(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.last_segment(), "");
   ASSERT_DEATH_IF_SUPPORTED(path[0], "");
   ASSERT_DEATH_IF_SUPPORTED(path[1], "");
-  ASSERT_DEATH_IF_SUPPORTED(path.at(0), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.DropFirst(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.DropFirst(2), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.DropLast(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.PopFirst(), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.PopFirst(2), "");
+  ASSERT_DEATH_IF_SUPPORTED(path.PopLast(), "");
 }
 
 TEST(FieldPath, Parsing) {
   const auto parse = [](const std::pair<std::string, size_t> expected) {
-    const auto path = FieldPath::ParseServerFormat(expected.first);
+    const auto path = FieldPath::FromServerFormat(expected.first);
     return std::make_pair(path.CanonicalString(), path.size());
   };
   const auto make_expected = [](const std::string& str, const size_t size) {
@@ -202,7 +199,7 @@ TEST(FieldPath, Parsing) {
   expected = make_expected(R"(foo.`\``.bar)", 3);
   EXPECT_EQ(expected, parse(expected));
 
-  const auto path_with_dot = FieldPath::ParseServerFormat(R"(foo\.bar)");
+  const auto path_with_dot = FieldPath::FromServerFormat(R"(foo\.bar)");
   EXPECT_EQ(path_with_dot.CanonicalString(), "`foo.bar`");
   EXPECT_EQ(path_with_dot.size(), 1);
 }
@@ -215,55 +212,55 @@ TEST(FieldPath, ParseEmbeddedNull) {
   str += '\0';
   str += ".bar";
 
-  const auto path = FieldPath::ParseServerFormat(str);
+  const auto path = FieldPath::FromServerFormat(str);
   EXPECT_EQ(path.size(), 1);
   EXPECT_EQ(path.CanonicalString(), "foo");
 }
 
 TEST(FieldPath, ParseFailures) {
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(""), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(".."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(".bar"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo..bar"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(R"(foo\)"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat(R"(foo.\)"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo`"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("foo```"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::ParseServerFormat("`foo"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(""), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("."), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(".."), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo."), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(".bar"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo..bar"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(R"(foo\)"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(R"(foo.\)"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo`"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo```"), "");
+  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("`foo"), "");
 }
 
 TEST(FieldPath, CanonicalStringOfSubstring) {
-  const auto path = FieldPath::ParseServerFormat("foo.bar.baz");
+  const auto path = FieldPath::FromServerFormat("foo.bar.baz");
   EXPECT_EQ(path.CanonicalString(), "foo.bar.baz");
-  EXPECT_EQ(path.DropFirst().CanonicalString(), "bar.baz");
-  EXPECT_EQ(path.DropLast().CanonicalString(), "foo.bar");
-  EXPECT_EQ(path.DropFirst().DropLast().CanonicalString(), "bar");
-  EXPECT_EQ(path.DropFirst().DropLast().CanonicalString(), "bar");
-  EXPECT_EQ(path.DropLast().DropFirst().DropLast().CanonicalString(), "");
+  EXPECT_EQ(path.PopFirst().CanonicalString(), "bar.baz");
+  EXPECT_EQ(path.PopLast().CanonicalString(), "foo.bar");
+  EXPECT_EQ(path.PopFirst().PopLast().CanonicalString(), "bar");
+  EXPECT_EQ(path.PopFirst().PopLast().CanonicalString(), "bar");
+  EXPECT_EQ(path.PopLast().PopFirst().PopLast().CanonicalString(), "");
 }
 
 TEST(FieldPath, CanonicalStringEscaping) {
   // Should be escaped
-  EXPECT_EQ(FieldPath::ParseServerFormat("1").CanonicalString(), "`1`");
-  EXPECT_EQ(FieldPath::ParseServerFormat("1ab").CanonicalString(), "`1ab`");
-  EXPECT_EQ(FieldPath::ParseServerFormat("ab!").CanonicalString(), "`ab!`");
-  EXPECT_EQ(FieldPath::ParseServerFormat("/ab").CanonicalString(), "`/ab`");
-  EXPECT_EQ(FieldPath::ParseServerFormat("a#b").CanonicalString(), "`a#b`");
+  EXPECT_EQ(FieldPath::FromServerFormat("1").CanonicalString(), "`1`");
+  EXPECT_EQ(FieldPath::FromServerFormat("1ab").CanonicalString(), "`1ab`");
+  EXPECT_EQ(FieldPath::FromServerFormat("ab!").CanonicalString(), "`ab!`");
+  EXPECT_EQ(FieldPath::FromServerFormat("/ab").CanonicalString(), "`/ab`");
+  EXPECT_EQ(FieldPath::FromServerFormat("a#b").CanonicalString(), "`a#b`");
 
   // Should not be escaped
-  EXPECT_EQ(FieldPath::ParseServerFormat("_ab").CanonicalString(), "_ab");
-  EXPECT_EQ(FieldPath::ParseServerFormat("a1").CanonicalString(), "a1");
-  EXPECT_EQ(FieldPath::ParseServerFormat("a_").CanonicalString(), "a_");
+  EXPECT_EQ(FieldPath::FromServerFormat("_ab").CanonicalString(), "_ab");
+  EXPECT_EQ(FieldPath::FromServerFormat("a1").CanonicalString(), "a1");
+  EXPECT_EQ(FieldPath::FromServerFormat("a_").CanonicalString(), "a_");
 }
 
 TEST(FieldPath, CreateKeyFieldPath) {
   const auto key_field_path = FieldPath::KeyFieldPath();
   EXPECT_EQ(key_field_path, FieldPath{key_field_path});
   EXPECT_EQ(key_field_path,
-            FieldPath::ParseServerFormat(key_field_path.CanonicalString()));
-  EXPECT_NE(key_field_path, FieldPath::ParseServerFormat(
+            FieldPath::FromServerFormat(key_field_path.CanonicalString()));
+  EXPECT_NE(key_field_path, FieldPath::FromServerFormat(
                                 key_field_path.CanonicalString().substr(1)));
 }
 

@@ -35,8 +35,8 @@ namespace impl {
  * BasePath represents a path sequence in the Firestore database. It is composed
  * of an ordered sequence of string segments.
  *
- * BasePath is immutable. All mutating operations return new independent
- * instances.
+ * BasePath is reassignable and movable. Apart from those, all other mutating
+ * operations return new independent instances.
  *
  * ## Subclassing Notes
  *
@@ -44,7 +44,7 @@ namespace impl {
  * doesn't contain a single virtual method, can't be instantiated, and should
  * never be used in any polymorphic way. BasePath is templated to allow static
  * factory methods to return objects of the derived class (the expected
- * inheritance involves CRTP: struct Derived : BasePath<Derived>).
+ * inheritance would use CRTP: struct Derived : BasePath<Derived>).
  */
 template <typename T>
 class BasePath {
@@ -56,22 +56,19 @@ class BasePath {
 
   /** Returns i-th segment of the path. */
   const std::string& operator[](const size_t i) const {
-    return at(i);
-  }
-  const std::string& at(const size_t i) const {
     FIREBASE_ASSERT_MESSAGE(i < segments_.size(), "index %u out of range", i);
     return segments_[i];
   }
 
-  /** Returns first segment of the path. */
-  const std::string& front() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call front on empty path");
-    return at(0);
+  /** Returns the first segment of the path. */
+  const std::string& first_segment() const {
+    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call first_segment on empty path");
+    return segments_[0];
   }
-  /** Returns last segment of the path. */
-  const std::string& back() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call back on empty path");
-    return at(size() - 1);
+  /** Returns the last segment of the path. */
+  const std::string& last_segment() const {
+    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call last_segment on empty path");
+    return segments_[size() - 1];
   }
 
   size_t size() const {
@@ -92,51 +89,51 @@ class BasePath {
    * Returns a new path which is the result of concatenating this path with an
    * additional segment.
    */
-  T Concat(const std::string& segment) const {
-    auto concatenated = segments_;
-    concatenated.push_back(segment);
-    return T{std::move(concatenated)};
+  T Append(const std::string& segment) const {
+    auto appended = segments_;
+    appended.push_back(segment);
+    return T{std::move(appended)};
   }
-  T Concat(std::string&& segment) const {
-    auto concatenated = segments_;
-    concatenated.push_back(std::move(segment));
-    return T{std::move(concatenated)};
+  T Append(std::string&& segment) const {
+    auto appended = segments_;
+    appended.push_back(std::move(segment));
+    return T{std::move(appended)};
   }
 
   /**
    * Returns a new path which is the result of concatenating this path with an
    * another path.
    */
-  T Concat(const T& path) const {
-    auto concatenated = segments_;
-    concatenated.insert(concatenated.end(), path.begin(), path.end());
-    return T{std::move(concatenated)};
+  T Append(const T& path) const {
+    auto appended = segments_;
+    appended.insert(appended.end(), path.begin(), path.end());
+    return T{std::move(appended)};
   }
 
   /**
-   * Returns a new path which is the result of dropping the first n segments of
+   * Returns a new path which is the result of omitting the first n segments of
    * this path.
    */
-  T DropFirst(const size_t n = 1) const {
+  T PopFirst(const size_t n = 1) const {
     FIREBASE_ASSERT_MESSAGE(n <= size(),
-                            "Cannot call DropFirst(%u) on path of length %u", n,
+                            "Cannot call PopFirst(%u) on path of length %u", n,
                             size());
     return T{begin() + n, end()};
   }
 
   /**
-   * Returns a new path which is the result of dropping the last segment of
+   * Returns a new path which is the result of omitting the last segment of
    * this path.
    */
-  T DropLast() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call DropLast() on empty path");
+  T PopLast() const {
+    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call PopLast() on empty path");
     return T{begin(), end() - 1};
   }
 
   /**
    * Returns true if this path is a prefix of the given path.
    *
-   * Empty path is prefix of any path. Any path is prefix of itself.
+   * Empty path is a prefix of any path. Any path is a prefix of itself.
    */
   bool IsPrefixOf(const T& rhs) const {
     return size() <= rhs.size() && std::equal(begin(), end(), rhs.begin());
@@ -170,10 +167,9 @@ class BasePath {
   }
   BasePath(SegmentsT&& segments) : segments_{std::move(segments)} {
   }
-  ~BasePath() = default;
 
  private:
-  const SegmentsT segments_;
+  SegmentsT segments_;
 };
 
 }  // namespace impl

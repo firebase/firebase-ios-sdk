@@ -17,7 +17,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 #include <algorithm>
-#include <cctype>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
@@ -36,37 +35,36 @@ const char* const kDocumentKeyPath = "__name__";
 
 /**
  * True if the string could be used as a segment in a field path without
- * escaping.
+ * escaping. Valid identifies follow the regex [a-zA-Z_][a-zA-Z0-9_]*
  */
 bool IsValidIdentifier(const std::string& segment) {
   if (segment.empty()) {
     return false;
   }
-  if (segment.front() != '_' && !std::isalpha(segment.front())) {
+
+  // Note: strictly speaking, only digits are guaranteed by the Standard to
+  // be a contiguous range, while alphabetic characters may have gaps. Ignoring
+  // this peculiarity, because it doesn't affect the platforms that Firestore
+  // supports.
+  const unsigned char first = segment.front();
+  if (first != '_' &&
+      !('a' <= first && first <= 'z' || 'A' <= first && first <= 'Z')) {
     return false;
   }
-  if (std::any_of(segment.begin(), segment.end(), [](const unsigned char c) {
-        return c != '_' && !std::isalnum(c);
-      })) {
-    return false;
+  for (int i = 1; i != segment.size(); ++i) {
+    const unsigned char c = segment[i];
+    if (c != '_' && !('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z' ||
+                      '0' <= c && c <= '9')) {
+      return false;
+    }
   }
 
   return true;
 }
 
-std::string EscapedSegment(const std::string& segment) {
-  auto escaped = absl::StrReplaceAll(segment, {{"\\", "\\\\"}, {"`", "\\`"}});
-  const bool needs_escaping = !IsValidIdentifier(escaped);
-  if (needs_escaping) {
-    escaped.insert(escaped.begin(), '`');
-    escaped.push_back('`');
-  }
-  return escaped;
-}
-
 }  // namespace
 
-FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
+FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
   // TODO(b/37244157): Once we move to v1beta1, we should make this more
   // strict. Right now, it allows non-identifier path components, even if they
   // aren't escaped. Technically, this will mangle paths with backticks in
@@ -95,19 +93,14 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
 
   // Inside backticks, dots are treated literally.
   bool inside_backticks = false;
-  // Whether to treat '\' literally or as an escape character.
-  bool escaped_character = false;
-  for (const char c : path) {
+  int i = 0;
+  while (i < path.size()) {
+    const char c = path[i];
     // std::string (and string_view) may contain embedded nulls. For full
     // compatibility with Objective C behavior, finish upon encountering the
     // first terminating null.
     if (c == '\0') {
       break;
-    }
-    if (escaped_character) {
-      escaped_character = false;
-      segment += c;
-      continue;
     }
 
     switch (c) {
@@ -124,22 +117,24 @@ FieldPath FieldPath::ParseServerFormat(const absl::string_view path) {
         break;
 
       case '\\':
-        escaped_character = true;
+        // TODO(b/37244157): Make this a user-facing exception once we
+        // finalize field escaping.
+        FIREBASE_ASSERT_MESSAGE(i + 1 != path.size(),
+                                "Trailing escape characters not allowed in %s",
+                                to_string(path).c_str());
+        ++i;
+        segment += path[i];
         break;
 
       default:
         segment += c;
         break;
     }
+    ++i;
   }
   finish_segment();
 
   FIREBASE_ASSERT_MESSAGE(!inside_backticks, "Unterminated ` in path %s",
-                          to_string(path).c_str());
-  // TODO(b/37244157): Make this a user-facing exception once we
-  // finalize field escaping.
-  FIREBASE_ASSERT_MESSAGE(!escaped_character,
-                          "Trailing escape characters not allowed in %s",
                           to_string(path).c_str());
 
   return FieldPath{std::move(segments)};
@@ -150,14 +145,24 @@ FieldPath FieldPath::KeyFieldPath() {
 }
 
 bool FieldPath::IsKeyFieldPath() const {
-  return size() == 1 && front() == kDocumentKeyPath;
+  return size() == 1 && first_segment() == kDocumentKeyPath;
 }
 
 std::string FieldPath::CanonicalString() const {
-  return absl::StrJoin(begin(), end(), ".",
-                       [](std::string* out, const std::string& segment) {
-                         out->append(EscapedSegment(segment));
-                       });
+  const auto escaped_segment = [](const std::string& segment) {
+    auto escaped = absl::StrReplaceAll(segment, {{"\\", "\\\\"}, {"`", "\\`"}});
+    const bool needs_escaping = !IsValidIdentifier(escaped);
+    if (needs_escaping) {
+      escaped.insert(escaped.begin(), '`');
+      escaped.push_back('`');
+    }
+    return escaped;
+  };
+  return absl::StrJoin(
+      begin(), end(), ".",
+      [escaped_segment](std::string* out, const std::string& segment) {
+        out->append(escaped_segment(segment));
+      });
 }
 
 }  // namespace model

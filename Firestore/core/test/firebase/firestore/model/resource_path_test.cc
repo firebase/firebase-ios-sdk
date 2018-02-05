@@ -46,8 +46,9 @@ TEST(ResourcePath, Constructor) {
   ResourcePath copied = path_from_list;
   EXPECT_EQ(path_from_list, copied);
   const ResourcePath moved = std::move(copied);
-  // Because ResourcePath is immutable, move constructor performs a copy.
-  EXPECT_EQ(copied, moved);
+  EXPECT_EQ(path_from_list, moved);
+  EXPECT_NE(copied, moved);
+  EXPECT_EQ(empty_path, copied);
 }
 
 TEST(ResourcePath, Comparison) {
