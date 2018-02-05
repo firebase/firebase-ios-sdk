@@ -21,13 +21,27 @@
 # Commonly
 # ./scripts/style.sh master
 
-set -euo pipefail
+if [[ $(clang-format --version) != **"version 6"** ]]; then
+  echo "Please upgrade to clang-format version 6."
+  echo "If it's installed via homebrew you can run: brew upgrade clang-format"
+  exit 1
+fi
 
+if [[ $# -gt 0 && "$1" = "test-only" ]]; then
+  test_only=true
+  options="-output-replacements-xml"
+  shift
+else
+  test_only=false
+  options="-i"
+fi
+
+files=$(
 (
   if [[ $# -gt 0 ]]; then
     if git rev-parse "$1" -- >& /dev/null; then
       # Argument was a branch name show files changed since that branch
-      git diff --name-only --relative
+      git diff --name-only --relative --diff-filter=ACMR "$1"
     else
       # Otherwise assume the passed things are files or directories
       find "$@" -type f
@@ -45,6 +59,12 @@ set -euo pipefail
 \%/third_party/% d
 \%/Firestore/Port/% d
 
+# Generated source
+\%/Firestore/core/src/firebase/firestore/util/config.h% d
+
+# Sources pulled in by travis bundler
+\%/vendor/bundle/% d
+
 # Sources within the tree that are not subject to formatting
 \%^./(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
 
@@ -53,4 +73,19 @@ set -euo pipefail
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p
-' | xargs clang-format -style=file -i
+'
+)
+needs_formatting=false
+for f in $files; do
+  clang-format -style=file $options $f | grep "<replacement " > /dev/null
+  if [[ "$test_only" = true && $? -ne 1 ]]; then
+    echo "$f needs formatting."
+    needs_formatting=true
+  fi
+done
+
+if [[ "$needs_formatting" = true ]]; then
+  echo "Proposed commit is not style compliant."
+  echo "Run scripts/style.sh and git add the result."
+  exit 1
+fi

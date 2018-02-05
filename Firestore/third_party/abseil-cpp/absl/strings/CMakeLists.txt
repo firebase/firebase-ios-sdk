@@ -17,7 +17,6 @@
 
 list(APPEND STRINGS_PUBLIC_HEADERS
   "ascii.h"
-  "escaping.h"
   "match.h"
   "numbers.h"
   "str_cat.h"
@@ -26,18 +25,16 @@ list(APPEND STRINGS_PUBLIC_HEADERS
   "str_join.h"
   "str_replace.h"
   "str_split.h"
-  "substitute.h"
 )
 
 
 list(APPEND STRINGS_INTERNAL_HEADERS
-  "internal/char_map.h"
   "internal/memutil.h"
   "internal/ostringstream.h"
   "internal/resize_uninitialized.h"
+  "internal/stl_type_traits.h"
   "internal/str_join_internal.h"
   "internal/str_split_internal.h"
-  "internal/utf8.h"
 )
 
 
@@ -45,17 +42,15 @@ list(APPEND STRINGS_INTERNAL_HEADERS
 # add string library
 list(APPEND STRINGS_SRC
   "ascii.cc"
-  "escaping.cc"
   "internal/memutil.cc"
   "internal/memutil.h"
-  "internal/utf8.cc"
+  "internal/ostringstream.cc"
   "match.cc"
   "numbers.cc"
   "str_cat.cc"
   "str_replace.cc"
   "str_split.cc"
   "string_view.cc"
-  "substitute.cc"
   ${STRINGS_PUBLIC_HEADERS}
   ${STRINGS_INTERNAL_HEADERS}
 )
@@ -91,20 +86,6 @@ absl_test(
 )
 
 
-# test escaping_test
-set(ESCAPING_TEST_SRC "escaping_test.cc")
-set(ESCAPING_TEST_PUBLIC_LIBRARIES absl::strings absl::base)
-
-absl_test(
-  TARGET
-    escaping_test
-  SOURCES
-    ${ESCAPING_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${ESCAPING_TEST_PUBLIC_LIBRARIES}
-)
-
-
 # test ascii_test
 set(ASCII_TEST_SRC "ascii_test.cc")
 set(ASCII_TEST_PUBLIC_LIBRARIES absl::strings)
@@ -133,20 +114,6 @@ absl_test(
 )
 
 
-# test utf8_test
-set(UTF8_TEST_SRC "internal/utf8_test.cc")
-set(UTF8_TEST_PUBLIC_LIBRARIES absl::strings absl::base)
-
-absl_test(
-  TARGET
-    utf8_test
-  SOURCES
-    ${UTF8_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${UTF8_TEST_PUBLIC_LIBRARIES}
-)
-
-
 # test string_view_test
 set(STRING_VIEW_TEST_SRC "string_view_test.cc")
 set(STRING_VIEW_TEST_PUBLIC_LIBRARIES absl::strings absl_throw_delegate absl::base)
@@ -158,20 +125,6 @@ absl_test(
     ${STRING_VIEW_TEST_SRC}
   PUBLIC_LIBRARIES
     ${STRING_VIEW_TEST_PUBLIC_LIBRARIES}
-)
-
-
-# test substitute_test
-set(SUBSTITUTE_TEST_SRC "substitute_test.cc")
-set(SUBSTITUTE_TEST_PUBLIC_LIBRARIES absl::strings absl::base)
-
-absl_test(
-  TARGET
-    substitute_test
-  SOURCES
-    ${SUBSTITUTE_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${SUBSTITUTE_TEST_PUBLIC_LIBRARIES}
 )
 
 
@@ -205,12 +158,15 @@ absl_test(
 
 # test ostringstream_test
 set(OSTRINGSTREAM_TEST_SRC "internal/ostringstream_test.cc")
+set(OSTRINGSTREAM_TEST_PUBLIC_LIBRARIES absl::strings)
 
 absl_test(
   TARGET
     ostringstream_test
   SOURCES
     ${OSTRINGSTREAM_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${OSTRINGSTREAM_TEST_PUBLIC_LIBRARIES}
 )
 
 
@@ -279,21 +235,5 @@ absl_test(
   PUBLIC_LIBRARIES
     ${STRIP_TEST_PUBLIC_LIBRARIES}
 )
-
-
-# test char_map_test
-set(CHAR_MAP_TEST_SRC "internal/char_map_test.cc")
-set(CHAR_MAP_TEST_PUBLIC_LIBRARIES absl::strings)
-
-absl_test(
-  TARGET
-    char_map_test
-  SOURCES
-    ${CHAR_MAP_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${CHAR_MAP_TEST_PUBLIC_LIBRARIES}
-)
-
-
 
 

@@ -925,7 +925,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
 - (void) sendConnectStats {
     NSMutableDictionary *stats = [NSMutableDictionary dictionary];
 
-    #if TARGET_OS_IOS
+    #if TARGET_OS_IOS || TARGET_OS_TV
     if (self.config.persistenceEnabled) {
         stats[@"persistence.ios.enabled"] = @1;
     }

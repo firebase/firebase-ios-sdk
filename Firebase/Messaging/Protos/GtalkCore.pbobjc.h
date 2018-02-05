@@ -197,6 +197,9 @@ typedef GPB_ENUM(GtalkClientEvent_Type) {
   GtalkClientEvent_Type_DiscardedEvents = 1,
   GtalkClientEvent_Type_FailedConnection = 2,
   GtalkClientEvent_Type_SuccessfulConnection = 3,
+  GtalkClientEvent_Type_McsReconnectRequest = 4,
+  GtalkClientEvent_Type_FailedSocketCreationMcsReconnect = 5,
+  GtalkClientEvent_Type_McsReconnectLimited = 6,
 };
 
 GPBEnumDescriptor *GtalkClientEvent_Type_EnumDescriptor(void);
@@ -206,6 +209,22 @@ GPBEnumDescriptor *GtalkClientEvent_Type_EnumDescriptor(void);
  * the time this source was generated.
  **/
 BOOL GtalkClientEvent_Type_IsValidValue(int32_t value);
+
+#pragma mark - Enum GtalkClientEvent_McsReconnectAction
+
+typedef GPB_ENUM(GtalkClientEvent_McsReconnectAction) {
+  GtalkClientEvent_McsReconnectAction_None = 0,
+  GtalkClientEvent_McsReconnectAction_NotConnected = 1,
+  GtalkClientEvent_McsReconnectAction_TooSoon = 2,
+};
+
+GPBEnumDescriptor *GtalkClientEvent_McsReconnectAction_EnumDescriptor(void);
+
+/**
+ * Checks to see if the given value is defined by the enum or was not known at
+ * the time this source was generated.
+ **/
+BOOL GtalkClientEvent_McsReconnectAction_IsValidValue(int32_t value);
 
 #pragma mark - GtalkGtalkCoreRoot
 
@@ -247,9 +266,9 @@ typedef GPB_ENUM(GtalkHeartbeatPing_FieldNumber) {
 
 @property(nonatomic, readwrite) BOOL hasStatus;
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower;
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower;
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) int32_t intervalMs;
@@ -282,9 +301,9 @@ typedef GPB_ENUM(GtalkHeartbeatAck_FieldNumber) {
 
 @property(nonatomic, readwrite) BOOL hasStatus;
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower;
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower;
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) int32_t intervalMs;
@@ -406,7 +425,6 @@ typedef GPB_ENUM(GtalkLoginRequest_FieldNumber) {
   GtalkLoginRequest_FieldNumber_DeviceId = 6,
   GtalkLoginRequest_FieldNumber_LastRmqId = 7,
   GtalkLoginRequest_FieldNumber_SettingArray = 8,
-  GtalkLoginRequest_FieldNumber_Compress = 9,
   GtalkLoginRequest_FieldNumber_ReceivedPersistentIdArray = 10,
   GtalkLoginRequest_FieldNumber_IncludeStreamIds = 11,
   GtalkLoginRequest_FieldNumber_HeartbeatStat = 13,
@@ -420,6 +438,8 @@ typedef GPB_ENUM(GtalkLoginRequest_FieldNumber) {
   GtalkLoginRequest_FieldNumber_GcmStartTimeMs = 21,
   GtalkLoginRequest_FieldNumber_ClientEventArray = 22,
   GtalkLoginRequest_FieldNumber_OnFallback = 23,
+  GtalkLoginRequest_FieldNumber_NoPendingUpstream = 24,
+  GtalkLoginRequest_FieldNumber_ReconnectRequestId = 25,
 };
 
 @interface GtalkLoginRequest : GPBMessage
@@ -464,10 +484,6 @@ typedef GPB_ENUM(GtalkLoginRequest_FieldNumber) {
 @property(nonatomic, readonly) NSUInteger settingArray_Count;
 
 
-@property(nonatomic, readwrite) int32_t compress;
-
-@property(nonatomic, readwrite) BOOL hasCompress;
-
 @property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<NSString*> *receivedPersistentIdArray;
 /** The number of items in @c receivedPersistentIdArray without causing the array to be created. */
 @property(nonatomic, readonly) NSUInteger receivedPersistentIdArray_Count;
@@ -507,9 +523,9 @@ typedef GPB_ENUM(GtalkLoginRequest_FieldNumber) {
 @property(nonatomic, readwrite) BOOL hasTokenVersionInfo;
 
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower;
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower;
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) uint64_t gcmStartTimeMs;
@@ -524,6 +540,14 @@ typedef GPB_ENUM(GtalkLoginRequest_FieldNumber) {
 @property(nonatomic, readwrite) BOOL onFallback;
 
 @property(nonatomic, readwrite) BOOL hasOnFallback;
+
+@property(nonatomic, readwrite) BOOL noPendingUpstream;
+
+@property(nonatomic, readwrite) BOOL hasNoPendingUpstream;
+
+@property(nonatomic, readwrite) int32_t reconnectRequestId;
+
+@property(nonatomic, readwrite) BOOL hasReconnectRequestId;
 @end
 
 #pragma mark - GtalkLoginResponse
@@ -1242,9 +1266,9 @@ typedef GPB_ENUM(GtalkDataMessageStanza_FieldNumber) {
 
 @property(nonatomic, readwrite) BOOL hasFlags;
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower;
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower;
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) int32_t priority;
@@ -1273,6 +1297,7 @@ typedef GPB_ENUM(GtalkCellTower_FieldNumber) {
   GtalkCellTower_FieldNumber_KnownCongestionStatus = 2,
 };
 
+DEPRECATED_ATTRIBUTE
 @interface GtalkCellTower : GPBMessage
 
 
@@ -1297,6 +1322,7 @@ typedef GPB_ENUM(GtalkClientEvent_FieldNumber) {
   GtalkClientEvent_FieldNumber_TimeConnectionEndedMs = 203,
   GtalkClientEvent_FieldNumber_ErrorCode = 204,
   GtalkClientEvent_FieldNumber_TimeConnectionEstablishedMs = 300,
+  GtalkClientEvent_FieldNumber_McsReconnectAction = 400,
 };
 
 @interface GtalkClientEvent : GPBMessage
@@ -1333,6 +1359,10 @@ typedef GPB_ENUM(GtalkClientEvent_FieldNumber) {
 @property(nonatomic, readwrite) uint64_t timeConnectionEstablishedMs;
 
 @property(nonatomic, readwrite) BOOL hasTimeConnectionEstablishedMs;
+
+@property(nonatomic, readwrite) GtalkClientEvent_McsReconnectAction mcsReconnectAction;
+
+@property(nonatomic, readwrite) BOOL hasMcsReconnectAction;
 @end
 
 NS_ASSUME_NONNULL_END

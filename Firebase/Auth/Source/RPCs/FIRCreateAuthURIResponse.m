@@ -16,8 +16,6 @@
 
 #import "FIRCreateAuthURIResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRCreateAuthURIResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary

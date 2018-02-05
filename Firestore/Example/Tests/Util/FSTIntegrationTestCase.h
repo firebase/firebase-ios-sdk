@@ -18,6 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
+#import "Firestore/Source/Core/FSTTypes.h"
 
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
@@ -81,6 +82,10 @@ extern "C" {
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref;
+
+- (void)disableNetwork;
+
+- (void)enableNetwork;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

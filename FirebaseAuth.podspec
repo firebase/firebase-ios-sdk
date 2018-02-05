@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '4.4.0'
+  s.version          = '4.4.2'
   s.summary          = 'The official iOS client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -19,6 +19,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.10'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true
@@ -35,6 +36,13 @@ supports email and password accounts, as well as several 3rd party authenticatio
     source + '**/FIRAuthAPNSToken.[mh]',
     source + '**/FIRAuthDefaultUIDelegate.[mh]',
     source + '**/FIRAuthUIDelegate.h',
+    source + '**/FIRAuthURLPresenter.[mh]',
+    source + '**/FIRAuthWebView.[mh]',
+    source + '**/FIRAuthWebViewController.[mh]',
+    source + '**/FIRPhoneAuthCredential.[mh]',
+    source + '**/FIRPhoneAuthProvider.[mh]'
+  ]
+  s.tvos.exclude_files = [
     source + '**/FIRAuthURLPresenter.[mh]',
     source + '**/FIRAuthWebView.[mh]',
     source + '**/FIRAuthWebViewController.[mh]',

@@ -19,8 +19,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRDocumentChange;
-@class FIRDocumentSnapshot;
 @class FIRQuery;
+@class FIRQueryDocumentSnapshot;
 @class FIRSnapshotMetadata;
 
 /**
@@ -50,7 +50,7 @@ NS_SWIFT_NAME(QuerySnapshot)
 @property(nonatomic, readonly) NSInteger count;
 
 /** An Array of the `FIRDocumentSnapshots` that make up this document set. */
-@property(nonatomic, strong, readonly) NSArray<FIRDocumentSnapshot *> *documents;
+@property(nonatomic, strong, readonly) NSArray<FIRQueryDocumentSnapshot *> *documents;
 
 /**
  * An array of the documents that changed since the last snapshot. If this is the first snapshot,
