@@ -35,6 +35,7 @@ list(APPEND STRINGS_INTERNAL_HEADERS
   "internal/memutil.h"
   "internal/ostringstream.h"
   "internal/resize_uninitialized.h"
+  "internal/stl_type_traits.h"
   "internal/str_join_internal.h"
   "internal/str_split_internal.h"
   "internal/utf8.h"
@@ -49,6 +50,7 @@ list(APPEND STRINGS_SRC
   "internal/memutil.cc"
   "internal/memutil.h"
   "internal/utf8.cc"
+  "internal/ostringstream.cc"
   "match.cc"
   "numbers.cc"
   "str_cat.cc"
@@ -205,12 +207,15 @@ absl_test(
 
 # test ostringstream_test
 set(OSTRINGSTREAM_TEST_SRC "internal/ostringstream_test.cc")
+set(OSTRINGSTREAM_TEST_PUBLIC_LIBRARIES absl::strings)
 
 absl_test(
   TARGET
     ostringstream_test
   SOURCES
     ${OSTRINGSTREAM_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${OSTRINGSTREAM_TEST_PUBLIC_LIBRARIES}
 )
 
 
