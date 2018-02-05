@@ -1,6 +1,4 @@
-# Copyright 2018 Google
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Copyright 2018 Google # # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -18,7 +16,7 @@ include(ExternalProjectFlags)
 ExternalProject_GitSource(
   NANOPB_GIT
   GIT_REPOSITORY "https://github.com/nanopb/nanopb.git"
-  GIT_TAG "master" # Needs the most recent. 0.3.9 doesn't fully support cmake.
+  GIT_TAG "0.3.8"
 )
 
 ExternalProject_Add(
@@ -28,34 +26,32 @@ ExternalProject_Add(
 
   ${NANOPB_GIT}
 
+  BUILD_IN_SOURCE ON
+
   PREFIX ${PROJECT_BINARY_DIR}/external/nanopb
 
+  # Note for (not yet released) nanopb 0.4.0: nanopb will (likely) switch to
+  # cmake for the protoc plugin. Set these additional cmake variables to use
+  # it.
+  #   -Dnanopb_BUILD_GENERATOR:BOOL=ON
+  #   -Dnanopb_PROTOC_PATH:STRING=${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc
   CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_SHARED_LIBS:BOOL=OFF
-    -Dnanopb_BUILD_GENERATOR:BOOL=ON
-    -Dnanopb_PROTOC_PATH:STRING=${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc
 
   BUILD_COMMAND
+  COMMAND
     ${CMAKE_COMMAND} --build .
-  # NB: The following additional build commands are only necessary to
-  # regenerate the nanopb proto files.
+  # NB: The following additional command is only necessary to regenerate the
+  # nanopb proto files.
   COMMAND
-    ${CMAKE_COMMAND} -E make_directory <BINARY_DIR>/generator/proto
-  COMMAND
-    ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/generator/proto/__init__.py <BINARY_DIR>/generator/proto/
-  COMMAND
-    ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/generator/protoc-gen-nanopb <BINARY_DIR>/generator/
-  COMMAND
-    ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/generator/nanopb_generator.py <BINARY_DIR>/generator/
-  COMMAND
-    ${CMAKE_COMMAND} -E copy <BINARY_DIR>/nanopb_pb2.py <BINARY_DIR>/generator/proto/
-  COMMAND
-    ${CMAKE_COMMAND} -E copy <BINARY_DIR>/plugin_pb2.py <BINARY_DIR>/generator/proto/
+    make -C <SOURCE_DIR>/generator/proto
 
-  # TODO: once we clone via a tag (rather than the master branch) we should
-  # disable updates; i.e.:
-  #   UPDATE_COMMAND ""
+  # nanopb relies on $PATH for the location of protoc. cmake makes it difficult
+  # to adjust the path, so we'll just patch the build files with the exact
+  # location of protoc.
+  PATCH_COMMAND perl -i -pe s,protoc,${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc,g ./CMakeLists.txt ./generator/proto/Makefile
 
+  UPDATE_COMMAND ""
   INSTALL_COMMAND ""
 )

@@ -21,7 +21,7 @@ find_package_handle_standard_args(
 )
 
 if(NANOPB_FOUND)
-  set(NANOPB_INCLUDE_DIRS ${NANOPB_INCLUDE_DIR} )
+  set(NANOPB_INCLUDE_DIRS ${NANOPB_INCLUDE_DIR})
 
   if (NOT TARGET nanopb)
     add_library(nanopb UNKNOWN IMPORTED)

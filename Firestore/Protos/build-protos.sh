@@ -22,7 +22,7 @@ pod update
 # Generate the objective C files from the protos.
 ./Pods/!ProtoCompiler/protoc \
   --plugin=protoc-gen-grpc=Pods/\!ProtoCompiler-gRPCPlugin/grpc_objective_c_plugin \
-  --plugin=../../build/external/nanopb/src/nanopb-build/generator/protoc-gen-nanopb \
+  --plugin=../../build/external/nanopb/src/nanopb/generator/protoc-gen-nanopb \
   -I protos --objc_out=objc --grpc_out=objc \
   --nanopb_out="--options-file=protos/%s.options:nanopb" \
   `find protos -name *.proto -print | xargs`
