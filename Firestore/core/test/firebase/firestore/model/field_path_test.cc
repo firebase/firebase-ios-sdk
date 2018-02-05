@@ -255,11 +255,19 @@ TEST(FieldPath, CanonicalStringEscaping) {
   EXPECT_EQ(FieldPath::FromServerFormat("a_").CanonicalString(), "a_");
 }
 
-TEST(FieldPath, CreateKeyFieldPath) {
-  const auto key_field_path = FieldPath::KeyFieldPath();
+TEST(FieldPath, EmptyPath) {
+  const auto& empty_path = FieldPath::EmptyPath();
+  EXPECT_EQ(empty_path, FieldPath{empty_path});
+  EXPECT_EQ(empty_path, FieldPath{});
+  EXPECT_EQ(&empty_path, &FieldPath::EmptyPath());
+}
+
+TEST(FieldPath, KeyFieldPath) {
+  const auto& key_field_path = FieldPath::KeyFieldPath();
   EXPECT_EQ(key_field_path, FieldPath{key_field_path});
   EXPECT_EQ(key_field_path,
             FieldPath::FromServerFormat(key_field_path.CanonicalString()));
+  EXPECT_EQ(&key_field_path, &FieldPath::KeyFieldPath());
   EXPECT_NE(key_field_path, FieldPath::FromServerFormat(
                                 key_field_path.CanonicalString().substr(1)));
 }

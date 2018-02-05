@@ -49,8 +49,10 @@ class FieldPath : public impl::BasePath<FieldPath> {
    * backticks.
    */
   static FieldPath FromServerFormat(absl::string_view path);
+  /** Returns a field path that represents an empty path. */
+  static const FieldPath& EmptyPath();
   /** Returns a field path that represents a document key. */
-  static FieldPath KeyFieldPath();
+  static const FieldPath& KeyFieldPath();
 
   /** Returns a standardized string representation of this path. */
   std::string CanonicalString() const;
@@ -80,7 +82,7 @@ class FieldPath : public impl::BasePath<FieldPath> {
   FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
-  // So that methods of base can construct ResourcePath using the private
+  // So that methods of base can construct FieldPath using the private
   // constructor.
   friend class BasePath;
 };

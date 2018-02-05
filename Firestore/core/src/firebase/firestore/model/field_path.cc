@@ -47,14 +47,14 @@ bool IsValidIdentifier(const std::string& segment) {
   // this peculiarity, because it doesn't affect the platforms that Firestore
   // supports.
   const unsigned char first = segment.front();
-  if (first != '_' &&
-      !('a' <= first && first <= 'z' || 'A' <= first && first <= 'Z')) {
+  if (first != '_' && (first < 'a' || first > 'z') &&
+      (first < 'A' || first > 'Z')) {
     return false;
   }
   for (int i = 1; i != segment.size(); ++i) {
     const unsigned char c = segment[i];
-    if (c != '_' && !('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z' ||
-                      '0' <= c && c <= '9')) {
+    if (c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') &&
+        (c < '0' || c > '9')) {
       return false;
     }
   }
@@ -140,8 +140,14 @@ FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
   return FieldPath{std::move(segments)};
 }
 
-FieldPath FieldPath::KeyFieldPath() {
-  return FieldPath{kDocumentKeyPath};
+const FieldPath& FieldPath::EmptyPath() {
+  static const FieldPath empty_path;
+  return empty_path;
+}
+
+const FieldPath& FieldPath::KeyFieldPath() {
+  static const FieldPath key_field_path{kDocumentKeyPath};
+  return key_field_path;
 }
 
 bool FieldPath::IsKeyFieldPath() const {
