@@ -223,6 +223,7 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
                  (int)kFIRReachabilityNotReachable, @"");
   XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityNotReachable, @"");
 
+#if TARGET_OS_IOS || TARGET_OS_TV
   FakeReachability.callback(
                             kFakeReachabilityObject,
                             kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsWWAN,
@@ -240,6 +241,7 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:4] intValue],
                  (int)kFIRReachabilityNotReachable, @"");
   XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityNotReachable, @"");
+#endif
 
   [checker_ stop];
 
