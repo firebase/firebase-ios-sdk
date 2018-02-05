@@ -30,7 +30,7 @@ namespace auth {
 
 // TODO(zxu123): Make this an integration test and get infos from environment.
 // Set a .plist file here to enable the test-case.
-static NSString *const kPlist = @"/Users/zxu/Downloads/GoogleService-Info.plist";
+static NSString *const kPlist = @"";
 
 class FirebaseCredentialsProviderTest : public ::testing::Test {
  protected:
