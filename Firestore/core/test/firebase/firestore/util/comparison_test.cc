@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
+#include <inttypes.h>
 #include <math.h>
 
 #include <limits>
@@ -84,17 +85,17 @@ TEST(Comparison, DoubleCompare) {
   ASSERT_SAME(Compare<double>(-0, 0));
 }
 
-#define ASSERT_BIT_EQUALS(expected, actual)            \
-  do {                                                 \
-    uint64_t expectedBits = DoubleBits(expected);      \
-    uint64_t actualBits = DoubleBits(actual);          \
-    if (expectedBits != actualBits) {                  \
-      std::string message = StringPrintf(              \
-          "Expected <%f> to compare equal to <%f> "    \
-          "with bits <%llX> equal to <%llX>",          \
-          actual, expected, actualBits, expectedBits); \
-      FAIL() << message;                               \
-    }                                                  \
+#define ASSERT_BIT_EQUALS(expected, actual)                 \
+  do {                                                      \
+    uint64_t expectedBits = DoubleBits(expected);           \
+    uint64_t actualBits = DoubleBits(actual);               \
+    if (expectedBits != actualBits) {                       \
+      std::string message = StringPrintf(                   \
+          "Expected <%f> to compare equal to <%f> "         \
+          "with bits <%" PRIu64 "> equal to <%" PRIu64 ">", \
+          actual, expected, actualBits, expectedBits);      \
+      FAIL() << message;                                    \
+    }                                                       \
   } while (0);
 
 #define ASSERT_MIXED_SAME(doubleValue, longValue)                              \

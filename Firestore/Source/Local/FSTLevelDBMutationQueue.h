@@ -16,15 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Local/FSTMutationQueue.h"
-
-#ifdef __cplusplus
 #include <memory>
 
-namespace leveldb {
-class DB;
-}
-#endif
+#import "Firestore/Source/Local/FSTMutationQueue.h"
+#include "leveldb/db.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
@@ -41,7 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** The garbage collector to notify about potential garbage keys. */
 @property(nonatomic, weak, readwrite, nullable) id<FSTGarbageCollector> garbageCollector;
 
-#ifdef __cplusplus
 /**
  * Creates a new mutation queue for the given user, in the given LevelDB.
  *
@@ -57,7 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
  * returns 0. Note that batch IDs are global.
  */
 + (FSTBatchID)loadNextBatchIDFromDB:(std::shared_ptr<leveldb::DB>)db;
-#endif
 
 @end
 

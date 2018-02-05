@@ -289,7 +289,6 @@ NS_SWIFT_NAME(Messaging)
  */
 @property(nonatomic, weak, nullable) id<FIRMessagingDelegate> delegate;
 
-
 /**
  * Delegate to handle remote data messages received via FCM for devices running iOS 10 or above.
  */
@@ -352,6 +351,20 @@ NS_SWIFT_NAME(Messaging)
 - (void)setAPNSToken:(nonnull NSData *)apnsToken type:(FIRMessagingAPNSTokenType)type;
 
 #pragma mark - FCM Tokens
+
+/**
+ * Is Firebase Messaging token auto generation enabled?  If this flag is disabled,
+ * Firebase Messaging will not generate token automatically for message delivery.
+ *
+ * This setting is persisted, and is applied on future
+ * invocations of your application.  Once explicitly set, it overrides any
+ * settings in your Info.plist.
+ *
+ * By default, FCM automatic initialization is enabled.  If you need to change the
+ * default (for example, because you want to prompt the user before getting token)
+ * set FirebaseMessagingAutoInitEnabled to false in your application's Info.plist.
+ */
+@property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
 /**
  *  The FCM token is used to identify this device so that FCM can send notifications to it.

@@ -19,7 +19,6 @@
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
 
-#include "Firestore/Port/ordered_code.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -29,6 +28,8 @@
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 using leveldb::DB;
@@ -36,7 +37,7 @@ using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
 using Firestore::StringView;
-using Firestore::OrderedCode;
+using firebase::firestore::util::OrderedCode;
 
 // A dummy mutation value, useful for testing code that's known to examine only mutation keys.
 static const char *kDummy = "1";
