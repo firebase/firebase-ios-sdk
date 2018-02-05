@@ -178,18 +178,18 @@ NS_ASSUME_NONNULL_BEGIN
     return [self convertedArray:(FSTArrayValue *)value options:options];
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
-    const DatabaseId refDatabase(ref.databaseID.project_id(), ref.databaseID.database_id());
-    const DatabaseId &database = self.firestore.databaseID;
+    const DatabaseId *refDatabase = ref.databaseID;
+    const DatabaseId *database = self.firestore.databaseID;
     if (refDatabase != database) {
       // TODO(b/32073923): Log this as a proper warning.
       NSLog(
           @"WARNING: Document %@ contains a document reference within a different database "
            "(%@/%@) which is not supported. It will be treated as a reference within the "
            "current database (%@/%@) instead.",
-          self.reference.path, util::WrapNSStringNoCopy(refDatabase.project_id()),
-          util::WrapNSStringNoCopy(refDatabase.database_id()),
-          util::WrapNSStringNoCopy(database.project_id()),
-          util::WrapNSStringNoCopy(database.database_id()));
+          self.reference.path, util::WrapNSStringNoCopy(refDatabase->project_id()),
+          util::WrapNSStringNoCopy(refDatabase->database_id()),
+          util::WrapNSStringNoCopy(database->project_id()),
+          util::WrapNSStringNoCopy(database->database_id()));
     }
     return [FIRDocumentReference referenceWithKey:[ref valueWithOptions:options]
                                         firestore:self.firestore];

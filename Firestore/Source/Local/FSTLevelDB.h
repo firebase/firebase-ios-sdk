@@ -50,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
  *     will be created. Usually just +[FSTLevelDB documentsDir].
  * @return A storage directory unique to the instance identified by databaseInfo.
  */
-+ (NSString *)storageDirectoryForDatabaseInfo:(firebase::firestore::core::DatabaseInfo)databaseInfo
++ (NSString *)storageDirectoryForDatabaseInfo:
+                  (const firebase::firestore::core::DatabaseInfo &)databaseInfo
                            documentsDirectory:(NSString *)documentsDirectory;
 
 /**

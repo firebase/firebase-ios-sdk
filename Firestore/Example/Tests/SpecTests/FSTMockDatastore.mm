@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
+#include <vector>
+
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -47,12 +49,12 @@ NS_ASSUME_NONNULL_BEGIN
                       credentials:(id<FSTCredentialsProvider>)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(DatabaseInfo)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabase:(DatabaseInfo)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
@@ -173,12 +175,12 @@ NS_ASSUME_NONNULL_BEGIN
                       credentials:(id<FSTCredentialsProvider>)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(DatabaseInfo)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabase:(DatabaseInfo)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
@@ -286,12 +288,14 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTMockDatastore
 
 + (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
+  // This ownes the database-infos since we do not have firestore-client instance to own them.
+  static std::vector<DatabaseInfo> database_infos;
   DatabaseId database_id("project", "database");
-  DatabaseInfo database_info(database_id, "persistence", "host", false);
+  database_infos.emplace_back(database_id, "persistence", "host", false);
 
   FSTEmptyCredentialsProvider *credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
-  return [[FSTMockDatastore alloc] initWithDatabaseInfo:database_info
+  return [[FSTMockDatastore alloc] initWithDatabaseInfo:&database_infos.back()
                                     workerDispatchQueue:workerDispatchQueue
                                             credentials:credentials];
 }
@@ -305,7 +309,7 @@ NS_ASSUME_NONNULL_BEGIN
       workerDispatchQueue:self.workerDispatchQueue
               credentials:self.credentials
                serializer:[[FSTSerializerBeta alloc]
-                              initWithDatabaseID:self.databaseInfo.database_id()]];
+                              initWithDatabaseID:&self.databaseInfo->database_id()]];
   return self.watchStream;
 }
 
@@ -316,7 +320,7 @@ NS_ASSUME_NONNULL_BEGIN
       workerDispatchQueue:self.workerDispatchQueue
               credentials:self.credentials
                serializer:[[FSTSerializerBeta alloc]
-                              initWithDatabaseID:self.databaseInfo.database_id()]];
+                              initWithDatabaseID:&self.databaseInfo->database_id()]];
   return self.writeStream;
 }
 

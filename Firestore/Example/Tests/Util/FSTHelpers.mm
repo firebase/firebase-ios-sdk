@@ -17,6 +17,7 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include <inttypes.h>
+#include <vector>
 
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
@@ -105,9 +106,11 @@ FSTFieldPath *FSTTestFieldPath(NSString *field) {
 }
 
 FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
-  DatabaseId database_id("project", DatabaseId::kDefaultDatabaseId);
+  // This ownes the database-ids since we do not have firestore-client instance to own them.
+  static std::vector<DatabaseId> database_ids;
+  database_ids.emplace_back("project", DatabaseId::kDefaultDatabaseId);
   FSTUserDataConverter *converter =
-      [[FSTUserDataConverter alloc] initWithDatabaseID:database_id
+      [[FSTUserDataConverter alloc] initWithDatabaseID:&database_ids.back()
                                           preConverter:^id _Nullable(id _Nullable input) {
                                             return input;
                                           }];
@@ -171,8 +174,11 @@ FSTResourcePath *FSTTestPath(NSString *path) {
 }
 
 FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSString *path) {
-  DatabaseId database_id(util::MakeStringView(projectID), util::MakeStringView(database));
-  return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path) databaseID:database_id];
+  // This ownes the database-ids since we do not have firestore-client instance to own them.
+  static std::vector<DatabaseId> database_ids;
+  database_ids.emplace_back(util::MakeStringView(projectID), util::MakeStringView(database));
+  return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
+                                           databaseID:&database_ids.back()];
 }
 
 FSTQuery *FSTTestQuery(NSString *path) {

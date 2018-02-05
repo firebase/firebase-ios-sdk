@@ -77,7 +77,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @implementation FSTDatastore
 
-+ (instancetype)datastoreWithDatabase:(DatabaseInfo)databaseInfo
++ (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                           credentials:(id<FSTCredentialsProvider>)credentials {
   return [[FSTDatastore alloc] initWithDatabaseInfo:databaseInfo
@@ -85,20 +85,20 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                         credentials:credentials];
 }
 
-- (instancetype)initWithDatabaseInfo:(DatabaseInfo)databaseInfo
+- (instancetype)initWithDatabaseInfo:(const DatabaseInfo *)databaseInfo
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                          credentials:(id<FSTCredentialsProvider>)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    NSString *host = util::WrapNSStringNoCopy(databaseInfo.host());
-    if (!databaseInfo.ssl_enabled()) {
+    NSString *host = util::WrapNSStringNoCopy(databaseInfo->host());
+    if (!databaseInfo->ssl_enabled()) {
       GRPCHost *hostConfig = [GRPCHost hostWithAddress:host];
       hostConfig.secure = NO;
     }
     _service = [GCFSFirestore serviceWithHost:host];
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
-    _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseInfo.database_id()];
+    _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
   }
   return self;
 }
@@ -106,8 +106,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 - (NSString *)description {
   return [NSString
       stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%@ host:%@>>",
-                       util::WrapNSStringNoCopy(self.databaseInfo.database_id().database_id()),
-                       util::WrapNSStringNoCopy(self.databaseInfo.host())];
+                       util::WrapNSStringNoCopy(self.databaseInfo->database_id().database_id()),
+                       util::WrapNSStringNoCopy(self.databaseInfo->host())];
 }
 
 /**
@@ -178,10 +178,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 }
 
 /** Returns the string to be used as google-cloud-resource-prefix header value. */
-+ (NSString *)googleCloudResourcePrefixForDatabaseID:(DatabaseId)databaseID {
++ (NSString *)googleCloudResourcePrefixForDatabaseID:(const DatabaseId *)databaseID {
   return [NSString stringWithFormat:@"projects/%@/databases/%@",
-                                    util::WrapNSStringNoCopy(databaseID.project_id()),
-                                    util::WrapNSStringNoCopy(databaseID.database_id())];
+                                    util::WrapNSStringNoCopy(databaseID->project_id()),
+                                    util::WrapNSStringNoCopy(databaseID->database_id())];
 }
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
@@ -309,7 +309,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                       } else {
                         GRPCProtoCall *rpc = rpcFactory();
                         [FSTDatastore prepareHeadersForRPC:rpc
-                                                databaseID:self.databaseInfo.database_id()
+                                                databaseID:&self.databaseInfo->database_id()
                                                      token:result.token];
                         [rpc start];
                       }
@@ -333,7 +333,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(DatabaseId)databaseID
+                  databaseID:(const DatabaseId *)databaseID
                        token:(nullable NSString *)token {
   rpc.oauth2AccessToken = token;
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];

@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * All callbacks and events will be triggered on the provided userDispatchQueue.
  */
-+ (instancetype)clientWithDatabaseInfo:(firebase::firestore::core::DatabaseInfo)databaseInfo
++ (instancetype)clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
                      userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
@@ -81,7 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
                     completion:(FSTVoidIDErrorBlock)completion;
 
 /** The database ID of the databaseInfo this client was initialized with. */
-@property(nonatomic, assign, readonly) firebase::firestore::model::DatabaseId databaseID;
+// Ownes a DatabaseInfo instance, which contains the id here.
+@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
 
 /**
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the

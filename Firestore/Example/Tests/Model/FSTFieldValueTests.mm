@@ -261,7 +261,8 @@ union DoubleBits {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTReferenceValue class]);
     XCTAssertEqualObjects([wrapped value], value.key);
-    XCTAssertTrue(((FSTReferenceValue *)wrapped).databaseID == (DatabaseId)(value.databaseID));
+    XCTAssertTrue(*((FSTReferenceValue *)wrapped).databaseID ==
+                  *(const DatabaseId *)(value.databaseID));
   }
 }
 
@@ -422,6 +423,7 @@ union DoubleBits {
 }
 
 - (void)testValueEquality {
+  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
   NSArray *groups = @[
     @[ FSTTestFieldValue(@YES), [FSTBooleanValue booleanValue:YES] ],
     @[ FSTTestFieldValue(@NO), [FSTBooleanValue booleanValue:NO] ],
@@ -464,9 +466,9 @@ union DoubleBits {
     ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
-      [FSTReferenceValue referenceValue:FSTTestDocKey(@"coll/doc1")
-                             databaseID:DatabaseId("project", DatabaseId::kDefaultDatabaseId)],
-      FSTTestFieldValue(FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"coll/doc1"))
+      [FSTReferenceValue referenceValue:FSTTestDocKey(@"coll/doc1") databaseID:&database_id],
+      FSTTestFieldValue(FSTTestRef(
+          @"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"coll/doc1"))
     ],
     @[ FSTTestRef(@"project", @"(default)", @"coll/doc2") ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar" ]), FSTTestFieldValue(@[ @"foo", @"bar" ]) ],

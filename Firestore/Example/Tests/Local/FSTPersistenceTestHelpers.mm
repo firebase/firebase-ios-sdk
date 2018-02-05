@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
+#include <vector>
+
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -47,10 +49,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTLevelDB *)levelDBPersistence {
+  // This ownes the database-ids since we do not have firestore-client instance to own them.
+  static std::vector<DatabaseId> database_ids;
+
   NSString *dir = [self levelDBDir];
 
-  DatabaseId database_id("p", "d");
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:database_id];
+  database_ids.emplace_back("p", "d");
+  FSTSerializerBeta *remoteSerializer =
+      [[FSTSerializerBeta alloc] initWithDatabaseID:&database_ids.back()];
   FSTLocalSerializer *serializer =
       [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
   FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];

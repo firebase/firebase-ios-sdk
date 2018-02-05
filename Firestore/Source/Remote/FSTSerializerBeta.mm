@@ -53,12 +53,13 @@ using firebase::firestore::model::DatabaseId;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTSerializerBeta ()
-@property(nonatomic, assign, readonly) DatabaseId databaseID;
+// Does not own this DatabaseId.
+@property(nonatomic, assign, readonly) const DatabaseId *databaseID;
 @end
 
 @implementation FSTSerializerBeta
 
-- (instancetype)initWithDatabaseID:(DatabaseId)databaseID {
+- (instancetype)initWithDatabaseID:(const DatabaseId *)databaseID {
   self = [super init];
   if (self) {
     _databaseID = databaseID;
@@ -109,15 +110,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
   FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:name];
   FSTAssert([[path segmentAtIndex:1]
-                isEqualToString:util::WrapNSStringNoCopy(self.databaseID.project_id())],
+                isEqualToString:util::WrapNSStringNoCopy(self.databaseID->project_id())],
             @"Tried to deserialize key from different project.");
   FSTAssert([[path segmentAtIndex:3]
-                isEqualToString:util::WrapNSStringNoCopy(self.databaseID.database_id())],
+                isEqualToString:util::WrapNSStringNoCopy(self.databaseID->database_id())],
             @"Tried to deserialize key from different datbase.");
   return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
 }
 
-- (NSString *)encodedResourcePathForDatabaseID:(DatabaseId)databaseID path:(FSTResourcePath *)path {
+- (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
+                                          path:(FSTResourcePath *)path {
   return [[[[self encodedResourcePathForDatabaseID:databaseID] pathByAppendingSegment:@"documents"]
       pathByAppendingPath:path] canonicalString];
 }
@@ -145,10 +147,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FSTResourcePath *)encodedResourcePathForDatabaseID:(DatabaseId)databaseID {
+- (FSTResourcePath *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID {
   return [FSTResourcePath pathWithSegments:@[
-    @"projects", util::WrapNSStringNoCopy(databaseID.project_id()), @"databases",
-    util::WrapNSStringNoCopy(databaseID.database_id())
+    @"projects", util::WrapNSStringNoCopy(databaseID->project_id()), @"databases",
+    util::WrapNSStringNoCopy(databaseID->database_id())
   ]];
 }
 
@@ -303,7 +305,13 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedReferenceValueForDatabaseID:(DatabaseId)databaseID key:(FSTDocumentKey *)key {
+- (GCFSValue *)encodedReferenceValueForDatabaseID:(const DatabaseId *)databaseID
+                                              key:(FSTDocumentKey *)key {
+  FSTAssert(*databaseID == *self.databaseID, @"Database %@:%@ cannot encode reference from %@:%@",
+            util::WrapNSStringNoCopy(self.databaseID->project_id()),
+            util::WrapNSStringNoCopy(self.databaseID->database_id()),
+            util::WrapNSStringNoCopy(databaseID->project_id()),
+            util::WrapNSStringNoCopy(databaseID->database_id()));
   GCFSValue *result = [GCFSValue message];
   result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];
   return result;
@@ -313,10 +321,16 @@ NS_ASSUME_NONNULL_BEGIN
   FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:resourceName];
   NSString *project = [path segmentAtIndex:1];
   NSString *database = [path segmentAtIndex:3];
-  DatabaseId database_id(util::MakeStringView(project), util::MakeStringView(database));
   FSTDocumentKey *key =
       [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
-  return [FSTReferenceValue referenceValue:key databaseID:database_id];
+
+  const DatabaseId database_id(util::MakeStringView(project), util::MakeStringView(database));
+  FSTAssert(database_id == *self.databaseID, @"Database %@:%@ cannot encode reference from %@:%@",
+            util::WrapNSStringNoCopy(self.databaseID->project_id()),
+            util::WrapNSStringNoCopy(self.databaseID->database_id()),
+            util::WrapNSStringNoCopy(database_id.project_id()),
+            util::WrapNSStringNoCopy(database_id.database_id()));
+  return [FSTReferenceValue referenceValue:key databaseID:self.databaseID];
 }
 
 - (GCFSArrayValue *)encodedArrayValue:(FSTArrayValue *)arrayValue {

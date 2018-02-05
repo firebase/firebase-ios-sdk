@@ -95,7 +95,7 @@ using leveldb::WriteOptions;
 #endif
 }
 
-+ (NSString *)storageDirectoryForDatabaseInfo:(DatabaseInfo)databaseInfo
++ (NSString *)storageDirectoryForDatabaseInfo:(const DatabaseInfo &)databaseInfo
                            documentsDirectory:(NSString *)documentsDirectory {
   // Use two different path formats:
   //

@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTStream <__covariant FSTStreamDelegate> : NSObject
 
-- (instancetype)initWithDatabase:(firebase::firestore::core::DatabaseInfo)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_DESIGNATED_INITIALIZER;
@@ -198,12 +198,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes the watch stream with its dependencies.
  */
-- (instancetype)initWithDatabase:(firebase::firestore::core::DatabaseInfo)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(firebase::firestore::core::DatabaseInfo)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
@@ -272,12 +272,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes the write stream with its dependencies.
  */
-- (instancetype)initWithDatabase:(firebase::firestore::core::DatabaseInfo)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer;
 
-- (instancetype)initWithDatabase:(firebase::firestore::core::DatabaseInfo)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;

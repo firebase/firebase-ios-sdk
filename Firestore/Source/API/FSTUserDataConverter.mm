@@ -276,7 +276,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 @implementation FSTDocumentKeyReference
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key databaseID:(DatabaseId)databaseID {
+- (instancetype)initWithKey:(FSTDocumentKey *)key databaseID:(const DatabaseId *)databaseID {
   self = [super init];
   if (self) {
     _key = key;
@@ -290,13 +290,14 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 #pragma mark - FSTUserDataConverter
 
 @interface FSTUserDataConverter ()
-@property(assign, nonatomic, readonly) DatabaseId databaseID;
+// Does not own the DatabaseId instance.
+@property(assign, nonatomic, readonly) const DatabaseId *databaseID;
 @property(strong, nonatomic, readonly) FSTPreConverterBlock preConverter;
 @end
 
 @implementation FSTUserDataConverter
 
-- (instancetype)initWithDatabaseID:(DatabaseId)databaseID
+- (instancetype)initWithDatabaseID:(const DatabaseId *)databaseID
                       preConverter:(FSTPreConverterBlock)preConverter {
   self = [super init];
   if (self) {
@@ -545,14 +546,14 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   } else if ([input isKindOfClass:[FSTDocumentKeyReference class]]) {
     FSTDocumentKeyReference *reference = input;
-    if (reference.databaseID != self.databaseID) {
-      DatabaseId other = reference.databaseID;
+    if (*reference.databaseID != *self.databaseID) {
+      const DatabaseId *other = reference.databaseID;
       FSTThrowInvalidArgument(
           @"Document Reference is for database %@/%@ but should be for database %@/%@%@",
-          util::WrapNSStringNoCopy(other.project_id()),
-          util::WrapNSStringNoCopy(other.database_id()),
-          util::WrapNSStringNoCopy(self.databaseID.project_id()),
-          util::WrapNSStringNoCopy(self.databaseID.database_id()), [context fieldDescription]);
+          util::WrapNSStringNoCopy(other->project_id()),
+          util::WrapNSStringNoCopy(other->database_id()),
+          util::WrapNSStringNoCopy(self.databaseID->project_id()),
+          util::WrapNSStringNoCopy(self.databaseID->database_id()), [context fieldDescription]);
     }
     return [FSTReferenceValue referenceValue:reference.key databaseID:self.databaseID];
 

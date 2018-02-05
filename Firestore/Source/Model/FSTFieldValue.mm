@@ -654,11 +654,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 
 @implementation FSTReferenceValue
 
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
   return [[FSTReferenceValue alloc] initWithValue:value databaseID:databaseID];
 }
 
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
+- (id)initWithValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
   self = [super init];
   if (self) {
     _key = value;
@@ -684,11 +684,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return [self.key isEqualToKey:otherRef.key] && self.databaseID == otherRef.databaseID;
+  return [self.key isEqualToKey:otherRef.key] && *self.databaseID == *otherRef.databaseID;
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.databaseID.Hash();
+  NSUInteger result = self.databaseID->Hash();
   result = 31 * result + [self.key hash];
   return result;
 }
@@ -696,13 +696,13 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp = [util::WrapNSStringNoCopy(self.databaseID.project_id())
-        compare:util::WrapNSStringNoCopy(ref.databaseID.project_id())];
+    NSComparisonResult cmp = [util::WrapNSStringNoCopy(self.databaseID->project_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID->project_id())];
     if (cmp != NSOrderedSame) {
       return cmp;
     }
-    cmp = [util::WrapNSStringNoCopy(self.databaseID.database_id())
-        compare:util::WrapNSStringNoCopy(ref.databaseID.database_id())];
+    cmp = [util::WrapNSStringNoCopy(self.databaseID->database_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID->database_id())];
     return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
   } else {
     return [self defaultCompare:other];

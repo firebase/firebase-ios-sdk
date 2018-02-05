@@ -162,14 +162,14 @@ using firebase::firestore::model::DatabaseId;
 }
 
 - (FSTWriteStream *)setUpWriteStream {
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:_databaseInfo
+  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
   return [datastore createWriteStream];
 }
 
 - (FSTWatchStream *)setUpWatchStream {
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:_databaseInfo
+  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
   return [datastore createWatchStream];

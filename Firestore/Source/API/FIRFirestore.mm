@@ -49,9 +49,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
-@interface FIRFirestore ()
+@interface FIRFirestore () {
+  /** The actual owned DatabaseId instance is allocated in FIRFirestore. */
+  firebase::firestore::model::DatabaseId _databaseIDAlloc;
+}
 
-@property(nonatomic, assign) DatabaseId databaseID;
 @property(nonatomic, strong) NSString *persistenceKey;
 @property(nonatomic, strong) id<FSTCredentialsProvider> credentialsProvider;
 @property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
@@ -144,7 +146,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _databaseID = DatabaseId(util::MakeStringView(projectID), util::MakeStringView(database));
+    self->_databaseIDAlloc =
+        DatabaseId(util::MakeStringView(projectID), util::MakeStringView(database));
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;
@@ -154,8 +157,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         return input;
       }
     };
-    _dataConverter =
-        [[FSTUserDataConverter alloc] initWithDatabaseID:_databaseID preConverter:block];
+    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&self->_databaseIDAlloc
+                                                         preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = credentialsProvider;
     _workerDispatchQueue = workerDispatchQueue;
@@ -201,8 +204,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
       FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
-      DatabaseInfo database_info(_databaseID, util::MakeStringView(_persistenceKey),
-                                 util::MakeStringView(_settings.host), _settings.sslEnabled);
+      const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
+                                       util::MakeStringView(_settings.host), _settings.sslEnabled);
 
       FSTDispatchQueue *userDispatchQueue = [FSTDispatchQueue queueWith:_settings.dispatchQueue];
 
@@ -315,6 +318,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 - (void)disableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable))completion {
   [self ensureClientConfigured];
   [self.client disableNetworkWithCompletion:completion];
+}
+
+- (const DatabaseId *)databaseID {
+  return &_databaseIDAlloc;
 }
 
 @end

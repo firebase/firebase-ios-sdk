@@ -56,7 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSValue *)encodedString:(NSString *)value;
 @end
 
-@interface FSTLocalSerializerTests : XCTestCase
+@interface FSTLocalSerializerTests : XCTestCase {
+  DatabaseId databaseId;
+}
 
 @property(nonatomic, strong) FSTLocalSerializer *serializer;
 @property(nonatomic, strong) FSTSerializerBeta *remoteSerializer;
@@ -66,8 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLocalSerializerTests
 
 - (void)setUp {
-  DatabaseId database_id("p", "d");
-  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:database_id];
+  self->databaseId = DatabaseId("p", "d");
+  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&self->databaseId];
   self.serializer = [[FSTLocalSerializer alloc] initWithRemoteSerializer:self.remoteSerializer];
 }
 

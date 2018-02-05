@@ -143,6 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTLocalStore *_localStore;
   id<FSTCredentialsProvider> _credentials;
 
+  DatabaseInfo _databaseInfo;
   FSTDatastore *_datastore;
   FSTRemoteStore *_remoteStore;
 }
@@ -162,8 +163,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   DatabaseId database_id(util::MakeStringView(projectID), DatabaseId::kDefaultDatabaseId);
 
-  DatabaseInfo database_info(database_id, "test-key", util::MakeStringView(settings.host),
-                             settings.sslEnabled);
+  _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
+                               settings.sslEnabled);
 
   _testWorkerQueue = [FSTDispatchQueue
       queueWith:dispatch_queue_create("com.google.firestore.FSTDatastoreTestsWorkerQueue",
@@ -171,7 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   _credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
-  _datastore = [FSTDatastore datastoreWithDatabase:database_info
+  _datastore = [FSTDatastore datastoreWithDatabase:&_databaseInfo
                                workerDispatchQueue:_testWorkerQueue
                                        credentials:_credentials];
 
