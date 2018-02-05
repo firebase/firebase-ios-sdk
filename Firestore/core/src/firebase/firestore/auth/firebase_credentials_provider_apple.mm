@@ -44,7 +44,7 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
                    queue:nil
               usingBlock:^(NSNotification* notification) {
                 std::unique_lock<std::mutex> lock(mutex_);
-                NSDictionary<NSString *, id>* user_info = notification.userInfo;
+                NSDictionary<NSString*, id>* user_info = notification.userInfo;
 
                 // ensure we're only notifiying for the current app.
                 FIRApp* notified_app =

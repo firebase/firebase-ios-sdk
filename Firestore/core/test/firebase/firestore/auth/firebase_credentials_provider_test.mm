@@ -30,7 +30,7 @@ namespace auth {
 
 // TODO(zxu123): Make this an integration test and get infos from environment.
 // Set a .plist file here to enable the test-case.
-static NSString *const kPlist = @"";
+static NSString* const kPlist = @"";
 
 class FirebaseCredentialsProviderTest : public ::testing::Test {
  protected:
@@ -42,8 +42,7 @@ class FirebaseCredentialsProviderTest : public ::testing::Test {
 
     static dispatch_once_t once_token;
     dispatch_once(&once_token, ^{
-      FIROptions* options =
-          [[FIROptions alloc] initWithContentsOfFile:kPlist];
+      FIROptions* options = [[FIROptions alloc] initWithContentsOfFile:kPlist];
       [FIRApp configureWithOptions:options];
     });
 
