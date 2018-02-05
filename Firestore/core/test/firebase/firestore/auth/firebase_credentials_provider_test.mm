@@ -28,24 +28,22 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
+// TODO(zxu123): Make this an integration test and get infos from environment.
 // Set a .plist file here to enable the test-case.
-static const char* kPlist = "";
+static NSString *const kPlist = @"/Users/zxu/Downloads/GoogleService-Info.plist";
 
 class FirebaseCredentialsProviderTest : public ::testing::Test {
  protected:
   void SetUp() override {
     app_ready_ = false;
-    absl::string_view plist(kPlist);
-    if (plist.length() < 6 || plist.substr(plist.length() - 6) != ".plist") {
+    if (![kPlist hasSuffix:@".plist"]) {
       return;
     }
 
     static dispatch_once_t once_token;
     dispatch_once(&once_token, ^{
-      NSString* file_path =
-          firebase::firestore::util::WrapNSStringNoCopy(kPlist);
       FIROptions* options =
-          [[FIROptions alloc] initWithContentsOfFile:file_path];
+          [[FIROptions alloc] initWithContentsOfFile:kPlist];
       [FIRApp configureWithOptions:options];
     });
 

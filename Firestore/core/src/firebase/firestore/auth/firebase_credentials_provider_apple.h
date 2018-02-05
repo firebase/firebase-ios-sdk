@@ -16,16 +16,16 @@
 
 // Right now, FirebaseCredentialsProvider only support APPLE build.
 #if !defined(__OBJC__)
-#error "This .header can only be used in .mm file for iOS build."
+#error "This header only supports Objective-C++."
 #endif  // !defined(__OBJC__)
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
 
 #import <Foundation/Foundation.h>
 
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -60,7 +60,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    *
    * @param app The Firebase app from which to get credentials.
    */
-  FirebaseCredentialsProvider(FIRApp* app);
+  explicit FirebaseCredentialsProvider(FIRApp* app);
 
   void GetToken(bool force_refresh, TokenListener completion) override;
 
@@ -94,13 +94,11 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    */
   int user_counter_;
 
-  // Make it static as as it is used in some of the callbacks. Otherwise, we saw
-  // mutex lock failed: Invalid argument.
-  static std::mutex mutex_;
+  std::mutex mutex_;
 };
 
 }  // namespace auth
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_CREDENTIALS_PROVIDER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
