@@ -180,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
     const DatabaseId *refDatabase = ref.databaseID;
     const DatabaseId *database = self.firestore.databaseID;
-    if (refDatabase != database) {
+    if (*refDatabase != *database) {
       // TODO(b/32073923): Log this as a proper warning.
       NSLog(
           @"WARNING: Document %@ contains a document reference within a different database "
