@@ -22,8 +22,11 @@
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Local/FSTMutationQueue.h"
+#import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
@@ -147,6 +150,20 @@ static ReadOptions StandardReadOptions() {
             @"Read document has key (%@) instead of expected key (%@).", maybeDocument.key,
             documentKey);
   return maybeDocument;
+}
+
+- (NSUInteger)removeOrphanedDocuments:(id <FSTQueryCache>)queryCache
+                        mutationQueue:(id <FSTMutationQueue>)mutationQueue
+                                group:(FSTWriteGroup *)group {
+  __block NSUInteger count = 0;
+  [queryCache enumerateOrphanedDocumentsUsingBlock:^(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+    if (![mutationQueue containsKey:docKey]) {
+      [queryCache removeOrphanedDocument:docKey group:group];
+      [self removeEntryForKey:docKey group:group];
+      count++;
+    }
+  }];
+  return count;
 }
 
 @end

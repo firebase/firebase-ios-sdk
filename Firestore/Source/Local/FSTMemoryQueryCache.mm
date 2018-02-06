@@ -118,17 +118,20 @@ NS_ASSUME_NONNULL_BEGIN
   return self.queries[query];
 }
 
-- (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber,
-                                                     BOOL *stop))block {
+- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData,
+        BOOL *stop))block {
   [self.queries
-      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
-        block(queryData.sequenceNumber, stop);
-      }];
+          enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
+            block(queryData, stop);
+          }];
+}
+
+- (void)enumerateOrphanedDocumentsUsingBlock:(void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
   [self.orphanedDocumentSequenceNumbers
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, NSNumber *sequenceNumber,
-                                          BOOL *stop) {
-        block([sequenceNumber longLongValue], stop);
-      }];
+          enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, NSNumber *sequenceNumber,
+                  BOOL *stop) {
+            block(key, [sequenceNumber longLongValue], stop);
+          }];
 }
 
 - (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
@@ -161,6 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addMatchingKeys:(FSTDocumentKeySet *)keys
             forTargetID:(FSTTargetID)targetID
+       atSequenceNumber:(__unused FSTListenSequenceNumber)sequenceNumber
                   group:(__unused FSTWriteGroup *)group {
   // We're adding docs to a target, we no longer care that they were mutated.
   for (FSTDocumentKey *key in [keys objectEnumerator]) {
@@ -185,6 +189,10 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.references referencedKeysForID:targetID];
 }
 
+- (void)removeOrphanedDocument:(FSTDocumentKey *)key group:(__unused FSTWriteGroup *)group {
+  [self.orphanedDocumentSequenceNumbers removeObjectForKey:key];
+}
+
 #pragma mark - FSTGarbageSource implementation
 
 - (nullable id<FSTGarbageCollector>)garbageCollector {
@@ -196,6 +204,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)containsKey:(FSTDocumentKey *)key {
+  // We intentionally ignore orphaned documents here, they are not part of a query and so
+  // are not 'contained' by the query cache.
   return [self.references containsKey:key];
 }
 

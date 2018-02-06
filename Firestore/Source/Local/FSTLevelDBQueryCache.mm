@@ -128,31 +128,34 @@ using leveldb::WriteOptions;
   _db.reset();
 }
 
-- (void)enumerateSequenceNumbersUsingBlock:(void (^)(FSTListenSequenceNumber sequenceNumber,
+- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData,
         BOOL *stop))block {
   // Enumerate all targets, give their sequence numbers.
-  // Also enumerate all orphaned documents, give their sequence numbers.
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
   std::unique_ptr<Iterator> it(_db->NewIterator([FSTLevelDB standardReadOptions]));
   it->Seek(targetPrefix);
   BOOL stop = NO;
-  while (!stop && it->Valid() && it->key().starts_with(targetPrefix)) {
+  for (; !stop && it->Valid() && it->key().starts_with(targetPrefix); it->Next()) {
     FSTQueryData *target = [self decodedTargetWithSlice:it->value()];
-    block(target.sequenceNumber, &stop);
-    it->Next();
+    block(target, &stop);
   }
+}
 
+- (void)enumerateOrphanedDocumentsUsingBlock:(void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
   std::string documentTargetPrefix = [FSTLevelDBDocumentTargetKey keyPrefix];
+  std::unique_ptr<Iterator> it(_db->NewIterator([FSTLevelDB standardReadOptions]));
   it->Seek(documentTargetPrefix);
   FSTListenSequenceNumber nextToReport = 0;
+  FSTDocumentKey *keyToReport = nil;
   FSTLevelDBDocumentTargetKey *key = [[FSTLevelDBDocumentTargetKey alloc] init];
-  while (!stop && it->Valid() && it->key().starts_with(documentTargetPrefix)) {
+  BOOL stop = NO;
+  for (; !stop && it->Valid() && it->key().starts_with(documentTargetPrefix); it->Next()) {
     [key decodeKey:it->key()];
     if (key.isSentinel) {
       // if nextToReport is non-zero, report it, this is a new key so the last one
       // must be orphaned.
       if (nextToReport != 0) {
-        block(nextToReport, &stop);
+        block(keyToReport, nextToReport, &stop);
       }
       // set nextToReport to be this sequence number. It's the next one we might
       // report, if we don't find any targets for this document.
@@ -161,6 +164,7 @@ using leveldb::WriteOptions;
       absl::string_view tmp(slice.data(), slice.size());
       if (OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
         nextToReport = (FSTListenSequenceNumber)decoded;
+        keyToReport = key.documentKey;
       } else {
         FSTFail(@"Failed to read sequence number from a sentinel row");
       }
@@ -168,13 +172,13 @@ using leveldb::WriteOptions;
       // set nextToReport to be 0, we know we don't need to report this one since
       // we found a target for it.
       nextToReport = 0;
+      keyToReport = nil;
     }
-    it->Next();
   }
   // if not stop and nextToReport is non-zero, report it. We didn't find any targets for
   // that document, and we weren't asked to stop.
   if (!stop && nextToReport != 0) {
-    block(nextToReport, &stop);
+    block(keyToReport, nextToReport, &stop);
   }
 }
 
@@ -238,6 +242,23 @@ using leveldb::WriteOptions;
   [group removeMessageForKey:indexKey];
   self.metadata.targetCount -= 1;
   [self saveMetadataInGroup:group];
+}
+
+- (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                                     liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
+                                           group:(FSTWriteGroup *)group {
+  NSUInteger count = 0;
+  std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
+  std::unique_ptr<Iterator> it(_db->NewIterator([FSTLevelDB standardReadOptions]));
+  it->Seek(targetPrefix);
+  for (; it->Valid() && it->key().starts_with(targetPrefix); it->Next()) {
+    FSTQueryData *queryData = [self decodedTargetWithSlice:it->value()];
+    if (queryData.sequenceNumber <= sequenceNumber && !liveQueries[@(queryData.targetID)]) {
+      [self removeQueryData:queryData group:group];
+      count++;
+    }
+  }
+  return count;
 }
 
 - (int32_t)count {
@@ -381,6 +402,10 @@ using leveldb::WriteOptions;
   }
 }
 
+- (void)removeOrphanedDocument:(FSTDocumentKey *)key group:(FSTWriteGroup *)group {
+  [group removeMessageForKey:[FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:key]];
+}
+
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
@@ -409,9 +434,9 @@ using leveldb::WriteOptions;
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
-  if (indexIterator->Valid()) {
-    FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
-    if ([rowKey decodeKey:indexIterator->key()] && [rowKey.documentKey isEqualToKey:key]) {
+  FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
+  for (; indexIterator->Valid() && indexIterator->key().starts_with(indexPrefix); indexIterator->Next()) {
+    if ([rowKey decodeKey:indexIterator->key()] && !rowKey.isSentinel) {
       return YES;
     }
   }

@@ -16,15 +16,15 @@
 
 #import <XCTest/XCTest.h>
 
+
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
-#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
-#import "Firestore/Source/Local/FSTMemoryQueryCache.h"
-#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTMutationQueue.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTQueryCache.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
     int expectedTenthPercentile = testCases[i].expected;
     id<FSTPersistence> persistence = [self newPersistence];
     FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    id<FSTQueryCache> queryCache = [persistence queryCache];
     [queryCache start];
     for (int j = 0; j < numQueries; j++) {
       [queryCache addQueryData:[self nextTestQuery] group:group];
@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
   // No queries... should get invalid sequence number (-1)
   {
     id<FSTPersistence> persistence = [self newPersistence];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    id<FSTQueryCache> queryCache = [persistence queryCache];
     [queryCache start];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:0];
@@ -136,7 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
   {
     _previousSequenceNumber = 1000;
     id<FSTPersistence> persistence = [self newPersistence];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    id<FSTQueryCache> queryCache = [persistence queryCache];
     [queryCache start];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
@@ -154,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
   {
     _previousSequenceNumber = 1000;
     id<FSTPersistence> persistence = [self newPersistence];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    id<FSTQueryCache> queryCache = [persistence queryCache];
     [queryCache start];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
@@ -177,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
   {
     _previousSequenceNumber = 1000;
     id<FSTPersistence> persistence = [self newPersistence];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    id<FSTQueryCache> queryCache = [persistence queryCache];
     [queryCache start];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
   {
     _previousSequenceNumber = 1000;
     id<FSTPersistence> persistence = [self newPersistence];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    id<FSTQueryCache> queryCache = [persistence queryCache];
     [queryCache start];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
@@ -222,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
   {
     _previousSequenceNumber = 1000;
     id<FSTPersistence> persistence = [self newPersistence];
-    FSTMemoryQueryCache *queryCache = [persistence queryCache];
+    id<FSTQueryCache> queryCache = [persistence queryCache];
     [queryCache start];
     FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
     FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
@@ -252,15 +252,15 @@ NS_ASSUME_NONNULL_BEGIN
     [persistence shutdown];
   }
 }
-/*
+
 - (void)testRemoveQueriesUpThroughSequenceNumber {
   if ([self isTestBaseClass]) return;
 
   id<FSTPersistence> persistence = [self newPersistence];
-  FSTMemoryQueryCache *queryCache = [persistence queryCache];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
   [queryCache start];
   FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
-  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
+  FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
   NSMutableDictionary<NSNumber *, FSTQueryData *> *liveQueries = [[NSMutableDictionary alloc] init];
   for (int i = 0; i < 100; i++) {
     FSTQueryData *queryData = [self nextTestQuery];
@@ -270,12 +270,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
     [queryCache addQueryData:queryData group:group];
   }
+  [persistence commitGroup:group];
 
   // GC up through 1015, which is 15%.
   // Expect to have GC'd 7 targets (even values of 1001-1015).
-  FSTWriteGroup *gcGroup = [FSTWriteGroup groupWithAction:@"gc"];
+  FSTWriteGroup *gcGroup = [persistence startGroupWithAction:@"gc"];
   NSUInteger removed =
       [gc removeQueriesUpThroughSequenceNumber:1015 liveQueries:liveQueries group:gcGroup];
+  [persistence commitGroup:gcGroup];
   XCTAssertEqual(7, removed);
   [queryCache shutdown];
   [persistence shutdown];
@@ -285,12 +287,13 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   id<FSTPersistence> persistence = [self newPersistence];
-  FSTMemoryQueryCache *queryCache = [persistence queryCache];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
   [queryCache start];
-  FSTMemoryRemoteDocumentCache *documentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
-  FSTMemoryMutationQueue *mutationQueue = [[FSTMemoryMutationQueue alloc] init];
+  id<FSTRemoteDocumentCache> documentCache = [persistence remoteDocumentCache];
+  FSTUser *user = [[FSTUser alloc] initWithUID:@"user"];
+  id<FSTMutationQueue> mutationQueue = [persistence mutationQueueForUser:user];
   FSTLRUGarbageCollector *gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache];
-  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Ignored"];
+  FSTWriteGroup *group = [persistence startGroupWithAction:@"Setup"];
   [mutationQueue startWithGroup:group];
 
   // Add docs to mutation queue, as well as keep some queries. verify that correct documents are
@@ -316,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
                atSequenceNumber:queryData.sequenceNumber
                           group:group];
 
-    FSTObjectValue *newValue = [[FSTObjectValue alloc] initWithDictionary:@{@"foo" : @"@bar"}];
+    FSTObjectValue *newValue = [[FSTObjectValue alloc] initWithDictionary:@{@"foo" : [FSTStringValue stringValue:@"bar"]}];
     [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc2.key
                                                        value:newValue
                                                 precondition:[FSTPrecondition none]]];
@@ -349,30 +352,39 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTimestamp *writeTime = [FSTTimestamp timestamp];
   [mutationQueue addMutationBatchWithWriteTime:writeTime mutations:mutations group:group];
 
+
   // Now add the docs we expect to get resolved.
   NSUInteger expectedRemoveCount = 5;
   NSMutableSet<FSTDocumentKey *> *toBeRemoved = [NSMutableSet setWithCapacity:expectedRemoveCount];
+  FSTDocumentKeySet *removedSet = [FSTDocumentKeySet keySet];
   for (int i = 0; i < expectedRemoveCount; i++) {
     FSTDocument *doc = [self nextTestDocument];
     [toBeRemoved addObject:doc.key];
     [documentCache addEntry:doc group:group];
+    removedSet = [removedSet setByAddingObject:doc.key];
   }
+  [queryCache addPotentiallyOrphanedDocuments:removedSet atSequenceNumber:1000 group:group];
+  [persistence commitGroup:group];
 
-  FSTWriteGroup *gcGroup = [FSTWriteGroup groupWithAction:@"gc"];
+  FSTWriteGroup *gcGroup = [persistence startGroupWithAction:@"gc"];
   NSUInteger removed =
       [gc removeOrphanedDocuments:documentCache mutationQueue:mutationQueue group:gcGroup];
+  [persistence commitGroup:gcGroup];
 
   XCTAssertEqual(expectedRemoveCount, removed);
   for (FSTDocumentKey *key in toBeRemoved) {
     XCTAssertNil([documentCache entryForKey:key]);
+    XCTAssertFalse([queryCache containsKey:key]);
   }
   for (FSTDocumentKey *key in toBeRetained) {
     XCTAssertNotNil([documentCache entryForKey:key], @"Missing document %@", key);
   }
   [queryCache shutdown];
+  [mutationQueue shutdown];
+  [documentCache shutdown];
   [persistence shutdown];
 }
-*/
+
 @end
 
 NS_ASSUME_NONNULL_END

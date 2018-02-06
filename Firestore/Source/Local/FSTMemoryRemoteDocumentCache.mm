@@ -87,9 +87,10 @@ NS_ASSUME_NONNULL_BEGIN
   NSUInteger count = 0;
   FSTMaybeDocumentDictionary *updatedDocs = self.docs;
   for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
-    if ([queryCache containsKey:docKey] || [mutationQueue containsKey:docKey]) {
+    if ([mutationQueue containsKey:docKey] || [queryCache containsKey:docKey]) {
       continue;
     }
+    [queryCache removeOrphanedDocument:docKey group:group];
     updatedDocs = [updatedDocs dictionaryByRemovingObjectForKey:docKey];
     count++;
   }

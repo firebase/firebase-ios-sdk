@@ -74,9 +74,13 @@ class RollingSequenceNumberBuffer {
   RollingSequenceNumberBuffer buffer(queryCount);
   RollingSequenceNumberBuffer *ptr_to_buffer = &buffer;
   [self.queryCache
-      enumerateSequenceNumbersUsingBlock:^(FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
-        ptr_to_buffer->AddElement(sequenceNumber);
+      enumerateTargetsUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
+        ptr_to_buffer->AddElement(queryData.sequenceNumber);
       }];
+  [self.queryCache enumerateOrphanedDocumentsUsingBlock:^(FSTDocumentKey *docKey,
+          FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+    ptr_to_buffer->AddElement(sequenceNumber);
+  }];
   return buffer.max_value();
 }
 
