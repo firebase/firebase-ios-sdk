@@ -146,8 +146,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _databaseIDAlloc =
-        DatabaseId(util::MakeStringView(projectID), util::MakeStringView(database));
+    _databaseIDAlloc = DatabaseId(util::MakeStringView(projectID), util::MakeStringView(database));
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;
@@ -157,8 +156,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         return input;
       }
     };
-    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseIDAlloc
-                                                         preConverter:block];
+    _dataConverter =
+        [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseIDAlloc preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = credentialsProvider;
     _workerDispatchQueue = workerDispatchQueue;
