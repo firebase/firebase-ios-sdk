@@ -29,10 +29,6 @@ namespace auth {
 
 std::mutex FirebaseCredentialsProvider::mutex_;
 
-FirebaseCredentialsProvider::FirebaseCredentialsProvider()
-    : FirebaseCredentialsProvider([FIRApp defaultApp]) {
-}
-
 FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
     : app_(app),
       auth_listener_handle_(nil),

@@ -71,12 +71,12 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
   friend class DISABLED_FirebaseCredentialsProviderTest_GetToken_Test;
   friend class DISABLED_FirebaseCredentialsProviderTest_SetListener_Test;
 
+  friend class FirebaseCredentialsProviderTest_GetToken_Test;
+  friend class FirebaseCredentialsProviderTest_SetListener_Test;
+  friend class DISABLED_FirebaseCredentialsProviderTest_GetToken_Test;
+  friend class DISABLED_FirebaseCredentialsProviderTest_SetListener_Test;
+
  private:
-  /** Initialize with default app for internal usage such as test. */
-  FirebaseCredentialsProvider();
-
-  static void PlatformDependentTestSetup(const absl::string_view config_path);
-
   const FIRApp* app_;
 
   /**
