@@ -1,11 +1,11 @@
 # 2018-02-06 -- v2.1.0
-- Adding a new property autoInitEnabled to enable and disable FCM token auto generation.
-- Fixed an issue of un-successful delivery of notification message when changing language settings.
+- Added a new property autoInitEnabled to enable and disable FCM token auto generation.
+- Fixed an issue where notification delivery would fail after changing language settings.
 
 # 2017-09-26 -- v2.0.5
 - Added swizzling of additional UNUserNotificationCenterDelegate method, for
   more accurate Analytics logging.
-- Fixed a swizzling issue with un-implemented UNUserNotificationCenterDelegate
+- Fixed a swizzling issue with unimplemented UNUserNotificationCenterDelegate
   methods.
 
 # 2017-09-26 -- v2.0.4
@@ -18,7 +18,7 @@
 - Clarified a log message about method swizzling being enabled.
 
 # 2017-09-13 -- v2.0.3
-- Moved to safer use of NSAsserts, instead of lower-level __builtin_trap()
+- Moved to safer use of NSAsserts, instead of lower-level `__builtin_trap()`
   method.
 - Added logging of the underlying error code for an error trying to create or
   open an internal database file.
