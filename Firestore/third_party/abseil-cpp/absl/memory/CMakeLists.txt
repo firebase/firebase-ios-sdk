@@ -14,10 +14,39 @@
 # limitations under the License.
 #
 
+list(APPEND MEMORY_PUBLIC_HEADERS
+  "memory.h"
+)
 
 
-add_subdirectory(base)
-add_subdirectory(memory)
-add_subdirectory(meta)
-add_subdirectory(numeric)
-add_subdirectory(strings)
+absl_header_library(
+  TARGET
+    absl_memory
+  EXPORT_NAME
+    memory
+)
+
+#
+## TESTS
+#
+
+# test memory_test
+list(APPEND MEMORY_TEST_SRC
+  "memory_test.cc"
+  ${MEMORY_PUBLIC_HEADERS}
+)
+set(MEMORY_TEST_PUBLIC_LIBRARIES absl::base absl::memory)
+
+
+
+absl_test(
+  TARGET
+    memory_test
+  SOURCES
+    ${MEMORY_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${MEMORY_TEST_PUBLIC_LIBRARIES}
+)
+
+
+
