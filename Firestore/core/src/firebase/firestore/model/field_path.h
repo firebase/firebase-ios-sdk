@@ -35,6 +35,8 @@ namespace model {
  */
 class FieldPath : public impl::BasePath<FieldPath> {
  public:
+  static constexpr const char* kDocumentKeyPath = "__name__";
+
   FieldPath() = default;
   /** Constructs the path from segments. */
   template <typename IterT>

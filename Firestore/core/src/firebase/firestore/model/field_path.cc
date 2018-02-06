@@ -30,9 +30,6 @@ namespace model {
 
 namespace {
 
-// TODO(varconst): move to C++ equivalent of FSTDocumentKey.{h,cc}
-const char* const kDocumentKeyPath = "__name__";
-
 /**
  * True if the string could be used as a segment in a field path without
  * escaping. Valid identifies follow the regex [a-zA-Z_][a-zA-Z0-9_]*
@@ -146,12 +143,12 @@ const FieldPath& FieldPath::EmptyPath() {
 }
 
 const FieldPath& FieldPath::KeyFieldPath() {
-  static const FieldPath key_field_path{kDocumentKeyPath};
+  static const FieldPath key_field_path{FieldPath::kDocumentKeyPath};
   return key_field_path;
 }
 
 bool FieldPath::IsKeyFieldPath() const {
-  return size() == 1 && first_segment() == kDocumentKeyPath;
+  return size() == 1 && first_segment() == FieldPath::kDocumentKeyPath;
 }
 
 std::string FieldPath::CanonicalString() const {

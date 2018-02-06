@@ -74,7 +74,7 @@ TEST(ResourcePath, Comparison) {
 
 TEST(ResourcePath, Parsing) {
   const auto parse = [](const std::pair<std::string, size_t> expected) {
-    const auto path = ResourcePath::Parse(expected.first);
+    const auto path = ResourcePath::FromString(expected.first);
     return std::make_pair(path.CanonicalString(), path.size());
   };
   const auto make_expected = [](const std::string& str, const size_t size) {
@@ -92,12 +92,12 @@ TEST(ResourcePath, Parsing) {
   expected = make_expected(R"(foo/__!?#@..`..\`/baz)", 3);
   EXPECT_EQ(expected, parse(expected));
 
-  EXPECT_EQ(ResourcePath::Parse("/foo/").CanonicalString(), "foo");
+  EXPECT_EQ(ResourcePath::FromString("/foo/").CanonicalString(), "foo");
 }
 
 TEST(ResourcePath, ParseFailures) {
-  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("//"), "");
-  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("foo//bar"), "");
+  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::FromString("//"), "");
+  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::FromString("foo//bar"), "");
 }
 
 }  // namespace model
