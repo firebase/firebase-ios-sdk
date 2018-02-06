@@ -19,7 +19,6 @@ NSString *const kCustomizedAPIKey = @"customized_api_key";
 NSString *const kClientID = @"correct_client_id";
 NSString *const kTrackingID = @"correct_tracking_id";
 NSString *const kGCMSenderID = @"correct_gcm_sender_id";
-NSString *const kAndroidClientID = @"correct_android_client_id";
 NSString *const kGoogleAppID = @"1:123:ios:123abc";
 NSString *const kDatabaseURL = @"https://abc-xyz-123.firebaseio.com";
 NSString *const kStorageBucket = @"project-id-123.storage.firebase.com";

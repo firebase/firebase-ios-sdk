@@ -13,53 +13,66 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(ExternalProjectFlags)
 
-if(LEVELDB_ROOT)
+if(WIN32 OR LEVELDB_ROOT)
   # If the user has supplied a LEVELDB_ROOT then just use it. Add an empty
   # custom target so that the superbuild depdendencies don't all have to be
   # conditional.
-  add_custom_target(leveldb)
-
-else()
-  # LevelDB does not build on Windows (yet)
+  #
+  # Also, unfortunately, LevelDB does not build on Windows (yet)
   # See:
   #   https://github.com/google/leveldb/issues/363
   #   https://github.com/google/leveldb/issues/466
-  if(NOT WIN32)
-    # Clean up warning output to reduce noise in the build
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-      set(
-        LEVELDB_CXX_FLAGS "\
-          -Wno-deprecated-declarations"
-      )
-    endif()
+  add_custom_target(leveldb)
 
-    # Map CMake compiler configuration down onto the leveldb Makefile
+else()
+  # Clean up warning output to reduce noise in the build
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     set(
-      LEVELDB_OPT "\
-        $<$<CONFIG:Debug>:${CMAKE_CXX_FLAGS_DEBUG}> \
-        $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>"
+      LEVELDB_CXX_FLAGS "\
+        -Wno-deprecated-declarations"
     )
+  endif()
 
-    ExternalProject_Add(
-      leveldb
+  # Map CMake compiler configuration down onto the leveldb Makefile
+  set(
+    LEVELDB_OPT "\
+      $<$<CONFIG:Debug>:${CMAKE_CXX_FLAGS_DEBUG}> \
+      $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>"
+  )
 
-      GIT_REPOSITORY "https://github.com/google/leveldb.git"
-      GIT_TAG "v1.20"
+  ExternalProject_GitSource(
+    LEVELDB_GIT
+    GIT_REPOSITORY "https://github.com/google/leveldb.git"
+    GIT_TAG "v1.20"
+  )
 
-      PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
+  ExternalProject_Add(
+    leveldb
 
-      CONFIGURE_COMMAND ""
-      BUILD_ALWAYS ON
-      BUILD_IN_SOURCE ON
-      BUILD_COMMAND
-        env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT} make -j all
+    ${LEVELDB_GIT}
 
-      INSTALL_DIR ${FIREBASE_INSTALL_DIR}
+    PREFIX ${PROJECT_BINARY_DIR}/external/leveldb
 
-      INSTALL_COMMAND ""
-      TEST_COMMAND ""
-    )
+    # LevelDB's configuration is done in the Makefile
+    CONFIGURE_COMMAND ""
 
-  endif(NOT WIN32)
-endif(LEVELDB_ROOT)
+    # The Makefile-based build of leveldb does not support building
+    # out-of-source.
+    BUILD_IN_SOURCE ON
+
+    # Only build the leveldb library skipping the tools and in-memory
+    # implementation we don't use.
+    BUILD_COMMAND
+      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT}
+        make -j out-static/libleveldb.a
+
+    INSTALL_DIR ${FIREBASE_INSTALL_DIR}
+
+    UPDATE_COMMAND ""
+    INSTALL_COMMAND ""
+    TEST_COMMAND ""
+  )
+
+endif(WIN32 OR LEVELDB_ROOT)

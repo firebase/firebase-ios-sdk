@@ -16,6 +16,7 @@
 
 #import "FIRDocumentChange.h"
 
+@class FIRFirestore;
 @class FSTViewSnapshot;
 
 NS_ASSUME_NONNULL_BEGIN

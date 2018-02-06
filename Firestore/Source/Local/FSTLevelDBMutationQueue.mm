@@ -34,12 +34,11 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/Port/ordered_code.h"
-#include "Firestore/Port/string_util.h"
+#include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::OrderedCode;
+namespace util = firebase::firestore::util;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Iterator;
@@ -164,7 +163,7 @@ static ReadOptions StandardReadOptions() {
   while (moreUserIDs) {
     // Compute the first key after the last mutation for nextUserID.
     auto userEnd = [FSTLevelDBMutationKey keyPrefixWithUserID:nextUserID];
-    userEnd = Firestore::PrefixSuccessor(userEnd);
+    userEnd = util::PrefixSuccessor(userEnd);
 
     // Seek to that key with the intent of finding the boundary between nextUserID's mutations
     // and the one after that (if any).

@@ -50,6 +50,22 @@ class SecureRandom {
   }
 
   result_type operator()();
+
+  /** Returns a uniformly distributed pseudorandom integer in [0, n). */
+  inline result_type Uniform(result_type n) {
+    // Divides the range into buckets of size n plus leftovers.
+    const result_type rem = (max() - min()) % n + min() + 1;
+    result_type rnd;
+    // Generates random number until the number falls into a bucket.
+    do {
+      rnd = (*this)();
+    } while (rnd < rem);
+    return rnd % n;
+  }
+
+  inline bool OneIn(result_type n) {
+    return Uniform(n) == 0;
+  }
 };
 
 }  // namespace util

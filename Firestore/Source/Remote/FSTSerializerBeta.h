@@ -16,7 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class FSTDatabaseID;
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
 @class FSTDocumentKey;
 @class FSTFieldValue;
 @class FSTMaybeDocument;
@@ -57,7 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDatabaseID:(const firebase::firestore::model::DatabaseId *)databaseID
+    NS_DESIGNATED_INITIALIZER;
 
 - (GPBTimestamp *)encodedTimestamp:(FSTTimestamp *)timestamp;
 - (FSTTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp;

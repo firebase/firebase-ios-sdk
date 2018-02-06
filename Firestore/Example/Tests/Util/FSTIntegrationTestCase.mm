@@ -25,13 +25,18 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -136,12 +141,13 @@ NS_ASSUME_NONNULL_BEGIN
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:projectID
-                                                           database:kDefaultDatabaseID
-                                                     persistenceKey:persistenceKey
-                                                credentialsProvider:credentialsProvider
-                                                workerDispatchQueue:workerDispatchQueue
-                                                        firebaseApp:app];
+  FIRFirestore *firestore = [[FIRFirestore alloc]
+        initWithProjectID:projectID
+                 database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
+           persistenceKey:persistenceKey
+      credentialsProvider:credentialsProvider
+      workerDispatchQueue:workerDispatchQueue
+              firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
 
@@ -158,11 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
-  XCTestExpectation *shutdownCompletion = [self expectationWithDescription:@"shutdown"];
-  [firestore shutdownWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [shutdownCompletion fulfill];
-  }];
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
   [self awaitExpectations];
 }
 
@@ -261,31 +263,29 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"setData"];
-  [ref setData:data
-      completion:^(NSError *_Nullable error) {
-        XCTAssertNil(error);
-        [expectation fulfill];
-      }];
+  [ref setData:data completion:[self completionForExpectationWithName:@"setData"]];
   [self awaitExpectations];
 }
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<id, id> *)data {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"updateData"];
-  [ref updateData:data
-       completion:^(NSError *_Nullable error) {
-         XCTAssertNil(error);
-         [expectation fulfill];
-       }];
+  [ref updateData:data completion:[self completionForExpectationWithName:@"updateData"]];
   [self awaitExpectations];
 }
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteDocument"];
-  [ref deleteDocumentWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
+  [ref deleteDocumentWithCompletion:[self completionForExpectationWithName:@"deleteDocument"]];
+  [self awaitExpectations];
+}
+
+- (void)disableNetwork {
+  [self.db.client
+      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
+  [self awaitExpectations];
+}
+
+- (void)enableNetwork {
+  [self.db.client
+      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
   [self awaitExpectations];
 }
 

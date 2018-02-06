@@ -40,6 +40,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 
 - (instancetype)initWithQuery:(FSTQuery *)query
                      targetID:(FSTTargetID)targetID
+         listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
               snapshotVersion:(FSTSnapshotVersion *)snapshotVersion
                   resumeToken:(NSData *)resumeToken NS_DESIGNATED_INITIALIZER;
@@ -47,6 +48,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 /** Convenience initializer for use when creating an FSTQueryData for the first time. */
 - (instancetype)initWithQuery:(FSTQuery *)query
                      targetID:(FSTTargetID)targetID
+         listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -63,6 +65,8 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
  * the FSTSyncEngine for limbo queries.
  */
 @property(nonatomic, assign, readonly) FSTTargetID targetID;
+
+@property(nonatomic, assign, readonly) FSTListenSequenceNumber sequenceNumber;
 
 /** The purpose of the query. */
 @property(nonatomic, assign, readonly) FSTQueryPurpose purpose;

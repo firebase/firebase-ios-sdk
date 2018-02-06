@@ -70,6 +70,14 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
+NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
+    @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
+NSString *const kFIRMessagingSuiteName =
+    @"com.firebase.messaging.user_defaults";  // Suite name for NSUserDefaults
+
+static NSString *const kFIRMessagingPlistAutoInitEnabled =
+    @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
+
 // Copied from Apple's header in case it is missing in some cases (e.g. pre-Xcode 8 builds).
 #ifndef NSFoundationVersionNumber_iOS_8_x_Max
 #define NSFoundationVersionNumber_iOS_8_x_Max 1199
@@ -120,8 +128,8 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 @end
 
-@interface FIRMessaging ()
-    <FIRMessagingClientDelegate, FIRMessagingReceiverDelegate, FIRReachabilityDelegate>
+@interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
+                           FIRReachabilityDelegate>
 
 // FIRApp properties
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
@@ -141,6 +149,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, strong) FIRMessagingReceiver *receiver;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
+@property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
@@ -166,6 +175,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   if (self) {
     _loggedMessageIDs = [NSMutableSet set];
     _instanceIDProxy = [[FIRMessagingInstanceIDProxy alloc] init];
+    _messagingUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingSuiteName];
   }
   return self;
 }
@@ -404,7 +414,10 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     }];
 
   } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     [appDelegate application:application openURL:url options:@{}];
+#pragma clang diagnostic pop
 
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
@@ -447,6 +460,33 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 #pragma mark - FCM
+
+- (BOOL)isAutoInitEnabled {
+  // Check storage
+  id isAutoInitEnabledObject =
+      [_messagingUserDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+  if (isAutoInitEnabledObject) {
+    return [isAutoInitEnabledObject boolValue];
+  }
+
+  // Check Info.plist
+  isAutoInitEnabledObject =
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled];
+  if (isAutoInitEnabledObject) {
+    return [isAutoInitEnabledObject boolValue];
+  }
+  // If none of above exists, we default assume FCM auto init is enabled.
+  return YES;
+}
+
+- (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
+  BOOL isFCMAutoInitEnabled = [self isAutoInitEnabled];
+  [_messagingUserDefaults setBool:autoInitEnabled
+                           forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+  if (!isFCMAutoInitEnabled && autoInitEnabled) {
+    self.defaultFcmToken = [self.instanceIDProxy token];
+  }
+}
 
 - (NSString *)FCMToken {
   NSString *token = self.defaultFcmToken;
@@ -643,10 +683,15 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 - (void)subscribeToTopic:(NSString *)topic {
+  [self subscribeToTopic:topic completion:nil];
+}
+
+- (void)subscribeToTopic:(NSString *)topic
+              completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
     if (normalizeTopic.length) {
-      [self.pubsub subscribeToTopic:normalizeTopic];
+      [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
                               @"Cannot parse topic name %@. Will not subscribe.", topic);
@@ -659,10 +704,15 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
+  [self unsubscribeFromTopic:topic completion:nil];
+}
+
+- (void)unsubscribeFromTopic:(NSString *)topic
+                  completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class] normalizeTopic:topic];
     if (normalizeTopic.length) {
-      [self.pubsub unsubscribeFromTopic:normalizeTopic];
+      [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
                               @"Cannot parse topic name %@. Will not unsubscribe.", topic);
@@ -728,7 +778,10 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 - (void)receiver:(FIRMessagingReceiver *)receiver
       receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     [self.delegate messaging:self didReceiveMessage:remoteMessage];
+#pragma pop
   } else if ([self.delegate respondsToSelector:@selector(applicationReceivedRemoteMessage:)]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -781,7 +834,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 #pragma mark - Notifications
 
 - (void)didReceiveDefaultInstanceIDToken:(NSNotification *)notification {
-  if (![notification.object isKindOfClass:[NSString class]]) {
+  if (notification.object && ![notification.object isKindOfClass:[NSString class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
                             @"Invalid default FCM token type %@",
                             NSStringFromClass([notification.object class]));

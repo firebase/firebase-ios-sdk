@@ -36,8 +36,6 @@ NS_SWIFT_NAME(DocumentListenOptions)
 
 - (instancetype)init;
 
-@property(nonatomic, assign, readonly) BOOL includeMetadataChanges;
-
 /**
  * Sets the includeMetadataChanges option which controls whether metadata-only changes (i.e. only
  * `FIRDocumentSnapshot.metadata` changed) should trigger snapshot events. Default is NO.

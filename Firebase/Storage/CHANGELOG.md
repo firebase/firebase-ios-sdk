@@ -1,3 +1,6 @@
+# v2.1.2
+- [added] Firebase Storage is now community-supported on tvOS.
+
 # v2.1.1
 - [changed] Internal cleanup in the firebase-ios-sdk repository. Functionality of the Storage SDK is not affected.
 

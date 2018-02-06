@@ -19,7 +19,6 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
-@class FSTDatabaseInfo;
 @class FSTDatastore;
 @class FSTDocumentKey;
 @class FSTLocalStore;
@@ -83,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FSTOnlineStateDelegate <NSObject>
 
 /** Called whenever the online state of the watch stream changes */
-- (void)watchStreamDidChangeOnlineState:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
 
 @end
 
