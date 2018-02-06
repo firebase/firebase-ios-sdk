@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,22 +16,20 @@ include(ExternalProject)
 include(ExternalProjectFlags)
 
 ExternalProject_GitSource(
-  GOOGLETEST_GIT
-  GIT_REPOSITORY "https://github.com/google/googletest.git"
-  GIT_TAG "release-1.8.0"
+  PROTOBUF_GIT
+  GIT_REPOSITORY "https://github.com/google/protobuf.git"
+  GIT_TAG "v3.5.1.1"
 )
 
 ExternalProject_Add(
-  googletest
+  protobuf
 
-  ${GOOGLETEST_GIT}
+  ${PROTOBUF_GIT}
 
-  PREFIX ${PROJECT_BINARY_DIR}/external/googletest
+  PREFIX ${PROJECT_BINARY_DIR}/external/protobuf
 
-  # Just download the sources without building.
   UPDATE_COMMAND ""
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
+  CONFIGURE_COMMAND cd <SOURCE_DIR> && ./autogen.sh
+    COMMAND <SOURCE_DIR>/configure --prefix=${PREFIX}
   INSTALL_COMMAND ""
-  TEST_COMMAND ""
 )
