@@ -16,8 +16,6 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
-#include <vector>
-
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -288,14 +286,13 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTMockDatastore
 
 + (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
-  // This ownes the database-infos since we do not have firestore-client instance to own them.
-  static std::vector<DatabaseInfo> database_infos;
-  DatabaseId database_id("project", "database");
-  database_infos.emplace_back(database_id, "persistence", "host", false);
+  // This owns the DatabaseInfos since we do not have FirestoreClient instance to own them.
+  static DatabaseInfo database_info{DatabaseId{"project", "database"}, "persistence", "host",
+                                    false};
 
   FSTEmptyCredentialsProvider *credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
-  return [[FSTMockDatastore alloc] initWithDatabaseInfo:&database_infos.back()
+  return [[FSTMockDatastore alloc] initWithDatabaseInfo:&database_info
                                     workerDispatchQueue:workerDispatchQueue
                                             credentials:credentials];
 }

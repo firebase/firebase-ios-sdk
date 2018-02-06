@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface FSTLocalSerializerTests : XCTestCase {
-  DatabaseId databaseId;
+  DatabaseId _databaseId;
 }
 
 @property(nonatomic, strong) FSTLocalSerializer *serializer;
@@ -68,8 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLocalSerializerTests
 
 - (void)setUp {
-  self->databaseId = DatabaseId("p", "d");
-  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&self->databaseId];
+  self->_databaseId = DatabaseId("p", "d");
+  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&self->_databaseId];
   self.serializer = [[FSTLocalSerializer alloc] initWithRemoteSerializer:self.remoteSerializer];
 }
 

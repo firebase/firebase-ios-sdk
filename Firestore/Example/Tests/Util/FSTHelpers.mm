@@ -106,11 +106,10 @@ FSTFieldPath *FSTTestFieldPath(NSString *field) {
 }
 
 FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
-  // This ownes the database-ids since we do not have firestore-client instance to own them.
-  static std::vector<DatabaseId> database_ids;
-  database_ids.emplace_back("project", DatabaseId::kDefaultDatabaseId);
+  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
+  static DatabaseId database_id{"project", DatabaseId::kDefaultDatabaseId};
   FSTUserDataConverter *converter =
-      [[FSTUserDataConverter alloc] initWithDatabaseID:&database_ids.back()
+      [[FSTUserDataConverter alloc] initWithDatabaseID:&database_id
                                           preConverter:^id _Nullable(id _Nullable input) {
                                             return input;
                                           }];
@@ -174,7 +173,7 @@ FSTResourcePath *FSTTestPath(NSString *path) {
 }
 
 FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSString *path) {
-  // This ownes the database-ids since we do not have firestore-client instance to own them.
+  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static std::vector<DatabaseId> database_ids;
   database_ids.emplace_back(util::MakeStringView(projectID), util::MakeStringView(database));
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
