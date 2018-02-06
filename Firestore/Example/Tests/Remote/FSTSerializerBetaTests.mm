@@ -94,8 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTSerializerBetaTests
 
 - (void)setUp {
-  self->_databaseId = DatabaseId("p", "d");
-  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&self->_databaseId];
+  _databaseId = DatabaseId("p", "d");
+  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&_databaseId];
 }
 
 - (void)testEncodesNull {
@@ -241,7 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesResourceNames {
   FSTDocumentKeyReference *reference =
       FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/bar");
-  self->_databaseId = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
+  _databaseId = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
   GCFSValue *proto = [GCFSValue message];
   proto.referenceValue = @"projects/project/databases/(default)/documents/foo/bar";
 
