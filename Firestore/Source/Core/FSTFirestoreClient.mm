@@ -44,7 +44,7 @@ using firebase::firestore::model::DatabaseId;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTFirestoreClient () {
-  DatabaseInfo _databaseInfoAlloc;
+  DatabaseInfo _databaseInfo;
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
                    userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   if (self = [super init]) {
-    _databaseInfoAlloc = databaseInfo;
+    _databaseInfo = databaseInfo;
     _credentialsProvider = credentialsProvider;
     _userDispatchQueue = userDispatchQueue;
     _workerDispatchQueue = workerDispatchQueue;
@@ -299,11 +299,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (const DatabaseInfo *)databaseInfo {
-  return &_databaseInfoAlloc;
+  return &_databaseInfo;
 }
 
 - (const DatabaseId *)databaseID {
-  return &_databaseInfoAlloc.database_id();
+  return &_databaseInfo.database_id();
 }
 
 @end

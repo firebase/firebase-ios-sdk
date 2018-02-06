@@ -51,7 +51,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 @interface FIRFirestore () {
   /** The actual owned DatabaseId instance is allocated in FIRFirestore. */
-  firebase::firestore::model::DatabaseId _databaseIDAlloc;
+  firebase::firestore::model::DatabaseId _databaseID;
 }
 
 @property(nonatomic, strong) NSString *persistenceKey;
@@ -146,7 +146,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _databaseIDAlloc = DatabaseId(util::MakeStringView(projectID), util::MakeStringView(database));
+    _databaseID = DatabaseId(util::MakeStringView(projectID), util::MakeStringView(database));
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;
@@ -157,7 +157,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       }
     };
     _dataConverter =
-        [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseIDAlloc preConverter:block];
+        [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = credentialsProvider;
     _workerDispatchQueue = workerDispatchQueue;
@@ -320,7 +320,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (const DatabaseId *)databaseID {
-  return &_databaseIDAlloc;
+  return &_databaseID;
 }
 
 @end
