@@ -621,28 +621,23 @@ TEST(Split, StringDelimiter) {
 
 TEST(Split, UTF8) {
   // Tests splitting utf8 strings and utf8 delimiters.
-  std::string utf8_string = "\u03BA\u1F79\u03C3\u03BC\u03B5";
   {
     // A utf8 input std::string with an ascii delimiter.
-    std::string to_split = "a," + utf8_string;
-    std::vector<absl::string_view> v = absl::StrSplit(to_split, ',');
-    EXPECT_THAT(v, ElementsAre("a", utf8_string));
+    std::vector<absl::string_view> v = absl::StrSplit("a,κόσμε", ',');
+    EXPECT_THAT(v, ElementsAre("a", "κόσμε"));
   }
 
   {
     // A utf8 input std::string and a utf8 delimiter.
-    std::string to_split = "a," + utf8_string + ",b";
-    std::string unicode_delimiter = "," + utf8_string + ",";
-    std::vector<absl::string_view> v =
-        absl::StrSplit(to_split, unicode_delimiter);
+    std::vector<absl::string_view> v = absl::StrSplit("a,κόσμε,b", ",κόσμε,");
     EXPECT_THAT(v, ElementsAre("a", "b"));
   }
 
   {
     // A utf8 input std::string and ByAnyChar with ascii chars.
     std::vector<absl::string_view> v =
-        absl::StrSplit("Foo h\u00E4llo th\u4E1Ere", absl::ByAnyChar(" \t"));
-    EXPECT_THAT(v, ElementsAre("Foo", "h\u00E4llo", "th\u4E1Ere"));
+        absl::StrSplit("Foo hällo th丞re", absl::ByAnyChar(" \t"));
+    EXPECT_THAT(v, ElementsAre("Foo", "hällo", "th丞re"));
   }
 }
 

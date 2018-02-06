@@ -104,15 +104,11 @@ void DivModImpl(uint128 dividend, uint128 divisor, uint128* quotient_ret,
 }
 
 template <typename T>
-uint128 MakeUint128FromFloat(T v) {
-  static_assert(std::is_floating_point<T>::value, "");
-
+uint128 Initialize128FromFloat(T v) {
   // Rounding behavior is towards zero, same as for built-in types.
 
   // Undefined behavior if v is NaN or cannot fit into uint128.
-  assert(std::isfinite(v) && v > -1 &&
-         (std::numeric_limits<T>::max_exponent <= 128 ||
-          v < std::ldexp(static_cast<T>(1), 128)));
+  assert(!std::isnan(v) && v > -1 && v < std::ldexp(static_cast<T>(1), 128));
 
   if (v >= std::ldexp(static_cast<T>(1), 64)) {
     uint64_t hi = static_cast<uint64_t>(std::ldexp(v, -64));
@@ -124,9 +120,9 @@ uint128 MakeUint128FromFloat(T v) {
 }
 }  // namespace
 
-uint128::uint128(float v) : uint128(MakeUint128FromFloat(v)) {}
-uint128::uint128(double v) : uint128(MakeUint128FromFloat(v)) {}
-uint128::uint128(long double v) : uint128(MakeUint128FromFloat(v)) {}
+uint128::uint128(float v) : uint128(Initialize128FromFloat(v)) {}
+uint128::uint128(double v) : uint128(Initialize128FromFloat(v)) {}
+uint128::uint128(long double v) : uint128(Initialize128FromFloat(v)) {}
 
 uint128& uint128::operator/=(uint128 other) {
   uint128 quotient = 0;
@@ -143,9 +139,9 @@ uint128& uint128::operator%=(uint128 other) {
   return *this;
 }
 
-namespace {
+std::ostream& operator<<(std::ostream& o, uint128 b) {
+  std::ios_base::fmtflags flags = o.flags();
 
-std::string Uint128ToFormattedString(uint128 v, std::ios_base::fmtflags flags) {
   // Select a divisor which is the largest power of the base < 2^64.
   uint128 div;
   int div_base_log;
@@ -164,14 +160,14 @@ std::string Uint128ToFormattedString(uint128 v, std::ios_base::fmtflags flags) {
       break;
   }
 
-  // Now piece together the uint128 representation from three chunks of the
-  // original value, each less than "div" and therefore representable as a
-  // uint64_t.
+  // Now piece together the uint128 representation from three chunks of
+  // the original value, each less than "div" and therefore representable
+  // as a uint64_t.
   std::ostringstream os;
   std::ios_base::fmtflags copy_mask =
       std::ios::basefield | std::ios::showbase | std::ios::uppercase;
   os.setf(flags & copy_mask, copy_mask);
-  uint128 high = v;
+  uint128 high = b;
   uint128 low;
   DivModImpl(high, div, &high, &low);
   uint128 mid;
@@ -186,31 +182,25 @@ std::string Uint128ToFormattedString(uint128 v, std::ios_base::fmtflags flags) {
     os << std::noshowbase << std::setfill('0') << std::setw(div_base_log);
   }
   os << Uint128Low64(low);
-  return os.str();
-}
-
-}  // namespace
-
-std::ostream& operator<<(std::ostream& os, uint128 v) {
-  std::ios_base::fmtflags flags = os.flags();
-  std::string rep = Uint128ToFormattedString(v, flags);
+  std::string rep = os.str();
 
   // Add the requisite padding.
-  std::streamsize width = os.width(0);
+  std::streamsize width = o.width(0);
   if (static_cast<size_t>(width) > rep.size()) {
     std::ios::fmtflags adjustfield = flags & std::ios::adjustfield;
     if (adjustfield == std::ios::left) {
-      rep.append(width - rep.size(), os.fill());
+      rep.append(width - rep.size(), o.fill());
     } else if (adjustfield == std::ios::internal &&
                (flags & std::ios::showbase) &&
-               (flags & std::ios::basefield) == std::ios::hex && v != 0) {
-      rep.insert(2, width - rep.size(), os.fill());
+               (flags & std::ios::basefield) == std::ios::hex && b != 0) {
+      rep.insert(2, width - rep.size(), o.fill());
     } else {
-      rep.insert(0, width - rep.size(), os.fill());
+      rep.insert(0, width - rep.size(), o.fill());
     }
   }
 
-  return os << rep;
+  // Stream the final representation in a single "<<" call.
+  return o << rep;
 }
 
 }  // namespace absl

@@ -15,6 +15,11 @@
 cc_library(
   firebase_firestore_core
   SOURCES
+    database_info.cc
+    database_info.h
     target_id_generator.cc
     target_id_generator.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_model
 )
