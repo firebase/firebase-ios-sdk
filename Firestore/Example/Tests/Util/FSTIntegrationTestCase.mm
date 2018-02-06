@@ -27,12 +27,16 @@
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -137,12 +141,13 @@ NS_ASSUME_NONNULL_BEGIN
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:projectID
-                                                           database:kDefaultDatabaseID
-                                                     persistenceKey:persistenceKey
-                                                credentialsProvider:credentialsProvider
-                                                workerDispatchQueue:workerDispatchQueue
-                                                        firebaseApp:app];
+  FIRFirestore *firestore = [[FIRFirestore alloc]
+        initWithProjectID:projectID
+                 database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
+           persistenceKey:persistenceKey
+      credentialsProvider:credentialsProvider
+      workerDispatchQueue:workerDispatchQueue
+              firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
 

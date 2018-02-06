@@ -18,7 +18,8 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
-@class FSTDatabaseInfo;
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+
 @class FSTDocumentKey;
 @class FSTDispatchQueue;
 @class FSTMutation;
@@ -88,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTStream <__covariant FSTStreamDelegate> : NSObject
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_DESIGNATED_INITIALIZER;
@@ -197,12 +198,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes the watch stream with its dependencies.
  */
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
@@ -271,12 +272,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes the write stream with its dependencies.
  */
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;

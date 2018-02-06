@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 
 namespace firebase {
 namespace firestore {
-namespace model {
+namespace core {
 
-constexpr const char* DatabaseId::kDefaultDatabaseId;
-
-DatabaseId::DatabaseId(const absl::string_view project_id,
-                       const absl::string_view database_id)
-    : project_id_(project_id), database_id_(database_id) {
-  FIREBASE_ASSERT(!project_id.empty());
-  FIREBASE_ASSERT(!database_id.empty());
+DatabaseInfo::DatabaseInfo(
+    const firebase::firestore::model::DatabaseId& database_id,
+    const absl::string_view persistence_key,
+    const absl::string_view host,
+    bool ssl_enabled)
+    : database_id_(database_id),
+      persistence_key_(persistence_key),
+      host_(host),
+      ssl_enabled_(ssl_enabled) {
 }
 
-}  // namespace model
+}  // namespace core
 }  // namespace firestore
 }  // namespace firebase

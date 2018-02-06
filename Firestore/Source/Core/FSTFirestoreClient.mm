@@ -17,7 +17,6 @@
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -35,16 +34,26 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTFirestoreClient ()
-- (instancetype)initWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
+@interface FSTFirestoreClient () {
+  DatabaseInfo _databaseInfo;
+}
+
+- (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
                    userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                  workerDispatchQueue:(FSTDispatchQueue *)queue NS_DESIGNATED_INITIALIZER;
 
-@property(nonatomic, strong, readonly) FSTDatabaseInfo *databaseInfo;
+@property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
 @property(nonatomic, strong, readonly) FSTEventManager *eventManager;
 @property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
@@ -65,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFirestoreClient
 
-+ (instancetype)clientWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
++ (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
                      userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
@@ -77,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       workerDispatchQueue:workerDispatchQueue];
 }
 
-- (instancetype)initWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
+- (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
                    userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
@@ -130,11 +139,11 @@ NS_ASSUME_NONNULL_BEGIN
     // enabled.
     garbageCollector = [[FSTNoOpGarbageCollector alloc] init];
 
-    NSString *dir = [FSTLevelDB storageDirectoryForDatabaseInfo:self.databaseInfo
+    NSString *dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
                                              documentsDirectory:[FSTLevelDB documentsDirectory]];
 
     FSTSerializerBeta *remoteSerializer =
-        [[FSTSerializerBeta alloc] initWithDatabaseID:self.databaseInfo.databaseID];
+        [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
 
@@ -291,8 +300,12 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (FSTDatabaseID *)databaseID {
-  return self.databaseInfo.databaseID;
+- (const DatabaseInfo *)databaseInfo {
+  return &_databaseInfo;
+}
+
+- (const DatabaseId *)databaseID {
+  return &_databaseInfo.database_id();
 }
 
 @end
