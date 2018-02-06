@@ -19,6 +19,11 @@ ExternalProject_GitSource(
   GIT_TAG "0.3.8"
 )
 
+set(
+  NANOPB_PROTOC_BIN
+  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc
+)
+
 ExternalProject_Add(
   nanopb
   DEPENDS
@@ -50,7 +55,9 @@ ExternalProject_Add(
   # nanopb relies on $PATH for the location of protoc. cmake makes it difficult
   # to adjust the path, so we'll just patch the build files with the exact
   # location of protoc.
-  PATCH_COMMAND perl -i -pe s,protoc,${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc,g ./CMakeLists.txt ./generator/proto/Makefile
+  PATCH_COMMAND
+    perl -i -pe s,protoc,${NANOPB_PROTOC_BIN},g
+        ./CMakeLists.txt ./generator/proto/Makefile
 
   UPDATE_COMMAND ""
   INSTALL_COMMAND ""
