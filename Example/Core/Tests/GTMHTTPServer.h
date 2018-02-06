@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 Google Inc.
+/* Copyright 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,26 +32,27 @@
 #import <Foundation/Foundation.h>
 
 #if GTM_IPHONE_SDK
-  #import <CFNetwork/CFNetwork.h>
-#endif // GTM_IPHONE_SDK
+#import <CFNetwork/CFNetwork.h>
+#endif  // GTM_IPHONE_SDK
 
 // Global contants needed for errors from start
 
 #undef _EXTERN
 #undef _INITIALIZE_AS
 #ifdef GTMHTTPSERVER_DEFINE_GLOBALS
-  #define _EXTERN
-  #define _INITIALIZE_AS(x) =x
+#define _EXTERN
+#define _INITIALIZE_AS(x) = x
 #else
-  #define _EXTERN extern
-  #define _INITIALIZE_AS(x)
+#define _EXTERN extern
+#define _INITIALIZE_AS(x)
 #endif
 
-_EXTERN NSString* const kGTMHTTPServerErrorDomain _INITIALIZE_AS(@"com.google.mactoolbox.HTTPServerDomain");
+_EXTERN NSString *const kGTMHTTPServerErrorDomain
+    _INITIALIZE_AS(@"com.google.mactoolbox.HTTPServerDomain");
 enum {
   kGTMHTTPServerSocketCreateFailedError = -100,
-  kGTMHTTPServerBindFailedError         = -101,
-  kGTMHTTPServerListenFailedError       = -102,
+  kGTMHTTPServerBindFailedError = -101,
+  kGTMHTTPServerListenFailedError = -102,
   kGTMHTTPServerHandleCreateFailedError = -103,
 };
 
@@ -62,7 +63,7 @@ enum {
 // See comment at top of file for the intened use of this class.
 @interface GTMHTTPServer : NSObject {
  @private
-  id delegate_; // WEAK
+  id delegate_;  // WEAK
   uint16_t port_;
   BOOL reusePort_;
   BOOL localhostOnly_;
@@ -140,6 +141,6 @@ enum {
 + (instancetype)emptyResponseWithCode:(int)statusCode;
 // TODO: class method for redirections?
 // TODO: add helper for expire/no-cache
-- (void)setValue:(NSString*)value forHeaderField:(NSString*)headerField;
+- (void)setValue:(NSString *)value forHeaderField:(NSString *)headerField;
 - (void)setHeaderValuesFromDictionary:(NSDictionary *)dict;
 @end

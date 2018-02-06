@@ -33,7 +33,7 @@
 
 @end
 
-@interface FIRNetworkTest : FIRTestCase<FIRNetworkReachabilityDelegate>
+@interface FIRNetworkTest : FIRTestCase <FIRNetworkReachabilityDelegate>
 @end
 
 @implementation FIRNetworkTest {
@@ -652,7 +652,7 @@
       [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:%d/3", _httpServer.port]];
   _statusCode = 200;
 
-  NSDictionary *headers = @{ @"Version" : @"123" };
+  NSDictionary *headers = @{@"Version" : @"123"};
 
   [_network getURL:url
                      headers:headers
@@ -847,7 +847,7 @@
       [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:%d/3", _httpServer.port]];
   _statusCode = 200;
 
-  NSDictionary *headers = @{ @"Version" : @"123" };
+  NSDictionary *headers = @{@"Version" : @"123"};
 
   [_network getURL:url
                      headers:headers
@@ -932,7 +932,7 @@
 
 - (void)createTempFileAtURL:(NSURL *)fileURL {
   // Create a dictionary and write it to file.
-  NSDictionary *someContent = @{ @"object" : @"key" };
+  NSDictionary *someContent = @{@"object" : @"key"};
   [someContent writeToURL:fileURL atomically:YES];
 }
 

@@ -14,11 +14,11 @@
 
 #import "FIRTestCase.h"
 
-#import <FirebaseCore/FIRReachabilityChecker.h>
 #import <FirebaseCore/FIRReachabilityChecker+Internal.h>
+#import <FirebaseCore/FIRReachabilityChecker.h>
 
-@interface FIRReachabilityCheckerTest : FIRTestCase<FIRReachabilityDelegate> {
-@private
+@interface FIRReachabilityCheckerTest : FIRTestCase <FIRReachabilityDelegate> {
+ @private
   FIRReachabilityChecker *checker_;
   NSMutableArray *statuses_;
   BOOL createFail_;
@@ -58,7 +58,7 @@ static struct {
 static SCNetworkReachabilityRef ReachabilityCreateWithName(CFAllocatorRef allocator,
                                                            const char *hostname) {
   return (SCNetworkReachabilityRef)
-  [FakeReachabilityTest createReachabilityWithAllocator:allocator withName:hostname];
+      [FakeReachabilityTest createReachabilityWithAllocator:allocator withName:hostname];
 }
 
 static Boolean ReachabilitySetCallback(SCNetworkReachabilityRef reachability,
@@ -68,14 +68,16 @@ static Boolean ReachabilitySetCallback(SCNetworkReachabilityRef reachability,
 }
 
 static Boolean ReachabilityScheduleWithRunLoop(SCNetworkReachabilityRef reachability,
-                                               CFRunLoopRef runLoop, CFStringRef runLoopMode) {
+                                               CFRunLoopRef runLoop,
+                                               CFStringRef runLoopMode) {
   return [FakeReachabilityTest scheduleReachability:reachability
                                             runLoop:runLoop
                                         runLoopMode:runLoopMode];
 }
 
 static Boolean ReachabilityUnscheduleFromRunLoop(SCNetworkReachabilityRef reachability,
-                                                 CFRunLoopRef runLoop, CFStringRef runLoopMode) {
+                                                 CFRunLoopRef runLoop,
+                                                 CFStringRef runLoopMode) {
   return [FakeReachabilityTest unscheduleReachability:reachability
                                               runLoop:runLoop
                                           runLoopMode:runLoopMode];
@@ -86,8 +88,8 @@ static void ReachabilityRelease(CFTypeRef reachability) {
 }
 
 static const struct FIRReachabilityApi kTestReachabilityApi = {
-  ReachabilityCreateWithName, ReachabilitySetCallback, ReachabilityScheduleWithRunLoop,
-  ReachabilityUnscheduleFromRunLoop, ReachabilityRelease,
+    ReachabilityCreateWithName,        ReachabilitySetCallback, ReachabilityScheduleWithRunLoop,
+    ReachabilityUnscheduleFromRunLoop, ReachabilityRelease,
 };
 
 @implementation FIRReachabilityCheckerTest
@@ -214,9 +216,9 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityViaWifi, @"");
 
   FakeReachability.callback(
-                            kFakeReachabilityObject,
-                            kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsConnectionRequired,
-                            FakeReachability.callbackInfo);
+      kFakeReachabilityObject,
+      kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsConnectionRequired,
+      FakeReachability.callbackInfo);
 
   XCTAssertEqual([statuses_ count], (NSUInteger)3, @"");
   XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:2] intValue],
@@ -225,9 +227,9 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
 
 #if TARGET_OS_IOS || TARGET_OS_TV
   FakeReachability.callback(
-                            kFakeReachabilityObject,
-                            kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsWWAN,
-                            FakeReachability.callbackInfo);
+      kFakeReachabilityObject,
+      kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsWWAN,
+      FakeReachability.callbackInfo);
 
   XCTAssertEqual([statuses_ count], (NSUInteger)4, @"");
   XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:3] intValue],
@@ -348,13 +350,15 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
 }
 
 - (void)testBadHost {
-  XCTAssertNil([[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                             loggerDelegate:self
-                                                                   withHost:nil],
+  XCTAssertNil([[FIRReachabilityChecker alloc]
+                   initWithReachabilityDelegate:self
+                                 loggerDelegate:(id<FIRNetworkLoggerDelegate>)self
+                                       withHost:nil],
                @"Creating a checker with nil hostname must fail.");
-  XCTAssertNil([[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                             loggerDelegate:self
-                                                                   withHost:@""],
+  XCTAssertNil([[FIRReachabilityChecker alloc]
+                   initWithReachabilityDelegate:self
+                                 loggerDelegate:(id<FIRNetworkLoggerDelegate>)self
+                                       withHost:@""],
                @"Creating a checker with empty hostname must fail.");
 }
 
