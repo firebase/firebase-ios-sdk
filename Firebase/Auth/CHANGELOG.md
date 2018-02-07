@@ -1,5 +1,5 @@
 # v4.4.2
-- Adds an explicit dependency on CoreGraphics to Firebase Auth.
+- Adds an explicit dependency on CoreGraphics from Firebase Auth.
 
 # v4.4.1
 - Fixes bug where the FIRAuthResult object returned following a Phone Number authentication
