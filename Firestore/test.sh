@@ -38,7 +38,7 @@ test_iOS() {
     | xcpretty
 }
 
-test_CMake() {  
+test_CMake() {
   echo "set cmake build" && \
     mkdir build && \
     cd build && \
