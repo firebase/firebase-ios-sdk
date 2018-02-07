@@ -58,11 +58,11 @@ bool Comparable(Type lhs, Type rhs) {
 
 }  // namespace
 
-FieldValue::FieldValue(const FieldValue& value) : tag_(Type::Null) {
+FieldValue::FieldValue(const FieldValue& value) {
   *this = value;
 }
 
-FieldValue::FieldValue(FieldValue&& value) : tag_(Type::Null) {
+FieldValue::FieldValue(FieldValue&& value) {
   *this = std::move(value);
 }
 
