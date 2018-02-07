@@ -26,7 +26,8 @@ namespace model {
 namespace {
 
 inline MaybeDocument MakeDocument(const absl::string_view path, int second) {
-  return DocumentKey::FromPathString(path), SnapshotVersion(Timestamp(second, 777));
+  return MaybeDocument(DocumentKey::FromPathString(path),
+                       SnapshotVersion(Timestamp(second, 777)));
 }
 
 }  // anonymous namespace

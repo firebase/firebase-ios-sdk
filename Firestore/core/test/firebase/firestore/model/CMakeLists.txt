@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_model_test
   SOURCES
     database_id_test.cc
+    document_test.cc
     field_path_test.cc
     field_value_test.cc
     maybe_document_test.cc
