@@ -70,7 +70,8 @@ TEST_F(FirebaseCredentialsProviderTest, GetToken) {
       new FirebaseCredentialsProvider([FIRApp defaultApp]);
 
   credentials_provider->GetToken(
-      true, [](const Token& token, const absl::string_view error) {
+      /*force_refresh=*/true,
+      [](const Token& token, const absl::string_view error) {
         EXPECT_EQ("", token.token());
         const User& user = token.user();
         EXPECT_EQ("I'm a fake uid.", user.uid());
@@ -81,8 +82,9 @@ TEST_F(FirebaseCredentialsProviderTest, GetToken) {
   // Destruct credentials_provider via the FIRAuthGlobalWorkQueue, which is
   // serial.
   credentials_provider->GetToken(
-      false, [credentials_provider](const Token& token,
-                                    const absl::string_view error) {
+      /*force_refresh=*/false,
+      [credentials_provider](const Token& token,
+                             const absl::string_view error) {
         UNUSED(token);
         UNUSED(error);
         delete credentials_provider;
