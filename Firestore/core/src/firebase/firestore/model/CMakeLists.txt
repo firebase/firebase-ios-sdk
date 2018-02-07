@@ -22,6 +22,8 @@ cc_library(
     field_path.h
     field_value.cc
     field_value.h
+    maybe_document.cc
+    maybe_document.h
     timestamp.cc
     timestamp.h
   DEPENDS
