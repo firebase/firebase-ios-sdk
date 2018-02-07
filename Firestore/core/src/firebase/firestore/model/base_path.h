@@ -166,7 +166,7 @@ class BasePath {
   }
   BasePath(std::initializer_list<std::string> list) : segments_{list} {
   }
-  BasePath(SegmentsT&& segments) : segments_{std::move(segments)} {
+  explicit BasePath(SegmentsT&& segments) : segments_{std::move(segments)} {
   }
 
  private:
