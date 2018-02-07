@@ -20,8 +20,8 @@
 #include <initializer_list>
 #include <string>
 
-#include "absl/strings/string_view.h"
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
