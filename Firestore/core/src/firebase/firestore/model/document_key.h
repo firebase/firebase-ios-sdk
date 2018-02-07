@@ -18,55 +18,52 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_H_
 
 #include <initializer_list>
+#include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
+class ResourcePath;
+
+/**
+ * DocumentKey represents the location of a document in the Firestore database.
+ */
 class DocumentKey {
  public:
-  DocumentKey() = default;
-  /** Creates and returns a new document key with a copy of the given path. */
+  /** Creates a "blank" document key not associated with any document. */
+  DocumentKey();
+
+  /** Creates a new document key containing a copy of the given path. */
   explicit DocumentKey(const ResourcePath& path);
-  /**
-   * Creates and returns a new document key, taking ownership of the given
-   * path.
-   */
+
+  /** Creates a new document key, taking ownership of the given path. */
   explicit DocumentKey(ResourcePath&& path);
 
   /**
    * Creates and returns a new document key using '/' to split the string into
    * segments.
    */
-  static DocumentKey FromPathString(absl::string_view path) {
-    return DocumentKey{ResourcePath::FromString(path)};
-  }
-  /**
-   * Creates and returns a new document key with the given segments.
-   */
-  static DocumentKey FromSegments(std::initializer_list<std::string> list) {
-    return DocumentKey{ResourcePath{list}};
-  }
+  static DocumentKey FromPathString(absl::string_view path);
 
-  /**
-   * Returns a shared instance of an empty document key.
-   */
+  /** Creates and returns a new document key with the given segments. */
+  static DocumentKey FromSegments(std::initializer_list<std::string> list);
+
+  /** Returns a shared instance of an empty document key. */
   static const DocumentKey& Empty();
 
-  static bool IsDocumentKey(const ResourcePath& path) {
-    return path.size() % 2 == 0;
-  }
-
-  const ResourcePath& path() const {
-    return path_;
-  }
+  /** Returns true iff the given path is a path to a document. */
+  static bool IsDocumentKey(const ResourcePath& path);
+  /** The path to the document. */
+  const ResourcePath& path() const;
 
  private:
-  ResourcePath path_;
+  // This is an optimization to make passing DocumentKey around cheaper (it's
+  // copied often).
+  std::shared_ptr<const ResourcePath> path_;
 };
 
 bool operator==(const DocumentKey& lhs, const DocumentKey& rhs);

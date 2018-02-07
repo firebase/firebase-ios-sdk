@@ -35,6 +35,7 @@ namespace model {
  */
 class FieldPath : public impl::BasePath<FieldPath> {
  public:
+  /** The field path string that represents the document's key. */
   static constexpr const char* kDocumentKeyPath = "__name__";
 
   FieldPath() = default;
