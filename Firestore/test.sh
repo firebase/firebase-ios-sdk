@@ -46,12 +46,12 @@ test_CMake() {
     exit 1
 
   echo "initial cmake build" && \
-    cmake --build . || \
+    make -j all || \
     exit 2
 
   echo "test Firestore cmake build" && \
     cd Firestore && \
-    make -j all test
+    make test
 }
 
 test_iOS; RESULT=$?
