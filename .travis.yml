@@ -33,10 +33,13 @@ script:
   - "! git grep -I ' $' ':(exclude)Firestore/Protos/nanopb'"
   - "! git grep -EL --name-only 'Copyright [0-9]{4}.*Google' | grep -v third_party | egrep '\\.(m|h|cc|mm|c)$'"
   - ./scripts/style.sh test-only # Validate clang-format compliance
-  - ./scripts/lint.sh # Google C++ style compliance
   - |
     if [ $SKIP_FIREBASE != 1 ]; then
       ./test.sh
+    fi
+  - |
+    if [ $SKIP_FIRESTORE != 1 ]; then
+      ./scripts/lint.sh # Google C++ style compliance
     fi
   - |
     if [ $SKIP_FIRESTORE != 1 ]; then
