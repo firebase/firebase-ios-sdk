@@ -70,6 +70,7 @@ files=$(
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
+\%\.pb\.% d
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc)$% p

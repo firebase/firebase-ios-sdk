@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_remote_test
   SOURCES
     datastore_test.cc
+    serializer_test.cc
   DEPENDS
     firebase_firestore_remote
 )

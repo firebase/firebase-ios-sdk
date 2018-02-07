@@ -62,7 +62,8 @@ class BasePath {
 
   /** Returns the first segment of the path. */
   const std::string& first_segment() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call first_segment on empty path");
+    FIREBASE_ASSERT_MESSAGE(!empty(),
+                            "Cannot call first_segment on empty path");
     return segments_[0];
   }
   /** Returns the last segment of the path. */
