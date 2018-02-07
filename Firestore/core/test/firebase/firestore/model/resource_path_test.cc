@@ -29,18 +29,18 @@ namespace model {
 TEST(ResourcePath, Constructor) {
   const ResourcePath empty_path;
   EXPECT_TRUE(empty_path.empty());
-  EXPECT_EQ(0, empty_path.size());
+  EXPECT_EQ(0u, empty_path.size());
   EXPECT_TRUE(empty_path.begin() == empty_path.end());
 
   const ResourcePath path_from_list{{"rooms", "Eros", "messages"}};
   EXPECT_FALSE(path_from_list.empty());
-  EXPECT_EQ(3, path_from_list.size());
+  EXPECT_EQ(3u, path_from_list.size());
   EXPECT_TRUE(path_from_list.begin() + 3 == path_from_list.end());
 
   std::vector<std::string> segments{"rooms", "Eros", "messages"};
   const ResourcePath path_from_segments{segments.begin(), segments.end()};
   EXPECT_FALSE(path_from_segments.empty());
-  EXPECT_EQ(3, path_from_segments.size());
+  EXPECT_EQ(3u, path_from_segments.size());
   EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
 
   ResourcePath copied = path_from_list;
