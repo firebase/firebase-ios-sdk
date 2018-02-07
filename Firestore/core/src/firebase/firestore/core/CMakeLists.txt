@@ -17,8 +17,6 @@ cc_library(
   SOURCES
     database_info.cc
     database_info.h
-    snapshot_version.cc
-    snapshot_version.h
     target_id_generator.cc
     target_id_generator.h
   DEPENDS

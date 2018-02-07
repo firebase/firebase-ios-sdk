@@ -575,6 +575,7 @@
 				B686F2AD2023DDB20028D6BE /* field_path_test.cc */,
 				AB71064B201FA60300344F18 /* database_id_test.cc */,
 				AB356EF6200EA5EB0089B766 /* field_value_test.cc */,
+				ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */,
 				ABF6506B201131F8005F2C74 /* timestamp_test.cc */,
 			);
 			name = model;
@@ -586,7 +587,6 @@
 			children = (
 				AB380CF82019382300D97691 /* target_id_generator_test.cc */,
 				AB38D92E20235D22000A432D /* database_info_test.cc */,
-				ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */,
 			);
 			name = core;
 			path = ../../core/test/firebase/firestore/core;

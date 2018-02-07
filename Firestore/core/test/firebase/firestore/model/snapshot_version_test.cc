@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/core/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
-namespace core {
-
-using firebase::firestore::model::Timestamp;
+namespace model {
 
 TEST(SnapshotVersion, Getter) {
   SnapshotVersion version(Timestamp(123, 456));
@@ -53,6 +51,6 @@ TEST(SnapshotVersion, Comparison) {
             SnapshotVersion(Timestamp(456, 123)));
 }
 
-}  //  namespace core
+}  //  namespace model
 }  //  namespace firestore
 }  //  namespace firebase
