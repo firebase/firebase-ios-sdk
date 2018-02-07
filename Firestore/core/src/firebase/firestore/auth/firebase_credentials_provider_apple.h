@@ -49,7 +49,30 @@ namespace auth {
  * from the thread backing our internal worker queue and the callbacks from
  * FIRAuth will be executed on an arbitrary different thread.
  *
- * For non-Apple desktop build, this is right now just a stub.
+ * Any instance that has GetToken() calls has to be destructed in
+ * FIRAuthGlobalWorkQueue i.e through another call to GetToken. This prevents
+ * the object being destructed before the callback. For example, use the
+ * following pattern:
+ *
+ * class Bar {
+ *   Bar(): provider_(new FirebaseCredentialsProvider([FIRApp defaultApp])) {}
+ *
+ *   ~Bar() {
+ *     credentials_provider->GetToken(
+ *         false, [provider_](const Token& token, const absl::string_view error)
+ * { delete provider_;
+ *     });
+ *   }
+ *
+ *   Foo() {
+ *      credentials_provider->GetToken(
+ *          true, [](const Token& token, const absl::string_view error) {
+ *              ... ...
+ *      });
+ *   }
+ *
+ *   FirebaseCredentialsProvider* provider_;
+ * };
  */
 class FirebaseCredentialsProvider : public CredentialsProvider {
  public:
@@ -62,19 +85,11 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    */
   explicit FirebaseCredentialsProvider(FIRApp* app);
 
+  ~FirebaseCredentialsProvider() override;
+
   void GetToken(bool force_refresh, TokenListener completion) override;
 
   void SetUserChangeListener(UserChangeListener listener) override;
-
-  friend class FirebaseCredentialsProviderTest_GetToken_Test;
-  friend class FirebaseCredentialsProviderTest_SetListener_Test;
-  friend class DISABLED_FirebaseCredentialsProviderTest_GetToken_Test;
-  friend class DISABLED_FirebaseCredentialsProviderTest_SetListener_Test;
-
-  friend class FirebaseCredentialsProviderTest_GetToken_Test;
-  friend class FirebaseCredentialsProviderTest_SetListener_Test;
-  friend class DISABLED_FirebaseCredentialsProviderTest_GetToken_Test;
-  friend class DISABLED_FirebaseCredentialsProviderTest_SetListener_Test;
 
  private:
   const FIRApp* app_;
@@ -96,7 +111,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
 
   // Make it static as as it is used in some of the callbacks. Otherwise, we saw
   // mutex lock failed: Invalid argument.
-  static std::mutex mutex_;
+  std::mutex mutex_;
 };
 
 }  // namespace auth
