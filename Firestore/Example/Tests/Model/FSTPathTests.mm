@@ -173,6 +173,10 @@ NS_ASSUME_NONNULL_BEGIN
   ASSERT_ROUND_TRIP(@"`.foo\\\\`", 1);
   ASSERT_ROUND_TRIP(@"`.foo\\\\`.`.foo`", 2);
   ASSERT_ROUND_TRIP(@"foo.`\\``.bar", 3);
+
+  FSTFieldPath *path = [FSTFieldPath pathWithServerFormat:@"foo\\.bar"];
+  XCTAssertEqualObjects([path canonicalString], @"`foo.bar`");
+  XCTAssertEqual(path.length, 1);
 }
 
 #undef ASSERT_ROUND_TRIP
