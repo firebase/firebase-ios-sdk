@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.10.1
 - [fixed] Fixed a regression in Firebase iOS release 4.8.1 that could in certain
   cases result in an "OnlineState should not affect limbo documents." assertion
   crash when the client loses its network connection.
