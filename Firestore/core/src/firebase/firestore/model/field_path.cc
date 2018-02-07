@@ -30,12 +30,6 @@ namespace model {
 
 namespace {
 
-<<<<<<< HEAD
-=======
-// TODO(varconst): move to C++ equivalent of FSTDocumentKey.{h,cc}
-const char* const kDocumentKeyPath = "__name__";
-
->>>>>>> master
 /**
  * True if the string could be used as a segment in a field path without
  * escaping. Valid identifies follow the regex [a-zA-Z_][a-zA-Z0-9_]*
