@@ -56,11 +56,11 @@ TEST(DocumentKey, CopyAndMove) {
   const std::string path_string = "rooms/firestore/messages/1";
   EXPECT_EQ(path_string, key.path().CanonicalString());
 
-  auto copied = key;
+  DocumentKey copied = key;
   EXPECT_EQ(path_string, copied.path().CanonicalString());
   EXPECT_EQ(key, copied);
 
-  const auto moved = std::move(key);
+  const DocumentKey moved = std::move(key);
   EXPECT_EQ(path_string, moved.path().CanonicalString());
   EXPECT_NE(key, moved);
   EXPECT_TRUE(key.path().empty());
@@ -98,6 +98,7 @@ TEST(DocumentKey, Constructor_BadArguments) {
                             "");
 
   ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString(""), "");
+  ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString("invalid"), "");
   ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString("invalid//string"), "");
   ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString("invalid/key/path"),
                             "");
@@ -122,6 +123,8 @@ TEST(DocumentKey, Comparison) {
   const DocumentKey b({"b", "b"});
   const DocumentKey ab({"a", "a", "b", "b"});
 
+  EXPECT_FALSE(empty < empty);
+  EXPECT_TRUE(empty <= empty);
   EXPECT_TRUE(empty < a);
   EXPECT_TRUE(empty <= a);
   EXPECT_TRUE(a > empty);
@@ -131,6 +134,8 @@ TEST(DocumentKey, Comparison) {
   EXPECT_TRUE(a <= a);
   EXPECT_FALSE(a > a);
   EXPECT_TRUE(a >= a);
+  EXPECT_TRUE(a == a);
+  EXPECT_FALSE(a != a);
 
   EXPECT_TRUE(a < b);
   EXPECT_TRUE(a <= b);

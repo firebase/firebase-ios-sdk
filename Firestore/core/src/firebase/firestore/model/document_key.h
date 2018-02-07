@@ -65,28 +65,16 @@ class DocumentKey {
     return path_;
   }
 
-  bool operator==(const DocumentKey& rhs) const {
-    return path_ == rhs.path_;
-  }
-  bool operator!=(const DocumentKey& rhs) const {
-    return path_ != rhs.path_;
-  }
-  bool operator<(const DocumentKey& rhs) const {
-    return path_ < rhs.path_;
-  }
-  bool operator<=(const DocumentKey& rhs) const {
-    return path_ <= rhs.path_;
-  }
-  bool operator>(const DocumentKey& rhs) const {
-    return path_ > rhs.path_;
-  }
-  bool operator>=(const DocumentKey& rhs) const {
-    return path_ >= rhs.path_;
-  }
-
  private:
   ResourcePath path_;
 };
+
+bool operator==(const DocumentKey& lhs, const DocumentKey& rhs);
+bool operator!=(const DocumentKey& lhs, const DocumentKey& rhs);
+bool operator<(const DocumentKey& lhs, const DocumentKey& rhs);
+bool operator<=(const DocumentKey& lhs, const DocumentKey& rhs);
+bool operator>(const DocumentKey& lhs, const DocumentKey& rhs);
+bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs);
 
 }  // namespace model
 }  // namespace firestore

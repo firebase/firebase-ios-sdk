@@ -47,6 +47,25 @@ const DocumentKey& DocumentKey::Empty() {
   return empty;
 }
 
+bool operator==(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() == rhs.path();
+}
+bool operator!=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() != rhs.path();
+}
+bool operator<(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() < rhs.path();
+}
+bool operator<=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() <= rhs.path();
+}
+bool operator>(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() > rhs.path();
+}
+bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() >= rhs.path();
+}
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
