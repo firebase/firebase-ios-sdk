@@ -19,8 +19,8 @@
 // shamelessly stolen and modified from rtdb's header file, melded with the
 // (java) firestore api.
 
-#ifndef EXPERIMENTAL_USERS_RGOWMAN_FIRESTORE_CPP_STRAWMAN_HEADERS_EVENT_LISTENER_H_
-#define EXPERIMENTAL_USERS_RGOWMAN_FIRESTORE_CPP_STRAWMAN_HEADERS_EVENT_LISTENER_H_
+#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_EVENT_LISTENER_H_
+#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_EVENT_LISTENER_H_
 
 namespace firebase {
 namespace firestore {
@@ -50,4 +50,4 @@ class EventListener {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // EXPERIMENTAL_USERS_RGOWMAN_FIRESTORE_CPP_STRAWMAN_HEADERS_EVENT_LISTENER_H_
+#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_EVENT_LISTENER_H_

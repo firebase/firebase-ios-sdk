@@ -19,8 +19,8 @@
 // shamelessly stolen and modified from rtdb's header file, melded with the
 // (java) firestore api.
 
-#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DATABASE_REFERENCE_H_
-#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DATABASE_REFERENCE_H_
+#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DOCUMENT_REFERENCE_H_
+#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DOCUMENT_REFERENCE_H_
 
 #include <string>
 #include <unordered_map>
@@ -89,7 +89,7 @@ class DocumentReference {
   /**
    * @brief Default constructor. This creates an invalid DocumentReference.
    * Attempting to perform any operations on this reference will fail (and cause
-   * a crash) unless a / valid DocumentReference has been assigned to it.
+   * a crash) unless a valid DocumentReference has been assigned to it.
    */
   DocumentReference();
 
@@ -121,7 +121,7 @@ class DocumentReference {
    *
    * @returns Reference to the destination DocumentReference.
    */
-  virtual DocumentReference& operator=(const DocumentReference& reference);
+  DocumentReference& operator=(const DocumentReference& reference);
 
   /**
    * @brief Move assignment operator. Moving is an efficient operation for
@@ -131,19 +131,30 @@ class DocumentReference {
    *
    * @returns Reference to the destination DocumentReference.
    */
-  virtual DocumentReference& operator=(DocumentReference&& reference);
+  DocumentReference& operator=(DocumentReference&& reference);
 
   /**
-   * @brief Gets the Firestore instance associated with this document reference.
+   * @brief Returns the Firestore instance associated with this document
+   * reference.
    *
    * The pointer will remain valid indefinitely.
    *
    * @returns Firebase Firestore instance that this DocumentReference refers to.
    */
-  virtual Firestore* firestore() const;
+  virtual const Firestore* firestore() const;
 
   /**
-   * @brief Gets the string id of this document location.
+   * @brief Returns the Firestore instance associated with this document
+   * reference.
+   *
+   * The pointer will remain valid indefinitely.
+   *
+   * @returns Firebase Firestore instance that this DocumentReference refers to.
+   */
+  virtual Firestore* firestore();
+
+  /**
+   * @brief Returns the string id of this document location.
    *
    * The pointer is only valid while the DocumentReference remains in memory.
    *
@@ -153,14 +164,14 @@ class DocumentReference {
   virtual const char* id() const;
 
   /**
-   * @brief Gets the string id of this document location.
+   * @brief Returns the string id of this document location.
    *
    * @returns String id of this document location.
    */
   virtual std::string id_string() const;
 
   /**
-   * @brief Gets the path of this document (relative to the root of the
+   * @brief Returns the path of this document (relative to the root of the
    * database) as a slash-separated string.
    *
    * The pointer is only valid while the DocumentReference remains in memory.
@@ -171,7 +182,7 @@ class DocumentReference {
   virtual const char* path() const;
 
   /**
-   * @brief Gets the path of this document (relative to the root of the
+   * @brief Returns the path of this document (relative to the root of the
    * database) as a slash-separated string.
    *
    * @returns String path of this document location.
@@ -179,36 +190,36 @@ class DocumentReference {
   virtual std::string path_string() const;
 
   /**
-   * @brief Gets a CollectionReference to the collection that contains this
+   * @brief Returns a CollectionReference to the collection that contains this
    * document.
    */
   virtual CollectionReference get_parent() const;
 
   /**
-   * @brief Gets a CollectionReference instance that refers to the subcollection
-   * at the specified path relative to this document.
+   * @brief Returns a CollectionReference instance that refers to the
+   * subcollection at the specified path relative to this document.
    *
-   * @param[in] collectionPath A slash-separated relative path to a
+   * @param[in] collection_path A slash-separated relative path to a
    * subcollection. The pointer only needs to be valid during this call.
    *
    * @return The CollectionReference instance.
    */
-  virtual CollectionReference Collection(const char* collectionPath) const;
+  virtual CollectionReference Collection(const char* collection_path) const;
 
   /**
-   * @brief Gets a CollectionReference instance that refers to the subcollection
-   * at the specified path relative to this document.
+   * @brief Returns a CollectionReference instance that refers to the
+   * subcollection at the specified path relative to this document.
    *
-   * @param[in] collectionPath A slash-separated relative path to a
+   * @param[in] collection_path A slash-separated relative path to a
    * subcollection.
    *
    * @return The CollectionReference instance.
    */
   virtual CollectionReference Collection(
-      const std::string& collectionPath) const;
+      const std::string& collection_path) const;
 
   /**
-   * @brief Reads the document referenced by this DocumentReference
+   * @brief Reads the document referenced by this DocumentReference.
    *
    * @return A Future that will be resolved with the contents of the Document at
    * this DocumentReference.
@@ -286,7 +297,8 @@ class DocumentReference {
    * @brief Starts listening to the document referenced by this
    * DocumentReference.
    *
-   * @param[in] callback function or lambda to call.
+   * @param[in] callback function or lambda to call. When this function is
+   * called, exactly one of the parameters will be non-null.
    *
    * @return A registration object that can be used to remove the listener.
    *
@@ -301,7 +313,8 @@ class DocumentReference {
    * DocumentReference.
    *
    * @param[in] options The options to use for this listen.
-   * @param[in] callback function or lambda to call.
+   * @param[in] callback function or lambda to call. When this function is
+   * called, exactly one of the parameters will be non-null.
    *
    * @return A registration object that can be used to remove the listener.
    *
@@ -355,8 +368,8 @@ namespace std {
 template <>
 struct hash<firebase::firestore::DocumentReference> {
   std::size_t operator()(
-      const firebase::firestore::DocumentReference& docRef) const;
+      const firebase::firestore::DocumentReference& doc_ref) const;
 };
 }  // namespace std
 
-#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DATABASE_REFERENCE_H_
+#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DOCUMENT_REFERENCE_H_

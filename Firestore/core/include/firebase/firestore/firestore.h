@@ -19,8 +19,10 @@
 // shamelessly stolen and modified from rtdb's header file, melded with the
 // firestore api.
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_PUBLIC_FIRESTORE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_PUBLIC_FIRESTORE_H_
+#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_H_
+#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_H_
+
+#include <string>
 
 // TODO(rsgowman): replace these forward decl's with appropriate includes (once
 // they exist)
@@ -28,10 +30,6 @@ namespace firebase {
 class App;
 class InitResult;
 }  // namespace firebase
-
-namespace absl {
-class string_view;
-}  // namespace absl
 
 namespace firebase {
 namespace firestore {
@@ -59,7 +57,7 @@ class Settings;
 class Firestore {
  public:
   /**
-   * @brief Get an instance of Firestore corresponding to the given App.
+   * @brief Returns an instance of Firestore corresponding to the given App.
    *
    * Firebase Firestore uses firebase::App to communicate with Firebase
    * Authentication to authenticate users to the Firestore server backend.
@@ -91,58 +89,58 @@ class Firestore {
   virtual ~Firestore();
 
   /**
-   * @brief Get the firebase::App that this Firestore was created with.
+   * @brief Returns the firebase::App that this Firestore was created with.
    *
    * @returns The firebase::App this Firestore was created with.
    */
   virtual const App* app() const;
 
   /**
-   * @brief Get the firebase::App that this Firestore was created with.
+   * @brief Returns the firebase::App that this Firestore was created with.
    *
    * @returns The firebase::App this Firestore was created with.
    */
   virtual App* app();
 
   /**
-   * @brief Gets a CollectionReference instance that refers to the collection at
-   * the specified path within the database.
+   * @brief Returns a CollectionReference instance that refers to the
+   * collection at the specified path within the database.
    *
-   * @param[in] collectionPath A slash-separated path to a collection.
+   * @param[in] collection_path A slash-separated path to a collection.
    *
    * @return The CollectionReference instance.
    */
-  virtual CollectionReference Collection(const char* collectionPath) const;
+  virtual CollectionReference Collection(const char* collection_path) const;
 
   /**
-   * @brief Gets a CollectionReference instance that refers to the collection at
-   * the specified path within the database.
+   * @brief Returns a CollectionReference instance that refers to the
+   * collection at the specified path within the database.
    *
-   * @param[in] collectionPath A slash-separated path to a collection.
+   * @param[in] collection_path A slash-separated path to a collection.
    *
    * @return The CollectionReference instance.
    */
   virtual CollectionReference Collection(
-      const std::string& collectionPath) const;
+      const std::string& collection_path) const;
 
   /**
-   * @brief Gets a DocumentReference instance that refers to the document at the
-   * specified path within the database.
+   * @brief Returns a DocumentReference instance that refers to the document at
+   * the specified path within the database.
    *
-   * @param[in] documentPath A slash-separated path to a document.
+   * @param[in] document_path A slash-separated path to a document.
    * @return The DocumentReference instance.
    */
-  virtual DocumentReference Document(const char* documentPath) const;
+  virtual DocumentReference Document(const char* document_path) const;
 
   /**
-   * @brief Gets a DocumentReference instance that refers to the document at the
-   * specified path within the database.
+   * @brief Returns a DocumentReference instance that refers to the document at
+   * the specified path within the database.
    *
-   * @param[in] documentPath A slash-separated path to a document.
+   * @param[in] document_path A slash-separated path to a document.
    *
    * @return The DocumentReference instance.
    */
-  virtual DocumentReference Document(const std::string& documentPath) const;
+  virtual DocumentReference Document(const std::string& document_path) const;
 
   /** Returns the settings used by this Firestore object. */
   virtual Settings settings() const;
@@ -153,10 +151,10 @@ class Firestore {
   // TODO(rsgowman): batch(), runTransaction()
 
   /** Globally enables / disables Firestore logging for the SDK. */
-  static void set_logging_enabled(bool loggingEnabled);
+  static void set_logging_enabled(bool logging_enabled);
 };
 
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_PUBLIC_FIRESTORE_H_
+#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_H_
