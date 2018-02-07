@@ -55,9 +55,14 @@ ExternalProject_Add(
   # nanopb relies on $PATH for the location of protoc. cmake makes it difficult
   # to adjust the path, so we'll just patch the build files with the exact
   # location of protoc.
+  #
+  # NB: cmake sometimes runs the patch command multiple times in the same src
+  # dir, so we need to make sure this is idempotent. (eg 'make && make clean &&
+  # make')
   PATCH_COMMAND
-    perl -i -pe s,protoc,${NANOPB_PROTOC_BIN},g
-        ./CMakeLists.txt ./generator/proto/Makefile
+    grep ${NANOPB_PROTOC_BIN} ./generator/proto/Makefile
+      || perl -i -pe s,protoc,${NANOPB_PROTOC_BIN},g
+           ./CMakeLists.txt ./generator/proto/Makefile
 
   UPDATE_COMMAND ""
   INSTALL_COMMAND ""
