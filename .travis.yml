@@ -13,6 +13,8 @@ before_install:
   - bundle exec pod install --project-directory=Example --repo-update
   - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
   - brew install clang-format
+  - brew install cmake
+  - brew install go # Somehow the build for Abseil requires this.
   - echo "$TRAVIS_COMMIT_RANGE"
   - echo "$TRAVIS_PULL_REQUEST"
   - |
@@ -31,6 +33,7 @@ script:
   - "! git grep -I ' $' ':(exclude)Firestore/Protos/nanopb'"
   - "! git grep -EL --name-only 'Copyright [0-9]{4}.*Google' | grep -v third_party | egrep '\\.(m|h|cc|mm|c)$'"
   - ./scripts/style.sh test-only # Validate clang-format compliance
+  - ./scripts/lint.sh # Validate Google style compliance
   - |
     if [ $SKIP_FIREBASE != 1 ]; then
       ./test.sh
