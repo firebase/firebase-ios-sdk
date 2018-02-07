@@ -168,13 +168,13 @@ TEST(FieldPath, IsPrefixOf) {
 
 TEST(FieldPath, AccessFailures) {
   const FieldPath path;
-  ASSERT_DEATH_IF_SUPPORTED(path.first_segment(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.last_segment(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path[0], "");
-  ASSERT_DEATH_IF_SUPPORTED(path[1], "");
-  ASSERT_DEATH_IF_SUPPORTED(path.PopFirst(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.PopFirst(2), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.PopLast(), "");
+  ASSERT_ANY_THROW(path.first_segment());
+  ASSERT_ANY_THROW(path.last_segment());
+  ASSERT_ANY_THROW(path[0]);
+  ASSERT_ANY_THROW(path[1]);
+  ASSERT_ANY_THROW(path.PopFirst());
+  ASSERT_ANY_THROW(path.PopFirst(2));
+  ASSERT_ANY_THROW(path.PopLast());
 }
 
 TEST(FieldPath, Parsing) {
@@ -218,17 +218,17 @@ TEST(FieldPath, ParseEmbeddedNull) {
 }
 
 TEST(FieldPath, ParseFailures) {
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(""), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(".."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(".bar"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo..bar"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(R"(foo\)"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(R"(foo.\)"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo`"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo```"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("`foo"), "");
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(""));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("."));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(".."));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo."));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(".bar"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo..bar"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(R"(foo\)"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(R"(foo.\)"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo`"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo```"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("`foo"));
 }
 
 TEST(FieldPath, CanonicalStringOfSubstring) {

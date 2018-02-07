@@ -96,8 +96,8 @@ TEST(ResourcePath, Parsing) {
 }
 
 TEST(ResourcePath, ParseFailures) {
-  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("//"), "");
-  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("foo//bar"), "");
+  ASSERT_ANY_THROW(ResourcePath::Parse("//"));
+  ASSERT_ANY_THROW(ResourcePath::Parse("foo//bar"));
 }
 
 }  // namespace model
