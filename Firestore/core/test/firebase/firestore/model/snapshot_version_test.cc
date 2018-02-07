@@ -26,12 +26,12 @@ TEST(SnapshotVersion, Getter) {
   SnapshotVersion version(Timestamp(123, 456));
   EXPECT_EQ(Timestamp(123, 456), version.timestamp());
 
-  const SnapshotVersion& no_version = SnapshotVersion::NoVersion();
+  const SnapshotVersion& no_version = SnapshotVersion::None();
   EXPECT_EQ(Timestamp(), no_version.timestamp());
 }
 
 TEST(SnapshotVersion, Comparison) {
-  EXPECT_LT(SnapshotVersion::NoVersion(), SnapshotVersion(Timestamp(123, 456)));
+  EXPECT_LT(SnapshotVersion::None(), SnapshotVersion(Timestamp(123, 456)));
 
   EXPECT_LT(SnapshotVersion(Timestamp(123, 456)),
             SnapshotVersion(Timestamp(456, 123)));
