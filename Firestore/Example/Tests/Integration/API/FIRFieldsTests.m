@@ -229,10 +229,14 @@
 }
 
 - (void)testTimestampForField {
-    FIRTimestamp *timestamp = [FIRTimestamp timestampWithSeconds: 123 nanoseconds:123456000];
+  FIRTimestamp *originalTimestamp = [FIRTimestamp timestampWithSeconds:123 nanoseconds:123456789];
   FIRDocumentReference *doc = [self documentRef];
-  [self writeDocumentRef:doc data:[self testDataWithTimestamp:timestamp]];
+  [self writeDocumentRef:doc data:[self testDataWithTimestamp:originalTimestamp]];
 
+  // Expect original timestamp to be truncated after being written to the database.
+  FIRTimestamp *timestamp =
+      [FIRTimestamp timestampWithSeconds:originalTimestamp.seconds
+                             nanoseconds:originalTimestamp.nanoseconds / 1000 * 1000];
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
   XCTAssertEqualObjects([result timestampForField:@"timestamp"], timestamp);
   XCTAssertEqualObjects([result timestampForField:@"metadata.nestedTimestamp"], timestamp);

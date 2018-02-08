@@ -193,20 +193,29 @@
 }
 
 - (void)testTimestampsCanBePassedToQueriesAsLimits {
+  // Firestore only supports microsecond resolution, so use a microsecond as a minimum value for
+  // nanoseconds.
+  int32_t us = 1000;
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
-    @"a" : @{@"k" : @"a", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:1000]},
-    @"b" : @{@"k" : @"b", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:2000]},
-    @"c" : @{@"k" : @"c", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:3000]},
-    @"d" : @{@"k" : @"d", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:4000]},
-    @"e" : @{@"k" : @"e", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5000]},
+    @"a" :
+        @{@"k" : @"a", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:1 * us]},
+    @"b" :
+        @{@"k" : @"b", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:2 * us]},
+    @"c" :
+        @{@"k" : @"c", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:3 * us]},
+    @"d" :
+        @{@"k" : @"d", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:4 * us]},
+    @"e" :
+        @{@"k" : @"e", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us]},
     // Number of nanoseconds deliberately repeated.
-    @"f" : @{@"k" : @"f", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5000]},
+    @"f" :
+        @{@"k" : @"f", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us]},
   }];
   FIRQuery *query = [testCollection queryOrderedByField:@"timestamp"];
-  FIRQuerySnapshot *querySnapshot =
-      [self readDocumentSetForRef:[[query queryStartingAfterValues:@[
-              [FIRTimestamp timestampWithSeconds:100 nanoseconds:2000]
-            ]] queryEndingAtValues:@[ [FIRTimestamp timestampWithSeconds:100 nanoseconds:5000] ]]];
+  FIRQuerySnapshot *querySnapshot = [self
+      readDocumentSetForRef:[[query queryStartingAfterValues:@[
+        [FIRTimestamp timestampWithSeconds:100 nanoseconds:2 * us]
+      ]] queryEndingAtValues:@[ [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us] ]]];
   NSMutableArray<NSString *> *actual = [NSMutableArray array];
   [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
                                                         NSUInteger idx, BOOL *_Nonnull stop) {
@@ -216,13 +225,20 @@
 }
 
 - (void)testTimestampsCanBePassedToQueriesInWhereClause {
+  // Firestore only supports microsecond resolution, so use a microsecond as a minimum value for
+  // nanoseconds.
+  int32_t us = 1000;
   FIRTimestamp *currentTimestamp = [FIRTimestamp timestampWithDate:[NSDate date]];
-    FIRTimestamp* timestamp = [FIRTimestamp timestampWithSeconds:currentTimestamp.seconds nanoseconds:currentTimestamp.nanoseconds / 1000 * 1000];
+  // Timestamp is only truncated after being written to the database. Since it's not being written
+  // before use here, perform truncation manually.
+  FIRTimestamp *timestamp =
+      [FIRTimestamp timestampWithSeconds:currentTimestamp.seconds
+                             nanoseconds:currentTimestamp.nanoseconds / us * us];
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"k" : @"a",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds - 1000],
+                                            nanoseconds:timestamp.nanoseconds - 1 * us],
     },
     @"b" : @{
       @"k" : @"b",
@@ -232,17 +248,17 @@
     @"c" : @{
       @"k" : @"c",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds + 1000],
+                                            nanoseconds:timestamp.nanoseconds + 1 * us],
     },
     @"d" : @{
       @"k" : @"d",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds + 2000],
+                                            nanoseconds:timestamp.nanoseconds + 2 * us],
     },
     @"e" : @{
       @"k" : @"e",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
-                                            nanoseconds:timestamp.nanoseconds + 3000],
+                                            nanoseconds:timestamp.nanoseconds + 3 * us],
     }
   }];
 
@@ -253,7 +269,7 @@
                                      isLessThan:[FIRTimestamp
                                                     timestampWithSeconds:timestamp.seconds
                                                              nanoseconds:timestamp.nanoseconds +
-                                                                         3000]]];
+                                                                         3 * us]]];
   NSMutableArray<NSString *> *actual = [NSMutableArray array];
   [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
                                                         NSUInteger idx, BOOL *_Nonnull stop) {
