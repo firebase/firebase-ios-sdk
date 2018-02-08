@@ -378,7 +378,7 @@ void FieldValue::SwitchTo(const Type type) {
       blob_value_.~vector();
       break;
     case Type::Reference:
-      reference_value_.reference.~DocumentKey();
+      reference_value_.~DatabaseReference();
       break;
     case Type::GeoPoint:
       geo_point_value_.~GeoPoint();

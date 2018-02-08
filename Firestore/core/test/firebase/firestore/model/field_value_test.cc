@@ -392,7 +392,7 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
+  FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   clone = std::move(timestamp_value);
   EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
   clone = FieldValue::NullValue();
@@ -404,14 +404,14 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
+  FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   clone = std::move(blob_value);
   EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
   const DatabaseId database_id("project", "database");
-  const FieldValue reference_value = FieldValue::ReferenceValue(
+  FieldValue reference_value = FieldValue::ReferenceValue(
       DocumentKey::FromPathString("abc"), &database_id);
   clone = std::move(reference_value);
   EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("abc"),
@@ -420,7 +420,7 @@ TEST(FieldValue, Move) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
+  FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   clone = std::move(geo_point_value);
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
   clone = null_value;
