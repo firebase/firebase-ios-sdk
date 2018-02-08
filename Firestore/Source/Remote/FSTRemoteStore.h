@@ -19,7 +19,6 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
-@class FSTDatabaseInfo;
 @class FSTDatastore;
 @class FSTDocumentKey;
 @class FSTLocalStore;

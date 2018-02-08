@@ -63,8 +63,6 @@ else()
 
   ExternalProject_Add(
     grpc
-    DEPENDS
-      leveldb  # for sequencing
 
     ${GRPC_GIT}
 
@@ -75,6 +73,7 @@ else()
     BUILD_COMMAND
       ${CMAKE_COMMAND} --build . --target grpc
 
+    UPDATE_COMMAND ""
     TEST_COMMAND ""
     INSTALL_COMMAND ""
   )

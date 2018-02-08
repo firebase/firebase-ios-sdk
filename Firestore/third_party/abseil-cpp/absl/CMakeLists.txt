@@ -17,5 +17,7 @@
 
 
 add_subdirectory(base)
+add_subdirectory(memory)
 add_subdirectory(meta)
+add_subdirectory(numeric)
 add_subdirectory(strings)

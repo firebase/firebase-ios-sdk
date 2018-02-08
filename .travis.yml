@@ -27,7 +27,8 @@ before_install:
     fi
 
 script:
-  - "! git grep -I ' $'" # Fail on trailing whitespace in non-binary files
+  # Fail on trailing whitespace in non-binary, non-generated-nanopb files
+  - "! git grep -I ' $' ':(exclude)Firestore/Protos/nanopb'"
   - "! git grep -EL --name-only 'Copyright [0-9]{4}.*Google' | grep -v third_party | egrep '\\.(m|h|cc|mm|c)$'"
   - ./scripts/style.sh test-only # Validate clang-format compliance
   - |

@@ -82,6 +82,7 @@ NSString *FIRMessagingSubscriptionsServer() {
     _topic = topic;
     _action = action;
     _token = token;
+    _options = options;
     _checkinService = checkinService;
     _completion = completion;
 
