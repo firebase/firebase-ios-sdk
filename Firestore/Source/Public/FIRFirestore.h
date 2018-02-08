@@ -137,8 +137,8 @@ NS_SWIFT_NAME(Firestore)
 
 /** Enables or disables logging from the Firestore client. */
 + (void)enableLogging:(BOOL)logging DEPRECATED_MSG_ATTRIBUTE(
-                          "Use FirebaseConfiguration.shared.setLoggerLevel(_:) to set the "
-                          "appropriate logging level.");
+                          "Use FirebaseConfiguration.shared.setLoggerLevel(.debug) to enable "
+                          "logging.");
 
 #pragma mark - Network
 
