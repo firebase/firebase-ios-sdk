@@ -41,6 +41,19 @@ using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
 
+namespace {
+
+FSTListenSequenceNumber ReadSequenceNumber(const Slice &slice) {
+  FSTListenSequenceNumber decoded;
+  absl::string_view tmp(slice.data(), slice.size());
+  if (OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
+    return decoded;
+  } else {
+    FSTCFail(@"Failed to read sequence number from a sentinel row");
+  }
+}
+}
+
 @interface FSTLevelDBQueryCache ()
 
 /** A write-through cached copy of the metadata for the query cache. */
@@ -159,15 +172,8 @@ using leveldb::WriteOptions;
       }
       // set nextToReport to be this sequence number. It's the next one we might
       // report, if we don't find any targets for this document.
-      int64_t decoded;
-      Slice slice = it->value();
-      absl::string_view tmp(slice.data(), slice.size());
-      if (OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
-        nextToReport = (FSTListenSequenceNumber)decoded;
-        keyToReport = key.documentKey;
-      } else {
-        FSTFail(@"Failed to read sequence number from a sentinel row");
-      }
+      nextToReport = ReadSequenceNumber(it->value());
+      keyToReport = key.documentKey;
     } else {
       // set nextToReport to be 0, we know we don't need to report this one since
       // we found a target for it.
@@ -402,8 +408,25 @@ using leveldb::WriteOptions;
   }
 }
 
-- (void)removeOrphanedDocument:(FSTDocumentKey *)key group:(FSTWriteGroup *)group {
-  [group removeMessageForKey:[FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:key]];
+- (BOOL)removeOrphanedDocument:(FSTDocumentKey *)key
+                    upperBound:(__unused FSTListenSequenceNumber)upperBound
+                         group:(FSTWriteGroup *)group {
+  std::string sentinelKey = [FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:key];
+  /*std::string sequenceNumberString;
+  Status status = _db->Get([FSTLevelDB standardReadOptions], sentinelKey, &sequenceNumberString);
+  if (status.IsNotFound()) {
+    return YES;
+  } else if (status.ok()) {
+    FSTListenSequenceNumber sequenceNumber = ReadSequenceNumber(sequenceNumberString);
+    if (sequenceNumber <= upperBound) {*/
+      [group removeMessageForKey:sentinelKey];
+      return YES;
+    /*} else {
+      return NO;
+    }
+  } else {
+    FSTFail(@"Failed trying to query sentinel key %s", sentinelKey.c_str());
+  }*/
 }
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {

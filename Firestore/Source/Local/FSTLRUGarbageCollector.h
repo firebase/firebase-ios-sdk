@@ -23,6 +23,7 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
                                              group:(FSTWriteGroup *)group;
 
 - (NSUInteger)removeOrphanedDocuments:(id<FSTRemoteDocumentCache>)remoteDocumentCache
+                throughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                         mutationQueue:(id<FSTMutationQueue>)mutationQueue
                                 group:(FSTWriteGroup *)group;
 

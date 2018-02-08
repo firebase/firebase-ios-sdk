@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
 @class FSTDocumentKey;
@@ -74,6 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query;
 
 - (NSUInteger)removeOrphanedDocuments:(id<FSTQueryCache>)queryCache
+                throughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                         mutationQueue:(id<FSTMutationQueue>)mutationQueue
                                 group:(FSTWriteGroup *)group;
 @end

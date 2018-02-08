@@ -138,7 +138,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Removes all the keys in the query results of the given target ID. */
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group;
 
-- (void)removeOrphanedDocument:(FSTDocumentKey *)key group:(FSTWriteGroup *)group;
+- (BOOL)removeOrphanedDocument:(FSTDocumentKey *)key
+                    upperBound:(FSTListenSequenceNumber)upperBound
+                         group:(FSTWriteGroup *)group;
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID;
 

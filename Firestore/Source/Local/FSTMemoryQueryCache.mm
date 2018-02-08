@@ -144,6 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (queryData.sequenceNumber <= sequenceNumber) {
           if (liveQueries[@(queryData.targetID)] == nil) {
             [toRemove addObject:query];
+            [self.references removeReferencesForID:queryData.targetID];
           }
         }
       }];
@@ -189,8 +190,18 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.references referencedKeysForID:targetID];
 }
 
-- (void)removeOrphanedDocument:(FSTDocumentKey *)key group:(__unused FSTWriteGroup *)group {
-  [self.orphanedDocumentSequenceNumbers removeObjectForKey:key];
+- (BOOL)removeOrphanedDocument:(FSTDocumentKey *)key
+                    upperBound:(FSTListenSequenceNumber)upperBound
+                         group:(__unused FSTWriteGroup *)group {
+  NSNumber *seq = self.orphanedDocumentSequenceNumbers[key];
+  if (!seq) {
+    return YES;
+  } else if ([seq longLongValue] <= upperBound) {
+    [self.orphanedDocumentSequenceNumbers removeObjectForKey:key];
+    return YES;
+  } else {
+    return NO;
+  }
 }
 
 #pragma mark - FSTGarbageSource implementation

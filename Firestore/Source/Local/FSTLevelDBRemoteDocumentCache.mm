@@ -153,12 +153,18 @@ static ReadOptions StandardReadOptions() {
 }
 
 - (NSUInteger)removeOrphanedDocuments:(id <FSTQueryCache>)queryCache
+                throughSequenceNumber:(FSTListenSequenceNumber)upperBound
                         mutationQueue:(id <FSTMutationQueue>)mutationQueue
                                 group:(FSTWriteGroup *)group {
   __block NSUInteger count = 0;
   [queryCache enumerateOrphanedDocumentsUsingBlock:^(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
-    if (![mutationQueue containsKey:docKey]) {
-      [queryCache removeOrphanedDocument:docKey group:group];
+    if (![mutationQueue containsKey:docKey] &&
+            ![queryCache containsKey:docKey] &&
+            // TODO(gsoltis): avoid this read
+            sequenceNumber <= upperBound &&
+            [queryCache removeOrphanedDocument:docKey
+                                    upperBound:upperBound
+                                         group:group]) {
       [self removeEntryForKey:docKey group:group];
       count++;
     }

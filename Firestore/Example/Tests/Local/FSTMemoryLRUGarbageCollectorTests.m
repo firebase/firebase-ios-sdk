@@ -1,6 +1,7 @@
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
