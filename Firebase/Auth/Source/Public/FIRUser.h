@@ -158,7 +158,7 @@ NS_SWIFT_NAME(User)
         updated.
 
     @param phoneNumberCredential The new phone number credential corresponding to the phone number
-        to be added to the firebaes account, if a phone number is already linked to the account this
+        to be added to the Firebase account, if a phone number is already linked to the account this
         new phone number will replace it.
     @param completion Optionally; the block invoked when the user profile change has finished.
         Invoked asynchronously on the main thread in the future.

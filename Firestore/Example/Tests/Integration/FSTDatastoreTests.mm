@@ -23,13 +23,11 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -42,6 +40,14 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -137,6 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTLocalStore *_localStore;
   id<FSTCredentialsProvider> _credentials;
 
+  DatabaseInfo _databaseInfo;
   FSTDatastore *_datastore;
   FSTRemoteStore *_remoteStore;
 }
@@ -154,13 +161,10 @@ NS_ASSUME_NONNULL_BEGIN
     [GRPCCall useInsecureConnectionsForHost:settings.host];
   }
 
-  FSTDatabaseID *databaseID =
-      [FSTDatabaseID databaseIDWithProject:projectID database:kDefaultDatabaseID];
+  DatabaseId database_id(util::MakeStringView(projectID), DatabaseId::kDefaultDatabaseId);
 
-  FSTDatabaseInfo *databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:databaseID
-                                                               persistenceKey:@"test-key"
-                                                                         host:settings.host
-                                                                   sslEnabled:settings.sslEnabled];
+  _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
+                               settings.sslEnabled);
 
   _testWorkerQueue = [FSTDispatchQueue
       queueWith:dispatch_queue_create("com.google.firestore.FSTDatastoreTestsWorkerQueue",
@@ -168,7 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   _credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
-  _datastore = [FSTDatastore datastoreWithDatabase:databaseInfo
+  _datastore = [FSTDatastore datastoreWithDatabase:&_databaseInfo
                                workerDispatchQueue:_testWorkerQueue
                                        credentials:_credentials];
 

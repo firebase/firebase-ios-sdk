@@ -18,6 +18,7 @@ list(APPEND BASE_PUBLIC_HEADERS
   "attributes.h"
   "config.h"
   "dynamic_annotations.h"
+  "log_severity.h"
   "macros.h"
   "optimization.h"
   "policy_checks.h"
@@ -28,7 +29,6 @@ list(APPEND BASE_PUBLIC_HEADERS
 list(APPEND BASE_INTERNAL_HEADERS
   "internal/atomic_hook.h"
   "internal/endian.h"
-  "internal/log_severity.h"
   "internal/raw_logging.h"
   "internal/throw_delegate.h"
   "internal/unaligned_access.h"

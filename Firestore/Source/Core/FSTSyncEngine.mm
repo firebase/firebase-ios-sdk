@@ -42,6 +42,8 @@
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
+using firebase::firestore::core::TargetIdGenerator;
+
 NS_ASSUME_NONNULL_BEGIN
 
 // Limbo documents don't use persistence, and are eagerly GC'd. So, listens for them don't need
@@ -148,7 +150,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 @implementation FSTSyncEngine {
   /** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
-  firebase::firestore::core::TargetIdGenerator _targetIdGenerator;
+  TargetIdGenerator _targetIdGenerator;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
@@ -168,8 +170,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     [_limboCollector addGarbageSource:_limboDocumentRefs];
 
     _mutationCompletionBlocks = [NSMutableDictionary dictionary];
-    _targetIdGenerator =
-        firebase::firestore::core::TargetIdGenerator::SyncEngineTargetIdGenerator(0);
+    _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator(0);
     _currentUser = initialUser;
   }
   return self;

@@ -70,7 +70,8 @@ static void AddTargetCount(std::shared_ptr<DB> db, FSTWriteGroup *group) {
   }
 
   FSTPBTargetGlobal *targetGlobal = [FSTLevelDBQueryCache readTargetMetadataFromDB:db];
-  FSTCAssert(targetGlobal != nil, @"We should have a metadata row as it was added in an earlier migration");
+  FSTCAssert(targetGlobal != nil,
+             @"We should have a metadata row as it was added in an earlier migration");
   targetGlobal.targetCount = count;
   [group setMessage:targetGlobal forKey:[FSTLevelDBTargetGlobalKey key]];
 }

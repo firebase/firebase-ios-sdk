@@ -43,6 +43,8 @@
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
+using firebase::firestore::core::TargetIdGenerator;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalStore ()
@@ -92,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLocalStore {
   /** Used to generate targetIDs for queries tracked locally. */
-  firebase::firestore::core::TargetIdGenerator _targetIDGenerator;
+  TargetIdGenerator _targetIDGenerator;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
@@ -115,8 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
     _targetIDs = [NSMutableDictionary dictionary];
     _heldBatchResults = [NSMutableArray array];
 
-    _targetIDGenerator =
-        firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(0);
+    _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(0);
   }
   return self;
 }
@@ -154,8 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queryCache start];
 
   FSTTargetID targetID = [self.queryCache highestTargetID];
-  _targetIDGenerator =
-      firebase::firestore::core::TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
+  _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
   FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
   self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }

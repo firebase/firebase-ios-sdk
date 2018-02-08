@@ -79,14 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc3, _doc1, _doc2 ]));
 }
 
-- (void)testPredecessorDocumentForKey {
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
-
-  XCTAssertNil([set predecessorDocumentForKey:_doc3.key]);
-  XCTAssertEqualObjects([set predecessorDocumentForKey:_doc1.key], _doc3);
-  XCTAssertEqualObjects([set predecessorDocumentForKey:_doc2.key], _doc1);
-}
-
 - (void)testDeletes {
   FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
 
