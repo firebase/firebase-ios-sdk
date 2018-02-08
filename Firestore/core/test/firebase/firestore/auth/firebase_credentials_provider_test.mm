@@ -24,8 +24,6 @@
 
 #include "gtest/gtest.h"
 
-#define UNUSED(x) (void)(x)
-
 namespace firebase {
 namespace firestore {
 namespace auth {
@@ -65,11 +63,8 @@ TEST_F(FirebaseCredentialsProviderTest, GetToken) {
     return;
   }
 
-  // GetToken() registers callback and thus we do not allocate it in stack.
-  FirebaseCredentialsProvider* credentials_provider =
-      new FirebaseCredentialsProvider([FIRApp defaultApp]);
-
-  credentials_provider->GetToken(
+  FirebaseCredentialsProvider credentials_provider([FIRApp defaultApp]);
+  credentials_provider.GetToken(
       /*force_refresh=*/true,
       [](const Token& token, const absl::string_view error) {
         EXPECT_EQ("", token.token());
@@ -77,17 +72,6 @@ TEST_F(FirebaseCredentialsProviderTest, GetToken) {
         EXPECT_EQ("I'm a fake uid.", user.uid());
         EXPECT_TRUE(user.is_authenticated());
         EXPECT_EQ("", error) << error;
-      });
-
-  // Destruct credentials_provider via the FIRAuthGlobalWorkQueue, which is
-  // serial.
-  credentials_provider->GetToken(
-      /*force_refresh=*/false,
-      [credentials_provider](const Token& token,
-                             const absl::string_view error) {
-        UNUSED(token);
-        UNUSED(error);
-        delete credentials_provider;
       });
 }
 

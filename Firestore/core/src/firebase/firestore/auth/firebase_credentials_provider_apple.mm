@@ -64,12 +64,12 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
 }
 
 FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
-  if (auth_listener_handle_) {
-    // For iOS 9.0 and later or macOS 10.11 and later, it is not required to
+//  if (auth_listener_handle_) {
+    // iOS 9.0 and later or macOS 10.11 and later, it is not required to
     // unregister an observer in dealloc. Nothing is said for C++ destruction
     // and thus we do it here just to be sure.
-    [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
-  }
+//    [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
+//  }
 }
 
 void FirebaseCredentialsProvider::GetToken(bool force_refresh,

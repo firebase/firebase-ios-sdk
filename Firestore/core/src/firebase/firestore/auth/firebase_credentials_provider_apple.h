@@ -49,30 +49,7 @@ namespace auth {
  * from the thread backing our internal worker queue and the callbacks from
  * FIRAuth will be executed on an arbitrary different thread.
  *
- * Any instance that has GetToken() calls has to be destructed in
- * FIRAuthGlobalWorkQueue i.e through another call to GetToken. This prevents
- * the object being destructed before the callback. For example, use the
- * following pattern:
- *
- * class Bar {
- *   Bar(): provider_(new FirebaseCredentialsProvider([FIRApp defaultApp])) {}
- *
- *   ~Bar() {
- *     credentials_provider->GetToken(
- *         false, [provider_](const Token& token, const absl::string_view error)
- * { delete provider_;
- *     });
- *   }
- *
- *   Foo() {
- *      credentials_provider->GetToken(
- *          true, [](const Token& token, const absl::string_view error) {
- *              ... ...
- *      });
- *   }
- *
- *   FirebaseCredentialsProvider* provider_;
- * };
+ * For non-Apple desktop build, this is right now just a stub.
  */
 class FirebaseCredentialsProvider : public CredentialsProvider {
  public:
