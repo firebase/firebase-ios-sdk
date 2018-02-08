@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int32_t)count {
-  return [self.queries count];
+  return (int32_t)[self.queries count];
 }
 
 - (void)removeQueryData:(FSTQueryData *)queryData group:(__unused FSTWriteGroup *)group {
