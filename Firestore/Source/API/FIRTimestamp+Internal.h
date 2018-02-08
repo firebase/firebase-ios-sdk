@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRTimestamp()
+@interface FIRTimestamp ()
 
 /**
  * Creates a new timestamp.

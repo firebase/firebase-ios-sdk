@@ -39,21 +39,24 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(500000000, actual.nanoseconds);
 
   FIRTimestamp *expected =
-      [[FIRTimestamp alloc] initWithSeconds:(kSecondsFromEpochToReferenceDate + 1) nanoseconds:500000000];
+      [[FIRTimestamp alloc] initWithSeconds:(kSecondsFromEpochToReferenceDate + 1)
+                                nanoseconds:500000000];
   XCTAssertEqualObjects(expected, actual);
 }
 
 - (void)testSO8601String {
   NSDate *date = FSTTestDate(1912, 4, 14, 23, 40, 0);
   FIRTimestamp *timestamp =
-      [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970 nanoseconds:543000000];
+      [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970
+                                nanoseconds:543000000];
   XCTAssertEqualObjects(timestamp.ISO8601String, @"1912-04-14T23:40:00.543000000Z");
 }
 
 - (void)testISO8601String_withLowMilliseconds {
   NSDate *date = FSTTestDate(1912, 4, 14, 23, 40, 0);
   FIRTimestamp *timestamp =
-      [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970 nanoseconds:7000000];
+      [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970
+                                nanoseconds:7000000];
   XCTAssertEqualObjects(timestamp.ISO8601String, @"1912-04-14T23:40:00.007000000Z");
 }
 

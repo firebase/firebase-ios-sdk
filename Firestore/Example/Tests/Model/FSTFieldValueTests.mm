@@ -574,14 +574,12 @@ union DoubleBits {
   {
     XCTAssertTrue([output[@"array"][1] isKindOfClass:[NSDate class]]);
     NSDate *actual = output[@"array"][1];
-    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970,
-                               0.000001);
+    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970, 0.000001);
   }
   {
     XCTAssertTrue([output[@"obj"][@"date"] isKindOfClass:[NSDate class]]);
     NSDate *actual = output[@"obj"][@"date"];
-    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970,
-                               0.000001);
+    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970, 0.000001);
   }
 }
 
