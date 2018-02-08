@@ -36,7 +36,8 @@ namespace model {
 class FieldPath : public impl::BasePath<FieldPath> {
  public:
   // Note: Xcode 8.2 requires explicit specification of the constructor.
-  FieldPath() : impl::BasePath<FieldPath>() {}
+  FieldPath() : impl::BasePath<FieldPath>() {
+  }
 
   /** Constructs the path from segments. */
   template <typename IterT>
