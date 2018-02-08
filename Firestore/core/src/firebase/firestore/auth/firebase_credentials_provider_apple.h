@@ -69,7 +69,32 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
   void SetUserChangeListener(UserChangeListener listener) override;
 
  private:
-  const FIRApp* app_;
+  /**
+   * Most contents of the FirebaseCredentialProvider are kept in this
+   * Contents object and pointed to with a shared pointer. Callbacks
+   * registered with FirebaseAuth use weak pointers to the Contents to
+   * avoid races between notifications arriving and C++ object destruction.
+   */
+  struct Contents {
+    Contents(FIRApp* app, const absl::string_view uid)
+        : app(app), current_user(uid), mutex() {
+    }
+
+    const FIRApp* app;
+
+    /**
+     * The current user as reported to us via our AuthStateDidChangeListener.
+     */
+    User current_user;
+
+    /**
+     * Counter used to detect if the user changed while a
+     * -getTokenForcingRefresh: request was outstanding.
+     */
+    int user_counter = 0;
+
+    std::mutex mutex;
+  };
 
   /**
    * Handle used to stop receiving auth changes once userChangeListener is
@@ -77,18 +102,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    */
   id<NSObject> auth_listener_handle_;
 
-  /** The current user as reported to us via our AuthStateDidChangeListener. */
-  User current_user_;
-
-  /**
-   * Counter used to detect if the user changed while a -getTokenForcingRefresh:
-   * request was outstanding.
-   */
-  int user_counter_;
-
-  // Make it static as as it is used in some of the callbacks. Otherwise, we saw
-  // mutex lock failed: Invalid argument.
-  std::mutex mutex_;
+  std::shared_ptr<Contents> contents_;
 };
 
 }  // namespace auth

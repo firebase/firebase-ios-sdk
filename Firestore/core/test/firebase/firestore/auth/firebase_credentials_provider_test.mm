@@ -87,6 +87,9 @@ TEST_F(FirebaseCredentialsProviderTest, SetListener) {
     EXPECT_TRUE(user.is_authenticated());
   });
 
+  // TODO(wilhuff): We should wait for the above expectations to actually happen
+  // before continuing.
+
   credentials_provider.SetUserChangeListener(nullptr);
 }
 
