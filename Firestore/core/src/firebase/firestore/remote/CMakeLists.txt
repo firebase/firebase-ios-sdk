@@ -17,6 +17,9 @@ cc_library(
   SOURCES
     datastore.h
     datastore.cc
+    serializer.h
+    serializer.cc
   DEPENDS
     grpc::grpc
+    nanopb
 )

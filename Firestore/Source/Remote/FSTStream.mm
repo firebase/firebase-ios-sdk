@@ -22,9 +22,7 @@
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Auth/FSTCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTBufferedWriter.h"
 #import "Firestore/Source/Remote/FSTExponentialBackoff.h"
@@ -36,6 +34,14 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
+
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
 
 /**
  * Initial backoff time in seconds after an error.
@@ -93,12 +99,12 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 /**
  * Initializes the watch stream with its dependencies.
  */
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
@@ -114,7 +120,8 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @interface FSTStream () <GRXWriteable>
 
-@property(nonatomic, strong, readonly) FSTDatabaseInfo *databaseInfo;
+// Does not own this DatabaseInfo.
+@property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
 @property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentials;
 @property(nonatomic, unsafe_unretained, readonly) Class responseMessageClass;
@@ -194,7 +201,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 /** The time a stream stays open after it is marked idle. */
 static const NSTimeInterval kIdleTimeout = 60.0;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass {
@@ -276,7 +283,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   self.requestsWriter = [[FSTBufferedWriter alloc] init];
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [FSTDatastore prepareHeadersForRPC:_rpc
-                          databaseID:self.databaseInfo.databaseID
+                          databaseID:&self.databaseInfo->database_id()
                                token:token.token];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
@@ -592,7 +599,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 @implementation FSTWatchStream
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer {
@@ -607,7 +614,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:self.databaseInfo.host
+  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Listen"
                          requestsWriter:requestsWriter];
 }
@@ -675,7 +682,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 @implementation FSTWriteStream
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(id<FSTCredentialsProvider>)credentials
                       serializer:(FSTSerializerBeta *)serializer {
@@ -690,7 +697,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:self.databaseInfo.host
+  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Write"
                          requestsWriter:requestsWriter];
 }

@@ -138,9 +138,10 @@
 // supported.
 #ifdef ABSL_HAVE_THREAD_LOCAL
 #error ABSL_HAVE_THREAD_LOCAL cannot be directly set
-#elif !defined(__apple_build_version__) ||   \
-    ((__apple_build_version__ >= 8000042) && \
-     !(TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0))
+#elif (!defined(__apple_build_version__) || \
+       (__apple_build_version__ >= 8000042)) && \
+      !(defined(__APPLE__) && TARGET_OS_IPHONE && \
+        __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
 // Notes: Xcode's clang did not support `thread_local` until version
 // 8, and even then not for all iOS < 9.0.
 #define ABSL_HAVE_THREAD_LOCAL 1
@@ -181,21 +182,21 @@
 // __SIZEOF_INT128__ but not all versions actually support __int128.
 #ifdef ABSL_HAVE_INTRINSIC_INT128
 #error ABSL_HAVE_INTRINSIC_INT128 cannot be directly set
-#elif (defined(__clang__) && defined(__SIZEOF_INT128__) &&               \
-       !defined(__aarch64__)) ||                                         \
-    (defined(__CUDACC__) && defined(__SIZEOF_INT128__) &&                \
-     __CUDACC_VER_MAJOR__ >= 9) ||                                       \
-    (!defined(__clang__) && !defined(__CUDACC__) && defined(__GNUC__) && \
-     defined(__SIZEOF_INT128__))
+#elif defined(__SIZEOF_INT128__)
+#if (defined(__clang__) && !defined(__aarch64__)) ||      \
+    (defined(__CUDACC__) && __CUDACC_VER_MAJOR__ >= 9) || \
+    (!defined(__clang__) && !defined(__CUDACC__) && defined(__GNUC__))
 #define ABSL_HAVE_INTRINSIC_INT128 1
+#elif defined(__CUDACC__)
 // __CUDACC_VER__ is a full version number before CUDA 9, and is defined to a
-// std::string explaining that it has been removed starting with CUDA 9. We can't
-// compare both variants in a single boolean expression because there is no
-// short-circuiting in the preprocessor.
-#elif defined(__CUDACC__) && defined(__SIZEOF_INT128__) && \
-    __CUDACC_VER__ >= 7000
+// std::string explaining that it has been removed starting with CUDA 9. We use
+// nested #ifs because there is no short-circuiting in the preprocessor.
+// NOTE: `__CUDACC__` could be undefined while `__CUDACC_VER__` is defined.
+#if __CUDACC_VER__ >= 70000
 #define ABSL_HAVE_INTRINSIC_INT128 1
-#endif
+#endif  // __CUDACC_VER__ >= 70000
+#endif  // defined(__CUDACC__)
+#endif  // ABSL_HAVE_INTRINSIC_INT128
 
 // ABSL_HAVE_EXCEPTIONS
 //
@@ -243,7 +244,7 @@
 //   Windows                           _WIN32
 //   NaCL                              __native_client__
 //   AsmJS                             __asmjs__
-//   Fuschia                           __Fuchsia__
+//   Fuchsia                           __Fuchsia__
 //
 // Note that since Android defines both __ANDROID__ and __linux__, one
 // may probe for either Linux or Android by simply testing for __linux__.
@@ -254,8 +255,9 @@
 // POSIX.1-2001.
 #ifdef ABSL_HAVE_MMAP
 #error ABSL_HAVE_MMAP cannot be directly set
-#elif defined(__linux__) || defined(__APPLE__) || defined(__ros__) || \
-    defined(__native_client__) || defined(__asmjs__) || defined(__Fuchsia__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) ||   \
+    defined(__ros__) || defined(__native_client__) || defined(__asmjs__) || \
+    defined(__Fuchsia__)
 #define ABSL_HAVE_MMAP 1
 #endif
 
@@ -265,7 +267,8 @@
 // functions as defined in POSIX.1-2001.
 #ifdef ABSL_HAVE_PTHREAD_GETSCHEDPARAM
 #error ABSL_HAVE_PTHREAD_GETSCHEDPARAM cannot be directly set
-#elif defined(__linux__) || defined(__APPLE__) || defined(__ros__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || \
+    defined(__ros__)
 #define ABSL_HAVE_PTHREAD_GETSCHEDPARAM 1
 #endif
 

@@ -21,6 +21,7 @@ ExternalProject_Add(
     googletest
     leveldb
     grpc
+    nanopb
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.

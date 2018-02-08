@@ -15,8 +15,11 @@
 cc_library(
   firebase_firestore_model
   SOURCES
+    base_path.h
     database_id.cc
     database_id.h
+    field_path.cc
+    field_path.h
     field_value.cc
     field_value.h
     timestamp.cc
