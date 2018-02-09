@@ -29,18 +29,18 @@ namespace model {
 TEST(FieldPath, Constructors) {
   const FieldPath empty_path;
   EXPECT_TRUE(empty_path.empty());
-  EXPECT_EQ(0, empty_path.size());
+  EXPECT_EQ(0u, empty_path.size());
   EXPECT_TRUE(empty_path.begin() == empty_path.end());
 
   const FieldPath path_from_list = {"rooms", "Eros", "messages"};
   EXPECT_FALSE(path_from_list.empty());
-  EXPECT_EQ(3, path_from_list.size());
+  EXPECT_EQ(3u, path_from_list.size());
   EXPECT_TRUE(path_from_list.begin() + 3 == path_from_list.end());
 
   std::vector<std::string> segments{"rooms", "Eros", "messages"};
   const FieldPath path_from_segments{segments.begin(), segments.end()};
   EXPECT_FALSE(path_from_segments.empty());
-  EXPECT_EQ(3, path_from_segments.size());
+  EXPECT_EQ(3u, path_from_segments.size());
   EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
 
   FieldPath copied = path_from_list;
@@ -168,13 +168,13 @@ TEST(FieldPath, IsPrefixOf) {
 
 TEST(FieldPath, AccessFailures) {
   const FieldPath path;
-  ASSERT_DEATH_IF_SUPPORTED(path.first_segment(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.last_segment(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path[0], "");
-  ASSERT_DEATH_IF_SUPPORTED(path[1], "");
-  ASSERT_DEATH_IF_SUPPORTED(path.PopFirst(), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.PopFirst(2), "");
-  ASSERT_DEATH_IF_SUPPORTED(path.PopLast(), "");
+  ASSERT_ANY_THROW(path.first_segment());
+  ASSERT_ANY_THROW(path.last_segment());
+  ASSERT_ANY_THROW(path[0]);
+  ASSERT_ANY_THROW(path[1]);
+  ASSERT_ANY_THROW(path.PopFirst());
+  ASSERT_ANY_THROW(path.PopFirst(2));
+  ASSERT_ANY_THROW(path.PopLast());
 }
 
 TEST(FieldPath, Parsing) {
@@ -201,7 +201,7 @@ TEST(FieldPath, Parsing) {
 
   const auto path_with_dot = FieldPath::FromServerFormat(R"(foo\.bar)");
   EXPECT_EQ(path_with_dot.CanonicalString(), "`foo.bar`");
-  EXPECT_EQ(path_with_dot.size(), 1);
+  EXPECT_EQ(path_with_dot.size(), 1u);
 }
 
 // This is a special case in C++: std::string may contain embedded nulls. To
@@ -213,22 +213,22 @@ TEST(FieldPath, ParseEmbeddedNull) {
   str += ".bar";
 
   const auto path = FieldPath::FromServerFormat(str);
-  EXPECT_EQ(path.size(), 1);
+  EXPECT_EQ(path.size(), 1u);
   EXPECT_EQ(path.CanonicalString(), "foo");
 }
 
 TEST(FieldPath, ParseFailures) {
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(""), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(".."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo."), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(".bar"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo..bar"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(R"(foo\)"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat(R"(foo.\)"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo`"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("foo```"), "");
-  ASSERT_DEATH_IF_SUPPORTED(FieldPath::FromServerFormat("`foo"), "");
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(""));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("."));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(".."));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo."));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(".bar"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo..bar"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(R"(foo\)"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat(R"(foo.\)"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo`"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo```"));
+  ASSERT_ANY_THROW(FieldPath::FromServerFormat("`foo"));
 }
 
 TEST(FieldPath, CanonicalStringOfSubstring) {

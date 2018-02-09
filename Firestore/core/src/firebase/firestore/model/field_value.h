@@ -69,7 +69,7 @@ class FieldValue {
     // position instead, see the doc comment above.
   };
 
-  FieldValue() : tag_(Type::Null) {
+  FieldValue() {
   }
 
   // Do not inline these ctor/dtor below, which contain call to non-trivial
@@ -123,7 +123,7 @@ class FieldValue {
    */
   void SwitchTo(const Type type);
 
-  Type tag_;
+  Type tag_ = Type::Null;
   union {
     // There is no null type as tag_ alone is enough for Null FieldValue.
     bool boolean_value_;
