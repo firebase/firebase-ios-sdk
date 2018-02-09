@@ -28,6 +28,8 @@ cc_library(
     maybe_document.h
     no_document.cc
     no_document.h
+    resource_path.cc
+    resource_path.h
     timestamp.cc
     timestamp.h
   DEPENDS
