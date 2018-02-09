@@ -39,8 +39,6 @@ test_iOS() {
 }
 
 test_CMake() {
-  echo $(ulimit -a)
-
   echo "set cmake build" && \
     mkdir build && \
     cd build && \
@@ -48,7 +46,7 @@ test_CMake() {
     exit 1
 
   echo "initial cmake build" && \
-    make -j all || \
+    make -j 200 all || \
     exit 2
 
   echo "test Firestore cmake build" && \
