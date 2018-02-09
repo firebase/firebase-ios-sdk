@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
-
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
-
-#import "Firestore/Source/Util/FSTAssert.h"
-
-using firebase::firestore::util::WrapCompare;
+#import "Private/FIRTimestamp+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,11 +31,18 @@ static const int kNanosPerSecond = 1000000000;
 #pragma mark - Internal public methods
 
 - (NSComparisonResult)compare:(FIRTimestamp *)other {
-  NSComparisonResult result = WrapCompare<int64_t>(self.seconds, other.seconds);
-  if (result != NSOrderedSame) {
-    return result;
+  if (self.seconds < other.seconds) {
+    return NSOrderedAscending;
+  } else if (self.seconds > other.seconds) {
+    return NSOrderedDescending;
   }
-  return WrapCompare<int32_t>(self.nanoseconds, other.nanoseconds);
+
+  if (self.nanoseconds < other.nanoseconds) {
+    return NSOrderedAscending;
+  } else if (self.nanoseconds > other.nanoseconds) {
+    return NSOrderedDescending;
+  }
+  return NSOrderedSame;
 }
 
 - (NSString *)ISO8601String {
@@ -50,7 +51,9 @@ static const int kNanosPerSecond = 1000000000;
   formatter.timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
   NSDate *secondsDate = [NSDate dateWithTimeIntervalSince1970:self.seconds];
   NSString *secondsString = [formatter stringFromDate:secondsDate];
-  FSTAssert(secondsString.length == 19, @"Invalid ISO string: %@", secondsString);
+  if (secondsString.length != 19) {
+    [NSException raise:@"Invalid ISO string" format:@"Invalid ISO string: %@", secondsString];
+  }
 
   NSString *nanosString = [NSString stringWithFormat:@"%09d", self.nanoseconds];
   return [NSString stringWithFormat:@"%@.%@Z", secondsString, nanosString];
@@ -82,12 +85,24 @@ static const int kNanosPerSecond = 1000000000;
 - (instancetype)initWithSeconds:(int64_t)seconds nanoseconds:(int32_t)nanoseconds {
   self = [super init];
   if (self) {
-    FSTAssert(nanoseconds >= 0, @"timestamp nanoseconds out of range: %d", nanoseconds);
-    FSTAssert(nanoseconds < 1e9, @"timestamp nanoseconds out of range: %d", nanoseconds);
-    // Midnight at the beginning of 1/1/1 is the earliest timestamp Firestore supports.
-    FSTAssert(seconds >= -62135596800L, @"timestamp seconds out of range: %lld", seconds);
+    if (nanoseconds < 0) {
+      [NSException raise:@"Invalid timestamp"
+                  format:@"Timestamp nanoseconds out of range: %d", nanoseconds];
+    }
+    if (nanoseconds >= 1e9) {
+      [NSException raise:@"Invalid timestamp"
+                  format:@"Timestamp nanoseconds out of range: %d", nanoseconds];
+    }
+    // Midnight at the beginning of 1/1/1 is the earliest timestamp supported.
+    if (seconds < -62135596800L) {
+      [NSException raise:@"Invalid timestamp"
+                  format:@"Timestamp seconds out of range: %lld", seconds];
+    }
     // This will break in the year 10,000.
-    FSTAssert(seconds < 253402300800L, @"timestamp seconds out of range: %lld", seconds);
+    if (seconds >= 253402300800L) {
+      [NSException raise:@"Invalid timestamp"
+                  format:@"Timestamp seconds out of range: %lld", seconds];
+    }
 
     _seconds = seconds;
     _nanoseconds = nanoseconds;
