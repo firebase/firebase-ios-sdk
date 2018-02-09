@@ -34,6 +34,7 @@ inline MaybeDocument MakeDocument(const absl::string_view path, int second) {
 
 TEST(MaybeDocument, Getter) {
   const MaybeDocument& doc = MakeDocument("i/am/a/path", 123);
+  EXPECT_EQ(MaybeDocument::Type::Unknown, doc.type());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.timestamp());
 }

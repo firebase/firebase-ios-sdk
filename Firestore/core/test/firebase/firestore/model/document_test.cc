@@ -29,35 +29,38 @@ inline Document MakeDocument(const absl::string_view data,
                              const absl::string_view path,
                              int second,
                              bool has_local_mutations) {
-  return Document(FieldValue::ObjectValue({{"field", FieldValue::StringValue(data)}}), DocumentKey::FromPathString(path), SnapshotVersion(Timestamp(second, 777), has_local_mutations);
+  return Document(
+      FieldValue::ObjectValue({{"field", FieldValue::StringValue(data)}}),
+      DocumentKey::FromPathString(path),
+      SnapshotVersion(Timestamp(second, 777)), has_local_mutations);
 }
 
 }  // anonymous namespace
 
 TEST(Document, Getter) {
   const Document& doc = MakeDocument("foo", "i/am/a/path", 123, true);
-  EXPECT_EQ(FieldValue::ObjectValue({
-    {
-      "field"
-      ", FieldValue::StringValue(" foo ")}}), doc.data());
-          EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
-      EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.timestamp());
-      EXPECT_TRUE(doc.has_local_mutations());
-    }
+  EXPECT_EQ(MaybeDocument::Type::Document, doc.type());
+  EXPECT_EQ(
+      FieldValue::ObjectValue({{"field", FieldValue::StringValue("foo")}}),
+      doc.data());
+  EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
+  EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.timestamp());
+  EXPECT_TRUE(doc.has_local_mutations());
+}
 
-    TEST(Document, Comparison) {
-      EXPECT_EQ(MakeDocument("foo", "i/am/a/path", 123, true),
-                MakeDocument("foo", "i/am/a/path", 123, true));
-      EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
-                MakeDocument("bar", "i/am/a/path", 123, true));
-      EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
-                MakeDocument("foo", "i/am/another", 123, true));
-      EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
-                MakeDocument("foo", "i/am/a/path", 456, true));
-      EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
-                MakeDocument("foo", "i/am/a/path", 123, false));
-    }
+TEST(Document, Comparison) {
+  EXPECT_EQ(MakeDocument("foo", "i/am/a/path", 123, true),
+            MakeDocument("foo", "i/am/a/path", 123, true));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
+            MakeDocument("bar", "i/am/a/path", 123, true));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
+            MakeDocument("foo", "i/am/another", 123, true));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
+            MakeDocument("foo", "i/am/a/path", 456, true));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
+            MakeDocument("foo", "i/am/a/path", 123, false));
+}
 
 }  // namespace model
 }  // namespace firestore
-}  // namespace model
+}  // namespace firebase

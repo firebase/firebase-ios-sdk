@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_NO_DOCUMENT_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_NO_DOCUMENT_H_
-
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-/** Represents that no documents exists for the key at the given version. */
-class NoDocument : public MaybeDocument {
-  NoDocument(const DocumentKey& key, const SnapshotVersion& version);
-};
+NoDocument::NoDocument(const FieldValue& data, const DocumentKey& key)
+    : MaybeDocument(key, version) {
+  type_ = Type::NoDocument;
+}
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_NO_DOCUMENT_H_

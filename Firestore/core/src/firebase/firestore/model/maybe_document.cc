@@ -22,7 +22,7 @@ namespace model {
 
 MaybeDocument::MaybeDocument(const DocumentKey& key,
                              const SnapshotVersion& version)
-    : key_(key), version_(version) {
+    : type_(Type::Unknown), key_(key), version_(version) {
 }
 
 }  // namespace model

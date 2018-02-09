@@ -30,7 +30,17 @@ namespace model {
  */
 class MaybeDocument {
  public:
+  enum class Type {
+    Unknown,
+    Document,
+    NoDocument,
+  };
+
   MaybeDocument(const DocumentKey& key, const SnapshotVersion& version);
+
+  Type type() const {
+    return type_;
+  }
 
   const DocumentKey& key() const {
     return key_;
@@ -41,6 +51,7 @@ class MaybeDocument {
   }
 
  protected:
+  Type type_;
   DocumentKey key_;
   SnapshotVersion version_;
 };
@@ -63,11 +74,11 @@ inline bool operator<=(const MaybeDocument& lhs, const MaybeDocument& rhs) {
 }
 
 inline bool operator!=(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() != rhs.key();
+  return lhs.key() != rhs.key() || lhs.type() != rhs.type();
 }
 
 inline bool operator==(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() == rhs.key();
+  return lhs.key() == rhs.key() && lhs.type() == rhs.type();
 }
 
 }  // namespace model
