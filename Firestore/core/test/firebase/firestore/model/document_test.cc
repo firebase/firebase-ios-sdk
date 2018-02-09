@@ -59,6 +59,14 @@ TEST(Document, Comparison) {
             MakeDocument("foo", "i/am/a/path", 456, true));
   EXPECT_NE(MakeDocument("foo", "i/am/a/path", 123, true),
             MakeDocument("foo", "i/am/a/path", 123, false));
+
+  // Document and MaybeDocument will not equal. In particular, Document and
+  // NoDocument will not equal, which I won't test here.
+  EXPECT_NE(Document(FieldValue::ObjectValue({}),
+                     DocumentKey::FromPathString("same/path"),
+                     SnapshotVersion(Timestamp()), false),
+            MaybeDocument(DocumentKey::FromPathString("same/path"),
+                          SnapshotVersion(Timestamp())));
 }
 
 }  // namespace model

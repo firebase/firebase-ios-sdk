@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -28,6 +30,7 @@ Document::Document(const FieldValue& data,
       data_(data),
       has_local_mutations_(has_local_mutations) {
   type_ = Type::Document;
+  FIREBASE_ASSERT(FieldValue::Type::Object == data.type());
 }
 
 }  // namespace model

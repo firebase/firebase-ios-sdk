@@ -37,6 +37,12 @@ TEST(NoDocument, Getter) {
   EXPECT_EQ(MaybeDocument::Type::NoDocument, doc.type());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.version());
+
+  // NoDocument and MaybeDocument will not equal.
+  EXPECT_NE(NoDocument(DocumentKey::FromPathString("same/path"),
+                       SnapshotVersion(Timestamp())),
+            MaybeDocument(DocumentKey::FromPathString("same/path"),
+                          SnapshotVersion(Timestamp())));
 }
 
 }  // namespace model
