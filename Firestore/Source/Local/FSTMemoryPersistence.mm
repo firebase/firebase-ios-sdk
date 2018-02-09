@@ -16,7 +16,6 @@
 
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
@@ -24,12 +23,16 @@
 #import "Firestore/Source/Local/FSTWriteGroupTracker.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
+using firebase::firestore::auth::User;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryPersistence ()
 @property(nonatomic, strong, nonnull) FSTWriteGroupTracker *writeGroupTracker;
 @property(nonatomic, strong, nonnull)
-    NSMutableDictionary<FSTUser *, id<FSTMutationQueue>> *mutationQueues;
+    NSMutableDictionary<User *, id<FSTMutationQueue>> *mutationQueues;
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 @end
 
@@ -75,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.started = NO;
 }
 
-- (id<FSTMutationQueue>)mutationQueueForUser:(FSTUser *)user {
+- (id<FSTMutationQueue>)mutationQueueForUser:(User *)user {
   id<FSTMutationQueue> queue = self.mutationQueues[user];
   if (!queue) {
     queue = [FSTMemoryMutationQueue mutationQueue];

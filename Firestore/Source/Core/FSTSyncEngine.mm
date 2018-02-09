@@ -19,7 +19,6 @@
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -40,8 +39,10 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
+using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -141,10 +142,10 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 /** Stores user completion blocks, indexed by user and FSTBatchID. */
 @property(nonatomic, strong)
-    NSMutableDictionary<FSTUser *, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *>
+    NSMutableDictionary<User *, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *>
         *mutationCompletionBlocks;
 
-@property(nonatomic, strong) FSTUser *currentUser;
+@property(nonatomic, assign) User *currentUser;
 
 @end
 
@@ -155,7 +156,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                        remoteStore:(FSTRemoteStore *)remoteStore
-                       initialUser:(FSTUser *)initialUser {
+                       initialUser:(User *)initialUser {
   if (self = [super init]) {
     _localStore = localStore;
     _remoteStore = remoteStore;
@@ -527,7 +528,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   return [self.limboTargetsByKey copy];
 }
 
-- (void)userDidChange:(FSTUser *)user {
+- (void)userDidChange:(User *)user {
   self.currentUser = user;
 
   // Notify local store and emit any resulting events from swapping out the mutation queue.
