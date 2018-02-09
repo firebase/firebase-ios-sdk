@@ -28,8 +28,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-class ResourcePath;
-
 /**
  * DocumentKey represents the location of a document in the Firestore database.
  */
