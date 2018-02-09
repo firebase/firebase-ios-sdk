@@ -141,6 +141,7 @@
 		AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D03201BC6E400D97691 /* ordered_code_test.cc */; };
 		AB38D93020236E21000A432D /* database_info_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D92E20235D22000A432D /* database_info_test.cc */; };
 		AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB7BAB332012B519001E0872 /* geo_point_test.cc */; };
+		ABA495BB202B7E80008A7851 /* snapshot_version_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */; };
 		ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF6506B201131F8005F2C74 /* timestamp_test.cc */; };
 		AFE6114F0D4DAECBA7B7C089 /* Pods_Firestore_IntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */; };
@@ -338,6 +339,7 @@
 		AB38D92E20235D22000A432D /* database_info_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = database_info_test.cc; sourceTree = "<group>"; };
 		AB71064B201FA60300344F18 /* database_id_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = database_id_test.cc; sourceTree = "<group>"; };
 		AB7BAB332012B519001E0872 /* geo_point_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = geo_point_test.cc; path = ../../core/test/firebase/firestore/geo_point_test.cc; sourceTree = "<group>"; };
+		ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = snapshot_version_test.cc; sourceTree = "<group>"; };
 		ABF6506B201131F8005F2C74 /* timestamp_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = timestamp_test.cc; sourceTree = "<group>"; };
 		B2FA635DF5D116A67A7441CD /* Pods_Firestore_IntegrationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B686F2AD2023DDB20028D6BE /* field_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_path_test.cc; sourceTree = "<group>"; };
@@ -573,6 +575,7 @@
 				B686F2AD2023DDB20028D6BE /* field_path_test.cc */,
 				AB71064B201FA60300344F18 /* database_id_test.cc */,
 				AB356EF6200EA5EB0089B766 /* field_value_test.cc */,
+				ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */,
 				ABF6506B201131F8005F2C74 /* timestamp_test.cc */,
 			);
 			name = model;
@@ -1300,6 +1303,7 @@
 				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
 				5492E059202154AB00B64F25 /* FIRQuerySnapshotTests.mm in Sources */,
 				5492E050202154AA00B64F25 /* FIRCollectionReferenceTests.mm in Sources */,
+				ABA495BB202B7E80008A7851 /* snapshot_version_test.cc in Sources */,
 				5492E0A02021552D00B64F25 /* FSTLevelDBMutationQueueTests.mm in Sources */,
 				54EB764D202277B30088B8F3 /* array_sorted_map_test.cc in Sources */,
 				5492E03420213FFC00B64F25 /* FSTMemorySpecTests.mm in Sources */,

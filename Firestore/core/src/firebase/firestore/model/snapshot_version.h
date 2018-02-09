@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SNAPSHOT_VERSION_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SNAPSHOT_VERSION_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
 
 #include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 
 namespace firebase {
 namespace firestore {
-namespace core {
+namespace model {
 
 /**
  * A version of a document in Firestore. This corresponds to the version
@@ -29,18 +29,17 @@ namespace core {
  */
 class SnapshotVersion {
  public:
-  explicit SnapshotVersion(
-      const firebase::firestore::model::Timestamp& timestamp);
+  explicit SnapshotVersion(const Timestamp& timestamp);
 
-  const firebase::firestore::model::Timestamp& timestamp() const {
+  const Timestamp& timestamp() const {
     return timestamp_;
   }
 
   /** Creates a new version that is smaller than all other versions. */
-  static const SnapshotVersion& NoVersion();
+  static const SnapshotVersion& None();
 
  private:
-  firebase::firestore::model::Timestamp timestamp_;
+  Timestamp timestamp_;
 };
 
 /** Compares against another SnapshotVersion. */
@@ -68,8 +67,8 @@ inline bool operator==(const SnapshotVersion& lhs, const SnapshotVersion& rhs) {
   return lhs.timestamp() == rhs.timestamp();
 }
 
-}  // namespace core
+}  // namespace model
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SNAPSHOT_VERSION_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_

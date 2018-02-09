@@ -20,8 +20,10 @@ cc_test(
     field_path_test.cc
     field_value_test.cc
     maybe_document_test.cc
-    timestamp_test.cc
+    no_document_test.cc
     resource_path_test.cc
+    snapshot_version_test.cc
+    timestamp_test.cc
   DEPENDS
     firebase_firestore_model
 )

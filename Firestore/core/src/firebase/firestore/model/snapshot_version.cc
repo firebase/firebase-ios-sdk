@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/core/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 namespace firebase {
 namespace firestore {
-namespace core {
-
-using firebase::firestore::model::Timestamp;
+namespace model {
 
 SnapshotVersion::SnapshotVersion(const Timestamp& timestamp)
     : timestamp_(timestamp) {
 }
 
-const SnapshotVersion& SnapshotVersion::NoVersion() {
-  static const SnapshotVersion kNoVersion(Timestamp{});
-  return kNoVersion;
+const SnapshotVersion& SnapshotVersion::None() {
+  static const SnapshotVersion kNone(Timestamp{});
+  return kNone;
 }
 
-}  // namespace core
+}  // namespace model
 }  // namespace firestore
 }  // namespace firebase

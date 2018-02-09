@@ -30,6 +30,8 @@ cc_library(
     no_document.h
     resource_path.cc
     resource_path.h
+    snapshot_version.cc
+    snapshot_version.h
     timestamp.cc
     timestamp.h
   DEPENDS
