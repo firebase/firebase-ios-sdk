@@ -87,21 +87,21 @@ TEST(DocumentKey, Constructor_StaticFactory) {
   EXPECT_EQ(path_string, key_from_string.path().CanonicalString());
   EXPECT_EQ(path_string, key_from_segments.path().CanonicalString());
   EXPECT_EQ(key_from_segments, key_from_string);
+
+  const auto from_empty_path = DocumentKey::FromPathString("");
+  EXPECT_EQ(from_empty_path, DocumentKey{});
 }
 
 TEST(DocumentKey, Constructor_BadArguments) {
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey(ResourcePath{"foo"}), "");
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey(ResourcePath{"foo", "bar", "baz"}), "");
+  ASSERT_ANY_THROW(DocumentKey(ResourcePath{"foo"}));
+  ASSERT_ANY_THROW(DocumentKey(ResourcePath{"foo", "bar", "baz"}));
 
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromSegments({"foo"}), "");
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromSegments({"foo", "bar", "baz"}),
-                            "");
+  ASSERT_ANY_THROW(DocumentKey::FromSegments({"foo"}));
+  ASSERT_ANY_THROW(DocumentKey::FromSegments({"foo", "bar", "baz"}));
 
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString(""), "");
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString("invalid"), "");
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString("invalid//string"), "");
-  ASSERT_DEATH_IF_SUPPORTED(DocumentKey::FromPathString("invalid/key/path"),
-                            "");
+  ASSERT_ANY_THROW(DocumentKey::FromPathString("invalid"));
+  ASSERT_ANY_THROW(DocumentKey::FromPathString("invalid//string"));
+  ASSERT_ANY_THROW(DocumentKey::FromPathString("invalid/key/path"));
 }
 
 TEST(DocumentKey, IsDocumentKey) {
