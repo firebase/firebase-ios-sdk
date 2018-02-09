@@ -28,36 +28,39 @@ namespace firestore {
 namespace auth {
 
 FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
-    : app_(app),
-      auth_listener_handle_(nil),
-      current_user_(firebase::firestore::util::MakeStringView([app getUID])),
-      user_counter_(0),
-      mutex_() {
+    : contents_(
+          std::make_shared<Contents>(app, util::MakeStringView([app getUID]))) {
+  std::weak_ptr<Contents> weak_contents = contents_;
+
   auth_listener_handle_ = [[NSNotificationCenter defaultCenter]
       addObserverForName:FIRAuthStateDidChangeInternalNotification
                   object:nil
                    queue:nil
               usingBlock:^(NSNotification* notification) {
-                std::unique_lock<std::mutex> lock(mutex_);
+                std::shared_ptr<Contents> contents = weak_contents.lock();
+                if (!contents) {
+                  return;
+                }
+
+                std::unique_lock<std::mutex> lock(contents->mutex);
                 NSDictionary<NSString*, id>* user_info = notification.userInfo;
 
                 // ensure we're only notifiying for the current app.
                 FIRApp* notified_app =
                     user_info[FIRAuthStateDidChangeInternalNotificationAppKey];
-                if (![app_ isEqual:notified_app]) {
+                if (![contents->app isEqual:notified_app]) {
                   return;
                 }
 
                 NSString* user_id =
                     user_info[FIRAuthStateDidChangeInternalNotificationUIDKey];
-                User new_user(
-                    firebase::firestore::util::MakeStringView(user_id));
-                if (new_user != current_user_) {
-                  current_user_ = new_user;
-                  user_counter_++;
+                User new_user(util::MakeStringView(user_id));
+                if (new_user != contents->current_user) {
+                  contents->current_user = new_user;
+                  contents->user_counter++;
                   UserChangeListener listener = user_change_listener_;
                   if (listener) {
-                    listener(current_user_);
+                    listener(contents->current_user);
                   }
                 }
               }];
@@ -65,9 +68,9 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
 
 FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
   if (auth_listener_handle_) {
-    // For iOS 9.0 and later or macOS 10.11 and later, it is not required to
-    // unregister an observer in dealloc. Nothing is said for C++ destruction
-    // and thus we do it here just to be sure.
+    // Even though iOS 9 (and later) and macOS 10.11 (and later) keep a weak
+    // reference to the observer so we could avoid this removeObserver call, we
+    // still support iOS 8 which requires it.
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
   }
 }
@@ -79,37 +82,42 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
 
   // Take note of the current value of the userCounter so that this method can
   // fail if there is a user change while the request is outstanding.
-  int initial_user_counter = user_counter_;
+  int initial_user_counter = contents_->user_counter;
 
-  void (^get_token_callback)(NSString*, NSError*) =
-      ^(NSString* _Nullable token, NSError* _Nullable error) {
-        std::unique_lock<std::mutex> lock(mutex_);
-        if (initial_user_counter != user_counter_) {
-          // Cancel the request since the user changed while the request was
-          // outstanding so the response is likely for a previous user (which
-          // user, we can't be sure).
-          completion({"", User::Unauthenticated()},
-                     "getToken aborted due to user change.");
-        } else {
-          completion(
-              {firebase::firestore::util::MakeStringView(token), current_user_},
-              error == nil ? ""
-                           : firebase::firestore::util::MakeStringView(
-                                 error.localizedDescription));
-        }
-      };
+  std::weak_ptr<Contents> weak_contents = contents_;
+  void (^get_token_callback)(NSString*, NSError*) = ^(
+      NSString* _Nullable token, NSError* _Nullable error) {
+    std::shared_ptr<Contents> contents = weak_contents.lock();
+    if (!contents) {
+      return;
+    }
 
-  [app_ getTokenForcingRefresh:force_refresh withCallback:get_token_callback];
+    std::unique_lock<std::mutex> lock(contents->mutex);
+    if (initial_user_counter != contents->user_counter) {
+      // Cancel the request since the user changed while the request was
+      // outstanding so the response is likely for a previous user (which
+      // user, we can't be sure).
+      completion({"", User::Unauthenticated()},
+                 "getToken aborted due to user change.");
+    } else {
+      completion(
+          {util::MakeStringView(token), contents->current_user},
+          error == nil ? "" : util::MakeStringView(error.localizedDescription));
+    }
+  };
+
+  [contents_->app getTokenForcingRefresh:force_refresh
+                            withCallback:get_token_callback];
 }
 
 void FirebaseCredentialsProvider::SetUserChangeListener(
     UserChangeListener listener) {
-  std::unique_lock<std::mutex> lock(mutex_);
+  std::unique_lock<std::mutex> lock(contents_->mutex);
   if (listener) {
     FIREBASE_ASSERT_MESSAGE(!user_change_listener_,
                             "set user_change_listener twice!");
     // Fire initial event.
-    listener(current_user_);
+    listener(contents_->current_user);
   } else {
     FIREBASE_ASSERT_MESSAGE(auth_listener_handle_,
                             "removed user_change_listener twice!");
