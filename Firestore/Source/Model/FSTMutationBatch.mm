@@ -16,7 +16,8 @@
 
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
-#import "FIRTimestamp.h"
+#import <FirebaseCore/FIRTimestamp.h>
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"

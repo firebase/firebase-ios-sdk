@@ -16,9 +16,9 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"

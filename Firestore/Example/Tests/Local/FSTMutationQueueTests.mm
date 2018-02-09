@@ -16,7 +16,8 @@
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
+#import <FirebaseCore/FIRTimestamp.h>
+
 #import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"

@@ -16,12 +16,13 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#import <FirebaseCore/FIRTimestamp+Internal.h>
+
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"

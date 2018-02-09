@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
@@ -31,7 +32,6 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"

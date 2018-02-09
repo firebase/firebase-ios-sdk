@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
+#import "Private/FIRTimestamp+Internal.h"
 
 #import <XCTest/XCTest.h>
 

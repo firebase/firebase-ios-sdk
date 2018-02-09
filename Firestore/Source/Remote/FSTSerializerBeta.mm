@@ -18,6 +18,7 @@
 
 #include <inttypes.h>
 
+#import <FirebaseCore/FIRTimestamp+Internal.h>
 #import <GRPCClient/GRPCCall.h>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
@@ -30,7 +31,6 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"

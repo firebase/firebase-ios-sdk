@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 
-#import "FIRTimestamp+Internal.h"
+#import <FirebaseCore/FIRTimestamp+Internal.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
