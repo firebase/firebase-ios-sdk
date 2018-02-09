@@ -21,13 +21,18 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -173,16 +178,18 @@ NS_ASSUME_NONNULL_BEGIN
     return [self convertedArray:(FSTArrayValue *)value options:options];
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
-    FSTDatabaseID *refDatabase = ref.databaseID;
-    FSTDatabaseID *database = self.firestore.databaseID;
-    if (![refDatabase isEqualToDatabaseId:database]) {
+    const DatabaseId *refDatabase = ref.databaseID;
+    const DatabaseId *database = self.firestore.databaseID;
+    if (*refDatabase != *database) {
       // TODO(b/32073923): Log this as a proper warning.
       NSLog(
           @"WARNING: Document %@ contains a document reference within a different database "
            "(%@/%@) which is not supported. It will be treated as a reference within the "
            "current database (%@/%@) instead.",
-          self.reference.path, refDatabase.projectID, refDatabase.databaseID, database.projectID,
-          database.databaseID);
+          self.reference.path, util::WrapNSStringNoCopy(refDatabase->project_id()),
+          util::WrapNSStringNoCopy(refDatabase->database_id()),
+          util::WrapNSStringNoCopy(database->project_id()),
+          util::WrapNSStringNoCopy(database->database_id()));
     }
     return [FIRDocumentReference referenceWithKey:[ref valueWithOptions:options]
                                         firestore:self.firestore];

@@ -22,11 +22,17 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
 
 /** Exposes otherwise private methods for testing. */
 @interface FSTStream (Testing)
@@ -128,7 +134,7 @@
 @implementation FSTStreamTests {
   dispatch_queue_t _testQueue;
   FSTTestDispatchQueue *_workerDispatchQueue;
-  FSTDatabaseInfo *_databaseInfo;
+  DatabaseInfo _databaseInfo;
   FSTEmptyCredentialsProvider *_credentials;
   FSTStreamStatusDelegate *_delegate;
 
@@ -140,17 +146,14 @@
   [super setUp];
 
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
-  FSTDatabaseID *databaseID =
-      [FSTDatabaseID databaseIDWithProject:[FSTIntegrationTestCase projectID]
-                                  database:kDefaultDatabaseID];
+  DatabaseId database_id(util::MakeStringView([FSTIntegrationTestCase projectID]),
+                         DatabaseId::kDefaultDatabaseId);
 
   _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _workerDispatchQueue = [[FSTTestDispatchQueue alloc] initWithQueue:_testQueue];
 
-  _databaseInfo = [FSTDatabaseInfo databaseInfoWithDatabaseID:databaseID
-                                               persistenceKey:@"test-key"
-                                                         host:settings.host
-                                                   sslEnabled:settings.sslEnabled];
+  _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
+                               settings.sslEnabled);
   _credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
   _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
@@ -159,14 +162,14 @@
 }
 
 - (FSTWriteStream *)setUpWriteStream {
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:_databaseInfo
+  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
   return [datastore createWriteStream];
 }
 
 - (FSTWatchStream *)setUpWatchStream {
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:_databaseInfo
+  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:_credentials];
   return [datastore createWatchStream];

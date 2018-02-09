@@ -22,12 +22,16 @@
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
 using firebase::firestore::util::DoubleBitwiseEquals;
@@ -650,11 +654,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 
 @implementation FSTReferenceValue
 
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID {
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
   return [[FSTReferenceValue alloc] initWithValue:value databaseID:databaseID];
 }
 
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID {
+- (id)initWithValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
   self = [super init];
   if (self) {
     _key = value;
@@ -680,12 +684,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return [self.key isEqualToKey:otherRef.key] &&
-         [self.databaseID isEqualToDatabaseId:otherRef.databaseID];
+  return [self.key isEqualToKey:otherRef.key] && *self.databaseID == *otherRef.databaseID;
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.databaseID hash];
+  NSUInteger result = self.databaseID->Hash();
   result = 31 * result + [self.key hash];
   return result;
 }
@@ -693,7 +696,13 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp = [self.databaseID compare:ref.databaseID];
+    NSComparisonResult cmp = [util::WrapNSStringNoCopy(self.databaseID->project_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID->project_id())];
+    if (cmp != NSOrderedSame) {
+      return cmp;
+    }
+    cmp = [util::WrapNSStringNoCopy(self.databaseID->database_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID->database_id())];
     return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
   } else {
     return [self defaultCompare:other];

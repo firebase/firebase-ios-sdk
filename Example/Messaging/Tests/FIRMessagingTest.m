@@ -54,9 +54,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   _mockMessaging = OCMPartialMock(self.messaging);
   _mockInstanceIDProxy = OCMPartialMock(self.messaging.instanceIDProxy);
   self.messaging.instanceIDProxy = _mockInstanceIDProxy;
-  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingSuiteName];
-  self.messaging.messagingUserDefaults =
-      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingSuiteName];
+  [[NSUserDefaults standardUserDefaults]
+      removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
 - (void)tearDown {

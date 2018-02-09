@@ -15,10 +15,15 @@
 cc_library(
   firebase_firestore_model
   SOURCES
+    base_path.h
     database_id.cc
     database_id.h
+    field_path.cc
+    field_path.h
     field_value.cc
     field_value.h
+    resource_path.cc
+    resource_path.h
     timestamp.cc
     timestamp.h
   DEPENDS
