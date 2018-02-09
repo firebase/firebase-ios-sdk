@@ -19,6 +19,7 @@
 
 #include <initializer_list>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
 #include "absl/strings/string_view.h"
@@ -69,7 +70,7 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   }
 
  private:
-  ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  explicit ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
   // So that methods of base can construct ResourcePath using the private
@@ -81,4 +82,4 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_RESOURCE_PATH_H_
