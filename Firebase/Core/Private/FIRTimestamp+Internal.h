@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a new timestamp.
  *
  * @param seconds the number of seconds since epoch.
- * @param nanoseconds¨ the number of nanoseconds after the seconds.
+ * @param nanoseconds the number of nanoseconds after the seconds.
  */
 - (instancetype)initWithSeconds:(int64_t)seconds
                     nanoseconds:(int32_t)nanoseconds NS_DESIGNATED_INITIALIZER;

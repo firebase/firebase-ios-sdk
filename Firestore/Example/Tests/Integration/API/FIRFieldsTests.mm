@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -223,7 +224,6 @@
 - (NSDictionary<NSString *, id> *)testDataWithTimestamp:(FIRTimestamp *)timestamp {
   return @{
     @"timestamp" : timestamp,
-    @"notTimestamp" : @"this is not a timestamp",
     @"metadata" : @{@"nestedTimestamp" : timestamp}
   };
 }

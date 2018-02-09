@@ -16,7 +16,7 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
-#import <FirebaseCore/FIRTimestamp.h>
+#import <FirebaseCore/FIRTimestamp+Internal.h>
 #import <GRPCClient/GRPCCall+ChannelCredentials.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 #import <XCTest/XCTest.h>
