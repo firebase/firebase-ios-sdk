@@ -222,10 +222,7 @@
 }
 
 - (NSDictionary<NSString *, id> *)testDataWithTimestamp:(FIRTimestamp *)timestamp {
-  return @{
-    @"timestamp" : timestamp,
-    @"metadata" : @{@"nestedTimestamp" : timestamp}
-  };
+  return @{ @"timestamp" : timestamp, @"metadata" : @{@"nestedTimestamp" : timestamp} };
 }
 
 - (void)testThatDataContainsNativeDateType {
