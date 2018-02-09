@@ -345,9 +345,9 @@
 
       if (trustError != errSecSuccess) {
         [self->_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                     messageCode:kFIRNetworkMessageCodeURLSession008
-                                         message:@"Cannot evaluate server trust. Error, host"
-                                        contexts:@[ @(trustError), self->_request.URL ]];
+                                           messageCode:kFIRNetworkMessageCodeURLSession008
+                                               message:@"Cannot evaluate server trust. Error, host"
+                                              contexts:@[ @(trustError), self->_request.URL ]];
         shouldAllow = NO;
       } else {
         // Having a trust level "unspecified" by the user is the usual result, described at
