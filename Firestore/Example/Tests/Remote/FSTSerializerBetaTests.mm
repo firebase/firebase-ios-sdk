@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#import <FirebaseCore/FIRTimestamp.h>
+#import <FirebaseCore/FIRTimestamp+Internal.h>
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>

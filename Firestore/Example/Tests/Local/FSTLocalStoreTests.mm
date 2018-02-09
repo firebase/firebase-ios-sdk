@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
-#import <FirebaseCore/FIRTimestamp.h>
+#import <FirebaseCore/FIRTimestamp+Internal.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/Auth/FSTUser.h"
