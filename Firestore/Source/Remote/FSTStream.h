@@ -18,6 +18,7 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 
 @class FSTDocumentKey;
@@ -33,7 +34,6 @@
 @class GRPCCall;
 @class GRXWriter;
 
-@protocol FSTCredentialsProvider;
 @protocol FSTWatchStreamDelegate;
 @protocol FSTWriteStreamDelegate;
 
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   - Restarting a stream is allowed (after failure)
  *   - Exponential backoff on failure (independent of the underlying channel)
- *   - Authentication via FSTCredentialsProvider
+ *   - Authentication via CredentialsProvider
  *   - Dispatching all callbacks into the shared worker queue
  *
  * Subclasses of FSTStream implement serialization of models to and from bytes (via protocol
@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)credentials  // no passing ownership
             responseMessageClass:(Class)responseMessageClass NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -200,12 +200,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passsing ownership
                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passing ownership
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -274,12 +276,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passing ownership
                       serializer:(FSTSerializerBeta *)serializer;
 
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passing ownership
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 - (instancetype)init NS_UNAVAILABLE;

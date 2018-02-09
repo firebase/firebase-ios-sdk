@@ -16,7 +16,6 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -34,10 +33,12 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -49,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                       usePersistence:(BOOL)usePersistence
-                 credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
+                 credentialsProvider:
+                     (CredentialsProvider *)credentialsProvider  // no passing ownership
                    userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                  workerDispatchQueue:(FSTDispatchQueue *)queue NS_DESIGNATED_INITIALIZER;
 
@@ -68,7 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
 
-@property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentialsProvider;
+// Does not own the CredentialsProvider instance.
+@property(nonatomic, assign, readonly) CredentialsProvider *credentialsProvider;
 
 @end
 
@@ -76,7 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
-                   credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
+                   credentialsProvider:
+                       (CredentialsProvider *)credentialsProvider  // no passing ownership
                      userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
@@ -88,7 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                       usePersistence:(BOOL)usePersistence
-                 credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
+                 credentialsProvider:
+                     (CredentialsProvider *)credentialsProvider  // no passing ownership
                    userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   if (self = [super init]) {
@@ -100,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_t initialUserAvailable = dispatch_semaphore_create(0);
     __block FSTUser *initialUser;
     FSTWeakify(self);
-    _credentialsProvider.userChangeListener = ^(FSTUser *user) {
+    _credentialsProvider->SetUserChangeListener([&initialUser, &self](const User &user) {
       FSTStrongify(self);
       if (self) {
         if (!initialUser) {
@@ -112,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
           }];
         }
       }
-    };
+    });
 
     // Defer initialization until we get the current user from the userChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
@@ -168,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTDatastore *datastore = [FSTDatastore datastoreWithDatabase:self.databaseInfo
                                             workerDispatchQueue:self.workerDispatchQueue
-                                                    credentials:self.credentialsProvider];
+                                                    credentials:_credentialsProvider];
 
   _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:datastore];
 
@@ -225,7 +230,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
-    self.credentialsProvider.userChangeListener = nil;
+    _credentialsProvider->SetUserChangeListener(nullptr);
 
     [self.remoteStore shutdown];
     [self.localStore shutdown];

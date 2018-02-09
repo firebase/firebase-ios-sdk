@@ -16,6 +16,7 @@
 
 #import "FIRFirestore.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class FSTDispatchQueue;
 @class FSTFirestoreClient;
 @class FSTUserDataConverter;
-@protocol FSTCredentialsProvider;
 
 @interface FIRFirestore (/* Init */)
 
@@ -34,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProjectID:(NSString *)projectID
                          database:(NSString *)database
                    persistenceKey:(NSString *)persistenceKey
-              credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
+              credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
+                                      credentialsProvider  // passing ownership
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app;
 
