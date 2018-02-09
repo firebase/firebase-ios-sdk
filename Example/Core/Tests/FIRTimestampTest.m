@@ -14,18 +14,30 @@
  * limitations under the License.
  */
 
-#import "FIRTestCase.h"
-#import "Private/FIRTimestamp+Internal.h"
+#import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import <FirebaseCore/FIRTimestamp+Internal.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRTimestampTests : FIRTestCase
+@interface FIRTimestampTest : XCTestCase
 @end
 
-@implementation FIRTimestampTests
+NSDate *TestDate(int year, int month, int day, int hour, int minute, int second) {
+  NSDateComponents *comps = [[NSDateComponents alloc] init];
+  comps.year = year;
+  comps.month = month;
+  comps.day = day;
+  comps.hour = hour;
+  comps.minute = minute;
+  comps.second = second;
+  // Force time zone to UTC to avoid these values changing due to daylight saving.
+  comps.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+
+  return [[NSCalendar currentCalendar] dateFromComponents:comps];
+}
+
+@implementation FIRTimestampTest
 
 - (void)testFromDate {
   // Very carefully construct an NSDate that won't lose precision with its milliseconds.
@@ -43,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSO8601String {
-  NSDate *date = FSTTestDate(1912, 4, 14, 23, 40, 0);
+  NSDate *date = TestDate(1912, 4, 14, 23, 40, 0);
   FIRTimestamp *timestamp =
       [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970
                                 nanoseconds:543000000];
@@ -51,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testISO8601String_withLowMilliseconds {
-  NSDate *date = FSTTestDate(1912, 4, 14, 23, 40, 0);
+  NSDate *date = TestDate(1912, 4, 14, 23, 40, 0);
   FIRTimestamp *timestamp =
       [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970
                                 nanoseconds:7000000];
