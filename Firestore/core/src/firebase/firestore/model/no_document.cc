@@ -20,7 +20,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-NoDocument::NoDocument(const FieldValue& data, const DocumentKey& key)
+NoDocument::NoDocument(const DocumentKey& key, const SnapshotVersion& version)
     : MaybeDocument(key, version) {
   type_ = Type::NoDocument;
 }

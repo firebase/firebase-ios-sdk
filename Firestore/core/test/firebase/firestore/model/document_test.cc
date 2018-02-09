@@ -29,10 +29,10 @@ inline Document MakeDocument(const absl::string_view data,
                              const absl::string_view path,
                              int second,
                              bool has_local_mutations) {
-  return Document(
-      FieldValue::ObjectValue({{"field", FieldValue::StringValue(data)}}),
-      DocumentKey::FromPathString(path),
-      SnapshotVersion(Timestamp(second, 777)), has_local_mutations);
+  return Document(FieldValue::ObjectValue(
+                      {{"field", FieldValue::StringValue(data.data())}}),
+                  DocumentKey::FromPathString(path.data()),
+                  SnapshotVersion(Timestamp(second, 777)), has_local_mutations);
 }
 
 }  // anonymous namespace
@@ -44,7 +44,7 @@ TEST(Document, Getter) {
       FieldValue::ObjectValue({{"field", FieldValue::StringValue("foo")}}),
       doc.data());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
-  EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.timestamp());
+  EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.version());
   EXPECT_TRUE(doc.has_local_mutations());
 }
 

@@ -50,7 +50,7 @@ class Document : public MaybeDocument {
 
 /** Compares against another Document. */
 inline bool operator==(const Document& lhs, const Document& rhs) {
-  return lhs.version() == rhs.vesion() && lhs.key() == rhs.key() &&
+  return lhs.version() == rhs.version() && lhs.key() == rhs.key() &&
          lhs.has_local_mutations() == rhs.has_local_mutations() &&
          lhs.data() == rhs.data();
 }

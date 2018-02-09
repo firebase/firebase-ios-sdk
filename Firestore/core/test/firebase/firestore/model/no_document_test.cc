@@ -25,22 +25,18 @@ namespace model {
 
 namespace {
 
-inline NoDocument MakeDocument(const absl::string_view data,
-                               const absl::string_view path) {
-  return NoDocument(
-      FieldValue::ObjectValue({{"field", FieldValue::StringValue(data)}}),
-      DocumentKey::FromPathString(path));
+inline NoDocument MakeDocument(const absl::string_view path, int second) {
+  return NoDocument(DocumentKey::FromPathString(path.data()),
+                    SnapshotVersion(Timestamp(second, 777)));
 }
 
 }  // anonymous namespace
 
-TEST(Document, Getter) {
-  const Document& doc = MakeDocument("foo", "i/am/a/path");
+TEST(NoDocument, Getter) {
+  const NoDocument& doc = MakeDocument("i/am/a/path", 123);
   EXPECT_EQ(MaybeDocument::Type::NoDocument, doc.type());
-  EXPECT_EQ(
-      FieldValue::ObjectValue({{"field", FieldValue::StringValue("foo")}}),
-      doc.data());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
+  EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.version());
 }
 
 }  // namespace model
