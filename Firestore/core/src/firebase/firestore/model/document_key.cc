@@ -18,7 +18,6 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
@@ -35,9 +34,6 @@ void AssertValidPath(const ResourcePath& path) {
 
 }  // namespace
 
-DocumentKey::DocumentKey() : path_{std::make_shared<ResourcePath>()} {
-}
-
 DocumentKey::DocumentKey(const ResourcePath& path)
     : path_{std::make_shared<ResourcePath>(path)} {
   AssertValidPath(*path_);
@@ -48,44 +44,9 @@ DocumentKey::DocumentKey(ResourcePath&& path)
   AssertValidPath(*path_);
 }
 
-DocumentKey DocumentKey::FromPathString(const absl::string_view path) {
-  return DocumentKey{ResourcePath::FromString(path)};
-}
-
-DocumentKey DocumentKey::FromSegments(std::initializer_list<std::string> list) {
-  return DocumentKey{ResourcePath{list}};
-}
-
 const DocumentKey& DocumentKey::Empty() {
-  static DocumentKey empty;
+  static const DocumentKey empty;
   return empty;
-}
-
-bool DocumentKey::IsDocumentKey(const ResourcePath& path) {
-  return path.size() % 2 == 0;
-}
-
-const ResourcePath& DocumentKey::path() const {
-  return path_ ? *path_ : Empty().path();
-}
-
-bool operator==(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() == rhs.path();
-}
-bool operator!=(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() != rhs.path();
-}
-bool operator<(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() < rhs.path();
-}
-bool operator<=(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() <= rhs.path();
-}
-bool operator>(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() > rhs.path();
-}
-bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() >= rhs.path();
 }
 
 }  // namespace model

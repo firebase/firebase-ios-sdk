@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -35,7 +36,8 @@ class ResourcePath;
 class DocumentKey {
  public:
   /** Creates a "blank" document key not associated with any document. */
-  DocumentKey();
+  DocumentKey() : path_{std::make_shared<ResourcePath>()} {
+  }
 
   /** Creates a new document key containing a copy of the given path. */
   explicit DocumentKey(const ResourcePath& path);
@@ -47,18 +49,27 @@ class DocumentKey {
    * Creates and returns a new document key using '/' to split the string into
    * segments.
    */
-  static DocumentKey FromPathString(absl::string_view path);
+  static DocumentKey FromPathString(const absl::string_view path) {
+    return DocumentKey{ResourcePath::FromString(path)};
+  }
 
   /** Creates and returns a new document key with the given segments. */
-  static DocumentKey FromSegments(std::initializer_list<std::string> list);
+  static DocumentKey FromSegments(std::initializer_list<std::string> list) {
+    return DocumentKey{ResourcePath{list}};
+  }
 
   /** Returns a shared instance of an empty document key. */
   static const DocumentKey& Empty();
 
   /** Returns true iff the given path is a path to a document. */
-  static bool IsDocumentKey(const ResourcePath& path);
+  static bool IsDocumentKey(const ResourcePath& path) {
+    return path.size() % 2 == 0;
+  }
+
   /** The path to the document. */
-  const ResourcePath& path() const;
+  const ResourcePath& path() const {
+    return path_ ? *path_ : Empty().path();
+  }
 
  private:
   // This is an optimization to make passing DocumentKey around cheaper (it's
@@ -66,12 +77,24 @@ class DocumentKey {
   std::shared_ptr<const ResourcePath> path_;
 };
 
-bool operator==(const DocumentKey& lhs, const DocumentKey& rhs);
-bool operator!=(const DocumentKey& lhs, const DocumentKey& rhs);
-bool operator<(const DocumentKey& lhs, const DocumentKey& rhs);
-bool operator<=(const DocumentKey& lhs, const DocumentKey& rhs);
-bool operator>(const DocumentKey& lhs, const DocumentKey& rhs);
-bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs);
+inline bool operator==(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() == rhs.path();
+}
+inline bool operator!=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() != rhs.path();
+}
+inline bool operator<(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() < rhs.path();
+}
+inline bool operator<=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() <= rhs.path();
+}
+inline bool operator>(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() > rhs.path();
+}
+inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
+  return lhs.path() >= rhs.path();
+}
 
 }  // namespace model
 }  // namespace firestore
