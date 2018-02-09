@@ -18,7 +18,6 @@
 
 @class FIRDocumentReference;
 @class FIRSnapshotMetadata;
-@class FIRTimestamp;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -159,18 +158,6 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * @return The value contained in the field or `nil` if the document or field doesn't exist.
  */
 - (nullable id)objectForKeyedSubscript:(id)key;
-
-/**
- * Retrieves a Timestamp field from the document.
- *
- * Using this method avoids converting the timestamp to NSDate, which might lose precision. If the
- * field exists, but its type is not Timestamp, an exception will be thrown.
- *
- * @param key The field to retrieve.
- *
- * @return The timestamp contained in the field or `nil` if the field doesn't exist.
- */
-- (nullable FIRTimestamp *)timestampForField:(id)field;
 
 @end
 

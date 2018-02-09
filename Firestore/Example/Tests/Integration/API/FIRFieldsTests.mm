@@ -228,35 +228,6 @@
   };
 }
 
-- (void)testTimestampForField {
-  FIRTimestamp *originalTimestamp = [FIRTimestamp timestampWithSeconds:123 nanoseconds:123456789];
-  FIRDocumentReference *doc = [self documentRef];
-  [self writeDocumentRef:doc data:[self testDataWithTimestamp:originalTimestamp]];
-
-  // Expect original timestamp to be truncated after being written to the database.
-  FIRTimestamp *timestamp =
-      [FIRTimestamp timestampWithSeconds:originalTimestamp.seconds
-                             nanoseconds:originalTimestamp.nanoseconds / 1000 * 1000];
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects([result timestampForField:@"timestamp"], timestamp);
-  XCTAssertEqualObjects([result timestampForField:@"metadata.nestedTimestamp"], timestamp);
-}
-
-- (void)testTimestampForFieldReturnsNilIfNoFieldValue {
-  FIRDocumentReference *doc = [self documentRef];
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
-  XCTAssertNil([result timestampForField:@"nofield"]);
-}
-
-- (void)testTimestampForFieldThrowsIfWrongType {
-  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:[NSDate date]];
-  FIRDocumentReference *doc = [self documentRef];
-  [self writeDocumentRef:doc data:[self testDataWithTimestamp:timestamp]];
-
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
-  XCTAssertThrows([result timestampForField:@"notTimestamp"]);
-}
-
 - (void)testThatDataContainsNativeDateType {
   NSDate *date = [NSDate date];
   FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:date];
