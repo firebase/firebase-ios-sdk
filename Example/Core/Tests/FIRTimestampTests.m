@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
+#import "FIRTestCase.h"
 #import "Private/FIRTimestamp+Internal.h"
 
-#import <XCTest/XCTest.h>
-
 #import "Firestore/Source/Util/FSTAssert.h"
-
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRTimestampTests : XCTestCase
+@interface FIRTimestampTests : FIRTestCase
 @end
 
 @implementation FIRTimestampTests
