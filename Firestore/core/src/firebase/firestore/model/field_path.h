@@ -38,7 +38,10 @@ class FieldPath : public impl::BasePath<FieldPath> {
   /** The field path string that represents the document's key. */
   static constexpr const char* kDocumentKeyPath = "__name__";
 
-  FieldPath() = default;
+  // Note: Xcode 8.2 requires explicit specification of the constructor.
+  FieldPath() : impl::BasePath<FieldPath>() {
+  }
+
   /** Constructs the path from segments. */
   template <typename IterT>
   FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
@@ -82,7 +85,7 @@ class FieldPath : public impl::BasePath<FieldPath> {
   }
 
  private:
-  FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  explicit FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
   // So that methods of base can construct FieldPath using the private

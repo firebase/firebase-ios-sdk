@@ -13,6 +13,8 @@ before_install:
   - bundle exec pod install --project-directory=Example --repo-update
   - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
   - brew install clang-format
+  - brew install cmake
+  - brew install go # Somehow the build for Abseil requires this.
   - echo "$TRAVIS_COMMIT_RANGE"
   - echo "$TRAVIS_PULL_REQUEST"
   - |
@@ -34,6 +36,10 @@ script:
   - |
     if [ $SKIP_FIREBASE != 1 ]; then
       ./test.sh
+    fi
+  - |
+    if [ $SKIP_FIRESTORE != 1 ]; then
+      ./scripts/lint.sh # Google C++ style compliance
     fi
   - |
     if [ $SKIP_FIRESTORE != 1 ]; then

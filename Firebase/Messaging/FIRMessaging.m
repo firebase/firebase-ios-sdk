@@ -72,8 +72,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
-NSString *const kFIRMessagingSuiteName =
-    @"com.firebase.messaging.user_defaults";  // Suite name for NSUserDefaults
 
 static NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
@@ -175,7 +173,7 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   if (self) {
     _loggedMessageIDs = [NSMutableSet set];
     _instanceIDProxy = [[FIRMessagingInstanceIDProxy alloc] init];
-    _messagingUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingSuiteName];
+    _messagingUserDefaults = [NSUserDefaults standardUserDefaults];
   }
   return self;
 }
