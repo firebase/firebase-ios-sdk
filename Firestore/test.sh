@@ -39,7 +39,7 @@ test_iOS() {
 }
 
 test_CMake() {
-  ulimit -a
+  echo $(ulimit -a)
 
   echo "set cmake build" && \
     mkdir build && \
