@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-
 #include <initializer_list>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
