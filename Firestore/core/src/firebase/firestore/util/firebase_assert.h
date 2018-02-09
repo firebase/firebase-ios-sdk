@@ -91,6 +91,17 @@
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, __VA_ARGS__)
 #endif  // defined(NDEBUG)
 
+// Assert expression is true otherwise display the specified message and
+// abort.
+#define FIREBASE_ASSERT_MESSAGE(expression, ...) \
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, __VA_ARGS__)
+
+// Assert expression is true otherwise display the specified message and
+// abort. Compiled out of release builds.
+#define FIREBASE_DEV_ASSERT_MESSAGE(expression, ...)                  \
+  FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, \
+                                              __VA_ARGS__)
+
 namespace firebase {
 namespace firestore {
 namespace util {

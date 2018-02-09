@@ -85,7 +85,7 @@ class FieldPath : public impl::BasePath<FieldPath> {
   }
 
  private:
-  FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  explicit FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
   // So that methods of base can construct FieldPath using the private

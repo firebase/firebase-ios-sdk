@@ -38,6 +38,23 @@ test_iOS() {
     | xcpretty
 }
 
+test_CMake() {
+  echo "cpu core: $(sysctl -n hw.ncpu)"
+  echo "set cmake build" && \
+    mkdir build && \
+    cd build && \
+    cmake .. || \
+    exit 1
+
+  echo "initial cmake build" && \
+    make -j $(sysctl -n hw.ncpu) all || \
+    exit 2
+
+  echo "test Firestore cmake build" && \
+    cd Firestore && \
+    make test
+}
+
 test_iOS; RESULT=$?
 if [[ $RESULT == 65 ]]; then
   echo "xcodebuild exited with 65, retrying"
@@ -46,4 +63,8 @@ if [[ $RESULT == 65 ]]; then
   test_iOS; RESULT=$?
 fi
 
-exit $RESULT
+if [ $RESULT != 0 ]; then exit $RESULT; fi
+
+test_CMake; RESULT=$?
+
+if [ $RESULT != 0 ]; then exit $RESULT; fi

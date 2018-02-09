@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/strings/str_join.h"
