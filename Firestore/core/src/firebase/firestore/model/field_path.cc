@@ -51,7 +51,7 @@ bool IsValidIdentifier(const std::string& segment) {
       (first < 'A' || first > 'Z')) {
     return false;
   }
-  for (int i = 1; i != segment.size(); ++i) {
+  for (size_t i = 1; i != segment.size(); ++i) {
     const unsigned char c = segment[i];
     if (c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') &&
         (c < '0' || c > '9')) {
@@ -93,7 +93,7 @@ FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
 
   // Inside backticks, dots are treated literally.
   bool inside_backticks = false;
-  int i = 0;
+  size_t i = 0;
   while (i < path.size()) {
     const char c = path[i];
     // std::string (and string_view) may contain embedded nulls. For full

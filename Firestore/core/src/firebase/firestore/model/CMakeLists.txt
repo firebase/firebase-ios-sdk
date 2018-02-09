@@ -24,6 +24,8 @@ cc_library(
     field_value.h
     snapshot_version.cc
     snapshot_version.h
+    resource_path.cc
+    resource_path.h
     timestamp.cc
     timestamp.h
   DEPENDS
