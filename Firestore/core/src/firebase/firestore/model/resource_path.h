@@ -45,7 +45,7 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
    * Creates and returns a new path from the given resource-path string, where
    * the path segments are separated by a slash "/".
    */
-  static ResourcePath Parse(absl::string_view path);
+  static ResourcePath FromString(absl::string_view path);
 
   /** Returns a standardized string representation of this path. */
   std::string CanonicalString() const;
