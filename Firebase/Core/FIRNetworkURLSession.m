@@ -314,11 +314,11 @@
       if (allow) {
         completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
       } else {
-        [_loggerDelegate
+        [self->_loggerDelegate
             firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
                         messageCode:kFIRNetworkMessageCodeURLSession007
                             message:@"Cancelling authentication challenge for host. Host"
-                            context:_request.URL];
+                            context:self->_request.URL];
         completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
       }
     };
@@ -344,10 +344,10 @@
       }
 
       if (trustError != errSecSuccess) {
-        [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                     messageCode:kFIRNetworkMessageCodeURLSession008
-                                         message:@"Cannot evaluate server trust. Error, host"
-                                        contexts:@[ @(trustError), _request.URL ]];
+        [self->_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
+                                           messageCode:kFIRNetworkMessageCodeURLSession008
+                                               message:@"Cannot evaluate server trust. Error, host"
+                                              contexts:@[ @(trustError), self->_request.URL ]];
         shouldAllow = NO;
       } else {
         // Having a trust level "unspecified" by the user is the usual result, described at
@@ -651,7 +651,7 @@
 
   if (handler) {
     dispatch_async(dispatch_get_main_queue(), ^{
-      handler(response, data, _sessionID, error);
+      handler(response, data, self->_sessionID, error);
     });
   }
 }

@@ -367,7 +367,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
       }
       tempAnalyticsOptions[key] = value;
     }
-    _analyticsOptionsDictionary = tempAnalyticsOptions;
+    self->_analyticsOptionsDictionary = tempAnalyticsOptions;
   });
   return _analyticsOptionsDictionary;
 }
