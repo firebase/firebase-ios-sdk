@@ -46,7 +46,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
     source + '**/FIRAuthURLPresenter.[mh]',
     source + '**/FIRAuthWebView.[mh]',
     source + '**/FIRAuthWebViewController.[mh]',
-    source + '**/FIRPhoneAuthCredential.[mh]',
     source + '**/FIRPhoneAuthProvider.[mh]'
   ]
   s.public_header_files = source + 'Public/*.h'
