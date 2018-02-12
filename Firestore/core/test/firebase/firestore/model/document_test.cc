@@ -38,6 +38,7 @@ inline Document MakeDocument(const absl::string_view data,
 }  // anonymous namespace
 
 TEST(Document, Getter) {
+  // Construct by moving FieldValue instance.
   const Document& doc =
       MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true);
   EXPECT_EQ(MaybeDocument::Type::Document, doc.type());
@@ -47,6 +48,20 @@ TEST(Document, Getter) {
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
   EXPECT_TRUE(doc.has_local_mutations());
+
+  // Construct by copy FieldValue instance.
+  const FieldValue& field_value =
+      FieldValue::ObjectValue({{"field", FieldValue::StringValue("foo")}});
+  const Document another_doc(field_value,
+                             DocumentKey::FromPathString("i/am/a/path"),
+                             SnapshotVersion(Timestamp(123, 456)), true);
+  EXPECT_EQ(MaybeDocument::Type::Document, another_doc.type());
+  EXPECT_EQ(
+      FieldValue::ObjectValue({{"field", FieldValue::StringValue("foo")}}),
+      another_doc.data());
+  EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), another_doc.key());
+  EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), another_doc.version());
+  EXPECT_TRUE(another_doc.has_local_mutations());
 }
 
 TEST(Document, Comparison) {

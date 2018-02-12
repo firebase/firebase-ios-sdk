@@ -35,6 +35,11 @@ class Document : public MaybeDocument {
            const SnapshotVersion& version,
            bool has_local_mutations);
 
+  Document(FieldValue&& data,
+           const DocumentKey& key,
+           const SnapshotVersion& version,
+           bool has_local_mutations);
+
   const FieldValue& data() const {
     return data_;
   }

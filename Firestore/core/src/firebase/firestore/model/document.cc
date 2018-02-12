@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
@@ -28,6 +30,17 @@ Document::Document(const FieldValue& data,
                    bool has_local_mutations)
     : MaybeDocument(key, version),
       data_(data),
+      has_local_mutations_(has_local_mutations) {
+  set_type(Type::Document);
+  FIREBASE_ASSERT(FieldValue::Type::Object == data.type());
+}
+
+Document::Document(FieldValue&& data,
+                   const DocumentKey& key,
+                   const SnapshotVersion& version,
+                   bool has_local_mutations)
+    : MaybeDocument(key, version),
+      data_(std::move(data)),
       has_local_mutations_(has_local_mutations) {
   set_type(Type::Document);
   FIREBASE_ASSERT(FieldValue::Type::Object == data.type());
