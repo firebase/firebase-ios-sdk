@@ -49,7 +49,7 @@ class Serializer {
     google_firestore_v1beta1_Value value;
   };
 
-  Serializer(firebase::firestore::model::DatabaseId database_id)
+  explicit Serializer(firebase::firestore::model::DatabaseId database_id)
       : database_id_(database_id) {
   }
 

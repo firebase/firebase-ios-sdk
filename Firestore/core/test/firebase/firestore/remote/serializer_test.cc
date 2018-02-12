@@ -65,7 +65,7 @@ class SerializerTest : public ::testing::Test {
     size_t actual_bytes_len = sizeof(actual_bytes);
     Serializer::EncodeValueWithType(proto, actual_bytes, &actual_bytes_len);
     EXPECT_EQ(bytes_len, actual_bytes_len);
-    EXPECT_TRUE(memcmp(bytes, actual_bytes, bytes_len) == 0);
+    EXPECT_EQ(memcmp(bytes, actual_bytes, bytes_len), 0);
     Serializer::ValueWithType actual_proto =
         Serializer::DecodeValueWithType(bytes, bytes_len);
     EXPECT_EQ(type, actual_proto.type);
