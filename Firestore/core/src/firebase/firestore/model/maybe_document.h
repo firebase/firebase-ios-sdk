@@ -73,7 +73,7 @@ class MaybeDocument {
   friend bool operator==(const MaybeDocument& lhs, const MaybeDocument& rhs);
 
  private:
-  Type type_;
+  Type type_ = Type::Unknown;
   DocumentKey key_;
   SnapshotVersion version_;
 };

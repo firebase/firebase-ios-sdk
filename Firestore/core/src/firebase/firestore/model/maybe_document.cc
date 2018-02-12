@@ -25,7 +25,7 @@ namespace firestore {
 namespace model {
 
 MaybeDocument::MaybeDocument(DocumentKey key, SnapshotVersion version)
-    : type_(Type::Unknown), key_(std::move(key)), version_(std::move(version)) {
+    : key_(std::move(key)), version_(std::move(version)) {
 }
 
 bool MaybeDocument::Equals(const MaybeDocument& other) const {
