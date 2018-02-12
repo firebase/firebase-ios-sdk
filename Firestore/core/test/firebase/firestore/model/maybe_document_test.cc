@@ -32,7 +32,8 @@ inline MaybeDocument MakeMaybeDocument(const absl::string_view path,
 }
 
 inline bool operator<(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return DocumentKeyComparator::Less(lhs, rhs);
+  static const DocumentKeyComparator less;
+  return less(lhs, rhs);
 }
 
 }  // anonymous namespace

@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MAYBE_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MAYBE_DOCUMENT_H_
 
+#include <functional>
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
@@ -85,8 +87,8 @@ inline bool operator!=(const MaybeDocument& lhs, const MaybeDocument& rhs) {
 }
 
 /** Compares against another MaybeDocument by keys only. */
-struct DocumentKeyComparator {
-  static inline bool Less(const MaybeDocument& lhs, const MaybeDocument& rhs) {
+struct DocumentKeyComparator : public std::less<MaybeDocument> {
+  bool operator()(const MaybeDocument& lhs, const MaybeDocument& rhs) const {
     return lhs.key() < rhs.key();
   }
 };
