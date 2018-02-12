@@ -43,7 +43,7 @@ class Document : public MaybeDocument {
     return has_local_mutations_;
   }
 
- protected:
+ private:
   FieldValue data_;  // This is of type Object.
   bool has_local_mutations_;
 };

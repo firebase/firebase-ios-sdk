@@ -29,7 +29,7 @@ Document::Document(const FieldValue& data,
     : MaybeDocument(key, version),
       data_(data),
       has_local_mutations_(has_local_mutations) {
-  type_ = Type::Document;
+  set_type(Type::Document);
   FIREBASE_ASSERT(FieldValue::Type::Object == data.type());
 }
 

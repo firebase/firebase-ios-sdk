@@ -25,18 +25,19 @@ namespace model {
 
 namespace {
 
-inline NoDocument MakeDocument(const absl::string_view path, int second) {
+inline NoDocument MakeNoDocument(const absl::string_view path,
+                                 const Timestamp& timestamp) {
   return NoDocument(DocumentKey::FromPathString(path.data()),
-                    SnapshotVersion(Timestamp(second, 777)));
+                    SnapshotVersion(timestamp));
 }
 
 }  // anonymous namespace
 
 TEST(NoDocument, Getter) {
-  const NoDocument& doc = MakeDocument("i/am/a/path", 123);
+  const NoDocument& doc = MakeNoDocument("i/am/a/path", Timestamp(123, 456));
   EXPECT_EQ(MaybeDocument::Type::NoDocument, doc.type());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
-  EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.version());
+  EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
 
   // NoDocument and MaybeDocument will not equal.
   EXPECT_NE(NoDocument(DocumentKey::FromPathString("same/path"),

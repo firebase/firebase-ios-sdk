@@ -25,29 +25,47 @@ namespace model {
 
 namespace {
 
-inline MaybeDocument MakeDocument(const absl::string_view path, int second) {
+inline MaybeDocument MakeMaybeDocument(const absl::string_view path,
+                                       const Timestamp& timestamp) {
   return MaybeDocument(DocumentKey::FromPathString(path.data()),
-                       SnapshotVersion(Timestamp(second, 777)));
+                       SnapshotVersion(timestamp));
 }
 
 }  // anonymous namespace
 
 TEST(MaybeDocument, Getter) {
-  const MaybeDocument& doc = MakeDocument("i/am/a/path", 123);
+  const MaybeDocument& doc =
+      MakeMaybeDocument("i/am/a/path", Timestamp(123, 456));
   EXPECT_EQ(MaybeDocument::Type::Unknown, doc.type());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
-  EXPECT_EQ(SnapshotVersion(Timestamp(123, 777)), doc.version());
+  EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
 }
 
 TEST(MaybeDocument, Comparison) {
-  EXPECT_LT(MakeDocument("123", 456), MakeDocument("456", 123));
-  EXPECT_GT(MakeDocument("456", 123), MakeDocument("123", 456));
-  EXPECT_LE(MakeDocument("123", 456), MakeDocument("456", 123));
-  EXPECT_LE(MakeDocument("123", 456), MakeDocument("123", 456));
-  EXPECT_GE(MakeDocument("456", 123), MakeDocument("123", 456));
-  EXPECT_GE(MakeDocument("456", 123), MakeDocument("456", 123));
-  EXPECT_EQ(MakeDocument("123", 456), MakeDocument("123", 456));
-  EXPECT_NE(MakeDocument("123", 456), MakeDocument("456", 123));
+  EXPECT_LT(MakeMaybeDocument("root/123", Timestamp(456, 123)),
+            MakeMaybeDocument("root/456", Timestamp(123, 456)));
+  EXPECT_GT(MakeMaybeDocument("root/456", Timestamp(123, 456)),
+            MakeMaybeDocument("root/123", Timestamp(456, 123)));
+  EXPECT_LE(MakeMaybeDocument("root/123", Timestamp(456, 123)),
+            MakeMaybeDocument("root/456", Timestamp(123, 456)));
+  EXPECT_LE(MakeMaybeDocument("root/123", Timestamp(456, 123)),
+            MakeMaybeDocument("root/123", Timestamp(456, 123)));
+  EXPECT_GE(MakeMaybeDocument("root/456", Timestamp(123, 456)),
+            MakeMaybeDocument("root/123", Timestamp(456, 123)));
+  EXPECT_GE(MakeMaybeDocument("root/456", Timestamp(123, 456)),
+            MakeMaybeDocument("root/456", Timestamp(123, 456)));
+  EXPECT_EQ(MakeMaybeDocument("root/123", Timestamp(456, 123)),
+            MakeMaybeDocument("root/123", Timestamp(456, 123)));
+  EXPECT_NE(MakeMaybeDocument("root/123", Timestamp(456, 123)),
+            MakeMaybeDocument("root/456", Timestamp(123, 456)));
+
+  // MaybeDocument comparision is purely key-based.
+  EXPECT_LE(MakeMaybeDocument("root/123", Timestamp(111, 111)),
+            MakeMaybeDocument("root/123", Timestamp(222, 222)));
+  EXPECT_GE(MakeMaybeDocument("root/123", Timestamp(111, 111)),
+            MakeMaybeDocument("root/123", Timestamp(222, 222)));
+  EXPECT_EQ(MakeMaybeDocument("root/123", Timestamp(111, 111)),
+            MakeMaybeDocument("root/123", Timestamp(222, 222)));
 }
 
 }  // namespace model

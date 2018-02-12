@@ -22,7 +22,7 @@ namespace model {
 
 NoDocument::NoDocument(const DocumentKey& key, const SnapshotVersion& version)
     : MaybeDocument(key, version) {
-  type_ = Type::NoDocument;
+  set_type(Type::NoDocument);
 }
 
 }  // namespace model

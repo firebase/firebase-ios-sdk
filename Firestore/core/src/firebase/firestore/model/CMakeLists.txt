@@ -18,6 +18,8 @@ cc_library(
     base_path.h
     database_id.cc
     database_id.h
+    document.cc
+    document.h
     document_key.cc
     document_key.h
     field_path.cc

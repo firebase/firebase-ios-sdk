@@ -51,6 +51,12 @@ class MaybeDocument {
   }
 
  protected:
+  // Only allow subclass to set their types.
+  void set_type(Type type) {
+    type_ = type;
+  }
+
+ private:
   Type type_;
   DocumentKey key_;
   SnapshotVersion version_;
