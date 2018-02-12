@@ -386,7 +386,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     return NO;
   }
   NSNumber *value = self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled];
-  if (!value) {
+  if (value == nil) {
     return YES;  // Enable Measurement by default when the key is not in the dictionary.
   }
   return [value boolValue];
@@ -397,7 +397,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     return NO;
   }
   NSNumber *value = self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionEnabled];
-  if (!value) {
+  if (value == nil) {
     return self.isMeasurementEnabled;  // Fall back to older plist flag.
   }
   return [value boolValue];
@@ -405,7 +405,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (BOOL)isAnalyticsCollectionDeactivated {
   NSNumber *value = self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionDeactivated];
-  if (!value) {
+  if (value == nil) {
     return NO;  // Analytics Collection is not deactivated when the key is not in the dictionary.
   }
   return [value boolValue];
