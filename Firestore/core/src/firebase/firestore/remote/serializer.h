@@ -17,10 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_SERIALIZER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_SERIALIZER_H_
 
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 
 namespace firebase {
 namespace firestore {
@@ -49,7 +49,9 @@ class Serializer {
     google_firestore_v1beta1_Value value;
   };
 
-  Serializer(firebase::firestore::model::DatabaseId database_id) : database_id_(database_id) {}
+  Serializer(firebase::firestore::model::DatabaseId database_id)
+      : database_id_(database_id) {
+  }
 
   /**
    * Converts the FieldValue model passed into the Value proto equivalent.
@@ -57,7 +59,8 @@ class Serializer {
    * @param field_value the model to convert.
    * @return the proto representation of the model.
    */
-  static Serializer::ValueWithType EncodeFieldValue(const firebase::firestore::model::FieldValue& field_value);
+  static Serializer::ValueWithType EncodeFieldValue(
+      const firebase::firestore::model::FieldValue& field_value);
 
   /**
    * @brief Converts the value proto passed into bytes.
@@ -72,14 +75,17 @@ class Serializer {
   // nanopb calls; we may be stuck with something vague.) But we can do some
   // further investigation to see if there's some way to get nanopb to tell us
   // how much space it's going to need and then expose/document that here.
-  static void EncodeValueWithType(const ValueWithType& value, uint8_t* out_bytes, size_t* inout_bytes_length);
+  static void EncodeValueWithType(const ValueWithType& value,
+                                  uint8_t* out_bytes,
+                                  size_t* inout_bytes_length);
 
   /**
    * Converts from the proto Value format to the model FieldValue format
    *
    * @return The model equivalent of the proto data.
    */
-  static firebase::firestore::model::FieldValue DecodeFieldValue(const Serializer::ValueWithType& value_proto);
+  static firebase::firestore::model::FieldValue DecodeFieldValue(
+      const Serializer::ValueWithType& value_proto);
 
   /**
    * @brief Converts from bytes to the nanopb proto.
@@ -95,15 +101,18 @@ class Serializer {
   firebase::firestore::model::DatabaseId database_id_;
 };
 
-inline bool operator==(const Serializer::ValueWithType& lhs, const Serializer::ValueWithType& rhs) {
+inline bool operator==(const Serializer::ValueWithType& lhs,
+                       const Serializer::ValueWithType& rhs) {
   if (lhs.type != rhs.type) {
     return false;
   }
 
   switch (lhs.type) {
     case firebase::firestore::model::FieldValue::Type::Null:
-      FIREBASE_DEV_ASSERT(lhs.value.null_value == google_protobuf_NullValue_NULL_VALUE);
-      FIREBASE_DEV_ASSERT(rhs.value.null_value == google_protobuf_NullValue_NULL_VALUE);
+      FIREBASE_DEV_ASSERT(lhs.value.null_value ==
+                          google_protobuf_NullValue_NULL_VALUE);
+      FIREBASE_DEV_ASSERT(rhs.value.null_value ==
+                          google_protobuf_NullValue_NULL_VALUE);
       return true;
     default:
       // TODO(rsgowman): implement the other types

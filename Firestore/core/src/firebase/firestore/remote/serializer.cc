@@ -25,11 +25,10 @@ namespace remote {
 
 using firebase::firestore::model::FieldValue;
 
-Serializer::ValueWithType Serializer::EncodeFieldValue(const FieldValue& field_value) {
-  Serializer::ValueWithType proto_value {
-    field_value.type(),
-    google_firestore_v1beta1_Value_init_default
-  };
+Serializer::ValueWithType Serializer::EncodeFieldValue(
+    const FieldValue& field_value) {
+  Serializer::ValueWithType proto_value{
+      field_value.type(), google_firestore_v1beta1_Value_init_default};
   switch (field_value.type()) {
     case FieldValue::Type::Null:
       proto_value.value.null_value = google_protobuf_NullValue_NULL_VALUE;
@@ -41,13 +40,16 @@ Serializer::ValueWithType Serializer::EncodeFieldValue(const FieldValue& field_v
   return proto_value;
 }
 
-void Serializer::EncodeValueWithType(const ValueWithType& value, uint8_t* out_bytes, size_t* inout_bytes_length) {
+void Serializer::EncodeValueWithType(const ValueWithType& value,
+                                     uint8_t* out_bytes,
+                                     size_t* inout_bytes_length) {
   bool status;
   pb_ostream_t stream;
   switch (value.type) {
     case FieldValue::Type::Null:
       stream = pb_ostream_from_buffer(out_bytes, *inout_bytes_length);
-      status = pb_encode_tag(&stream, PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag);
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_null_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
@@ -68,7 +70,8 @@ void Serializer::EncodeValueWithType(const ValueWithType& value, uint8_t* out_by
   }
 }
 
-FieldValue Serializer::DecodeFieldValue(const Serializer::ValueWithType& value_proto) {
+FieldValue Serializer::DecodeFieldValue(
+    const Serializer::ValueWithType& value_proto) {
   switch (value_proto.type) {
     case FieldValue::Type::Null:
       return FieldValue::NullValue();
@@ -78,18 +81,21 @@ FieldValue Serializer::DecodeFieldValue(const Serializer::ValueWithType& value_p
   }
 }
 
-Serializer::ValueWithType Serializer::DecodeValueWithType(const uint8_t* bytes, size_t length) {
+Serializer::ValueWithType Serializer::DecodeValueWithType(const uint8_t* bytes,
+                                                          size_t length) {
   pb_istream_t stream = pb_istream_from_buffer(bytes, length);
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
   bool status = pb_decode_tag(&stream, &wire_type, &tag, &eof);
-  if (!status || wire_type != PB_WT_VARINT || tag != google_firestore_v1beta1_Value_null_value_tag) {
+  if (!status || wire_type != PB_WT_VARINT ||
+      tag != google_firestore_v1beta1_Value_null_value_tag) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
 
-  return Serializer::ValueWithType { FieldValue::Type::Null, google_firestore_v1beta1_Value_init_default };
+  return Serializer::ValueWithType{FieldValue::Type::Null,
+                                   google_firestore_v1beta1_Value_init_default};
 }
 
 }  // namespace remote
