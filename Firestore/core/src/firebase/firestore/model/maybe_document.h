@@ -30,22 +30,32 @@ namespace model {
  */
 class MaybeDocument {
  public:
+  /**
+   * All the different kinds of documents, including MaybeDocument and its
+   * subclasses. This is used to provide RTTI for documents.
+   */
   enum class Type {
     Unknown,
     Document,
     NoDocument,
   };
 
-  MaybeDocument(const DocumentKey& key, const SnapshotVersion& version);
+  MaybeDocument(DocumentKey key, SnapshotVersion version);
 
+  /** The runtime type of this document. */
   Type type() const {
     return type_;
   }
 
+  /** The key for this document. */
   const DocumentKey& key() const {
     return key_;
   }
 
+  /**
+   * Returns the version of this document if it exists or a version at which
+   * this document was guaranteed to not exist.
+   */
   const SnapshotVersion& version() const {
     return version_;
   }
@@ -56,36 +66,30 @@ class MaybeDocument {
     type_ = type;
   }
 
+  virtual bool Equals(const MaybeDocument& other) const;
+
+  friend bool operator==(const MaybeDocument& lhs, const MaybeDocument& rhs);
+
  private:
   Type type_;
   DocumentKey key_;
   SnapshotVersion version_;
 };
 
-/** Compares against another MaybeDocument. */
-inline bool operator<(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() < rhs.key();
-}
-
-inline bool operator>(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() > rhs.key();
-}
-
-inline bool operator>=(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() >= rhs.key();
-}
-
-inline bool operator<=(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() <= rhs.key();
+inline bool operator==(const MaybeDocument& lhs, const MaybeDocument& rhs) {
+  return lhs.Equals(rhs);
 }
 
 inline bool operator!=(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() != rhs.key() || lhs.type() != rhs.type();
+  return !(lhs == rhs);
 }
 
-inline bool operator==(const MaybeDocument& lhs, const MaybeDocument& rhs) {
-  return lhs.key() == rhs.key() && lhs.type() == rhs.type();
-}
+/** Compares against another MaybeDocument by keys only. */
+struct DocumentKeyComparator {
+  static inline bool Less(const MaybeDocument& lhs, const MaybeDocument& rhs) {
+    return lhs.key() < rhs.key();
+  }
+};
 
 }  // namespace model
 }  // namespace firestore

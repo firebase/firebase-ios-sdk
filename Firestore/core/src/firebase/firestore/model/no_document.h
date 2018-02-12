@@ -26,7 +26,7 @@ namespace model {
 /** Represents that no documents exists for the key at the given version. */
 class NoDocument : public MaybeDocument {
  public:
-  NoDocument(const DocumentKey& key, const SnapshotVersion& version);
+  NoDocument(DocumentKey key, SnapshotVersion version);
 };
 
 }  // namespace model

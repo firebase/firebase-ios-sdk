@@ -16,13 +16,21 @@
 
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 
+#include <utility>
+
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
 
-MaybeDocument::MaybeDocument(const DocumentKey& key,
-                             const SnapshotVersion& version)
-    : type_(Type::Unknown), key_(key), version_(version) {
+MaybeDocument::MaybeDocument(DocumentKey key, SnapshotVersion version)
+    : type_(Type::Unknown), key_(std::move(key)), version_(std::move(version)) {
+}
+
+bool MaybeDocument::Equals(const MaybeDocument& other) const {
+  return type_ == other.type_ && version_ == other.version_ &&
+         key_ == other.key_;
 }
 
 }  // namespace model

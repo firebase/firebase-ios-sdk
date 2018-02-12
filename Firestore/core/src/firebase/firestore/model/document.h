@@ -30,14 +30,12 @@ namespace model {
  */
 class Document : public MaybeDocument {
  public:
-  Document(const FieldValue& data,
-           const DocumentKey& key,
-           const SnapshotVersion& version,
-           bool has_local_mutations);
-
+  /**
+   * Construct a document. FieldValue must be passed by rvalue.
+   */
   Document(FieldValue&& data,
-           const DocumentKey& key,
-           const SnapshotVersion& version,
+           DocumentKey key,
+           SnapshotVersion version,
            bool has_local_mutations);
 
   const FieldValue& data() const {
@@ -47,6 +45,9 @@ class Document : public MaybeDocument {
   bool has_local_mutations() const {
     return has_local_mutations_;
   }
+
+ protected:
+  bool Equals(const MaybeDocument& other) const override;
 
  private:
   FieldValue data_;  // This is of type Object.

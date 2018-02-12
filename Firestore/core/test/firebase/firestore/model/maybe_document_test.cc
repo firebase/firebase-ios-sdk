@@ -31,6 +31,10 @@ inline MaybeDocument MakeMaybeDocument(const absl::string_view path,
                        SnapshotVersion(timestamp));
 }
 
+inline bool operator<(const MaybeDocument& lhs, const MaybeDocument& rhs) {
+  return DocumentKeyComparator::Less(lhs, rhs);
+}
+
 }  // anonymous namespace
 
 TEST(MaybeDocument, Getter) {
@@ -42,30 +46,18 @@ TEST(MaybeDocument, Getter) {
 }
 
 TEST(MaybeDocument, Comparison) {
-  EXPECT_LT(MakeMaybeDocument("root/123", Timestamp(456, 123)),
-            MakeMaybeDocument("root/456", Timestamp(123, 456)));
-  EXPECT_GT(MakeMaybeDocument("root/456", Timestamp(123, 456)),
-            MakeMaybeDocument("root/123", Timestamp(456, 123)));
-  EXPECT_LE(MakeMaybeDocument("root/123", Timestamp(456, 123)),
-            MakeMaybeDocument("root/456", Timestamp(123, 456)));
-  EXPECT_LE(MakeMaybeDocument("root/123", Timestamp(456, 123)),
-            MakeMaybeDocument("root/123", Timestamp(456, 123)));
-  EXPECT_GE(MakeMaybeDocument("root/456", Timestamp(123, 456)),
-            MakeMaybeDocument("root/123", Timestamp(456, 123)));
-  EXPECT_GE(MakeMaybeDocument("root/456", Timestamp(123, 456)),
-            MakeMaybeDocument("root/456", Timestamp(123, 456)));
+  EXPECT_TRUE(MakeMaybeDocument("root/123", Timestamp(456, 123)) <
+              MakeMaybeDocument("root/456", Timestamp(123, 456)));
+  // MaybeDocument comparision is purely key-based.
+  EXPECT_FALSE(MakeMaybeDocument("root/123", Timestamp(111, 111)) <
+               MakeMaybeDocument("root/123", Timestamp(222, 222)));
+
   EXPECT_EQ(MakeMaybeDocument("root/123", Timestamp(456, 123)),
             MakeMaybeDocument("root/123", Timestamp(456, 123)));
   EXPECT_NE(MakeMaybeDocument("root/123", Timestamp(456, 123)),
-            MakeMaybeDocument("root/456", Timestamp(123, 456)));
-
-  // MaybeDocument comparision is purely key-based.
-  EXPECT_LE(MakeMaybeDocument("root/123", Timestamp(111, 111)),
-            MakeMaybeDocument("root/123", Timestamp(222, 222)));
-  EXPECT_GE(MakeMaybeDocument("root/123", Timestamp(111, 111)),
-            MakeMaybeDocument("root/123", Timestamp(222, 222)));
-  EXPECT_EQ(MakeMaybeDocument("root/123", Timestamp(111, 111)),
-            MakeMaybeDocument("root/123", Timestamp(222, 222)));
+            MakeMaybeDocument("root/456", Timestamp(456, 123)));
+  EXPECT_NE(MakeMaybeDocument("root/123", Timestamp(456, 123)),
+            MakeMaybeDocument("root/123", Timestamp(123, 456)));
 }
 
 }  // namespace model

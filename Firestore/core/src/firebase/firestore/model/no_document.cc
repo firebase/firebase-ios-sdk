@@ -16,12 +16,14 @@
 
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
+#include <utility>
+
 namespace firebase {
 namespace firestore {
 namespace model {
 
-NoDocument::NoDocument(const DocumentKey& key, const SnapshotVersion& version)
-    : MaybeDocument(key, version) {
+NoDocument::NoDocument(DocumentKey key, SnapshotVersion version)
+    : MaybeDocument(std::move(key), std::move(version)) {
   set_type(Type::NoDocument);
 }
 

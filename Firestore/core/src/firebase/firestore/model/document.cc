@@ -24,26 +24,25 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-Document::Document(const FieldValue& data,
-                   const DocumentKey& key,
-                   const SnapshotVersion& version,
+Document::Document(FieldValue&& data,
+                   DocumentKey key,
+                   SnapshotVersion version,
                    bool has_local_mutations)
-    : MaybeDocument(key, version),
-      data_(data),
+    : MaybeDocument(std::move(key), std::move(version)),
+      data_(std::move(data)),
       has_local_mutations_(has_local_mutations) {
   set_type(Type::Document);
   FIREBASE_ASSERT(FieldValue::Type::Object == data.type());
 }
 
-Document::Document(FieldValue&& data,
-                   const DocumentKey& key,
-                   const SnapshotVersion& version,
-                   bool has_local_mutations)
-    : MaybeDocument(key, version),
-      data_(std::move(data)),
-      has_local_mutations_(has_local_mutations) {
-  set_type(Type::Document);
-  FIREBASE_ASSERT(FieldValue::Type::Object == data.type());
+bool Document::Equals(const MaybeDocument& other) const {
+  if (other.type() != Type::Document) {
+    return false;
+  }
+  const Document& other_doc = static_cast<const Document&>(other);
+  return MaybeDocument::Equals(other) &&
+         has_local_mutations_ == other_doc.has_local_mutations_ &&
+         data_ == other_doc.data_;
 }
 
 }  // namespace model
