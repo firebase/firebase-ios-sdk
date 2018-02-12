@@ -13,18 +13,22 @@
 # limitations under the License.
 
 cc_test(
-  firebase_firestore_model_test
+  firebase_firestore_auth_test
   SOURCES
-    database_id_test.cc
-    document_key_test.cc
-    document_test.cc
-    field_path_test.cc
-    field_value_test.cc
-    maybe_document_test.cc
-    no_document_test.cc
-    resource_path_test.cc
-    snapshot_version_test.cc
-    timestamp_test.cc
+    credentials_provider_test.cc
+    empty_credentials_provider_test.cc
+    token_test.cc
+    user_test.cc
   DEPENDS
-    firebase_firestore_model
+    firebase_firestore_auth
 )
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_auth_apple_test
+    SOURCES
+      firebase_credentials_provider_test.mm
+    DEPENDS
+      firebase_firestore_auth_apple
+  )
+endif(APPLE)

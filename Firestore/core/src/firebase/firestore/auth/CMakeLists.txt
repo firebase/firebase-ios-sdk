@@ -13,29 +13,40 @@
 # limitations under the License.
 
 cc_library(
-  firebase_firestore_model
+  firebase_firestore_auth_base
   SOURCES
-    base_path.h
-    database_id.cc
-    database_id.h
-    document_key.cc
-    document_key.h
-    field_path.cc
-    field_path.h
-    field_value.cc
-    field_value.h
-    maybe_document.cc
-    maybe_document.h
-    no_document.cc
-    no_document.h
-    resource_path.cc
-    resource_path.h
-    snapshot_version.cc
-    snapshot_version.h
-    timestamp.cc
-    timestamp.h
+    credentials_provider.cc
+    credentials_provider.h
+    token.cc
+    token.h
+    user.cc
+    user.h
   DEPENDS
     absl_strings
     firebase_firestore_util
-    firebase_firestore_types
+)
+
+cc_library(
+  firebase_firestore_auth_apple
+  SOURCES
+    firebase_credentials_provider_apple.h
+    firebase_credentials_provider_apple.mm
+  DEPENDS
+    FirebaseCore
+    firebase_firestore_auth_base
+  EXCLUDE_FROM_ALL
+)
+
+if(APPLE)
+  list(APPEND AUTH_DEPENDS firebase_firestore_auth_apple)
+endif()
+
+cc_library(
+  firebase_firestore_auth
+  SOURCES
+    empty_credentials_provider.cc
+    empty_credentials_provider.h
+  DEPENDS
+    ${AUTH_DEPENDS}
+    firebase_firestore_auth_base
 )
