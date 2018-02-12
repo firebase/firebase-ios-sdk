@@ -43,31 +43,32 @@ class SerializerTest : public ::testing::Test {
   Serializer serializer;
 
   void ExpectRoundTrip(const FieldValue& model,
-                       const Serializer::ValueWithType& proto,
+                       const Serializer::TypedValue& proto,
                        FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
     EXPECT_EQ(type, proto.type);
-    Serializer::ValueWithType actual_proto = serializer.EncodeFieldValue(model);
+    Serializer::TypedValue actual_proto = serializer.EncodeFieldValue(model);
     EXPECT_EQ(type, actual_proto.type);
     EXPECT_EQ(proto, actual_proto);
     EXPECT_EQ(model, serializer.DecodeFieldValue(proto));
   }
 
-  void ExpectRoundTrip(const Serializer::ValueWithType& proto,
+  void ExpectRoundTrip(const Serializer::TypedValue& proto,
                        const uint8_t* bytes,
                        size_t bytes_len,
                        FieldValue::Type type) {
     EXPECT_EQ(type, proto.type);
     // TODO(rsgowman): How big should this buffer be? Unclear; see TODO in
-    // remote/serializer.h on the Serializer::EncodeValueWithType() method.
+    // remote/serializer.h on the Serializer::EncodeTypedValue() method.
     // Hardcode to 1k for now.
     uint8_t actual_bytes[1024];
+    ASSERT_LE(bytes_len, sizeof(actual_bytes));
     size_t actual_bytes_len = sizeof(actual_bytes);
-    Serializer::EncodeValueWithType(proto, actual_bytes, &actual_bytes_len);
+    Serializer::EncodeTypedValue(proto, actual_bytes, &actual_bytes_len);
     EXPECT_EQ(bytes_len, actual_bytes_len);
     EXPECT_EQ(memcmp(bytes, actual_bytes, bytes_len), 0);
-    Serializer::ValueWithType actual_proto =
-        Serializer::DecodeValueWithType(bytes, bytes_len);
+    Serializer::TypedValue actual_proto =
+        Serializer::DecodeTypedValue(bytes, bytes_len);
     EXPECT_EQ(type, actual_proto.type);
     EXPECT_EQ(proto, actual_proto);
   }
@@ -75,16 +76,16 @@ class SerializerTest : public ::testing::Test {
 
 TEST_F(SerializerTest, EncodesNullModelToProto) {
   FieldValue model = FieldValue::NullValue();
-  Serializer::ValueWithType proto{FieldValue::Type::Null,
-                                  google_firestore_v1beta1_Value_init_default};
+  Serializer::TypedValue proto{FieldValue::Type::Null,
+                               google_firestore_v1beta1_Value_init_default};
   // sanity check (the _init_default above should set this to _NULL_VALUE)
   EXPECT_EQ(google_protobuf_NullValue_NULL_VALUE, proto.value.null_value);
   ExpectRoundTrip(model, proto, FieldValue::Type::Null);
 }
 
 TEST_F(SerializerTest, EncodesNullProtoToBytes) {
-  Serializer::ValueWithType proto{FieldValue::Type::Null,
-                                  google_firestore_v1beta1_Value_init_default};
+  Serializer::TypedValue proto{FieldValue::Type::Null,
+                               google_firestore_v1beta1_Value_init_default};
   // sanity check (the _init_default above should set this to _NULL_VALUE)
   EXPECT_EQ(google_protobuf_NullValue_NULL_VALUE, proto.value.null_value);
 
