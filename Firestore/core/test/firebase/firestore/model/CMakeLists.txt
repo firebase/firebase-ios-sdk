@@ -16,8 +16,10 @@ cc_test(
   firebase_firestore_model_test
   SOURCES
     database_id_test.cc
+    document_key_test.cc
     field_path_test.cc
     field_value_test.cc
+    snapshot_version_test.cc
     timestamp_test.cc
     resource_path_test.cc
   DEPENDS

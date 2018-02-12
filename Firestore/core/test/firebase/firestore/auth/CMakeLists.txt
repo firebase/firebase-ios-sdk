@@ -12,26 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
-  firebase_firestore_model
+cc_test(
+  firebase_firestore_auth_test
   SOURCES
-    base_path.h
-    database_id.cc
-    database_id.h
-    document_key.cc
-    document_key.h
-    field_path.cc
-    field_path.h
-    field_value.cc
-    field_value.h
-    snapshot_version.cc
-    snapshot_version.h
-    resource_path.cc
-    resource_path.h
-    timestamp.cc
-    timestamp.h
+    credentials_provider_test.cc
+    empty_credentials_provider_test.cc
+    token_test.cc
+    user_test.cc
   DEPENDS
-    absl_strings
-    firebase_firestore_util
-    firebase_firestore_types
+    firebase_firestore_auth
 )
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_auth_apple_test
+    SOURCES
+      firebase_credentials_provider_test.mm
+    DEPENDS
+      firebase_firestore_auth_apple
+  )
+endif(APPLE)
