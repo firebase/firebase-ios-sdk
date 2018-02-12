@@ -40,7 +40,7 @@ struct ServerTimestamp {
   bool has_previous_value_;
 };
 
-struct DatabaseReference {
+struct ReferenceValue {
   DocumentKey reference;
   // Does not own the DatabaseId instance.
   const DatabaseId* database_id;
@@ -144,7 +144,8 @@ class FieldValue {
     ServerTimestamp server_timestamp_value_;
     std::string string_value_;
     std::vector<uint8_t> blob_value_;
-    DatabaseReference reference_value_;
+    // Qualified name to avoid conflict with the member function of same name.
+    firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
     std::vector<FieldValue> array_value_;
     std::map<const std::string, const FieldValue> object_value_;

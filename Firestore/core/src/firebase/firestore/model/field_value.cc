@@ -378,7 +378,7 @@ void FieldValue::SwitchTo(const Type type) {
       blob_value_.~vector();
       break;
     case Type::Reference:
-      reference_value_.~DatabaseReference();
+      reference_value_.~ReferenceValue();
       break;
     case Type::GeoPoint:
       geo_point_value_.~GeoPoint();
@@ -408,7 +408,8 @@ void FieldValue::SwitchTo(const Type type) {
       new (&blob_value_) std::vector<uint8_t>();
       break;
     case Type::Reference:
-      new (&reference_value_) DatabaseReference();
+      // Qualified name to avoid conflict with the member function of same name.
+      new (&reference_value_) firebase::firestore::model::ReferenceValue();
       break;
     case Type::GeoPoint:
       new (&geo_point_value_) GeoPoint();
