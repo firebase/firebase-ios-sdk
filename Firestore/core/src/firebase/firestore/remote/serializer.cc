@@ -33,6 +33,14 @@ Serializer::TypedValue Serializer::EncodeFieldValue(
     case FieldValue::Type::Null:
       proto_value.value.null_value = google_protobuf_NullValue_NULL_VALUE;
       break;
+    case FieldValue::Type::Boolean:
+      if (field_value == FieldValue::TrueValue()) {
+        proto_value.value.boolean_value = true;
+      } else {
+        FIREBASE_DEV_ASSERT(field_value == FieldValue::FalseValue());
+        proto_value.value.boolean_value = false;
+      }
+      break;
     default:
       // TODO(rsgowman): implement the other types
       abort();
@@ -64,7 +72,23 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
       }
 
       out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
+      break;
 
+    case FieldValue::Type::Boolean:
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_boolean_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
+
+      status = pb_encode_varint(&stream, value.value.boolean_value);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
+
+      out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
       break;
 
     default:
@@ -78,6 +102,8 @@ FieldValue Serializer::DecodeFieldValue(
   switch (value_proto.type) {
     case FieldValue::Type::Null:
       return FieldValue::NullValue();
+    case FieldValue::Type::Boolean:
+      return FieldValue::BooleanValue(value_proto.value.boolean_value);
     default:
       // TODO(rsgowman): implement the other types
       abort();
@@ -96,10 +122,28 @@ Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
     abort();
   }
 
+  uint64_t varint_value;
+  Serializer::TypedValue retval{FieldValue::Type::Null,
+                                google_firestore_v1beta1_Value_init_default};
   switch (tag) {
     case google_firestore_v1beta1_Value_null_value_tag:
-      return Serializer::TypedValue{
-          FieldValue::Type::Null, google_firestore_v1beta1_Value_init_default};
+      retval.type = FieldValue::Type::Null;
+      status = pb_decode_varint(&stream, &varint_value);
+      // TODO(rsgowman): figure out error handling
+      if (!status || varint_value != google_protobuf_NullValue_NULL_VALUE) {
+        abort();
+      }
+      return retval;
+    case google_firestore_v1beta1_Value_boolean_value_tag:
+      retval.type = FieldValue::Type::Boolean;
+      status = pb_decode_varint(&stream, &varint_value);
+      // TODO(rsgowman): figure out error handling
+      if (!status || !(varint_value == 0 || varint_value == 1)) {
+        abort();
+      }
+      retval.value.boolean_value = varint_value;
+      return retval;
+
     default:
       // TODO(rsgowman): figure out error handling
       abort();

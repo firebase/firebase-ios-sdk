@@ -93,5 +93,42 @@ TEST_F(SerializerTest, EncodesNullProtoToBytes) {
   ExpectRoundTrip(proto, bytes, FieldValue::Type::Null);
 }
 
+TEST_F(SerializerTest, EncodesBoolModelToProto) {
+  for (bool test : {true, false}) {
+    FieldValue model = FieldValue::BooleanValue(test);
+    Serializer::TypedValue proto{FieldValue::Type::Boolean,
+                                 google_firestore_v1beta1_Value_init_default};
+    proto.value.boolean_value = test;
+    ExpectRoundTrip(model, proto, FieldValue::Type::Boolean);
+  }
+}
+
+TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
+  struct TestCase {
+    bool value;
+    std::vector<uint8_t> bytes;
+  };
+
+  /* NB: proto true_bytes were created via (and similarly for false_bytes):
+       echo 'boolean_value: true' \
+         | ./build/external/protobuf/src/protobuf-build/src/protoc \
+             -I./Firestore/Protos/protos \
+             -I./build/external/protobuf/src/protobuf/src/ \
+             --encode=google.firestore.v1beta1.Value \
+             google/firestore/v1beta1/document.proto \
+             > output.bin
+   */
+  std::vector<uint8_t> true_bytes{0x08, 0x01};
+  std::vector<uint8_t> false_bytes{0x08, 0x00};
+
+  for (const TestCase& test :
+       {TestCase{true, true_bytes}, TestCase{false, false_bytes}}) {
+    Serializer::TypedValue proto{FieldValue::Type::Boolean,
+                                 google_firestore_v1beta1_Value_init_default};
+    proto.value.boolean_value = test.value;
+    ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Boolean);
+  }
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.

@@ -134,6 +134,8 @@ inline bool operator==(const Serializer::TypedValue& lhs,
       FIREBASE_DEV_ASSERT(rhs.value.null_value ==
                           google_protobuf_NullValue_NULL_VALUE);
       return true;
+    case firebase::firestore::model::FieldValue::Type::Boolean:
+      return lhs.value.boolean_value == rhs.value.boolean_value;
     default:
       // TODO(rsgowman): implement the other types
       abort();
