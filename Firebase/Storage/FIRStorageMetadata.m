@@ -61,7 +61,8 @@
         components.scheme = kFIRStorageScheme;
         components.host = kFIRStorageHost;
         NSString *path = [FIRStorageUtils GCSEscapedString:self->_path];
-        NSString *fullPath = [NSString stringWithFormat:kFIRStorageFullPathFormat, self->_bucket, path];
+        NSString *fullPath =
+            [NSString stringWithFormat:kFIRStorageFullPathFormat, self->_bucket, path];
         components.percentEncodedPath = fullPath;
         components.query = [NSString stringWithFormat:@"alt=media&token=%@", token];
 
