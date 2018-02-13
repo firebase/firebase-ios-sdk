@@ -18,16 +18,22 @@ cc_library(
     base_path.h
     database_id.cc
     database_id.h
+    document.cc
+    document.h
     document_key.cc
     document_key.h
     field_path.cc
     field_path.h
     field_value.cc
     field_value.h
-    snapshot_version.cc
-    snapshot_version.h
+    maybe_document.cc
+    maybe_document.h
+    no_document.cc
+    no_document.h
     resource_path.cc
     resource_path.h
+    snapshot_version.cc
+    snapshot_version.h
     timestamp.cc
     timestamp.h
   DEPENDS

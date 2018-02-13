@@ -140,6 +140,9 @@
 		AB380D02201BC69F00D97691 /* bits_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D01201BC69F00D97691 /* bits_test.cc */; };
 		AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D03201BC6E400D97691 /* ordered_code_test.cc */; };
 		AB38D93020236E21000A432D /* database_info_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D92E20235D22000A432D /* database_info_test.cc */; };
+		AB6B908420322E4D00CC290A /* document_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB6B908320322E4D00CC290A /* document_test.cc */; };
+		AB6B908620322E6D00CC290A /* maybe_document_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB6B908520322E6D00CC290A /* maybe_document_test.cc */; };
+		AB6B908820322E8800CC290A /* no_document_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB6B908720322E8800CC290A /* no_document_test.cc */; };
 		AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB7BAB332012B519001E0872 /* geo_point_test.cc */; };
 		ABA495BB202B7E80008A7851 /* snapshot_version_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */; };
 		ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D9342023966E000A432D /* credentials_provider_test.cc */; };
@@ -346,6 +349,9 @@
 		AB38D93220239654000A432D /* user_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = user_test.cc; sourceTree = "<group>"; };
 		AB38D9342023966E000A432D /* credentials_provider_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = credentials_provider_test.cc; sourceTree = "<group>"; };
 		AB38D93620239689000A432D /* empty_credentials_provider_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = empty_credentials_provider_test.cc; sourceTree = "<group>"; };
+		AB6B908320322E4D00CC290A /* document_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = document_test.cc; sourceTree = "<group>"; };
+		AB6B908520322E6D00CC290A /* maybe_document_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = maybe_document_test.cc; sourceTree = "<group>"; };
+		AB6B908720322E8800CC290A /* no_document_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = no_document_test.cc; sourceTree = "<group>"; };
 		AB71064B201FA60300344F18 /* database_id_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = database_id_test.cc; sourceTree = "<group>"; };
 		AB7BAB332012B519001E0872 /* geo_point_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = geo_point_test.cc; path = ../../core/test/firebase/firestore/geo_point_test.cc; sourceTree = "<group>"; };
 		ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = snapshot_version_test.cc; sourceTree = "<group>"; };
@@ -585,10 +591,13 @@
 			isa = PBXGroup;
 			children = (
 				B6152AD5202A5385000E5744 /* document_key_test.cc */,
+				AB6B908320322E4D00CC290A /* document_test.cc */,
 				B686F2B02024FFD70028D6BE /* resource_path_test.cc */,
 				B686F2AD2023DDB20028D6BE /* field_path_test.cc */,
 				AB71064B201FA60300344F18 /* database_id_test.cc */,
 				AB356EF6200EA5EB0089B766 /* field_value_test.cc */,
+				AB6B908520322E6D00CC290A /* maybe_document_test.cc */,
+				AB6B908720322E8800CC290A /* no_document_test.cc */,
 				ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */,
 				ABF6506B201131F8005F2C74 /* timestamp_test.cc */,
 			);
@@ -1310,6 +1319,7 @@
 				5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */,
 				5492E051202154AA00B64F25 /* FIRQueryTests.mm in Sources */,
 				5492E054202154AB00B64F25 /* FIRFieldValueTests.mm in Sources */,
+				AB6B908620322E6D00CC290A /* maybe_document_test.cc in Sources */,
 				5492E09F2021552D00B64F25 /* FSTLevelDBMigrationsTests.mm in Sources */,
 				5492E053202154AB00B64F25 /* FIRDocumentReferenceTests.mm in Sources */,
 				5492E09D2021552D00B64F25 /* FSTLocalStoreTests.mm in Sources */,
@@ -1317,6 +1327,7 @@
 				5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */,
 				5492E0A22021552D00B64F25 /* FSTQueryCacheTests.mm in Sources */,
 				5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */,
+				AB6B908820322E8800CC290A /* no_document_test.cc in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
@@ -1331,6 +1342,7 @@
 				5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */,
 				5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */,
 				ABC1D7E42024AFDE00BA84F0 /* firebase_credentials_provider_test.mm in Sources */,
+				AB6B908420322E4D00CC290A /* document_test.cc in Sources */,
 				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
 				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
 				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
