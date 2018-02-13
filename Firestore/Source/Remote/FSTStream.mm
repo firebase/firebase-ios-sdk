@@ -548,6 +548,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     FSTStrongify(self);
     if (![self isStarted]) {
       FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
+      return;
     }
 
     if (!self.messageReceived) {
