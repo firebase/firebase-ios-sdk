@@ -16,11 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
+#include <pb.h>
+#include <pb_encode.h>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "external/nanopb/src/nanopb/pb.h"
-#include "external/nanopb/src/nanopb/pb_encode.h"
 #include "gtest/gtest.h"
 
 using firebase::firestore::model::FieldValue;

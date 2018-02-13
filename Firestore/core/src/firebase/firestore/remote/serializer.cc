@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
-#include "external/nanopb/src/nanopb/pb_decode.h"
-#include "external/nanopb/src/nanopb/pb_encode.h"
+#include <pb_decode.h>
+#include <pb_encode.h>
 
 namespace firebase {
 namespace firestore {
