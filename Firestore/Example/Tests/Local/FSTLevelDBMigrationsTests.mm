@@ -18,13 +18,18 @@
 #include <leveldb/db.h>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
+
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::Status;
@@ -68,6 +73,30 @@ using leveldb::Status;
   [FSTLevelDBMigrations runMigrationsOnDB:_db];
   FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionForDB:_db];
   XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
+}
+
+- (void)testCountsQueries {
+  NSUInteger expected = 50;
+  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Setup"];
+  for (int i = 0; i < expected; i++) {
+    std::string key = [FSTLevelDBTargetKey keyWithTargetID:i];
+    [group setData:"dummy" forKey:key];
+  }
+  // Add a dummy entry after the targets to make sure the iteration is correctly bounded.
+  // Use a table that would sort logically right after that table 'target'.
+  std::string dummyKey;
+  // Magic number that indicates a table name follows. Needed to mimic the prefix to the target
+  // table.
+  OrderedCode::WriteSignedNumIncreasing(&dummyKey, 5);
+  OrderedCode::WriteString(&dummyKey, "targetA");
+  [group setData:"dummy" forKey:dummyKey];
+
+  Status status = [group writeToDB:_db];
+  XCTAssertTrue(status.ok(), @"Failed to write targets");
+
+  [FSTLevelDBMigrations runMigrationsOnDB:_db];
+  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+  XCTAssertEqual(expected, metadata.targetCount, @"Failed to count all of the targets we added");
 }
 
 @end
