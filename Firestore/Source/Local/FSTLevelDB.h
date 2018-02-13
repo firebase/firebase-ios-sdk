@@ -19,9 +19,9 @@
 #include <memory>
 
 #import "Firestore/Source/Local/FSTPersistence.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "leveldb/db.h"
 
-@class FSTDatabaseInfo;
 @class FSTLocalSerializer;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
  *     will be created. Usually just +[FSTLevelDB documentsDir].
  * @return A storage directory unique to the instance identified by databaseInfo.
  */
-+ (NSString *)storageDirectoryForDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
++ (NSString *)storageDirectoryForDatabaseInfo:
+                  (const firebase::firestore::core::DatabaseInfo &)databaseInfo
                            documentsDirectory:(NSString *)documentsDirectory;
 
 /**

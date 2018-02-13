@@ -18,7 +18,8 @@
 
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
-@class FSTDatabaseID;
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
 @class FSTDocumentKey;
 @class FSTFieldPath;
 @class FSTTimestamp;
@@ -208,9 +209,11 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
++ (instancetype)referenceValue:(FSTDocumentKey *)value
+                    databaseID:(const firebase::firestore::model::DatabaseId *)databaseID;
 - (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
-@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
+// Does not own this DatabaseId.
+@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
 @end
 
 /**

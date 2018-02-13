@@ -47,6 +47,7 @@ add_library(
 
 find_package(LevelDB REQUIRED)
 find_package(GRPC REQUIRED)
+find_package(Nanopb REQUIRED)
 
 if(APPLE)
   find_package(FirebaseCore REQUIRED)
@@ -62,5 +63,8 @@ include_directories(${FIREBASE_INSTALL_DIR})
 
 # Fully qualified imports, project wide
 include_directories(${FIREBASE_SOURCE_DIR})
+
+# Include nanopb generated sources
+include_directories(${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb)
 
 add_subdirectory(core)

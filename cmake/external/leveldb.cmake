@@ -50,8 +50,6 @@ else()
 
   ExternalProject_Add(
     leveldb
-    DEPENDS
-      googletest  # for sequencing
 
     ${LEVELDB_GIT}
 
@@ -72,6 +70,7 @@ else()
 
     INSTALL_DIR ${FIREBASE_INSTALL_DIR}
 
+    UPDATE_COMMAND ""
     INSTALL_COMMAND ""
     TEST_COMMAND ""
   )

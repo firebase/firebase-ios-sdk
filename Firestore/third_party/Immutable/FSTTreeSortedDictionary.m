@@ -87,36 +87,6 @@ NS_ASSUME_NONNULL_BEGIN
   return nil;
 }
 
-- (nullable id)predecessorKey:(id)key {
-  NSComparisonResult cmp;
-  id<FSTLLRBNode> node = self.root;
-  id<FSTLLRBNode> rightParent = nil;
-  while (![node isEmpty]) {
-    cmp = self.comparator(key, node.key);
-    if (cmp == NSOrderedSame) {
-      if (![node.left isEmpty]) {
-        node = node.left;
-        while (![node.right isEmpty]) {
-          node = node.right;
-        }
-        return node.key;
-      } else if (rightParent != nil) {
-        return rightParent.key;
-      } else {
-        return nil;
-      }
-    } else if (cmp == NSOrderedAscending) {
-      node = node.left;
-    } else if (cmp == NSOrderedDescending) {
-      rightParent = node;
-      node = node.right;
-    }
-  }
-  @throw [NSException exceptionWithName:@"NonexistentKey"
-                                 reason:@"getPredecessorKey called with nonexistent key."
-                               userInfo:@{@"key" : [key description]}];
-}
-
 - (NSUInteger)indexOfKey:(id)key {
   NSUInteger prunedNodes = 0;
   id<FSTLLRBNode> node = self.root;

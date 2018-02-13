@@ -37,6 +37,11 @@ inline NSString* WrapNSStringNoCopy(const char* c_str) {
              freeWhenDone:NO];
 }
 
+// Translates a string_view to the equivalent NSString without making a copy.
+inline NSString* WrapNSStringNoCopy(const absl::string_view str) {
+  return WrapNSStringNoCopy(str.data());
+}
+
 // Creates an absl::string_view wrapper for the contents of the given NSString.
 inline absl::string_view MakeStringView(NSString* str) {
   return absl::string_view(
