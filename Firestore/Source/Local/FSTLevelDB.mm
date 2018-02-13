@@ -200,7 +200,7 @@ using leveldb::WriteOptions;
 
 #pragma mark - Persistence Factory methods
 
-- (id<FSTMutationQueue>)mutationQueueForUser:(User *)user {
+- (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
   return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:_ptr serializer:self.serializer];
 }
 

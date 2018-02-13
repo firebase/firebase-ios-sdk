@@ -37,10 +37,12 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -301,21 +303,22 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
-  _credentials->GetToken(false,
-                  []((const Token& result, const absl::string_view error) {
-    error = [FSTDatastore firestoreErrorForError:error];
-    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-      if (error) {
-        errorHandler(error);
-      } else {
-        GRPCProtoCall *rpc = rpcFactory();
-        [FSTDatastore prepareHeadersForRPC:rpc
-                                databaseID:&self.databaseInfo->database_id()
-                                     token:result.token];
-        [rpc start];
-      }
-    }];
-                  }];
+  _credentials->GetToken(
+      false,  // force_refresh
+      [&](const Token &result, const int64_t error_code, const absl::string_view error_msg) {
+        NSError *error = util::WrapNSError(error_code, error_msg);
+        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+          if (error) {
+            errorHandler(error);
+          } else {
+            GRPCProtoCall *rpc = rpcFactory();
+            [FSTDatastore prepareHeadersForRPC:rpc
+                                    databaseID:&self.databaseInfo->database_id()
+                                         token:util::WrapNSStringNoCopy(result.token())];
+            [rpc start];
+          }
+        }];
+      });
 }
 
 - (FSTWatchStream *)createWatchStream {

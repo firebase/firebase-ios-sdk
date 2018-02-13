@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
+#include <unordered_map>
+
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
@@ -31,8 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryPersistence ()
 @property(nonatomic, strong, nonnull) FSTWriteGroupTracker *writeGroupTracker;
-@property(nonatomic, strong, nonnull)
-    NSMutableDictionary<User *, id<FSTMutationQueue>> *mutationQueues;
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 @end
 
@@ -49,6 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   /** The FSTRemoteDocumentCache representing the persisted cache of remote documents. */
   FSTMemoryRemoteDocumentCache *_remoteDocumentCache;
+
+  std::unordered_map<const User, id<FSTMutationQueue>> _mutationQueues;
 }
 
 + (instancetype)persistence {
@@ -60,7 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
     _writeGroupTracker = [FSTWriteGroupTracker tracker];
     _queryCache = [[FSTMemoryQueryCache alloc] init];
     _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
-    _mutationQueues = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -78,11 +79,11 @@ NS_ASSUME_NONNULL_BEGIN
   self.started = NO;
 }
 
-- (id<FSTMutationQueue>)mutationQueueForUser:(User *)user {
-  id<FSTMutationQueue> queue = self.mutationQueues[user];
+- (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
+  id<FSTMutationQueue> queue = _mutationQueues[user];
   if (!queue) {
     queue = [FSTMemoryMutationQueue mutationQueue];
-    self.mutationQueues[user] = queue;
+    _mutationQueues[user] = queue;
   }
   return queue;
 }

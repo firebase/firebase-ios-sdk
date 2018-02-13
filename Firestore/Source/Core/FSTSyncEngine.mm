@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
+#include <unordered_map>
+
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
@@ -140,23 +142,22 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 /** The garbage collector used to collect documents that are no longer in limbo. */
 @property(nonatomic, strong, readonly) FSTEagerGarbageCollector *limboCollector;
 
-/** Stores user completion blocks, indexed by user and FSTBatchID. */
-@property(nonatomic, strong)
-    NSMutableDictionary<User *, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *>
-        *mutationCompletionBlocks;
-
-@property(nonatomic, assign) User *currentUser;
-
 @end
 
 @implementation FSTSyncEngine {
   /** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
   TargetIdGenerator _targetIdGenerator;
+
+  /** Stores user completion blocks, indexed by user and FSTBatchID. */
+  std::unordered_map<const User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *>
+      _mutationCompletionBlocks;
+
+  User _currentUser;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                        remoteStore:(FSTRemoteStore *)remoteStore
-                       initialUser:(User *)initialUser {
+                       initialUser:(const User &)initialUser {
   if (self = [super init]) {
     _localStore = localStore;
     _remoteStore = remoteStore;
@@ -228,10 +229,10 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(FSTBatchID)batchID {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
-      self.mutationCompletionBlocks[self.currentUser];
+      self.mutationCompletionBlocks[_currentUser];
   if (!completionBlocks) {
     completionBlocks = [NSMutableDictionary dictionary];
-    self.mutationCompletionBlocks[self.currentUser] = completionBlocks;
+    self.mutationCompletionBlocks[_currentUser] = completionBlocks;
   }
   [completionBlocks setObject:completion forKey:@(batchID)];
 }
@@ -401,7 +402,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (void)processUserCallbacksForBatchID:(FSTBatchID)batchID error:(NSError *_Nullable)error {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
-      self.mutationCompletionBlocks[self.currentUser];
+      self.mutationCompletionBlocks[_currentUser];
 
   // NOTE: Mutations restored from persistence won't have completion blocks, so it's okay for
   // this (or the completion below) to be nil.
@@ -528,8 +529,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   return [self.limboTargetsByKey copy];
 }
 
-- (void)userDidChange:(User *)user {
-  self.currentUser = user;
+- (void)userDidChange:(const User &)user {
+  _currentUser = user;
 
   // Notify local store and emit any resulting events from swapping out the mutation queue.
   FSTMaybeDocumentDictionary *changes = [self.localStore userDidChange:user];

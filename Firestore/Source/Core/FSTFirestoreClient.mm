@@ -38,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
@@ -104,12 +105,13 @@ NS_ASSUME_NONNULL_BEGIN
     _workerDispatchQueue = workerDispatchQueue;
 
     dispatch_semaphore_t initialUserAvailable = dispatch_semaphore_create(0);
-    __block User *initialUser;
+    static bool initialized = false;
+    static User initialUser;
     FSTWeakify(self);
     _credentialsProvider->SetUserChangeListener([&](const User &user) {
       FSTStrongify(self);
       if (self) {
-        if (!initialUser) {
+        if (!initialized) {
           initialUser = user;
           dispatch_semaphore_signal(initialUserAvailable);
         } else {
@@ -132,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)initializeWithUser:(User *)user usePersistence:(BOOL)usePersistence {
+- (void)initializeWithUser:(const User &)user usePersistence:(BOOL)usePersistence {
   // Do all of our initialization on our own dispatch queue.
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
@@ -195,10 +197,10 @@ NS_ASSUME_NONNULL_BEGIN
   [_remoteStore start];
 }
 
-- (void)userDidChange:(User *)user {
+- (void)userDidChange:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  FSTLog(@"User Changed: %@", user);
+  FSTLog(@"User Changed: %@", util::WrapNSStringNoCopy(user.uid()));
   [self.syncEngine userDidChange:user];
 }
 

@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector
-                        initialUser:(User *)initialUser {
+                        initialUser:(const User &)initialUser {
   if (self = [super init]) {
     _persistence = persistence;
     _mutationQueue = [persistence mutationQueueForUser:initialUser];
@@ -167,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queryCache shutdown];
 }
 
-- (FSTMaybeDocumentDictionary *)userDidChange:(User *)user {
+- (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
 

@@ -252,8 +252,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _delegate = delegate;
 
   _credentials->GetToken(false,
-      []((const Token& result, const absl::string_view error) {
-    error = [FSTDatastore firestoreErrorForError:error];
+      []((const Token& result, const int64_t error_code, const absl::string_view error_msg) {
+    NSError *error = util::WrapNSError(error_code, error_msg);
     [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
       [self resumeStartWithToken:result error:error];
     }];

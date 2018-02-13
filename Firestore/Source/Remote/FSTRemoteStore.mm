@@ -36,7 +36,9 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -273,7 +275,8 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 - (void)userDidChange:(const User &)user {
-  FSTLog(@"FSTRemoteStore %p changing users: %@", (__bridge void *)self, user);
+  FSTLog(@"FSTRemoteStore %p changing users: %@", (__bridge void *)self,
+         util::WrapNSStringNoCopy(user.uid()));
   if ([self isNetworkEnabled]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore

@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                        remoteStore:(FSTRemoteStore *)remoteStore
-                       initialUser:(firebase::firestore::auth::User *)user
+                       initialUser:(const firebase::firestore::auth::User &)user
     NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion;
 
-- (void)userDidChange:(firebase::firestore::auth::User *)user;
+- (void)userDidChange:(const firebase::firestore::auth::User &)user;
 
 /** Applies an FSTOnlineState change to the sync engine and notifies any views of the change. */
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState;

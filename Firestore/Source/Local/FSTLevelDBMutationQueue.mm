@@ -34,6 +34,7 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -94,7 +95,7 @@ static ReadOptions StandardReadOptions() {
                                    db:(std::shared_ptr<DB>)db
                            serializer:(FSTLocalSerializer *)serializer {
   FSTAssert(!user.uid().empty(), @"UserID must not be an empty string.");
-  NSString *userID = user.isAuthenticated() ? user.uid() : @"";
+  NSString *userID = user.is_authenticated() ? util::WrapNSStringNoCopy(user.uid()) : @"";
 
   return [[FSTLevelDBMutationQueue alloc] initWithUserID:userID db:db serializer:serializer];
 }
