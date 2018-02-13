@@ -20,7 +20,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -133,7 +132,7 @@ using firebase::firestore::model::DatabaseId;
 
 @implementation FSTStreamTests {
   dispatch_queue_t _testQueue;
-  FSTTestDispatchQueue *_workerDispatchQueue;
+  FSTDispatchQueue *_workerDispatchQueue;
   DatabaseInfo _databaseInfo;
   FSTEmptyCredentialsProvider *_credentials;
   FSTStreamStatusDelegate *_delegate;
@@ -150,7 +149,7 @@ using firebase::firestore::model::DatabaseId;
                          DatabaseId::kDefaultDatabaseId);
 
   _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
-  _workerDispatchQueue = [[FSTTestDispatchQueue alloc] initWithQueue:_testQueue];
+  _workerDispatchQueue = [[FSTDispatchQueue alloc] initWithQueue:_testQueue];
 
   _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
                                settings.sslEnabled);
@@ -272,9 +271,13 @@ using firebase::firestore::model::DatabaseId;
     [writeStream writeHandshake];
   }];
 
-  [_delegate awaitNotificationFromBlock:^{
+  [_workerDispatchQueue dispatchAsync:^{
     [writeStream markIdle];
+    XCTAssertTrue(
+        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
   }];
+
+  [_workerDispatchQueue runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
 
   dispatch_sync(_testQueue, ^{
     XCTAssertFalse([writeStream isOpen]);
@@ -299,7 +302,11 @@ using firebase::firestore::model::DatabaseId;
   // Mark the stream idle, but immediately cancel the idle timer by issuing another write.
   [_delegate awaitNotificationFromBlock:^{
     [writeStream markIdle];
+    XCTAssertTrue(
+        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
     [writeStream writeMutations:_mutations];
+    XCTAssertFalse(
+        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
   }];
 
   dispatch_sync(_testQueue, ^{

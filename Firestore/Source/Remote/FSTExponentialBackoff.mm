@@ -26,16 +26,14 @@
 using firebase::firestore::util::SecureRandom;
 
 @interface FSTExponentialBackoff ()
-- (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
-                         initialDelay:(NSTimeInterval)initialDelay
-                        backoffFactor:(double)backoffFactor
-                             maxDelay:(NSTimeInterval)maxDelay NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong) FSTDispatchQueue *dispatchQueue;
+@property(nonatomic, assign, readonly) FSTTimerID timerID;
 @property(nonatomic) double backoffFactor;
 @property(nonatomic) NSTimeInterval initialDelay;
 @property(nonatomic) NSTimeInterval maxDelay;
 @property(nonatomic) NSTimeInterval currentBase;
+@property(nonatomic, strong, nullable) FSTDelayedCallback *timerCallback;
 @end
 
 @implementation FSTExponentialBackoff {
@@ -43,11 +41,13 @@ using firebase::firestore::util::SecureRandom;
 }
 
 - (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
+                              timerID:(FSTTimerID)timerID
                          initialDelay:(NSTimeInterval)initialDelay
                         backoffFactor:(double)backoffFactor
                              maxDelay:(NSTimeInterval)maxDelay {
   if (self = [super init]) {
     _dispatchQueue = dispatchQueue;
+    _timerID = timerID;
     _initialDelay = initialDelay;
     _backoffFactor = backoffFactor;
     _maxDelay = maxDelay;
@@ -55,16 +55,6 @@ using firebase::firestore::util::SecureRandom;
     [self reset];
   }
   return self;
-}
-
-+ (instancetype)exponentialBackoffWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
-                                       initialDelay:(NSTimeInterval)initialDelay
-                                      backoffFactor:(double)backoffFactor
-                                           maxDelay:(NSTimeInterval)maxDelay {
-  return [[FSTExponentialBackoff alloc] initWithDispatchQueue:dispatchQueue
-                                                 initialDelay:initialDelay
-                                                backoffFactor:backoffFactor
-                                                     maxDelay:maxDelay];
 }
 
 - (void)reset {
@@ -76,6 +66,9 @@ using firebase::firestore::util::SecureRandom;
 }
 
 - (void)backoffAndRunBlock:(void (^)(void))block {
+  if (self.timerCallback) {
+    [self.timerCallback cancel];
+  }
   // First schedule the block using the current base (which may be 0 and should be honored as such).
   NSTimeInterval delayWithJitter = _currentBase + [self jitterDelay];
   if (_currentBase > 0) {
@@ -83,7 +76,8 @@ using firebase::firestore::util::SecureRandom;
            _currentBase);
   }
 
-  [self.dispatchQueue dispatchAfterDelay:delayWithJitter block:block];
+  self.timerCallback =
+      [self.dispatchQueue dispatchAfterDelay:delayWithJitter timerID:self.timerID block:block];
 
   // Apply backoff factor to determine next delay and ensure it is within bounds.
   _currentBase *= _backoffFactor;
