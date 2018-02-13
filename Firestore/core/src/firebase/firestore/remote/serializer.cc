@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
-#include <pb_decode.h>
-#include <pb_encode.h>
+#include "external/nanopb/src/nanopb/pb_decode.h"
+#include "external/nanopb/src/nanopb/pb_encode.h"
 
 namespace firebase {
 namespace firestore {
@@ -41,10 +41,13 @@ Serializer::TypedValue Serializer::EncodeFieldValue(
 }
 
 void Serializer::EncodeTypedValue(const TypedValue& value,
-                                  uint8_t* out_bytes,
-                                  size_t* inout_bytes_length) {
+                                  std::vector<uint8_t>* out_bytes) {
   bool status;
-  pb_ostream_t stream = pb_ostream_from_buffer(out_bytes, *inout_bytes_length);
+  // TODO(rsgowman): how large should the output buffer be? Do some
+  // investigation to see if we can get nanopb to tell us how much space it's
+  // going to need.
+  uint8_t buf[1024];
+  pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
   switch (value.type) {
     case FieldValue::Type::Null:
       status = pb_encode_tag(&stream, PB_WT_VARINT,
@@ -60,7 +63,8 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
         abort();
       }
 
-      *inout_bytes_length = stream.bytes_written;
+      out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
+
       break;
 
     default:

@@ -19,9 +19,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
@@ -52,13 +52,20 @@ class Serializer {
     google_firestore_v1beta1_Value value;
   };
 
-  /**
-   * @param database_id Must remain valid for the lifetime of this Serializer
-   * object.
-   */
-  explicit Serializer(const firebase::firestore::model::DatabaseId& database_id)
-      : database_id_(database_id) {
+  Serializer() {
   }
+  // TODO(rsgowman): We eventually need the DatabaseId, but can't add it just
+  // yet since it's not used yet (which travis complains about). So for now,
+  // we'll create a parameterless ctor (above) that likely won't exist in the
+  // final version of this class.
+  ///**
+  // * @param database_id Must remain valid for the lifetime of this Serializer
+  // * object.
+  // */
+  // explicit Serializer(const firebase::firestore::model::DatabaseId&
+  // database_id)
+  //    : database_id_(database_id) {
+  //}
 
   /**
    * Converts the FieldValue model passed into the Value proto equivalent.
@@ -72,22 +79,12 @@ class Serializer {
   /**
    * @brief Converts the value proto passed into bytes.
    *
-   * @param[out] out_bytes A buffer to place the output.
-   * @param[in,out] inout_bytes_length On input, the length of the out_bytes
-   * buffer. On output, will contain the number of bytes actually used.
+   * @param[out] out_bytes A buffer to place the output. The bytes will be
+   * appended to this vector.
    */
   // TODO(rsgowman): error handling, incl return code.
-  // TODO(rsgowman): how large should the output buffer be? The docs on this
-  // method give no indication. (Unfortunately, neither does the underlying
-  // nanopb calls; we may be stuck with something vague.) But we can do some
-  // further investigation to see if there's some way to get nanopb to tell us
-  // how much space it's going to need and then expose/document that here.
-  // Additionally, we may be able to hide the allocation details entirely, and
-  // simply return a vector<char> or unique_ptr<char[]> or similar. (But this
-  // would preclude grpc being able to simply reuse a static buffer.)
   static void EncodeTypedValue(const TypedValue& value,
-                               uint8_t* out_bytes,
-                               size_t* inout_bytes_length);
+                               std::vector<uint8_t>* out_bytes);
 
   /**
    * Converts from the proto Value format to the model FieldValue format
@@ -100,15 +97,28 @@ class Serializer {
   /**
    * @brief Converts from bytes to the nanopb proto.
    *
+   * @param bytes The bytes to convert. It's assumed that exactly all of the
+   * bytes will be used by this conversion.
    * @return The (nanopb) proto equivalent of the bytes.
    */
   // TODO(rsgowman): error handling.
-  // TODO(rsgowman): do we want to indicate how many bytes were actually used?
-  // (Probably; if so, we'll add that when we need it.)
   static TypedValue DecodeTypedValue(const uint8_t* bytes, size_t length);
 
+  /**
+   * @brief Converts from bytes to the nanopb proto.
+   *
+   * @param bytes The bytes to convert. It's assumed that exactly all of the
+   * bytes will be used by this conversion.
+   * @return The (nanopb) proto equivalent of the bytes.
+   */
+  // TODO(rsgowman): error handling.
+  static TypedValue DecodeTypedValue(const std::vector<uint8_t>& bytes) {
+    return DecodeTypedValue(bytes.data(), bytes.size());
+  }
+
  private:
-  const firebase::firestore::model::DatabaseId& database_id_;
+  // TODO(rsgowman): We don't need the database_id_ yet (but will eventually).
+  // const firebase::firestore::model::DatabaseId& database_id_;
 };
 
 inline bool operator==(const Serializer::TypedValue& lhs,

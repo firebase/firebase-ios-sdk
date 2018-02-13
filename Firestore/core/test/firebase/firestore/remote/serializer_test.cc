@@ -16,14 +16,13 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
-#include <gtest/gtest.h>
-#include <pb.h>
-#include <pb_encode.h>
+#include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "external/nanopb/src/nanopb/pb.h"
+#include "external/nanopb/src/nanopb/pb_encode.h"
+#include "gtest/gtest.h"
 
-using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::remote::Serializer;
 
@@ -38,7 +37,7 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(DatabaseId("p", "d")) {
+  SerializerTest() : serializer(/*DatabaseId("p", "d")*/) {
   }
   Serializer serializer;
 
@@ -54,21 +53,13 @@ class SerializerTest : public ::testing::Test {
   }
 
   void ExpectRoundTrip(const Serializer::TypedValue& proto,
-                       const uint8_t* bytes,
-                       size_t bytes_len,
+                       std::vector<uint8_t> bytes,
                        FieldValue::Type type) {
     EXPECT_EQ(type, proto.type);
-    // TODO(rsgowman): How big should this buffer be? Unclear; see TODO in
-    // remote/serializer.h on the Serializer::EncodeTypedValue() method.
-    // Hardcode to 1k for now.
-    uint8_t actual_bytes[1024];
-    ASSERT_LE(bytes_len, sizeof(actual_bytes));
-    size_t actual_bytes_len = sizeof(actual_bytes);
-    Serializer::EncodeTypedValue(proto, actual_bytes, &actual_bytes_len);
-    EXPECT_EQ(bytes_len, actual_bytes_len);
-    EXPECT_EQ(memcmp(bytes, actual_bytes, bytes_len), 0);
-    Serializer::TypedValue actual_proto =
-        Serializer::DecodeTypedValue(bytes, bytes_len);
+    std::vector<uint8_t> actual_bytes;
+    Serializer::EncodeTypedValue(proto, &actual_bytes);
+    EXPECT_EQ(bytes, actual_bytes);
+    Serializer::TypedValue actual_proto = Serializer::DecodeTypedValue(bytes);
     EXPECT_EQ(type, actual_proto.type);
     EXPECT_EQ(proto, actual_proto);
   }
@@ -98,6 +89,9 @@ TEST_F(SerializerTest, EncodesNullProtoToBytes) {
              google/firestore/v1beta1/document.proto \
              > output.bin
    */
-  uint8_t bytes[] = {0x58, 0x00};
-  ExpectRoundTrip(proto, bytes, sizeof(bytes), FieldValue::Type::Null);
+  std::vector<uint8_t> bytes{0x58, 0x00};
+  ExpectRoundTrip(proto, bytes, FieldValue::Type::Null);
 }
+
+// TODO(rsgowman): Test [en|de]coding multiple protos into the same output
+// vector.
