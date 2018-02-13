@@ -44,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
+using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 
@@ -149,7 +150,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   TargetIdGenerator _targetIdGenerator;
 
   /** Stores user completion blocks, indexed by user and FSTBatchID. */
-  std::unordered_map<const User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *>
+  std::unordered_map<const User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
 
   User _currentUser;
@@ -171,7 +172,6 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     _limboDocumentRefs = [[FSTReferenceSet alloc] init];
     [_limboCollector addGarbageSource:_limboDocumentRefs];
 
-    _mutationCompletionBlocks = [NSMutableDictionary dictionary];
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator(0);
     _currentUser = initialUser;
   }
@@ -229,10 +229,10 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(FSTBatchID)batchID {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
-      self.mutationCompletionBlocks[_currentUser];
+      _mutationCompletionBlocks[_currentUser];
   if (!completionBlocks) {
     completionBlocks = [NSMutableDictionary dictionary];
-    self.mutationCompletionBlocks[_currentUser] = completionBlocks;
+    _mutationCompletionBlocks[_currentUser] = completionBlocks;
   }
   [completionBlocks setObject:completion forKey:@(batchID)];
 }
@@ -402,7 +402,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (void)processUserCallbacksForBatchID:(FSTBatchID)batchID error:(NSError *_Nullable)error {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
-      self.mutationCompletionBlocks[_currentUser];
+      _mutationCompletionBlocks[_currentUser];
 
   // NOTE: Mutations restored from persistence won't have completion blocks, so it's okay for
   // this (or the completion below) to be nil.

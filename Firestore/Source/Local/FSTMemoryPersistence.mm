@@ -27,6 +27,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
+using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
   /** The FSTRemoteDocumentCache representing the persisted cache of remote documents. */
   FSTMemoryRemoteDocumentCache *_remoteDocumentCache;
 
-  std::unordered_map<const User, id<FSTMutationQueue>> _mutationQueues;
+  std::unordered_map<const User, id<FSTMutationQueue>, HashUser> _mutationQueues;
 }
 
 + (instancetype)persistence {

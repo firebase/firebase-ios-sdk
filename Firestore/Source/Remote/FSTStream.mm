@@ -36,10 +36,12 @@
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -251,17 +253,17 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTAssert(_delegate == nil, @"Delegate must be nil");
   _delegate = delegate;
 
-  _credentials->GetToken(false,
-      []((const Token& result, const int64_t error_code, const absl::string_view error_msg) {
-    NSError *error = util::WrapNSError(error_code, error_msg);
-    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-      [self resumeStartWithToken:result error:error];
-    }];
-                  });
+  _credentials->GetToken(
+      false, [&](const Token &result, const int64_t error_code, const absl::string_view error_msg) {
+        NSError *error = util::WrapNSError(error_code, error_msg);
+        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+          [self resumeStartWithToken:result error:error];
+        }];
+      });
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
-- (void)resumeStartWithToken:(FSTGetTokenResult *)token error:(NSError *)error {
+- (void)resumeStartWithToken:(const Token &)token error:(NSError *)error {
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for authorization.
     return;
@@ -283,7 +285,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:token.token];
+                               token:util::WrapNSStringNoCopy(token.token())];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];

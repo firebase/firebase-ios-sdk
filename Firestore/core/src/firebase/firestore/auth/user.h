@@ -69,6 +69,14 @@ inline bool operator!=(const User& lhs, const User& rhs) {
   return !(lhs == rhs);
 }
 
+// Specializations of std::hash is prohibited. We define a hash function to be
+// passed through manually.
+struct HashUser {
+  inline int64_t operator()(const User& user) const {
+    return std::hash<std::string>{}(user.uid());
+  }  // namespace auth
+};   // namespace firestore
+
 }  // namespace auth
 }  // namespace firestore
 }  // namespace firebase
