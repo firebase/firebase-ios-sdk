@@ -26,14 +26,16 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+#import "FSTDataCache.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalDocumentsView ()
-- (instancetype)initWithRemoteDocumentCache:(id<FSTRemoteDocumentCache>)remoteDocumentCache
+- (instancetype)initWithRemoteDocumentCache:(id<FSTDataAccess>)dataAccess
                               mutationQueue:(id<FSTMutationQueue>)mutationQueue
     NS_DESIGNATED_INITIALIZER;
-@property(nonatomic, strong, readonly) id<FSTRemoteDocumentCache> remoteDocumentCache;
+//@property(nonatomic, strong, readonly) id<FSTRemoteDocumentCache> remoteDocumentCache;
+@property(nonatomic, strong, readonly) id<FSTDataAccess> dataAccess;
 @property(nonatomic, strong, readonly) id<FSTMutationQueue> mutationQueue;
 @end
 
@@ -45,17 +47,17 @@ NS_ASSUME_NONNULL_BEGIN
                                                       mutationQueue:mutationQueue];
 }
 
-- (instancetype)initWithRemoteDocumentCache:(id<FSTRemoteDocumentCache>)remoteDocumentCache
+- (instancetype)initWithRemoteDocumentCache:(id<FSTDataAccess>)dataAccess
                               mutationQueue:(id<FSTMutationQueue>)mutationQueue {
   if (self = [super init]) {
-    _remoteDocumentCache = remoteDocumentCache;
+    _dataAccess = dataAccess;
     _mutationQueue = mutationQueue;
   }
   return self;
 }
 
 - (nullable FSTMaybeDocument *)documentForKey:(FSTDocumentKey *)key {
-  FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:key];
+  FSTMaybeDocument *_Nullable remoteDoc = [self.dataAccess documentForKey:key];
   return [self localDocument:remoteDoc key:key];
 }
 
@@ -95,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Query the remote documents and overlay mutations.
   // TODO(mikelehen): There may be significant overlap between the mutations affecting these
   // remote documents and the allMutationBatchesAffectingQuery mutations. Consider optimizing.
-  __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  __block FSTDocumentDictionary *results = [self.dataAccess documentsMatchingQuery:query];
   results = [self localDocuments:results];
 
   // Now use the mutation queue to discover any other documents that may match the query after

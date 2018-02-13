@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FSTMaybeDocument;
 @class FSTDocumentKey;
 @class FSTWriteGroup;
+@class FSTDocumentKeySet;
 
 /**
  * An in-memory buffer of entries to be written to an FSTRemoteDocumentCache. It can be used to
@@ -60,6 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTWriteGroup.
  */
 - (void)applyToWriteGroup:(FSTWriteGroup *)group;
+
+- (FSTDocumentKeySet *)collectChanges;
 
 @end
 

@@ -42,6 +42,7 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#import "FSTDataCache.h"
 
 using firebase::firestore::core::TargetIdGenerator;
 
@@ -56,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) id<FSTMutationQueue> mutationQueue;
 
 /** The set of all cached remote documents. */
-@property(nonatomic, strong) id<FSTRemoteDocumentCache> remoteDocumentCache;
+//@property(nonatomic, strong) id<FSTRemoteDocumentCache> remoteDocumentCache;
 
 /** The "local" view of all documents (layering mutationQueue on top of remoteDocumentCache). */
 @property(nonatomic, strong) FSTLocalDocumentsView *localDocuments;
@@ -72,12 +73,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) id<FSTGarbageCollector> garbageCollector;
 
 /** Maps a query to the data about that query. */
-@property(nonatomic, strong) id<FSTQueryCache> queryCache;
+//@property(nonatomic, strong) id<FSTQueryCache> queryCache;
 
 /** Maps a targetID to data about its query. */
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, FSTQueryData *> *targetIDs;
 
-@property(nonatomic, strong) FSTListenSequence *listenSequence;
+//@property(nonatomic, strong) FSTListenSequence *listenSequence;
+
+@property(nonatomic, strong) id<FSTDataCache> dataCache;
+
+@property(nonatomic, strong) id<FSTDataAccess> dataAccess;
 
 /**
  * A heldBatchResult is a mutation batch result (from a write acknowledgement) that arrived before
@@ -103,14 +108,14 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _persistence = persistence;
     _mutationQueue = [persistence mutationQueueForUser:initialUser];
-    _remoteDocumentCache = [persistence remoteDocumentCache];
-    _queryCache = [persistence queryCache];
+    //_remoteDocumentCache = [persistence remoteDocumentCache];
+    //_queryCache = [persistence queryCache];
     _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
                                                            mutationQueue:_mutationQueue];
     _localViewReferences = [[FSTReferenceSet alloc] init];
 
     _garbageCollector = garbageCollector;
-    [_garbageCollector addGarbageSource:_queryCache];
+    //[_garbageCollector addGarbageSource:_queryCache];
     [_garbageCollector addGarbageSource:_localViewReferences];
     [_garbageCollector addGarbageSource:_mutationQueue];
 
@@ -152,18 +157,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)startQueryCache {
-  [self.queryCache start];
+  [self.dataCache start];
+  //[self.queryCache start];
 
-  FSTTargetID targetID = [self.queryCache highestTargetID];
+  //FSTTargetID targetID = [self.queryCache highestTargetID];
+  FSTTargetID targetID = [self.dataAccess highestTargetID];
   _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
-  FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
-  self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
+  //FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
+  //self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
 - (void)shutdown {
   [self.mutationQueue shutdown];
-  [self.remoteDocumentCache shutdown];
-  [self.queryCache shutdown];
+  //[self.remoteDocumentCache shutdown];
+  //[self.queryCache shutdown];
+  [self.dataAccess shutdown];
+  [self.dataCache shutdown];
 }
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(FSTUser *)user {
@@ -181,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
 
   // Recreate our LocalDocumentsView using the new MutationQueue.
-  self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:self.remoteDocumentCache
+  self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:self.dataAccess
                                                              mutationQueue:self.mutationQueue];
 
   // Union the old/new changed keys.
@@ -224,14 +233,18 @@ NS_ASSUME_NONNULL_BEGIN
     [self.heldBatchResults addObject:batchResult];
     affected = [FSTDocumentKeySet keySet];
   } else {
-    FSTRemoteDocumentChangeBuffer *remoteDocuments =
-        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+//    FSTRemoteDocumentChangeBuffer *remoteDocuments =
+//        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+    FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataAccess changeBuffer];
 
     affected =
         [self releaseBatchResults:@[ batchResult ] group:group remoteDocuments:remoteDocuments];
 
     [remoteDocuments applyToWriteGroup:group];
-    [self.queryCache addPotentiallyOrphanedDocuments:affected
+//    [self.queryCache addPotentiallyOrphanedDocuments:affected
+//                                    atSequenceNumber:[self.listenSequence next]
+//                                               group:group];
+    [self.dataCache addPotentiallyOrphanedDocuments:affected
                                     atSequenceNumber:[self.listenSequence next]
                                                group:group];
   }
@@ -271,20 +284,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
-  return [self.queryCache lastRemoteSnapshotVersion];
+  return self.dataAccess.lastRemoteSnapshotVersion;
 }
 
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
-  id<FSTQueryCache> queryCache = self.queryCache;
+  //id<FSTQueryCache> queryCache = self.queryCache;
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Apply remote event"];
-  FSTRemoteDocumentChangeBuffer *remoteDocuments =
-      [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
 
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
                                  NSNumber *targetIDNumber, FSTTargetChange *change, BOOL *stop) {
     FSTTargetID targetID = targetIDNumber.intValue;
-
+    /*
     // Do not ref/unref unassigned targetIDs - it may lead to leaks.
     FSTQueryData *queryData = self.targetIDs[targetIDNumber];
     if (!queryData) {
@@ -301,35 +312,52 @@ NS_ASSUME_NONNULL_BEGIN
                                                   sequenceNumber:[self.listenSequence next]];
       self.targetIDs[targetIDNumber] = queryData;
       [self.queryCache addQueryData:queryData group:group];
+    }*/
+
+    FSTQueryData *queryData = [self.dataCache updateQuery:targetID resumeToken:change.resumeToken group:group];
+    if (!queryData) {
+      return;
     }
 
     FSTTargetMapping *mapping = change.mapping;
-    FSTListenSequenceNumber sequenceNumber = queryData.sequenceNumber;
+    //FSTListenSequenceNumber sequenceNumber = queryData.sequenceNumber;
     if (mapping) {
       // First make sure that all references are deleted.
       if ([mapping isKindOfClass:[FSTResetMapping class]]) {
+        // TODO(gsoltis): reset query
         FSTResetMapping *reset = (FSTResetMapping *)mapping;
-        [queryCache removeMatchingKeysForTargetID:targetID group:group];
+        /*[queryCache removeMatchingKeysForTargetID:targetID group:group];
         [queryCache addMatchingKeys:reset.documents
                         forTargetID:targetID
                    atSequenceNumber:sequenceNumber
-                              group:group];
+                              group:group];*/
+        [self.dataCache resetQuery:queryData documents:reset.documents group:group];
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
+        // TODO(gsoltis): update query
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-        [queryCache removeMatchingKeys:update.removedDocuments
+        /*[queryCache removeMatchingKeys:update.removedDocuments
                            forTargetID:targetID
                       atSequenceNumber:sequenceNumber
                                  group:group];
         [queryCache addMatchingKeys:update.addedDocuments
                         forTargetID:targetID
                    atSequenceNumber:sequenceNumber
+                              group:group];*/
+        [self.dataCache updateQuery:queryData
+                     documentsAdded:update.addedDocuments
+                   documentsRemoved:update.removedDocuments
                               group:group];
       } else {
         FSTFail(@"Unknown mapping type: %@", mapping);
       }
     }
   }];
+
+  // TODO(gsoltis): pull this from data cache? changeBuffer...
+//  FSTRemoteDocumentChangeBuffer *remoteDocuments =
+//          [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+  FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataCache changeBuffer];
 
   // TODO(klimt): This could probably be an NSMutableDictionary.
   __block FSTDocumentKeySet *changedDocKeys = [FSTDocumentKeySet keySet];
@@ -358,14 +386,15 @@ NS_ASSUME_NONNULL_BEGIN
   // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote events
   // when we get permission denied errors while trying to resolve the state of a locally cached
   // document that is in limbo.
-  FSTSnapshotVersion *lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
+  /*FSTSnapshotVersion *lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
   FSTSnapshotVersion *remoteVersion = remoteEvent.snapshotVersion;
   if (![remoteVersion isEqual:[FSTSnapshotVersion noVersion]]) {
     FSTAssert([remoteVersion compare:lastRemoteVersion] != NSOrderedAscending,
               @"Watch stream reverted to previous snapshot?? (%@ < %@)", remoteVersion,
               lastRemoteVersion);
     [self.queryCache setLastRemoteSnapshotVersion:remoteVersion group:group];
-  }
+  }*/
+  [self.dataCache addNewSnapshotVersion:remoteEvent.snapshotVersion group:group];
 
   FSTDocumentKeySet *releasedWriteKeys =
       [self releaseHeldBatchResultsWithGroup:group remoteDocuments:remoteDocuments];
@@ -386,7 +415,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   FSTReferenceSet *localViewReferences = self.localViewReferences;
   for (FSTLocalViewChanges *view in viewChanges) {
-    FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
+    FSTQueryData *queryData = [self.dataAccess queryDataForQuery:view.query];
     FSTAssert(queryData, @"Local view changes contain unallocated query.");
     FSTTargetID targetID = queryData.targetID;
     [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
@@ -403,7 +432,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
-  FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
+  /*FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
   FSTTargetID targetID;
   FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
   if (cached) {
@@ -421,10 +450,11 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache addQueryData:cached group:group];
 
     [self.persistence commitGroup:group];
-  }
+  }*/
+  FSTQueryData *cached = [self.dataCache getOrCreateQueryData:query];
 
   // Sanity check to ensure that even when resuming a query it's not currently active.
-  FSTBoxedTargetID *boxedTargetID = @(targetID);
+  FSTBoxedTargetID *boxedTargetID = @(cached.targetID);
   FSTAssert(!self.targetIDs[boxedTargetID], @"Tried to allocate an already allocated query: %@",
             query);
   self.targetIDs[boxedTargetID] = cached;
@@ -434,7 +464,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)releaseQuery:(FSTQuery *)query {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Release query"];
 
-  FSTQueryData *queryData = [self.queryCache queryDataForQuery:query];
+  /*FSTQueryData *queryData = [self.queryCache queryDataForQuery:query];
   FSTAssert(queryData, @"Tried to release nonexistent query: %@", query);
 
   [self.localViewReferences removeReferencesForID:queryData.targetID];
@@ -442,14 +472,17 @@ NS_ASSUME_NONNULL_BEGIN
   // call removeQueryData on GC, not queryCache.
   if (self.garbageCollector.isEager) {
     [self.queryCache removeQueryData:queryData group:group];
-  }
+  }*/
+  FSTQueryData *queryData = [self.dataCache removeQuery:query group:group];
+  [self.localViewReferences removeReferencesForID:queryData.targetID];
   [self.targetIDs removeObjectForKey:@(queryData.targetID)];
 
   // If this was the last watch target, then we won't get any more watch snapshots, so we should
   // release any held batch results.
   if ([self.targetIDs count] == 0) {
-    FSTRemoteDocumentChangeBuffer *remoteDocuments =
-        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+//    FSTRemoteDocumentChangeBuffer *remoteDocuments =
+//        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+    FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataCache changeBuffer];
 
     [self releaseHeldBatchResultsWithGroup:group remoteDocuments:remoteDocuments];
 
@@ -464,20 +497,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
-  return [self.queryCache matchingKeysForTargetID:targetID];
+  //return [self.queryCache matchingKeysForTargetID:targetID];
+  return [self.dataAccess documentsForTarget:targetID];
 }
 
 - (void)collectGarbage {
+  // TODO(gsoltis): fix this
   // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
   // accumulate the garbage keys.
-  NSSet<FSTDocumentKey *> *garbage = [self.garbageCollector collectGarbage];
+  /*NSSet<FSTDocumentKey *> *garbage = [self.garbageCollector collectGarbage];
   if (garbage.count > 0) {
     FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Garbage Collection"];
     for (FSTDocumentKey *key in garbage) {
       [self.remoteDocumentCache removeEntryForKey:key group:group];
     }
     [self.persistence commitGroup:group];
-  }
+  }*/
 }
 
 /**
@@ -507,7 +542,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isRemoteUpToVersion:(FSTSnapshotVersion *)version {
   // If there are no watch targets, then we won't get remote snapshots, and are always "up-to-date."
-  return [version compare:self.queryCache.lastRemoteSnapshotVersion] != NSOrderedDescending ||
+  return [version compare:self.dataAccess.lastRemoteSnapshotVersion] != NSOrderedDescending ||
          self.targetIDs.count == 0;
 }
 
