@@ -58,7 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                        remoteStore:(FSTRemoteStore *)remoteStore
-                       initialUser:(firebase::firestore::auth::User *)user NS_DESIGNATED_INITIALIZER;
+                       initialUser:(firebase::firestore::auth::User *)user
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * A delegate to be notified when queries being listened to produce new view snapshots or

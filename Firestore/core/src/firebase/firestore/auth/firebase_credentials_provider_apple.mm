@@ -97,11 +97,12 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
       // Cancel the request since the user changed while the request was
       // outstanding so the response is likely for a previous user (which
       // user, we can't be sure).
-      completion({"", User::Unauthenticated()},
+      completion({"", User::Unauthenticated()}, FirestoreErrorCode::Aborted,
                  "getToken aborted due to user change.");
     } else {
       completion(
           {util::MakeStringView(token), contents->current_user},
+          error == nil ? FirestoreErrorCode::Ok : error.code,
           error == nil ? "" : util::MakeStringView(error.localizedDescription));
     }
   };

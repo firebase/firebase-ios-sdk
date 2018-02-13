@@ -90,7 +90,7 @@ static ReadOptions StandardReadOptions() {
   std::shared_ptr<DB> _db;
 }
 
-+ (instancetype)mutationQueueWithUser:(const User&)user
++ (instancetype)mutationQueueWithUser:(const User &)user
                                    db:(std::shared_ptr<DB>)db
                            serializer:(FSTLocalSerializer *)serializer {
   FSTAssert(!user.uid().empty(), @"UserID must not be an empty string.");

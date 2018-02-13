@@ -26,7 +26,7 @@ void EmptyCredentialsProvider::GetToken(bool force_refresh,
                                         TokenListener completion) {
   UNUSED(force_refresh);
   if (completion) {
-    completion({"", User::Unauthenticated()}, "");
+    completion({"", User::Unauthenticated()}, FirestoreErrorCode::Ok, "");
   }
 }
 

@@ -272,7 +272,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   [self updateOnlineState:FSTOnlineStateUnknown];
 }
 
-- (void)userDidChange:(const User&)user {
+- (void)userDidChange:(const User &)user {
   FSTLog(@"FSTRemoteStore %p changing users: %@", (__bridge void *)self, user);
   if ([self isNetworkEnabled]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
