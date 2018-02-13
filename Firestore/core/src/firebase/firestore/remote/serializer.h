@@ -117,6 +117,16 @@ class Serializer {
   }
 
  private:
+  static void EncodeNull(pb_ostream_t* stream);
+  static void EncodeBool(pb_ostream_t* stream, bool bool_value);
+  static void EncodeVarint(pb_ostream_t* stream,
+                           uint32_t field_number,
+                           uint64_t value);
+
+  static void DecodeNull(pb_istream_t* stream);
+  static bool DecodeBool(pb_istream_t* stream);
+  static uint64_t DecodeVarint(pb_istream_t* stream);
+
   // TODO(rsgowman): We don't need the database_id_ yet (but will eventually).
   // const firebase::firestore::model::DatabaseId& database_id_;
 };
