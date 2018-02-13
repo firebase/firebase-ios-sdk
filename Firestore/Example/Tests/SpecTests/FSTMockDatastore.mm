@@ -27,10 +27,14 @@
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -69,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:datastore.databaseInfo
              workerDispatchQueue:workerDispatchQueue
@@ -193,7 +197,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:datastore.databaseInfo
              workerDispatchQueue:workerDispatchQueue
@@ -290,11 +294,11 @@ NS_ASSUME_NONNULL_BEGIN
   static DatabaseInfo database_info{DatabaseId{"project", "database"}, "persistence", "host",
                                     false};
 
-  FSTEmptyCredentialsProvider *credentials = [[FSTEmptyCredentialsProvider alloc] init];
+  static EmptyCredentialsProvider credentials;
 
   return [[FSTMockDatastore alloc] initWithDatabaseInfo:&database_info
                                     workerDispatchQueue:workerDispatchQueue
-                                            credentials:credentials];
+                                            credentials:&credentials];
 }
 
 #pragma mark - Overridden FSTDatastore methods.

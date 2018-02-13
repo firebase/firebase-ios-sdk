@@ -21,7 +21,10 @@
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
@@ -32,10 +35,9 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
 
@@ -136,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTestDispatchQueue *workerDispatchQueue = [FSTTestDispatchQueue
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
-  FSTEmptyCredentialsProvider *credentialsProvider = [[FSTEmptyCredentialsProvider alloc] init];
+  static EmptyCredentialsProvider credentialsProvider;
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
@@ -145,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
         initWithProjectID:projectID
                  database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
            persistenceKey:persistenceKey
-      credentialsProvider:credentialsProvider
+      credentialsProvider:&credentialsProvider
       workerDispatchQueue:workerDispatchQueue
               firebaseApp:app];
 

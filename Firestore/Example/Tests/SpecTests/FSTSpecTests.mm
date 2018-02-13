@@ -19,7 +19,6 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -42,6 +41,10 @@
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
+using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -327,8 +330,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doChangeUser:(id)UID {
-  FSTUser *user = [UID isEqual:[NSNull null]] ? [FSTUser unauthenticatedUser]
-                                              : [[FSTUser alloc] initWithUID:UID];
+  const User user = [UID isEqual:[NSNull null]] ? User::Unauthenticated() : User(UID);
   [self.driver changeUser:user];
 }
 
@@ -347,7 +349,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
                                                     garbageCollector:self.garbageCollector
-                                                         initialUser:self.driver.currentUser
+                                                         initialUser:*self.driver.currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
 }
