@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
     static User initialUser;
     FSTWeakify(self);
     _credentialsProvider->SetUserChangeListener(
-        [fstWeakPointerToself, &initialUserAvailable](const User &user) {
+        [fstWeakPointerToself, initialUserAvailable](const User &user) {
           FSTStrongify(self);
           if (self) {
             if (!initialized) {

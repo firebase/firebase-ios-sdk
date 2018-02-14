@@ -136,8 +136,6 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTestDispatchQueue *workerDispatchQueue = [FSTTestDispatchQueue
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
-  static EmptyCredentialsProvider credentialsProvider;
-
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
@@ -145,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
         initWithProjectID:projectID
                  database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
            persistenceKey:persistenceKey
-      credentialsProvider:&credentialsProvider
+      credentialsProvider:new EmptyCredentialsProvider()  // passing ownership
       workerDispatchQueue:workerDispatchQueue
               firebaseApp:app];
 
