@@ -21,16 +21,17 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -135,7 +136,7 @@ using firebase::firestore::model::DatabaseId;
   dispatch_queue_t _testQueue;
   FSTTestDispatchQueue *_workerDispatchQueue;
   DatabaseInfo _databaseInfo;
-  FSTEmptyCredentialsProvider *_credentials;
+  EmptyCredentialsProvider _credentials;
   FSTStreamStatusDelegate *_delegate;
 
   /** Single mutation to send to the write stream. */
@@ -154,7 +155,6 @@ using firebase::firestore::model::DatabaseId;
 
   _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
                                settings.sslEnabled);
-  _credentials = [[FSTEmptyCredentialsProvider alloc] init];
 
   _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
 
@@ -164,14 +164,14 @@ using firebase::firestore::model::DatabaseId;
 - (FSTWriteStream *)setUpWriteStream {
   FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
-                                                           credentials:_credentials];
+                                                           credentials:&_credentials];
   return [datastore createWriteStream];
 }
 
 - (FSTWatchStream *)setUpWatchStream {
   FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
-                                                           credentials:_credentials];
+                                                           credentials:&_credentials];
   return [datastore createWatchStream];
 }
 

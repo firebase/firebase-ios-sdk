@@ -130,8 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Restart the queue so that nextBatchID will be reset.
   [self.mutationQueue shutdown];
-  self.mutationQueue =
-      [self.persistence mutationQueueForUser:User("user")];
+  self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
   [self.mutationQueue startWithGroup:group];

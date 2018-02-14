@@ -16,7 +16,6 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -48,17 +47,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @property(nonatomic, assign) BOOL open;
@@ -174,17 +173,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @property(nonatomic, strong, readonly) FSTMockDatastore *datastore;
@@ -283,7 +282,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Properties implemented in FSTDatastore that are nonpublic. */
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
-@property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentials;
+@property(nonatomic, assign, readonly) CredentialsProvider *credentials;
 
 @end
 
@@ -308,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.watchStream = [[FSTMockWatchStream alloc]
         initWithDatastore:self
       workerDispatchQueue:self.workerDispatchQueue
-              credentials:self.credentials
+              credentials:*self.credentials
                serializer:[[FSTSerializerBeta alloc]
                               initWithDatabaseID:&self.databaseInfo->database_id()]];
   return self.watchStream;

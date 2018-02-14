@@ -43,7 +43,9 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -330,8 +332,12 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doChangeUser:(id)UID {
-  const User user = [UID isEqual:[NSNull null]] ? User::Unauthenticated() : User(UID);
-  [self.driver changeUser:user];
+  if ([UID isEqual:[NSNull null]]) {
+    [self.driver changeUser:User::Unauthenticated()];
+  } else {
+    XCTAssert([UID isKindOfClass:[NSString class]]);
+    [self.driver changeUser:User(util::MakeStringView(UID))];
+  }
 }
 
 - (void)doRestart {

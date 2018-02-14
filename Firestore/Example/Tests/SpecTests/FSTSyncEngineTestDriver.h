@@ -57,7 +57,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /** Mapping of user => array of FSTMutations for that user. */
-typedef std::unordered_map<const firebase::firestore::auth::User, NSMutableArray<FSTOutstandingWrite *> *, firebase::firestore::auth::HashUser> FSTOutstandingWriteQueues;
+typedef std::unordered_map<const firebase::firestore::auth::User,
+                           NSMutableArray<FSTOutstandingWrite *> *,
+                           firebase::firestore::auth::HashUser>
+    FSTOutstandingWriteQueues;
 
 /**
  * A test driver for FSTSyncEngine that allows simulated event delivery and capture. As much as
