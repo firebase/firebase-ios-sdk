@@ -307,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.watchStream = [[FSTMockWatchStream alloc]
         initWithDatastore:self
       workerDispatchQueue:self.workerDispatchQueue
-              credentials:*self.credentials
+              credentials:self.credentials
                serializer:[[FSTSerializerBeta alloc]
                               initWithDatabaseID:&self.databaseInfo->database_id()]];
   return self.watchStream;

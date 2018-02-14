@@ -343,7 +343,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 - (void)doRestart {
   // Any outstanding user writes should be automatically re-sent, so we want to preserve them
   // when re-creating the driver.
-  FSTOutstandingWriteQueues *outstandingWrites = self.driver.outstandingWrites;
+  FSTOutstandingWriteQueues outstandingWrites = *self.driver.outstandingWrites;
 
   [self.driver shutdown];
 
