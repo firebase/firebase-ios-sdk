@@ -344,6 +344,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   // Any outstanding user writes should be automatically re-sent, so we want to preserve them
   // when re-creating the driver.
   FSTOutstandingWriteQueues outstandingWrites = *self.driver.outstandingWrites;
+  User currentUser = *self.driver.currentUser;
 
   [self.driver shutdown];
 
@@ -355,7 +356,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
                                                     garbageCollector:self.garbageCollector
-                                                         initialUser:*self.driver.currentUser
+                                                         initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
 }
