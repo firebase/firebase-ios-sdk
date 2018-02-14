@@ -35,7 +35,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/include/**/*.{h,cc,mm}',
     'Firestore/core/src/**/*.{h,cc,mm}',
     'Firestore/third_party/Immutable/*.[mh]',
-    'Firestore/third_party/abseil-cpp/**/*.{h,cc}'
   ]
   s.requires_arc = [
     'Firestore/Source/**/*',
@@ -45,7 +44,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.exclude_files = [
     'Firestore/Port/*test.cc',
     'Firestore/third_party/Immutable/Tests/**',
-    'Firestore/third_party/abseil-cpp/**/*_test.{h,cc}',
 
     # Exclude alternate implementations for other platforms
     'Firestore/core/src/firebase/firestore/util/assert_stdio.cc',
@@ -79,4 +77,20 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
         Firestore/core/src/firebase/firestore/util/config.h.in > \
         Firestore/core/src/firebase/firestore/util/config.h
   CMD
+
+  s.subspec 'abseil-cpp' do |ss|
+    ss.source_files = [
+      'Firestore/third_party/abseil-cpp/**/*.{h,cc}'
+    ]
+    ss.exclude_files = [
+      'Firestore/third_party/abseil-cpp/**/*_test.{h,cc}',
+    ]
+
+    # NB: don't include absl/**/*.h, as that would include absl/*/internal/*.h.
+    ss.public_header_files = 'Firestore/third_party/abseil-cpp/absl/*/*.h'
+    ss.header_mappings_dir = 'Firestore/third_party/abseil-cpp'
+
+    ss.library = 'c++'
+    ss.compiler_flags = '$(inherited) ' + '-Wno-comma'
+  end
 end

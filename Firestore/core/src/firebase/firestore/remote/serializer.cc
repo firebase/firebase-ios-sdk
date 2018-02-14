@@ -25,6 +25,18 @@ namespace remote {
 
 using firebase::firestore::model::FieldValue;
 
+// TODO: DO NOT SUBMIT. This code exists solely to generate an error (via the
+// -Wcomma flag) and should be removed before we submit. Uncomment this to see
+// the error. (Treated as a non-fatal warning by xcode, but treated as fatal by
+// cmake due to -Werror.
+/*
+void GenerateCompilerError() {
+  int x = 0;
+  int y = 0;
+  x++, y++;  // Compiler warning due to -Wcomma here.
+}
+*/
+
 Serializer::TypedValue Serializer::EncodeFieldValue(
     const FieldValue& field_value) {
   Serializer::TypedValue proto_value{

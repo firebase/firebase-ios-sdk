@@ -32,6 +32,9 @@ if(CLANG OR GNU)
     common_flags
     -Wall -Wextra -Werror
 
+    # Detect possible misuse of comma operator.
+    -Wcomma
+
     # Be super pedantic about format strings
     -Wformat
 
