@@ -58,6 +58,13 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
   [group setData:version_string forKey:key];
 }
 
+/**
+ * This function counts the number of targets that currently exist in the given db. It
+ * then reads the target global row, adds the count to the metadata from that row, and writes
+ * the metadata back.
+ *
+ * It assumes the metadata has already been written and is able to be read in this transaction.
+ */
 static void AddTargetCount(std::shared_ptr<DB> db, FSTWriteGroup *group) {
   std::unique_ptr<Iterator> it(db->NewIterator([FSTLevelDB standardReadOptions]));
   Slice start_key = [FSTLevelDBTargetKey keyPrefix];

@@ -68,3 +68,4 @@ include_directories(${FIREBASE_SOURCE_DIR})
 include_directories(${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb)
 
 add_subdirectory(core)
+add_subdirectory(Protos)

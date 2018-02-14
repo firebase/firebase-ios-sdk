@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/strings/str_join.h"
@@ -27,7 +28,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-ResourcePath ResourcePath::Parse(const absl::string_view path) {
+ResourcePath ResourcePath::FromString(const absl::string_view path) {
   // NOTE: The client is ignorant of any path segments containing escape
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).

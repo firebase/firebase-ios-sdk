@@ -29,18 +29,18 @@ namespace model {
 TEST(ResourcePath, Constructor) {
   const ResourcePath empty_path;
   EXPECT_TRUE(empty_path.empty());
-  EXPECT_EQ(0, empty_path.size());
+  EXPECT_EQ(0u, empty_path.size());
   EXPECT_TRUE(empty_path.begin() == empty_path.end());
 
   const ResourcePath path_from_list{{"rooms", "Eros", "messages"}};
   EXPECT_FALSE(path_from_list.empty());
-  EXPECT_EQ(3, path_from_list.size());
+  EXPECT_EQ(3u, path_from_list.size());
   EXPECT_TRUE(path_from_list.begin() + 3 == path_from_list.end());
 
   std::vector<std::string> segments{"rooms", "Eros", "messages"};
   const ResourcePath path_from_segments{segments.begin(), segments.end()};
   EXPECT_FALSE(path_from_segments.empty());
-  EXPECT_EQ(3, path_from_segments.size());
+  EXPECT_EQ(3u, path_from_segments.size());
   EXPECT_TRUE(path_from_segments.begin() + 3 == path_from_segments.end());
 
   ResourcePath copied = path_from_list;
@@ -74,7 +74,7 @@ TEST(ResourcePath, Comparison) {
 
 TEST(ResourcePath, Parsing) {
   const auto parse = [](const std::pair<std::string, size_t> expected) {
-    const auto path = ResourcePath::Parse(expected.first);
+    const auto path = ResourcePath::FromString(expected.first);
     return std::make_pair(path.CanonicalString(), path.size());
   };
   const auto make_expected = [](const std::string& str, const size_t size) {
@@ -92,12 +92,12 @@ TEST(ResourcePath, Parsing) {
   expected = make_expected(R"(foo/__!?#@..`..\`/baz)", 3);
   EXPECT_EQ(expected, parse(expected));
 
-  EXPECT_EQ(ResourcePath::Parse("/foo/").CanonicalString(), "foo");
+  EXPECT_EQ(ResourcePath::FromString("/foo/").CanonicalString(), "foo");
 }
 
 TEST(ResourcePath, ParseFailures) {
-  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("//"), "");
-  ASSERT_DEATH_IF_SUPPORTED(ResourcePath::Parse("foo//bar"), "");
+  ASSERT_ANY_THROW(ResourcePath::FromString("//"));
+  ASSERT_ANY_THROW(ResourcePath::FromString("foo//bar"));
 }
 
 }  // namespace model
