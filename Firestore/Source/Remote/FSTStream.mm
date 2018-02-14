@@ -253,13 +253,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTAssert(_delegate == nil, @"Delegate must be nil");
   _delegate = delegate;
 
-  _credentials->GetToken(
-      false, [&](const Token &result, const int64_t error_code, const absl::string_view error_msg) {
-        NSError *error = util::WrapNSError(error_code, error_msg);
-        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          [self resumeStartWithToken:result error:error];
-        }];
-      });
+  _credentials->GetToken(false, [self](const Token &result, const int64_t error_code,
+                                       const absl::string_view error_msg) {
+    NSError *error = util::WrapNSError(error_code, error_msg);
+    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+      [self resumeStartWithToken:result error:error];
+    }];
+  });
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */

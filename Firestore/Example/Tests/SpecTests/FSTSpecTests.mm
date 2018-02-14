@@ -332,7 +332,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doChangeUser:(id)UID {
-  if ([UID isEqual:[NSNull null]]) {
+  if (UID == nil || [UID isEqual:[NSNull null]]) {
     [self.driver changeUser:User::Unauthenticated()];
   } else {
     XCTAssert([UID isKindOfClass:[NSString class]]);

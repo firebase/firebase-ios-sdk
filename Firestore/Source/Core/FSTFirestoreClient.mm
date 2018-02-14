@@ -108,19 +108,21 @@ NS_ASSUME_NONNULL_BEGIN
     static bool initialized = false;
     static User initialUser;
     FSTWeakify(self);
-    _credentialsProvider->SetUserChangeListener([&](const User &user) {
-      FSTStrongify(self);
-      if (self) {
-        if (!initialized) {
-          initialUser = user;
-          dispatch_semaphore_signal(initialUserAvailable);
-        } else {
-          [workerDispatchQueue dispatchAsync:^{
-            [self userDidChange:user];
-          }];
-        }
-      }
-    });
+    _credentialsProvider->SetUserChangeListener(
+        [fstWeakPointerToself, &initialUserAvailable](const User &user) {
+          FSTStrongify(self);
+          if (self) {
+            if (!initialized) {
+              initialUser = user;
+              initialized = true;
+              dispatch_semaphore_signal(initialUserAvailable);
+            } else {
+              [_workerDispatchQueue dispatchAsync:^{
+                [self userDidChange:user];
+              }];
+            }
+          }
+        });
 
     // Defer initialization until we get the current user from the userChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
