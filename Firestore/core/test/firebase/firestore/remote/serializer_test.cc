@@ -137,3 +137,5 @@ TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
+
+// TODO(rsgowman): Death test for decoding invalid bytes.
