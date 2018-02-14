@@ -14,6 +14,26 @@
  * limitations under the License.
  */
 
+/* NB: proto bytes were created via:
+     echo 'TEXT_FORMAT_PROTO' \
+       | ./build/external/protobuf/src/protobuf-build/src/protoc \
+           -I./Firestore/Protos/protos \
+           -I./build/external/protobuf/src/protobuf/src/ \
+           --encode=google.firestore.v1beta1.Value \
+           google/firestore/v1beta1/document.proto \
+           > output.bin
+ * where TEXT_FORMAT_PROTO is the text format of the protobuf. (go/textformat).
+ *
+ * Examples:
+ * - For null, TEXT_FORMAT_PROTO would be 'null_value: NULL_VALUE' and would
+ *   yield the bytes: { 0x58, 0x00 }.
+ * - For true, TEXT_FORMAT_PROTO would be 'boolean_value: true' and would yield
+ *   the bytes { 0x08, 0x01 }.
+ *
+ * All uses are documented below, so search for TEXT_FORMAT_PROTO to find more
+ * examples.
+ */
+
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
 #include <pb.h>
@@ -80,15 +100,7 @@ TEST_F(SerializerTest, EncodesNullProtoToBytes) {
   // sanity check (the _init_default above should set this to _NULL_VALUE)
   EXPECT_EQ(google_protobuf_NullValue_NULL_VALUE, proto.value.null_value);
 
-  /* NB: proto bytes were created via:
-       echo 'null_value: NULL_VALUE' \
-         | ./build/external/protobuf/src/protobuf-build/src/protoc \
-             -I./Firestore/Protos/protos \
-             -I./build/external/protobuf/src/protobuf/src/ \
-             --encode=google.firestore.v1beta1.Value \
-             google/firestore/v1beta1/document.proto \
-             > output.bin
-   */
+  // TEXT_FORMAT_PROTO: 'null_value: NULL_VALUE'
   std::vector<uint8_t> bytes{0x58, 0x00};
   ExpectRoundTrip(proto, bytes, FieldValue::Type::Null);
 }
@@ -109,16 +121,9 @@ TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
     std::vector<uint8_t> bytes;
   };
 
-  /* NB: proto true_bytes were created via (and similarly for false_bytes):
-       echo 'boolean_value: true' \
-         | ./build/external/protobuf/src/protobuf-build/src/protoc \
-             -I./Firestore/Protos/protos \
-             -I./build/external/protobuf/src/protobuf/src/ \
-             --encode=google.firestore.v1beta1.Value \
-             google/firestore/v1beta1/document.proto \
-             > output.bin
-   */
+  // TEXT_FORMAT_PROTO: 'boolean_value: true'
   std::vector<uint8_t> true_bytes{0x08, 0x01};
+  // TEXT_FORMAT_PROTO: 'boolean_value: false'
   std::vector<uint8_t> false_bytes{0x08, 0x00};
 
   for (const TestCase& test :

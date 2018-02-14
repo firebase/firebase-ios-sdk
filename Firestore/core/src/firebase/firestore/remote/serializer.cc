@@ -23,6 +23,65 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
+void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
+  bool status = pb_encode_tag(stream, PB_WT_VARINT, field_number);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  status = pb_encode_varint(stream, value);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+}
+
+void EncodeNull(pb_ostream_t* stream) {
+  return EncodeVarint(stream, google_firestore_v1beta1_Value_null_value_tag,
+                      google_protobuf_NullValue_NULL_VALUE);
+}
+
+void EncodeBool(pb_ostream_t* stream, bool bool_value) {
+  return EncodeVarint(stream, google_firestore_v1beta1_Value_boolean_value_tag,
+                      bool_value);
+}
+
+uint64_t DecodeVarint(pb_istream_t* stream) {
+  uint64_t varint_value;
+  bool status = pb_decode_varint(stream, &varint_value);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+  return varint_value;
+}
+
+void DecodeNull(pb_istream_t* stream) {
+  uint64_t varint = DecodeVarint(stream);
+  if (varint != google_protobuf_NullValue_NULL_VALUE) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+}
+
+bool DecodeBool(pb_istream_t* stream) {
+  uint64_t varint = DecodeVarint(stream);
+  switch (varint) {
+    case 0:
+      return false;
+    case 1:
+      return true;
+    default:
+      // TODO(rsgowman): figure out error handling
+      abort();
+  }
+}
+
+}  // namespace
+
 using firebase::firestore::model::FieldValue;
 
 Serializer::TypedValue Serializer::EncodeFieldValue(
@@ -72,32 +131,6 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
   out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
 }
 
-void Serializer::EncodeNull(pb_ostream_t* stream) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_null_value_tag,
-                      google_protobuf_NullValue_NULL_VALUE);
-}
-
-void Serializer::EncodeBool(pb_ostream_t* stream, bool bool_value) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_boolean_value_tag,
-                      bool_value);
-}
-
-void Serializer::EncodeVarint(pb_ostream_t* stream,
-                              uint32_t field_number,
-                              uint64_t value) {
-  bool status = pb_encode_tag(stream, PB_WT_VARINT, field_number);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-
-  status = pb_encode_varint(stream, value);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-}
-
 FieldValue Serializer::DecodeFieldValue(
     const Serializer::TypedValue& value_proto) {
   switch (value_proto.type) {
@@ -143,35 +176,25 @@ Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
   return retval;
 }
 
-void Serializer::DecodeNull(pb_istream_t* stream) {
-  uint64_t varint = DecodeVarint(stream);
-  if (varint != google_protobuf_NullValue_NULL_VALUE) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+bool operator==(const Serializer::TypedValue& lhs,
+                const Serializer::TypedValue& rhs) {
+  if (lhs.type != rhs.type) {
+    return false;
   }
-}
 
-bool Serializer::DecodeBool(pb_istream_t* stream) {
-  uint64_t varint = DecodeVarint(stream);
-  switch (varint) {
-    case 0:
-      return false;
-    case 1:
+  switch (lhs.type) {
+    case firebase::firestore::model::FieldValue::Type::Null:
+      FIREBASE_DEV_ASSERT(lhs.value.null_value ==
+                          google_protobuf_NullValue_NULL_VALUE);
+      FIREBASE_DEV_ASSERT(rhs.value.null_value ==
+                          google_protobuf_NullValue_NULL_VALUE);
       return true;
+    case firebase::firestore::model::FieldValue::Type::Boolean:
+      return lhs.value.boolean_value == rhs.value.boolean_value;
     default:
-      // TODO(rsgowman): figure out error handling
+      // TODO(rsgowman): implement the other types
       abort();
   }
-}
-
-uint64_t Serializer::DecodeVarint(pb_istream_t* stream) {
-  uint64_t varint_value;
-  bool status = pb_decode_varint(stream, &varint_value);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-  return varint_value;
 }
 
 }  // namespace remote
