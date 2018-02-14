@@ -48,11 +48,11 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
  * Helper to return a block that adds @(n) to _completedSteps when run and fulfils _expectation if
  * the _completedSteps match the _expectedSteps.
  */
-- (void (^)())stepBlock:(int)n {
+- (void (^)())blockForStep:(int)n {
   return ^void() {
-    [_completedSteps addObject:@(n)];
-    if (_expectedSteps && [_completedSteps isEqualToArray:_expectedSteps]) {
-      [_expectation fulfill];
+    [self->_completedSteps addObject:@(n)];
+    if (self->_expectedSteps && [self->_completedSteps isEqualToArray:self->_expectedSteps]) {
+      [self->_expectation fulfill];
     }
   };
 }
@@ -60,10 +60,10 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
 - (void)testCanScheduleCallbacksInTheFuture {
   _expectation = [self expectationWithDescription:@"Expected steps"];
   _expectedSteps = @[ @1, @2, @3, @4 ];
-  [_queue dispatchAsync:[self stepBlock:1]];
-  [_queue dispatchAfterDelay:0.005 timerID:timerID1 block:[self stepBlock:4]];
-  [_queue dispatchAfterDelay:0.001 timerID:timerID2 block:[self stepBlock:3]];
-  [_queue dispatchAsync:[self stepBlock:2]];
+  [_queue dispatchAsync:[self blockForStep:1]];
+  [_queue dispatchAfterDelay:0.005 timerID:timerID1 block:[self blockForStep:4]];
+  [_queue dispatchAfterDelay:0.001 timerID:timerID2 block:[self blockForStep:3]];
+  [_queue dispatchAsync:[self blockForStep:2]];
 
   [self awaitExpectations];
 }
@@ -73,13 +73,13 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
   _expectedSteps = @[ @1, @3 ];
   // Queue everything from the queue to ensure nothing completes before we cancel.
   [_queue dispatchAsync:^{
-    [_queue dispatchAsyncAllowingSameQueue:[self stepBlock:1]];
-    FSTDelayedCallback *timer1 =
-        [_queue dispatchAfterDelay:.001 timerID:timerID1 block:[self stepBlock:2]];
-    [_queue dispatchAfterDelay:.005 timerID:timerID2 block:[self stepBlock:3]];
+    [_queue dispatchAsyncAllowingSameQueue:[self blockForStep:1]];
+    FSTDelayedCallback *step2Timer =
+        [_queue dispatchAfterDelay:.001 timerID:timerID1 block:[self blockForStep:2]];
+    [_queue dispatchAfterDelay:.005 timerID:timerID2 block:[self blockForStep:3]];
 
     XCTAssertTrue([_queue containsDelayedCallbackWithTimerID:timerID1]);
-    [timer1 cancel];
+    [step2Timer cancel];
     XCTAssertFalse([_queue containsDelayedCallbackWithTimerID:timerID1]);
   }];
 
@@ -87,21 +87,21 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
 }
 
 - (void)testCanRunAllDelayedCallbacksEarly {
-  [_queue dispatchAsync:[self stepBlock:1]];
-  [_queue dispatchAfterDelay:20 timerID:timerID1 block:[self stepBlock:4]];
-  [_queue dispatchAfterDelay:10 timerID:timerID2 block:[self stepBlock:3]];
-  [_queue dispatchAsync:[self stepBlock:2]];
+  [_queue dispatchAsync:[self blockForStep:1]];
+  [_queue dispatchAfterDelay:20 timerID:timerID1 block:[self blockForStep:4]];
+  [_queue dispatchAfterDelay:10 timerID:timerID2 block:[self blockForStep:3]];
+  [_queue dispatchAsync:[self blockForStep:2]];
 
   [_queue runDelayedCallbacksUntil:FSTTimerIDAll];
   XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));
 }
 
 - (void)testCanRunSomeDelayedCallbacksEarly {
-  [_queue dispatchAsync:[self stepBlock:1]];
-  [_queue dispatchAfterDelay:20 timerID:timerID1 block:[self stepBlock:5]];
-  [_queue dispatchAfterDelay:10 timerID:timerID2 block:[self stepBlock:3]];
-  [_queue dispatchAfterDelay:15 timerID:timerID3 block:[self stepBlock:4]];
-  [_queue dispatchAsync:[self stepBlock:2]];
+  [_queue dispatchAsync:[self blockForStep:1]];
+  [_queue dispatchAfterDelay:20 timerID:timerID1 block:[self blockForStep:5]];
+  [_queue dispatchAfterDelay:10 timerID:timerID2 block:[self blockForStep:3]];
+  [_queue dispatchAfterDelay:15 timerID:timerID3 block:[self blockForStep:4]];
+  [_queue dispatchAsync:[self blockForStep:2]];
 
   [_queue runDelayedCallbacksUntil:timerID3];
   XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));

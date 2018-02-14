@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  * accidentally synchronizing their delays causing spikes of load to the backend.
  *
  * @param dispatchQueue The dispatch queue to run tasks on.
- * @param timerID The ID to use when scheduling backoff operations on the AsyncQueue.
+ * @param timerID The ID to use when scheduling backoff operations on the FSTDispatchQueue.
  * @param initialDelay The initial delay (used as the base delay on the first retry attempt).
  *     Note that jitter will still be applied, so the actual delay could be as little as
  *     0.5*initialDelay.

@@ -21,6 +21,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * removeDelayedCallback is used by FSTDelayedCallback and so we pre-declare it before the rest of
+ * the FSTDispatchQueue private interface.
+ */
+@interface FSTDispatchQueue ()
+- (void)removeDelayedCallback:(FSTDelayedCallback *)callback;
+@end
+
 #pragma mark - FSTDelayedCallback
 
 /**
@@ -36,15 +44,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, readonly) FSTTimerID timerID;
 @property(nonatomic, assign, readonly) NSTimeInterval targetTime;
 @property(nonatomic, copy) void (^callback)();
-/** YES if the callback has not been run or canceled. */
-@property(nonatomic, getter=isPending) BOOL pending;
+/** YES if the callback has been run or canceled. */
+@property(nonatomic, getter=isDone) BOOL done;
 
 /**
- * Creates and returns an FSTDelayedCallback that has been scheduled to be executed on the provided
- * queue after the provided delay.
+ * Creates and returns an FSTDelayedCallback that has been scheduled on the provided queue with the
+ * provided delay.
+ *
  * @param queue The FSTDispatchQueue to run the callback on.
- * @param timerID A FSTTimerID identifying the type of delayed callback this is.
- * @param delay The delay (seconds) before the callback should be scheduled.
+ * @param timerID A FSTTimerID identifying the type of the delayed callback.
+ * @param delay The delay before the callback should be scheduled.
  * @param callback The callback block to run.
  * @return The created FSTDelayedCallback instance.
  */
@@ -54,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
                                   callback:(void (^)(void))callback;
 
 /**
- * Queues the operation to run immediately (if it hasn't already been run or canceled).
+ * Queues the callback to run immediately (if it hasn't already been run or canceled).
  */
 - (void)skipDelay;
 
@@ -71,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
     _timerID = timerID;
     _targetTime = targetTime;
     _callback = callback;
-    _pending = YES;
+    _done = NO;
   }
   return self;
 }
@@ -107,27 +116,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cancel {
   [self.queue verifyIsCurrentQueue];
-  if (self.isPending) {
+  if (!self.isDone) {
     // PORTING NOTE: There's no way to actually cancel the dispatched callback, but it'll be a no-op
-    // since we set pending to NO.
-    [self clear];
+    // since we set done to YES.
+    [self markDone];
   }
 }
 
 - (void)delayDidElapse {
   [self.queue verifyIsCurrentQueue];
-  if (self.isPending) {
-    [self clear];
+  if (!self.isDone) {
+    [self markDone];
     self.callback();
   }
 }
 
 /**
- * Marks this delayed callback as no longer pending, and notifies the FSTDispatchQueue that it
- * should be removed.
+ * Marks this delayed callback as done, and notifies the FSTDispatchQueue that it should be removed.
  */
-- (void)clear {
-  self.pending = NO;
+- (void)markDone {
+  self.done = YES;
   [self.queue removeDelayedCallback:self];
 }
 

@@ -91,7 +91,7 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
  * @param block The block to run.
  * @param delay The delay (in seconds) after which to run the block.
  * @param timerID An FSTTimerID that can be used from tests to check for the presence of this
- *   callback or schedule it to run early.
+ *   callback or to schedule it to run early.
  * @return A FSTDelayedCallback instance that can be used for cancellation.
  */
 - (FSTDelayedCallback *)dispatchAfterDelay:(NSTimeInterval)delay
@@ -106,12 +106,10 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 /**
  * For Tests: Runs delayed callbacks early, blocking until completion.
  *
- * @param lastTimerID Only delayed callbacks up to and including this FSTTimerID will be run.
- *   Method throws if no matching callback exists.
+ * @param lastTimerID Only delayed callbacks up to and including one that was scheduled using this
+ *   FSTTimerID will be run. Method throws if no matching callback exists.
  */
 - (void)runDelayedCallbacksUntil:(FSTTimerID)lastTimerID;
-
-- (void)removeDelayedCallback:(FSTDelayedCallback *)callback;
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;
