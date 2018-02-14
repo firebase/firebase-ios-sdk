@@ -83,7 +83,6 @@ extern NSString *const kFIRLibraryVersionID;
 - (void)testInitCustomizedOptions {
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
-  options.androidClientID = kAndroidClientID;
   options.APIKey = kAPIKey;
   options.bundleID = kBundleID;
   options.clientID = kClientID;
