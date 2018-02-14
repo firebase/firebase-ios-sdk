@@ -128,7 +128,7 @@ extern NSString *const kFIRLibraryVersionID;
 #pragma clang diagnostic pop
 }
 
-- (void)testinitWithContentsOfFile {
+- (void)testInitWithContentsOfFile {
   NSString *filePath =
       [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
