@@ -39,16 +39,6 @@ void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
   }
 }
 
-void EncodeNull(pb_ostream_t* stream) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_null_value_tag,
-                      google_protobuf_NullValue_NULL_VALUE);
-}
-
-void EncodeBool(pb_ostream_t* stream, bool bool_value) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_boolean_value_tag,
-                      bool_value);
-}
-
 uint64_t DecodeVarint(pb_istream_t* stream) {
   uint64_t varint_value;
   bool status = pb_decode_varint(stream, &varint_value);
@@ -59,12 +49,22 @@ uint64_t DecodeVarint(pb_istream_t* stream) {
   return varint_value;
 }
 
+void EncodeNull(pb_ostream_t* stream) {
+  return EncodeVarint(stream, google_firestore_v1beta1_Value_null_value_tag,
+                      google_protobuf_NullValue_NULL_VALUE);
+}
+
 void DecodeNull(pb_istream_t* stream) {
   uint64_t varint = DecodeVarint(stream);
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
+}
+
+void EncodeBool(pb_ostream_t* stream, bool bool_value) {
+  return EncodeVarint(stream, google_firestore_v1beta1_Value_boolean_value_tag,
+                      bool_value);
 }
 
 bool DecodeBool(pb_istream_t* stream) {
@@ -156,16 +156,16 @@ Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
     abort();
   }
 
-  Serializer::TypedValue retval{FieldValue::Type::Null,
+  Serializer::TypedValue result{FieldValue::Type::Null,
                                 google_firestore_v1beta1_Value_init_default};
   switch (tag) {
     case google_firestore_v1beta1_Value_null_value_tag:
-      retval.type = FieldValue::Type::Null;
+      result.type = FieldValue::Type::Null;
       DecodeNull(&stream);
       break;
     case google_firestore_v1beta1_Value_boolean_value_tag:
-      retval.type = FieldValue::Type::Boolean;
-      retval.value.boolean_value = DecodeBool(&stream);
+      result.type = FieldValue::Type::Boolean;
+      result.value.boolean_value = DecodeBool(&stream);
       break;
 
     default:
@@ -173,7 +173,7 @@ Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
       abort();
   }
 
-  return retval;
+  return result;
 }
 
 bool operator==(const Serializer::TypedValue& lhs,

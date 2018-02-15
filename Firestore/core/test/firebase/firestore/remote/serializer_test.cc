@@ -18,10 +18,10 @@
      echo 'TEXT_FORMAT_PROTO' \
        | ./build/external/protobuf/src/protobuf-build/src/protoc \
            -I./Firestore/Protos/protos \
-           -I./build/external/protobuf/src/protobuf/src/ \
+           -I./build/external/protobuf/src/protobuf/src \
            --encode=google.firestore.v1beta1.Value \
            google/firestore/v1beta1/document.proto \
-           > output.bin
+       | hexdump -C
  * where TEXT_FORMAT_PROTO is the text format of the protobuf. (go/textformat).
  *
  * Examples:
@@ -121,13 +121,12 @@ TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
     std::vector<uint8_t> bytes;
   };
 
-  // TEXT_FORMAT_PROTO: 'boolean_value: true'
-  std::vector<uint8_t> true_bytes{0x08, 0x01};
-  // TEXT_FORMAT_PROTO: 'boolean_value: false'
-  std::vector<uint8_t> false_bytes{0x08, 0x00};
+  std::vector<TestCase> cases{// TEXT_FORMAT_PROTO: 'boolean_value: true'
+                              {true, {0x08, 0x01}},
+                              // TEXT_FORMAT_PROTO: 'boolean_value: false'
+                              {false, {0x08, 0x00}}};
 
-  for (const TestCase& test :
-       {TestCase{true, true_bytes}, TestCase{false, false_bytes}}) {
+  for (const TestCase& test : cases) {
     Serializer::TypedValue proto{FieldValue::Type::Boolean,
                                  google_firestore_v1beta1_Value_init_default};
     proto.value.boolean_value = test.value;
