@@ -19,11 +19,12 @@
 #include <memory>
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "leveldb/db.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
-@class FSTUser;
 @protocol FSTGarbageCollector;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param user The user for which to create a mutation queue.
  * @param db The LevelDB in which to create the queue.
  */
-+ (instancetype)mutationQueueWithUser:(FSTUser *)user
++ (instancetype)mutationQueueWithUser:(const firebase::firestore::auth::User &)user
                                    db:(std::shared_ptr<leveldb::DB>)db
                            serializer:(FSTLocalSerializer *)serializer;
 
