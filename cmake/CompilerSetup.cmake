@@ -32,9 +32,6 @@ if(CLANG OR GNU)
     common_flags
     -Wall -Wextra -Werror
 
-    # Detect possible misuse of comma operator.
-    -Wcomma
-
     # Be super pedantic about format strings
     -Wformat
 
@@ -64,6 +61,9 @@ if(CLANG OR GNU)
       APPEND common_flags
      -Wconditional-uninitialized -Werror=return-type -Winfinite-recursion -Wmove
      -Wrange-loop-analysis -Wunreachable-code
+
+     # Options added to match apple recommended project settings
+     -Wcomma
     )
   endif()
 
