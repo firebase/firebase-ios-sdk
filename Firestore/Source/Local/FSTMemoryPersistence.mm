@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
   /** The FSTRemoteDocumentCache representing the persisted cache of remote documents. */
   FSTMemoryRemoteDocumentCache *_remoteDocumentCache;
 
-  std::unordered_map<const User, id<FSTMutationQueue>, HashUser> _mutationQueues;
+  std::unordered_map<User, id<FSTMutationQueue>, HashUser> _mutationQueues;
 }
 
 + (instancetype)persistence {

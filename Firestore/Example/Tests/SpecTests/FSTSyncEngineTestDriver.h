@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /** Mapping of user => array of FSTMutations for that user. */
-typedef std::unordered_map<const firebase::firestore::auth::User,
+typedef std::unordered_map<firebase::firestore::auth::User,
                            NSMutableArray<FSTOutstandingWrite *> *,
                            firebase::firestore::auth::HashUser>
     FSTOutstandingWriteQueues;
@@ -252,10 +252,10 @@ typedef std::unordered_map<const firebase::firestore::auth::User,
  * sentWritesCount, but not necessarily, since the FSTRemoteStore limits the number of
  * outstanding writes to the backend at a given time.
  */
-@property(nonatomic, assign, readonly) FSTOutstandingWriteQueues *outstandingWrites;
+@property(nonatomic, assign, readonly) const FSTOutstandingWriteQueues &outstandingWrites;
 
 /** The current user for the FSTSyncEngine; determines which mutation queue is active. */
-@property(nonatomic, assign, readonly) firebase::firestore::auth::User *currentUser;
+@property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
 
 /** The current set of documents in limbo. */
 @property(nonatomic, strong, readonly)

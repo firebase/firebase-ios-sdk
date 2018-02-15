@@ -81,8 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTSyncEngineTestDriver {
   // ivar is declared as mutable.
-  std::unordered_map<const User, NSMutableArray<FSTOutstandingWrite *> *, HashUser>
-      _outstandingWrites;
+  std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
 
   User _currentUser;
 }
@@ -143,12 +142,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (FSTOutstandingWriteQueues *)outstandingWrites {
-  return &_outstandingWrites;
+- (const FSTOutstandingWriteQueues &)outstandingWrites {
+  return _outstandingWrites;
 }
 
-- (firebase::firestore::auth::User *)currentUser {
-  return &_currentUser;
+- (const User &)currentUser {
+  return _currentUser;
 }
 
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState {

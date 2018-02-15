@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
                        token:(NSString *_Nullable)token NS_DESIGNATED_INITIALIZER;
 
 /** The user with which the token is associated (used for persisting user state on disk, etc.). */
-@property(nonatomic, nonnull, readonly) firebase::firestore::auth::User *user;
+@property(nonatomic, assign, readonly) const firebase::firestore::auth::User &user;
 
 /** The actual raw token. */
 @property(nonatomic, copy, nullable, readonly) NSString *token;

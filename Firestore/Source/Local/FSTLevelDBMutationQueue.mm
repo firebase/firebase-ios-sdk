@@ -94,8 +94,6 @@ static ReadOptions StandardReadOptions() {
 + (instancetype)mutationQueueWithUser:(const User &)user
                                    db:(std::shared_ptr<DB>)db
                            serializer:(FSTLocalSerializer *)serializer {
-  FSTAssert(!user.is_authenticated() || !user.uid().empty(),
-            @"UserID must not be an empty string for authenticated users.");
   NSString *userID = user.is_authenticated() ? util::WrapNSStringNoCopy(user.uid()) : @"";
 
   return [[FSTLevelDBMutationQueue alloc] initWithUserID:userID db:db serializer:serializer];
