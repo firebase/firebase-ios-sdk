@@ -23,15 +23,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-/* TODO: remove this method. Included to trigger a -Wrange-loop-analysis warning. */
-#include <initializer_list>
-#include <absl/strings/string_view.h>
-size_t WRangeLoopAnalysis(std::initializer_list<absl::string_view> pieces) {
-  size_t total_size = 0;
-  for (const absl::string_view piece : pieces) total_size += piece.size();
-  return total_size;
-}
-
 using firebase::firestore::model::FieldValue;
 
 Serializer::TypedValue Serializer::EncodeFieldValue(
