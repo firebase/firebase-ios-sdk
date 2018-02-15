@@ -79,16 +79,15 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   CMD
 
   s.subspec 'abseil-cpp' do |ss|
+    ss.preserve_path = [
+      'Firestore/third_party/abseil-cpp/absl'
+    ]
     ss.source_files = [
-      'Firestore/third_party/abseil-cpp/**/*.{h,cc}'
+      'Firestore/third_party/abseil-cpp/**/*.cc'
     ]
     ss.exclude_files = [
-      'Firestore/third_party/abseil-cpp/**/*_test.{h,cc}',
+      'Firestore/third_party/abseil-cpp/**/*_test.cc',
     ]
-
-    # NB: don't include absl/**/*.h, as that would include absl/*/internal/*.h.
-    ss.public_header_files = 'Firestore/third_party/abseil-cpp/absl/*/*.h'
-    ss.header_mappings_dir = 'Firestore/third_party/abseil-cpp'
 
     ss.library = 'c++'
     ss.compiler_flags = '$(inherited) ' + '-Wno-comma'
