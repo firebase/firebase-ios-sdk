@@ -35,11 +35,13 @@
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -299,22 +301,22 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
-  [self.credentials
-      getTokenForcingRefresh:NO
-                  completion:^(FSTGetTokenResult *_Nullable result, NSError *_Nullable error) {
-                    error = [FSTDatastore firestoreErrorForError:error];
-                    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-                      if (error) {
-                        errorHandler(error);
-                      } else {
-                        GRPCProtoCall *rpc = rpcFactory();
-                        [FSTDatastore prepareHeadersForRPC:rpc
-                                                databaseID:&self.databaseInfo->database_id()
-                                                     token:result.token];
-                        [rpc start];
-                      }
-                    }];
-                  }];
+  [self.credentials getTokenForcingRefresh:NO
+                                completion:^(const Token &result, NSError *_Nullable error) {
+                                  error = [FSTDatastore firestoreErrorForError:error];
+                                  [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+                                    if (error) {
+                                      errorHandler(error);
+                                    } else {
+                                      GRPCProtoCall *rpc = rpcFactory();
+                                      [FSTDatastore
+                                          prepareHeadersForRPC:rpc
+                                                    databaseID:&self.databaseInfo->database_id()
+                                                         token:result.token()];
+                                      [rpc start];
+                                    }
+                                  }];
+                                }];
 }
 
 - (FSTWatchStream *)createWatchStream {
@@ -334,8 +336,11 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const DatabaseId *)databaseID
-                       token:(nullable NSString *)token {
-  rpc.oauth2AccessToken = token;
+                       token:(const absl::string_view)token {
+  rpc.oauth2AccessToken =
+      [[NSString alloc] initWithBytes:const_cast<void *>(static_cast<const void *>(token.data()))
+                               length:token.length()
+                             encoding:NSUTF8StringEncoding];
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =

@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh
                     completion:(FSTVoidGetTokenResultBlock)completion {
-  completion(nil, nil);
+  completion({"", User::Unauthenticated()}, nil);
 }
 
 - (void)setUserChangeListener:(nullable FSTVoidUserBlock)block {

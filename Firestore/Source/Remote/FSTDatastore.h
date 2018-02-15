@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "absl/strings/string_view.h"
 
 @class FSTDocumentKey;
 @class FSTDispatchQueue;
@@ -83,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
-                       token:(nullable NSString *)token;
+                       token:(const absl::string_view)token;
 
 /** Looks up a list of documents in datastore. */
 - (void)lookupDocuments:(NSArray<FSTDocumentKey *> *)keys
