@@ -20,7 +20,7 @@
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
-// We reuse these TimerIDs for generic testing.
+// In these generic tests the specific TimerIDs don't matter.
 static const FSTTimerID timerID1 = FSTTimerIDListenStreamConnection;
 static const FSTTimerID timerID2 = FSTTimerIDListenStreamIdle;
 static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
@@ -51,7 +51,8 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
 - (void (^)())blockForStep:(int)n {
   return ^void() {
     [self->_completedSteps addObject:@(n)];
-    if (self->_expectedSteps && [self->_completedSteps isEqualToArray:self->_expectedSteps]) {
+    if (self->_expectedSteps && self->_completedSteps.count >= self->_expectedSteps.count) {
+      XCTAssertEqualObjects(self->_completedSteps, self->_expectedSteps);
       [self->_expectation fulfill];
     }
   };
@@ -86,7 +87,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
   [self awaitExpectations];
 }
 
-- (void)testCanRunAllDelayedCallbacksEarly {
+- (void)testCanManuallyDrainAllDelayedCallbacksForTesting {
   [_queue dispatchAsync:[self blockForStep:1]];
   [_queue dispatchAfterDelay:20 timerID:timerID1 block:[self blockForStep:4]];
   [_queue dispatchAfterDelay:10 timerID:timerID2 block:[self blockForStep:3]];
@@ -96,7 +97,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
   XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));
 }
 
-- (void)testCanRunSomeDelayedCallbacksEarly {
+- (void)testCanManuallyDrainSpecificDelayedCallbacksForTesting {
   [_queue dispatchAsync:[self blockForStep:1]];
   [_queue dispatchAfterDelay:20 timerID:timerID1 block:[self blockForStep:5]];
   [_queue dispatchAfterDelay:10 timerID:timerID2 block:[self blockForStep:3]];

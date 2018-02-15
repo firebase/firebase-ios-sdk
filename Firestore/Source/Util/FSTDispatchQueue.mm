@@ -236,6 +236,9 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_semaphore_wait(doneSemaphore, DISPATCH_TIME_FOREVER);
 }
 
+// NOTE: For performance we could store the callbacks sorted (e.g. using std::priority_queue),
+// but this sort only happens in tests (if runDelayedCallbacksUntil: is called), and the size
+// is guaranteed to be small since we don't allow duplicate TimerIds (of which there are only 4).
 - (void)sortDelayedCallbacks {
   // We want to run callbacks in the same order they'd run if they ran naturally.
   [self.delayedCallbacks
