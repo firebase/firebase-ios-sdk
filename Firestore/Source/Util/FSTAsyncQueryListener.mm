@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
+#import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 @implementation FSTAsyncQueryListener {
@@ -34,8 +35,18 @@
 }
 
 - (FSTViewSnapshotHandler)asyncSnapshotHandler {
+  FSTWeakify(self);
   return ^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
+    FSTStrongify(self);
+    if (!self) {
+      return;
+    }
+    FSTWeakify(self);
     [self->_dispatchQueue dispatchAsync:^{
+      FSTStrongify(self);
+      if (!self) {
+        return;
+      }
       if (!self->_muted) {
         self->_snapshotHandler(snapshot, error);
       }
