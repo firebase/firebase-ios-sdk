@@ -40,7 +40,8 @@ NSDate *TestDate(int year, int month, int day, int hour, int minute, int second)
 @implementation FIRTimestampTest
 
 - (void)testFromDate {
-  // Very carefully construct an NSDate that won't lose precision with its milliseconds.
+  // Use an NSDate such that its fractional seconds have an exact representation to avoid losing
+  // precision.
   NSDate *input = [NSDate dateWithTimeIntervalSinceReferenceDate:1.5];
 
   FIRTimestamp *actual = [FIRTimestamp timestampWithDate:input];

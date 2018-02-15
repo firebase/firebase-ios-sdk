@@ -19,8 +19,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * An FIRTimestamp represents an absolute time from the backend at up to microsecond precision.
- * An FIRTimestamp is represented in terms of UTC and does not have an associated timezone.
+ * A Timestamp represents a point in time independent of any time zone or calendar, represented as
+ * seconds and fractions of seconds at nanosecond resolution in UTC Epoch time. It is encoded using
+ * the Proleptic Gregorian Calendar which extends the Gregorian calendar backwards to year one. It
+ * is encoded assuming all minutes are 60 seconds long, i.e. leap seconds are "smeared" so that no
+ * leap second table is needed for interpretation. Range is from 0001-01-01T00:00:00Z to
+ * 9999-12-31T23:59:59.999999999Z. By restricting to that range, we ensure that we can convert to
+ * and from  RFC 3339 date strings.
+ *
+ * See the reference timestamp definition at
+ * https://github.com/google/protobuf/blob/master/src/google/protobuf/timestamp.proto.
  */
 NS_SWIFT_NAME(Timestamp)
 @interface FIRTimestamp : NSObject <NSCopying>
@@ -34,10 +42,22 @@ NS_SWIFT_NAME(Timestamp)
  * @param seconds the number of seconds since epoch.
  * @param nanoseconds the number of nanoseconds after the seconds.
  */
+- (instancetype)initWithSeconds:(int64_t)seconds
+                    nanoseconds:(int32_t)nanoseconds NS_DESIGNATED_INITIALIZER;
+
+/**
+ * Creates a new timestamp.
+ *
+ * @param seconds the number of seconds since epoch.
+ * @param nanoseconds the number of nanoseconds after the seconds.
+ */
 + (instancetype)timestampWithSeconds:(int64_t)seconds nanoseconds:(int32_t)nanoseconds;
 
 /** Creates a new timestamp from the given date. */
 + (instancetype)timestampWithDate:(NSDate *)date;
+
+/** Creates a new timestamp with the current date / time. */
++ (instancetype)timestamp;
 
 /** Returns a new NSDate corresponding to this timestamp. This may lose precision. */
 - (NSDate *)approximateDateValue;

@@ -18,24 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRTimestamp ()
-
-/**
- * Creates a new timestamp.
- *
- * @param seconds the number of seconds since epoch.
- * @param nanoseconds the number of nanoseconds after the seconds.
- */
-- (instancetype)initWithSeconds:(int64_t)seconds
-                    nanoseconds:(int32_t)nanoseconds NS_DESIGNATED_INITIALIZER;
-
-@end
-
 /** Internal FIRTimestamp API we don't want exposed in our public header files. */
 @interface FIRTimestamp (Internal)
-
-/** Creates a new timestamp with the current date / time. */
-+ (instancetype)timestamp;
 
 - (NSComparisonResult)compare:(FIRTimestamp *)other;
 
