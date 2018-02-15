@@ -21,35 +21,52 @@
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTGetTokenResult
 
+@interface FSTGetTokenResult () {
+  User _user;
+}
+
+@end
+
 @implementation FSTGetTokenResult
-- (instancetype)initWithUser:(FSTUser *)user token:(NSString *_Nullable)token {
+
+- (instancetype)initWithUser:(const User &)user token:(NSString *_Nullable)token {
   if (self = [super init]) {
     _user = user;
     _token = token;
   }
   return self;
 }
+
+- (const User &)user {
+  return _user;
+}
+
 @end
 
 #pragma mark - FSTFirebaseCredentialsProvider
-@interface FSTFirebaseCredentialsProvider ()
+@interface FSTFirebaseCredentialsProvider () {
+  /** The current user as reported to us via our AuthStateDidChangeListener. */
+  User _currentUser;
+}
 
 @property(nonatomic, strong, readonly) FIRApp *app;
 
 /** Handle used to stop receiving auth changes once userChangeListener is removed. */
 @property(nonatomic, strong, nullable, readwrite) id<NSObject> authListenerHandle;
-
-/** The current user as reported to us via our AuthStateDidChangeListener. */
-@property(nonatomic, strong, nonnull, readwrite) FSTUser *currentUser;
 
 /**
  * Counter used to detect if the user changed while a -getTokenForcingRefresh: request was
@@ -67,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _app = app;
-    _currentUser = [[FSTUser alloc] initWithUID:[self.app getUID]];
+    _currentUser = User([self.app getUID]);
     _userCounter = 0;
 
     // Register for user changes so that we can internally track the current user.
@@ -90,13 +107,13 @@ NS_ASSUME_NONNULL_BEGIN
                       }
 
                       NSString *userID = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
-                      FSTUser *newUser = [[FSTUser alloc] initWithUID:userID];
-                      if (![newUser isEqual:self.currentUser]) {
-                        self.currentUser = newUser;
+                      User newUser = User(userID);
+                      if (newUser != _currentUser) {
+                        _currentUser = newUser;
                         self.userCounter++;
                         FSTVoidUserBlock listenerBlock = self.userChangeListener;
                         if (listenerBlock) {
-                          listenerBlock(self.currentUser);
+                          listenerBlock(_currentUser);
                         }
                       }
                     }
@@ -127,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
             completion(nil, cancelError);
           } else {
             FSTGetTokenResult *result =
-                [[FSTGetTokenResult alloc] initWithUser:self.currentUser token:token];
+                [[FSTGetTokenResult alloc] initWithUser:_currentUser token:token];
             completion(result, error);
           }
         };
@@ -142,7 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTAssert(!_userChangeListener, @"UserChangeListener set twice!");
 
       // Fire initial event.
-      block(self.currentUser);
+      block(_currentUser);
     } else {
       FSTAssert(self.authListenerHandle, @"UserChangeListener removed twice!");
       FSTAssert(_userChangeListener, @"UserChangeListener removed without being set!");

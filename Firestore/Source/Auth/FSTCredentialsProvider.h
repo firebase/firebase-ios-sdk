@@ -16,16 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRApp;
 @class FSTDispatchQueue;
-@class FSTUser;
 
 #pragma mark - FSTGetTokenResult
 
 /**
- * The current FSTUser and the authentication token provided by the underlying authentication
+ * The current User and the authentication token provided by the underlying authentication
  * mechanism. This is the result of calling -[FSTCredentialsProvider getTokenForcingRefresh].
  *
  * ## Portability notes: no TokenType on iOS
@@ -38,11 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTGetTokenResult : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithUser:(FSTUser *)user
+- (instancetype)initWithUser:(const firebase::firestore::auth::User &)user
                        token:(NSString *_Nullable)token NS_DESIGNATED_INITIALIZER;
 
 /** The user with which the token is associated (used for persisting user state on disk, etc.). */
-@property(nonatomic, nonnull, readonly) FSTUser *user;
+@property(nonatomic, assign, readonly) const firebase::firestore::auth::User &user;
 
 /** The actual raw token. */
 @property(nonatomic, copy, nullable, readonly) NSString *token;
@@ -60,8 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^FSTVoidGetTokenResultBlock)(FSTGetTokenResult *_Nullable token,
                                            NSError *_Nullable error);
 
-/** Listener block notified with an FSTUser. */
-typedef void (^FSTVoidUserBlock)(FSTUser *user);
+/** Listener block notified with a User. */
+typedef void (^FSTVoidUserBlock)(const firebase::firestore::auth::User &user);
 
 #pragma mark - FSTCredentialsProvider
 
