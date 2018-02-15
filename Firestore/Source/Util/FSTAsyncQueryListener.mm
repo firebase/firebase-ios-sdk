@@ -35,9 +35,9 @@
 
 - (FSTViewSnapshotHandler)asyncSnapshotHandler {
   return ^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
-    [_dispatchQueue dispatchAsync:^{
-      if (!_muted) {
-        _snapshotHandler(snapshot, error);
+    [self->_dispatchQueue dispatchAsync:^{
+      if (!self->_muted) {
+        self->_snapshotHandler(snapshot, error);
       }
     }];
   };
