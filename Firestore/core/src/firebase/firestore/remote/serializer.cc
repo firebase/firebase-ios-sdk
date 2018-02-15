@@ -25,7 +25,9 @@ namespace remote {
 
 namespace {
 
-void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
+void EncodeUnsignedVarint(pb_ostream_t* stream,
+                          uint32_t field_number,
+                          uint64_t value) {
   bool status = pb_encode_tag(stream, PB_WT_VARINT, field_number);
   if (!status) {
     // TODO(rsgowman): figure out error handling
@@ -39,7 +41,7 @@ void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
   }
 }
 
-uint64_t DecodeVarint(pb_istream_t* stream) {
+uint64_t DecodeUnsignedVarint(pb_istream_t* stream) {
   uint64_t varint_value;
   bool status = pb_decode_varint(stream, &varint_value);
   if (!status) {
@@ -50,12 +52,13 @@ uint64_t DecodeVarint(pb_istream_t* stream) {
 }
 
 void EncodeNull(pb_ostream_t* stream) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_null_value_tag,
-                      google_protobuf_NullValue_NULL_VALUE);
+  return EncodeUnsignedVarint(stream,
+                              google_firestore_v1beta1_Value_null_value_tag,
+                              google_protobuf_NullValue_NULL_VALUE);
 }
 
 void DecodeNull(pb_istream_t* stream) {
-  uint64_t varint = DecodeVarint(stream);
+  uint64_t varint = DecodeUnsignedVarint(stream);
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -63,12 +66,12 @@ void DecodeNull(pb_istream_t* stream) {
 }
 
 void EncodeBool(pb_ostream_t* stream, bool bool_value) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_boolean_value_tag,
-                      bool_value);
+  return EncodeUnsignedVarint(
+      stream, google_firestore_v1beta1_Value_boolean_value_tag, bool_value);
 }
 
 bool DecodeBool(pb_istream_t* stream) {
-  uint64_t varint = DecodeVarint(stream);
+  uint64_t varint = DecodeUnsignedVarint(stream);
   switch (varint) {
     case 0:
       return false;
