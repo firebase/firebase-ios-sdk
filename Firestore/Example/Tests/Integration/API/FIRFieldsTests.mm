@@ -222,9 +222,13 @@
 }
 
 - (NSDictionary<NSString *, id> *)testDataWithTimestamp:(FIRTimestamp *)timestamp {
-  return @{ @"timestamp" : timestamp, @"metadata" : @{@"nestedTimestamp" : timestamp} };
+  return @{
+    @"timestamp" : [timestamp approximateDateValue],
+    @"metadata" : @{@"nestedTimestamp" : [timestamp approximateDateValue]}
+  };
 }
 
+// This test should break once the default for how timestamps are returned changes.
 - (void)testThatDataContainsNativeDateType {
   NSDate *date = [NSDate date];
   FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:date];
