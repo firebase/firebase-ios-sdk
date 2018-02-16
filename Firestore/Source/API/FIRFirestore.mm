@@ -56,7 +56,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 @interface FIRFirestore () {
   /** The actual owned DatabaseId instance is allocated in FIRFirestore. */
-  firebase::firestore::model::DatabaseId _databaseID;
+  DatabaseId _databaseID;
   std::unique_ptr<CredentialsProvider> _credentialsProvider;
 }
 

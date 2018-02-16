@@ -72,8 +72,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
 
-/** An object for getting an auth token before each request. Does not own the CredentialsProvider
- * instance. */
+/**
+ * An object for getting an auth token before each request. Does not own the CredentialsProvider
+ * instance.
+ */
 @property(nonatomic, assign, readonly) CredentialsProvider *credentials;
 
 @property(nonatomic, strong, readonly) FSTSerializerBeta *serializer;
