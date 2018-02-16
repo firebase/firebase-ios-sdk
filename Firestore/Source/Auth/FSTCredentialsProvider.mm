@@ -119,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSError *cancelError = [NSError errorWithDomain:FIRFirestoreErrorDomain
                                                        code:FIRFirestoreErrorCodeAborted
                                                    userInfo:errorInfo];
-            completion({"", User::Unauthenticated()}, cancelError);
+            completion(Token::Invalid(), cancelError);
           } else {
             Token result(util::MakeStringView(token), _currentUser);
             completion(result, error);

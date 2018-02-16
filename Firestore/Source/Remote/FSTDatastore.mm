@@ -301,22 +301,24 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
-  [self.credentials getTokenForcingRefresh:NO
-                                completion:^(const Token &result, NSError *_Nullable error) {
-                                  error = [FSTDatastore firestoreErrorForError:error];
-                                  [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-                                    if (error) {
-                                      errorHandler(error);
-                                    } else {
-                                      GRPCProtoCall *rpc = rpcFactory();
-                                      [FSTDatastore
-                                          prepareHeadersForRPC:rpc
-                                                    databaseID:&self.databaseInfo->database_id()
-                                                         token:result.token()];
-                                      [rpc start];
-                                    }
-                                  }];
-                                }];
+  [self.credentials
+      getTokenForcingRefresh:NO
+                  completion:^(const Token &result, NSError *_Nullable error) {
+                    error = [FSTDatastore firestoreErrorForError:error];
+                    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+                      if (error) {
+                        errorHandler(error);
+                      } else {
+                        GRPCProtoCall *rpc = rpcFactory();
+                        [FSTDatastore
+                            prepareHeadersForRPC:rpc
+                                      databaseID:&self.databaseInfo->database_id()
+                                           token:(result.is_valid() ? result.token()
+                                                                    : absl::string_view())];
+                        [rpc start];
+                      }
+                    }];
+                  }];
 }
 
 - (FSTWatchStream *)createWatchStream {
@@ -338,9 +340,12 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                   databaseID:(const DatabaseId *)databaseID
                        token:(const absl::string_view)token {
   rpc.oauth2AccessToken =
-      [[NSString alloc] initWithBytes:const_cast<void *>(static_cast<const void *>(token.data()))
-                               length:token.length()
-                             encoding:NSUTF8StringEncoding];
+      token.data() == nullptr
+          ? nil
+          : [[NSString alloc]
+                initWithBytes:const_cast<void *>(static_cast<const void *>(token.data()))
+                       length:token.length()
+                     encoding:NSUTF8StringEncoding];
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =

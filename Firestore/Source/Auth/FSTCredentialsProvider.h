@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * `FSTVoidTokenErrorBlock` is a block that gets a token or an error.
  *
- * @param token An auth token as a string.
+ * @param token An auth token, either valid or invalid when error occurred.
  * @param error The error if one occurred, or else `nil`.
  */
 typedef void (^FSTVoidGetTokenResultBlock)(const firebase::firestore::auth::Token &token,
