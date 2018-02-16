@@ -261,9 +261,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   _credentials->GetToken(false, [self](const Token &result, const int64_t error_code,
                                        const absl::string_view error_msg) {
+    Token resultCopy = result;
     NSError *error = util::WrapNSError(error_code, error_msg);
     [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-      [self resumeStartWithToken:result error:error];
+      [self resumeStartWithToken:resultCopy error:error];
     }];
   });
 }

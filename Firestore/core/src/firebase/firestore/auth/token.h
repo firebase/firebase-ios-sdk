@@ -58,6 +58,13 @@ class Token {
     return user_;
   }
 
+  /**
+   * Whether the token is a valid one.
+   *
+   * ## Portability notes: Invalid token is the equivalent of nil in the iOS
+   * token implementation. We use value instead of pointer for Token instance in
+   * the C++ migration.
+   */
   bool is_valid() const {
     return is_valid_;
   }

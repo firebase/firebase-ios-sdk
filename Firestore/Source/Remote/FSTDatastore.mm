@@ -310,16 +310,17 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
       false,  // force_refresh
       [self, rpcFactory, errorHandler](const Token &result, const int64_t error_code,
                                        const absl::string_view error_msg) {
+        const Token resultCopy = result;
         NSError *error = util::WrapNSError(error_code, error_msg);
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
           if (error) {
             errorHandler(error);
           } else {
             GRPCProtoCall *rpc = rpcFactory();
-            [FSTDatastore
-                prepareHeadersForRPC:rpc
-                          databaseID:&self.databaseInfo->database_id()
-                               token:(result.is_valid() ? result.token() : absl::string_view())];
+            [FSTDatastore prepareHeadersForRPC:rpc
+                                    databaseID:&self.databaseInfo->database_id()
+                                         token:(resultCopy.is_valid() ? resultCopy.token()
+                                                                      : absl::string_view())];
             [rpc start];
           }
         }];
@@ -344,13 +345,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const DatabaseId *)databaseID
                        token:(const absl::string_view)token {
-  rpc.oauth2AccessToken =
-      token.data() == nullptr
-          ? nil
-          : [[NSString alloc]
-                initWithBytes:const_cast<void *>(static_cast<const void *>(token.data()))
-                       length:token.length()
-                     encoding:NSUTF8StringEncoding];
+  rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token);
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =
