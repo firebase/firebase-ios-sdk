@@ -20,7 +20,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
 
-  s.cocoapods_version = '>= 1.4.0.beta.2'
+  s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
 
