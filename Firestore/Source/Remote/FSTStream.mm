@@ -258,7 +258,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                                   Token resultCopy = result;
                                   error = [FSTDatastore firestoreErrorForError:error];
                                   [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-                                    [self resumeStartWithToken:result error:error];
+                                    [self resumeStartWithToken:resultCopy error:error];
                                   }];
                                 }];
 }
