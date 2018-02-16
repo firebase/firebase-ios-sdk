@@ -14,6 +14,26 @@
  * limitations under the License.
  */
 
+/* NB: proto bytes were created via:
+     echo 'TEXT_FORMAT_PROTO' \
+       | ./build/external/protobuf/src/protobuf-build/src/protoc \
+           -I./Firestore/Protos/protos \
+           -I./build/external/protobuf/src/protobuf/src \
+           --encode=google.firestore.v1beta1.Value \
+           google/firestore/v1beta1/document.proto \
+       | hexdump -C
+ * where TEXT_FORMAT_PROTO is the text format of the protobuf. (go/textformat).
+ *
+ * Examples:
+ * - For null, TEXT_FORMAT_PROTO would be 'null_value: NULL_VALUE' and would
+ *   yield the bytes: { 0x58, 0x00 }.
+ * - For true, TEXT_FORMAT_PROTO would be 'boolean_value: true' and would yield
+ *   the bytes { 0x08, 0x01 }.
+ *
+ * All uses are documented below, so search for TEXT_FORMAT_PROTO to find more
+ * examples.
+ */
+
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
 #include <pb.h>
@@ -80,18 +100,41 @@ TEST_F(SerializerTest, EncodesNullProtoToBytes) {
   // sanity check (the _init_default above should set this to _NULL_VALUE)
   EXPECT_EQ(google_protobuf_NullValue_NULL_VALUE, proto.value.null_value);
 
-  /* NB: proto bytes were created via:
-       echo 'null_value: NULL_VALUE' \
-         | ./build/external/protobuf/src/protobuf-build/src/protoc \
-             -I./Firestore/Protos/protos \
-             -I./build/external/protobuf/src/protobuf/src/ \
-             --encode=google.firestore.v1beta1.Value \
-             google/firestore/v1beta1/document.proto \
-             > output.bin
-   */
+  // TEXT_FORMAT_PROTO: 'null_value: NULL_VALUE'
   std::vector<uint8_t> bytes{0x58, 0x00};
   ExpectRoundTrip(proto, bytes, FieldValue::Type::Null);
 }
 
+TEST_F(SerializerTest, EncodesBoolModelToProto) {
+  for (bool test : {true, false}) {
+    FieldValue model = FieldValue::BooleanValue(test);
+    Serializer::TypedValue proto{FieldValue::Type::Boolean,
+                                 google_firestore_v1beta1_Value_init_default};
+    proto.value.boolean_value = test;
+    ExpectRoundTrip(model, proto, FieldValue::Type::Boolean);
+  }
+}
+
+TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
+  struct TestCase {
+    bool value;
+    std::vector<uint8_t> bytes;
+  };
+
+  std::vector<TestCase> cases{// TEXT_FORMAT_PROTO: 'boolean_value: true'
+                              {true, {0x08, 0x01}},
+                              // TEXT_FORMAT_PROTO: 'boolean_value: false'
+                              {false, {0x08, 0x00}}};
+
+  for (const TestCase& test : cases) {
+    Serializer::TypedValue proto{FieldValue::Type::Boolean,
+                                 google_firestore_v1beta1_Value_init_default};
+    proto.value.boolean_value = test.value;
+    ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Boolean);
+  }
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
+
+// TODO(rsgowman): Death test for decoding invalid bytes.
