@@ -38,6 +38,9 @@
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   XCTAssertEqualObjects(firestore.app, app);
 
+  // Ensure that firestoreForApp returns the same instance.
+  XCTAssertEqualObjects(firestore, [FIRFirestore firestoreForApp:app]);
+
   XCTestExpectation *defaultAppDeletedExpectation =
       [self expectationWithDescription:
                 @"Deleting the default app should invalidate the default "
