@@ -255,6 +255,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   [self.credentials getTokenForcingRefresh:NO
                                 completion:^(const Token &result, NSError *_Nullable error) {
+                                  Token resultCopy = result;
                                   error = [FSTDatastore firestoreErrorForError:error];
                                   [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
                                     [self resumeStartWithToken:result error:error];

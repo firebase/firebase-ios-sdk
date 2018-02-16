@@ -339,13 +339,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const DatabaseId *)databaseID
                        token:(const absl::string_view)token {
-  rpc.oauth2AccessToken =
-      token.data() == nullptr
-          ? nil
-          : [[NSString alloc]
-                initWithBytes:const_cast<void *>(static_cast<const void *>(token.data()))
-                       length:token.length()
-                     encoding:NSUTF8StringEncoding];
+  rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token);
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =
