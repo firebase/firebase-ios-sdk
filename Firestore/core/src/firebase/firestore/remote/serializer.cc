@@ -25,9 +25,14 @@ namespace remote {
 
 namespace {
 
-void EncodeUnsignedVarint(pb_ostream_t* stream,
-                          uint32_t field_number,
-                          uint64_t value) {
+/**
+ * Encodes a varint. Note that (despite the value parameter type) this works for
+ * bool, enum, int32, int64, uint32 and uint64 proto field types.
+ *
+ * @param value The value to encode. This could be a bool, enum, int32, int64,
+ * uint32 or uint64 proto field type (represented as a uint64_t).
+ */
+void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
   bool status = pb_encode_tag(stream, PB_WT_VARINT, field_number);
   if (!status) {
     // TODO(rsgowman): figure out error handling
@@ -41,7 +46,14 @@ void EncodeUnsignedVarint(pb_ostream_t* stream,
   }
 }
 
-uint64_t DecodeUnsignedVarint(pb_istream_t* stream) {
+/**
+ * Decodes a varint. Note that (despite the return type) this works for bool,
+ * enum, int32, int64, uint32 and uint64 proto field types.
+ *
+ * @return The decoded varint as a uint64_t (though might actually be a bool,
+ * enum int32, int64, uint32 or uint64 proto field type.)
+ */
+uint64_t DecodeVarint(pb_istream_t* stream) {
   uint64_t varint_value;
   bool status = pb_decode_varint(stream, &varint_value);
   if (!status) {
@@ -52,13 +64,12 @@ uint64_t DecodeUnsignedVarint(pb_istream_t* stream) {
 }
 
 void EncodeNull(pb_ostream_t* stream) {
-  return EncodeUnsignedVarint(stream,
-                              google_firestore_v1beta1_Value_null_value_tag,
-                              google_protobuf_NullValue_NULL_VALUE);
+  return EncodeVarint(stream, google_firestore_v1beta1_Value_null_value_tag,
+                      google_protobuf_NullValue_NULL_VALUE);
 }
 
 void DecodeNull(pb_istream_t* stream) {
-  uint64_t varint = DecodeUnsignedVarint(stream);
+  uint64_t varint = DecodeVarint(stream);
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -66,12 +77,12 @@ void DecodeNull(pb_istream_t* stream) {
 }
 
 void EncodeBool(pb_ostream_t* stream, bool bool_value) {
-  return EncodeUnsignedVarint(
-      stream, google_firestore_v1beta1_Value_boolean_value_tag, bool_value);
+  return EncodeVarint(stream, google_firestore_v1beta1_Value_boolean_value_tag,
+                      bool_value);
 }
 
 bool DecodeBool(pb_istream_t* stream) {
-  uint64_t varint = DecodeUnsignedVarint(stream);
+  uint64_t varint = DecodeVarint(stream);
   switch (varint) {
     case 0:
       return false;
