@@ -16,7 +16,7 @@
 
 #import "FIRFirestore.h"
 
-#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
@@ -78,6 +78,35 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     instances = [NSMutableDictionary dictionary];
   });
   return instances;
+}
+
++ (void)load {
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center addObserverForName:kFIRAppDeleteNotification
+                      object:nil
+                       queue:nil
+                  usingBlock:^(NSNotification *_Nonnull note) {
+                    NSString *appName = note.userInfo[kFIRAppNameKey];
+                    if (appName == nil) return;
+
+                    NSMutableDictionary *instances = [self instances];
+                    @synchronized(instances) {
+                      // Since the key for instances isn't just the app name, iterate over all the
+                      // keys to get the one(s) we have to delete. There could be multiple in case
+                      // the user calls firestoreForApp:database:.
+                      NSMutableArray *keysToDelete = [[NSMutableArray alloc] init];
+                      for (NSString *key in instances.allKeys) {
+                        if ([key hasPrefix:appName]) {
+                          [keysToDelete addObject:key];
+                        }
+                      }
+
+                      // Loop through the keys found and delete them from the stored instances.
+                      for (NSString *key in keysToDelete) {
+                        [instances removeObjectForKey:key];
+                      }
+                    }
+                  }];
 }
 
 + (instancetype)firestore {
