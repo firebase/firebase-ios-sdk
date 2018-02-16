@@ -111,8 +111,9 @@ NS_ASSUME_NONNULL_BEGIN
           initialized = true;
           dispatch_semaphore_signal(initialUserAvailable);
         } else {
+          User userCopy = user;
           [workerDispatchQueue dispatchAsync:^{
-            [self userDidChange:user];
+            [self userDidChange:userCopy];
           }];
         }
       }
