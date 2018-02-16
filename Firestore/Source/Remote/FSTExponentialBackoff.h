@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FSTDispatchQueue;
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTExponentialBackoff : NSObject
 
 /**
- * Creates and returns a helper for running delayed tasks following an exponential backoff curve
+ * Initializes a helper for running delayed tasks following an exponential backoff curve
  * between attempts.
  *
  * Each delay is made up of a "base" delay which follows the exponential backoff curve, and a
@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  * accidentally synchronizing their delays causing spikes of load to the backend.
  *
  * @param dispatchQueue The dispatch queue to run tasks on.
+ * @param timerID The ID to use when scheduling backoff operations on the FSTDispatchQueue.
  * @param initialDelay The initial delay (used as the base delay on the first retry attempt).
  *     Note that jitter will still be applied, so the actual delay could be as little as
  *     0.5*initialDelay.
@@ -45,13 +46,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param maxDelay The maximum base delay after which no further backoff is performed. Note that
  *     jitter will still be applied, so the actual delay could be as much as 1.5*maxDelay.
  */
-+ (instancetype)exponentialBackoffWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
-                                       initialDelay:(NSTimeInterval)initialDelay
-                                      backoffFactor:(double)backoffFactor
-                                           maxDelay:(NSTimeInterval)maxDelay;
+- (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
+                              timerID:(FSTTimerID)timerID
+                         initialDelay:(NSTimeInterval)initialDelay
+                        backoffFactor:(double)backoffFactor
+                             maxDelay:(NSTimeInterval)maxDelay NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)init
-    __attribute__((unavailable("Use exponentialBackoffWithDispatchQueue constructor method.")));
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  * Resets the backoff delay.
@@ -68,7 +69,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resetToMax;
 
 /**
- * Waits for currentDelay seconds, increases the delay and runs the specified block.
+ * Waits for currentDelay seconds, increases the delay and runs the specified block. If there was
+ * a pending block waiting to be run already, it will be canceled.
  *
  * @param block The block to run.
  */
