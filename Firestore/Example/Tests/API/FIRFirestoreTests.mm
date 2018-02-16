@@ -53,7 +53,7 @@
     [defaultAppDeletedExpectation fulfill];
   }];
 
-  [self waitForExpectations:@[ defaultAppDeletedExpectation ] timeout:200];
+  [self waitForExpectations:@[ defaultAppDeletedExpectation ] timeout:2];
 }
 
 @end
