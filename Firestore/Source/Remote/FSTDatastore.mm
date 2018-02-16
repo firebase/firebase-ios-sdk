@@ -304,6 +304,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   [self.credentials
       getTokenForcingRefresh:NO
                   completion:^(const Token &result, NSError *_Nullable error) {
+                    const Token resultCopy = result;
                     error = [FSTDatastore firestoreErrorForError:error];
                     [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
                       if (error) {
@@ -313,8 +314,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                         [FSTDatastore
                             prepareHeadersForRPC:rpc
                                       databaseID:&self.databaseInfo->database_id()
-                                           token:(result.is_valid() ? result.token()
-                                                                    : absl::string_view())];
+                                           token:(resultCopy.is_valid() ? resultCopy.token()
+                                                                        : absl::string_view())];
                         [rpc start];
                       }
                     }];
