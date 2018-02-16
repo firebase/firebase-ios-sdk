@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 
@@ -91,6 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+               connectionTimerID:(FSTTimerID)connectionTimerID
+                     idleTimerID:(FSTTimerID)idleTimerID
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_DESIGNATED_INITIALIZER;
 
@@ -142,8 +145,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stop;
 
 /**
- * Initializes the idle timer. If no write takes place within one minute, the GRPC stream will be
- * closed.
+ * Marks this stream as idle. If no further actions are performed on the stream for one minute, the
+ * stream will automatically close itself and notify the stream's close handler. The stream will
+ * then be in a non-started state, requiring the caller to start the stream again before further
+ * use.
+ *
+ * Only streams that are in state 'Open' can be marked idle, as all other states imply pending
+ * network operations.
  */
 - (void)markIdle;
 

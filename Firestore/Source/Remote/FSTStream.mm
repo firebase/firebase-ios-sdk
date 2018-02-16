@@ -113,7 +113,8 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @interface FSTStream ()
 
-@property(nonatomic, getter=isIdle) BOOL idle;
+@property(nonatomic, assign, readonly) FSTTimerID idleTimerID;
+@property(nonatomic, strong, nullable) FSTDelayedCallback *idleTimerCallback;
 @property(nonatomic, weak, readwrite, nullable) id delegate;
 
 @end
@@ -203,18 +204,22 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+               connectionTimerID:(FSTTimerID)connectionTimerID
+                     idleTimerID:(FSTTimerID)idleTimerID
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass {
   if (self = [super init]) {
     _databaseInfo = database;
     _workerDispatchQueue = workerDispatchQueue;
+    _idleTimerID = idleTimerID;
     _credentials = credentials;
     _responseMessageClass = responseMessageClass;
 
-    _backoff = [FSTExponentialBackoff exponentialBackoffWithDispatchQueue:workerDispatchQueue
-                                                             initialDelay:kBackoffInitialDelay
-                                                            backoffFactor:kBackoffFactor
-                                                                 maxDelay:kBackoffMaxDelay];
+    _backoff = [[FSTExponentialBackoff alloc] initWithDispatchQueue:workerDispatchQueue
+                                                            timerID:connectionTimerID
+                                                       initialDelay:kBackoffInitialDelay
+                                                      backoffFactor:kBackoffFactor
+                                                           maxDelay:kBackoffMaxDelay];
     _state = FSTStreamStateInitial;
   }
   return self;
@@ -418,7 +423,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /** Called by the idle timer when the stream should close due to inactivity. */
 - (void)handleIdleCloseTimer {
   [self.workerDispatchQueue verifyIsCurrentQueue];
-  if (self.state == FSTStreamStateOpen && [self isIdle]) {
+  if ([self isOpen]) {
     // When timing out an idle stream there's no reason to force the stream into backoff when
     // it restarts so set the stream state to Initial instead of Error.
     [self closeWithFinalState:FSTStreamStateInitial error:nil];
@@ -427,18 +432,23 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 - (void)markIdle {
   [self.workerDispatchQueue verifyIsCurrentQueue];
-  if (self.state == FSTStreamStateOpen) {
-    self.idle = YES;
-    [self.workerDispatchQueue dispatchAfterDelay:kIdleTimeout
-                                           block:^() {
-                                             [self handleIdleCloseTimer];
-                                           }];
+  // Starts the idle timer if we are in state 'Open' and are not yet already running a timer (in
+  // which case the previous idle timeout still applies).
+  if ([self isOpen] && !self.idleTimerCallback) {
+    self.idleTimerCallback = [self.workerDispatchQueue dispatchAfterDelay:kIdleTimeout
+                                                                  timerID:self.idleTimerID
+                                                                    block:^() {
+                                                                      [self handleIdleCloseTimer];
+                                                                    }];
   }
 }
 
 - (void)cancelIdleCheck {
   [self.workerDispatchQueue verifyIsCurrentQueue];
-  self.idle = NO;
+  if (self.idleTimerCallback) {
+    [self.idleTimerCallback cancel];
+    self.idleTimerCallback = nil;
+  }
 }
 
 /**
@@ -606,6 +616,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                       serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
+               connectionTimerID:FSTTimerIDListenStreamConnection
+                     idleTimerID:FSTTimerIDListenStreamIdle
                      credentials:credentials
             responseMessageClass:[GCFSListenResponse class]];
   if (self) {
@@ -689,6 +701,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                       serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
+               connectionTimerID:FSTTimerIDWriteStreamConnection
+                     idleTimerID:FSTTimerIDWriteStreamIdle
                      credentials:credentials
             responseMessageClass:[GCFSWriteResponse class]];
   if (self) {
