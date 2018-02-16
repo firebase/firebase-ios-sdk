@@ -41,6 +41,8 @@
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
 using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN

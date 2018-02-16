@@ -51,8 +51,7 @@ TEST(User, Comparison) {
 
 TEST(User, Hash) {
   const HashUser hash;
-  EXPECT_NE(hash(User("abc")), hash(User("xyz")));
-  EXPECT_NE(hash(User()), hash(User("abc")));
+  EXPECT_EQ(hash(User("abc")), hash(User("abc")));
 }
 
 }  // namespace auth

@@ -18,7 +18,6 @@
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
-#include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -127,31 +126,50 @@ using leveldb::WriteOptions;
   _db.reset();
 }
 
-- (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+- (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
   [group setMessage:[self.serializer encodedQueryData:queryData] forKey:key];
+}
+
+- (void)saveMetadataInGroup:(FSTWriteGroup *)group {
+  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+}
+
+- (BOOL)updateMetadataForQueryData:(FSTQueryData *)queryData {
+  BOOL updatedMetadata = NO;
+
+  if (queryData.targetID > self.metadata.highestTargetId) {
+    self.metadata.highestTargetId = queryData.targetID;
+    updatedMetadata = YES;
+  }
+
+  if (queryData.sequenceNumber > self.metadata.highestListenSequenceNumber) {
+    self.metadata.highestListenSequenceNumber = queryData.sequenceNumber;
+    updatedMetadata = YES;
+  }
+  return updatedMetadata;
+}
+
+- (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+  [self saveQueryData:queryData group:group];
 
   NSString *canonicalID = queryData.query.canonicalID;
   std::string indexKey =
-      [FSTLevelDBQueryTargetKey keyWithCanonicalID:canonicalID targetID:targetID];
+      [FSTLevelDBQueryTargetKey keyWithCanonicalID:canonicalID targetID:queryData.targetID];
   std::string emptyBuffer;
   [group setData:emptyBuffer forKey:indexKey];
 
-  BOOL saveMetadata = NO;
-  FSTPBTargetGlobal *metadata = self.metadata;
-  if (targetID > metadata.highestTargetId) {
-    metadata.highestTargetId = targetID;
-    saveMetadata = YES;
-  }
+  self.metadata.targetCount += 1;
+  [self updateMetadataForQueryData:queryData];
+  [self saveMetadataInGroup:group];
+}
 
-  if (queryData.sequenceNumber > metadata.highestListenSequenceNumber) {
-    metadata.highestListenSequenceNumber = queryData.sequenceNumber;
-    saveMetadata = YES;
-  }
+- (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+  [self saveQueryData:queryData group:group];
 
-  if (saveMetadata) {
-    [group setMessage:metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+  if ([self updateMetadataForQueryData:queryData]) {
+    [self saveMetadataInGroup:group];
   }
 }
 
@@ -166,6 +184,12 @@ using leveldb::WriteOptions;
   std::string indexKey =
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
   [group removeMessageForKey:indexKey];
+  self.metadata.targetCount -= 1;
+  [self saveMetadataInGroup:group];
+}
+
+- (int32_t)count {
+  return self.metadata.targetCount;
 }
 
 /**

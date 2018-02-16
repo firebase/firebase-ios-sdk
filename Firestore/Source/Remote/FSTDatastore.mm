@@ -35,6 +35,7 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -313,9 +314,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
             errorHandler(error);
           } else {
             GRPCProtoCall *rpc = rpcFactory();
-            [FSTDatastore prepareHeadersForRPC:rpc
-                                    databaseID:&self.databaseInfo->database_id()
-                                         token:util::WrapNSStringNoCopy(result.token())];
+            [FSTDatastore
+                prepareHeadersForRPC:rpc
+                          databaseID:&self.databaseInfo->database_id()
+                               token:(result.is_valid() ? result.token() : absl::string_view())];
             [rpc start];
           }
         }];
@@ -339,8 +341,14 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const DatabaseId *)databaseID
-                       token:(nullable NSString *)token {
-  rpc.oauth2AccessToken = token;
+                       token:(const absl::string_view)token {
+  rpc.oauth2AccessToken =
+      token.data() == nullptr
+          ? nil
+          : [[NSString alloc]
+                initWithBytes:const_cast<void *>(static_cast<const void *>(token.data()))
+                       length:token.length()
+                     encoding:NSUTF8StringEncoding];
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =

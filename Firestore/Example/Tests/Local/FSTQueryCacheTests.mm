@@ -89,6 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *data2 = [self queryDataWithQuery:q2];
   [self addQueryData:data2];
+  XCTAssertEqual(2, [self.queryCache count]);
 
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
@@ -96,10 +97,12 @@ NS_ASSUME_NONNULL_BEGIN
   [self removeQueryData:data1];
   XCTAssertNil([self.queryCache queryDataForQuery:q1]);
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
+  XCTAssertEqual(1, [self.queryCache count]);
 
   [self removeQueryData:data2];
   XCTAssertNil([self.queryCache queryDataForQuery:q1]);
   XCTAssertNil([self.queryCache queryDataForQuery:q2]);
+  XCTAssertEqual(0, [self.queryCache count]);
 }
 
 - (void)testSetQueryToNewValue {

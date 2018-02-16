@@ -336,15 +336,15 @@ static NSString *const kNoIOSTag = @"no-ios";
     [self.driver changeUser:User::Unauthenticated()];
   } else {
     XCTAssert([UID isKindOfClass:[NSString class]]);
-    [self.driver changeUser:User(util::MakeStringView(UID))];
+    [self.driver changeUser:User(UID)];
   }
 }
 
 - (void)doRestart {
   // Any outstanding user writes should be automatically re-sent, so we want to preserve them
   // when re-creating the driver.
-  FSTOutstandingWriteQueues outstandingWrites = *self.driver.outstandingWrites;
-  User currentUser = *self.driver.currentUser;
+  FSTOutstandingWriteQueues outstandingWrites = self.driver.outstandingWrites;
+  User currentUser = self.driver.currentUser;
 
   [self.driver shutdown];
 

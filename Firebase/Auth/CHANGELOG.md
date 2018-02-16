@@ -1,7 +1,7 @@
-# v4.4.2
+# v4.4.3
 - Adds an explicit dependency on CoreGraphics from Firebase Auth.
 
-# v4.4.1
+# v4.4.2
 - Fixes bug where the FIRAuthResult object returned following a Phone Number authentication
   always contained a nil FIRAdditionalUserInfo object. Now the FIRAdditionalUserInfo object is
   never nil and its newUser field is populated correctly.

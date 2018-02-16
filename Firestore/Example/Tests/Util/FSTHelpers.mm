@@ -17,7 +17,7 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include <inttypes.h>
-#include <vector>
+#include <list>
 
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
@@ -174,7 +174,7 @@ FSTResourcePath *FSTTestPath(NSString *path) {
 
 FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSString *path) {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static std::vector<DatabaseId> database_ids;
+  static std::list<DatabaseId> database_ids;
   database_ids.emplace_back(util::MakeStringView(projectID), util::MakeStringView(database));
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
                                            databaseID:&database_ids.back()];

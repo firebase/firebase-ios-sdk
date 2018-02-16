@@ -34,6 +34,7 @@
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -285,7 +286,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:util::WrapNSStringNoCopy(token.token())];
+                               token:(token.is_valid() ? token.token() : absl::string_view())];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];
@@ -549,6 +550,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     FSTStrongify(self);
     if (![self isStarted]) {
       FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
+      return;
     }
 
     if (!self.messageReceived) {

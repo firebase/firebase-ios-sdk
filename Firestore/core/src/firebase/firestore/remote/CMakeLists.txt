@@ -20,6 +20,8 @@ cc_library(
     serializer.h
     serializer.cc
   DEPENDS
+    firebase_firestore_model
+    firebase_firestore_protos_nanopb
     grpc::grpc
     nanopb
 )

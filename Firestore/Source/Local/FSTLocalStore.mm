@@ -313,7 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
       queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
                                                      resumeToken:resumeToken];
       self.targetIDs[targetIDNumber] = queryData;
-      [self.queryCache addQueryData:queryData group:group];
+      [self.queryCache updateQueryData:queryData group:group];
     }
   }];
 

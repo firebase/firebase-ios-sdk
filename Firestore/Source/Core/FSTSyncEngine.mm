@@ -150,7 +150,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   TargetIdGenerator _targetIdGenerator;
 
   /** Stores user completion blocks, indexed by user and FSTBatchID. */
-  std::unordered_map<const User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
+  std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
 
   User _currentUser;

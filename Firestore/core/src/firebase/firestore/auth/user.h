@@ -17,6 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_USER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_AUTH_USER_H_
 
+#if defined(__OBJC__)
+#import <Foundation/Foundation.h>
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#endif  // defined(__OBJC__)
+
 #include <string>
 
 #include "absl/strings/string_view.h"
@@ -37,6 +42,12 @@ class User {
 
   /** Construct an authenticated user with the given UID. */
   explicit User(const absl::string_view uid);
+
+#if defined(__OBJC__)
+  explicit User(NSString* uid)
+      : User(firebase::firestore::util::MakeStringView(uid)) {
+  }
+#endif  // defined(__OBJC__)
 
   const std::string& uid() const {
     return uid_;
@@ -74,8 +85,8 @@ inline bool operator!=(const User& lhs, const User& rhs) {
 struct HashUser {
   inline int64_t operator()(const User& user) const {
     return std::hash<std::string>{}(user.uid());
-  }  // namespace auth
-};   // namespace firestore
+  }
+};
 
 }  // namespace auth
 }  // namespace firestore

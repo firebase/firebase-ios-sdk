@@ -25,6 +25,8 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 
 namespace firebase {
@@ -36,6 +38,12 @@ struct ServerTimestamp {
   Timestamp previous_value;
   // TODO(zxu123): adopt absl::optional once abseil is ported.
   bool has_previous_value_;
+};
+
+struct ReferenceValue {
+  DocumentKey reference;
+  // Does not own the DatabaseId instance.
+  const DatabaseId* database_id;
 };
 
 /**
@@ -103,7 +111,10 @@ class FieldValue {
   static FieldValue StringValue(const std::string& value);
   static FieldValue StringValue(std::string&& value);
   static FieldValue BlobValue(const uint8_t* source, size_t size);
-  // static FieldValue ReferenceValue();
+  static FieldValue ReferenceValue(const DocumentKey& value,
+                                   const DatabaseId* database_id);
+  static FieldValue ReferenceValue(DocumentKey&& value,
+                                   const DatabaseId* database_id);
   static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<FieldValue>& value);
   static FieldValue ArrayValue(std::vector<FieldValue>&& value);
@@ -133,6 +144,8 @@ class FieldValue {
     ServerTimestamp server_timestamp_value_;
     std::string string_value_;
     std::vector<uint8_t> blob_value_;
+    // Qualified name to avoid conflict with the member function of same name.
+    firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
     std::vector<FieldValue> array_value_;
     std::map<const std::string, const FieldValue> object_value_;

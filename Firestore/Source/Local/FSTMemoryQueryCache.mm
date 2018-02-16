@@ -90,6 +90,20 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+- (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+  self.queries[queryData.query] = queryData;
+  if (queryData.targetID > self.highestTargetID) {
+    self.highestTargetID = queryData.targetID;
+  }
+  if (queryData.sequenceNumber > self.highestListenSequenceNumber) {
+    self.highestListenSequenceNumber = queryData.sequenceNumber;
+  }
+}
+
+- (int32_t)count {
+  return (int32_t)[self.queries count];
+}
+
 - (void)removeQueryData:(FSTQueryData *)queryData group:(__unused FSTWriteGroup *)group {
   [self.queries removeObjectForKey:queryData.query];
   [self.references removeReferencesForID:queryData.targetID];
