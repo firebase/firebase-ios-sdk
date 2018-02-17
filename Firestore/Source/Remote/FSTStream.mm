@@ -363,7 +363,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     [self.backoff resetToMax];
   }
 
-  [self tearDown];
+  if (finalState != FSTStreamStateError) {
+    FSTLog(@"%@ %p Performing stream teardown", [self class], (__bridge void *) self);
+    [self tearDown];
+  }
 
   if (self.requestsWriter) {
     // Clean up the underlying RPC. If this close: is in response to an error, don't attempt to
@@ -394,8 +397,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     [self notifyStreamInterruptedWithError:error];
   }
 
-  // Clear the delegates to avoid any possible bleed through of events from GRPC.
-  _delegate = nil;
+  // PORTING NOTE: notifyStreamInterruptedWithError may have restarted the stream with a new
+  // delegate so we do /not/ want to clear the delegate here. And since we've already suppressed
+  // callbacks via our callbackFilter, there is no worry about bleed through of events from GRPC.
 }
 
 - (void)stop {
