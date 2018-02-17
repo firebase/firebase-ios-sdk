@@ -282,6 +282,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   self.requestsWriter = [[FSTBufferedWriter alloc] init];
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
+  [_rpc setResponseDispatchQueue:self.workerDispatchQueue.queue];
+
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:&self.databaseInfo->database_id()
                                token:token.token];
@@ -540,56 +542,52 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 // The GRXWriteable implementation defines the receive side of the RPC stream.
 
 /**
- * Called by GRPC when it publishes a value. It is called from GRPC's own queue so we immediately
- * redispatch back onto our own worker queue.
+ * Called by GRPC when it publishes a value.
+ *
+ * GRPC must be configured to use our worker queue by calling
+ * `[call setResponseDispatchQueue:self.workerDispatchQueue.queue]` on the GRPCCall before starting
+ * the RPC.
  */
 - (void)writeValue:(id)value __used {
-  // TODO(mcg): remove the double-dispatch once GRPCCall at head is released.
-  // Once released we can set the responseDispatchQueue property on the GRPCCall and then this
-  // method can call handleStreamMessage directly.
-  FSTWeakify(self);
-  [self.workerDispatchQueue dispatchAsync:^{
-    FSTStrongify(self);
-    if (![self isStarted]) {
-      FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
-      return;
-    }
+  [self.workerDispatchQueue verifyIsCurrentQueue];
 
-    if (!self.messageReceived) {
-      self.messageReceived = YES;
-      if ([FIRFirestore isLoggingEnabled]) {
-        FSTLog(@"%@ %p headers (whitelisted): %@", NSStringFromClass([self class]),
-               (__bridge void *)self,
-               [FSTDatastore extractWhiteListedHeaders:self.rpc.responseHeaders]);
-      }
+  if (![self isStarted]) {
+    FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
+    return;
+  }
+
+  if (!self.messageReceived) {
+    self.messageReceived = YES;
+    if ([FIRFirestore isLoggingEnabled]) {
+      FSTLog(@"%@ %p headers (whitelisted): %@", NSStringFromClass([self class]),
+             (__bridge void *)self,
+             [FSTDatastore extractWhiteListedHeaders:self.rpc.responseHeaders]);
     }
-    NSError *error;
-    id proto = [self parseProto:self.responseMessageClass data:value error:&error];
-    if (proto) {
-      [self handleStreamMessage:proto];
-    } else {
-      [_rpc finishWithError:error];
-    }
-  }];
+  }
+  NSError *error;
+  id proto = [self parseProto:self.responseMessageClass data:value error:&error];
+  if (proto) {
+    [self handleStreamMessage:proto];
+  } else {
+    [_rpc finishWithError:error];
+  }
 }
 
 /**
  * Called by GRPC when it closed the stream with an error representing the final state of the
  * stream.
  *
- * Do not call directly, since it dispatches via the worker queue. Call handleStreamClose to
- * directly inform stream-specific logic, or call stop to tear down the stream.
+ * GRPC must be configured to use our worker queue by calling
+ * `[call setResponseDispatchQueue:self.workerDispatchQueue.queue]` on the GRPCCall before starting
+ * the RPC.
+ *
+ * Do not call directly. Call handleStreamClose to directly inform stream-specific logic, or call
+ * stop to tear down the stream.
  */
 - (void)writesFinishedWithError:(nullable NSError *)error __used {
   error = [FSTDatastore firestoreErrorForError:error];
-  FSTWeakify(self);
-  [self.workerDispatchQueue dispatchAsync:^{
-    FSTStrongify(self);
-    if (!self || self.state == FSTStreamStateStopped) {
-      return;
-    }
-    [self handleStreamClose:error];
-  }];
+  [self.workerDispatchQueue verifyIsCurrentQueue];
+  [self handleStreamClose:error];
 }
 
 @end

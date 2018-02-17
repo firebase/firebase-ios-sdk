@@ -203,7 +203,9 @@ using firebase::firestore::model::DatabaseId;
   }];
 
   // Simulate a final callback from GRPC
-  [watchStream writesFinishedWithError:nil];
+  [_workerDispatchQueue dispatchAsync:^{
+    [watchStream writesFinishedWithError:nil];
+  }];
 
   [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen" ]];
 }
@@ -225,7 +227,9 @@ using firebase::firestore::model::DatabaseId;
   }];
 
   // Simulate a final callback from GRPC
-  [writeStream writesFinishedWithError:nil];
+  [_workerDispatchQueue dispatchAsync:^{
+    [writeStream writesFinishedWithError:nil];
+  }];
 
   [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen" ]];
 }
