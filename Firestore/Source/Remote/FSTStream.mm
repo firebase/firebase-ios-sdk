@@ -149,7 +149,12 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 #pragma mark - FSTCallbackFilter
 
-/** Filter class that allows disabling of GRPC callbacks. */
+/**
+ * Implements callbacks from gRPC via the GRXWriteable protocol. This is separate from the main
+ * FSTStream to allow the stream to be stopped externally (either by the user or via idle timer)
+ * and be able to completely prevent any subsequent events from gRPC from calling back into the
+ * FSTSTream.
+ */
 @interface FSTCallbackFilter : NSObject <GRXWriteable>
 
 - (instancetype)initWithStream:(FSTStream *)stream NS_DESIGNATED_INITIALIZER;
@@ -544,7 +549,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * `[call setResponseDispatchQueue:self.workerDispatchQueue.queue]` on the GRPCCall before starting
  * the RPC.
  */
-- (void)writeValue:(id)value __used {
+- (void)writeValue:(id)value {
   [self.workerDispatchQueue verifyIsCurrentQueue];
   FSTAssert([self isStarted], @"writeValue: called for stopped stream.");
 
