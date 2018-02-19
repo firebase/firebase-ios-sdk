@@ -263,12 +263,12 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
 - (void)resumeStartWithToken:(FSTGetTokenResult *)token error:(NSError *)error {
+  [self.workerDispatchQueue verifyIsCurrentQueue];
+
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for authorization.
     return;
   }
-
-  [self.workerDispatchQueue verifyIsCurrentQueue];
   FSTAssert(self.state == FSTStreamStateAuth, @"State should still be auth (was %ld)",
             (long)self.state);
 
@@ -525,11 +525,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  */
 - (void)handleStreamClose:(nullable NSError *)error {
   FSTLog(@"%@ %p close: %@", NSStringFromClass([self class]), (__bridge void *)self, error);
-
-  if (![self isStarted]) {  // The stream could have already been closed by the idle close timer.
-    FSTLog(@"%@ Ignoring server close for already closed stream.", NSStringFromClass([self class]));
-    return;
-  }
+  FSTAssert([self isStarted], @"handleStreamClose: called for non-started stream.");
 
   // In theory the stream could close cleanly, however, in our current model we never expect this
   // to happen because if we stop a stream ourselves, this callback will never be called. To
@@ -550,11 +546,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  */
 - (void)writeValue:(id)value __used {
   [self.workerDispatchQueue verifyIsCurrentQueue];
-
-  if (![self isStarted]) {
-    FSTLog(@"%@ Ignoring stream message from inactive stream.", NSStringFromClass([self class]));
-    return;
-  }
+  FSTAssert([self isStarted], @"writeValue: called for stopped stream.");
 
   if (!self.messageReceived) {
     self.messageReceived = YES;
@@ -587,6 +579,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 - (void)writesFinishedWithError:(nullable NSError *)error __used {
   error = [FSTDatastore firestoreErrorForError:error];
   [self.workerDispatchQueue verifyIsCurrentQueue];
+  FSTAssert([self isStarted], @"writesFinishedWithError: called for stopped stream.");
+
   [self handleStreamClose:error];
 }
 

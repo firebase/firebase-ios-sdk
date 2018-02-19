@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GRPCClient/GRPCCall.h>
+
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -36,7 +38,7 @@ using firebase::firestore::model::DatabaseId;
 
 /** Exposes otherwise private methods for testing. */
 @interface FSTStream (Testing)
-- (void)writesFinishedWithError:(NSError *_Nullable)error;
+@property(nonatomic, strong, readwrite) id<GRXWriteable> callbackFilter;
 @end
 
 /**
@@ -204,7 +206,7 @@ using firebase::firestore::model::DatabaseId;
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
-    [watchStream writesFinishedWithError:nil];
+    [watchStream.callbackFilter writesFinishedWithError:nil];
   }];
 
   [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen" ]];
@@ -228,7 +230,7 @@ using firebase::firestore::model::DatabaseId;
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
-    [writeStream writesFinishedWithError:nil];
+    [writeStream.callbackFilter writesFinishedWithError:nil];
   }];
 
   [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen" ]];
