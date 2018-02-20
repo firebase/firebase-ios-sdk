@@ -12,14 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */#import "FSTQuery.h"
+#import "FSTQueryData.h"
+#import "FSTSnapshotVersion.h"
 
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
 
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+#import "FSTWriteGroup.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

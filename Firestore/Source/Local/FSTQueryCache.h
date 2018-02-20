@@ -96,13 +96,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
 
 /** Removes the cached entry for the given query data (no-op if no entry exists). */
-- (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
+- (void)removeTarget:(FSTTargetID)targetID group:(FSTWriteGroup *)group block:(void (^)(FSTDocumentKey *removed))block;
 
+// TODO: remove
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData,
                                                      BOOL *stop))block;
-
+// TODO: remove
 - (void)enumerateOrphanedDocumentsUsingBlock:(void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
 
+// TODO: remove
 - (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
                                          (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries
@@ -115,6 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns the number of targets cached. */
 - (int32_t)count;
 
+- (void)enumerateTargetsForDocument:(FSTDocumentKey *)key block:(void (^)(FSTTargetID targetID, BOOL *stop))block;
+
 /**
  * Looks up an FSTQueryData entry in the cache.
  *
@@ -122,6 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The cached FSTQueryData entry, or nil if the cache has no entry for the query.
  */
 - (nullable FSTQueryData *)queryDataForQuery:(FSTQuery *)query;
+
+- (FSTQueryData *)queryDataForTargetID:(FSTTargetID)targetId;
 
 /** Adds the given document keys to cached query results of the given target ID. */
 - (void)addMatchingKeys:(FSTDocumentKeySet *)keys
@@ -137,6 +143,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Removes all the keys in the query results of the given target ID. */
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group;
+
+- (void)removeKeysForTargetID:(FSTTargetID)targetID
+                    withBlock:(BOOL (^)(FSTDocumentKey *docKey))block
+                        group:(FSTWriteGroup *)group;
 
 - (BOOL)removeOrphanedDocument:(FSTDocumentKey *)key
                     upperBound:(FSTListenSequenceNumber)upperBound

@@ -245,7 +245,6 @@ NS_ASSUME_NONNULL_BEGIN
 //                                    atSequenceNumber:[self.listenSequence next]
 //                                               group:group];
     [self.dataCache addPotentiallyOrphanedDocuments:affected
-                                    atSequenceNumber:[self.listenSequence next]
                                                group:group];
   }
 
@@ -314,7 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self.queryCache addQueryData:queryData group:group];
     }*/
 
-    FSTQueryData *queryData = [self.dataCache updateQuery:targetID resumeToken:change.resumeToken group:group];
+    FSTQueryData *queryData = [self.dataCache updateQuery:targetID forChange:change group:group];
     if (!queryData) {
       return;
     }
