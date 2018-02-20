@@ -16,11 +16,14 @@
 
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
+using firebase::firestore::auth::User;
 
 @interface FSTMemoryMutationQueueTests : FSTMutationQueueTests
 @end
@@ -35,8 +38,7 @@
   [super setUp];
 
   self.persistence = [FSTPersistenceTestHelpers memoryPersistence];
-  self.mutationQueue =
-      [self.persistence mutationQueueForUser:[[FSTUser alloc] initWithUID:@"user"]];
+  self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 }
 
 @end

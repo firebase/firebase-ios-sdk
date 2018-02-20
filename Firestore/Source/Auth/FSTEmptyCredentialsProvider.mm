@@ -16,9 +16,14 @@
 
 #import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
+using firebase::firestore::auth::Token;
+using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,14 +31,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh
                     completion:(FSTVoidGetTokenResultBlock)completion {
-  completion(nil, nil);
+  // Invalid token will force the GRPC fallback to use default settings.
+  completion(Token::Invalid(), nil);
 }
 
 - (void)setUserChangeListener:(nullable FSTVoidUserBlock)block {
   // Since the user never changes, we just need to fire the initial event and don't need to hang
   // onto the block.
   if (block) {
-    block([FSTUser unauthenticatedUser]);
+    block(User::Unauthenticated());
   }
 }
 

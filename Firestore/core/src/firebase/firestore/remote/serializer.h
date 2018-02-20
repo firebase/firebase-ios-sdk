@@ -121,24 +121,8 @@ class Serializer {
   // const firebase::firestore::model::DatabaseId& database_id_;
 };
 
-inline bool operator==(const Serializer::TypedValue& lhs,
-                       const Serializer::TypedValue& rhs) {
-  if (lhs.type != rhs.type) {
-    return false;
-  }
-
-  switch (lhs.type) {
-    case firebase::firestore::model::FieldValue::Type::Null:
-      FIREBASE_DEV_ASSERT(lhs.value.null_value ==
-                          google_protobuf_NullValue_NULL_VALUE);
-      FIREBASE_DEV_ASSERT(rhs.value.null_value ==
-                          google_protobuf_NullValue_NULL_VALUE);
-      return true;
-    default:
-      // TODO(rsgowman): implement the other types
-      abort();
-  }
-}
+bool operator==(const Serializer::TypedValue& lhs,
+                const Serializer::TypedValue& rhs);
 
 }  // namespace remote
 }  // namespace firestore

@@ -18,7 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
@@ -41,6 +40,10 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
+using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -77,7 +80,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   id<FSTGarbageCollector> garbageCollector = [[FSTEagerGarbageCollector alloc] init];
   self.localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
                                               garbageCollector:garbageCollector
-                                                   initialUser:[FSTUser unauthenticatedUser]];
+                                                   initialUser:User::Unauthenticated()];
   [self.localStore start];
 
   _batches = [NSMutableArray array];
@@ -112,7 +115,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   id<FSTGarbageCollector> garbageCollector = [[FSTNoOpGarbageCollector alloc] init];
   self.localStore = [[FSTLocalStore alloc] initWithPersistence:self.localStorePersistence
                                               garbageCollector:garbageCollector
-                                                   initialUser:[FSTUser unauthenticatedUser]];
+                                                   initialUser:User::Unauthenticated()];
   [self.localStore start];
 }
 

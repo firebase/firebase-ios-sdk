@@ -16,10 +16,11 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
+#include <unordered_map>
+
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -40,8 +41,11 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
+using firebase::firestore::auth::HashUser;
+using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -139,23 +143,22 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 /** The garbage collector used to collect documents that are no longer in limbo. */
 @property(nonatomic, strong, readonly) FSTEagerGarbageCollector *limboCollector;
 
-/** Stores user completion blocks, indexed by user and FSTBatchID. */
-@property(nonatomic, strong)
-    NSMutableDictionary<FSTUser *, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *>
-        *mutationCompletionBlocks;
-
-@property(nonatomic, strong) FSTUser *currentUser;
-
 @end
 
 @implementation FSTSyncEngine {
   /** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
   TargetIdGenerator _targetIdGenerator;
+
+  /** Stores user completion blocks, indexed by user and FSTBatchID. */
+  std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
+      _mutationCompletionBlocks;
+
+  User _currentUser;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                        remoteStore:(FSTRemoteStore *)remoteStore
-                       initialUser:(FSTUser *)initialUser {
+                       initialUser:(const User &)initialUser {
   if (self = [super init]) {
     _localStore = localStore;
     _remoteStore = remoteStore;
@@ -169,7 +172,6 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     _limboDocumentRefs = [[FSTReferenceSet alloc] init];
     [_limboCollector addGarbageSource:_limboDocumentRefs];
 
-    _mutationCompletionBlocks = [NSMutableDictionary dictionary];
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator(0);
     _currentUser = initialUser;
   }
@@ -227,10 +229,10 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(FSTBatchID)batchID {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
-      self.mutationCompletionBlocks[self.currentUser];
+      _mutationCompletionBlocks[_currentUser];
   if (!completionBlocks) {
     completionBlocks = [NSMutableDictionary dictionary];
-    self.mutationCompletionBlocks[self.currentUser] = completionBlocks;
+    _mutationCompletionBlocks[_currentUser] = completionBlocks;
   }
   [completionBlocks setObject:completion forKey:@(batchID)];
 }
@@ -400,7 +402,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (void)processUserCallbacksForBatchID:(FSTBatchID)batchID error:(NSError *_Nullable)error {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
-      self.mutationCompletionBlocks[self.currentUser];
+      _mutationCompletionBlocks[_currentUser];
 
   // NOTE: Mutations restored from persistence won't have completion blocks, so it's okay for
   // this (or the completion below) to be nil.
@@ -527,8 +529,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   return [self.limboTargetsByKey copy];
 }
 
-- (void)userDidChange:(FSTUser *)user {
-  self.currentUser = user;
+- (void)userDidChange:(const User &)user {
+  _currentUser = user;
 
   // Notify local store and emit any resulting events from swapping out the mutation queue.
   FSTMaybeDocumentDictionary *changes = [self.localStore userDidChange:user];

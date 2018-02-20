@@ -19,7 +19,6 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -42,6 +41,12 @@
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -327,15 +332,19 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doChangeUser:(id)UID {
-  FSTUser *user = [UID isEqual:[NSNull null]] ? [FSTUser unauthenticatedUser]
-                                              : [[FSTUser alloc] initWithUID:UID];
-  [self.driver changeUser:user];
+  if (UID == nil || [UID isEqual:[NSNull null]]) {
+    [self.driver changeUser:User::Unauthenticated()];
+  } else {
+    XCTAssert([UID isKindOfClass:[NSString class]]);
+    [self.driver changeUser:User(UID)];
+  }
 }
 
 - (void)doRestart {
   // Any outstanding user writes should be automatically re-sent, so we want to preserve them
   // when re-creating the driver.
-  FSTOutstandingWriteQueues *outstandingWrites = self.driver.outstandingWrites;
+  FSTOutstandingWriteQueues outstandingWrites = self.driver.outstandingWrites;
+  User currentUser = self.driver.currentUser;
 
   [self.driver shutdown];
 
@@ -347,7 +356,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
                                                     garbageCollector:self.garbageCollector
-                                                         initialUser:self.driver.currentUser
+                                                         initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
 }

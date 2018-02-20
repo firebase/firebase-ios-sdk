@@ -16,10 +16,11 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
+#include <unordered_map>
+
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -35,6 +36,11 @@
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
+using firebase::firestore::auth::HashUser;
+using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,35 +77,32 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryListener *> *queryListeners;
 
-#pragma mark - Other data structures.
-@property(nonatomic, strong, readwrite) FSTUser *currentUser;
-
 @end
 
 @implementation FSTSyncEngineTestDriver {
   // ivar is declared as mutable.
-  NSMutableDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *_outstandingWrites;
+  std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
+
+  User _currentUser;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector {
   return [self initWithPersistence:persistence
                   garbageCollector:garbageCollector
-                       initialUser:[FSTUser unauthenticatedUser]
-                 outstandingWrites:@{}];
+                       initialUser:User::Unauthenticated()
+                 outstandingWrites:{}];
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector
-                        initialUser:(FSTUser *)initialUser
-                  outstandingWrites:(FSTOutstandingWriteQueues *)outstandingWrites {
+                        initialUser:(const User &)initialUser
+                  outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites {
   if (self = [super init]) {
-    // Create mutable copy of outstandingWrites.
-    _outstandingWrites = [NSMutableDictionary dictionary];
-    [outstandingWrites enumerateKeysAndObjectsUsingBlock:^(
-                           FSTUser *user, NSArray<FSTOutstandingWrite *> *writes, BOOL *stop) {
-      _outstandingWrites[user] = [writes mutableCopy];
-    }];
+    // Do a deep copy.
+    for (const auto &pair : outstandingWrites) {
+      _outstandingWrites[pair.first] = [pair.second mutableCopy];
+    }
 
     _events = [NSMutableArray array];
 
@@ -139,9 +142,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (NSDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *)outstandingWrites {
-  return static_cast<NSDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *>(
-      _outstandingWrites);
+- (const FSTOutstandingWriteQueues &)outstandingWrites {
+  return _outstandingWrites;
+}
+
+- (const User &)currentUser {
+  return _currentUser;
 }
 
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
@@ -200,8 +206,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self.remoteStore enableNetwork];
 }
 
-- (void)changeUser:(FSTUser *)user {
-  self.currentUser = user;
+- (void)changeUser:(const User &)user {
+  _currentUser = user;
   [self.syncEngine userDidChange:user];
 }
 
@@ -309,10 +315,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Helper Methods
 
 - (NSMutableArray<FSTOutstandingWrite *> *)currentOutstandingWrites {
-  NSMutableArray<FSTOutstandingWrite *> *writes = _outstandingWrites[self.currentUser];
+  NSMutableArray<FSTOutstandingWrite *> *writes = _outstandingWrites[_currentUser];
   if (!writes) {
     writes = [NSMutableArray array];
-    _outstandingWrites[self.currentUser] = writes;
+    _outstandingWrites[_currentUser] = writes;
   }
   return writes;
 }

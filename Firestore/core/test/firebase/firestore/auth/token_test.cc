@@ -26,6 +26,14 @@ TEST(Token, Getter) {
   Token token("token", User("abc"));
   EXPECT_EQ("token", token.token());
   EXPECT_EQ(User("abc"), token.user());
+  EXPECT_TRUE(token.is_valid());
+}
+
+TEST(Token, InvalidToken) {
+  const Token& token = Token::Invalid();
+  EXPECT_ANY_THROW(token.token());
+  EXPECT_EQ(User::Unauthenticated(), token.user());
+  EXPECT_FALSE(token.is_valid());
 }
 
 }  // namespace auth

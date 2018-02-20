@@ -16,7 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -41,8 +40,10 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
+using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -99,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector
-                        initialUser:(FSTUser *)initialUser {
+                        initialUser:(const User &)initialUser {
   if (self = [super init]) {
     _persistence = persistence;
     _mutationQueue = [persistence mutationQueueForUser:initialUser];
@@ -166,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queryCache shutdown];
 }
 
-- (FSTMaybeDocumentDictionary *)userDidChange:(FSTUser *)user {
+- (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
 

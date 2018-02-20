@@ -16,7 +16,6 @@
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
@@ -27,6 +26,10 @@
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+
+using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -127,8 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Restart the queue so that nextBatchID will be reset.
   [self.mutationQueue shutdown];
-  self.mutationQueue =
-      [self.persistence mutationQueueForUser:[[FSTUser alloc] initWithUID:@"user"]];
+  self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
   [self.mutationQueue startWithGroup:group];
