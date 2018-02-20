@@ -303,8 +303,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // but I'm not sure how to detect that right now. http://b/32762461
   [self.credentials
       getTokenForcingRefresh:NO
-                  completion:^(const Token &result, NSError *_Nullable error) {
-                    const Token resultCopy = result;
+                  completion:^(Token result, NSError *_Nullable error) {
                     error = [FSTDatastore firestoreErrorForError:error];
                     [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
                       if (error) {
@@ -314,8 +313,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                         [FSTDatastore
                             prepareHeadersForRPC:rpc
                                       databaseID:&self.databaseInfo->database_id()
-                                           token:(resultCopy.is_valid() ? resultCopy.token()
-                                                                        : absl::string_view())];
+                                           token:(result.is_valid() ? result.token()
+                                                                    : absl::string_view())];
                         [rpc start];
                       }
                     }];

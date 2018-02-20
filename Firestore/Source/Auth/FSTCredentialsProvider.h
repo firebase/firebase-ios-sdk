@@ -32,11 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
  * @param token An auth token, either valid or invalid when error occurred.
  * @param error The error if one occurred, or else `nil`.
  */
-typedef void (^FSTVoidGetTokenResultBlock)(const firebase::firestore::auth::Token &token,
+typedef void (^FSTVoidGetTokenResultBlock)(firebase::firestore::auth::Token token,
                                            NSError *_Nullable error);
 
 /** Listener block notified with a User. */
-typedef void (^FSTVoidUserBlock)(const firebase::firestore::auth::User &user);
+typedef void (^FSTVoidUserBlock)(firebase::firestore::auth::User user);
 
 #pragma mark - FSTCredentialsProvider
 

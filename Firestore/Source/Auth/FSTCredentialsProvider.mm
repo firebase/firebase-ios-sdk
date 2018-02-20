@@ -121,8 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    userInfo:errorInfo];
             completion(Token::Invalid(), cancelError);
           } else {
-            Token result(util::MakeStringView(token), _currentUser);
-            completion(result, error);
+            completion(Token(util::MakeStringView(token), _currentUser), error);
           }
         };
       };

@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
     __block bool initialized = false;
     __block User initialUser;
     FSTWeakify(self);
-    _credentialsProvider.userChangeListener = ^(const User &user) {
+    _credentialsProvider.userChangeListener = ^(User user) {
       FSTStrongify(self);
       if (self) {
         if (!initialized) {
@@ -111,9 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
           initialized = true;
           dispatch_semaphore_signal(initialUserAvailable);
         } else {
-          User userCopy = user;
           [workerDispatchQueue dispatchAsync:^{
-            [self userDidChange:userCopy];
+            [self userDidChange:user];
           }];
         }
       }
