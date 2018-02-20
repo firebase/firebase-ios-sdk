@@ -22,12 +22,6 @@ static const int kNanosPerSecond = 1000000000;
 
 @implementation FIRTimestamp (Internal)
 
-#pragma mark - Internal constructors
-
-+ (instancetype)timestamp {
-  return [FIRTimestamp timestampWithDate:[NSDate date]];
-}
-
 #pragma mark - Internal public methods
 
 - (NSString *)ISO8601String {
@@ -65,6 +59,10 @@ static const int kNanosPerSecond = 1000000000;
 
 + (instancetype)timestampWithSeconds:(int64_t)seconds nanoseconds:(int32_t)nanoseconds {
   return [[FIRTimestamp alloc] initWithSeconds:seconds nanoseconds:nanoseconds];
+}
+
++ (instancetype)timestamp {
+  return [FIRTimestamp timestampWithDate:[NSDate date]];
 }
 
 - (instancetype)initWithSeconds:(int64_t)seconds nanoseconds:(int32_t)nanoseconds {
