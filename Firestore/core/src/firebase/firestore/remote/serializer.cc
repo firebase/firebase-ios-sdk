@@ -26,11 +26,13 @@ namespace remote {
 namespace {
 
 /**
- * Encodes a varint. Note that (despite the value parameter type) this works for
- * bool, enum, int32, int64, uint32 and uint64 proto field types.
+ * Note that (despite the value parameter type) this works for bool, enum,
+ * int32, int64, uint32 and uint64 proto field types.
  *
- * @param value The value to encode. This could be a bool, enum, int32, int64,
- * uint32 or uint64 proto field type (represented as a uint64_t).
+ * Note: This is not expected to be called direclty, but rather only via the
+ * other Encode* methods (i.e. EncodeBool, EncodeLong, etc)
+ *
+ * @param value The value to encode, represented as a uint64_t.
  */
 void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
   bool status = pb_encode_tag(stream, PB_WT_VARINT, field_number);
@@ -47,11 +49,13 @@ void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
 }
 
 /**
- * Decodes a varint. Note that (despite the return type) this works for bool,
- * enum, int32, int64, uint32 and uint64 proto field types.
+ * Note that (despite the return type) this works for bool, enum, int32, int64,
+ * uint32 and uint64 proto field types.
  *
- * @return The decoded varint as a uint64_t (though might actually be a bool,
- * enum int32, int64, uint32 or uint64 proto field type.)
+ * Note: This is not expected to be called direclty, but rather only via the
+ * other Decode* methods (i.e. DecodeBool, DecodeLong, etc)
+ *
+ * @return The decoded varint as a uint64_t.
  */
 uint64_t DecodeVarint(pb_istream_t* stream) {
   uint64_t varint_value;
