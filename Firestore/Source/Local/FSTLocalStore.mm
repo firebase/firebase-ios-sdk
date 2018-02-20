@@ -235,8 +235,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
-  //id<FSTQueryCache> queryCache = self.queryCache;
-
   FSTWriteGroup *group = [self.dataCache groupWithAction:@"Apply remote event"];
 
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
@@ -252,12 +250,10 @@ NS_ASSUME_NONNULL_BEGIN
     if (mapping) {
       // First make sure that all references are deleted.
       if ([mapping isKindOfClass:[FSTResetMapping class]]) {
-        // TODO(gsoltis): reset query
         FSTResetMapping *reset = (FSTResetMapping *)mapping;
         [self.dataCache resetQuery:queryData documents:reset.documents group:group];
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
-        // TODO(gsoltis): update query
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
         [self.dataCache updateQuery:queryData
                      documentsAdded:update.addedDocuments
@@ -372,7 +368,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
-  //return [self.queryCache matchingKeysForTargetID:targetID];
   return [self.dataCache documentsForTarget:targetID];
 }
 
