@@ -228,6 +228,7 @@ typedef struct {
                              exemptTarget:(FSTTargetID)targetID
                                   drivers:(table_drivers *)drivers
                                     group:(FSTWriteGroup *)group {
+  // TODO: use exempt target or implement real transactions
   if (![drivers->queryCache containsKey:key] && ![drivers->mutationQueue containsKey:key]) {
     [drivers->documentCache removeEntryForKey:key group:group];
   }

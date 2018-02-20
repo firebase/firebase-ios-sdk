@@ -176,7 +176,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
   FSTWriteGroup *group = [self.dataCache groupWithAction:@"Acknowledge batch"];
-  //id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
   [self.dataCache.mutationQueue acknowledgeBatch:batchResult.batch
                       streamToken:batchResult.streamToken
@@ -270,9 +269,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }];
 
-  // TODO(gsoltis): pull this from data cache? changeBuffer...
-//  FSTRemoteDocumentChangeBuffer *remoteDocuments =
-//          [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
   FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataCache changeBuffer];
 
   // TODO(klimt): This could probably be an NSMutableDictionary.
@@ -294,10 +290,13 @@ NS_ASSUME_NONNULL_BEGIN
               key, existingDoc.version, doc.version);
         }
 
+        // TODO(gsoltis): do we still need this GC call? figure out situations where this is not
+        // covered by being added to / removed from target, call orphaned document method
+        // if need be.
+
         // The document might be garbage because it was unreferenced by everything.
         // Make sure to mark it as garbage if it is...
-        // TODO(gsoltis): evaluate if we need this
-        [self.garbageCollector addPotentialGarbageKey:key];
+        //[self.garbageCollector addPotentialGarbageKey:key];
       }];
 
   [self.dataCache addNewSnapshotVersion:remoteEvent.snapshotVersion group:group];
