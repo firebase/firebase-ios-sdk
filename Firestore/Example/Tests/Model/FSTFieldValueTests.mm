@@ -17,11 +17,11 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import <FirebaseFirestore/FIRGeoPoint.h>
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTPath.h"
 
@@ -229,7 +229,7 @@ union DoubleBits {
     XCTAssertEqualObjects([wrapped value], value);
 
     XCTAssertEqualObjects(((FSTTimestampValue *)wrapped).internalValue,
-                          [FSTTimestamp timestampWithDate:value]);
+                          [FIRTimestamp timestampWithDate:value]);
   }
 }
 
@@ -445,20 +445,20 @@ union DoubleBits {
     @[ FSTTestFieldValue(@"\u00e9a") ],   // latin small letter e with acute accent
     @[
       FSTTestFieldValue(date1),
-      [FSTTimestampValue timestampValue:[FSTTimestamp timestampWithDate:date1]]
+      [FSTTimestampValue timestampValue:[FIRTimestamp timestampWithDate:date1]]
     ],
     @[ FSTTestFieldValue(date2) ],
     @[
       // NOTE: ServerTimestampValues can't be parsed via FSTTestFieldValue().
       [FSTServerTimestampValue
-          serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date1]
+          serverTimestampValueWithLocalWriteTime:[FIRTimestamp timestampWithDate:date1]
                                    previousValue:nil],
       [FSTServerTimestampValue
-          serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date1]
+          serverTimestampValueWithLocalWriteTime:[FIRTimestamp timestampWithDate:date1]
                                    previousValue:nil]
     ],
     @[ [FSTServerTimestampValue
-        serverTimestampValueWithLocalWriteTime:[FSTTimestamp timestampWithDate:date2]
+        serverTimestampValueWithLocalWriteTime:[FIRTimestamp timestampWithDate:date2]
                                  previousValue:nil] ],
     @[
       FSTTestFieldValue(FSTTestGeoPoint(0, 1)),
@@ -574,14 +574,12 @@ union DoubleBits {
   {
     XCTAssertTrue([output[@"array"][1] isKindOfClass:[NSDate class]]);
     NSDate *actual = output[@"array"][1];
-    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970,
-                               0.000000001);
+    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970, 0.000001);
   }
   {
     XCTAssertTrue([output[@"obj"][@"date"] isKindOfClass:[NSDate class]]);
     NSDate *actual = output[@"obj"][@"date"];
-    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970,
-                               0.000000001);
+    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970, 0.000001);
   }
 }
 

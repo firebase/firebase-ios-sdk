@@ -16,10 +16,10 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
@@ -127,7 +127,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:mutations];
   XCTAssertNotNil(result);
   [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batchID
-                                                     localWriteTime:[FSTTimestamp timestamp]
+                                                     localWriteTime:[FIRTimestamp timestamp]
                                                           mutations:mutations]];
   self.lastChanges = result.changes;
 }
@@ -228,7 +228,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTMutation *set1 = FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"});
   FSTMutation *set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
-                                                       localWriteTime:[FSTTimestamp timestamp]
+                                                       localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:@[ set1, set2 ]];
   FSTDocumentKeySet *keys = [batch keys];
   XCTAssertEqual(keys.count, 2);

@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 
-#import "Firestore/Source/Core/FSTTimestamp.h"
+#import "FIRTimestamp.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,17 +26,17 @@ NS_ASSUME_NONNULL_BEGIN
   static FSTSnapshotVersion *min;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    FSTTimestamp *timestamp = [[FSTTimestamp alloc] initWithSeconds:0 nanos:0];
+    FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:0 nanoseconds:0];
     min = [FSTSnapshotVersion versionWithTimestamp:timestamp];
   });
   return min;
 }
 
-+ (instancetype)versionWithTimestamp:(FSTTimestamp *)timestamp {
++ (instancetype)versionWithTimestamp:(FIRTimestamp *)timestamp {
   return [[FSTSnapshotVersion alloc] initWithTimestamp:timestamp];
 }
 
-- (instancetype)initWithTimestamp:(FSTTimestamp *)timestamp {
+- (instancetype)initWithTimestamp:(FIRTimestamp *)timestamp {
   self = [super init];
   if (self) {
     _timestamp = timestamp;

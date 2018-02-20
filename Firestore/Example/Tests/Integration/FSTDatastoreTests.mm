@@ -16,6 +16,7 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <GRPCClient/GRPCCall+ChannelCredentials.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 #import <XCTest/XCTest.h>
@@ -26,7 +27,6 @@
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -214,7 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTSetMutation *mutation = [self setMutation];
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
-                                                       localWriteTime:[FSTTimestamp timestamp]
+                                                       localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:@[ mutation ]];
   [_testWorkerQueue dispatchAsync:^{
     [_remoteStore commitBatch:batch];

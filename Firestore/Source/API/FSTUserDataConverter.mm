@@ -16,13 +16,14 @@
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
+#import "FIRTimestamp.h"
+
 #import "FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSetOptions+Internal.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -536,7 +537,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     return [FSTStringValue stringValue:input];
 
   } else if ([input isKindOfClass:[NSDate class]]) {
-    return [FSTTimestampValue timestampValue:[FSTTimestamp timestampWithDate:input]];
+    return [FSTTimestampValue timestampValue:[FIRTimestamp timestampWithDate:input]];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
     return [FSTGeoPointValue geoPointValue:input];

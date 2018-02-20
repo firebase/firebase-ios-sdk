@@ -21,12 +21,12 @@
 
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
+#import <FirebaseFirestore/FIRTimestamp.h>
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
@@ -55,9 +55,9 @@ static NSString *const kDeleteSentinel = @"<DELETE>";
 static const int kMicrosPerSec = 1000000;
 static const int kMillisPerSec = 1000;
 
-FSTTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second) {
+FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second) {
   NSDate *date = FSTTestDate(year, month, day, hour, minute, second);
-  return [FSTTimestamp timestampWithDate:date];
+  return [FIRTimestamp timestampWithDate:date];
 }
 
 NSDate *FSTTestDate(int year, int month, int day, int hour, int minute, int second) {
@@ -140,7 +140,7 @@ FSTSnapshotVersion *FSTTestVersion(FSTTestSnapshotVersion versionMicroseconds) {
   int64_t seconds = versionMicroseconds / kMicrosPerSec;
   int32_t nanos = (int32_t)(versionMicroseconds % kMicrosPerSec) * kMillisPerSec;
 
-  FSTTimestamp *timestamp = [[FSTTimestamp alloc] initWithSeconds:seconds nanos:nanos];
+  FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:seconds nanoseconds:nanos];
   return [FSTSnapshotVersion versionWithTimestamp:timestamp];
 }
 

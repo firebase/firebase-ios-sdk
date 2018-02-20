@@ -22,7 +22,7 @@
 
 @class FSTDocumentKey;
 @class FSTFieldPath;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
 @class FIRSnapshotOptions;
@@ -164,8 +164,8 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * A timestamp value stored in Firestore.
  */
 @interface FSTTimestampValue : FSTFieldValue <NSDate *>
-+ (instancetype)timestampValue:(FSTTimestamp *)value;
-- (FSTTimestamp *)internalValue;
++ (instancetype)timestampValue:(FIRTimestamp *)value;
+- (FIRTimestamp *)internalValue;
 @end
 
 /**
@@ -181,10 +181,10 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue <id>
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FIRTimestamp *)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue;
 
-@property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
 @property(nonatomic, strong, readonly, nullable) FSTFieldValue *previousValue;
 
 @end

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -218,6 +219,30 @@
     [querySlash fulfill];
   }];
   [self awaitExpectations];
+}
+
+- (NSDictionary<NSString *, id> *)testDataWithTimestamp:(FIRTimestamp *)timestamp {
+  return @{
+    @"timestamp" : [timestamp approximateDateValue],
+    @"metadata" : @{@"nestedTimestamp" : [timestamp approximateDateValue]}
+  };
+}
+
+// This test should break once the default for how timestamps are returned changes.
+- (void)testThatDataContainsNativeDateType {
+  NSDate *date = [NSDate date];
+  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:date];
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:[self testDataWithTimestamp:timestamp]];
+
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  NSDate *resultDate = result.data[@"timestamp"];
+  XCTAssertEqualWithAccuracy([resultDate timeIntervalSince1970], [date timeIntervalSince1970],
+                             0.000001);
+  XCTAssertEqualObjects(result.data[@"timestamp"], resultDate);
+  NSDate *resultNestedDate = result[@"metadata.nestedTimestamp"];
+  XCTAssertEqualWithAccuracy([resultNestedDate timeIntervalSince1970], [date timeIntervalSince1970],
+                             0.000001);
 }
 
 @end

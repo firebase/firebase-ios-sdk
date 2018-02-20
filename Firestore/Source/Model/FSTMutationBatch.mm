@@ -16,8 +16,9 @@
 
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#import "FIRTimestamp.h"
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -30,7 +31,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 @implementation FSTMutationBatch
 
 - (instancetype)initWithBatchID:(FSTBatchID)batchID
-                 localWriteTime:(FSTTimestamp *)localWriteTime
+                 localWriteTime:(FIRTimestamp *)localWriteTime
                       mutations:(NSArray<FSTMutation *> *)mutations {
   self = [super init];
   if (self) {
