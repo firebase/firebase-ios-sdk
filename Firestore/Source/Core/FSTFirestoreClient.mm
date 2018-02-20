@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
     __block bool initialized = false;
     __block User initialUser;
     FSTWeakify(self);
-    auto userChangeListener = ^(const User &user) {
+    auto userChangeListener = ^(User user) {
       FSTStrongify(self);
       if (self) {
         if (!initialized) {

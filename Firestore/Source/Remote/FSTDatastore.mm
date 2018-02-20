@@ -308,19 +308,18 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // but I'm not sure how to detect that right now. http://b/32762461
   _credentials->GetToken(
       false,  // force_refresh
-      [self, rpcFactory, errorHandler](const Token &result, const int64_t error_code,
+      [self, rpcFactory, errorHandler](Token result, const int64_t error_code,
                                        const absl::string_view error_msg) {
-        const Token resultCopy = result;
         NSError *error = util::WrapNSError(error_code, error_msg);
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
           if (error) {
             errorHandler(error);
           } else {
             GRPCProtoCall *rpc = rpcFactory();
-            [FSTDatastore prepareHeadersForRPC:rpc
-                                    databaseID:&self.databaseInfo->database_id()
-                                         token:(resultCopy.is_valid() ? resultCopy.token()
-                                                                      : absl::string_view())];
+            [FSTDatastore
+                prepareHeadersForRPC:rpc
+                          databaseID:&self.databaseInfo->database_id()
+                               token:(result.is_valid() ? result.token() : absl::string_view())];
             [rpc start];
           }
         }];

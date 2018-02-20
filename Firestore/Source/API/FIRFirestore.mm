@@ -19,6 +19,7 @@
 #include <memory>
 
 #import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
@@ -85,6 +86,36 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return instances;
 }
 
++ (void)initialize {
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center addObserverForName:kFIRAppDeleteNotification
+                      object:nil
+                       queue:nil
+                  usingBlock:^(NSNotification *_Nonnull note) {
+                    NSString *appName = note.userInfo[kFIRAppNameKey];
+                    if (appName == nil) return;
+
+                    NSMutableDictionary *instances = [self instances];
+                    @synchronized(instances) {
+                      // Since the key for instances isn't just the app name, iterate over all the
+                      // keys to get the one(s) we have to delete. There could be multiple in case
+                      // the user calls firestoreForApp:database:.
+                      NSMutableArray *keysToDelete = [[NSMutableArray alloc] init];
+                      NSString *keyPrefix = [NSString stringWithFormat:@"%@|", appName];
+                      for (NSString *key in instances.allKeys) {
+                        if ([key hasPrefix:keyPrefix]) {
+                          [keysToDelete addObject:key];
+                        }
+                      }
+
+                      // Loop through the keys found and delete them from the stored instances.
+                      for (NSString *key in keysToDelete) {
+                        [instances removeObjectForKey:key];
+                      }
+                    }
+                  }];
+}
+
 + (instancetype)firestore {
   FIRApp *app = [FIRApp defaultApp];
   if (!app) {
@@ -114,6 +145,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
          "database",
         util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId));
   }
+
+  // Note: If the key format changes, please change the code that detects FIRApps being deleted
+  // contained in +initialize. It checks for the app's name followed by a | character.
   NSString *key = [NSString stringWithFormat:@"%@|%@", app.name, database];
 
   NSMutableDictionary<NSString *, FIRFirestore *> *instances = self.instances;

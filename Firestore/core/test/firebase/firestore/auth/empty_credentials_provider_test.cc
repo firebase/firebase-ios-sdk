@@ -25,7 +25,7 @@ namespace auth {
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
   credentials_provider.GetToken(
-      /*force_refresh=*/true, [](const Token& token, const int64_t error_code,
+      /*force_refresh=*/true, [](Token token, const int64_t error_code,
                                  const absl::string_view error_msg) {
         EXPECT_FALSE(token.is_valid());
         const User& user = token.user();
@@ -38,7 +38,7 @@ TEST(EmptyCredentialsProvider, GetToken) {
 
 TEST(EmptyCredentialsProvider, SetListener) {
   EmptyCredentialsProvider credentials_provider;
-  credentials_provider.SetUserChangeListener([](const User& user) {
+  credentials_provider.SetUserChangeListener([](User user) {
     EXPECT_EQ("", user.uid());
     EXPECT_FALSE(user.is_authenticated());
   });
