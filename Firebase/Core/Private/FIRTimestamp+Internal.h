@@ -21,8 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRTimestamp API we don't want exposed in our public header files. */
 @interface FIRTimestamp (Internal)
 
-- (NSComparisonResult)compare:(FIRTimestamp *)other;
-
 /**
  * Converts the given date to an ISO 8601 timestamp string, useful for rendering in JSON.
  *

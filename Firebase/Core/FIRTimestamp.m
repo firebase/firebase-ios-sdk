@@ -30,21 +30,6 @@ static const int kNanosPerSecond = 1000000000;
 
 #pragma mark - Internal public methods
 
-- (NSComparisonResult)compare:(FIRTimestamp *)other {
-  if (self.seconds < other.seconds) {
-    return NSOrderedAscending;
-  } else if (self.seconds > other.seconds) {
-    return NSOrderedDescending;
-  }
-
-  if (self.nanoseconds < other.nanoseconds) {
-    return NSOrderedAscending;
-  } else if (self.nanoseconds > other.nanoseconds) {
-    return NSOrderedDescending;
-  }
-  return NSOrderedSame;
-}
-
 - (NSString *)ISO8601String {
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
   formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss";
@@ -141,6 +126,21 @@ static const int kNanosPerSecond = 1000000000;
 - (NSDate *)approximateDateValue {
   NSTimeInterval interval = (NSTimeInterval)self.seconds + ((NSTimeInterval)self.nanoseconds) / 1e9;
   return [NSDate dateWithTimeIntervalSince1970:interval];
+}
+
+- (NSComparisonResult)compare:(FIRTimestamp *)other {
+  if (self.seconds < other.seconds) {
+    return NSOrderedAscending;
+  } else if (self.seconds > other.seconds) {
+    return NSOrderedDescending;
+  }
+
+  if (self.nanoseconds < other.nanoseconds) {
+    return NSOrderedAscending;
+  } else if (self.nanoseconds > other.nanoseconds) {
+    return NSOrderedDescending;
+  }
+  return NSOrderedSame;
 }
 
 #pragma mark - Private methods

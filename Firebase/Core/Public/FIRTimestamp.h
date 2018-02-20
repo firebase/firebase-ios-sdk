@@ -27,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
  * 9999-12-31T23:59:59.999999999Z. By restricting to that range, we ensure that we can convert to
  * and from  RFC 3339 date strings.
  *
- * See the reference timestamp definition at
- * https://github.com/google/protobuf/blob/master/src/google/protobuf/timestamp.proto.
+ * @see https://github.com/google/protobuf/blob/master/src/google/protobuf/timestamp.proto for the
+ * reference timestamp definition.
  */
 NS_SWIFT_NAME(Timestamp)
 @interface FIRTimestamp : NSObject <NSCopying>
@@ -61,6 +61,8 @@ NS_SWIFT_NAME(Timestamp)
 
 /** Returns a new NSDate corresponding to this timestamp. This may lose precision. */
 - (NSDate *)approximateDateValue;
+
+- (NSComparisonResult)compare:(FIRTimestamp *)other;
 
 /**
  * Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
