@@ -116,7 +116,7 @@
       self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
       [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
       [self removeAllObservers];
-      _fetcherCompletion = nil;
+      self->_fetcherCompletion = nil;
       return;
     }
 
@@ -124,12 +124,12 @@
     self.state = FIRStorageTaskStateSuccess;
 
     if (data) {
-      _downloadData = data;
+      self->_downloadData = data;
     }
 
     [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
     [self removeAllObservers];
-    _fetcherCompletion = nil;
+    self->_fetcherCompletion = nil;
   };
 #pragma clang diagnostic pop
 

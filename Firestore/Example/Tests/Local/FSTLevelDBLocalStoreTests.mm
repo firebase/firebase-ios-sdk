@@ -18,7 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"

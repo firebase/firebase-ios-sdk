@@ -356,6 +356,11 @@ NS_SWIFT_NAME(Messaging)
  * Is Firebase Messaging token auto generation enabled?  If this flag is disabled,
  * Firebase Messaging will not generate token automatically for message delivery.
  *
+ * If this flag is disabled, Firebase Messaging does not generate new tokens automatically for
+ * message delivery. If this flag is enabled, FCM generates a registration token on application
+ * start when there is no existing valid token. FCM also generates a new token when an existing
+ * token is deleted.
+ *
  * This setting is persisted, and is applied on future
  * invocations of your application.  Once explicitly set, it overrides any
  * settings in your Info.plist.

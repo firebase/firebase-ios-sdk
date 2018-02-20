@@ -29,11 +29,13 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -198,7 +200,7 @@ using leveldb::WriteOptions;
 
 #pragma mark - Persistence Factory methods
 
-- (id<FSTMutationQueue>)mutationQueueForUser:(FSTUser *)user {
+- (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
   return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:_ptr serializer:self.serializer];
 }
 

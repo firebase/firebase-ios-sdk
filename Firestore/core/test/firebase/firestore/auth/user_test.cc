@@ -49,6 +49,11 @@ TEST(User, Comparison) {
   EXPECT_NE(User("abc"), User("xyz"));
 }
 
+TEST(User, Hash) {
+  const HashUser hash;
+  EXPECT_EQ(hash(User("abc")), hash(User("abc")));
+}
+
 }  // namespace auth
 }  // namespace firestore
 }  // namespace firebase

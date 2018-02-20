@@ -99,6 +99,9 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       std::swap(blob_value_, tmp);
       break;
     }
+    case Type::Reference:
+      reference_value_ = value.reference_value_;
+      break;
     case Type::GeoPoint:
       geo_point_value_ = value.geo_point_value_;
       break;
@@ -130,6 +133,11 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
     case Type::Blob:
       SwitchTo(Type::Blob);
       std::swap(blob_value_, value.blob_value_);
+      return *this;
+    case Type::Reference:
+      SwitchTo(Type::Reference);
+      std::swap(reference_value_.reference, value.reference_value_.reference);
+      reference_value_.database_id = value.reference_value_.database_id;
       return *this;
     case Type::Array:
       SwitchTo(Type::Array);
@@ -233,6 +241,26 @@ FieldValue FieldValue::BlobValue(const uint8_t* source, size_t size) {
   return result;
 }
 
+// Does NOT pass ownership of database_id.
+FieldValue FieldValue::ReferenceValue(const DocumentKey& value,
+                                      const DatabaseId* database_id) {
+  FieldValue result;
+  result.SwitchTo(Type::Reference);
+  result.reference_value_.reference = value;
+  result.reference_value_.database_id = database_id;
+  return result;
+}
+
+// Does NOT pass ownership of database_id.
+FieldValue FieldValue::ReferenceValue(DocumentKey&& value,
+                                      const DatabaseId* database_id) {
+  FieldValue result;
+  result.SwitchTo(Type::Reference);
+  std::swap(result.reference_value_.reference, value);
+  result.reference_value_.database_id = database_id;
+  return result;
+}
+
 FieldValue FieldValue::GeoPointValue(const GeoPoint& value) {
   FieldValue result;
   result.SwitchTo(Type::GeoPoint);
@@ -309,6 +337,12 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return lhs.string_value_.compare(rhs.string_value_) < 0;
     case Type::Blob:
       return lhs.blob_value_ < rhs.blob_value_;
+    case Type::Reference:
+      return *lhs.reference_value_.database_id <
+                 *rhs.reference_value_.database_id ||
+             (*lhs.reference_value_.database_id ==
+                  *rhs.reference_value_.database_id &&
+              lhs.reference_value_.reference < rhs.reference_value_.reference);
     case Type::GeoPoint:
       return lhs.geo_point_value_ < rhs.geo_point_value_;
     case Type::Array:
@@ -343,6 +377,9 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Blob:
       blob_value_.~vector();
       break;
+    case Type::Reference:
+      reference_value_.~ReferenceValue();
+      break;
     case Type::GeoPoint:
       geo_point_value_.~GeoPoint();
       break;
@@ -369,6 +406,10 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Blob:
       // Do not even bother to allocate a new array of size 0.
       new (&blob_value_) std::vector<uint8_t>();
+      break;
+    case Type::Reference:
+      // Qualified name to avoid conflict with the member function of same name.
+      new (&reference_value_) firebase::firestore::model::ReferenceValue();
       break;
     case Type::GeoPoint:
       new (&geo_point_value_) GeoPoint();
