@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 
-#import <FirebaseCore/FIRTimestamp+Internal.h>
+#import "FIRTimestamp.h"
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"

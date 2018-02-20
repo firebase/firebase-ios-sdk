@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#import <FirebaseCore/FIRTimestamp.h>
+#import "FIRTimestamp.h"
 
 #import "FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"

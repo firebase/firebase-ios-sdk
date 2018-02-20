@@ -19,7 +19,7 @@
 #include <inttypes.h>
 #include <list>
 
-#import <FirebaseCore/FIRTimestamp+Internal.h>
+#import "FIRTimestamp.h"
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 

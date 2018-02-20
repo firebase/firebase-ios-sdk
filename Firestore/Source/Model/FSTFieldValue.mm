@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
-#import <FirebaseCore/FIRTimestamp+Internal.h>
+#import "FIRTimestamp.h"
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"

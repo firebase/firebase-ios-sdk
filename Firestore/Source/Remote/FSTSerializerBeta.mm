@@ -18,7 +18,7 @@
 
 #include <inttypes.h>
 
-#import <FirebaseCore/FIRTimestamp+Internal.h>
+#import "FIRTimestamp.h"
 #import <GRPCClient/GRPCCall.h>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
