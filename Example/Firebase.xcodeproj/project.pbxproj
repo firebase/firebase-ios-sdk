@@ -153,9 +153,6 @@
 		AFD563151EB29EDE00EA2233 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AFD563131EB1466100EA2233 /* GoogleService-Info.plist */; };
 		AFD563171EBBEF7B00EA2233 /* Data+MessagingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */; };
 		B1FF92C04BA1E704C11B0467 /* Pods_Auth_Example_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4384273DF1B662E4CE522BAF /* Pods_Auth_Example_tvOS.framework */; };
-		B67B72A8202E61830006FCD6 /* FIRTimestampTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B67B72A6202E5E860006FCD6 /* FIRTimestampTest.m */; };
-		B67B72A9202E61840006FCD6 /* FIRTimestampTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B67B72A6202E5E860006FCD6 /* FIRTimestampTest.m */; };
-		B67B72AA202E61860006FCD6 /* FIRTimestampTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B67B72A6202E5E860006FCD6 /* FIRTimestampTest.m */; };
 		BB2055D8C835CBDABB419B1C /* Pods_Storage_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFCD819598D37C1AD6F7D601 /* Pods_Storage_Example_iOS.framework */; };
 		BBFDB50D4B4632DF9A32B305 /* Pods_Core_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94427D25FE9C3A26EF1A8ABE /* Pods_Core_Example_iOS.framework */; };
 		BD84035FA14A8647DCB7AEE7 /* Pods_Database_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CCF6BD7264693FD98E10850 /* Pods_Database_Tests_iOS.framework */; };
@@ -1077,7 +1074,6 @@
 		B2FFB14744FBF59F4E89FE0F /* Pods_Database_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B44CC7B623B174C922C241EF /* Pods-Database_Example_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Example_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Example_tvOS/Pods-Database_Example_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		B55C9A02AA68737098994C79 /* Pods-Core_Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example_macOS/Pods-Core_Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
-		B67B72A6202E5E860006FCD6 /* FIRTimestampTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTimestampTest.m; sourceTree = "<group>"; };
 		B6BC99F9590CB7AAE33544C3 /* Pods-Core_Tests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests_tvOS/Pods-Core_Tests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		B7C4D4083183945C8A9CE722 /* Pods-Database_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Example_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Example_macOS/Pods-Database_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		BA1FFE4321DBF890ADDCAAEE /* Pods-Storage_Tests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests_macOS/Pods-Storage_Tests_macOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -2552,7 +2548,6 @@
 		DEE14D741E844677006FA992 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				B67B72A6202E5E860006FCD6 /* FIRTimestampTest.m */,
 				DEE14D7B1E844677006FA992 /* FIRTestCase.h */,
 				DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */,
 				DEE14D761E844677006FA992 /* FIRAppTest.m */,
@@ -5842,7 +5837,6 @@
 			files = (
 				D064E6AF1ED9B31C001956DF /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				D064E6B01ED9B31C001956DF /* FIRAppTest.m in Sources */,
-				B67B72A9202E61840006FCD6 /* FIRTimestampTest.m in Sources */,
 				D064E6B11ED9B31C001956DF /* FIRConfigurationTest.m in Sources */,
 				D064E6B21ED9B31C001956DF /* FIRLoggerTest.m in Sources */,
 				D064E6B31ED9B31C001956DF /* FIROptionsTest.m in Sources */,
@@ -6282,7 +6276,6 @@
 			files = (
 				DEAAD3DA1FBA34250053BF48 /* FIROptionsTest.m in Sources */,
 				DEAAD3D51FBA34250053BF48 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
-				B67B72AA202E61860006FCD6 /* FIRTimestampTest.m in Sources */,
 				DEAAD3D91FBA34250053BF48 /* FIRLoggerTest.m in Sources */,
 				DEAAD3D61FBA34250053BF48 /* FIRAppTest.m in Sources */,
 				DEAAD3D81FBA34250053BF48 /* FIRConfigurationTest.m in Sources */,
@@ -6370,7 +6363,6 @@
 			files = (
 				DEE14D8E1E84468D006FA992 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				DEE14D8F1E84468D006FA992 /* FIRAppTest.m in Sources */,
-				B67B72A8202E61830006FCD6 /* FIRTimestampTest.m in Sources */,
 				DEE14D911E84468D006FA992 /* FIRConfigurationTest.m in Sources */,
 				DEE14D921E84468D006FA992 /* FIRLoggerTest.m in Sources */,
 				DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */,
