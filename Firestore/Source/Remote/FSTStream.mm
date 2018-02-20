@@ -371,7 +371,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   }
 
   if (finalState != FSTStreamStateError) {
-    FSTLog(@"%@ %p Performing stream teardown", [self class], (__bridge void *) self);
+    FSTLog(@"%@ %p Performing stream teardown", [self class], (__bridge void *)self);
     [self tearDown];
   }
 
