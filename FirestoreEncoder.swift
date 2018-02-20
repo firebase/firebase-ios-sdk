@@ -339,12 +339,21 @@ extension FirestoreEncoder {
             return (value as! NSObject)
         }
         
-        // The value should request a container from the FirestoreEncoder.
-        let depth = storage.count
-        try value.encode(to: self)
+        // The value should request a container from the _JSONEncoder.
+        let depth = self.storage.count
+        do {
+            try value.encode(to: self)
+        } catch {
+            // If the value pushed a container before throwing, pop it back off to restore state.
+            if self.storage.count > depth {
+                let _ = self.storage.popContainer()
+            }
+            
+            throw error
+        }
         
         // The top container should be a new container.
-        guard storage.count > depth else {
+        guard self.storage.count > depth else {
             return nil
         }
         
