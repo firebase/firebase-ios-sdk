@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,46 +24,19 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRApp;
 @class FSTDispatchQueue;
 
-#pragma mark - FSTGetTokenResult
-
-/**
- * The current User and the authentication token provided by the underlying authentication
- * mechanism. This is the result of calling -[FSTCredentialsProvider getTokenForcingRefresh].
- *
- * ## Portability notes: no TokenType on iOS
- *
- * The TypeScript client supports 1st party Oauth tokens (for the Firebase Console to auth as the
- * developer) and OAuth2 tokens for the node.js sdk to auth with a service account. We don't have
- * plans to support either case on mobile so there's no TokenType here.
- */
-// TODO(mcg): Rename FSTToken, change parameter order to line up with the other platforms.
-@interface FSTGetTokenResult : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithUser:(const firebase::firestore::auth::User &)user
-                       token:(NSString *_Nullable)token NS_DESIGNATED_INITIALIZER;
-
-/** The user with which the token is associated (used for persisting user state on disk, etc.). */
-@property(nonatomic, assign, readonly) const firebase::firestore::auth::User &user;
-
-/** The actual raw token. */
-@property(nonatomic, copy, nullable, readonly) NSString *token;
-
-@end
-
 #pragma mark - Typedefs
 
 /**
  * `FSTVoidTokenErrorBlock` is a block that gets a token or an error.
  *
- * @param token An auth token as a string.
+ * @param token An auth token, either valid or invalid when error occurred.
  * @param error The error if one occurred, or else `nil`.
  */
-typedef void (^FSTVoidGetTokenResultBlock)(FSTGetTokenResult *_Nullable token,
+typedef void (^FSTVoidGetTokenResultBlock)(firebase::firestore::auth::Token token,
                                            NSError *_Nullable error);
 
 /** Listener block notified with a User. */
-typedef void (^FSTVoidUserBlock)(const firebase::firestore::auth::User &user);
+typedef void (^FSTVoidUserBlock)(firebase::firestore::auth::User user);
 
 #pragma mark - FSTCredentialsProvider
 

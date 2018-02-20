@@ -25,7 +25,7 @@ namespace auth {
 #define UNUSED(x) (void)(x)
 
 TEST(CredentialsProvider, Typedef) {
-  TokenListener token_listener = [](const Token& token,
+  TokenListener token_listener = [](Token token,
                                     const absl::string_view error) {
     UNUSED(token);
     UNUSED(error);
@@ -37,9 +37,7 @@ TEST(CredentialsProvider, Typedef) {
   EXPECT_EQ(nullptr, token_listener);
   EXPECT_FALSE(token_listener);
 
-  UserChangeListener user_change_listener = [](const User& user) {
-    UNUSED(user);
-  };
+  UserChangeListener user_change_listener = [](User user) { UNUSED(user); };
   EXPECT_NE(nullptr, user_change_listener);
   EXPECT_TRUE(user_change_listener);
 

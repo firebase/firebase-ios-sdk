@@ -35,11 +35,13 @@
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -256,18 +258,17 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTAssert(_delegate == nil, @"Delegate must be nil");
   _delegate = delegate;
 
-  [self.credentials
-      getTokenForcingRefresh:NO
-                  completion:^(FSTGetTokenResult *_Nullable result, NSError *_Nullable error) {
-                    error = [FSTDatastore firestoreErrorForError:error];
-                    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-                      [self resumeStartWithToken:result error:error];
-                    }];
-                  }];
+  [self.credentials getTokenForcingRefresh:NO
+                                completion:^(Token result, NSError *_Nullable error) {
+                                  error = [FSTDatastore firestoreErrorForError:error];
+                                  [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+                                    [self resumeStartWithToken:result error:error];
+                                  }];
+                                }];
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
-- (void)resumeStartWithToken:(FSTGetTokenResult *)token error:(NSError *)error {
+- (void)resumeStartWithToken:(const Token &)token error:(NSError *)error {
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for authorization.
     return;
@@ -289,7 +290,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:token.token];
+                               token:(token.is_valid() ? token.token() : absl::string_view())];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];

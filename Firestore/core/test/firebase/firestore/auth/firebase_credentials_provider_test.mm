@@ -65,8 +65,7 @@ TEST_F(FirebaseCredentialsProviderTest, GetToken) {
 
   FirebaseCredentialsProvider credentials_provider([FIRApp defaultApp]);
   credentials_provider.GetToken(
-      /*force_refresh=*/true,
-      [](const Token& token, const absl::string_view error) {
+      /*force_refresh=*/true, [](Token token, const absl::string_view error) {
         EXPECT_EQ("", token.token());
         const User& user = token.user();
         EXPECT_EQ("I'm a fake uid.", user.uid());
@@ -82,7 +81,7 @@ TEST_F(FirebaseCredentialsProviderTest, SetListener) {
   }
 
   FirebaseCredentialsProvider credentials_provider([FIRApp defaultApp]);
-  credentials_provider.SetUserChangeListener([](const User& user) {
+  credentials_provider.SetUserChangeListener([](User user) {
     EXPECT_EQ("I'm a fake uid.", user.uid());
     EXPECT_TRUE(user.is_authenticated());
   });
