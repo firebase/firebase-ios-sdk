@@ -15,7 +15,7 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
-#import "FIRTimestamp.h"
+#import <FirebaseFirestore/FIRTimestamp.h>
 
 #import <XCTest/XCTest.h>
 
