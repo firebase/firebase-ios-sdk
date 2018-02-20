@@ -24,6 +24,7 @@
 
 /* Begin PBXBuildFile section */
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
+		54269AF8203BAB800039F03F /* CodableGeoPointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54269AF7203BAB800039F03F /* CodableGeoPointTests.swift */; };
 		5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5436F32320008FAD006E51E3 /* string_printf_test.cc */; };
 		54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
 		54740A581FC914F000713A1A /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A521FC913E500713A1A /* autoid_test.cc */; };
@@ -229,6 +230,7 @@
 		4EBC5F5ABE1FD097EFE5E224 /* Pods-Firestore_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example/Pods-Firestore_Example.release.xcconfig"; sourceTree = "<group>"; };
 		54269AE9203B9FFC0039F03F /* Firestore_SwiftTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_SwiftTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54269AED203B9FFD0039F03F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		54269AF7203BAB800039F03F /* CodableGeoPointTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableGeoPointTests.swift; sourceTree = "<group>"; };
 		5436F32320008FAD006E51E3 /* string_printf_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_printf_test.cc; path = ../../core/test/firebase/firestore/util/string_printf_test.cc; sourceTree = "<group>"; };
 		54740A521FC913E500713A1A /* autoid_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autoid_test.cc; path = ../../core/test/firebase/firestore/util/autoid_test.cc; sourceTree = "<group>"; };
 		54740A531FC913E500713A1A /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = secure_random_test.cc; path = ../../core/test/firebase/firestore/util/secure_random_test.cc; sourceTree = "<group>"; };
@@ -458,10 +460,19 @@
 		54269AEA203B9FFC0039F03F /* SwiftTests_iOS */ = {
 			isa = PBXGroup;
 			children = (
+				54269AF6203BAB800039F03F /* Codable */,
 				54269AED203B9FFD0039F03F /* Info.plist */,
 			);
 			name = SwiftTests_iOS;
 			path = ../Swift/Tests;
+			sourceTree = "<group>";
+		};
+		54269AF6203BAB800039F03F /* Codable */ = {
+			isa = PBXGroup;
+			children = (
+				54269AF7203BAB800039F03F /* CodableGeoPointTests.swift */,
+			);
+			path = Codable;
 			sourceTree = "<group>";
 		};
 		54740A561FC913EB00713A1A /* util */ = {
@@ -1403,6 +1414,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54269AF8203BAB800039F03F /* CodableGeoPointTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
