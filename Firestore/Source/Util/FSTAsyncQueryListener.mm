@@ -16,7 +16,6 @@
 
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
-#import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 @implementation FSTAsyncQueryListener {
@@ -35,18 +34,13 @@
 }
 
 - (FSTViewSnapshotHandler)asyncSnapshotHandler {
-  FSTWeakify(self);
+  // Retain `self` strongly in resulting snapshot handler so that even if the
+  // user releases the `FSTAsyncQueryListener` we'll continue to deliver
+  // events. This is done specifically to facilitate the common case where
+  // users just want to turn on notifications "forever" and don't want to have
+  // to keep track of our handle to keep them going.
   return ^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
-    FSTStrongify(self);
-    if (!self) {
-      return;
-    }
-    FSTWeakify(self);
     [self->_dispatchQueue dispatchAsync:^{
-      FSTStrongify(self);
-      if (!self) {
-        return;
-      }
       if (!self->_muted) {
         self->_snapshotHandler(snapshot, error);
       }

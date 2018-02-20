@@ -504,13 +504,8 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 
   // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
   // applying the completed FSTRemoteEvent.
-  FSTWeakify(self);
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
                                  FSTBoxedTargetID *target, FSTTargetChange *change, BOOL *stop) {
-    FSTStrongify(self);
-    if (!self) {
-      return;
-    }
     NSData *resumeToken = change.resumeToken;
     if (resumeToken.length > 0) {
       FSTQueryData *queryData = self->_listenTargets[target];
