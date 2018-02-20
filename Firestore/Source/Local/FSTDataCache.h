@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+// More limited access to underlying tables for components that just need to read
 @protocol FSTDataAccess <NSObject>
 
 - (FSTTargetID)highestTargetID;
@@ -46,9 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-
+// Access to mutate underlying persistence tables.
+// TODO: better name
 @interface FSTDataCache : NSObject<FSTDataAccess>
 
+// This is not in the read-only portion since this gives direct access to write to
+// the mutation queue, as well as read it.
 @property (strong, nonatomic, readonly) id<FSTMutationQueue> mutationQueue;
 
 + (FSTDataCache *)cacheWithPersistence:(id<FSTPersistence>)persistence
@@ -79,6 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQueryData *)getOrCreateQueryData:(FSTQuery *)query;
 
 - (FSTQueryData *)removeQuery:(FSTQuery *)query group:(FSTWriteGroup *)group;
+
+- (FSTWriteGroup *)groupWithAction:(NSString *)action;
+
+- (void)commitGroup:(FSTWriteGroup *)group;
 
 @end
 

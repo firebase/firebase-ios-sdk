@@ -17,23 +17,20 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
 #import "Firestore/Source/Auth/FSTUser.h"
-#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTimestamp.h"
+#import "Firestore/Source/Local/FSTDataCache.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -42,7 +39,7 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
-#import "FSTDataCache.h"
+
 
 using firebase::firestore::core::TargetIdGenerator;
 
@@ -50,35 +47,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalStore ()
 
-/** Manages our in-memory or durable persistence. */
-//@property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
-
-/** The set of all mutations that have been sent but not yet been applied to the backend. */
-//@property(nonatomic, strong) id<FSTMutationQueue> mutationQueue;
-
-/** The set of all cached remote documents. */
-//@property(nonatomic, strong) id<FSTRemoteDocumentCache> remoteDocumentCache;
-
 /** The "local" view of all documents (layering mutationQueue on top of remoteDocumentCache). */
 @property(nonatomic, strong) FSTLocalDocumentsView *localDocuments;
 
 /** The set of document references maintained by any local views. */
 @property(nonatomic, strong) FSTReferenceSet *localViewReferences;
 
-/**
- * The garbage collector collects documents that should no longer be cached (e.g. if they are no
- * longer retained by the above reference sets and the garbage collector is performing eager
- * collection).
- */
-//@property(nonatomic, strong) id<FSTGarbageCollector> garbageCollector;
-
-/** Maps a query to the data about that query. */
-//@property(nonatomic, strong) id<FSTQueryCache> queryCache;
-
 /** Maps a targetID to data about its query. */
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, FSTQueryData *> *targetIDs;
-
-//@property(nonatomic, strong) FSTListenSequence *listenSequence;
 
 @property(nonatomic, strong) FSTDataCache *dataCache;
 
@@ -105,20 +81,9 @@ NS_ASSUME_NONNULL_BEGIN
                         initialUser:(FSTUser *)initialUser {
   if (self = [super init]) {
     _dataCache = [FSTDataCache cacheWithPersistence:persistence cleanupDelegate:[FSTEagerDataAccess delegate]];
-    //_persistence = persistence;
-    //_mutationQueue = [persistence mutationQueueForUser:initialUser];
-    //_remoteDocumentCache = [persistence remoteDocumentCache];
-    //_queryCache = [persistence queryCache];
-//    _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
-//                                                           mutationQueue:_mutationQueue];
     _localDocuments = [FSTLocalDocumentsView viewWithDataAccess:_dataCache
                                                            mutationQueue:_mutationQueue];
     _localViewReferences = [[FSTReferenceSet alloc] init];
-
-    //_garbageCollector = garbageCollector;
-    //[_garbageCollector addGarbageSource:_queryCache];
-    //[_garbageCollector addGarbageSource:_localViewReferences];
-    //[_garbageCollector addGarbageSource:_mutationQueue];
 
     _targetIDs = [NSMutableDictionary dictionary];
     _heldBatchResults = [NSMutableArray array];
@@ -134,7 +99,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)startMutationQueue {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
+  FSTWriteGroup *group = [self.dataCache groupWithAction:@"Start MutationQueue"];
+  // TODO(gsoltis): implement this next line
   [self.mutationQueue startWithGroup:group];
 
   // If we have any leftover mutation batch results from a prior run, just drop them.
@@ -144,34 +110,27 @@ NS_ASSUME_NONNULL_BEGIN
 
   // TODO(mikelehen): This is the only usage of getAllMutationBatchesThroughBatchId:. Consider
   // removing it in favor of a getAcknowledgedBatches method.
-  FSTBatchID highestAck = [self.mutationQueue highestAcknowledgedBatchID];
+  FSTBatchID highestAck = [self.dataCache.mutationQueue highestAcknowledgedBatchID];
   if (highestAck != kFSTBatchIDUnknown) {
     NSArray<FSTMutationBatch *> *batches =
-        [self.mutationQueue allMutationBatchesThroughBatchID:highestAck];
+        [self.dataCache.mutationQueue allMutationBatchesThroughBatchID:highestAck];
     if (batches.count > 0) {
       // NOTE: This could be more efficient if we had a removeBatchesThroughBatchID, but this set
       // should be very small and this code should go away eventually.
-      [self.mutationQueue removeMutationBatches:batches group:group];
+      [self.dataCache.mutationQueue removeMutationBatches:batches group:group];
     }
   }
-  [self.persistence commitGroup:group];
+  [self.dataCache commitGroup:group];
 }
 
 - (void)startQueryCache {
   [self.dataCache start];
-  //[self.queryCache start];
 
-  //FSTTargetID targetID = [self.queryCache highestTargetID];
   FSTTargetID targetID = [self.dataCache highestTargetID];
   _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
-  //FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
-  //self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
 - (void)shutdown {
-  //[self.mutationQueue shutdown];
-  //[self.remoteDocumentCache shutdown];
-  //[self.queryCache shutdown];
   [self.dataCache shutdown];
 }
 
@@ -179,15 +138,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   NSArray<FSTMutationBatch *> *oldBatches = [self.dataCache.mutationQueue allMutationBatches];
 
-  [self.dataCache userDidChange:user];
-  /*[self.mutationQueue shutdown];
-  [self.garbageCollector removeGarbageSource:self.mutationQueue];
-
-  self.mutationQueue = [self.persistence mutationQueueForUser:user];
-  [self.garbageCollector addGarbageSource:self.mutationQueue];
-
-  [self startMutationQueue];*/
   // TODO(gsoltis): wire in user changing
+  [self.dataCache userDidChange:user];
 
   NSArray<FSTMutationBatch *> *newBatches = [self.dataCache.mutationQueue allMutationBatches];
 
@@ -210,12 +162,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Locally write mutations"];
+  FSTWriteGroup *group = [self.dataCache groupWithAction:@"Locally write mutations"];
   FSTTimestamp *localWriteTime = [FSTTimestamp timestamp];
-  FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
+  FSTMutationBatch *batch = [self.dataCache.mutationQueue addMutationBatchWithWriteTime:localWriteTime
                                                                     mutations:mutations
                                                                         group:group];
-  [self.persistence commitGroup:group];
+  [self.dataCache commitGroup:group];
 
   FSTDocumentKeySet *keys = [batch keys];
   FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
@@ -223,10 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocumentDictionary *)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Acknowledge batch"];
-  id<FSTMutationQueue> mutationQueue = self.mutationQueue;
+  FSTWriteGroup *group = [self.dataCache groupWithAction:@"Acknowledge batch"];
+  //id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
-  [mutationQueue acknowledgeBatch:batchResult.batch
+  [self.dataCache.mutationQueue acknowledgeBatch:batchResult.batch
                       streamToken:batchResult.streamToken
                             group:group];
 
@@ -235,53 +187,48 @@ NS_ASSUME_NONNULL_BEGIN
     [self.heldBatchResults addObject:batchResult];
     affected = [FSTDocumentKeySet keySet];
   } else {
-//    FSTRemoteDocumentChangeBuffer *remoteDocuments =
-//        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
     FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataCache changeBuffer];
 
     affected =
         [self releaseBatchResults:@[ batchResult ] group:group remoteDocuments:remoteDocuments];
 
     [remoteDocuments applyToWriteGroup:group];
-//    [self.queryCache addPotentiallyOrphanedDocuments:affected
-//                                    atSequenceNumber:[self.listenSequence next]
-//                                               group:group];
     [self.dataCache addPotentiallyOrphanedDocuments:affected
                                                group:group];
   }
 
-  [self.persistence commitGroup:group];
-  [self.mutationQueue performConsistencyCheck];
+  [self.dataCache commitGroup:group];
+  [self.dataCache.mutationQueue performConsistencyCheck];
 
   return [self.localDocuments documentsForKeys:affected];
 }
 
 - (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Reject batch"];
+  FSTWriteGroup *group = [self.dataCache groupWithAction:@"Reject batch"];
 
-  FSTMutationBatch *toReject = [self.mutationQueue lookupMutationBatch:batchID];
+  FSTMutationBatch *toReject = [self.dataCache.mutationQueue lookupMutationBatch:batchID];
   FSTAssert(toReject, @"Attempt to reject nonexistent batch!");
 
-  FSTBatchID lastAcked = [self.mutationQueue highestAcknowledgedBatchID];
+  FSTBatchID lastAcked = [self.dataCache.mutationQueue highestAcknowledgedBatchID];
   FSTAssert(batchID > lastAcked, @"Acknowledged batches can't be rejected.");
 
   FSTDocumentKeySet *affected = [self removeMutationBatch:toReject group:group];
 
-  [self.persistence commitGroup:group];
-  [self.mutationQueue performConsistencyCheck];
+  [self.dataCache commitGroup:group];
+  [self.dataCache.mutationQueue performConsistencyCheck];
 
   return [self.localDocuments documentsForKeys:affected];
 }
 
 - (nullable NSData *)lastStreamToken {
-  return [self.mutationQueue lastStreamToken];
+  return [self.dataCache.mutationQueue lastStreamToken];
 }
 
 - (void)setLastStreamToken:(nullable NSData *)streamToken {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Set stream token"];
+  FSTWriteGroup *group = [self.dataCache groupWithAction:@"Set stream token"];
 
-  [self.mutationQueue setLastStreamToken:streamToken group:group];
-  [self.persistence commitGroup:group];
+  [self.dataCache.mutationQueue setLastStreamToken:streamToken group:group];
+  [self.dataCache commitGroup:group];
 }
 
 - (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
@@ -291,29 +238,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   //id<FSTQueryCache> queryCache = self.queryCache;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Apply remote event"];
+  FSTWriteGroup *group = [self.dataCache groupWithAction:@"Apply remote event"];
 
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
                                  NSNumber *targetIDNumber, FSTTargetChange *change, BOOL *stop) {
     FSTTargetID targetID = targetIDNumber.intValue;
-    /*
-    // Do not ref/unref unassigned targetIDs - it may lead to leaks.
-    FSTQueryData *queryData = self.targetIDs[targetIDNumber];
-    if (!queryData) {
-      return;
-    }
-
-    // Update the resume token if the change includes one. Don't clear any preexisting value.
-    // Bump the sequence number as well, so that documents being removed now are ordered later
-    // than documents that were previously removed from this target.
-    NSData *resumeToken = change.resumeToken;
-    if (resumeToken.length > 0) {
-      queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
-                                                     resumeToken:resumeToken
-                                                  sequenceNumber:[self.listenSequence next]];
-      self.targetIDs[targetIDNumber] = queryData;
-      [self.queryCache addQueryData:queryData group:group];
-    }*/
 
     FSTQueryData *queryData = [self.dataCache updateQuery:targetID forChange:change group:group];
     if (!queryData) {
@@ -321,30 +250,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     FSTTargetMapping *mapping = change.mapping;
-    //FSTListenSequenceNumber sequenceNumber = queryData.sequenceNumber;
     if (mapping) {
       // First make sure that all references are deleted.
       if ([mapping isKindOfClass:[FSTResetMapping class]]) {
         // TODO(gsoltis): reset query
         FSTResetMapping *reset = (FSTResetMapping *)mapping;
-        /*[queryCache removeMatchingKeysForTargetID:targetID group:group];
-        [queryCache addMatchingKeys:reset.documents
-                        forTargetID:targetID
-                   atSequenceNumber:sequenceNumber
-                              group:group];*/
         [self.dataCache resetQuery:queryData documents:reset.documents group:group];
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
         // TODO(gsoltis): update query
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-        /*[queryCache removeMatchingKeys:update.removedDocuments
-                           forTargetID:targetID
-                      atSequenceNumber:sequenceNumber
-                                 group:group];
-        [queryCache addMatchingKeys:update.addedDocuments
-                        forTargetID:targetID
-                   atSequenceNumber:sequenceNumber
-                              group:group];*/
         [self.dataCache updateQuery:queryData
                      documentsAdded:update.addedDocuments
                    documentsRemoved:update.removedDocuments
@@ -381,20 +296,10 @@ NS_ASSUME_NONNULL_BEGIN
 
         // The document might be garbage because it was unreferenced by everything.
         // Make sure to mark it as garbage if it is...
+        // TODO(gsoltis): evaluate if we need this
         [self.garbageCollector addPotentialGarbageKey:key];
       }];
 
-  // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote events
-  // when we get permission denied errors while trying to resolve the state of a locally cached
-  // document that is in limbo.
-  /*FSTSnapshotVersion *lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
-  FSTSnapshotVersion *remoteVersion = remoteEvent.snapshotVersion;
-  if (![remoteVersion isEqual:[FSTSnapshotVersion noVersion]]) {
-    FSTAssert([remoteVersion compare:lastRemoteVersion] != NSOrderedAscending,
-              @"Watch stream reverted to previous snapshot?? (%@ < %@)", remoteVersion,
-              lastRemoteVersion);
-    [self.queryCache setLastRemoteSnapshotVersion:remoteVersion group:group];
-  }*/
   [self.dataCache addNewSnapshotVersion:remoteEvent.snapshotVersion group:group];
 
   FSTDocumentKeySet *releasedWriteKeys =
@@ -402,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [remoteDocuments applyToWriteGroup:group];
 
-  [self.persistence commitGroup:group];
+  [self.dataCache commitGroup:group];
 
   // Union the two key sets.
   __block FSTDocumentKeySet *keysToRecalc = changedDocKeys;
@@ -425,7 +330,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
-  return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+  return [self.dataCache.mutationQueue nextMutationBatchAfterBatchID:batchID];
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(FSTDocumentKey *)key {
@@ -433,25 +338,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
-  /*FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
-  FSTTargetID targetID;
-  FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
-  if (cached) {
-    // This query has been listened to previously, so reuse the previous targetID.
-    // TODO(mcg): freshen last accessed date?
-    targetID = cached.targetID;
-  } else {
-    FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Allocate query"];
-
-    targetID = _targetIDGenerator.NextId();
-    cached = [[FSTQueryData alloc] initWithQuery:query
-                                        targetID:targetID
-                            listenSequenceNumber:sequenceNumber
-                                         purpose:FSTQueryPurposeListen];
-    [self.queryCache addQueryData:cached group:group];
-
-    [self.persistence commitGroup:group];
-  }*/
   FSTQueryData *cached = [self.dataCache getOrCreateQueryData:query];
 
   // Sanity check to ensure that even when resuming a query it's not currently active.
@@ -463,17 +349,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)releaseQuery:(FSTQuery *)query {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Release query"];
+  FSTWriteGroup *group = [self.dataCache groupWithAction:@"Release query"];
 
-  /*FSTQueryData *queryData = [self.queryCache queryDataForQuery:query];
-  FSTAssert(queryData, @"Tried to release nonexistent query: %@", query);
-
-  [self.localViewReferences removeReferencesForID:queryData.targetID];
-  // TODO(gsoltis): kill this if statement, give GC a reference to query cache,
-  // call removeQueryData on GC, not queryCache.
-  if (self.garbageCollector.isEager) {
-    [self.queryCache removeQueryData:queryData group:group];
-  }*/
   FSTQueryData *queryData = [self.dataCache removeQuery:query group:group];
   [self.localViewReferences removeReferencesForID:queryData.targetID];
   [self.targetIDs removeObjectForKey:@(queryData.targetID)];
@@ -481,8 +358,6 @@ NS_ASSUME_NONNULL_BEGIN
   // If this was the last watch target, then we won't get any more watch snapshots, so we should
   // release any held batch results.
   if ([self.targetIDs count] == 0) {
-//    FSTRemoteDocumentChangeBuffer *remoteDocuments =
-//        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
     FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataCache changeBuffer];
 
     [self releaseHeldBatchResultsWithGroup:group remoteDocuments:remoteDocuments];
@@ -490,7 +365,7 @@ NS_ASSUME_NONNULL_BEGIN
     [remoteDocuments applyToWriteGroup:group];
   }
 
-  [self.persistence commitGroup:group];
+  [self.dataCache commitGroup:group];
 }
 
 - (FSTDocumentDictionary *)executeQuery:(FSTQuery *)query {
@@ -503,17 +378,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)collectGarbage {
-  // TODO(gsoltis): fix this
-  // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
-  // accumulate the garbage keys.
-  /*NSSet<FSTDocumentKey *> *garbage = [self.garbageCollector collectGarbage];
-  if (garbage.count > 0) {
-    FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Garbage Collection"];
-    for (FSTDocumentKey *key in garbage) {
-      [self.remoteDocumentCache removeEntryForKey:key group:group];
-    }
-    [self.persistence commitGroup:group];
-  }*/
+  // TODO(gsoltis): do we still need this? possibly not, if LRU can schedule itself.
+  // Eager *should* be handled by hooks on removal.
 }
 
 /**
@@ -581,7 +447,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  [self.mutationQueue removeMutationBatches:batches group:group];
+  [self.dataCache.mutationQueue removeMutationBatches:batches group:group];
 
   return affectedDocs;
 }

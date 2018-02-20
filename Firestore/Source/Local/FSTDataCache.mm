@@ -8,12 +8,12 @@
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "FSTListenSequence.h"
-#import "FSTAssert.h"
-#import "FSTRemoteDocumentChangeBuffer.h"
-#import "target_id_generator.h"
-#import "FSTPersistence.h"
-#import "FSTMutationQueue.h"
+#import "Firestore/Source/Core/FSTListenSequence.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+
+#include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
 using firebase::firestore::core::TargetIdGenerator;
 
