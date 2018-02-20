@@ -22,6 +22,7 @@
 @class FSTDocumentKey;
 @class FSTMaybeDocument;
 @class FSTQuery;
+@protocol FSTDataAccess;
 @protocol FSTMutationQueue;
 @protocol FSTRemoteDocumentCache;
 
@@ -34,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTLocalDocumentsView : NSObject
 
-+ (instancetype)viewWithRemoteDocumentCache:(id<FSTRemoteDocumentCache>)remoteDocumentCache
++ (instancetype)viewWithDataAccess:(id<FSTDataAccess>)remoteDocumentCache
                               mutationQueue:(id<FSTMutationQueue>)mutationQueue;
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor")));

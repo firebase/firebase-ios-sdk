@@ -51,10 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLocalStore ()
 
 /** Manages our in-memory or durable persistence. */
-@property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
+//@property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 
 /** The set of all mutations that have been sent but not yet been applied to the backend. */
-@property(nonatomic, strong) id<FSTMutationQueue> mutationQueue;
+//@property(nonatomic, strong) id<FSTMutationQueue> mutationQueue;
 
 /** The set of all cached remote documents. */
 //@property(nonatomic, strong) id<FSTRemoteDocumentCache> remoteDocumentCache;
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  * longer retained by the above reference sets and the garbage collector is performing eager
  * collection).
  */
-@property(nonatomic, strong) id<FSTGarbageCollector> garbageCollector;
+//@property(nonatomic, strong) id<FSTGarbageCollector> garbageCollector;
 
 /** Maps a query to the data about that query. */
 //@property(nonatomic, strong) id<FSTQueryCache> queryCache;
@@ -80,9 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 //@property(nonatomic, strong) FSTListenSequence *listenSequence;
 
-@property(nonatomic, strong) id<FSTDataCache> dataCache;
-
-@property(nonatomic, strong) id<FSTDataAccess> dataAccess;
+@property(nonatomic, strong) FSTDataCache *dataCache;
 
 /**
  * A heldBatchResult is a mutation batch result (from a write acknowledgement) that arrived before
@@ -106,18 +104,21 @@ NS_ASSUME_NONNULL_BEGIN
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector
                         initialUser:(FSTUser *)initialUser {
   if (self = [super init]) {
-    _persistence = persistence;
-    _mutationQueue = [persistence mutationQueueForUser:initialUser];
+    _dataCache = [FSTDataCache cacheWithPersistence:persistence cleanupDelegate:[FSTEagerDataAccess delegate]];
+    //_persistence = persistence;
+    //_mutationQueue = [persistence mutationQueueForUser:initialUser];
     //_remoteDocumentCache = [persistence remoteDocumentCache];
     //_queryCache = [persistence queryCache];
-    _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
+//    _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
+//                                                           mutationQueue:_mutationQueue];
+    _localDocuments = [FSTLocalDocumentsView viewWithDataAccess:_dataCache
                                                            mutationQueue:_mutationQueue];
     _localViewReferences = [[FSTReferenceSet alloc] init];
 
-    _garbageCollector = garbageCollector;
+    //_garbageCollector = garbageCollector;
     //[_garbageCollector addGarbageSource:_queryCache];
-    [_garbageCollector addGarbageSource:_localViewReferences];
-    [_garbageCollector addGarbageSource:_mutationQueue];
+    //[_garbageCollector addGarbageSource:_localViewReferences];
+    //[_garbageCollector addGarbageSource:_mutationQueue];
 
     _targetIDs = [NSMutableDictionary dictionary];
     _heldBatchResults = [NSMutableArray array];
@@ -161,37 +162,38 @@ NS_ASSUME_NONNULL_BEGIN
   //[self.queryCache start];
 
   //FSTTargetID targetID = [self.queryCache highestTargetID];
-  FSTTargetID targetID = [self.dataAccess highestTargetID];
+  FSTTargetID targetID = [self.dataCache highestTargetID];
   _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
   //FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
   //self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
 - (void)shutdown {
-  [self.mutationQueue shutdown];
+  //[self.mutationQueue shutdown];
   //[self.remoteDocumentCache shutdown];
   //[self.queryCache shutdown];
-  [self.dataAccess shutdown];
   [self.dataCache shutdown];
 }
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(FSTUser *)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
-  NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
+  NSArray<FSTMutationBatch *> *oldBatches = [self.dataCache.mutationQueue allMutationBatches];
 
-  [self.mutationQueue shutdown];
+  [self.dataCache userDidChange:user];
+  /*[self.mutationQueue shutdown];
   [self.garbageCollector removeGarbageSource:self.mutationQueue];
 
   self.mutationQueue = [self.persistence mutationQueueForUser:user];
   [self.garbageCollector addGarbageSource:self.mutationQueue];
 
-  [self startMutationQueue];
+  [self startMutationQueue];*/
+  // TODO(gsoltis): wire in user changing
 
-  NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
+  NSArray<FSTMutationBatch *> *newBatches = [self.dataCache.mutationQueue allMutationBatches];
 
   // Recreate our LocalDocumentsView using the new MutationQueue.
-  self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:self.dataAccess
-                                                             mutationQueue:self.mutationQueue];
+  self.localDocuments = [FSTLocalDocumentsView viewWithDataAccess:self.dataCache
+                                                    mutationQueue:self.dataCache.mutationQueue];
 
   // Union the old/new changed keys.
   FSTDocumentKeySet *changedKeys = [FSTDocumentKeySet keySet];
@@ -235,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
 //    FSTRemoteDocumentChangeBuffer *remoteDocuments =
 //        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
-    FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataAccess changeBuffer];
+    FSTRemoteDocumentChangeBuffer *remoteDocuments = [self.dataCache changeBuffer];
 
     affected =
         [self releaseBatchResults:@[ batchResult ] group:group remoteDocuments:remoteDocuments];
@@ -283,7 +285,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
-  return self.dataAccess.lastRemoteSnapshotVersion;
+  return self.dataCache.lastRemoteSnapshotVersion;
 }
 
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
@@ -414,7 +416,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   FSTReferenceSet *localViewReferences = self.localViewReferences;
   for (FSTLocalViewChanges *view in viewChanges) {
-    FSTQueryData *queryData = [self.dataAccess queryDataForQuery:view.query];
+    FSTQueryData *queryData = [self.dataCache queryDataForQuery:view.query];
     FSTAssert(queryData, @"Local view changes contain unallocated query.");
     FSTTargetID targetID = queryData.targetID;
     [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
@@ -497,7 +499,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
   //return [self.queryCache matchingKeysForTargetID:targetID];
-  return [self.dataAccess documentsForTarget:targetID];
+  return [self.dataCache documentsForTarget:targetID];
 }
 
 - (void)collectGarbage {
@@ -541,7 +543,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isRemoteUpToVersion:(FSTSnapshotVersion *)version {
   // If there are no watch targets, then we won't get remote snapshots, and are always "up-to-date."
-  return [version compare:self.dataAccess.lastRemoteSnapshotVersion] != NSOrderedDescending ||
+  return [version compare:self.dataCache.lastRemoteSnapshotVersion] != NSOrderedDescending ||
          self.targetIDs.count == 0;
 }
 

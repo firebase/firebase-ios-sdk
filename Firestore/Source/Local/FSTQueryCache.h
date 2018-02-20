@@ -154,6 +154,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID;
 
+- (void)removeSentinelKey:(FSTDocumentKey *)doc;
+
 @end
 
 NS_ASSUME_NONNULL_END

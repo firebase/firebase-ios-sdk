@@ -16,13 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol FSTRemoteDocumentCache;
 @class FSTMaybeDocument;
 @class FSTDocumentKey;
 @class FSTWriteGroup;
-@class FSTDocumentKeySet;
 
 /**
  * An in-memory buffer of entries to be written to an FSTRemoteDocumentCache. It can be used to

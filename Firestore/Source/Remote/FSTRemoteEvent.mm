@@ -23,6 +23,7 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+#import "FSTRemoteDocumentChangeBuffer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

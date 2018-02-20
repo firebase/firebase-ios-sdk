@@ -18,9 +18,8 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Local/FSTDataAccess.h"
+#import "Firestore/Source/Local/FSTDataCache.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -41,9 +40,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLocalDocumentsView
 
-+ (instancetype)viewWithRemoteDocumentCache:(id<FSTRemoteDocumentCache>)remoteDocumentCache
+/*+ (instancetype)viewWithRemoteDocumentCache:(id<FSTRemoteDocumentCache>)remoteDocumentCache
                               mutationQueue:(id<FSTMutationQueue>)mutationQueue {
   return [[FSTLocalDocumentsView alloc] initWithRemoteDocumentCache:remoteDocumentCache
+                                                      mutationQueue:mutationQueue];
+}*/
+
++ (instancetype)viewWithDataAccess:(id<FSTDataAccess>)dataAccess
+                              mutationQueue:(id<FSTMutationQueue>)mutationQueue {
+  return [[FSTLocalDocumentsView alloc] initWithRemoteDocumentCache:dataAccess
                                                       mutationQueue:mutationQueue];
 }
 

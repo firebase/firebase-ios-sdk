@@ -23,11 +23,14 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		132E33C7322AB8FD3956C2CE /* FSTLRUGarbageCollector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 132E3C3B6DB2D775BAD365E9 /* FSTLRUGarbageCollector.mm */; };
+		132E314F3FCFD687BD8F3A08 /* FSTDataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 132E3D4FDBF16094FC40450A /* FSTDataCache.h */; };
+		132E33C7322AB8FD3956C2CE /* PBXBuildFile */ = {isa = PBXBuildFile; fileRef = 132E3C3B6DB2D775BAD365E9 /* FSTLRUGarbageCollector.mm */; };
 		132E3489DB5C4BE5B9C3766C /* FSTMemoryLRUGarbageCollectorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 132E39F7F5108DBEA8EB28B0 /* FSTMemoryLRUGarbageCollectorTests.m */; };
 		132E386F1C7835054604C52D /* FSTLevelDBLRUGarbageCollectorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 132E3ACD14C7957A1B39A082 /* FSTLevelDBLRUGarbageCollectorTests.m */; };
-		132E395E621992B0C0B5D0AD /* FSTLRUGarbageCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 132E33D12D4CD9F7D7A729A0 /* FSTLRUGarbageCollector.h */; };
+		132E39071FBD593213FAD52B /* PBXBuildFile */ = {isa = PBXBuildFile; fileRef = 132E322EEEB7950DE2DF7BBB /* FSTDataCache.mm */; };
+		132E395E621992B0C0B5D0AD /* PBXBuildFile */ = {isa = PBXBuildFile; fileRef = 132E33D12D4CD9F7D7A729A0 /* FSTLRUGarbageCollector.h */; };
 		132E3C28F27B96CA01EF8DB2 /* FSTLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 132E3CEB4A671CC5F06FF2A3 /* FSTLRUGarbageCollectorTests.mm */; };
+		132E3FB81417B90FD6A36866 /* FSTDataCache.mm in Sources */ = {isa = PBXBuildFile; fileRef = 132E3576B7F829856F366E2F /* FSTDataCache.mm */; };
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
 		5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5436F32320008FAD006E51E3 /* string_printf_test.cc */; };
 		54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
@@ -217,12 +220,15 @@
 /* Begin PBXFileReference section */
 		04DF37A117F88A9891379ED6 /* Pods-Firestore_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests/Pods-Firestore_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		12F4357299652983A615F886 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		132E322EEEB7950DE2DF7BBB /* FSTDataCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDataCache.mm; sourceTree = "<group>"; };
 		132E338E4EE49F2104196775 /* FSTLRUGarbageCollectorTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTLRUGarbageCollectorTests.h; sourceTree = "<group>"; };
 		132E33D12D4CD9F7D7A729A0 /* FSTLRUGarbageCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTLRUGarbageCollector.h; sourceTree = "<group>"; };
+		132E3576B7F829856F366E2F /* FSTDataCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTDataCache.mm; path = ../Source/Local/FSTDataCache.mm; sourceTree = "<group>"; };
 		132E39F7F5108DBEA8EB28B0 /* FSTMemoryLRUGarbageCollectorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSTMemoryLRUGarbageCollectorTests.m; sourceTree = "<group>"; };
 		132E3ACD14C7957A1B39A082 /* FSTLevelDBLRUGarbageCollectorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSTLevelDBLRUGarbageCollectorTests.m; sourceTree = "<group>"; };
 		132E3C3B6DB2D775BAD365E9 /* FSTLRUGarbageCollector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLRUGarbageCollector.mm; sourceTree = "<group>"; };
 		132E3CEB4A671CC5F06FF2A3 /* FSTLRUGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLRUGarbageCollectorTests.mm; sourceTree = "<group>"; };
+		132E3D4FDBF16094FC40450A /* FSTDataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTDataCache.h; sourceTree = "<group>"; };
 		32AD40BF6B0E849B07FFD05E /* Pods_SwiftBuildTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftBuildTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		42491D7DC8C8CD245CC22B93 /* Pods-SwiftBuildTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBuildTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest.debug.xcconfig"; sourceTree = "<group>"; };
@@ -493,6 +499,9 @@
 				A47A1BF74A48BCAEAFBCBF1E /* Pods */,
 				132E33D12D4CD9F7D7A729A0 /* FSTLRUGarbageCollector.h */,
 				132E3C3B6DB2D775BAD365E9 /* FSTLRUGarbageCollector.mm */,
+				132E322EEEB7950DE2DF7BBB /* FSTDataCache.mm */,
+				132E3D4FDBF16094FC40450A /* FSTDataCache.h */,
+				132E3576B7F829856F366E2F /* FSTDataCache.mm */,
 			);
 			sourceTree = "<group>";
 		};
