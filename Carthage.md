@@ -55,8 +55,7 @@ components with different versions may cause linker errors.
 Thanks to the Firebase community for encouraging this implementation including
 those who have made this the most updated
 [firebase-ios-sdk](https://github.com/firebase/firebase-ios-sdk)
-[issue](https://github.com/firebase/firebase-ios-sdk/issues/9)
-and other places.
+[issue](https://github.com/firebase/firebase-ios-sdk/issues/9).
 
 Thanks also to those who have already done Firebase Carthage implementations,
 such as https://github.com/soheilbm/Firebase.
