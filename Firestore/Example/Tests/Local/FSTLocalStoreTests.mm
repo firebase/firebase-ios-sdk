@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
-#import "FIRTimestamp.h"
 #import <XCTest/XCTest.h>
+#import "FIRTimestamp.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"

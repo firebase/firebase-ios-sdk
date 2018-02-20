@@ -19,9 +19,9 @@
 #include <inttypes.h>
 #include <list>
 
-#import "FIRTimestamp.h"
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
+#import "FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
