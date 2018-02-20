@@ -16,10 +16,10 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <GRPCClient/GRPCCall+ChannelCredentials.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 #import <XCTest/XCTest.h>
-#import <FirebaseFirestore/FIRTimestamp.h>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
