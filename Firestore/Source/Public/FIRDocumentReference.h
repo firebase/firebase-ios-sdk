@@ -17,11 +17,11 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRListenerRegistration.h"
+#import "FIRSource.h"
 
 @class FIRFirestore;
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
-@class FIRGetOptions;
 @class FIRSetOptions;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -197,8 +197,8 @@ NS_SWIFT_NAME(DocumentReference)
     NS_SWIFT_NAME(getDocument(completion:));
 
 // clang-format off
-- (void)getDocumentWithOptions:(FIRGetOptions *)options completion:(FIRDocumentSnapshotBlock)completion
-    NS_SWIFT_NAME(getDocument(options:completion:));
+- (void)getDocumentWithSource:(FIRSource)source completion:(FIRDocumentSnapshotBlock)completion
+    NS_SWIFT_NAME(getDocument(source:completion:));
 // clang-format on
 
 /**

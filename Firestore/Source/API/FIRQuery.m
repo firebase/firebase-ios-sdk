@@ -18,11 +18,11 @@
 
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
+#import "FIRSource.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRGetOptions+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
@@ -132,13 +132,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getDocumentsWithCompletion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                              NSError *_Nullable error))completion {
-  [self getDocumentsWithOptions:[FIRGetOptions defaultOptions] completion:completion];
+  [self getDocumentsWithSource:FIRSourceDefault completion:completion];
 }
 
-- (void)getDocumentsWithOptions:(FIRGetOptions *)options
-                     completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
-                                          NSError *_Nullable error))completion {
-  if (options.source == FIRGetSourceCache) {
+- (void)getDocumentsWithSource:(FIRSource)source
+                    completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                         NSError *_Nullable error))completion {
+  if (source == FIRSourceCache) {
     [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
     return;
   }
@@ -161,17 +161,16 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    if (snapshot.metadata.fromCache && options.source == FIRGetSourceServer) {
-      completion(
-          nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                   code:FIRFirestoreErrorCodeUnavailable
-                               userInfo:@{
-                                 NSLocalizedDescriptionKey :
-                                     @"Failed to get documents from server. (However, these "
-                                     @"documents may exist in the local cache. Run again "
-                                     @"without setting FIRGetSourceServer in the FIRGetOptions to "
-                                     @"retrieve the cached documents.)"
-                               }]);
+    if (snapshot.metadata.fromCache && source == FIRSourceServer) {
+      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                          code:FIRFirestoreErrorCodeUnavailable
+                                      userInfo:@{
+                                        NSLocalizedDescriptionKey :
+                                            @"Failed to get documents from server. (However, these "
+                                            @"documents may exist in the local cache. Run again "
+                                            @"without setting source to FIRSourceServer to "
+                                            @"retrieve the cached documents.)"
+                                      }]);
     } else {
       completion(snapshot, nil);
     }

@@ -209,39 +209,38 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
-  return [self readDocumentForRef:ref options:[FIRGetOptions defaultOptions]];
+  return [self readDocumentForRef:ref source:FIRSourceDefault];
 }
 
-- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
-                                    options:(FIRGetOptions *)options {
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref source:(FIRSource)source {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [ref getDocumentWithOptions:options
-                   completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
-                     XCTAssertNil(error);
-                     result = doc;
-                     [expectation fulfill];
-                   }];
+  [ref getDocumentWithSource:source
+                  completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+                    XCTAssertNil(error);
+                    result = doc;
+                    [expectation fulfill];
+                  }];
   [self awaitExpectations];
 
   return result;
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query {
-  return [self readDocumentSetForRef:query options:[FIRGetOptions defaultOptions]];
+  return [self readDocumentSetForRef:query source:FIRSourceDefault];
 }
 
-- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query options:(FIRGetOptions *)options {
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRSource)source {
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [query getDocumentsWithOptions:options
-                      completion:^(FIRQuerySnapshot *documentSet, NSError *error) {
-                        XCTAssertNil(error);
-                        result = documentSet;
-                        [expectation fulfill];
-                      }];
+  [query getDocumentsWithSource:source
+                     completion:^(FIRQuerySnapshot *documentSet, NSError *error) {
+                       XCTAssertNil(error);
+                       result = documentSet;
+                       [expectation fulfill];
+                     }];
   [self awaitExpectations];
 
   return result;
