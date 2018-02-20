@@ -38,7 +38,7 @@ more details and additional installation methods.
     - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
     - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
 - Run `carthage update`
-- Use the Finder to open `Carthage/Build/iOS`.
+- Use Finder to open `Carthage/Build/iOS`.
 - Copy the contents into the top level of your Xcode project and make sure
     they're added to the right build target(s).
 - Add the -ObjC flag to "Other Linker Flags".
@@ -46,9 +46,15 @@ more details and additional installation methods.
 
 ## Versioning
 
-Unlike the CocoaPods distribution, the Carthage is like the Firebase zip release
-in that all the Firebase components share the same version. Mixing and matching
-components with different versions may cause linker errors.
+Unlike the CocoaPods distribution, the Carthage distribution is like the
+Firebase zip release in that all the Firebase components share the same version.
+Mixing and matching components with different versions may cause linker errors.
+
+## Static Frameworks
+
+Note that the Firebase frameworks in the distribution include static libraries.
+While it is fine to link these into apps, it will generally not work to depend
+on them from wrapper dynamic frameworks.
 
 ## Acknowledgements
 
