@@ -339,7 +339,7 @@ extension FirestoreEncoder {
             return (value as! NSObject)
         }
         
-        // The value should request a container from the _JSONEncoder.
+        // The value should request a container from the FirestoreEncoder.
         let depth = self.storage.count
         do {
             try value.encode(to: self)
