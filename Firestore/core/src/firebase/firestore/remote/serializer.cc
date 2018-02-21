@@ -94,12 +94,12 @@ bool DecodeBool(pb_istream_t* stream) {
   }
 }
 
-void EncodeLong(pb_ostream_t* stream, int64_t integer_value) {
+void EncodeInteger(pb_ostream_t* stream, int64_t integer_value) {
   return EncodeVarint(stream, google_firestore_v1beta1_Value_integer_value_tag,
                       integer_value);
 }
 
-int64_t DecodeLong(pb_istream_t* stream) {
+int64_t DecodeInteger(pb_istream_t* stream) {
   return DecodeVarint(stream);
 }
 
@@ -123,7 +123,7 @@ Serializer::TypedValue Serializer::EncodeFieldValue(
         proto_value.value.boolean_value = false;
       }
       break;
-    case FieldValue::Type::Long:
+    case FieldValue::Type::Integer:
       proto_value.value.integer_value = field_value.integer_value();
       break;
     default:
@@ -149,8 +149,8 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
       EncodeBool(&stream, value.value.boolean_value);
       break;
 
-    case FieldValue::Type::Long:
-      EncodeLong(&stream, value.value.integer_value);
+    case FieldValue::Type::Integer:
+      EncodeInteger(&stream, value.value.integer_value);
       break;
 
     default:
@@ -168,7 +168,7 @@ FieldValue Serializer::DecodeFieldValue(
       return FieldValue::NullValue();
     case FieldValue::Type::Boolean:
       return FieldValue::BooleanValue(value_proto.value.boolean_value);
-    case FieldValue::Type::Long:
+    case FieldValue::Type::Integer:
       return FieldValue::IntegerValue(value_proto.value.integer_value);
     default:
       // TODO(rsgowman): implement the other types
@@ -200,8 +200,8 @@ Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
       result.value.boolean_value = DecodeBool(&stream);
       break;
     case google_firestore_v1beta1_Value_integer_value_tag:
-      result.type = FieldValue::Type::Long;
-      result.value.integer_value = DecodeLong(&stream);
+      result.type = FieldValue::Type::Integer;
+      result.value.integer_value = DecodeInteger(&stream);
       break;
 
     default:
@@ -227,7 +227,7 @@ bool operator==(const Serializer::TypedValue& lhs,
       return true;
     case FieldValue::Type::Boolean:
       return lhs.value.boolean_value == rhs.value.boolean_value;
-    case FieldValue::Type::Long:
+    case FieldValue::Type::Integer:
       return lhs.value.integer_value == rhs.value.integer_value;
     default:
       // TODO(rsgowman): implement the other types

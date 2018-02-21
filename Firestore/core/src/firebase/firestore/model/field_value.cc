@@ -45,9 +45,9 @@ namespace {
  */
 bool Comparable(Type lhs, Type rhs) {
   switch (lhs) {
-    case Type::Long:
+    case Type::Integer:
     case Type::Double:
-      return rhs == Type::Long || rhs == Type::Double;
+      return rhs == Type::Integer || rhs == Type::Double;
     case Type::Timestamp:
     case Type::ServerTimestamp:
       return rhs == Type::Timestamp || rhs == Type::ServerTimestamp;
@@ -78,7 +78,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::Boolean:
       boolean_value_ = value.boolean_value_;
       break;
-    case Type::Long:
+    case Type::Integer:
       integer_value_ = value.integer_value_;
       break;
     case Type::Double:
@@ -179,7 +179,7 @@ const FieldValue& FieldValue::NanValue() {
 
 FieldValue FieldValue::IntegerValue(int64_t value) {
   FieldValue result;
-  result.SwitchTo(Type::Long);
+  result.SwitchTo(Type::Integer);
   result.integer_value_ = value;
   return result;
 }
@@ -304,8 +304,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return false;
     case Type::Boolean:
       return Comparator<bool>()(lhs.boolean_value_, rhs.boolean_value_);
-    case Type::Long:
-      if (rhs.type() == Type::Long) {
+    case Type::Integer:
+      if (rhs.type() == Type::Integer) {
         return Comparator<int64_t>()(lhs.integer_value_, rhs.integer_value_);
       } else {
         return util::CompareMixedNumber(rhs.double_value_,

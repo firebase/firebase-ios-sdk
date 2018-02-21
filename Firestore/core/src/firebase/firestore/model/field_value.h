@@ -62,9 +62,9 @@ class FieldValue {
    *     https://firebase.google.com/docs/firestore/manage-data/data-types
    */
   enum class Type {
-    Null,     // Null
-    Boolean,  // Boolean
-    Long,     // Number type starts here
+    Null,       // Null
+    Boolean,    // Boolean
+    Integer,    // Number type starts here
     Double,
     Timestamp,  // Timestamp type starts here
     ServerTimestamp,
@@ -97,7 +97,7 @@ class FieldValue {
   }
 
   int64_t integer_value() const {
-    FIREBASE_ASSERT(tag_ == Type::Long);
+    FIREBASE_ASSERT(tag_ == Type::Integer);
     return integer_value_;
   }
 
