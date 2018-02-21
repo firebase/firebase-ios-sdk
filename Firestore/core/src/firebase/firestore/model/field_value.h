@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -61,9 +62,9 @@ class FieldValue {
    *     https://firebase.google.com/docs/firestore/manage-data/data-types
    */
   enum class Type {
-    Null,     // Null
-    Boolean,  // Boolean
-    Long,     // Number type starts here
+    Null,       // Null
+    Boolean,    // Boolean
+    Integer,    // Number type starts here
     Double,
     Timestamp,  // Timestamp type starts here
     ServerTimestamp,
@@ -93,6 +94,11 @@ class FieldValue {
   /** Returns the true type for this value. */
   Type type() const {
     return tag_;
+  }
+
+  int64_t integer_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Integer);
+    return integer_value_;
   }
 
   /** factory methods. */
