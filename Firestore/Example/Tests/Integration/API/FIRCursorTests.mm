@@ -198,30 +198,25 @@
   int32_t us = 1000;
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
     @"a" :
-        @{@"k" : @"a", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:1 * us]},
+        @{@"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:2 * us]},
     @"b" :
-        @{@"k" : @"b", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:2 * us]},
+        @{@"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us]},
     @"c" :
-        @{@"k" : @"c", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:3 * us]},
+        @{@"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:2 * us]},
     @"d" :
-        @{@"k" : @"d", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:4 * us]},
-    @"e" :
-        @{@"k" : @"e", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us]},
+        @{@"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:3 * us]},
     // Number of nanoseconds deliberately repeated.
+    @"e" :
+        @{@"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us]},
     @"f" :
-        @{@"k" : @"f", @"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us]},
+        @{@"timestamp" : [FIRTimestamp timestampWithSeconds:100 nanoseconds:4 * us]},
   }];
   FIRQuery *query = [testCollection queryOrderedByField:@"timestamp"];
   FIRQuerySnapshot *querySnapshot = [self
       readDocumentSetForRef:[[query queryStartingAfterValues:@[
         [FIRTimestamp timestampWithSeconds:100 nanoseconds:2 * us]
       ]] queryEndingAtValues:@[ [FIRTimestamp timestampWithSeconds:100 nanoseconds:5 * us] ]]];
-  NSMutableArray<NSString *> *actual = [NSMutableArray array];
-  [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
-                                                        NSUInteger idx, BOOL *_Nonnull stop) {
-    [actual addObject:doc.data[@"k"]];
-  }];
-  XCTAssertEqualObjects(actual, (@[ @"c", @"d", @"e", @"f" ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"d", @"k", @"b", @"e" ]));
 }
 
 - (void)testTimestampsCanBePassedToQueriesInWhereClause {
@@ -236,27 +231,22 @@
                              nanoseconds:currentTimestamp.nanoseconds / us * us];
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
-      @"k" : @"a",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
                                             nanoseconds:timestamp.nanoseconds - 1 * us],
     },
     @"b" : @{
-      @"k" : @"b",
       @"timestamp" :
           [FIRTimestamp timestampWithSeconds:timestamp.seconds nanoseconds:timestamp.nanoseconds],
     },
     @"c" : @{
-      @"k" : @"c",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
                                             nanoseconds:timestamp.nanoseconds + 1 * us],
     },
     @"d" : @{
-      @"k" : @"d",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
                                             nanoseconds:timestamp.nanoseconds + 2 * us],
     },
     @"e" : @{
-      @"k" : @"e",
       @"timestamp" : [FIRTimestamp timestampWithSeconds:timestamp.seconds
                                             nanoseconds:timestamp.nanoseconds + 3 * us],
     }
@@ -270,12 +260,7 @@
                                                     timestampWithSeconds:timestamp.seconds
                                                              nanoseconds:timestamp.nanoseconds +
                                                                          3 * us]]];
-  NSMutableArray<NSString *> *actual = [NSMutableArray array];
-  [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
-                                                        NSUInteger idx, BOOL *_Nonnull stop) {
-    [actual addObject:doc.data[@"k"]];
-  }];
-  XCTAssertEqualObjects(actual, (@[ @"b", @"c", @"d" ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"b", @"c", @"d" ]));
 }
 
 - (void)testTimestampsAreTruncatedToMicroseconds {
@@ -283,40 +268,24 @@
   FIRTimestamp *micros = [FIRTimestamp timestampWithSeconds:0 nanoseconds:123456000];
   FIRTimestamp *millis = [FIRTimestamp timestampWithSeconds:0 nanoseconds:123000000];
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
-    @"a" : @{@"k" : @"a", @"timestamp" : nanos},
+    @"a" : @{@"timestamp" : nanos},
   }];
-
-  NSMutableArray<NSString *> *actual = [NSMutableArray array];
 
   FIRQuerySnapshot *querySnapshot =
       [self readDocumentSetForRef:[testCollection queryWhereField:@"timestamp" isEqualTo:nanos]];
-  [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
-                                                        NSUInteger idx, BOOL *_Nonnull stop) {
-    [actual addObject:doc.data[@"k"]];
-  }];
-  XCTAssertEqualObjects(actual, (@[ @"a" ]));
-  [actual removeAllObjects];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"a" ]));
 
   // Because Timestamp should have been truncated to microseconds, the microsecond timestamp
   // should be considered equal to the nanosecond one.
   querySnapshot =
       [self readDocumentSetForRef:[testCollection queryWhereField:@"timestamp" isEqualTo:micros]];
-  [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
-                                                        NSUInteger idx, BOOL *_Nonnull stop) {
-    [actual addObject:doc.data[@"k"]];
-  }];
-  XCTAssertEqualObjects(actual, (@[ @"a" ]));
-  [actual removeAllObjects];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"a" ]));
 
   // The truncation is just to the microseconds, however, so the millisecond timestamp should be
   // treated as different and thus the query should return no results.
   querySnapshot =
       [self readDocumentSetForRef:[testCollection queryWhereField:@"timestamp" isEqualTo:millis]];
-  [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
-                                                        NSUInteger idx, BOOL *_Nonnull stop) {
-    [actual addObject:doc.data[@"k"]];
-  }];
-  XCTAssertEqualObjects(actual, (@[]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[]));
 }
 
 @end
