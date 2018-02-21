@@ -62,9 +62,9 @@ class FieldValue {
    *     https://firebase.google.com/docs/firestore/manage-data/data-types
    */
   enum class Type {
-    Null,       // Null
-    Boolean,    // Boolean
-    Integer,    // Number type starts here
+    Null,     // Null
+    Boolean,  // Boolean
+    Integer,  // Number type starts here
     Double,
     Timestamp,  // Timestamp type starts here
     ServerTimestamp,
