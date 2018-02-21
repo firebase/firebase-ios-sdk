@@ -24,19 +24,21 @@ more details and additional installation methods.
 
 - Create a Cartfile with a subset of the following components. Note that
     **FirebaseAnalytics** must always be included.
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
-    - binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
+```
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
+```
 - Run `carthage update`
 - Use Finder to open `Carthage/Build/iOS`.
 - Copy the contents into the top level of your Xcode project and make sure
