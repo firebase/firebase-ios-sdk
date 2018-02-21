@@ -36,6 +36,7 @@ extension DocumentReference {
     }
 }
 
+@available(swift 4.0.0)
 fileprivate class FirestoreEncoder : Encoder {
     fileprivate var storage: FirestoreEncodingStorage
     fileprivate(set) public var codingPath: [CodingKey]
@@ -100,6 +101,7 @@ fileprivate class FirestoreEncoder : Encoder {
     }
 }
 
+@available(swift 4.0.0)
 fileprivate struct FirestoreEncodingStorage {
     // MARK: Properties
     /// The container stack.
@@ -137,6 +139,7 @@ fileprivate struct FirestoreEncodingStorage {
     }
 }
 
+@available(swift 4.0.0)
 fileprivate struct FirestoreKeyedEncodingContainer<K : CodingKey> : KeyedEncodingContainerProtocol {
     typealias Key = K
     
@@ -210,6 +213,7 @@ fileprivate struct FirestoreKeyedEncodingContainer<K : CodingKey> : KeyedEncodin
     }
 }
 
+@available(swift 4.0.0)
 fileprivate struct FirestoreUnkeyedEncodingContainer : UnkeyedEncodingContainer {
     // MARK: Properties
     /// A reference to the encoder we're writing to.
@@ -282,6 +286,7 @@ fileprivate struct FirestoreUnkeyedEncodingContainer : UnkeyedEncodingContainer 
     }
 }
 
+@available(swift 4.0.0)
 struct FirestoreKey : CodingKey {
     public var stringValue: String
     public var intValue: Int?
@@ -449,6 +454,7 @@ extension FirestoreEncoder : SingleValueEncodingContainer {
     }
 }
 
+@available(swift 4.0.0)
 fileprivate class FirestoreReferencingEncoder : FirestoreEncoder {
     // MARK: Reference types.
     /// The type of container we're referencing.
@@ -513,6 +519,7 @@ fileprivate class FirestoreReferencingEncoder : FirestoreEncoder {
     }
 }
 
+@available(swift 4.0.0)
 extension DecodingError {
     static func _typeMismatch(at path: [CodingKey], expectation: Any.Type, reality: Any) -> DecodingError {
         let description = "Expected to decode \(expectation) but found \(_typeDescription(of: reality)) instead."
