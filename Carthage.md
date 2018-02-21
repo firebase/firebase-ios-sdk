@@ -4,7 +4,7 @@
 
 This page introduces and provides instructions for an **experimental** Firebase
 [Carthage](https://github.com/Carthage/Carthage) implementation. Based on
-feedback and usage, the Firebase team may decide to make to make the Carthage
+feedback and usage, the Firebase team may decide to make the Carthage
 distribution official.
 
 ## Carthage Installation
