@@ -47,28 +47,47 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFieldValueOptions
 
-+ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options {
-  if (options.serverTimestampBehavior == FSTServerTimestampBehaviorNone) {
-    static FSTFieldValueOptions *defaultInstance = nil;
-    static dispatch_once_t onceToken;
-
-    dispatch_once(&onceToken, ^{
-      defaultInstance = [[FSTFieldValueOptions alloc]
-          initWithServerTimestampBehavior:FSTServerTimestampBehaviorNone];
-    });
-    return defaultInstance;
-  } else {
-    return [[FSTFieldValueOptions alloc]
-        initWithServerTimestampBehavior:options.serverTimestampBehavior];
++ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options
+                        timestampBehavior:(FIRTimestampBehavior)timestampBehavior {
+  FSTServerTimestampBehavior convertedServerTimestampBehavior = FSTServerTimestampBehaviorNone;
+  switch (options.serverTimestampBehavior) {
+    case FIRServerTimestampBehaviorNone:
+      convertedServerTimestampBehavior = FSTServerTimestampBehaviorNone;
+      break;
+    case FIRServerTimestampBehaviorEstimate:
+      convertedServerTimestampBehavior = FSTServerTimestampBehaviorEstimate;
+      break;
+    case FIRServerTimestampBehaviorPrevious:
+      convertedServerTimestampBehavior = FSTServerTimestampBehaviorPrevious;
+      break;
+    default:
+      FSTFail(@"Unexpected server timestamp option: %d", (int)options.serverTimestampBehavior);
   }
+
+  FSTTimestampBehavior convertedTimestampBehavior = FSTTimestampBehaviorReturnNativeDate;
+  switch (timestampBehavior) {
+    case FIRTimestampBehaviorReturnNativeDate:
+      convertedTimestampBehavior = FSTTimestampBehaviorReturnNativeDate;
+      break;
+    case FIRTimestampBehaviorReturnTimestamp:
+      convertedTimestampBehavior = FSTTimestampBehaviorReturnTimestamp;
+      break;
+    default:
+      FSTFail(@"Unexpected server timestamp option: %d", (int)timestampBehavior);
+  }
+
+  return
+      [[FSTFieldValueOptions alloc] initWithServerTimestampBehavior:convertedServerTimestampBehavior
+                                                  timestampBehavior:convertedTimestampBehavior];
 }
 
-- (instancetype)initWithServerTimestampBehavior:
-    (FSTServerTimestampBehavior)serverTimestampBehavior {
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
+                              timestampBehavior:(FSTTimestampBehavior)timestampBehavior {
   self = [super init];
 
   if (self) {
     _serverTimestampBehavior = serverTimestampBehavior;
+    _timestampBehavior = timestampBehavior;
   }
   return self;
 }
@@ -89,7 +108,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)value {
   return [self valueWithOptions:[FSTFieldValueOptions
-                                    optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]]];
+                                    optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]
+                                    timestampBehavior:FIRTimestampBehaviorDefault]];
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
@@ -447,10 +467,14 @@ struct Comparator<NSString *> {
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  if (options.timestampBehavior == FSTTimestampBehaviorReturnNativeDate) {
-    return self.internalValue.approximateDateValue;
+  switch (options.timestampBehavior) {
+    case FSTTimestampBehaviorReturnTimestamp:
+      return self.internalValue;
+    case FSTTimestampBehaviorReturnNativeDate:
+      return [self.internalValue approximateDateValue];
+    default:
+      FSTFail(@"Unexpected timestamp option: %d", (int)options.timestampBehavior);
   }
-  return self.internalValue;
 }
 
 - (BOOL)isEqual:(id)other {

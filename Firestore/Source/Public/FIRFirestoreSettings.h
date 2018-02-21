@@ -15,26 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FIRTimestampBehavior.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-/**
- * Controls the return value for server timestamps that have not yet been set to
- * their final value.
- */
-typedef NS_ENUM(NSInteger, FIRTimestampBehavior) {
-  /**
-   * Return `NSNull` for `FieldValue.serverTimestamp()` fields that have not yet
-   * been set to their final value.
-   */
-  FIRTimestampBehaviorReturnTimestamp,
-
-  /**
-   * Return the previous value for `FieldValue.serverTimestamp()` fields that
-   * have not yet been set to their final value.
-   */
-  FIRTimestampBehaviorReturnNativeDate
-} NS_SWIFT_NAME(TimestampBehavior);
 
 /** Settings used to configure a `FIRFirestore` instance. */
 NS_SWIFT_NAME(FirestoreSettings)
