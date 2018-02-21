@@ -39,7 +39,6 @@
 #include <pb.h>
 #include <pb_encode.h>
 #include <limits>
-#include <list>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -137,13 +136,13 @@ TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
 }
 
 TEST_F(SerializerTest, EncodesIntegersModelToProto) {
-  std::list<int64_t> testCases{0,
-                               1,
-                               -1,
-                               100,
-                               -100,
-                               std::numeric_limits<int64_t>::min(),
-                               std::numeric_limits<int64_t>::max()};
+  std::vector<int64_t> testCases{0,
+                                 1,
+                                 -1,
+                                 100,
+                                 -100,
+                                 std::numeric_limits<int64_t>::min(),
+                                 std::numeric_limits<int64_t>::max()};
   for (int64_t test : testCases) {
     FieldValue model = FieldValue::IntegerValue(test);
     Serializer::TypedValue proto{FieldValue::Type::Long,
