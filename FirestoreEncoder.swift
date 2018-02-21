@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
+@available(swift 4.0.0)
 extension DocumentReference {
     func set<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
         do {
