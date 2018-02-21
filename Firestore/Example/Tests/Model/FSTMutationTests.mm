@@ -18,6 +18,7 @@
 
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
+#import "FIRTimestamp.h"
 
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"

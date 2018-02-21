@@ -22,6 +22,7 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>
+#import "FIRTimestamp.h"
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
