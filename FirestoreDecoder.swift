@@ -9,6 +9,26 @@ import Foundation
 import FirebaseFirestore
 
 @available(swift 4.0.0)
+extension DocumentSnapshot {
+    func data<T: Decodable>(as type: T.Type) throws -> T {
+        guard let dict = data() else {
+            throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "Data was empty"))
+        }
+        
+        return try decode(T.self, from: dict)
+    }
+    
+    func decode<T : Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
+        let decoder = FirestoreDecoder(referencing: container)
+        guard let value = try decoder.unbox(container, as: T.self) else {
+            throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
+        }
+        
+        return value
+    }
+}
+
+@available(swift 4.0.0)
 fileprivate class FirestoreDecoder : Decoder {
     /// Options set on the top-level encoder to pass down the decoding hierarchy.
     
