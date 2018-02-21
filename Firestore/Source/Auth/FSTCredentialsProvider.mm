@@ -86,12 +86,12 @@ NS_ASSUME_NONNULL_BEGIN
 
                       NSString *userID = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
                       User newUser = User(userID);
-                      if (newUser != _currentUser) {
-                        _currentUser = newUser;
+                      if (newUser != self->_currentUser) {
+                        self->_currentUser = newUser;
                         self.userCounter++;
                         FSTVoidUserBlock listenerBlock = self.userChangeListener;
                         if (listenerBlock) {
-                          listenerBlock(_currentUser);
+                          listenerBlock(self->_currentUser);
                         }
                       }
                     }
@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    userInfo:errorInfo];
             completion(Token::Invalid(), cancelError);
           } else {
-            completion(Token(util::MakeStringView(token), _currentUser), error);
+            completion(Token(util::MakeStringView(token), self->_currentUser), error);
           }
         };
       };
