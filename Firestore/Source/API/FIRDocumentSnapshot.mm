@@ -142,7 +142,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self.internalDocument == nil
              ? nil
              : [self convertedObject:[self.internalDocument data]
-                             options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options
+                            timestampBehavior:firestore.settings.timestampBehavior]];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -164,7 +165,8 @@ NS_ASSUME_NONNULL_BEGIN
   return fieldValue == nil
              ? nil
              : [self convertedValue:fieldValue
-                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options
+                            timestampBehavior:firestore.settings.timestampBehavior]];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {

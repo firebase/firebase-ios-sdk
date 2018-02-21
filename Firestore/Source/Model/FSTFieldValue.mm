@@ -447,8 +447,10 @@ struct Comparator<NSString *> {
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  // For developers, we expose Timestamps as Dates.
-  return self.internalValue.approximateDateValue;
+  if (options.timestampBehavior == FSTTimestampBehaviorReturnNativeDate) {
+    return self.internalValue.approximateDateValue;
+  }
+  return self.internalValue;
 }
 
 - (BOOL)isEqual:(id)other {

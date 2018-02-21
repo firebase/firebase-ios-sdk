@@ -50,10 +50,18 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
   FSTServerTimestampBehaviorPrevious
 };
 
+/** Defines the return type for timestamp fields. */
+typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
+  FSTTimestampBehaviorReturnTimestamp,
+  FSTTimestampBehaviorReturnNativeDate
+};
+
 /** Holds properties that define field value deserialization options. */
 @interface FSTFieldValueOptions : NSObject
 
 @property(nonatomic, readonly, assign) FSTServerTimestampBehavior serverTimestampBehavior;
+
+@property(nonatomic, readonly, assign) FSTTimestampBehavior timestampBehavior;
 
 - (instancetype)init NS_UNAVAILABLE;
 
