@@ -145,10 +145,10 @@ TEST_F(SerializerTest, EncodesIntegersModelToProto) {
                                  std::numeric_limits<int64_t>::max()};
   for (int64_t test : testCases) {
     FieldValue model = FieldValue::IntegerValue(test);
-    Serializer::TypedValue proto{FieldValue::Type::Long,
+    Serializer::TypedValue proto{FieldValue::Type::Integer,
                                  google_firestore_v1beta1_Value_init_default};
     proto.value.integer_value = test;
-    ExpectRoundTrip(model, proto, FieldValue::Type::Long);
+    ExpectRoundTrip(model, proto, FieldValue::Type::Integer);
   }
 }
 
@@ -198,10 +198,10 @@ TEST_F(SerializerTest, EncodesIntegersProtoToBytes) {
                {0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f}}};
 
   for (const TestCase& test : cases) {
-    Serializer::TypedValue proto{FieldValue::Type::Long,
+    Serializer::TypedValue proto{FieldValue::Type::Integer,
                                  google_firestore_v1beta1_Value_init_default};
     proto.value.integer_value = test.value;
-    ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Long);
+    ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Integer);
   }
 }
 
