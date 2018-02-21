@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 #import "FIRTimestamp.h"
 

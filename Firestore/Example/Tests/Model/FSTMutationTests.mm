@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 #import "FIRTimestamp.h"
 
