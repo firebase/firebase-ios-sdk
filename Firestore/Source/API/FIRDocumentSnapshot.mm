@@ -16,6 +16,8 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#import "FIRFirestoreSettings.h"
+
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -142,7 +144,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self.internalDocument == nil
              ? nil
              : [self convertedObject:[self.internalDocument data]
-                             options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options
+                            timestampBehavior:[self.firestore.settings timestampBehavior]]];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -164,7 +167,8 @@ NS_ASSUME_NONNULL_BEGIN
   return fieldValue == nil
              ? nil
              : [self convertedValue:fieldValue
-                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options
+                            timestampBehavior:[self.firestore.settings timestampBehavior]]];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
