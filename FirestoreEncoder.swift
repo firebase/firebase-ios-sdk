@@ -10,29 +10,34 @@ import FirebaseFirestore
 
 @available(swift 4.0.0)
 extension DocumentReference {
-    public func set<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
+    func set<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
         do {
-            setData(try encode(value), completion: completion)
+            setData(try Firestore.Encoder().encode(value), completion: completion)
         } catch let error {
             completion?(error)
         }
     }
-    
-    public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
-        guard let topLevel = try _FirestoreEncoder().box_(value) else {
-            throw EncodingError.invalidValue(value,
-                                             EncodingError.Context(codingPath: [],
-                                                                   debugDescription: "Top-level \(T.self) did not encode any values."))
+}
+
+extension Firestore {
+    @available(swift 4.0.0)
+    struct Encoder {
+        func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
+            guard let topLevel = try _FirestoreEncoder().box_(value) else {
+                throw EncodingError.invalidValue(value,
+                                                 EncodingError.Context(codingPath: [],
+                                                                       debugDescription: "Top-level \(T.self) did not encode any values."))
+            }
+            
+            // This is O(n) check. We might get rid of it once we refactor to internal
+            guard let dict = topLevel as? [String: Any] else {
+                throw EncodingError.invalidValue(value,
+                                                 EncodingError.Context(codingPath: [],
+                                                                       debugDescription: "Top-level \(T.self) encoded not as dictionary."))
+            }
+            
+            return dict
         }
-        
-        // This is O(n) check. We might get rid of it once we refactor to internal
-        guard let dict = topLevel as? [String: Any] else {
-            throw EncodingError.invalidValue(value,
-                                             EncodingError.Context(codingPath: [],
-                                                                   debugDescription: "Top-level \(T.self) encoded not as dictionary."))
-        }
-        
-        return dict
     }
 }
 
