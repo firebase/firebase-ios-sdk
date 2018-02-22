@@ -13,18 +13,12 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(ExternalProjectFlags)
-
-ExternalProject_GitSource(
-  PROTOBUF_GIT
-  GIT_REPOSITORY "https://github.com/google/protobuf.git"
-  GIT_TAG "v3.5.1.1"
-)
 
 ExternalProject_Add(
   protobuf
 
-  ${PROTOBUF_GIT}
+  URL https://github.com/google/protobuf/archive/v3.5.1.1.tar.gz
+  URL_HASH MD5=5005003ae6b94773c4bbca87a644b131
 
   PREFIX ${PROJECT_BINARY_DIR}/external/protobuf
 

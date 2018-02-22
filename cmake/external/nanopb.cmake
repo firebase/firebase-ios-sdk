@@ -11,13 +11,6 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(ExternalProjectFlags)
-
-ExternalProject_GitSource(
-  NANOPB_GIT
-  GIT_REPOSITORY "https://github.com/nanopb/nanopb.git"
-  GIT_TAG "0.3.8"
-)
 
 set(
   NANOPB_PROTOC_BIN
@@ -29,7 +22,8 @@ ExternalProject_Add(
   DEPENDS
     protobuf
 
-  ${NANOPB_GIT}
+  URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.8.tar.gz
+  URL_HASH MD5=c1dcfe49ced36227167dca0f6bcad703
 
   BUILD_IN_SOURCE ON
 
