@@ -20,6 +20,7 @@ cc_library(
   DEPENDS
     FirebaseCore
     absl_strings
+  EXCLUDE_FROM_ALL
 )
 
 if(APPLE)
