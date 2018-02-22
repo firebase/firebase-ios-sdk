@@ -1,4 +1,8 @@
 # Unreleased
+- [changed] Added ability to control whether DocumentReference.getDocument() and
+  Query.getDocuments() should fetch from server only, cache only, or attempt
+  server and fall back to the cache (which was the only option previously, and
+  is now the default.)
 
 # v0.10.0
 - [changed] Removed the includeMetadataChanges property in FIRDocumentListenOptions
