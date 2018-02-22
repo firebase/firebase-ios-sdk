@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FIRTimestampBehavior.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -43,6 +44,8 @@ NS_SWIFT_NAME(FirestoreSettings)
 
 /** Set to false to disable local persistent storage. */
 @property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled;
+
+@property(nonatomic) FIRTimestampBehavior timestampBehavior;
 
 @end
 

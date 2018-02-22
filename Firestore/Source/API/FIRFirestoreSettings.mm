@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kDefaultHost = @"firestore.googleapis.com";
 static const BOOL kDefaultSSLEnabled = YES;
 static const BOOL kDefaultPersistenceEnabled = YES;
+// TODO(b/OBC): switch default.
+static const FIRTimestampBehavior kDefaultTimestampBehavior = FIRTimestampBehaviorReturnNativeDate;
 
 @implementation FIRFirestoreSettings
 
@@ -32,6 +34,7 @@ static const BOOL kDefaultPersistenceEnabled = YES;
     _sslEnabled = kDefaultSSLEnabled;
     _dispatchQueue = dispatch_get_main_queue();
     _persistenceEnabled = kDefaultPersistenceEnabled;
+    _timestampBehavior = kDefaultTimestampBehavior;
   }
   return self;
 }
@@ -64,6 +67,7 @@ static const BOOL kDefaultPersistenceEnabled = YES;
   copy.sslEnabled = _sslEnabled;
   copy.dispatchQueue = _dispatchQueue;
   copy.persistenceEnabled = _persistenceEnabled;
+  copy.timestampBehavior = _timestampBehavior;
   return copy;
 }
 
