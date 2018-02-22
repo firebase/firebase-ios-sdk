@@ -205,7 +205,7 @@ typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
  */
 @interface FSTGeoPointValue : FSTFieldValue <FIRGeoPoint *>
 + (instancetype)geoPointValue:(FIRGeoPoint *)value;
-- (FIRGeoPoint *)valueWithOptions:(FSTFieldValueOptions *)options;
+- (FIRGeoPoint *)value;
 @end
 
 /**
@@ -213,7 +213,7 @@ typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
  */
 @interface FSTBlobValue : FSTFieldValue <NSData *>
 + (instancetype)blobValue:(NSData *)value;
-- (NSData *)valueWithOptions:(FSTFieldValueOptions *)options;
+- (NSData *)value;
 @end
 
 /**
@@ -222,7 +222,7 @@ typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
 + (instancetype)referenceValue:(FSTDocumentKey *)value
                     databaseID:(const firebase::firestore::model::DatabaseId *)databaseID;
-- (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
+- (FSTDocumentKey *)value;
 // Does not own this DatabaseId.
 @property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
 @end
@@ -250,7 +250,7 @@ typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
 - (instancetype)initWithImmutableDictionary:
     (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)value NS_DESIGNATED_INITIALIZER;
 
-- (NSDictionary<NSString *, id> *)valueWithOptions:(FSTFieldValueOptions *)options;
+- (NSDictionary<NSString *, id> *)value;
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
