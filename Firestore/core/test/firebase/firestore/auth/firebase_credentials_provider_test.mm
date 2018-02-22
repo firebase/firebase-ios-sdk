@@ -37,6 +37,20 @@ FIRApp* AppWithFakeUid(NSString* _Nullable uid) {
   return app;
 }
 
+TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
+  FIRApp* app = AppWithFakeUid(nil);
+
+  FirebaseCredentialsProvider credentials_provider(app);
+  credentials_provider.GetToken(
+      /*force_refresh=*/true, [](Token token, const absl::string_view error) {
+        EXPECT_EQ("", token.token());
+        const User& user = token.user();
+        EXPECT_EQ("", user.uid());
+        EXPECT_FALSE(user.is_authenticated());
+        EXPECT_EQ("", error) << error;
+      });
+}
+
 TEST(FirebaseCredentialsProviderTest, GetToken) {
   FIRApp* app = AppWithFakeUid(@"fake uid");
 

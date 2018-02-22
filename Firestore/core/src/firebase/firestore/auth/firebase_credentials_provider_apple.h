@@ -26,6 +26,7 @@
 
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -76,8 +77,8 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    * avoid races between notifications arriving and C++ object destruction.
    */
   struct Contents {
-    Contents(FIRApp* app, const absl::string_view uid)
-        : app(app), current_user(uid), mutex() {
+    Contents(FIRApp* app, User&& user)
+        : app(app), current_user(std::move(user)), mutex() {
     }
 
     const FIRApp* app;

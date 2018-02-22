@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _app = app;
-    _currentUser = User([self.app getUID]);
+    _currentUser = User::FromUid([self.app getUID]);
     _userCounter = 0;
 
     // Register for user changes so that we can internally track the current user.
@@ -84,8 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
                         return;
                       }
 
-                      NSString *userID = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
-                      User newUser = User(userID);
+                      NSString *uid = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
+                      User newUser = User::FromUid(uid);
                       if (newUser != self->_currentUser) {
                         self->_currentUser = newUser;
                         self.userCounter++;
