@@ -213,6 +213,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+               connectionTimerID:(FSTTimerID)connectionTimerID
+                     idleTimerID:(FSTTimerID)idleTimerID
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
@@ -287,6 +289,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+               connectionTimerID:(FSTTimerID)connectionTimerID
+                     idleTimerID:(FSTTimerID)idleTimerID
                      credentials:(id<FSTCredentialsProvider>)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
