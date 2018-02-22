@@ -141,7 +141,8 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
   bool status = false;
   switch (value.type) {
     case FieldValue::Type::Null:
-      status = pb_encode_tag(&stream, PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag);
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_null_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
@@ -150,7 +151,8 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
       break;
 
     case FieldValue::Type::Boolean:
-      status = pb_encode_tag(&stream, PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag);
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_boolean_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
@@ -159,7 +161,8 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
       break;
 
     case FieldValue::Type::Integer:
-      status = pb_encode_tag(&stream, PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag);
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_integer_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
