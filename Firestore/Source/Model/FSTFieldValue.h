@@ -174,9 +174,9 @@ typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
 /**
  * A timestamp value stored in Firestore.
  */
-@interface FSTTimestampValue : FSTFieldValue <NSDate *>
+@interface FSTTimestampValue : FSTFieldValue <FIRTimestamp *>
 + (instancetype)timestampValue:(FIRTimestamp *)value;
-- (FIRTimestamp *)internalValue;
+- (FIRTimestamp *)value;
 @end
 
 /**
