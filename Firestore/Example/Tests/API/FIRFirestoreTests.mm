@@ -56,7 +56,10 @@ namespace testutil = firebase::firestore::testutil;
     [defaultAppDeletedExpectation fulfill];
   }];
 
-  [self waitForExpectations:@[ defaultAppDeletedExpectation ] timeout:2];
+  [self waitForExpectationsWithTimeout:2
+                               handler:^(NSError *_Nullable error) {
+                                 XCTAssertNil(error);
+                               }];
 }
 
 @end
