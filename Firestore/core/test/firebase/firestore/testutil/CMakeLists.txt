@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  cc_library(
-    firebase_firestore_testutil_apple
-    SOURCES
-      app_testing.h
-      app_testing.mm
-    DEPENDS
-      FirebaseCore
-      absl_strings
-  )
+cc_library(
+  firebase_firestore_testutil_apple
+  SOURCES
+    app_testing.h
+    app_testing.mm
+  DEPENDS
+    FirebaseCore
+    absl_strings
+  EXCLUDE_FROM_ALL
+)
 
+if(APPLE)
   list(APPEND TESTUTIL_DEPENDS firebase_firestore_testutil_apple)
 endif()
 
