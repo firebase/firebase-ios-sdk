@@ -140,13 +140,12 @@ NS_ASSUME_NONNULL_BEGIN
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
-  FIRFirestore *firestore = [[FIRFirestore alloc]
-        initWithProjectID:projectID
-                 database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
-           persistenceKey:persistenceKey
-      credentialsProvider:credentialsProvider
-      workerDispatchQueue:workerDispatchQueue
-              firebaseApp:app];
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
+                                                           database:DatabaseId::kDefault
+                                                     persistenceKey:persistenceKey
+                                                credentialsProvider:credentialsProvider
+                                                workerDispatchQueue:workerDispatchQueue
+                                                        firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
 

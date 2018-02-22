@@ -20,6 +20,8 @@
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+#include "absl/strings/string_view.h"
+
 @class FIRGeoPoint;
 @class FSTDeleteMutation;
 @class FSTDeletedDocument;
@@ -190,7 +192,9 @@ FSTResourcePath *FSTTestPath(NSString *path);
 /**
  * A convenience method for creating a document reference from a path string.
  */
-FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *databaseID, NSString *path);
+FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
+                                    const absl::string_view databaseID,
+                                    NSString *path);
 
 /** A convenience method for creating a query for the given path (without any other filters). */
 FSTQuery *FSTTestQuery(NSString *path);

@@ -239,9 +239,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResourceNames {
-  FSTDocumentKeyReference *reference =
-      FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/bar");
-  _databaseId = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
+  FSTDocumentKeyReference *reference = FSTTestRef("project", DatabaseId::kDefault, @"foo/bar");
+  _databaseId = DatabaseId("project", DatabaseId::kDefault);
   GCFSValue *proto = [GCFSValue message];
   proto.referenceValue = @"projects/project/databases/(default)/documents/foo/bar";
 

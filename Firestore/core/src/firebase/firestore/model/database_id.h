@@ -31,7 +31,7 @@ namespace model {
 class DatabaseId {
  public:
   /** The default name for "unset" database ID in resource names. */
-  static constexpr const char* kDefaultDatabaseId = "(default)";
+  static constexpr const char* kDefault = "(default)";
 
 #if defined(__OBJC__)
   // For objective-c++ initialization; to be removed after migration.
@@ -58,7 +58,7 @@ class DatabaseId {
 
   /** Whether this is the default database of the project. */
   bool IsDefaultDatabase() const {
-    return database_id_ == kDefaultDatabaseId;
+    return database_id_ == kDefault;
   }
 
 #if defined(__OBJC__)
