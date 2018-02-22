@@ -198,7 +198,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     _dataConverter =
         [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
     _persistenceKey = persistenceKey;
-    _credentialsProvider.reset(credentialsProvider.release());
+    _credentialsProvider = std::move(credentialsProvider);
     _workerDispatchQueue = workerDispatchQueue;
     _app = app;
     _settings = [[FIRFirestoreSettings alloc] init];
