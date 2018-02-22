@@ -295,6 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
   static DatabaseInfo database_info{DatabaseId{"project", "database"}, "persistence", "host",
                                     false};
 
+  // Note that we purposely don't bother to cleanup the EmptyCredentialsProvider instances.
   static std::list<EmptyCredentialsProvider> credentials_providers;
   credentials_providers.emplace_back();
 
