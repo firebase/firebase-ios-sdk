@@ -160,14 +160,15 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
           queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
-      FirebaseCredentialsProvider *credentials_provider = new FirebaseCredentialsProvider(app);
+      std::unique_ptr<CredentialsProvider> credentials_provider =
+          std::make_unique<FirebaseCredentialsProvider>(app);
 
       NSString *persistenceKey = app.name;
 
       firestore = [[FIRFirestore alloc] initWithProjectID:projectID
                                                  database:database
                                            persistenceKey:persistenceKey
-                                      credentialsProvider:credentials_provider  // passing ownership
+                                      credentialsProvider:std::move(credentials_provider)
                                       workerDispatchQueue:workerDispatchQueue
                                               firebaseApp:app];
       instances[key] = firestore;
@@ -180,7 +181,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 - (instancetype)initWithProjectID:(NSString *)projectID
                          database:(NSString *)database
                    persistenceKey:(NSString *)persistenceKey
-              credentialsProvider:(CredentialsProvider *)credentialsProvider
+              credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
@@ -197,7 +198,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     _dataConverter =
         [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
     _persistenceKey = persistenceKey;
-    _credentialsProvider.reset(credentialsProvider);
+    _credentialsProvider.reset(credentialsProvider.release());
     _workerDispatchQueue = workerDispatchQueue;
     _app = app;
     _settings = [[FIRFirestoreSettings alloc] init];

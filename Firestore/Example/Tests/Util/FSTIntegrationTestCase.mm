@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include <memory>
+
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
@@ -34,6 +36,7 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
@@ -138,11 +141,12 @@ NS_ASSUME_NONNULL_BEGIN
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
+  std::unique_ptr<CredentialsProvider> credentials_provider(new EmptyCredentialsProvider());
   FIRFirestore *firestore = [[FIRFirestore alloc]
         initWithProjectID:projectID
                  database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
            persistenceKey:persistenceKey
-      credentialsProvider:new EmptyCredentialsProvider()  // passing ownership
+      credentialsProvider:std::move(credentials_provider)
       workerDispatchQueue:workerDispatchQueue
               firebaseApp:app];
 

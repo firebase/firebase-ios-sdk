@@ -16,6 +16,8 @@
 
 #import "FIRFirestore.h"
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
@@ -34,8 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProjectID:(NSString *)projectID
                          database:(NSString *)database
                    persistenceKey:(NSString *)persistenceKey
-              credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
-                                      credentialsProvider  // passing ownership
+              credentialsProvider:(std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)
+                                      credentialsProvider
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app;
 

@@ -40,9 +40,7 @@ inline NSError* WrapNSError(const int64_t error_code,
   return [NSError
       errorWithDomain:FIRFirestoreErrorDomain
                  code:error_code
-             userInfo:@{
-               NSLocalizedDescriptionKey : WrapNSStringNoCopy(error_msg)
-             }];
+             userInfo:@{NSLocalizedDescriptionKey : WrapNSString(error_msg)}];
 }
 
 }  // namespace util

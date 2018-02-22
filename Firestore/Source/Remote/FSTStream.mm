@@ -260,7 +260,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _delegate = delegate;
 
   _credentials->GetToken(
-      false, [self](Token result, const int64_t error_code, const absl::string_view error_msg) {
+      /*force_refresh=*/false,
+      [self](Token result, const int64_t error_code, const absl::string_view error_msg) {
         NSError *error = util::WrapNSError(error_code, error_msg);
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
           [self resumeStartWithToken:result error:error];

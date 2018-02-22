@@ -307,7 +307,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
   _credentials->GetToken(
-      false,  // force_refresh
+      /*force_refresh=*/false,
       [self, rpcFactory, errorHandler](Token result, const int64_t error_code,
                                        const absl::string_view error_msg) {
         NSError *error = util::WrapNSError(error_code, error_msg);

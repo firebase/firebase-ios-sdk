@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
+#include <list>
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -293,11 +295,12 @@ NS_ASSUME_NONNULL_BEGIN
   static DatabaseInfo database_info{DatabaseId{"project", "database"}, "persistence", "host",
                                     false};
 
-  static EmptyCredentialsProvider credentials;
+  static std::list<EmptyCredentialsProvider> credentials_providers;
+  credentials_providers.emplace_back();
 
   return [[FSTMockDatastore alloc] initWithDatabaseInfo:&database_info
                                     workerDispatchQueue:workerDispatchQueue
-                                            credentials:&credentials];
+                                            credentials:&credentials_providers.back()];
 }
 
 #pragma mark - Overridden FSTDatastore methods.
