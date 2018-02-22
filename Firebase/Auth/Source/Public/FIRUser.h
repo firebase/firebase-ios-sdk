@@ -59,7 +59,8 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error)
     @brief Represents a user. Firebase Auth does not attempt to validate users
         when loading them from the keychain. Invalidated users (such as those
         whose passwords have been changed on another client) are automatically
-        logged out when an auth-dependent operation is attempted.
+        logged out when an auth-dependent operation is attempted or when the
+        ID token is automatically refreshed.
     @remarks This class is thread-safe.
  */
 NS_SWIFT_NAME(User)
