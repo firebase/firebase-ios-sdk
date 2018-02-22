@@ -15,16 +15,21 @@ extension DocumentSnapshot {
             throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "Data was empty"))
         }
         
-        return try decode(T.self, from: dict)
+        return try Firestore.Decoder().decode(T.self, from: dict)
     }
-    
-    func decode<T : Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
-        let decoder = _FirestoreDecoder(referencing: container)
-        guard let value = try decoder.unbox(container, as: T.self) else {
-            throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
+}
+
+extension Firestore {
+    @available(swift 4.0.0)
+    struct Decoder {
+        func decode<T : Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
+            let decoder = _FirestoreDecoder(referencing: container)
+            guard let value = try decoder.unbox(container, as: T.self) else {
+                throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
+            }
+            
+            return value
         }
-        
-        return value
     }
 }
 
