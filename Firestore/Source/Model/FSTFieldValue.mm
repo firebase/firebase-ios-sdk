@@ -107,13 +107,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)value {
-  return [self valueWithOptions:[FSTFieldValueOptions
-                                    optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]
-                                    timestampBehavior:FIRTimestampBehaviorDefault]];
+  @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  @throw FSTAbstractMethodException();  // NOLINT
+  return [self value];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -162,7 +160,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderNull;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return [NSNull null];
 }
 
@@ -228,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderBoolean;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue ? @YES : @NO;
 }
 
@@ -309,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return @(self.internalValue);
 }
 
@@ -361,7 +359,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return @(self.internalValue);
 }
 
@@ -419,7 +417,7 @@ struct Comparator<NSString *> {
   return FSTTypeOrderString;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue;
 }
 
@@ -464,6 +462,10 @@ struct Comparator<NSString *> {
 
 - (FSTTypeOrder)typeOrder {
   return FSTTypeOrderTimestamp;
+}
+
+- (id)value {
+  return self.internalValue;
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
@@ -521,6 +523,10 @@ struct Comparator<NSString *> {
 
 - (FSTTypeOrder)typeOrder {
   return FSTTypeOrderTimestamp;
+}
+
+- (id)value {
+  return self.localWriteTime;
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
@@ -586,7 +592,7 @@ struct Comparator<NSString *> {
   return FSTTypeOrderGeoPoint;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue;
 }
 
@@ -650,7 +656,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   return FSTTypeOrderBlob;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue;
 }
 
@@ -694,7 +700,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   return self;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.key;
 }
 
@@ -776,6 +782,15 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *dictionary =
       [FSTImmutableSortedDictionary dictionaryWithDictionary:value comparator:StringComparator];
   return [self initWithImmutableDictionary:dictionary];
+}
+
+- (id)value {
+  NSMutableDictionary *result = [NSMutableDictionary dictionary];
+  [self.internalValue
+      enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *obj, BOOL *stop) {
+        result[key] = [obj value];
+      }];
+  return result;
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
@@ -933,10 +948,18 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return [self.internalValue hash];
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:_internalValue.count];
   [self.internalValue enumerateObjectsUsingBlock:^(FSTFieldValue *obj, NSUInteger idx, BOOL *stop) {
     [result addObject:[obj value]];
+  }];
+  return result;
+}
+
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+  NSMutableArray *result = [NSMutableArray arrayWithCapacity:_internalValue.count];
+  [self.internalValue enumerateObjectsUsingBlock:^(FSTFieldValue *obj, NSUInteger idx, BOOL *stop) {
+    [result addObject:[obj valueWithOptions: options]];
   }];
   return result;
 }
