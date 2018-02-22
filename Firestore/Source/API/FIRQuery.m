@@ -18,7 +18,7 @@
 
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
-#import "FIRSource.h"
+#import "FIRGetSource.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
@@ -132,13 +132,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getDocumentsWithCompletion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                              NSError *_Nullable error))completion {
-  [self getDocumentsWithSource:FIRSourceDefault completion:completion];
+  [self getDocumentsWithSource:FIRGetSourceDefault completion:completion];
 }
 
-- (void)getDocumentsWithSource:(FIRSource)source
+- (void)getDocumentsWithSource:(FIRGetSource)source
                     completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                          NSError *_Nullable error))completion {
-  if (source == FIRSourceCache) {
+  if (source == FIRGetSourceCache) {
     [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
     return;
   }
@@ -161,14 +161,14 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    if (snapshot.metadata.fromCache && source == FIRSourceServer) {
+    if (snapshot.metadata.fromCache && source == FIRGetSourceServer) {
       completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
                                           code:FIRFirestoreErrorCodeUnavailable
                                       userInfo:@{
                                         NSLocalizedDescriptionKey :
                                             @"Failed to get documents from server. (However, these "
                                             @"documents may exist in the local cache. Run again "
-                                            @"without setting source to FIRSourceServer to "
+                                            @"without setting source to FIRGetSourceServer to "
                                             @"retrieve the cached documents.)"
                                       }]);
     } else {

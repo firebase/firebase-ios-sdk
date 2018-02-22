@@ -209,10 +209,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
-  return [self readDocumentForRef:ref source:FIRSourceDefault];
+  return [self readDocumentForRef:ref source:FIRGetSourceDefault];
 }
 
-- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref source:(FIRSource)source {
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
+                                     source:(FIRGetSource)source {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
@@ -228,10 +229,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query {
-  return [self readDocumentSetForRef:query source:FIRSourceDefault];
+  return [self readDocumentSetForRef:query source:FIRGetSourceDefault];
 }
 
-- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRSource)source {
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRGetSource)source {
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];

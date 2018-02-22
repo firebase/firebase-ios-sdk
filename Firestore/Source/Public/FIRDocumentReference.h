@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRGetSource.h"
 #import "FIRListenerRegistration.h"
-#import "FIRSource.h"
 
 @class FIRFirestore;
 @class FIRCollectionReference;
@@ -197,7 +197,7 @@ NS_SWIFT_NAME(DocumentReference)
     NS_SWIFT_NAME(getDocument(completion:));
 
 // clang-format off
-- (void)getDocumentWithSource:(FIRSource)source completion:(FIRDocumentSnapshotBlock)completion
+- (void)getDocumentWithSource:(FIRGetSource)source completion:(FIRDocumentSnapshotBlock)completion
     NS_SWIFT_NAME(getDocument(source:completion:));
 // clang-format on
 

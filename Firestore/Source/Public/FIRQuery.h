@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRGetSource.h"
 #import "FIRListenerRegistration.h"
-#import "FIRSource.h"
 
 @class FIRFieldPath;
 @class FIRFirestore;
@@ -92,7 +92,7 @@ NS_SWIFT_NAME(Query)
     NS_SWIFT_NAME(getDocuments(completion:));
 
 // clang-format off
-- (void)getDocumentsWithSource:(FIRSource)source completion:(FIRQuerySnapshotBlock)completion
+- (void)getDocumentsWithSource:(FIRGetSource)source completion:(FIRQuerySnapshotBlock)completion
     NS_SWIFT_NAME(getDocuments(source:completion:));
 // clang-format on
 
