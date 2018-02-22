@@ -21,6 +21,7 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
 
 #include "gtest/gtest.h"
 
@@ -28,66 +29,50 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-// TODO(zxu123): Make this an integration test and get infos from environment.
-// Set a .plist file here to enable the test-case.
-static NSString* const kPlist = @"";
+FIRApp* AppWithFakeUid(NSString* _Nullable uid) {
+  FIRApp* app = testutil::AppForUnitTesting();
+  app.getUIDImplementation = ^NSString* {
+    return uid;
+  };
+  return app;
+}
 
-class FirebaseCredentialsProviderTest : public ::testing::Test {
- protected:
-  void SetUp() override {
-    app_ready_ = false;
-    if (![kPlist hasSuffix:@".plist"]) {
-      return;
-    }
+TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
+  FIRApp* app = AppWithFakeUid(nil);
 
-    static dispatch_once_t once_token;
-    dispatch_once(&once_token, ^{
-      FIROptions* options = [[FIROptions alloc] initWithContentsOfFile:kPlist];
-      [FIRApp configureWithOptions:options];
-    });
-
-    // Set getUID implementation.
-    FIRApp* default_app = [FIRApp defaultApp];
-    default_app.getUIDImplementation = ^NSString* {
-      return @"I'm a fake uid.";
-    };
-    app_ready_ = true;
-  }
-
-  bool app_ready_;
-};
-
-// Set kPlist above before enable.
-TEST_F(FirebaseCredentialsProviderTest, GetToken) {
-  if (!app_ready_) {
-    return;
-  }
-
-  FirebaseCredentialsProvider credentials_provider([FIRApp defaultApp]);
+  FirebaseCredentialsProvider credentials_provider(app);
   credentials_provider.GetToken(
       /*force_refresh=*/true, [](Token token, const absl::string_view error) {
         EXPECT_EQ("", token.token());
         const User& user = token.user();
-        EXPECT_EQ("I'm a fake uid.", user.uid());
+        EXPECT_EQ("", user.uid());
+        EXPECT_FALSE(user.is_authenticated());
+        EXPECT_EQ("", error) << error;
+      });
+}
+
+TEST(FirebaseCredentialsProviderTest, GetToken) {
+  FIRApp* app = AppWithFakeUid(@"fake uid");
+
+  FirebaseCredentialsProvider credentials_provider(app);
+  credentials_provider.GetToken(
+      /*force_refresh=*/true, [](Token token, const absl::string_view error) {
+        EXPECT_EQ("", token.token());
+        const User& user = token.user();
+        EXPECT_EQ("fake uid", user.uid());
         EXPECT_TRUE(user.is_authenticated());
         EXPECT_EQ("", error) << error;
       });
 }
 
-// Set kPlist above before enable.
-TEST_F(FirebaseCredentialsProviderTest, SetListener) {
-  if (!app_ready_) {
-    return;
-  }
+TEST(FirebaseCredentialsProviderTest, SetListener) {
+  FIRApp* app = AppWithFakeUid(@"fake uid");
 
-  FirebaseCredentialsProvider credentials_provider([FIRApp defaultApp]);
+  FirebaseCredentialsProvider credentials_provider(app);
   credentials_provider.SetUserChangeListener([](User user) {
-    EXPECT_EQ("I'm a fake uid.", user.uid());
+    EXPECT_EQ("fake uid", user.uid());
     EXPECT_TRUE(user.is_authenticated());
   });
-
-  // TODO(wilhuff): We should wait for the above expectations to actually happen
-  // before continuing.
 
   credentials_provider.SetUserChangeListener(nullptr);
 }

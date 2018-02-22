@@ -12,24 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_test(
-  firebase_firestore_auth_test
+cc_library(
+  firebase_firestore_testutil_apple
   SOURCES
-    credentials_provider_test.cc
-    empty_credentials_provider_test.cc
-    token_test.cc
-    user_test.cc
+    app_testing.h
+    app_testing.mm
   DEPENDS
-    firebase_firestore_auth
+    FirebaseCore
+    absl_strings
 )
 
 if(APPLE)
-  cc_test(
-    firebase_firestore_auth_apple_test
-    SOURCES
-      firebase_credentials_provider_test.mm
-    DEPENDS
-      firebase_firestore_auth_apple
-      firebase_firestore_testutil
-  )
-endif(APPLE)
+  list(APPEND TESTUTIL_DEPENDS firebase_firestore_testutil_apple)
+endif()
+
+add_library(
+  firebase_firestore_testutil INTERFACE
+)
+target_link_libraries(
+  firebase_firestore_testutil INTERFACE
+  ${TESTUTIL_DEPENDS}
+)

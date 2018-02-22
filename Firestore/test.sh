@@ -40,19 +40,15 @@ test_iOS() {
 
 test_CMake() {
   echo "cpu core: $(sysctl -n hw.ncpu)"
-  echo "set cmake build" && \
-    mkdir build && \
+  echo "prepare cmake build" && \
+    mkdir -p build && \
     cd build && \
     cmake .. || \
     exit 1
 
-  echo "initial cmake build" && \
+  echo "cmake build and test" && \
     make -j $(sysctl -n hw.ncpu) all || \
     exit 2
-
-  echo "test Firestore cmake build" && \
-    cd Firestore && \
-    make test
 }
 
 test_iOS; RESULT=$?

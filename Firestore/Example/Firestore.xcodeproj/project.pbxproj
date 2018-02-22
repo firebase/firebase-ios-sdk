@@ -25,6 +25,8 @@
 /* Begin PBXBuildFile section */
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
 		5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5436F32320008FAD006E51E3 /* string_printf_test.cc */; };
+		5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */; };
+		5467FB08203E6A44009C9584 /* app_testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FB07203E6A44009C9584 /* app_testing.mm */; };
 		54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
 		54740A581FC914F000713A1A /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A521FC913E500713A1A /* autoid_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
@@ -216,6 +218,9 @@
 		42491D7DC8C8CD245CC22B93 /* Pods-SwiftBuildTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftBuildTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest.debug.xcconfig"; sourceTree = "<group>"; };
 		4EBC5F5ABE1FD097EFE5E224 /* Pods-Firestore_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example/Pods-Firestore_Example.release.xcconfig"; sourceTree = "<group>"; };
 		5436F32320008FAD006E51E3 /* string_printf_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_printf_test.cc; path = ../../core/test/firebase/firestore/util/string_printf_test.cc; sourceTree = "<group>"; };
+		5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRFirestoreTests.mm; sourceTree = "<group>"; };
+		5467FB06203E6A44009C9584 /* app_testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app_testing.h; path = ../../core/test/firebase/firestore/testutil/app_testing.h; sourceTree = "<group>"; };
+		5467FB07203E6A44009C9584 /* app_testing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = app_testing.mm; path = ../../core/test/firebase/firestore/testutil/app_testing.mm; sourceTree = "<group>"; };
 		54740A521FC913E500713A1A /* autoid_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autoid_test.cc; path = ../../core/test/firebase/firestore/util/autoid_test.cc; sourceTree = "<group>"; };
 		54740A531FC913E500713A1A /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = secure_random_test.cc; path = ../../core/test/firebase/firestore/util/secure_random_test.cc; sourceTree = "<group>"; };
 		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
@@ -429,6 +434,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5467FB05203E652F009C9584 /* testutil */ = {
+			isa = PBXGroup;
+			children = (
+				5467FB06203E6A44009C9584 /* app_testing.h */,
+				5467FB07203E6A44009C9584 /* app_testing.mm */,
+			);
+			name = testutil;
+			sourceTree = "<group>";
+		};
 		54740A561FC913EB00713A1A /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -452,6 +466,7 @@
 				AB380CF7201937B800D97691 /* core */,
 				54EB764B202277970088B8F3 /* immutable */,
 				AB356EF5200E9D1A0089B766 /* model */,
+				5467FB05203E652F009C9584 /* testutil */,
 				54740A561FC913EB00713A1A /* util */,
 				54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */,
 				AB7BAB332012B519001E0872 /* geo_point_test.cc */,
@@ -697,16 +712,17 @@
 		DE51B1831F0D48AC0013853F /* API */ = {
 			isa = PBXGroup;
 			children = (
-				B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */,
 				5492E045202154AA00B64F25 /* FIRCollectionReferenceTests.mm */,
 				5492E049202154AA00B64F25 /* FIRDocumentReferenceTests.mm */,
 				5492E04B202154AA00B64F25 /* FIRDocumentSnapshotTests.mm */,
 				5492E04C202154AA00B64F25 /* FIRFieldPathTests.mm */,
 				5492E04A202154AA00B64F25 /* FIRFieldValueTests.mm */,
+				5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */,
 				5492E048202154AA00B64F25 /* FIRGeoPointTests.mm */,
 				5492E04F202154AA00B64F25 /* FIRQuerySnapshotTests.mm */,
 				5492E046202154AA00B64F25 /* FIRQueryTests.mm */,
 				5492E04D202154AA00B64F25 /* FIRSnapshotMetadataTests.mm */,
+				B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */,
 				5492E047202154AA00B64F25 /* FSTAPIHelpers.h */,
 				5492E04E202154AA00B64F25 /* FSTAPIHelpers.mm */,
 			);
@@ -1301,6 +1317,7 @@
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				548DB927200D590300E00ABC /* assert_test.cc in Sources */,
 				5492E0A62021552D00B64F25 /* FSTPersistenceTestHelpers.mm in Sources */,
+				5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */,
 				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
 				5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */,
 				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
@@ -1334,6 +1351,7 @@
 				5492E065202154B900B64F25 /* FSTViewTests.mm in Sources */,
 				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
 				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
+				5467FB08203E6A44009C9584 /* app_testing.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
 				AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */,
 				5492E03F2021401F00B64F25 /* FSTHelpers.mm in Sources */,
