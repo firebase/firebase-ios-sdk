@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_APP_TESTING_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_APP_TESTING_H_
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "absl/strings/string_view.h"
+
+#if __OBJC__
+
+@class FIRApp;
 
 namespace firebase {
 namespace firestore {
-namespace model {
+namespace testutil {
 
-constexpr const char* DatabaseId::kDefault;
+/** Creates a set of default Firebase Options for testing. */
+FIROptions* OptionsForUnitTesting(
+    const absl::string_view project_id = "project_id");
 
-DatabaseId::DatabaseId(const absl::string_view project_id,
-                       const absl::string_view database_id)
-    : project_id_(project_id), database_id_(database_id) {
-  FIREBASE_ASSERT(!project_id.empty());
-  FIREBASE_ASSERT(!database_id.empty());
-}
+/** Creates a new Firebase App for testing. */
+FIRApp* AppForUnitTesting(const absl::string_view project_id = "project_id");
 
-}  // namespace model
+}  // namespace testutil
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // __OBJC__
+
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_APP_TESTING_H_

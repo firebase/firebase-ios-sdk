@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
@@ -29,7 +30,6 @@
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
                           @"num" : @1 })
       precondition:[FSTPrecondition preconditionWithExists:YES]];
   FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
-  FSTTimestamp *writeTime = [FSTTimestamp timestamp];
+  FIRTimestamp *writeTime = [FIRTimestamp timestamp];
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
                                                        localWriteTime:writeTime
                                                             mutations:@[ set, patch, del ]];
@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   GPBTimestamp *writeTimeProto = [GPBTimestamp message];
   writeTimeProto.seconds = writeTime.seconds;
-  writeTimeProto.nanos = writeTime.nanos;
+  writeTimeProto.nanos = writeTime.nanoseconds;
 
   FSTPBWriteBatch *batchProto = [FSTPBWriteBatch message];
   batchProto.batchId = 42;

@@ -16,10 +16,10 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
+#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
@@ -201,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Locally write mutations"];
-  FSTTimestamp *localWriteTime = [FSTTimestamp timestamp];
+  FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
   FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
                                                                     mutations:mutations
                                                                         group:group];

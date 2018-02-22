@@ -123,13 +123,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
                          @"before using Firestore");
   }
-  return
-      [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
+  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
 }
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
-  return
-      [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
+  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
 }
 
 // TODO(b/62410906): make this public
@@ -143,7 +141,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FSTThrowInvalidArgument(
         @"database identifier may not be nil. Use '%@' if you want the default "
          "database",
-        util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId));
+        util::WrapNSStringNoCopy(DatabaseId::kDefault));
   }
 
   // Note: If the key format changes, please change the code that detects FIRApps being deleted
@@ -165,8 +163,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
       NSString *persistenceKey = app.name;
 
-      firestore = [[FIRFirestore alloc] initWithProjectID:projectID
-                                                 database:database
+      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
+                                                 database:util::MakeStringView(database)
                                            persistenceKey:persistenceKey
                                       credentialsProvider:std::move(credentials_provider)
                                       workerDispatchQueue:workerDispatchQueue
@@ -178,14 +176,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 }
 
-- (instancetype)initWithProjectID:(NSString *)projectID
-                         database:(NSString *)database
+- (instancetype)initWithProjectID:(const absl::string_view)projectID
+                         database:(const absl::string_view)database
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _databaseID = DatabaseId(util::MakeStringView(projectID), util::MakeStringView(database));
+    _databaseID = DatabaseId(projectID, database);
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;

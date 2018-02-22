@@ -142,13 +142,12 @@ NS_ASSUME_NONNULL_BEGIN
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
   std::unique_ptr<CredentialsProvider> credentials_provider(new EmptyCredentialsProvider());
-  FIRFirestore *firestore = [[FIRFirestore alloc]
-        initWithProjectID:projectID
-                 database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)
-           persistenceKey:persistenceKey
-      credentialsProvider:std::move(credentials_provider)
-      workerDispatchQueue:workerDispatchQueue
-              firebaseApp:app];
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
+                                                           database:DatabaseId::kDefault
+                                                     persistenceKey:persistenceKey
+                                                credentialsProvider:std::move(credentials_provider)
+                                                workerDispatchQueue:workerDispatchQueue
+                                                        firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
 

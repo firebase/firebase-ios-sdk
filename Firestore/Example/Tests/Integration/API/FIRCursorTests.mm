@@ -192,4 +192,82 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ @{ @"v" : @"d", @"sort" : @3.0 } ]));
 }
 
+FIRTimestamp *TimestampWithMicros(int64_t seconds, int32_t micros) {
+  // Firestore only supports microsecond resolution, so use a microsecond as a minimum value for
+  // nanoseconds.
+  return [FIRTimestamp timestampWithSeconds:seconds nanoseconds:micros * 1000];
+}
+
+- (void)testTimestampsCanBePassedToQueriesAsLimits {
+  FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{@"timestamp" : TimestampWithMicros(100, 2)},
+    @"b" : @{@"timestamp" : TimestampWithMicros(100, 5)},
+    @"c" : @{@"timestamp" : TimestampWithMicros(100, 3)},
+    @"d" : @{@"timestamp" : TimestampWithMicros(100, 1)},
+    // Number of microseconds deliberately repeated.
+    @"e" : @{@"timestamp" : TimestampWithMicros(100, 5)},
+    @"f" : @{@"timestamp" : TimestampWithMicros(100, 4)},
+  }];
+  FIRQuery *query = [testCollection queryOrderedByField:@"timestamp"];
+  FIRQuerySnapshot *querySnapshot =
+      [self readDocumentSetForRef:[[query queryStartingAfterValues:@[ TimestampWithMicros(100, 2) ]]
+                                      queryEndingAtValues:@[ TimestampWithMicros(100, 5) ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"c", @"f", @"b", @"e" ]));
+}
+
+- (void)testTimestampsCanBePassedToQueriesInWhereClause {
+  FIRTimestamp *currentTimestamp = [FIRTimestamp timestamp];
+  int64_t seconds = currentTimestamp.seconds;
+  int32_t micros = currentTimestamp.nanoseconds / 1000;
+  FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{
+      @"timestamp" : TimestampWithMicros(seconds, micros + 2),
+    },
+    @"b" : @{
+      @"timestamp" : TimestampWithMicros(seconds, micros - 1),
+    },
+    @"c" : @{
+      @"timestamp" : TimestampWithMicros(seconds, micros + 3),
+    },
+    @"d" : @{
+      @"timestamp" : TimestampWithMicros(seconds, micros),
+    },
+    @"e" : @{
+      @"timestamp" : TimestampWithMicros(seconds, micros + 1),
+    }
+  }];
+
+  FIRQuerySnapshot *querySnapshot = [self
+      readDocumentSetForRef:[[testCollection queryWhereField:@"timestamp"
+                                      isGreaterThanOrEqualTo:TimestampWithMicros(seconds, micros)]
+                                queryWhereField:@"timestamp"
+                                     isLessThan:TimestampWithMicros(seconds, micros + 3)]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"d", @"e", @"a" ]));
+}
+
+- (void)testTimestampsAreTruncatedToMicroseconds {
+  FIRTimestamp *nanos = [FIRTimestamp timestampWithSeconds:0 nanoseconds:123456789];
+  FIRTimestamp *micros = [FIRTimestamp timestampWithSeconds:0 nanoseconds:123456000];
+  FIRTimestamp *millis = [FIRTimestamp timestampWithSeconds:0 nanoseconds:123000000];
+  FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{@"timestamp" : nanos},
+  }];
+
+  FIRQuerySnapshot *querySnapshot =
+      [self readDocumentSetForRef:[testCollection queryWhereField:@"timestamp" isEqualTo:nanos]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"a" ]));
+
+  // Because Timestamp should have been truncated to microseconds, the microsecond timestamp
+  // should be considered equal to the nanosecond one.
+  querySnapshot =
+      [self readDocumentSetForRef:[testCollection queryWhereField:@"timestamp" isEqualTo:micros]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"a" ]));
+
+  // The truncation is just to the microseconds, however, so the millisecond timestamp should be
+  // treated as different and thus the query should return no results.
+  querySnapshot =
+      [self readDocumentSetForRef:[testCollection queryWhereField:@"timestamp" isEqualTo:millis]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[]));
+}
+
 @end
