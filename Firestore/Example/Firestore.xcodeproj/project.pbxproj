@@ -712,16 +712,17 @@
 		DE51B1831F0D48AC0013853F /* API */ = {
 			isa = PBXGroup;
 			children = (
-				B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */,
 				5492E045202154AA00B64F25 /* FIRCollectionReferenceTests.mm */,
 				5492E049202154AA00B64F25 /* FIRDocumentReferenceTests.mm */,
 				5492E04B202154AA00B64F25 /* FIRDocumentSnapshotTests.mm */,
 				5492E04C202154AA00B64F25 /* FIRFieldPathTests.mm */,
 				5492E04A202154AA00B64F25 /* FIRFieldValueTests.mm */,
+				5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */,
 				5492E048202154AA00B64F25 /* FIRGeoPointTests.mm */,
 				5492E04F202154AA00B64F25 /* FIRQuerySnapshotTests.mm */,
 				5492E046202154AA00B64F25 /* FIRQueryTests.mm */,
 				5492E04D202154AA00B64F25 /* FIRSnapshotMetadataTests.mm */,
+				B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */,
 				5492E047202154AA00B64F25 /* FSTAPIHelpers.h */,
 				5492E04E202154AA00B64F25 /* FSTAPIHelpers.mm */,
 			);
@@ -1316,6 +1317,7 @@
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				548DB927200D590300E00ABC /* assert_test.cc in Sources */,
 				5492E0A62021552D00B64F25 /* FSTPersistenceTestHelpers.mm in Sources */,
+				5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */,
 				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
 				5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */,
 				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
