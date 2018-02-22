@@ -38,6 +38,7 @@
 
 #include <pb.h>
 #include <pb_encode.h>
+#include <limits>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -131,6 +132,76 @@ TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
                                  google_firestore_v1beta1_Value_init_default};
     proto.value.boolean_value = test.value;
     ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Boolean);
+  }
+}
+
+TEST_F(SerializerTest, EncodesIntegersModelToProto) {
+  std::vector<int64_t> testCases{0,
+                                 1,
+                                 -1,
+                                 100,
+                                 -100,
+                                 std::numeric_limits<int64_t>::min(),
+                                 std::numeric_limits<int64_t>::max()};
+  for (int64_t test : testCases) {
+    FieldValue model = FieldValue::IntegerValue(test);
+    Serializer::TypedValue proto{FieldValue::Type::Integer,
+                                 google_firestore_v1beta1_Value_init_default};
+    proto.value.integer_value = test;
+    ExpectRoundTrip(model, proto, FieldValue::Type::Integer);
+  }
+}
+
+TEST_F(SerializerTest, EncodesIntegersProtoToBytes) {
+  // NB: because we're calculating the bytes via protoc (instead of
+  // libprotobuf) we have to look at values from numeric_limits<T> ahead of
+  // time. So these test cases make the following assumptions about
+  // numeric_limits: (linking libprotobuf is starting to sound like a better
+  // idea. :)
+  //   -9223372036854775808
+  //     == -8000000000000000
+  //     == numeric_limits<int64_t>::min()
+  //   9223372036854775807
+  //     == 7FFFFFFFFFFFFFFF
+  //     == numeric_limits<int64_t>::max()
+  //
+  // For now, lets at least verify these values:
+  EXPECT_EQ(-9223372036854775807 - 1, std::numeric_limits<int64_t>::min());
+  EXPECT_EQ(9223372036854775807, std::numeric_limits<int64_t>::max());
+
+  struct TestCase {
+    int64_t value;
+    std::vector<uint8_t> bytes;
+  };
+
+  std::vector<TestCase> cases{
+      // TEXT_FORMAT_PROTO: 'integer_value: 0'
+      TestCase{0, {0x10, 0x00}},
+      // TEXT_FORMAT_PROTO: 'integer_value: 1'
+      TestCase{1, {0x10, 0x01}},
+      // TEXT_FORMAT_PROTO: 'integer_value: -1'
+      TestCase{
+          -1,
+          {0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01}},
+      // TEXT_FORMAT_PROTO: 'integer_value: 100'
+      TestCase{100, {0x10, 0x64}},
+      // TEXT_FORMAT_PROTO: 'integer_value: -100'
+      TestCase{
+          -100,
+          {0x10, 0x9c, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01}},
+      // TEXT_FORMAT_PROTO: 'integer_value: -9223372036854775808'
+      TestCase{
+          -9223372036854775807 - 1,
+          {0x10, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01}},
+      // TEXT_FORMAT_PROTO: 'integer_value: 9223372036854775807'
+      TestCase{9223372036854775807,
+               {0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f}}};
+
+  for (const TestCase& test : cases) {
+    Serializer::TypedValue proto{FieldValue::Type::Integer,
+                                 google_firestore_v1beta1_Value_init_default};
+    proto.value.integer_value = test.value;
+    ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Integer);
   }
 }
 
