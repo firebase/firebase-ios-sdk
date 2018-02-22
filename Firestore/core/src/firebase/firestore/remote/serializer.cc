@@ -34,14 +34,8 @@ namespace {
  *
  * @param value The value to encode, represented as a uint64_t.
  */
-void EncodeVarint(pb_ostream_t* stream, uint32_t field_number, uint64_t value) {
-  bool status = pb_encode_tag(stream, PB_WT_VARINT, field_number);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-
-  status = pb_encode_varint(stream, value);
+void EncodeVarint(pb_ostream_t* stream, uint64_t value) {
+  bool status = pb_encode_varint(stream, value);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -68,8 +62,7 @@ uint64_t DecodeVarint(pb_istream_t* stream) {
 }
 
 void EncodeNull(pb_ostream_t* stream) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_null_value_tag,
-                      google_protobuf_NullValue_NULL_VALUE);
+  return EncodeVarint(stream, google_protobuf_NullValue_NULL_VALUE);
 }
 
 void DecodeNull(pb_istream_t* stream) {
@@ -81,8 +74,7 @@ void DecodeNull(pb_istream_t* stream) {
 }
 
 void EncodeBool(pb_ostream_t* stream, bool bool_value) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_boolean_value_tag,
-                      bool_value);
+  return EncodeVarint(stream, bool_value);
 }
 
 bool DecodeBool(pb_istream_t* stream) {
@@ -99,8 +91,7 @@ bool DecodeBool(pb_istream_t* stream) {
 }
 
 void EncodeInteger(pb_ostream_t* stream, int64_t integer_value) {
-  return EncodeVarint(stream, google_firestore_v1beta1_Value_integer_value_tag,
-                      integer_value);
+  return EncodeVarint(stream, integer_value);
 }
 
 int64_t DecodeInteger(pb_istream_t* stream) {
@@ -144,16 +135,38 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
   // going to need.
   uint8_t buf[1024];
   pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
+
+  // TODO(rsgowman): some refactoring is in order... but will wait until after a
+  // non-varint, non-fixed-size (i.e. string) type is present before doing so.
+  bool status = false;
   switch (value.type) {
     case FieldValue::Type::Null:
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_null_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
       EncodeNull(&stream);
       break;
 
     case FieldValue::Type::Boolean:
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_boolean_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
       EncodeBool(&stream, value.value.boolean_value);
       break;
 
     case FieldValue::Type::Integer:
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_integer_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
       EncodeInteger(&stream, value.value.integer_value);
       break;
 
