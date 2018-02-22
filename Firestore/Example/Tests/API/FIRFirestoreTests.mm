@@ -20,21 +20,21 @@
 
 #import <XCTest/XCTest.h>
 
+#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+
+namespace testutil = firebase::firestore::testutil;
+
 @interface FIRFirestoreTests : XCTestCase
 @end
 
 @implementation FIRFirestoreTests
 
 - (void)testDeleteApp {
-  // Create a FIRApp for testing.
-  NSString *appName = @"custom_app_name";
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123ab" GCMSenderID:@"gcm_sender_id"];
-  options.projectID = @"project_id";
-  [FIRApp configureWithName:appName options:options];
-
   // Ensure the app is set appropriately.
-  FIRApp *app = [FIRApp appNamed:appName];
+  FIRApp *app = testutil::AppForUnitTesting();
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   XCTAssertEqualObjects(firestore.app, app);
 
