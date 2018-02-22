@@ -172,10 +172,12 @@ FSTResourcePath *FSTTestPath(NSString *path) {
   return [FSTResourcePath pathWithSegments:FSTTestSplitPath(path)];
 }
 
-FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSString *path) {
+FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
+                                    const absl::string_view database,
+                                    NSString *path) {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static std::list<DatabaseId> database_ids;
-  database_ids.emplace_back(util::MakeStringView(projectID), util::MakeStringView(database));
+  database_ids.emplace_back(projectID, database);
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
                                            databaseID:&database_ids.back()];
 }
