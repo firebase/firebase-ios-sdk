@@ -13,11 +13,23 @@
 # limitations under the License.
 
 cc_library(
-  firebase_firestore_testutil
+  firebase_firestore_testutil_apple
   SOURCES
     app_testing.h
     app_testing.mm
   DEPENDS
     FirebaseCore
     absl_strings
+)
+
+if(APPLE)
+  list(APPEND TESTUTIL_DEPENDS firebase_firestore_testutil_apple)
+endif()
+
+add_library(
+  firebase_firestore_testutil INTERFACE
+)
+target_link_libraries(
+  firebase_firestore_testutil INTERFACE
+  ${TESTUTIL_DEPENDS}
 )
