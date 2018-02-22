@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
-#import "FIRTimestampBehavior.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
@@ -62,7 +61,7 @@ typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
 
 @property(nonatomic, readonly, assign) FSTServerTimestampBehavior serverTimestampBehavior;
 
-@property(nonatomic, readonly, assign) FSTTimestampBehavior timestampBehavior;
+@property(nonatomic) BOOL enableTimestampsInSnapshots;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -71,12 +70,12 @@ typedef NS_ENUM(NSInteger, FSTTimestampBehavior) {
  * server timestamps.
  */
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
-                              timestampBehavior:(FSTTimestampBehavior)timestampBehavior
+                              enableTimestampsInSnapshots:(BOOL)enableTimestampsInSnapshots
     NS_DESIGNATED_INITIALIZER;
 
 /** Creates an FSTFieldValueOption instance from FIRSnapshotOptions. */
 + (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)value
-                        timestampBehavior:(FIRTimestampBehavior)timestampBehavior;
+                        enableTimestampsInSnapshots:(BOOL)enableTimestampsInSnapshots;
 
 @end
 
