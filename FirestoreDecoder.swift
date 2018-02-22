@@ -19,7 +19,7 @@ extension DocumentSnapshot {
     }
     
     func decode<T : Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
-        let decoder = FirestoreDecoder(referencing: container)
+        let decoder = _FirestoreDecoder(referencing: container)
         guard let value = try decoder.unbox(container, as: T.self) else {
             throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
         }
@@ -29,12 +29,12 @@ extension DocumentSnapshot {
 }
 
 @available(swift 4.0.0)
-fileprivate class FirestoreDecoder : Decoder {
+fileprivate class _FirestoreDecoder : Decoder {
     /// Options set on the top-level encoder to pass down the decoding hierarchy.
     
     // MARK: Properties
     /// The decoder's storage.
-    fileprivate var storage: FirestoreDecodingStorage
+    fileprivate var storage: _FirestoreDecodingStorage
     
     /// The path to the current point in encoding.
     fileprivate(set) public var codingPath: [CodingKey]
@@ -45,7 +45,7 @@ fileprivate class FirestoreDecoder : Decoder {
     // MARK: - Initialization
     /// Initializes `self` with the given top-level container and options.
     init(referencing container: Any, at codingPath: [CodingKey] = []) {
-        self.storage = FirestoreDecodingStorage()
+        self.storage = _FirestoreDecodingStorage()
         self.storage.push(container: container)
         self.codingPath = codingPath
     }
@@ -63,7 +63,7 @@ fileprivate class FirestoreDecoder : Decoder {
             throw DecodingError.typeMismatch([String: Any].self, context)
         }
         
-        let container = FirestoreKeyedDecodingContainer<Key>(referencing: self, wrapping: topContainer)
+        let container = _FirestoreKeyedDecodingContainer<Key>(referencing: self, wrapping: topContainer)
         return KeyedDecodingContainer(container)
     }
     
@@ -79,7 +79,7 @@ fileprivate class FirestoreDecoder : Decoder {
             throw DecodingError.typeMismatch([Any].self, context)
         }
         
-        return FirestoreUnkeyedDecodingContainer(referencing: self, wrapping: topContainer)
+        return _FirestoreUnkeyedDecodingContainer(referencing: self, wrapping: topContainer)
     }
     
     public func singleValueContainer() throws -> SingleValueDecodingContainer {
@@ -88,7 +88,7 @@ fileprivate class FirestoreDecoder : Decoder {
 }
 
 @available(swift 4.0.0)
-fileprivate struct FirestoreDecodingStorage {
+fileprivate struct _FirestoreDecodingStorage {
     // MARK: Properties
     /// The container stack.
     /// Elements may be any one of the plist types (NSNumber, Date, String, Array, [String : Any]).
@@ -119,12 +119,12 @@ fileprivate struct FirestoreDecodingStorage {
 }
 
 @available(swift 4.0.0)
-fileprivate struct FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContainerProtocol {
+fileprivate struct _FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContainerProtocol {
     typealias Key = K
     
     // MARK: Properties
     /// A reference to the decoder we're reading from.
-    private let decoder: FirestoreDecoder
+    private let decoder: _FirestoreDecoder
     
     /// A reference to the container we're reading from.
     private let container: [String : Any]
@@ -134,7 +134,7 @@ fileprivate struct FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodin
     
     // MARK: - Initialization
     /// Initializes `self` by referencing the given decoder and container.
-    fileprivate init(referencing decoder: FirestoreDecoder, wrapping container: [String : Any]) {
+    fileprivate init(referencing decoder: _FirestoreDecoder, wrapping container: [String : Any]) {
         self.decoder = decoder
         self.container = container
         self.codingPath = decoder.codingPath
@@ -395,7 +395,7 @@ fileprivate struct FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodin
             throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self, reality: value)
         }
         
-        let container = FirestoreKeyedDecodingContainer<NestedKey>(referencing: self.decoder, wrapping: dictionary)
+        let container = _FirestoreKeyedDecodingContainer<NestedKey>(referencing: self.decoder, wrapping: dictionary)
         return KeyedDecodingContainer(container)
     }
     
@@ -414,7 +414,7 @@ fileprivate struct FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodin
             throw DecodingError.typeMismatch([Any].self, context)
         }
         
-        return FirestoreUnkeyedDecodingContainer(referencing: self.decoder, wrapping: array)
+        return _FirestoreUnkeyedDecodingContainer(referencing: self.decoder, wrapping: array)
     }
     
     private func _superDecoder(forKey key: CodingKey) throws -> Decoder {
@@ -422,11 +422,11 @@ fileprivate struct FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodin
         defer { self.decoder.codingPath.removeLast() }
         
         let value: Any = container[key.stringValue] ?? NSNull()
-        return FirestoreDecoder(referencing: value, at: self.decoder.codingPath)
+        return _FirestoreDecoder(referencing: value, at: self.decoder.codingPath)
     }
     
     public func superDecoder() throws -> Decoder {
-        return try _superDecoder(forKey: FirestoreKey.super)
+        return try _superDecoder(forKey: _FirestoreKey.super)
     }
     
     public func superDecoder(forKey key: Key) throws -> Decoder {
@@ -435,10 +435,10 @@ fileprivate struct FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodin
 }
 
 @available(swift 4.0.0)
-fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer {
+fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer {
     // MARK: Properties
     /// A reference to the decoder we're reading from.
-    private let decoder: FirestoreDecoder
+    private let decoder: _FirestoreDecoder
     
     /// A reference to the container we're reading from.
     private let container: [Any]
@@ -451,7 +451,7 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     // MARK: - Initialization
     /// Initializes `self` by referencing the given decoder and container.
-    fileprivate init(referencing decoder: FirestoreDecoder, wrapping container: [Any]) {
+    fileprivate init(referencing decoder: _FirestoreDecoder, wrapping container: [Any]) {
         self.decoder = decoder
         self.container = container
         self.codingPath = decoder.codingPath
@@ -469,7 +469,7 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decodeNil() throws -> Bool {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(Any?.self, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(Any?.self, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
         if container[currentIndex] is NSNull {
@@ -482,14 +482,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Bool.Type) throws -> Bool {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: Bool.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -498,14 +498,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Int.Type) throws -> Int {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: Int.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -514,14 +514,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Int8.Type) throws -> Int8 {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: Int8.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -530,14 +530,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Int16.Type) throws -> Int16 {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: Int16.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -546,14 +546,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Int32.Type) throws -> Int32 {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: Int32.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -562,14 +562,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Int64.Type) throws -> Int64 {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: Int64.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -578,14 +578,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: UInt.Type) throws -> UInt {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: UInt.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -594,14 +594,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: UInt8.Type) throws -> UInt8 {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: UInt8.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -610,14 +610,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: UInt16.Type) throws -> UInt16 {
         guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        self.decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: UInt16.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -626,14 +626,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: UInt32.Type) throws -> UInt32 {
         guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: UInt32.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -642,14 +642,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: UInt64.Type) throws -> UInt64 {
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        decoder.codingPath.append(FirestoreKey(index: currentIndex))
+        decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
         guard let decoded = try decoder.unbox(container[currentIndex], as: UInt64.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         currentIndex += 1
@@ -658,14 +658,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Float.Type) throws -> Float {
         guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        self.decoder.codingPath.append(FirestoreKey(index: self.currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Float.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         self.currentIndex += 1
@@ -674,14 +674,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: Double.Type) throws -> Double {
         guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        self.decoder.codingPath.append(FirestoreKey(index: self.currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Double.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         self.currentIndex += 1
@@ -690,14 +690,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode(_ type: String.Type) throws -> String {
         guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        self.decoder.codingPath.append(FirestoreKey(index: self.currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: String.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         self.currentIndex += 1
@@ -706,14 +706,14 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     
     public mutating func decode<T : Decodable>(_ type: T.Type) throws -> T {
         guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
         }
         
-        self.decoder.codingPath.append(FirestoreKey(index: self.currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: T.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
         }
         
         self.currentIndex += 1
@@ -721,7 +721,7 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
     }
     
     public mutating func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> {
-        self.decoder.codingPath.append(FirestoreKey(index: self.currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard !self.isAtEnd else {
@@ -743,12 +743,12 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
         }
         
         self.currentIndex += 1
-        let container = FirestoreKeyedDecodingContainer<NestedKey>(referencing: self.decoder, wrapping: dictionary)
+        let container = _FirestoreKeyedDecodingContainer<NestedKey>(referencing: self.decoder, wrapping: dictionary)
         return KeyedDecodingContainer(container)
     }
     
     public mutating func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        self.decoder.codingPath.append(FirestoreKey(index: self.currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard !self.isAtEnd else {
@@ -770,11 +770,11 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
         }
         
         self.currentIndex += 1
-        return FirestoreUnkeyedDecodingContainer(referencing: self.decoder, wrapping: array)
+        return _FirestoreUnkeyedDecodingContainer(referencing: self.decoder, wrapping: array)
     }
     
     public mutating func superDecoder() throws -> Decoder {
-        self.decoder.codingPath.append(FirestoreKey(index: self.currentIndex))
+        self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
         guard !self.isAtEnd else {
@@ -784,11 +784,11 @@ fileprivate struct FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer 
         
         let value = self.container[self.currentIndex]
         self.currentIndex += 1
-        return FirestoreDecoder(referencing: value, at: decoder.codingPath)
+        return _FirestoreDecoder(referencing: value, at: decoder.codingPath)
     }
 }
 
-extension FirestoreDecoder : SingleValueDecodingContainer {
+extension _FirestoreDecoder : SingleValueDecodingContainer {
     // MARK: SingleValueDecodingContainer Methods
     private func expectNonNull<T>(_ type: T.Type) throws {
         guard !decodeNil() else {
@@ -876,7 +876,7 @@ extension FirestoreDecoder : SingleValueDecodingContainer {
     }
 }
 
-extension FirestoreDecoder {
+extension _FirestoreDecoder {
     /// Returns the given value unboxed from a container.
     func unbox(_ value: Any, as type: Bool.Type) throws -> Bool? {
         guard !(value is NSNull) else { return nil }

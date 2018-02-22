@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 @available(swift 4.0.0)
 extension DocumentReference {
-    func set<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
+    public func set<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
         do {
             setData(try encode(value), completion: completion)
         } catch let error {
@@ -18,8 +18,8 @@ extension DocumentReference {
         }
     }
     
-    func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
-        guard let topLevel = try FirestoreEncoder().box_(value) else {
+    public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
+        guard let topLevel = try _FirestoreEncoder().box_(value) else {
             throw EncodingError.invalidValue(value,
                                              EncodingError.Context(codingPath: [],
                                                                    debugDescription: "Top-level \(T.self) did not encode any values."))
@@ -37,13 +37,13 @@ extension DocumentReference {
 }
 
 @available(swift 4.0.0)
-fileprivate class FirestoreEncoder : Encoder {
-    fileprivate var storage: FirestoreEncodingStorage
+fileprivate class _FirestoreEncoder : Encoder {
+    fileprivate var storage: _FirestoreEncodingStorage
     fileprivate(set) public var codingPath: [CodingKey]
     public var userInfo: [CodingUserInfoKey : Any] = [:]
     
     init(codingPath: [CodingKey] = []) {
-        self.storage = FirestoreEncodingStorage()
+        self.storage = _FirestoreEncodingStorage()
         self.codingPath = codingPath
     }
     
@@ -75,7 +75,7 @@ fileprivate class FirestoreEncoder : Encoder {
             topContainer = container
         }
         
-        let container = FirestoreKeyedEncodingContainer<Key>(referencing: self, codingPath: self.codingPath, wrapping: topContainer)
+        let container = _FirestoreKeyedEncodingContainer<Key>(referencing: self, codingPath: self.codingPath, wrapping: topContainer)
         return KeyedEncodingContainer(container)
     }
     
@@ -93,7 +93,7 @@ fileprivate class FirestoreEncoder : Encoder {
             topContainer = container
         }
         
-        return FirestoreUnkeyedEncodingContainer(referencing: self, codingPath: self.codingPath, wrapping: topContainer)
+        return _FirestoreUnkeyedEncodingContainer(referencing: self, codingPath: self.codingPath, wrapping: topContainer)
     }
     
     public func singleValueContainer() -> SingleValueEncodingContainer {
@@ -102,7 +102,7 @@ fileprivate class FirestoreEncoder : Encoder {
 }
 
 @available(swift 4.0.0)
-fileprivate struct FirestoreEncodingStorage {
+fileprivate struct _FirestoreEncodingStorage {
     // MARK: Properties
     /// The container stack.
     /// Elements may be any one of the plist types (NSNumber, NSString, NSDate, NSArray, NSDictionary).
@@ -140,12 +140,12 @@ fileprivate struct FirestoreEncodingStorage {
 }
 
 @available(swift 4.0.0)
-fileprivate struct FirestoreKeyedEncodingContainer<K : CodingKey> : KeyedEncodingContainerProtocol {
+fileprivate struct _FirestoreKeyedEncodingContainer<K : CodingKey> : KeyedEncodingContainerProtocol {
     typealias Key = K
     
     // MARK: Properties
     /// A reference to the encoder we're writing to.
-    private let encoder: FirestoreEncoder
+    private let encoder: _FirestoreEncoder
     
     /// A reference to the container we're writing to.
     private let container: NSMutableDictionary
@@ -155,7 +155,7 @@ fileprivate struct FirestoreKeyedEncodingContainer<K : CodingKey> : KeyedEncodin
     
     // MARK: - Initialization
     /// Initializes `self` with the given references.
-    fileprivate init(referencing encoder: FirestoreEncoder, codingPath: [CodingKey], wrapping container: NSMutableDictionary) {
+    fileprivate init(referencing encoder: _FirestoreEncoder, codingPath: [CodingKey], wrapping container: NSMutableDictionary) {
         self.encoder = encoder
         self.codingPath = codingPath
         self.container = container
@@ -191,7 +191,7 @@ fileprivate struct FirestoreKeyedEncodingContainer<K : CodingKey> : KeyedEncodin
         codingPath.append(key)
         defer { codingPath.removeLast() }
         
-        let container = FirestoreKeyedEncodingContainer<NestedKey>(referencing: encoder, codingPath: codingPath, wrapping: dictionary)
+        let container = _FirestoreKeyedEncodingContainer<NestedKey>(referencing: encoder, codingPath: codingPath, wrapping: dictionary)
         return KeyedEncodingContainer(container)
     }
     
@@ -201,23 +201,23 @@ fileprivate struct FirestoreKeyedEncodingContainer<K : CodingKey> : KeyedEncodin
         
         codingPath.append(key)
         defer { codingPath.removeLast() }
-        return FirestoreUnkeyedEncodingContainer(referencing: encoder, codingPath: codingPath, wrapping: array)
+        return _FirestoreUnkeyedEncodingContainer(referencing: encoder, codingPath: codingPath, wrapping: array)
     }
     
     public mutating func superEncoder() -> Encoder {
-        return FirestoreReferencingEncoder(referencing: encoder, at: FirestoreKey.super, wrapping: container)
+        return _FirestoreReferencingEncoder(referencing: encoder, at: _FirestoreKey.super, wrapping: container)
     }
     
     public mutating func superEncoder(forKey key: Key) -> Encoder {
-        return FirestoreReferencingEncoder(referencing: encoder, at: key, wrapping: container)
+        return _FirestoreReferencingEncoder(referencing: encoder, at: key, wrapping: container)
     }
 }
 
 @available(swift 4.0.0)
-fileprivate struct FirestoreUnkeyedEncodingContainer : UnkeyedEncodingContainer {
+fileprivate struct _FirestoreUnkeyedEncodingContainer : UnkeyedEncodingContainer {
     // MARK: Properties
     /// A reference to the encoder we're writing to.
-    private let encoder: FirestoreEncoder
+    private let encoder: _FirestoreEncoder
     
     /// A reference to the container we're writing to.
     private let container: NSMutableArray
@@ -232,7 +232,7 @@ fileprivate struct FirestoreUnkeyedEncodingContainer : UnkeyedEncodingContainer 
     
     // MARK: - Initialization
     /// Initializes `self` with the given references.
-    fileprivate init(referencing encoder: FirestoreEncoder, codingPath: [CodingKey], wrapping container: NSMutableArray) {
+    fileprivate init(referencing encoder: _FirestoreEncoder, codingPath: [CodingKey], wrapping container: NSMutableArray) {
         self.encoder = encoder
         self.codingPath = codingPath
         self.container = container
@@ -256,38 +256,38 @@ fileprivate struct FirestoreUnkeyedEncodingContainer : UnkeyedEncodingContainer 
     public mutating func encode(_ value: String) throws { container.add(self.encoder.box(value)) }
     
     public mutating func encode<T : Encodable>(_ value: T) throws {
-        encoder.codingPath.append(FirestoreKey(index: count))
+        encoder.codingPath.append(_FirestoreKey(index: count))
         defer { encoder.codingPath.removeLast() }
         container.add(try encoder.box(value))
     }
     
     public mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> {
-        self.codingPath.append(FirestoreKey(index: self.count))
+        self.codingPath.append(_FirestoreKey(index: self.count))
         defer { self.codingPath.removeLast() }
         
         let dictionary = NSMutableDictionary()
         self.container.add(dictionary)
         
-        let container = FirestoreKeyedEncodingContainer<NestedKey>(referencing: self.encoder, codingPath: self.codingPath, wrapping: dictionary)
+        let container = _FirestoreKeyedEncodingContainer<NestedKey>(referencing: self.encoder, codingPath: self.codingPath, wrapping: dictionary)
         return KeyedEncodingContainer(container)
     }
     
     public mutating func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        self.codingPath.append(FirestoreKey(index: self.count))
+        self.codingPath.append(_FirestoreKey(index: self.count))
         defer { self.codingPath.removeLast() }
         
         let array = NSMutableArray()
         self.container.add(array)
-        return FirestoreUnkeyedEncodingContainer(referencing: self.encoder, codingPath: self.codingPath, wrapping: array)
+        return _FirestoreUnkeyedEncodingContainer(referencing: self.encoder, codingPath: self.codingPath, wrapping: array)
     }
     
     public mutating func superEncoder() -> Encoder {
-        return FirestoreReferencingEncoder(referencing: encoder, at: container.count, wrapping: container)
+        return _FirestoreReferencingEncoder(referencing: encoder, at: container.count, wrapping: container)
     }
 }
 
 @available(swift 4.0.0)
-struct FirestoreKey : CodingKey {
+struct _FirestoreKey : CodingKey {
     public var stringValue: String
     public var intValue: Int?
     
@@ -306,10 +306,10 @@ struct FirestoreKey : CodingKey {
         self.intValue = index
     }
     
-    static let `super` = FirestoreKey(stringValue: "super")!
+    static let `super` = _FirestoreKey(stringValue: "super")!
 }
 
-extension FirestoreEncoder {
+extension _FirestoreEncoder {
     
     /// Returns the given value boxed in a container appropriate for pushing onto the container stack.
     fileprivate func box(_ value: Bool)   -> NSObject { return NSNumber(value: value) }
@@ -341,11 +341,11 @@ extension FirestoreEncoder {
         } else if T.self == Decimal.self || T.self == NSDecimalNumber.self {
             return (value as! NSDecimalNumber)
         } else if T.self == GeoPoint.self || T.self == DocumentReference.self || T.self == FieldValue.self {
-            // These are all native Firestore types that we don't need to Encode
+            // These are all native _Firestore types that we don't need to Encode
             return (value as! NSObject)
         }
         
-        // The value should request a container from the FirestoreEncoder.
+        // The value should request a container from the _FirestoreEncoder.
         let depth = self.storage.count
         do {
             try value.encode(to: self)
@@ -367,7 +367,7 @@ extension FirestoreEncoder {
     }
 }
 
-extension FirestoreEncoder : SingleValueEncodingContainer {
+extension _FirestoreEncoder : SingleValueEncodingContainer {
     // MARK: - SingleValueEncodingContainer Methods
     private func assertCanEncodeNewValue() {
         precondition(canEncodeNewValue, "Attempt to encode value through single value container when previously value already encoded.")
@@ -455,7 +455,7 @@ extension FirestoreEncoder : SingleValueEncodingContainer {
 }
 
 @available(swift 4.0.0)
-fileprivate class FirestoreReferencingEncoder : FirestoreEncoder {
+fileprivate class _FirestoreReferencingEncoder : _FirestoreEncoder {
     // MARK: Reference types.
     /// The type of container we're referencing.
     private enum Reference {
@@ -468,23 +468,23 @@ fileprivate class FirestoreReferencingEncoder : FirestoreEncoder {
     
     // MARK: - Properties
     /// The encoder we're referencing.
-    private let encoder: FirestoreEncoder
+    private let encoder: _FirestoreEncoder
     
     /// The container reference itself.
     private let reference: Reference
     
     // MARK: - Initialization
     /// Initializes `self` by referencing the given array container in the given encoder.
-    fileprivate init(referencing encoder: FirestoreEncoder, at index: Int, wrapping array: NSMutableArray) {
+    fileprivate init(referencing encoder: _FirestoreEncoder, at index: Int, wrapping array: NSMutableArray) {
         self.encoder = encoder
         self.reference = .array(array, index)
         super.init(codingPath: encoder.codingPath)
         
-        self.codingPath.append(FirestoreKey(index: index))
+        self.codingPath.append(_FirestoreKey(index: index))
     }
     
     /// Initializes `self` by referencing the given dictionary container in the given encoder.
-    fileprivate init(referencing encoder: FirestoreEncoder, at key: CodingKey, wrapping dictionary: NSMutableDictionary) {
+    fileprivate init(referencing encoder: _FirestoreEncoder, at key: CodingKey, wrapping dictionary: NSMutableDictionary) {
         self.encoder = encoder
         reference = .dictionary(dictionary, key.stringValue)
         super.init(codingPath: encoder.codingPath)
