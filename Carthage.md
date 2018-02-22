@@ -7,6 +7,11 @@ This page introduces and provides instructions for an **experimental** Firebase
 feedback and usage, the Firebase team may decide to make the Carthage
 distribution official.
 
+FirebaseFirestore and FirebaseInvites are not yet supported from Carthage.
+Please [let us know](https://github.com/firebase/firebase-ios-sdk/issues) if you
+have suggestions about how best to distribute Carthage binaries that include
+resource bundles.
+
 ## Carthage Installation
 
 [Homebrew](http://brew.sh/) is one way to install Carthage.
@@ -22,9 +27,8 @@ more details and additional installation methods.
 
 ## Carthage Usage
 
-- Create a Cartfile with a subset of the following components. Note that
-    **FirebaseAnalytics** must always be included. FirebaseInvites is not yet
-    supported from Carthage.
+- Create a Cartfile with a **subset** of the following components. Note that
+    **FirebaseAnalytics** must always be included.
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
@@ -33,7 +37,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
