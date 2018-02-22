@@ -34,8 +34,8 @@ TEST(DatabaseInfo, Getter) {
 }
 
 TEST(DatabaseInfo, DefaultDatabase) {
-  DatabaseInfo info(DatabaseId("project id", DatabaseId::kDefaultDatabaseId),
-                    "key", "http://host", false);
+  DatabaseInfo info(DatabaseId("project id", DatabaseId::kDefault), "key",
+                    "http://host", false);
   EXPECT_EQ("project id", info.database_id().project_id());
   EXPECT_EQ("(default)", info.database_id().database_id());
   EXPECT_EQ("key", info.persistence_key());

@@ -107,7 +107,7 @@ FSTFieldPath *FSTTestFieldPath(NSString *field) {
 
 FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static DatabaseId database_id{"project", DatabaseId::kDefaultDatabaseId};
+  static DatabaseId database_id{"project", DatabaseId::kDefault};
   FSTUserDataConverter *converter =
       [[FSTUserDataConverter alloc] initWithDatabaseID:&database_id
                                           preConverter:^id _Nullable(id _Nullable input) {

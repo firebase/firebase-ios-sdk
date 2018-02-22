@@ -254,8 +254,8 @@ union DoubleBits {
 
 - (void)testWrapResourceNames {
   NSArray *values = @[
-    FSTTestRef("project", DatabaseId::kDefaultDatabaseId, @"foo/bar"),
-    FSTTestRef("project", DatabaseId::kDefaultDatabaseId, @"foo/baz")
+    FSTTestRef("project", DatabaseId::kDefault, @"foo/bar"),
+    FSTTestRef("project", DatabaseId::kDefault, @"foo/baz")
   ];
   for (FSTDocumentKeyReference *value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
@@ -423,7 +423,7 @@ union DoubleBits {
 }
 
 - (void)testValueEquality {
-  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
+  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefault);
   NSArray *groups = @[
     @[ FSTTestFieldValue(@YES), [FSTBooleanValue booleanValue:YES] ],
     @[ FSTTestFieldValue(@NO), [FSTBooleanValue booleanValue:NO] ],
@@ -467,7 +467,7 @@ union DoubleBits {
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
       [FSTReferenceValue referenceValue:FSTTestDocKey(@"coll/doc1") databaseID:&database_id],
-      FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefaultDatabaseId, @"coll/doc1"))
+      FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefault, @"coll/doc1"))
     ],
     @[ FSTTestRef("project", "(default)", @"coll/doc2") ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar" ]), FSTTestFieldValue(@[ @"foo", @"bar" ]) ],

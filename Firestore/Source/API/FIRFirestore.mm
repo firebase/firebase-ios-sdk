@@ -117,13 +117,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
                          @"before using Firestore");
   }
-  return
-      [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
+  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
 }
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
-  return
-      [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId)];
+  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
 }
 
 // TODO(b/62410906): make this public
@@ -137,7 +135,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FSTThrowInvalidArgument(
         @"database identifier may not be nil. Use '%@' if you want the default "
          "database",
-        util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId));
+        util::WrapNSStringNoCopy(DatabaseId::kDefault));
   }
 
   // Note: If the key format changes, please change the code that detects FIRApps being deleted

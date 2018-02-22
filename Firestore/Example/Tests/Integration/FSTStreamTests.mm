@@ -148,7 +148,7 @@ using firebase::firestore::model::DatabaseId;
 
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
   DatabaseId database_id(util::MakeStringView([FSTIntegrationTestCase projectID]),
-                         DatabaseId::kDefaultDatabaseId);
+                         DatabaseId::kDefault);
 
   _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _workerDispatchQueue = [[FSTDispatchQueue alloc] initWithQueue:_testQueue];

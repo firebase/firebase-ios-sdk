@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
   FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
-                                                           database:DatabaseId::kDefaultDatabaseId
+                                                           database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
                                                 credentialsProvider:credentialsProvider
                                                 workerDispatchQueue:workerDispatchQueue
