@@ -53,7 +53,7 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
 
                 NSString* user_id =
                     user_info[FIRAuthStateDidChangeInternalNotificationUIDKey];
-                User new_user(util::MakeStringView(user_id));
+                User new_user = User::FromUid(user_id);
                 if (new_user != contents->current_user) {
                   contents->current_user = new_user;
                   contents->user_counter++;
