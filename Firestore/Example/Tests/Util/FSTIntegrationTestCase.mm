@@ -17,6 +17,7 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #include <memory>
+#include <utility>
 
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
@@ -27,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -141,7 +143,9 @@ NS_ASSUME_NONNULL_BEGIN
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
-  std::unique_ptr<CredentialsProvider> credentials_provider(new EmptyCredentialsProvider());
+  std::unique_ptr<CredentialsProvider> credentials_provider =
+      absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
+
   FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
                                                            database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey

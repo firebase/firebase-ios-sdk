@@ -17,6 +17,7 @@
 #import "FIRFirestore.h"
 
 #include <memory>
+#include <utility>
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -44,6 +45,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
@@ -159,7 +161,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
           queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
       std::unique_ptr<CredentialsProvider> credentials_provider =
-          std::make_unique<FirebaseCredentialsProvider>(app);
+          absl::make_unique<FirebaseCredentialsProvider>(app);
 
       NSString *persistenceKey = app.name;
 
