@@ -259,21 +259,18 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 }
 @end
 
-// Settings cannot be redefined once passed to Firestore instance, which necessitates overriding
-// the base class method to create different settings.
+// Settings can only be redefined before client is initialized, so this has to happen in setUp.
 // TODO(b/73820332): there will be no need for this once enableTimestampsInSnapshots is the default.
 @interface FIREnableTimestampsInSnapshotsTests : FSTIntegrationTestCase
-
-+ (FIRFirestoreSettings *)settings;
-
 @end
 
 @implementation FIREnableTimestampsInSnapshotsTests
 
-+ (FIRFirestoreSettings *)settings {
-  FIRFirestoreSettings *settings = [super settings];
+- (void)setUp {
+  [super setUp];
+  FIRFirestoreSettings *settings = self.db.settings;
   settings.enableTimestampsInSnapshots = YES;
-  return settings;
+  self.db.settings = settings;
 }
 
 - (void)testSetEnableTimestampsInSnapshots {

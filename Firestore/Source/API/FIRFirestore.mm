@@ -237,31 +237,32 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
       if (!_settings.enableTimestampsInSnapshots) {
+        // TODO(varconst): DO NOT SUBMIT: doublecheck these code snippets before submitting.
         FSTWarn(
-            @"The default behavior for NSDate objects stored in Firestore is going to change"
+            @"The default behavior for NSDate objects stored in Firestore is going to change "
              "AND YOUR APP MAY BREAK.\n"
-             "To hide this warning and ensure your app does not break, you need to add"
-             "the following code to your app before calling any other Cloud Firestore methods:"
-             "\n\n"
+             "To hide this warning and ensure your app does not break, you need to add "
+             "the following code to your app before calling any other Cloud Firestore methods:\n"
+             "\n"
              "let db = Firestore.firestore()\n"
              "let settings = db.settings\n"
              "settings.enableTimestampsInSnapshots = true\n"
-             "db.settings = settings"
-             "\n\n"
-             "With this change, timestamps stored in Cloud Firestore will be read back as"
-             "Firebase Timestamp objects instead of as system Date objects. So you will"
-             "also need to update code expecting a Date to instead expect a Timestamp."
-             "For example:"
-             "\n\n"
+             "db.settings = settings\n"
+             "\n"
+             "With this change, timestamps stored in Cloud Firestore will be read back as "
+             "Firebase Timestamp objects instead of as system Date objects. So you will "
+             "also need to update code expecting a Date to instead expect a Timestamp. "
+             "For example:\n"
+             "\n"
              "// old:\n"
              "let date: Date = documentSnapshot.data[\"created_at\"]\n"
              "// new:\n"
              "let timestamp: Timestamp = documentSnapshot.data[\"created_at\"]\n"
-             "let date: Date = timestamp.approximateDateValue()"
-             "\n\n"
-             "Please audit all existing usages of Date when you enable the new behavior. This new"
+             "let date: Date = timestamp.approximateDateValue()\n"
+             "\n"
+             "Please audit all existing usages of Date when you enable the new behavior. This new "
              "behavior will become the default in a future release and so if you do not follow "
-             "these  steps, YOUR APP MAY BREAK.");
+             "these steps, YOUR APP MAY BREAK.");
       }
 
       const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
