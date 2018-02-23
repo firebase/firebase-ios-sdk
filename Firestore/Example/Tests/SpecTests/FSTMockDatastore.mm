@@ -16,8 +16,6 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
-#include <list>
-
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -289,20 +287,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTMockDatastore
-
-+ (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
-  // This owns the DatabaseInfos since we do not have FirestoreClient instance to own them.
-  static DatabaseInfo database_info{DatabaseId{"project", "database"}, "persistence", "host",
-                                    false};
-
-  // Note that we purposely don't bother to cleanup the EmptyCredentialsProvider instances.
-  static std::list<EmptyCredentialsProvider> credentials_providers;
-  credentials_providers.emplace_back();
-
-  return [[FSTMockDatastore alloc] initWithDatabaseInfo:&database_info
-                                    workerDispatchQueue:workerDispatchQueue
-                                            credentials:&credentials_providers.back()];
-}
 
 #pragma mark - Overridden FSTDatastore methods.
 
