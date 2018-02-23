@@ -143,12 +143,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options {
   return self.internalDocument == nil
              ? nil
-             : [self
-                   convertedObject:[self.internalDocument data]
-                           options:[FSTFieldValueOptions
-                                         optionsForSnapshotOptions:options
-                                       enableTimestampsInSnapshots:
-                                           self.firestore.settings.enableTimestampsInSnapshots]];
+             : [self convertedObject:[self.internalDocument data]
+                             options:[FSTFieldValueOptions
+                                           optionsForSnapshotOptions:options
+                                         enableTimestampsInSnapshots:
+                                             self.firestore.settings.enableTimestampsInSnapshots]];
 }
 
 - (nullable id)valueForField:(id)field {

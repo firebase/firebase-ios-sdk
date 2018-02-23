@@ -234,7 +234,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   return [self readDocumentForRef:doc];
 }
 
-// TODO(b/73820332): this test should break once the default for how timestamps are returned changes.
+// TODO(b/73820332): this test should break once the default for how timestamps are returned
+// changes.
 - (void)testSnapshotsReturnNSDatesByDefault {
   NSDate *originalDate = [NSDate date];
   FIRDocumentReference *doc = [self documentRef];

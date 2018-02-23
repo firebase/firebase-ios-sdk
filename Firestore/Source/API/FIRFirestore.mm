@@ -218,9 +218,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                             "other methods on a Firestore instance.");
     }
     if (!settings.enableTimestampsInSnapshots) {
-      FSTWarn(@"FirestoreSettings.enableTimestampsInSnapshots is set to false. This is legacy "
-          "behavior which will be removed in a future release. Please set "
-          "enableTimestampsInSnapshots to true and upgrade your code to support the new behavior.");
+      FSTWarn(
+          @"FirestoreSettings.enableTimestampsInSnapshots is set to false. This is legacy "
+           "behavior which will be removed in a future release. Please set "
+           "enableTimestampsInSnapshots to true and upgrade your code to support the new "
+           "behavior.");
     }
     _settings = [settings copy];
   }
