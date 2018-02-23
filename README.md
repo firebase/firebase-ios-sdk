@@ -150,6 +150,11 @@ actively developed primarily for iOS. While we can catch basic unit test issues 
 may be some changes where the SDK no longer works as expected on macOS or tvOS. If you encounter
 this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
+## Carthage
+
+An experimental Carthage distribution is now available. See
+[Carthage](Carthage.md).
+
 ## Roadmap
 
 See [Roadmap](ROADMAP.md) for more about the Firebase iOS SDK Open Source
