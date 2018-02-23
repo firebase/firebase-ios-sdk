@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
+#import <future>
+
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -104,35 +106,31 @@ NS_ASSUME_NONNULL_BEGIN
     _userDispatchQueue = userDispatchQueue;
     _workerDispatchQueue = workerDispatchQueue;
 
-    dispatch_semaphore_t initialUserAvailable = dispatch_semaphore_create(0);
-    __block bool initialized = false;
-    __block User initialUser;
-    FSTWeakify(self);
-    auto userChangeListener = ^(User user) {
-      FSTStrongify(self);
-      if (self) {
-        if (!initialized) {
-          initialUser = user;
-          initialized = true;
-          dispatch_semaphore_signal(initialUserAvailable);
-        } else {
-          [workerDispatchQueue dispatchAsync:^{
-            [self userDidChange:user];
-          }];
-        }
+    auto userPromise = std::make_shared<std::promise<User>>();
+
+    __weak typeof(self) weakSelf = self;
+    auto userChangeListener = [initialized = false, userPromise, weakSelf, workerDispatchQueue](User user) mutable {
+      typeof(self) strongSelf = weakSelf;
+      if (!strongSelf) return;
+
+      if (!initialized) {
+        initialized = true;
+        userPromise->set_value(user);
+      } else {
+        [workerDispatchQueue dispatchAsync:^{
+          [strongSelf userDidChange:user];
+        }];
       }
     };
 
-    _credentialsProvider->SetUserChangeListener(
-        [userChangeListener](const User &user) { userChangeListener(user); });
+    _credentialsProvider->SetUserChangeListener(userChangeListener);
 
     // Defer initialization until we get the current user from the userChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
     // before any subsequently queued work runs.
     [_workerDispatchQueue dispatchAsync:^{
-      dispatch_semaphore_wait(initialUserAvailable, DISPATCH_TIME_FOREVER);
-
-      [self initializeWithUser:initialUser usePersistence:usePersistence];
+      User user = userPromise->get_future().get();
+      [self initializeWithUser:user usePersistence:usePersistence];
     }];
   }
   return self;
@@ -237,7 +235,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
-    _credentialsProvider->SetUserChangeListener(nullptr);
+    self->_credentialsProvider->SetUserChangeListener(nullptr);
 
     [self.remoteStore shutdown];
     [self.localStore shutdown];
