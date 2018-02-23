@@ -1,3 +1,6 @@
+# 2018-02-23 -- v2.1.1
+- Improve documentation on the usage of the autoInitEnabled property.
+
 # 2018-02-06 -- v2.1.0
 - Added a new property autoInitEnabled to enable and disable FCM token auto generation.
 - Fixed an issue where notification delivery would fail after changing language settings.
