@@ -492,13 +492,14 @@
 			name = GoogleTests;
 			sourceTree = "<group>";
 		};
-		54C9EDF22040E16300A969CD /* Firestore_SwiftTests_iOS */ = {
+		54C9EDF22040E16300A969CD /* SwiftTests */ = {
 			isa = PBXGroup;
 			children = (
 				54C9EDF32040E16300A969CD /* Firestore_SwiftTests_iOS.swift */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
-			path = Firestore_SwiftTests_iOS;
+			name = SwiftTests;
+			path = ../Swift/Tests;
 			sourceTree = "<group>";
 		};
 		54EB764B202277970088B8F3 /* immutable */ = {
@@ -516,7 +517,7 @@
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F593195388D20070C39A /* Example for Firestore */,
 				6003F5B5195388D20070C39A /* Tests */,
-				54C9EDF22040E16300A969CD /* Firestore_SwiftTests_iOS */,
+				54C9EDF22040E16300A969CD /* SwiftTests */,
 				DE0761E51F2FE611003233AF /* SwiftBuildTest */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
