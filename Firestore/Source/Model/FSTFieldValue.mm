@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
       convertedServerTimestampBehavior = FSTServerTimestampBehaviorPrevious;
       break;
     default:
-      FSTFail(@"Unexpected server timestamp option: %d", (int)options.serverTimestampBehavior);
+      FSTFail(@"Unexpected server timestamp option: %ld", (long)options.serverTimestampBehavior);
   }
 
   return
