@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kDefaultHost = @"firestore.googleapis.com";
 static const BOOL kDefaultSSLEnabled = YES;
 static const BOOL kDefaultPersistenceEnabled = YES;
-// TODO(b/OBC): flip the default.
+// TODO(b/73820332): flip the default.
 static const BOOL kDefaultEnableTimestampsInSnapshots = NO;
 
 @implementation FIRFirestoreSettings
