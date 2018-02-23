@@ -82,7 +82,7 @@ using leveldb::WriteOptions;
 + (NSString *)documentsDirectory {
 #if TARGET_OS_IPHONE
   NSArray<NSString *> *directories =
-      NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
   return [directories[0] stringByAppendingPathComponent:kReservedPathComponent];
 
 #elif TARGET_OS_MAC

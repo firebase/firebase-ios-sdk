@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
  * does not exist.
  *
  * The leveldb directory is created relative to the appropriate document storage directory for the
- * platform: NSDocumentDirectory on iOS or $HOME/.firestore on macOS.
+ * platform: NSApplicationSupportDirectory on iOS or $HOME/.firestore on macOS.
  */
 - (BOOL)start:(NSError **)error;
 
