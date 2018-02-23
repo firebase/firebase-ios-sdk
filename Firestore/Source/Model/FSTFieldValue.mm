@@ -510,7 +510,7 @@ struct Comparator<NSString *> {
 }
 
 - (id)value {
-  return self.localWriteTime;
+  return [NSNull null];
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {

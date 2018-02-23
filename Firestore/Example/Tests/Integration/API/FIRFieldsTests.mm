@@ -259,15 +259,15 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 }
 @end
 
+// Settings cannot be redefined once passed to Firestore instance, which necessitates overriding
+// the base class method to create different settings.
+// TODO(b/73820332): there will be no need for this once enableTimestampsInSnapshots is the default.
 @interface FIREnableTimestampsInSnapshotsTests : FSTIntegrationTestCase
 
 + (FIRFirestoreSettings *)settings;
 
 @end
 
-// Settings cannot be redefined once passed to Firestore instance, which necessitates overriding
-// the base class method to create different settings.
-// TODO(b/73820332): there will be no need for this once enableTimestampsInSnapshots is the default.
 @implementation FIREnableTimestampsInSnapshotsTests
 
 + (FIRFirestoreSettings *)settings {
@@ -283,7 +283,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   NSDictionary<NSString *, id> *data = [snapshot data];
-  // Timestamp must be truncated to microseconds after being written to the database.
+  // Timestamp are currently truncated to microseconds after being written to the database.
   FIRTimestamp *truncatedTimestamp =
       [FIRTimestamp timestampWithSeconds:originalTimestamp.seconds
                              nanoseconds:originalTimestamp.nanoseconds / 1000 * 1000];
