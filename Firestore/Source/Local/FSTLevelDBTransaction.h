@@ -32,14 +32,15 @@ typedef std::set<std::string> Deletions;
 
 class LevelDBTransaction {
  public:
-  LevelDBTransaction(std::shared_ptr<leveldb::DB> db, const leveldb::ReadOptions& readOptions,
-          const leveldb::WriteOptions& writeOptions);
+  LevelDBTransaction(std::shared_ptr<leveldb::DB> db,
+                     const leveldb::ReadOptions& readOptions,
+                     const leveldb::WriteOptions& writeOptions);
 
   void Delete(const std::string& key);
 
-  void Put(const std::string& key, GPBMessage *value);
+  void Put(const std::string& key, GPBMessage* value);
 
-  void Put(const std::string &key, const leveldb::Slice &value);
+  void Put(const std::string& key, const leveldb::Slice& value);
 
   leveldb::Status Get(const std::string& key, std::string* value);
 
@@ -51,6 +52,7 @@ class LevelDBTransaction {
     void Next();
     std::string key();
     leveldb::Slice value();
+
    private:
     std::unique_ptr<leveldb::Iterator> ldb_iter_;
     Mutations* mutations_;
@@ -74,4 +76,4 @@ class LevelDBTransaction {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif //FIRESTORE_FSTLEVELDBTRANSACTION_H
+#endif  // FIRESTORE_FSTLEVELDBTRANSACTION_H

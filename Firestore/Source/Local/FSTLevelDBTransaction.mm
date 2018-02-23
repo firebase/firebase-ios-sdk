@@ -14,38 +14,34 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-LevelDBTransaction::LevelDBTransaction(std::shared_ptr<DB> db, const ReadOptions& readOptions,
-        const WriteOptions& writeOptions)
-        : db_(db),
-          readOptions_(readOptions),
-          writeOptions_(writeOptions) {
-
+LevelDBTransaction::LevelDBTransaction(std::shared_ptr<DB> db,
+                                       const ReadOptions& readOptions,
+                                       const WriteOptions& writeOptions)
+    : db_(db), readOptions_(readOptions), writeOptions_(writeOptions) {
 }
 
-void LevelDBTransaction::Put(const std::string &key, const Slice &value) {
+void LevelDBTransaction::Put(const std::string& key, const Slice& value) {
   mutations_[key] = value;
   deletions_.erase(key);
 }
 
-LevelDBTransaction::Iterator::Iterator(LevelDBTransaction *txn)
-        : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
-          mutations_(&txn->mutations_),
-          deletions_(&txn->deletions_),
-          mutations_iter_(std::make_unique<Mutations::iterator>(txn->mutations_.begin())) {
-
+LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
+    : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
+      mutations_(&txn->mutations_),
+      deletions_(&txn->deletions_),
+      mutations_iter_(std::make_unique<Mutations::iterator>(txn->mutations_.begin())) {
 }
 
 void LevelDBTransaction::Iterator::Seek(const std::string& key) {
   ldb_iter_->Seek(key);
-  for (; ldb_iter_->Valid() &&
-                 deletions_->find(ldb_iter_->key().ToString()) != deletions_->end();
-         ldb_iter_->Next()) {}
+  for (; ldb_iter_->Valid() && deletions_->find(ldb_iter_->key().ToString()) != deletions_->end();
+       ldb_iter_->Next()) {
+  }
   mutations_iter_.reset();
   mutations_iter_ = std::make_unique<Mutations::iterator>(mutations_->begin());
-  for (; (*mutations_iter_) != mutations_->end() &&
-                 (*mutations_iter_)->first < key;
-         ++(*mutations_iter_)) {}
-
+  for (; (*mutations_iter_) != mutations_->end() && (*mutations_iter_)->first < key;
+       ++(*mutations_iter_)) {
+  }
 }
 
 bool LevelDBTransaction::Iterator::is_mutation() {
@@ -82,7 +78,7 @@ void LevelDBTransaction::Iterator::AdvanceLDB() {
   do {
     ldb_iter_->Next();
   } while (ldb_iter_->Valid() &&
-          deletions_->find(ldb_iter_->key().ToString()) != deletions_->end());
+           deletions_->find(ldb_iter_->key().ToString()) != deletions_->end());
 }
 
 void LevelDBTransaction::Iterator::Next() {
@@ -102,12 +98,11 @@ bool LevelDBTransaction::Iterator::Valid() {
   return ldb_iter_->Valid() || *mutations_iter_ != mutations_->end();
 }
 
-LevelDBTransaction::Iterator*
-LevelDBTransaction::NewIterator() {
+LevelDBTransaction::Iterator* LevelDBTransaction::NewIterator() {
   return new LevelDBTransaction::Iterator(this);
 }
 
-Status LevelDBTransaction::Get(const std::string &key, std::string *value) {
+Status LevelDBTransaction::Get(const std::string& key, std::string* value) {
   Iterator iter(this);
   iter.Seek(key);
   if (iter.Valid() && iter.key() == key) {

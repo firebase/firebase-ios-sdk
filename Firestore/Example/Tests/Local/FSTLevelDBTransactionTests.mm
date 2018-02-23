@@ -18,8 +18,8 @@
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
 
-#import "Firestore/Source/Local/FSTLevelDBTransaction.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Source/Local/FSTLevelDBTransaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -106,7 +106,8 @@ using firebase::firestore::local::LevelDBTransaction;
 - (void)testDeleteCommitted {
   // add something committed, delete it, verify you can't read it
   for (int i = 0; i < 3; ++i) {
-    Status status = _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
+    Status status =
+        _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
   LevelDBTransaction transaction(_db, _readOptions, _writeOptions);
@@ -132,7 +133,8 @@ using firebase::firestore::local::LevelDBTransaction;
 - (void)testMutateDeleted {
   // delete something, then mutate it, then read it
   for (int i = 0; i < 3; ++i) {
-    Status status = _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
+    Status status =
+        _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
   std::string value;
@@ -157,7 +159,6 @@ using firebase::firestore::local::LevelDBTransaction;
   iter.Next();
   XCTAssertFalse(iter.Valid());
 }
-
 
 @end
 
