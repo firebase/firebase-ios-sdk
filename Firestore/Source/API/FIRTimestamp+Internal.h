@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIRCollectionReference.h"
-#import "FIRDocumentChange.h"
-#import "FIRDocumentReference.h"
-#import "FIRDocumentSnapshot.h"
-#import "FIRFieldPath.h"
-#import "FIRFieldValue.h"
-#import "FIRFirestore.h"
-#import "FIRFirestoreErrors.h"
-#import "FIRFirestoreSettings.h"
-#import "FIRGeoPoint.h"
-#import "FIRListenerRegistration.h"
-#import "FIRQuery.h"
-#import "FIRQuerySnapshot.h"
-#import "FIRSetOptions.h"
-#import "FIRSnapshotMetadata.h"
 #import "FIRTimestamp.h"
-#import "FIRTransaction.h"
-#import "FIRWriteBatch.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+/** Internal FIRTimestamp API we don't want exposed in our public header files. */
+@interface FIRTimestamp (Internal)
+
+/**
+ * Converts the given date to an ISO 8601 timestamp string, useful for rendering in JSON.
+ *
+ * ISO 8601 dates times in UTC look like this: "1912-04-14T23:40:00.000000000Z".
+ *
+ * @see http://www.ecma-international.org/ecma-262/6.0/#sec-date-time-string-format
+ */
+- (NSString *)ISO8601String;
+
+@end
+
+NS_ASSUME_NONNULL_END

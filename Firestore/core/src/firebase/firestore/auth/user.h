@@ -43,12 +43,6 @@ class User {
   /** Construct an authenticated user with the given UID. */
   explicit User(const absl::string_view uid);
 
-#if defined(__OBJC__)
-  explicit User(NSString* uid)
-      : User(firebase::firestore::util::MakeStringView(uid)) {
-  }
-#endif  // defined(__OBJC__)
-
   const std::string& uid() const {
     return uid_;
   }
@@ -61,6 +55,20 @@ class User {
 
   /** Returns an unauthenticated instance. */
   static const User& Unauthenticated();
+
+#if defined(__OBJC__)
+  /**
+   * Returns an authenticated user if uid is non-nil, otherwise an
+   * unauthenticated user.
+   */
+  static User FromUid(NSString* _Nullable uid) {
+    if (uid == nil) {
+      return Unauthenticated();
+    } else {
+      return User(util::MakeStringView(uid));
+    }
+  }
+#endif  // defined(__OBJC__)
 
   User& operator=(const User& other) = default;
 

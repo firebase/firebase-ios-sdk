@@ -25,23 +25,33 @@ namespace remote {
 
 namespace {
 
-void EncodeUnsignedVarint(pb_ostream_t* stream,
-                          uint32_t field_number,
-                          uint64_t value) {
-  bool status = pb_encode_tag(stream, PB_WT_VARINT, field_number);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-
-  status = pb_encode_varint(stream, value);
+/**
+ * Note that (despite the value parameter type) this works for bool, enum,
+ * int32, int64, uint32 and uint64 proto field types.
+ *
+ * Note: This is not expected to be called direclty, but rather only via the
+ * other Encode* methods (i.e. EncodeBool, EncodeLong, etc)
+ *
+ * @param value The value to encode, represented as a uint64_t.
+ */
+void EncodeVarint(pb_ostream_t* stream, uint64_t value) {
+  bool status = pb_encode_varint(stream, value);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
 }
 
-uint64_t DecodeUnsignedVarint(pb_istream_t* stream) {
+/**
+ * Note that (despite the return type) this works for bool, enum, int32, int64,
+ * uint32 and uint64 proto field types.
+ *
+ * Note: This is not expected to be called direclty, but rather only via the
+ * other Decode* methods (i.e. DecodeBool, DecodeLong, etc)
+ *
+ * @return The decoded varint as a uint64_t.
+ */
+uint64_t DecodeVarint(pb_istream_t* stream) {
   uint64_t varint_value;
   bool status = pb_decode_varint(stream, &varint_value);
   if (!status) {
@@ -52,13 +62,11 @@ uint64_t DecodeUnsignedVarint(pb_istream_t* stream) {
 }
 
 void EncodeNull(pb_ostream_t* stream) {
-  return EncodeUnsignedVarint(stream,
-                              google_firestore_v1beta1_Value_null_value_tag,
-                              google_protobuf_NullValue_NULL_VALUE);
+  return EncodeVarint(stream, google_protobuf_NullValue_NULL_VALUE);
 }
 
 void DecodeNull(pb_istream_t* stream) {
-  uint64_t varint = DecodeUnsignedVarint(stream);
+  uint64_t varint = DecodeVarint(stream);
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -66,12 +74,11 @@ void DecodeNull(pb_istream_t* stream) {
 }
 
 void EncodeBool(pb_ostream_t* stream, bool bool_value) {
-  return EncodeUnsignedVarint(
-      stream, google_firestore_v1beta1_Value_boolean_value_tag, bool_value);
+  return EncodeVarint(stream, bool_value);
 }
 
 bool DecodeBool(pb_istream_t* stream) {
-  uint64_t varint = DecodeUnsignedVarint(stream);
+  uint64_t varint = DecodeVarint(stream);
   switch (varint) {
     case 0:
       return false;
@@ -81,6 +88,14 @@ bool DecodeBool(pb_istream_t* stream) {
       // TODO(rsgowman): figure out error handling
       abort();
   }
+}
+
+void EncodeInteger(pb_ostream_t* stream, int64_t integer_value) {
+  return EncodeVarint(stream, integer_value);
+}
+
+int64_t DecodeInteger(pb_istream_t* stream) {
+  return DecodeVarint(stream);
 }
 
 }  // namespace
@@ -103,6 +118,9 @@ Serializer::TypedValue Serializer::EncodeFieldValue(
         proto_value.value.boolean_value = false;
       }
       break;
+    case FieldValue::Type::Integer:
+      proto_value.value.integer_value = field_value.integer_value();
+      break;
     default:
       // TODO(rsgowman): implement the other types
       abort();
@@ -117,13 +135,39 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
   // going to need.
   uint8_t buf[1024];
   pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
+
+  // TODO(rsgowman): some refactoring is in order... but will wait until after a
+  // non-varint, non-fixed-size (i.e. string) type is present before doing so.
+  bool status = false;
   switch (value.type) {
     case FieldValue::Type::Null:
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_null_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
       EncodeNull(&stream);
       break;
 
     case FieldValue::Type::Boolean:
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_boolean_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
       EncodeBool(&stream, value.value.boolean_value);
+      break;
+
+    case FieldValue::Type::Integer:
+      status = pb_encode_tag(&stream, PB_WT_VARINT,
+                             google_firestore_v1beta1_Value_integer_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
+      EncodeInteger(&stream, value.value.integer_value);
       break;
 
     default:
@@ -141,6 +185,8 @@ FieldValue Serializer::DecodeFieldValue(
       return FieldValue::NullValue();
     case FieldValue::Type::Boolean:
       return FieldValue::BooleanValue(value_proto.value.boolean_value);
+    case FieldValue::Type::Integer:
+      return FieldValue::IntegerValue(value_proto.value.integer_value);
     default:
       // TODO(rsgowman): implement the other types
       abort();
@@ -170,6 +216,10 @@ Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
       result.type = FieldValue::Type::Boolean;
       result.value.boolean_value = DecodeBool(&stream);
       break;
+    case google_firestore_v1beta1_Value_integer_value_tag:
+      result.type = FieldValue::Type::Integer;
+      result.value.integer_value = DecodeInteger(&stream);
+      break;
 
     default:
       // TODO(rsgowman): figure out error handling
@@ -194,6 +244,8 @@ bool operator==(const Serializer::TypedValue& lhs,
       return true;
     case FieldValue::Type::Boolean:
       return lhs.value.boolean_value == rhs.value.boolean_value;
+    case FieldValue::Type::Integer:
+      return lhs.value.integer_value == rhs.value.integer_value;
     default:
       // TODO(rsgowman): implement the other types
       abort();

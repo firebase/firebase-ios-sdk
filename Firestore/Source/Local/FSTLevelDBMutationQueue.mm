@@ -269,7 +269,7 @@ static ReadOptions StandardReadOptions() {
   }
 }
 
-- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FSTTimestamp *)localWriteTime
+- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
                                           mutations:(NSArray<FSTMutation *> *)mutations
                                               group:(FSTWriteGroup *)group {
   FSTBatchID batchID = self.nextBatchID;

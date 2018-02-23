@@ -28,8 +28,7 @@ namespace firestore {
 namespace auth {
 
 FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
-    : contents_(
-          std::make_shared<Contents>(app, util::MakeStringView([app getUID]))) {
+    : contents_(std::make_shared<Contents>(app, User::FromUid([app getUID]))) {
   std::weak_ptr<Contents> weak_contents = contents_;
 
   auth_listener_handle_ = [[NSNotificationCenter defaultCenter]

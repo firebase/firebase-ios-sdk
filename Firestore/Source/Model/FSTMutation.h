@@ -23,7 +23,7 @@
 @class FSTMaybeDocument;
 @class FSTObjectValue;
 @class FSTSnapshotVersion;
-@class FSTTimestamp;
+@class FIRTimestamp;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -200,7 +200,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  */
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult;
 
 /**
@@ -209,7 +209,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  */
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(nullable FSTTimestamp *)localWriteTime;
+                        localWriteTime:(nullable FIRTimestamp *)localWriteTime;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
 

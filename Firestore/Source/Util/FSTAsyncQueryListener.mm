@@ -34,10 +34,15 @@
 }
 
 - (FSTViewSnapshotHandler)asyncSnapshotHandler {
+  // Retain `self` strongly in resulting snapshot handler so that even if the
+  // user releases the `FSTAsyncQueryListener` we'll continue to deliver
+  // events. This is done specifically to facilitate the common case where
+  // users just want to turn on notifications "forever" and don't want to have
+  // to keep track of our handle to keep them going.
   return ^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
-    [_dispatchQueue dispatchAsync:^{
-      if (!_muted) {
-        _snapshotHandler(snapshot, error);
+    [self->_dispatchQueue dispatchAsync:^{
+      if (!self->_muted) {
+        self->_snapshotHandler(snapshot, error);
       }
     }];
   };

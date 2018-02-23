@@ -309,7 +309,6 @@ NS_ASSUME_NONNULL_BEGIN
       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"sort")
                                                                ascending:YES]];
 
-  NSString *defaultDatabaseID = util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId);
   // clang-format off
   NSArray<FSTDocument *> *docs = @[
       FSTTestDoc(@"collection/1", 0, @{@"sort": [NSNull null]}, NO),
@@ -326,7 +325,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc(@"collection/1", 0, @{@"sort": @"ab"}, NO),
       FSTTestDoc(@"collection/1", 0, @{@"sort": @"b"}, NO),
       FSTTestDoc(@"collection/1", 0, @{@"sort":
-          FSTTestRef(@"project", defaultDatabaseID, @"collection/id1")}, NO),
+          FSTTestRef("project", DatabaseId::kDefault, @"collection/id1")}, NO),
   ];
   // clang-format on
 

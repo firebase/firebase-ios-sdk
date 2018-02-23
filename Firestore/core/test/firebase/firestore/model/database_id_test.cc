@@ -30,7 +30,7 @@ TEST(DatabaseId, Constructor) {
 }
 
 TEST(DatabaseId, DefaultDb) {
-  DatabaseId id("p", DatabaseId::kDefaultDatabaseId);
+  DatabaseId id("p", DatabaseId::kDefault);
   EXPECT_EQ("p", id.project_id());
   EXPECT_EQ("(default)", id.database_id());
   EXPECT_TRUE(id.IsDefaultDatabase());

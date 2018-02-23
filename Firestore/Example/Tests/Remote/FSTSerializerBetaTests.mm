@@ -19,6 +19,7 @@
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>
 
@@ -33,7 +34,6 @@
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -239,9 +239,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResourceNames {
-  FSTDocumentKeyReference *reference =
-      FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/bar");
-  _databaseId = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
+  FSTDocumentKeyReference *reference = FSTTestRef("project", DatabaseId::kDefault, @"foo/bar");
+  _databaseId = DatabaseId("project", DatabaseId::kDefault);
   GCFSValue *proto = [GCFSValue message];
   proto.referenceValue = @"projects/project/databases/(default)/documents/foo/bar";
 
@@ -380,7 +379,7 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.currentDocument.updateTime =
-      [self.serializer encodedTimestamp:[[FSTTimestamp alloc] initWithSeconds:0 nanos:4000]];
+      [self.serializer encodedTimestamp:[[FIRTimestamp alloc] initWithSeconds:0 nanoseconds:4000]];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }

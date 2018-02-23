@@ -42,8 +42,8 @@ FIRFirestore *FSTTestFirestore() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[FIRFirestore alloc] initWithProjectID:@"abc"
-                                                    database:@"abc"
+    sharedInstance = [[FIRFirestore alloc] initWithProjectID:"abc"
+                                                    database:"abc"
                                               persistenceKey:@"db123"
                                          credentialsProvider:nil
                                          workerDispatchQueue:nil
