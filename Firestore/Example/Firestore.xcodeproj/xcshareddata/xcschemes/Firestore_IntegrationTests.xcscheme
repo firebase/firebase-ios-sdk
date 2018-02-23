@@ -7,11 +7,8 @@
       buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
-            buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForTesting = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE03B2941F2149D600A30B9C"
@@ -39,26 +36,7 @@
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "54269AE8203B9FFC0039F03F"
-               BuildableName = "Firestore_SwiftTests_iOS.xctest"
-               BlueprintName = "Firestore_SwiftTests_iOS"
-               ReferencedContainer = "container:Firestore.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE03B2941F2149D600A30B9C"
-            BuildableName = "Firestore_IntegrationTests.xctest"
-            BlueprintName = "Firestore_IntegrationTests"
-            ReferencedContainer = "container:Firestore.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -73,15 +51,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE03B2941F2149D600A30B9C"
-            BuildableName = "Firestore_IntegrationTests.xctest"
-            BlueprintName = "Firestore_IntegrationTests"
-            ReferencedContainer = "container:Firestore.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -91,15 +60,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE03B2941F2149D600A30B9C"
-            BuildableName = "Firestore_IntegrationTests.xctest"
-            BlueprintName = "Firestore_IntegrationTests"
-            ReferencedContainer = "container:Firestore.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
