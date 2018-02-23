@@ -17,6 +17,8 @@ include(ExternalProject)
 ExternalProject_Add(
   protobuf
 
+  DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+  DOWNLOAD_NAME protobuf-v3.5.11.tar.gz
   URL https://github.com/google/protobuf/archive/v3.5.1.1.tar.gz
   URL_HASH MD5=5005003ae6b94773c4bbca87a644b131
 

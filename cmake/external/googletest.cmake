@@ -17,6 +17,8 @@ include(ExternalProject)
 ExternalProject_Add(
   googletest
 
+  DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+  DOWNLOAD_NAME googletest-1.8.0.tar.gz
   URL https://github.com/google/googletest/archive/release-1.8.0.tar.gz
   URL_HASH MD5=16877098823401d1bf2ed7891d7dce36
 

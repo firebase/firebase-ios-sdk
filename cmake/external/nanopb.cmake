@@ -22,6 +22,7 @@ ExternalProject_Add(
   DEPENDS
     protobuf
 
+  DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
   URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.8.tar.gz
   URL_HASH MD5=c1dcfe49ced36227167dca0f6bcad703
 

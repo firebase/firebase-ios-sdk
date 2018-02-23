@@ -44,6 +44,8 @@ else()
   ExternalProject_Add(
     leveldb
 
+    DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+    DOWNLOAD_NAME leveldb-v1.20.tar.gz
     URL https://github.com/google/leveldb/archive/v1.20.tar.gz
     URL_HASH MD5=298b5bddf12c675d6345784261302252
 
