@@ -148,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
                            options:[FSTFieldValueOptions
                                          optionsForSnapshotOptions:options
                                        enableTimestampsInSnapshots:
-                                           [self.firestore.settings enableTimestampsInSnapshots]]];
+                                           self.firestore.settings.enableTimestampsInSnapshots]];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -173,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
                             options:[FSTFieldValueOptions
                                           optionsForSnapshotOptions:options
                                         enableTimestampsInSnapshots:
-                                            [self.firestore.settings enableTimestampsInSnapshots]]];
+                                            self.firestore.settings.enableTimestampsInSnapshots]];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
