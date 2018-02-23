@@ -44,6 +44,16 @@ NS_SWIFT_NAME(FirestoreSettings)
 /** Set to false to disable local persistent storage. */
 @property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled;
 
+/**
+ * If true, FIRDocumentSnapshots will return timestamp fields as FIRTimestamps. If false, legacy
+ * behavior will be used: timestamp fields will be returned as NSDates, which may lead to loss of
+ * precision due to conversion to double.
+ *
+ * Defaults to false. NOTE: at some future point, enableTimestampsInSnapshots will switch to true by
+ * default, and eventually this property will be removed altogether. Currently, a warning will be
+ * logged if enableTimestampsInSnapshots is set to false. Please upgrade your code to expect
+ * FIRTimestamp instead of NSDate and set enableTimestampsInSnapshots to true.
+ */
 @property(nonatomic) BOOL enableTimestampsInSnapshots;
 
 @end

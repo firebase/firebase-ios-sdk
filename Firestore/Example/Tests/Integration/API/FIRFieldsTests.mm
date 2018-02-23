@@ -234,7 +234,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   return [self readDocumentForRef:doc];
 }
 
-// TODO(b/OBC): this test should break once the default for how timestamps are returned changes.
+// TODO(b/73820332): this test should break once the default for how timestamps are returned changes.
 - (void)testSnapshotsReturnNSDatesByDefault {
   NSDate *originalDate = [NSDate date];
   FIRDocumentReference *doc = [self documentRef];
@@ -266,6 +266,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 
 // Settings cannot be redefined once passed to Firestore instance, which necessitates overriding
 // the base class method to create different settings.
+// TODO(b/73820332): there will be no need for this once enableTimestampsInSnapshots is the default.
 @implementation FIREnableTimestampsInSnapshotsTests
 
 + (FIRFirestoreSettings *)settings {

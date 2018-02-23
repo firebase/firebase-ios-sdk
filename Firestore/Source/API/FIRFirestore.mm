@@ -217,6 +217,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                             "longer be changed. You can only set settings before calling any "
                             "other methods on a Firestore instance.");
     }
+    if (!settings.enableTimestampsInSnapshots) {
+      FSTWarn(@"FirestoreSettings.enableTimestampsInSnapshots is set to false. This is legacy "
+          "behavior which will be removed in a future release. Please set "
+          "enableTimestampsInSnapshots to true and upgrade your code to support the new behavior.");
+    }
     _settings = [settings copy];
   }
 }
