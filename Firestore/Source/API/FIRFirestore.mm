@@ -17,6 +17,7 @@
 #import "FIRFirestore.h"
 
 #include <memory>
+#include <utility>
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
