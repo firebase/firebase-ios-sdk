@@ -148,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
       workerDispatchQueue:workerDispatchQueue
               firebaseApp:app];
 
-  firestore.settings = [FSTIntegrationTestCase settings];
+  firestore.settings = [[self class] settings];
 
   [_firestores addObject:firestore];
   return firestore;
