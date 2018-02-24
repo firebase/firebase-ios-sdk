@@ -21,10 +21,20 @@
 # Commonly
 # ./scripts/style.sh master
 
+system=$(uname -s)
+
 if [[ $(clang-format --version) != *"version 6"* ]]; then
   echo "Please upgrade to clang-format version 6."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
   exit 1
+fi
+
+if [[ "$system" == "Darwin" ]]; then
+  if [[ $(swiftformat --version) != *"version 0.33.3" ]]; then
+    echo "Please upgrade to swiftformat 0.33.3"
+    echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
+    exit 1
+  fi
 fi
 
 clang_options=(-style=file)
