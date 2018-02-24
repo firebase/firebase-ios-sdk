@@ -5,7 +5,7 @@
 
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFirestoreSwift'
-  s.version                 = '0.10.1'
+  s.version                 = '0.1'
   s.summary                 = 'Google Cloud Firestore for iOS Swift Extensions'
 
   s.description      = <<-DESC
@@ -33,5 +33,5 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Swift/Source/**/*.swift',
   ]
 
-  s.dependency 'FirebaseFirestore', "= #{s.version}"
+  s.dependency 'FirebaseFirestore', ">= 0.10.0"
 end
