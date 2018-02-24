@@ -27,13 +27,15 @@ if [[ $(clang-format --version) != *"version 6"* ]]; then
   exit 1
 fi
 
+clang_options=(-style=file)
+
 if [[ $# -gt 0 && "$1" == "test-only" ]]; then
   test_only=true
-  options="-output-replacements-xml"
+  clang_options+=(-output-replacements-xml)
   shift
 else
   test_only=false
-  options="-i"
+  clang_options+=(-i)
 fi
 
 files=$(
@@ -79,7 +81,7 @@ files=$(
 
 needs_formatting=false
 for f in $files; do
-  clang-format -style=file $options $f | grep "<replacement " > /dev/null
+  clang-format "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   if [[ "$test_only" == true && $? -ne 1 ]]; then
     echo "$f needs formatting."
     needs_formatting=true
