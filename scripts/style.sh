@@ -21,13 +21,13 @@
 # Commonly
 # ./scripts/style.sh master
 
-if [[ $(clang-format --version) != **"version 6"** ]]; then
+if [[ $(clang-format --version) != *"version 6"* ]]; then
   echo "Please upgrade to clang-format version 6."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
   exit 1
 fi
 
-if [[ $# -gt 0 && "$1" = "test-only" ]]; then
+if [[ $# -gt 0 && "$1" == "test-only" ]]; then
   test_only=true
   options="-output-replacements-xml"
   shift
@@ -76,16 +76,17 @@ files=$(
 \%\.(h|m|mm|cc)$% p
 '
 )
+
 needs_formatting=false
 for f in $files; do
   clang-format -style=file $options $f | grep "<replacement " > /dev/null
-  if [[ "$test_only" = true && $? -ne 1 ]]; then
+  if [[ "$test_only" == true && $? -ne 1 ]]; then
     echo "$f needs formatting."
     needs_formatting=true
   fi
 done
 
-if [[ "$needs_formatting" = true ]]; then
+if [[ "$needs_formatting" == true ]]; then
   echo "Proposed commit is not style compliant."
   echo "Run scripts/style.sh and git add the result."
   exit 1
