@@ -13,9 +13,10 @@
 			buildPhases = (
 			);
 			dependencies = (
-				DE0761FA1F2FEE7E003233AF /* PBXTargetDependency */,
 				DE29E7FA1F2174DD00909613 /* PBXTargetDependency */,
+				54C9EDFF2040E41900A969CD /* PBXTargetDependency */,
 				DE29E7FC1F2174DD00909613 /* PBXTargetDependency */,
+				DE0761FA1F2FEE7E003233AF /* PBXTargetDependency */,
 			);
 			name = AllTests;
 			productName = AllTests;
@@ -180,6 +181,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6003F589195388D20070C39A;
 			remoteInfo = Firestore_Example;
+		};
+		54C9EDFE2040E41900A969CD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 54C9EDF02040E16300A969CD;
+			remoteInfo = Firestore_SwiftTests_iOS;
 		};
 		6003F5B3195388D20070C39A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1566,6 +1574,11 @@
 			isa = PBXTargetDependency;
 			target = 6003F589195388D20070C39A /* Firestore_Example */;
 			targetProxy = 54C9EDF62040E16300A969CD /* PBXContainerItemProxy */;
+		};
+		54C9EDFF2040E41900A969CD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */;
+			targetProxy = 54C9EDFE2040E41900A969CD /* PBXContainerItemProxy */;
 		};
 		6003F5B4195388D20070C39A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
