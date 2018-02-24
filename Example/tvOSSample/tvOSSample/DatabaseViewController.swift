@@ -30,7 +30,7 @@ class DatabaseViewController: UIViewController {
   // MARK: - Interface
 
   /// Label to display the current value.
-  @IBOutlet weak var currentValue: UILabel!
+  @IBOutlet var currentValue: UILabel!
 
   // MARK: - User Actions
 
@@ -65,7 +65,7 @@ class DatabaseViewController: UIViewController {
     // Observe the current value, and update the UI every time it changes.
     let ref = Database.database().reference(withPath: Constants.databasePath)
 
-    ref.observe(.value) { [weak self] (snapshot) in
+    ref.observe(.value) { [weak self] snapshot in
       guard let value = snapshot.value as? Int else {
         print("Error grabbing value from Snapshot!")
         return
