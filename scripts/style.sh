@@ -30,7 +30,11 @@ if [[ $(clang-format --version) != *"version 6"* ]]; then
 fi
 
 if [[ "$system" == "Darwin" ]]; then
-  if [[ $(swiftformat --version) != *"version 0.33.3" ]]; then
+  version=$(swiftformat --version)
+  version="${version/*version /}"
+  # Allow an older swiftformat because travis isn't running high sierra yet
+  # and the formula hasn't been updated in a while on sierra :-/.
+  if [[ "$version" != "0.32.0" && "$version" != "0.33"* ]]; then
     echo "Please upgrade to swiftformat 0.33.3"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
