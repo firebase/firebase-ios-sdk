@@ -56,6 +56,8 @@ files=$(
 # Build outputs
 \%/Pods/% d
 \%^./build/% d
+\%^./Debug/% d
+\%^./Release/% d
 
 # Sources controlled outside this tree
 \%/third_party/% d
