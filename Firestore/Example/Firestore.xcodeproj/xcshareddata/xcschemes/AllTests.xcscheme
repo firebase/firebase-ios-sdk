@@ -63,6 +63,16 @@
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "54C9EDF02040E16300A969CD"
+               BuildableName = "Firestore_SwiftTests_iOS.xctest"
+               BlueprintName = "Firestore_SwiftTests_iOS"
+               ReferencedContainer = "container:Firestore.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
