@@ -24,7 +24,7 @@ class CodableGeoPointTests: XCTestCase {
     let geoPoint = GeoPoint(latitude: 37.77493, longitude: -122.41942)
 
     let jsonData = try! JSONEncoder().encode(geoPoint)
-    let json = String(data:jsonData, encoding:.utf8)!
+    let json = String(data: jsonData, encoding: .utf8)!
 
     // The ordering of attributes in the JSON output is not guaranteed, nor is the rounding of
     // the values so just verify that each required property is present and that the value
@@ -39,8 +39,8 @@ class CodableGeoPointTests: XCTestCase {
       "latitude": 37.77493,
       "longitude": -122.41942
     }
-    """;
-    let jsonData: Data = json.data(using:.utf8)!
+    """
+    let jsonData: Data = json.data(using: .utf8)!
 
     let geoPoint = try! JSONDecoder().decode(GeoPoint.self, from: jsonData)
     XCTAssertEqual(37.77493, geoPoint.latitude, accuracy: 0.0001)
