@@ -1034,10 +1034,10 @@
 			targets = (
 				6003F589195388D20070C39A /* Firestore_Example */,
 				6003F5AD195388D20070C39A /* Firestore_Tests */,
+				54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */,
 				DE03B2941F2149D600A30B9C /* Firestore_IntegrationTests */,
 				DE29E7F51F2174B000909613 /* AllTests */,
 				DE0761E31F2FE611003233AF /* SwiftBuildTest */,
-				54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */,
 			);
 		};
 /* End PBXProject section */
