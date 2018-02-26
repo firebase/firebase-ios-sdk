@@ -166,11 +166,11 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nullable callbackURL) {
           return [self isVerifyAppURL:callbackURL eventID:eventID];
         };
-        [_auth.authURLPresenter presentURL:reCAPTCHAURL
-                                UIDelegate:UIDelegate
-                           callbackMatcher:callbackMatcher
-                                completion:^(NSURL *_Nullable callbackURL,
-                                             NSError *_Nullable error) {
+        [self->_auth.authURLPresenter presentURL:reCAPTCHAURL
+                                      UIDelegate:UIDelegate
+                                 callbackMatcher:callbackMatcher
+                                      completion:^(NSURL *_Nullable callbackURL,
+                                                   NSError *_Nullable error) {
           if (error) {
             callBackOnMainThread(nil, error);
             return;
@@ -185,7 +185,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
             [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
                                                           appCredential:nil
                                                          reCAPTCHAToken:reCAPTCHAToken
-                                                   requestConfiguration:_auth.requestConfiguration];
+                                                   requestConfiguration:
+                                                      self->_auth.requestConfiguration];
           [FIRAuthBackend sendVerificationCode:request
                                       callback:^(FIRSendVerificationCodeResponse
                                                  *_Nullable response, NSError *_Nullable error) {
@@ -361,14 +362,15 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
                                                      appCredential:appCredential
                                                     reCAPTCHAToken:nil
-                                              requestConfiguration:_auth.requestConfiguration];
+                                              requestConfiguration:
+                                                  self->_auth.requestConfiguration];
     [FIRAuthBackend sendVerificationCode:request
                                 callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
       if (error) {
         if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
           if (retryOnInvalidAppCredential) {
-            [_auth.appCredentialManager clearCredential];
+            [self->_auth.appCredentialManager clearCredential];
             [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
                                        retryOnInvalidAppCredential:NO
                                                           callback:callback];
@@ -404,7 +406,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     FIRVerifyClientRequest *request =
         [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
                                                isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
-                                    requestConfiguration:_auth.requestConfiguration];
+                                    requestConfiguration:self->_auth.requestConfiguration];
     [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
                                                     NSError *_Nullable error) {
       if (error) {
@@ -412,7 +414,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         return;
       }
       NSTimeInterval timeout = [response.suggestedTimeOutDate timeIntervalSinceNow];
-      [_auth.appCredentialManager
+      [self->_auth.appCredentialManager
           didStartVerificationWithReceipt:response.receipt
                                   timeout:timeout
                                  callback:^(FIRAuthAppCredential *credential) {
@@ -442,8 +444,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
       return;
     }
     NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
-    NSString *clienID = _auth.app.options.clientID;
-    NSString *apiKey = _auth.requestConfiguration.APIKey;
+    NSString *clienID = self->_auth.app.options.clientID;
+    NSString *apiKey = self->_auth.requestConfiguration.APIKey;
     NSMutableDictionary *urlArguments = [[NSMutableDictionary alloc] initWithDictionary: @{
       @"apiKey" : apiKey,
       @"authType" : kAuthTypeVerifyApp,
@@ -452,8 +454,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
       @"v" : [FIRAuthBackend authUserAgent],
       @"eventId" : eventID,
     }];
-    if (_auth.requestConfiguration.languageCode) {
-      urlArguments[@"hl"] = _auth.requestConfiguration.languageCode;
+    if (self->_auth.requestConfiguration.languageCode) {
+      urlArguments[@"hl"] = self->_auth.requestConfiguration.languageCode;
     }
     NSString *argumentsString = [urlArguments gtm_httpArgumentsString];
     NSString *URLString =
