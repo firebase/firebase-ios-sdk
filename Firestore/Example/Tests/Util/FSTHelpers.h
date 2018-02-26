@@ -16,10 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "absl/strings/string_view.h"
 
 @class FIRGeoPoint;
@@ -28,7 +31,6 @@
 @class FSTDocument;
 @class FSTDocumentKeyReference;
 @class FSTDocumentSet;
-@class FSTFieldPath;
 @class FSTFieldValue;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
@@ -157,7 +159,7 @@ FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
 
-FSTFieldPath *FSTTestFieldPath(NSString *field);
+firebase::firestore::model::FieldPath FSTTestFieldPath(const absl::string_view field);
 
 /** Wraps a plain value into an FSTFieldValue instance. */
 FSTFieldValue *FSTTestFieldValue(id _Nullable value);
@@ -203,16 +205,16 @@ FSTQuery *FSTTestQuery(NSString *path);
  * A convenience method to create a FSTFilter using a string representation for both field
  * and operator (<, <=, ==, >=, >).
  */
-id<FSTFilter> FSTTestFilter(NSString *field, NSString *op, id value);
+id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *op, id value);
 
 /** A convenience method for creating sort orders. */
-FSTSortOrder *FSTTestOrderBy(NSString *field, NSString *direction);
+FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);
 
 /**
  * Creates an NSComparator that will compare FSTDocuments by the given fieldPath string then by
  * key.
  */
-NSComparator FSTTestDocComparator(NSString *fieldPath);
+NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
 
 /**
  * Creates a FSTDocumentSet based on the given comparator, initially containing the given
@@ -229,9 +231,10 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values);
 
 /** Creates a patch mutation for the document key at the given path. */
-FSTPatchMutation *FSTTestPatchMutation(NSString *path,
-                                       NSDictionary<NSString *, id> *values,
-                                       NSArray<FSTFieldPath *> *_Nullable updateMask);
+FSTPatchMutation *FSTTestPatchMutation(
+    NSString *path,
+    NSDictionary<NSString *, id> *values,
+    const std::vector<firebase::firestore::model::FieldPath> &updateMask);
 
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields);

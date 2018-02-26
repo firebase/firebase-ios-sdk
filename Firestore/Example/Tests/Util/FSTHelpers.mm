@@ -18,6 +18,7 @@
 
 #include <inttypes.h>
 #include <list>
+#include <vector>
 
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
@@ -45,6 +46,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -100,8 +102,8 @@ NSDateComponents *FSTTestDateComponents(
   return comps;
 }
 
-FSTFieldPath *FSTTestFieldPath(NSString *field) {
-  return [FIRFieldPath pathWithDotSeparatedString:field].internalValue;
+FieldPath FSTTestFieldPath(const absl::string_view field) {
+  return FieldPath::FromServerFormat(field);
 }
 
 FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
@@ -185,8 +187,8 @@ FSTQuery *FSTTestQuery(NSString *path) {
   return [FSTQuery queryWithPath:FSTTestPath(path)];
 }
 
-id<FSTFilter> FSTTestFilter(NSString *field, NSString *opString, id value) {
-  FSTFieldPath *path = FSTTestFieldPath(field);
+id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, id value) {
+  const FieldPath path = FSTTestFieldPath(field);
   FSTRelationFilterOperator op;
   if ([opString isEqualToString:@"<"]) {
     op = FSTRelationFilterOperatorLessThan;
@@ -214,8 +216,8 @@ id<FSTFilter> FSTTestFilter(NSString *field, NSString *opString, id value) {
   }
 }
 
-FSTSortOrder *FSTTestOrderBy(NSString *field, NSString *direction) {
-  FSTFieldPath *path = FSTTestFieldPath(field);
+FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
+  const FieldPath &path = FSTTestFieldPath(field);
   BOOL ascending;
   if ([direction isEqualToString:@"asc"]) {
     ascending = YES;
@@ -227,7 +229,7 @@ FSTSortOrder *FSTTestOrderBy(NSString *field, NSString *direction) {
   return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
 }
 
-NSComparator FSTTestDocComparator(NSString *fieldPath) {
+NSComparator FSTTestDocComparator(const absl::string_view fieldPath) {
   FSTQuery *query = [FSTTestQuery(@"docs")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(fieldPath)
                                                         ascending:YES]];
@@ -250,14 +252,14 @@ FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> 
 
 FSTPatchMutation *FSTTestPatchMutation(NSString *path,
                                        NSDictionary<NSString *, id> *values,
-                                       NSArray<FSTFieldPath *> *_Nullable updateMask) {
-  BOOL merge = updateMask != nil;
+                                       const std::vector<FieldPath> &updateMask) {
+  BOOL merge = !updateMask.empty();
 
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  NSMutableArray<FSTFieldPath *> *fieldMaskPaths = [NSMutableArray array];
+  std::vector<const FieldPath> fieldMaskPaths{};
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    FSTFieldPath *path = FSTTestFieldPath(key);
-    [fieldMaskPaths addObject:path];
+    const FieldPath path = FSTTestFieldPath(util::MakeStringView(key));
+    fieldMaskPaths.push_back(path);
     if (![value isEqual:kDeleteSentinel]) {
       FSTFieldValue *parsedValue = FSTTestFieldValue(value);
       objectValue = [objectValue objectBySettingValue:parsedValue forPath:path];
@@ -278,7 +280,7 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path,
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:FSTTestPath(path)];
   NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
   for (NSString *field in serverTimestampFields) {
-    FSTFieldPath *fieldPath = FSTTestFieldPath(field);
+    const FieldPath fieldPath = FSTTestFieldPath(util::MakeStringView(field));
     id<FSTTransformOperation> transformOp = [FSTServerTimestampTransform serverTimestampTransform];
     FSTFieldTransform *transform =
         [[FSTFieldTransform alloc] initWithPath:fieldPath transform:transformOp];

@@ -16,9 +16,25 @@
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
+#include <functional>
+#include <string>
+#include <utility>
+#include <vector>
+
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::FieldPath;
+
 NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRFieldPath () {
+  /** Internal field path representation */
+  firebase::firestore::model::FieldPath _internalValue;
+}
 
 @implementation FIRFieldPath
 
@@ -27,22 +43,24 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidArgument(@"Invalid field path. Provided names must not be empty.");
   }
 
+  std::vector<std::string> field_names(fieldNames.count);
   for (int i = 0; i < fieldNames.count; ++i) {
     if (fieldNames[i].length == 0) {
       FSTThrowInvalidArgument(@"Invalid field name at index %d. Field names must not be empty.", i);
     }
+    field_names.push_back([fieldNames[i] UTF8String]);
   }
 
-  return [self initPrivate:[FSTFieldPath pathWithSegments:fieldNames]];
+  return [self initPrivate:FieldPath(field_names.begin(), field_names.end())];
 }
 
 + (instancetype)documentID {
-  return [[FIRFieldPath alloc] initPrivate:FSTFieldPath.keyFieldPath];
+  return [[FIRFieldPath alloc] initPrivate:FieldPath::KeyFieldPath()];
 }
 
-- (instancetype)initPrivate:(FSTFieldPath *)fieldPath {
+- (instancetype)initPrivate:(FieldPath)fieldPath {
   if (self = [super init]) {
-    _internalValue = fieldPath;
+    _internalValue = std::move(fieldPath);
   }
   return self;
 }
@@ -76,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)copyWithZone:(NSZone *__nullable)zone {
-  return [[[self class] alloc] initPrivate:self.internalValue];
+  return [[[self class] alloc] initPrivate:_internalValue];
 }
 
 - (BOOL)isEqual:(nullable id)object {
@@ -88,11 +106,11 @@ NS_ASSUME_NONNULL_BEGIN
     return NO;
   }
 
-  return [self.internalValue isEqual:((FIRFieldPath *)object).internalValue];
+  return [_internalValue isEqual:((FIRFieldPath *)object)._internalValue];
 }
 
 - (NSUInteger)hash {
-  return [self.internalValue hash];
+  return _internalValue.Hash();
 }
 
 @end

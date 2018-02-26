@@ -120,14 +120,16 @@ static NSString *const kNoIOSTag = @"no-ios";
       NSArray *filters = queryDict[@"filters"];
       [filters enumerateObjectsUsingBlock:^(NSArray *_Nonnull filter, NSUInteger idx,
                                             BOOL *_Nonnull stop) {
-        query = [query queryByAddingFilter:FSTTestFilter(filter[0], filter[1], filter[2])];
+        query = [query queryByAddingFilter:FSTTestFilter(util::MakeStringView(filter[0]), filter[1],
+                                                         filter[2])];
       }];
     }
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
       [orderBys enumerateObjectsUsingBlock:^(NSArray *_Nonnull orderBy, NSUInteger idx,
                                              BOOL *_Nonnull stop) {
-        query = [query queryByAddingSortOrder:FSTTestOrderBy(orderBy[0], orderBy[1])];
+        query = [query
+            queryByAddingSortOrder:FSTTestOrderBy(util::MakeStringView(orderBy[0]), orderBy[1])];
       }];
     }
     return query;

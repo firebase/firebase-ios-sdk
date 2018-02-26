@@ -429,7 +429,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesRelationFilter {
-  FSTRelationFilter *input = FSTTestFilter(@"item.part.top", @"==", @"food");
+  FSTRelationFilter *input = FSTTestFilter("item.part.top", @"==", @"food");
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
@@ -486,7 +486,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"<", @(42))];
+  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter("prop", @"<", @(42))];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -510,8 +510,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
   FSTQuery *q = [[FSTTestQuery(@"rooms/1/messages/10/attachments")
-      queryByAddingFilter:FSTTestFilter(@"prop", @">=", @(42))]
-      queryByAddingFilter:FSTTestFilter(@"author", @"==", @"dimond")];
+      queryByAddingFilter:FSTTestFilter("prop", @">=", @(42))]
+      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -559,7 +559,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)unaryFilterTestWithValue:(id)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"==", value)];
+  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter("prop", @"==", value)];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
