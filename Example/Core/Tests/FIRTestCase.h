@@ -40,6 +40,15 @@ extern NSString *const kProjectID;
  */
 @interface FIRTestCase : XCTestCase
 
+
+/**
+ Checks to to see if a given message was recently logged to FIRLogger.
+
+ @param message The log message to look for.
+ @return Whether or not the given message was recently logged to the console.
+ */
+- (BOOL)messageWasLogged:(NSString *)message;
+
 @end
 
 NS_ASSUME_NONNULL_END

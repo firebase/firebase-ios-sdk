@@ -30,8 +30,6 @@ extern const char *kFIRLoggerCustomASLMessageFormat;
 
 extern void FIRResetLogger(void);
 
-extern aslclient getFIRLoggerClient(void);
-
 extern dispatch_queue_t getFIRClientQueue(void);
 
 extern BOOL getFIRLoggerDebugMode(void);
@@ -242,28 +240,6 @@ static NSString *const kMessageCode = @"I-COR000001";
     dispatch_semaphore_signal(workerSemaphore);
   });
   dispatch_semaphore_wait(workerSemaphore, DISPATCH_TIME_FOREVER);
-}
-
-- (BOOL)messageWasLogged:(NSString *)message {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  aslmsg query = asl_new(ASL_TYPE_QUERY);
-  asl_set_query(query, ASL_KEY_FACILITY, kFIRLoggerASLClientFacilityName, ASL_QUERY_OP_EQUAL);
-  aslresponse r = asl_search(getFIRLoggerClient(), query);
-  asl_free(query);
-  aslmsg m;
-  const char *val;
-  NSMutableArray *allMsg = [[NSMutableArray alloc] init];
-  while ((m = asl_next(r)) != NULL) {
-    val = asl_get(m, ASL_KEY_MSG);
-    if (val) {
-      [allMsg addObject:[NSString stringWithUTF8String:val]];
-    }
-  }
-  asl_free(m);
-  asl_release(r);
-  return [allMsg containsObject:message];
-#pragma clang pop
 }
 
 @end
