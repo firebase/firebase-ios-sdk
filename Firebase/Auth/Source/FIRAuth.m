@@ -497,7 +497,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRCreateAuthURIRequest *request =
         [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
                                                 continueURI:@"http://www.google.com/"
-                                       requestConfiguration:self.requestConfiguration];
+                                       requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend createAuthURI:request callback:^(FIRCreateAuthURIResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -889,7 +889,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRResetPasswordRequest *request =
         [[FIRResetPasswordRequest alloc] initWithOobCode:code
                                              newPassword:newPassword
-                                    requestConfiguration:self.requestConfiguration];
+                                    requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -910,7 +910,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRResetPasswordRequest *request =
     [[FIRResetPasswordRequest alloc] initWithOobCode:code
                                          newPassword:nil
-                                requestConfiguration:self.requestConfiguration];
+                                requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend resetPassword:request callback:^(FIRResetPasswordResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -951,7 +951,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)applyActionCode:(NSString *)code completion:(FIRApplyActionCodeCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^ {
     FIRSetAccountInfoRequest *request =
-        [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:self.requestConfiguration];
+        [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:self->_requestConfiguration];
     request.OOBCode = code;
     [FIRAuthBackend setAccountInfo:request callback:^(FIRSetAccountInfoResponse *_Nullable response,
                                                       NSError *_Nullable error) {
@@ -999,7 +999,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRGetOOBConfirmationCodeRequest *request =
         [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:email
                                                      actionCodeSettings:actionCodeSettings
-                                                   requestConfiguration:self.requestConfiguration
+                                                   requestConfiguration:self->_requestConfiguration
         ];
     [FIRAuthBackend getOOBConfirmationCode:request
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
@@ -1069,7 +1069,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [_listenerHandles addObject:handle];
   }
   dispatch_async(dispatch_get_main_queue(), ^{
-    listener(self, self.currentUser);
+    listener(self, self->_currentUser);
   });
   return handle;
 }
@@ -1083,7 +1083,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)useAppLanguage {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    self.requestConfiguration.languageCode =
+    self->_requestConfiguration.languageCode =
         [NSBundle mainBundle].preferredLocalizations.firstObject;
   });
 }
@@ -1094,17 +1094,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)setLanguageCode:(nullable NSString *)languageCode {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    self.requestConfiguration.languageCode = [languageCode copy];
+    self->_requestConfiguration.languageCode = [languageCode copy];
   });
 }
 
 - (NSString *)additionalFrameworkMarker {
-  return self.requestConfiguration.additionalFrameworkMarker;
+  return self->_requestConfiguration.additionalFrameworkMarker;
 }
 
 - (void)setAdditionalFrameworkMarker:(NSString *)additionalFrameworkMarker {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    self.requestConfiguration.additionalFrameworkMarker = [additionalFrameworkMarker copy];
+    self->_requestConfiguration.additionalFrameworkMarker = [additionalFrameworkMarker copy];
   });
 }
 
@@ -1112,7 +1112,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (NSData *)APNSToken {
   __block NSData *result = nil;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    result = self.tokenManager.token.data;
+    result = self->_tokenManager.token.data;
   });
   return result;
 }
@@ -1123,13 +1123,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    self.tokenManager.token = [[FIRAuthAPNSToken alloc] initWithData:token type:type];
+    self->_tokenManager.token = [[FIRAuthAPNSToken alloc] initWithData:token type:type];
   });
 }
 
 - (void)handleAPNSTokenError:(NSError *)error {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    [self.tokenManager cancelWithError:error];
+    [self->_tokenManager cancelWithError:error];
   });
 }
 

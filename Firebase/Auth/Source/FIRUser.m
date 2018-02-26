@@ -571,7 +571,7 @@ static void callInMainThreadWithAuthDataResultAndError(
             callback(error);
             return;
           }
-          FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
+          FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
           FIRGetAccountInfoRequest *getAccountInfoRequest =
               [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
                                                requestConfiguration:requestConfiguration];
@@ -646,7 +646,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         initWithVerificationID:phoneAuthCredential.verificationID
               verificationCode:phoneAuthCredential.verificationCode
                      operation:operation
-          requestConfiguration:self.auth.requestConfiguration];
+          requestConfiguration:self->_auth.requestConfiguration];
     request.accessToken = accessToken;
     [FIRAuthBackend verifyPhoneNumber:request
                              callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
@@ -737,11 +737,11 @@ static void callInMainThreadWithAuthDataResultAndError(
     reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
                                      completion:(nullable FIRAuthDataResultCallback) completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self.auth internalSignInAndRetrieveDataWithCredential:credential
-                                        isReauthentication:YES
-                                                  callback:^(FIRAuthDataResult *_Nullable
-                                                             authResult,
-                                                             NSError *_Nullable error) {
+    [self->_auth internalSignInAndRetrieveDataWithCredential:credential
+                                          isReauthentication:YES
+                                                    callback:^(FIRAuthDataResult *_Nullable
+                                                               authResult,
+                                                               NSError *_Nullable error) {
       if (error) {
         // If "user not found" error returned by backend, translate to user mismatch error which is
         // more accurate.
@@ -751,7 +751,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithAuthDataResultAndError(completion, authResult, error);
         return;
       }
-      if (![authResult.user.uid isEqual:[self.auth getUID]]) {
+      if (![authResult.user.uid isEqual:[self->_auth getUID]]) {
         callInMainThreadWithAuthDataResultAndError(completion, authResult,
                                                    [FIRAuthErrorUtils userMismatchError]);
         return;
@@ -900,7 +900,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           completeWithError(nil, error);
           return;
         }
-        FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
+        FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
         FIRVerifyAssertionRequest *request =
             [[FIRVerifyAssertionRequest alloc] initWithProviderID:credential.provider
                                              requestConfiguration:requestConfiguration];
@@ -968,7 +968,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         completeAndCallbackWithError(error);
         return;
       }
-      FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
+      FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
       FIRSetAccountInfoRequest *setAccountInfoRequest =
           [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:requestConfiguration];
       setAccountInfoRequest.accessToken = accessToken;
@@ -1001,7 +1001,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           // don't have localID and email fields. Remove the specific provider manually.
           NSMutableDictionary *mutableProviderData = [self->_providerData mutableCopy];
           [mutableProviderData removeObjectForKey:provider];
-          self->      _providerData = [mutableProviderData copy];
+          self->_providerData = [mutableProviderData copy];
 
           #if TARGET_OS_IOS
           // After successfully unlinking a phone auth provider, remove the phone number from the
@@ -1061,7 +1061,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithError(completion, error);
         return;
       }
-      FIRAuthRequestConfiguration *configuration = self.auth.requestConfiguration;
+      FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
       FIRGetOOBConfirmationCodeRequest *request =
           [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:accessToken
                                                            actionCodeSettings:actionCodeSettings
@@ -1088,13 +1088,13 @@ static void callInMainThreadWithAuthDataResultAndError(
       FIRDeleteAccountRequest *deleteUserRequest =
         [[FIRDeleteAccountRequest alloc] initWitLocalID:self->_userID
                                             accessToken:accessToken
-                                   requestConfiguration:self.auth.requestConfiguration];
+                                   requestConfiguration:self->_auth.requestConfiguration];
       [FIRAuthBackend deleteAccount:deleteUserRequest callback:^(NSError *_Nullable error) {
         if (error) {
           callInMainThreadWithError(completion, error);
           return;
         }
-        if (![self.auth signOutByForceWithUserID:self->_userID error:&error]) {
+        if (![self->_auth signOutByForceWithUserID:self->_userID error:&error]) {
           callInMainThreadWithError(completion, error);
           return;
         }
