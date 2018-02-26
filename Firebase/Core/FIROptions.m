@@ -122,6 +122,15 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
                                                      intValue],
                                                  [[kFIRLibraryVersionID substringWithRange:patch]
                                                      intValue]]];
+  NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
+  NSString *xcodeVersion = info[@"DTXcodeBuild"];
+  NSString *sdkVersion = info[@"DTSDKBuild"];
+  if (xcodeVersion) {
+    [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
+  }
+  if (sdkVersion) {
+    [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
+  }
 }
 
 + (NSDictionary *)defaultOptionsDictionary {
