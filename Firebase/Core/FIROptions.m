@@ -115,7 +115,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   NSRange minor = NSMakeRange(1, 2);
   NSRange patch = NSMakeRange(3, 2);
   [FIRApp
-      registerLibrary:@"FirebaseCore"
+      registerLibrary:@"fire-ios"
           withVersion:[NSString stringWithFormat:@"%@.%d.%d",
                                                  [kFIRLibraryVersionID substringWithRange:major],
                                                  [[kFIRLibraryVersionID substringWithRange:minor]
