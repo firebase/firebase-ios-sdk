@@ -32,8 +32,8 @@ fi
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
   version="${version/*version /}"
-  # Allow an older swiftformat because travis isn't running high sierra yet
-  # and the formula hasn't been updated in a while on sierra :-/.
+  # Allow an older swiftformat because travis isn't running High Sierra yet
+  # and the formula hasn't been updated in a while on Sierra :-/.
   if [[ "$version" != "0.32.0" && "$version" != "0.33"* ]]; then
     echo "Please upgrade to swiftformat 0.33.3"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
@@ -41,7 +41,7 @@ if [[ "$system" == "Darwin" ]]; then
   fi
 fi
 
-# Joins the given arguments with the separator given as the first argument
+# Joins the given arguments with the separator given as the first argument.
 function join() {
   local IFS="$1"
   shift
@@ -50,9 +50,9 @@ function join() {
 
 clang_options=(-style=file)
 
-# Rules to disable in swiftformat
+# Rules to disable in swiftformat:
 swift_disable=(
-  # sortedImports is broken, sorting into the middle of the copyright notice
+  # sortedImports is broken, sorting into the middle of the copyright notice.
   sortedImports
 
   # Too many of our swift files have simplistic examples. While technically
@@ -62,7 +62,7 @@ swift_disable=(
 )
 
 swift_options=(
-  # Mimic Objective-C style
+  # Mimic Objective-C style.
   --indent 2
 
   --disable $(join , "${swift_disable[@]}")
