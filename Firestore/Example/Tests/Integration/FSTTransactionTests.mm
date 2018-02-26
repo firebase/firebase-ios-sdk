@@ -274,7 +274,6 @@
       double newCount = ((NSNumber *)snapshot[@"count"]).doubleValue + 1.0;
       [transaction setData:@{ @"count" : @(newCount) } forDocument:doc];
       return @YES;
-
     }
         completion:^(id _Nullable result, NSError *_Nullable error) {
           [expectation fulfill];
@@ -316,7 +315,6 @@
       double newCount = ((NSNumber *)snapshot[@"count"]).doubleValue + 1.0;
       [transaction updateData:@{ @"count" : @(newCount) } forDocument:doc];
       return @YES;
-
     }
         completion:^(id _Nullable result, NSError *_Nullable error) {
           [expectation fulfill];

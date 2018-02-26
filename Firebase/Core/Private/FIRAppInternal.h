@@ -134,7 +134,6 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  */
 + (BOOL)isDefaultAppConfigured;
 
-
 /**
  * Registers a given third-party library with the given version number to be reported for
  * analyitcs.
@@ -142,8 +141,9 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * @param library Name of the library
  * @param version Version of the library
  */
-+ (void)registerLibrary:(nonnull NSString *)library withVersion:(nonnull NSString *)version
-    NS_SWIFT_NAME(registerLibrary(_:version:));
++ (void)registerLibrary:(nonnull NSString *)library
+            withVersion:(nonnull NSString *)version NS_SWIFT_NAME(registerLibrary(_:version
+:));
 
 /**
  * A concatenated string representing all the third-party libraries and version numbers.

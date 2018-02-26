@@ -114,11 +114,14 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   NSRange major = NSMakeRange(0, 1);
   NSRange minor = NSMakeRange(1, 2);
   NSRange patch = NSMakeRange(3, 2);
-  [FIRApp registerLibrary:@"FirebaseCore"
-              withVersion:[NSString stringWithFormat:@"%@.%d.%d",
-                           [kFIRLibraryVersionID substringWithRange:major],
-                           [[kFIRLibraryVersionID substringWithRange:minor] intValue],
-                           [[kFIRLibraryVersionID substringWithRange:patch] intValue]]];
+  [FIRApp
+      registerLibrary:@"FirebaseCore"
+          withVersion:[NSString stringWithFormat:@"%@.%d.%d",
+                                                 [kFIRLibraryVersionID substringWithRange:major],
+                                                 [[kFIRLibraryVersionID substringWithRange:minor]
+                                                     intValue],
+                                                 [[kFIRLibraryVersionID substringWithRange:patch]
+                                                     intValue]]];
 }
 
 + (NSDictionary *)defaultOptionsDictionary {
