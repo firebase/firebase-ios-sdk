@@ -14,11 +14,6 @@
 
 #import "FIRTestCase.h"
 
-#import <asl.h>
-
-extern aslclient getFIRLoggerClient(void);
-extern const char *kFIRLoggerASLClientFacilityName;
-
 NSString *const kAPIKey = @"correct_api_key";
 NSString *const kCustomizedAPIKey = @"customized_api_key";
 NSString *const kClientID = @"correct_client_id";
@@ -46,30 +41,6 @@ NSString *const kProjectID = @"abc-xyz-123";
 
 - (void)tearDown {
   [super tearDown];
-}
-
-#pragma mark - Helper Methods
-
-- (BOOL)messageWasLogged:(NSString *)message {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  aslmsg query = asl_new(ASL_TYPE_QUERY);
-  asl_set_query(query, ASL_KEY_FACILITY, kFIRLoggerASLClientFacilityName, ASL_QUERY_OP_EQUAL);
-  aslresponse r = asl_search(getFIRLoggerClient(), query);
-  asl_free(query);
-  aslmsg m;
-  const char *val;
-  NSMutableArray *allMsg = [[NSMutableArray alloc] init];
-  while ((m = asl_next(r)) != NULL) {
-    val = asl_get(m, ASL_KEY_MSG);
-    if (val) {
-      [allMsg addObject:[NSString stringWithUTF8String:val]];
-    }
-  }
-  asl_free(m);
-  asl_release(r);
-  return [allMsg containsObject:message];
-#pragma clang pop
 }
 
 @end
