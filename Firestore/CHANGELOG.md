@@ -5,7 +5,7 @@
   are now also deleted (#683).
 - [fixed] Fixed race conditions in streams that could be exposed by rapidly
   toggling the network from enabled to disabled and back (#772) or encountering
-  multiple successive failures from the server (#835).
+  a failure from the server (#835).
 - [fixed] Addressed warnings shown by the latest versions of Xcode and CocoaPods.
 
 # v0.10.1
