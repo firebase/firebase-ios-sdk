@@ -102,33 +102,7 @@ int64_t DecodeInteger(pb_istream_t* stream) {
 
 using firebase::firestore::model::FieldValue;
 
-Serializer::TypedValue Serializer::EncodeFieldValue(
-    const FieldValue& field_value) {
-  Serializer::TypedValue proto_value{
-      field_value.type(), google_firestore_v1beta1_Value_init_default};
-  switch (field_value.type()) {
-    case FieldValue::Type::Null:
-      proto_value.value.null_value = google_protobuf_NullValue_NULL_VALUE;
-      break;
-    case FieldValue::Type::Boolean:
-      if (field_value == FieldValue::TrueValue()) {
-        proto_value.value.boolean_value = true;
-      } else {
-        FIREBASE_DEV_ASSERT(field_value == FieldValue::FalseValue());
-        proto_value.value.boolean_value = false;
-      }
-      break;
-    case FieldValue::Type::Integer:
-      proto_value.value.integer_value = field_value.integer_value();
-      break;
-    default:
-      // TODO(rsgowman): implement the other types
-      abort();
-  }
-  return proto_value;
-}
-
-void Serializer::EncodeTypedValue(const TypedValue& value,
+void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
   // TODO(rsgowman): how large should the output buffer be? Do some
   // investigation to see if we can get nanopb to tell us how much space it's
@@ -139,7 +113,7 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   bool status = false;
-  switch (value.type) {
+  switch (field_value.type()) {
     case FieldValue::Type::Null:
       status = pb_encode_tag(&stream, PB_WT_VARINT,
                              google_firestore_v1beta1_Value_null_value_tag);
@@ -157,7 +131,12 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeBool(&stream, value.value.boolean_value);
+      if (field_value == FieldValue::TrueValue()) {
+        EncodeBool(&stream, true);
+      } else {
+        FIREBASE_DEV_ASSERT(field_value == FieldValue::FalseValue());
+        EncodeBool(&stream, false);
+      }
       break;
 
     case FieldValue::Type::Integer:
@@ -167,7 +146,7 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeInteger(&stream, value.value.integer_value);
+      EncodeInteger(&stream, field_value.integer_value());
       break;
 
     default:
@@ -178,23 +157,7 @@ void Serializer::EncodeTypedValue(const TypedValue& value,
   out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
 }
 
-FieldValue Serializer::DecodeFieldValue(
-    const Serializer::TypedValue& value_proto) {
-  switch (value_proto.type) {
-    case FieldValue::Type::Null:
-      return FieldValue::NullValue();
-    case FieldValue::Type::Boolean:
-      return FieldValue::BooleanValue(value_proto.value.boolean_value);
-    case FieldValue::Type::Integer:
-      return FieldValue::IntegerValue(value_proto.value.integer_value);
-    default:
-      // TODO(rsgowman): implement the other types
-      abort();
-  }
-}
-
-Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
-                                                    size_t length) {
+FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
   pb_istream_t stream = pb_istream_from_buffer(bytes, length);
   pb_wire_type_t wire_type;
   uint32_t tag;
@@ -205,49 +168,17 @@ Serializer::TypedValue Serializer::DecodeTypedValue(const uint8_t* bytes,
     abort();
   }
 
-  Serializer::TypedValue result{FieldValue::Type::Null,
-                                google_firestore_v1beta1_Value_init_default};
   switch (tag) {
     case google_firestore_v1beta1_Value_null_value_tag:
-      result.type = FieldValue::Type::Null;
       DecodeNull(&stream);
-      break;
+      return FieldValue::NullValue();
     case google_firestore_v1beta1_Value_boolean_value_tag:
-      result.type = FieldValue::Type::Boolean;
-      result.value.boolean_value = DecodeBool(&stream);
-      break;
+      return FieldValue::BooleanValue(DecodeBool(&stream));
     case google_firestore_v1beta1_Value_integer_value_tag:
-      result.type = FieldValue::Type::Integer;
-      result.value.integer_value = DecodeInteger(&stream);
-      break;
+      return FieldValue::IntegerValue(DecodeInteger(&stream));
 
     default:
       // TODO(rsgowman): figure out error handling
-      abort();
-  }
-
-  return result;
-}
-
-bool operator==(const Serializer::TypedValue& lhs,
-                const Serializer::TypedValue& rhs) {
-  if (lhs.type != rhs.type) {
-    return false;
-  }
-
-  switch (lhs.type) {
-    case FieldValue::Type::Null:
-      FIREBASE_DEV_ASSERT(lhs.value.null_value ==
-                          google_protobuf_NullValue_NULL_VALUE);
-      FIREBASE_DEV_ASSERT(rhs.value.null_value ==
-                          google_protobuf_NullValue_NULL_VALUE);
-      return true;
-    case FieldValue::Type::Boolean:
-      return lhs.value.boolean_value == rhs.value.boolean_value;
-    case FieldValue::Type::Integer:
-      return lhs.value.integer_value == rhs.value.integer_value;
-    default:
-      // TODO(rsgowman): implement the other types
       abort();
   }
 }
