@@ -21,7 +21,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 

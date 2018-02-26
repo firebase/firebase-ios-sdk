@@ -19,7 +19,6 @@
 #include <string>
 
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 

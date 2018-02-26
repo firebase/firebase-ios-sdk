@@ -19,7 +19,6 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 

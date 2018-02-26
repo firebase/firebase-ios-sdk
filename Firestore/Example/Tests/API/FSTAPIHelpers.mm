@@ -31,7 +31,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
