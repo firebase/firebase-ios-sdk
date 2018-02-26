@@ -109,7 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
     auto userPromise = std::make_shared<std::promise<User>>();
 
     __weak typeof(self) weakSelf = self;
-    auto userChangeListener = [initialized = false, userPromise, weakSelf, workerDispatchQueue](User user) mutable {
+    auto userChangeListener = [initialized = false, userPromise, weakSelf,
+                               workerDispatchQueue](User user) mutable {
       typeof(self) strongSelf = weakSelf;
       if (!strongSelf) return;
 
