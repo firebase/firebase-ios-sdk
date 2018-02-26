@@ -142,7 +142,7 @@
     [mutations addObject:[remoteSerializer decodedMutation:write]];
   }
 
-  FSTTimestamp *localWriteTime = [remoteSerializer decodedTimestamp:batch.localWriteTime];
+  FIRTimestamp *localWriteTime = [remoteSerializer decodedTimestamp:batch.localWriteTime];
 
   return [[FSTMutationBatch alloc] initWithBatchID:batchID
                                     localWriteTime:localWriteTime

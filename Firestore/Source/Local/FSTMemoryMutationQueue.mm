@@ -139,7 +139,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   self.lastStreamToken = streamToken;
 }
 
-- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FSTTimestamp *)localWriteTime
+- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
                                           mutations:(NSArray<FSTMutation *> *)mutations
                                               group:(FSTWriteGroup *)group {
   FSTAssert(mutations.count > 0, @"Mutation batches should not be empty");

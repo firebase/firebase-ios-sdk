@@ -25,37 +25,15 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::Token;
 using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTGetTokenResult
-
-@interface FSTGetTokenResult () {
-  User _user;
-}
-
-@end
-
-@implementation FSTGetTokenResult
-
-- (instancetype)initWithUser:(const User &)user token:(NSString *_Nullable)token {
-  if (self = [super init]) {
-    _user = user;
-    _token = token;
-  }
-  return self;
-}
-
-- (const User &)user {
-  return _user;
-}
-
-@end
 
 #pragma mark - FSTFirebaseCredentialsProvider
 @interface FSTFirebaseCredentialsProvider () {
@@ -84,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _app = app;
-    _currentUser = User([self.app getUID]);
+    _currentUser = User::FromUid([self.app getUID]);
     _userCounter = 0;
 
     // Register for user changes so that we can internally track the current user.
@@ -106,14 +84,14 @@ NS_ASSUME_NONNULL_BEGIN
                         return;
                       }
 
-                      NSString *userID = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
-                      User newUser = User(userID);
-                      if (newUser != _currentUser) {
-                        _currentUser = newUser;
+                      NSString *uid = userInfo[FIRAuthStateDidChangeInternalNotificationUIDKey];
+                      User newUser = User::FromUid(uid);
+                      if (newUser != self->_currentUser) {
+                        self->_currentUser = newUser;
                         self.userCounter++;
                         FSTVoidUserBlock listenerBlock = self.userChangeListener;
                         if (listenerBlock) {
-                          listenerBlock(_currentUser);
+                          listenerBlock(self->_currentUser);
                         }
                       }
                     }
@@ -141,11 +119,9 @@ NS_ASSUME_NONNULL_BEGIN
             NSError *cancelError = [NSError errorWithDomain:FIRFirestoreErrorDomain
                                                        code:FIRFirestoreErrorCodeAborted
                                                    userInfo:errorInfo];
-            completion(nil, cancelError);
+            completion(Token::Invalid(), cancelError);
           } else {
-            FSTGetTokenResult *result =
-                [[FSTGetTokenResult alloc] initWithUser:_currentUser token:token];
-            completion(result, error);
+            completion(Token(util::MakeStringView(token), self->_currentUser), error);
           }
         };
       };

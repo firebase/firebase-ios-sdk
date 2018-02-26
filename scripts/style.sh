@@ -21,19 +21,61 @@
 # Commonly
 # ./scripts/style.sh master
 
-if [[ $(clang-format --version) != **"version 6"** ]]; then
+system=$(uname -s)
+
+if [[ $(clang-format --version) != *"version 6"* ]]; then
   echo "Please upgrade to clang-format version 6."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
   exit 1
 fi
 
-if [[ $# -gt 0 && "$1" = "test-only" ]]; then
+if [[ "$system" == "Darwin" ]]; then
+  version=$(swiftformat --version)
+  version="${version/*version /}"
+  # Allow an older swiftformat because travis isn't running High Sierra yet
+  # and the formula hasn't been updated in a while on Sierra :-/.
+  if [[ "$version" != "0.32.0" && "$version" != "0.33"* ]]; then
+    echo "Please upgrade to swiftformat 0.33.3"
+    echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
+    exit 1
+  fi
+fi
+
+# Joins the given arguments with the separator given as the first argument.
+function join() {
+  local IFS="$1"
+  shift
+  echo "$*"
+}
+
+clang_options=(-style=file)
+
+# Rules to disable in swiftformat:
+swift_disable=(
+  # sortedImports is broken, sorting into the middle of the copyright notice.
+  sortedImports
+
+  # Too many of our swift files have simplistic examples. While technically
+  # it's correct to remove the unused argument labels, it makes our examples
+  # look wrong.
+  unusedArguments
+)
+
+swift_options=(
+  # Mimic Objective-C style.
+  --indent 2
+
+  --disable $(join , "${swift_disable[@]}")
+)
+
+if [[ $# -gt 0 && "$1" == "test-only" ]]; then
   test_only=true
-  options="-output-replacements-xml"
+  clang_options+=(-output-replacements-xml)
+  swift_options+=(--dryrun)
   shift
 else
   test_only=false
-  options="-i"
+  clang_options+=(-i)
 fi
 
 files=$(
@@ -54,6 +96,8 @@ files=$(
 # Build outputs
 \%/Pods/% d
 \%^./build/% d
+\%^./Debug/% d
+\%^./Release/% d
 
 # Sources controlled outside this tree
 \%/third_party/% d
@@ -73,19 +117,29 @@ files=$(
 \%\.pb\.% d
 
 # Format C-ish sources only
-\%\.(h|m|mm|cc)$% p
+\%\.(h|m|mm|cc|swift)$% p
 '
 )
+
 needs_formatting=false
 for f in $files; do
-  clang-format -style=file $options $f | grep "<replacement " > /dev/null
-  if [[ "$test_only" = true && $? -ne 1 ]]; then
+  if [[ "${f: -6}" == '.swift' ]]; then
+    if [[ "$system" == 'Darwin' ]]; then
+      swiftformat "${swift_options[@]}" "$f" 2> /dev/null | grep 'would have updated' > /dev/null
+    else
+      false
+    fi
+  else
+    clang-format "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
+  fi
+
+  if [[ "$test_only" == true && $? -ne 1 ]]; then
     echo "$f needs formatting."
     needs_formatting=true
   fi
 done
 
-if [[ "$needs_formatting" = true ]]; then
+if [[ "$needs_formatting" == true ]]; then
   echo "Proposed commit is not style compliant."
   echo "Run scripts/style.sh and git add the result."
   exit 1

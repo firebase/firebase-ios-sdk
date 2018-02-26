@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "54269AE8203B9FFC0039F03F"
+               BlueprintIdentifier = "54C9EDF02040E16300A969CD"
                BuildableName = "Firestore_SwiftTests_iOS.xctest"
                BlueprintName = "Firestore_SwiftTests_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">
@@ -57,7 +57,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "54269AE8203B9FFC0039F03F"
+               BlueprintIdentifier = "54C9EDF02040E16300A969CD"
                BuildableName = "Firestore_SwiftTests_iOS.xctest"
                BlueprintName = "Firestore_SwiftTests_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">

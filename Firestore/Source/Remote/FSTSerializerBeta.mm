@@ -19,6 +19,7 @@
 #include <inttypes.h>
 
 #import <GRPCClient/GRPCCall.h>
+#import "FIRTimestamp.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
@@ -32,7 +33,6 @@
 #import "FIRGeoPoint.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -69,15 +69,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTSnapshotVersion <=> GPBTimestamp
 
-- (GPBTimestamp *)encodedTimestamp:(FSTTimestamp *)timestamp {
+- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp {
   GPBTimestamp *result = [GPBTimestamp message];
   result.seconds = timestamp.seconds;
-  result.nanos = timestamp.nanos;
+  result.nanos = timestamp.nanoseconds;
   return result;
 }
 
-- (FSTTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
-  return [[FSTTimestamp alloc] initWithSeconds:timestamp.seconds nanos:timestamp.nanos];
+- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
+  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds nanoseconds:timestamp.nanos];
 }
 
 - (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version {
@@ -287,7 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedTimestampValue:(FSTTimestamp *)value {
+- (GCFSValue *)encodedTimestampValue:(FIRTimestamp *)value {
   GCFSValue *result = [GCFSValue message];
   result.timestampValue = [self encodedTimestamp:value];
   return result;

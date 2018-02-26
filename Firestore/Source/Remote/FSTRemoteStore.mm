@@ -507,10 +507,10 @@ static const int kOnlineAttemptsBeforeFailure = 2;
                                  FSTBoxedTargetID *target, FSTTargetChange *change, BOOL *stop) {
     NSData *resumeToken = change.resumeToken;
     if (resumeToken.length > 0) {
-      FSTQueryData *queryData = _listenTargets[target];
+      FSTQueryData *queryData = self->_listenTargets[target];
       // A watched target might have been removed already.
       if (queryData) {
-        _listenTargets[target] =
+        self->_listenTargets[target] =
             [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
                                                resumeToken:resumeToken];
       }

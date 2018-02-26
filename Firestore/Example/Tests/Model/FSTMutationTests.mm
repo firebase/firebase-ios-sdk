@@ -16,9 +16,9 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -30,11 +30,11 @@
 @end
 
 @implementation FSTMutationTests {
-  FSTTimestamp *_timestamp;
+  FIRTimestamp *_timestamp;
 }
 
 - (void)setUp {
-  _timestamp = [FSTTimestamp timestamp];
+  _timestamp = [FIRTimestamp timestamp];
 }
 
 - (void)testAppliesSetsToDocuments {

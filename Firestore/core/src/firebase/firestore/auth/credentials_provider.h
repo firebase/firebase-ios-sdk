@@ -31,11 +31,11 @@ namespace auth {
 // `TokenErrorListener` is a listener that gets a token or an error.
 // token: An auth token as a string, or nullptr if error occurred.
 // error: The error if one occurred, or else nullptr.
-typedef std::function<void(const Token& token, const absl::string_view error)>
+typedef std::function<void(Token token, const absl::string_view error)>
     TokenListener;
 
 // Listener notified with a User change.
-typedef std::function<void(const User& user)> UserChangeListener;
+typedef std::function<void(User user)> UserChangeListener;
 
 /**
  * Provides methods for getting the uid and token for the current user and

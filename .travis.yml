@@ -13,6 +13,7 @@ before_install:
   - bundle exec pod install --project-directory=Example --repo-update
   - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
   - brew install clang-format
+  - brew install swiftformat
   - brew install cmake
   - brew install go # Somehow the build for Abseil requires this.
   - echo "$TRAVIS_COMMIT_RANGE"

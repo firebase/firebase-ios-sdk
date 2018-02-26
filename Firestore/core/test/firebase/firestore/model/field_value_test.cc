@@ -57,7 +57,7 @@ TEST(FieldValue, NumberType) {
   const FieldValue integer_value = FieldValue::IntegerValue(10L);
   const FieldValue double_value = FieldValue::DoubleValue(10.1);
   EXPECT_EQ(Type::Double, nan_value.type());
-  EXPECT_EQ(Type::Long, integer_value.type());
+  EXPECT_EQ(Type::Integer, integer_value.type());
   EXPECT_EQ(Type::Double, double_value.type());
   EXPECT_TRUE(nan_value < integer_value);
   EXPECT_TRUE(nan_value < double_value);

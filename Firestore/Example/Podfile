@@ -28,11 +28,11 @@ target 'Firestore_Example' do
 
     pod 'OCMock'
   end
-end
 
-target 'Firestore_SwiftTests_iOS' do
-  pod 'FirebaseFirestore', :path => '../../'
-  pod 'FirebaseFirestoreSwift', :path => '../../'
+  target 'Firestore_SwiftTests_iOS' do
+    pod 'FirebaseFirestore', :path => '../../'
+    pod 'FirebaseFirestoreSwift', :path => '../../'
+  end
 end
 
 target 'SwiftBuildTest' do
