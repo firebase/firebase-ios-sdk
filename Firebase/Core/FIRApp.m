@@ -229,6 +229,8 @@ static NSMutableDictionary *sLibraryVersions;
   sDefaultApp = nil;
   [sAllApps removeAllObjects];
   sAllApps = nil;
+  [sLibraryVersions removeAllObjects];
+  sLibraryVersions = nil;
 }
 
 - (void)deleteApp:(FIRAppVoidBoolCallback)completion {
