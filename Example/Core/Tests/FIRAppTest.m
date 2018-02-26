@@ -608,13 +608,13 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testSingleLibrary {
   [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@"LegalName/1.0.0"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
 }
 
 - (void)testMultipleLibraries {
   [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
   [FIRApp registerLibrary:@"LegalName2" withVersion:@"2.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
 }
 
 #pragma mark - private
