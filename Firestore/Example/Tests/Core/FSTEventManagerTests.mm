@@ -143,9 +143,9 @@ NS_ASSUME_NONNULL_BEGIN
       .andDo(^(NSInvocation *invocation) {
         [events addObject:@(FSTOnlineStateUnknown)];
       });
-  OCMStub([fakeListener applyChangedOnlineState:FSTOnlineStateHealthy])
+  OCMStub([fakeListener applyChangedOnlineState:FSTOnlineStateOnline])
       .andDo(^(NSInvocation *invocation) {
-        [events addObject:@(FSTOnlineStateHealthy)];
+        [events addObject:@(FSTOnlineStateOnline)];
       });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
@@ -154,8 +154,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   [eventManager addListener:fakeListener];
   XCTAssertEqualObjects(events, @[ @(FSTOnlineStateUnknown) ]);
-  [eventManager applyChangedOnlineState:FSTOnlineStateHealthy];
-  XCTAssertEqualObjects(events, (@[ @(FSTOnlineStateUnknown), @(FSTOnlineStateHealthy) ]));
+  [eventManager applyChangedOnlineState:FSTOnlineStateOnline];
+  XCTAssertEqualObjects(events, (@[ @(FSTOnlineStateUnknown), @(FSTOnlineStateOnline) ]));
 }
 
 @end

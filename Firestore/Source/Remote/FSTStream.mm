@@ -620,7 +620,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                       serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
-               connectionTimerID:FSTTimerIDListenStreamConnection
+               connectionTimerID:FSTTimerIDListenStreamConnectionBackoff
                      idleTimerID:FSTTimerIDListenStreamIdle
                      credentials:credentials
             responseMessageClass:[GCFSListenResponse class]];
@@ -705,7 +705,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                       serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
-               connectionTimerID:FSTTimerIDWriteStreamConnection
+               connectionTimerID:FSTTimerIDWriteStreamConnectionBackoff
                      idleTimerID:FSTTimerIDWriteStreamIdle
                      credentials:credentials
             responseMessageClass:[GCFSWriteResponse class]];

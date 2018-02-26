@@ -175,7 +175,9 @@ NS_ASSUME_NONNULL_BEGIN
                                workerDispatchQueue:_testWorkerQueue
                                        credentials:&_credentials];
 
-  _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:_datastore];
+  _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                                  datastore:_datastore
+                                        workerDispatchQueue:_testWorkerQueue];
 
   [_testWorkerQueue dispatchAsync:^() {
     [_remoteStore start];

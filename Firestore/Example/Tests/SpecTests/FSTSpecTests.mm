@@ -22,7 +22,6 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -36,6 +35,7 @@
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
@@ -323,6 +323,27 @@ static NSString *const kNoIOSTag = @"no-ios";
   }
 }
 
+- (void)doRunTimer:(NSString *)timer {
+  FSTTimerID timerID;
+  if ([timer isEqualToString:@"all"]) {
+    timerID = FSTTimerIDAll;
+  } else if ([timer isEqualToString:@"listen_stream_idle"]) {
+    timerID = FSTTimerIDListenStreamIdle;
+  } else if ([timer isEqualToString:@"listen_stream_connection"]) {
+    timerID = FSTTimerIDListenStreamConnectionBackoff;
+  } else if ([timer isEqualToString:@"write_stream_idle"]) {
+    timerID = FSTTimerIDWriteStreamIdle;
+  } else if ([timer isEqualToString:@"write_stream_connection"]) {
+    timerID = FSTTimerIDWriteStreamConnectionBackoff;
+  } else if ([timer isEqualToString:@"online_state_timeout"]) {
+    timerID = FSTTimerIDOnlineStateTimeout;
+  } else {
+    FSTFail(@"runTimer spec step specified unknown timer: %@", timer);
+  }
+
+  [self.driver runTimer:timerID];
+}
+
 - (void)doDisableNetwork {
   [self.driver disableNetwork];
 }
@@ -391,6 +412,8 @@ static NSString *const kNoIOSTag = @"no-ios";
     [self doWriteAck:step[@"writeAck"]];
   } else if (step[@"failWrite"]) {
     [self doFailWrite:step[@"failWrite"]];
+  } else if (step[@"runTimer"]) {
+    [self doRunTimer:step[@"runTimer"]];
   } else if (step[@"enableNetwork"]) {
     if ([step[@"enableNetwork"] boolValue]) {
       [self doEnableNetwork];

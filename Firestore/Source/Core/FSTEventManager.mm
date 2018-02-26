@@ -169,9 +169,9 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
   }
 
-  // NOTE: We consider OnlineState.Unknown as online (it should become Failed
-  // or Online if we wait long enough).
-  BOOL maybeOnline = onlineState != FSTOnlineStateFailed;
+  // NOTE: We consider OnlineState.Unknown as online (it should become Offline or Online if we
+  // wait long enough).
+  BOOL maybeOnline = onlineState != FSTOnlineStateOffline;
   // Don't raise the event if we're online, aren't synced yet (checked
   // above) and are waiting for a sync.
   if (self.options.waitForSyncWhenOnline && maybeOnline) {
@@ -180,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Raise data from cache if we have any documents or we are offline
-  return !snapshot.documents.isEmpty || onlineState == FSTOnlineStateFailed;
+  return !snapshot.documents.isEmpty || onlineState == FSTOnlineStateOffline;
 }
 
 - (BOOL)shouldRaiseEventForSnapshot:(FSTViewSnapshot *)snapshot {
