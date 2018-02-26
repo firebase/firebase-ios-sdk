@@ -1,4 +1,8 @@
 # v4.4.3
+- Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of
+  Xcode and CocoaPods.
+
+# v4.4.3
 - Adds an explicit dependency on CoreGraphics from Firebase Auth.
 
 # v4.4.2
