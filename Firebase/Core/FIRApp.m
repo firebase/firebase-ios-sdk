@@ -403,13 +403,9 @@ static NSMutableDictionary *sLibraryVersions;
 
 + (void)registerLibrary:(nonnull NSString *)library withVersion:(nonnull NSString *)version {
   // Create the set of characters which aren't allowed, only if this feature is used.
-  static NSCharacterSet *disallowedSet;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
-    [allowedSet addCharactersInString:@"-_."];
-    disallowedSet = [allowedSet invertedSet];
-  });
+  NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
+  [allowedSet addCharactersInString:@"-_."];
+  NSCharacterSet *disallowedSet = [allowedSet invertedSet];
   // Make sure the library name and version strings do not contain unexpected characters, and
   // add the name/version pair to the dictionary.
   if ([library rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
@@ -433,6 +429,7 @@ static NSMutableDictionary *sLibraryVersions;
     [libraries addObject:
         [NSString stringWithFormat:@"%@/%@", libraryName, sLibraryVersions[libraryName]]];
   }
+  [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
   return [libraries componentsJoinedByString:@" "];
 }
 
