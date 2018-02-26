@@ -19,6 +19,7 @@ protocol EmailLoginDelegate {
   func emailLogin(_ controller: EmailLoginViewController, signedInAs user: User)
   func emailLogin(_ controller: EmailLoginViewController, failedWithError error: Error)
 }
+
 class EmailLoginViewController: UIViewController {
 
   // MARK: - Public Properties
@@ -27,15 +28,15 @@ class EmailLoginViewController: UIViewController {
 
   // MARK: - User Interface
 
-  @IBOutlet private weak var emailAddress: UITextField!
-  @IBOutlet private weak var password: UITextField!
+  @IBOutlet private var emailAddress: UITextField!
+  @IBOutlet private var password: UITextField!
 
   // MARK: - User Actions
 
   @IBAction func logInButtonHit(_ sender: UIButton) {
     guard let (email, password) = validatedInputs() else { return }
 
-    Auth.auth().signIn(withEmail: email, password: password) { [unowned self] (user, error) in
+    Auth.auth().signIn(withEmail: email, password: password) { [unowned self] user, error in
       guard let user = user else {
         print("Error signing in: \(error!)")
         self.delegate?.emailLogin(self, failedWithError: error!)
@@ -50,7 +51,7 @@ class EmailLoginViewController: UIViewController {
   @IBAction func signUpButtonHit(_ sender: UIButton) {
     guard let (email, password) = validatedInputs() else { return }
 
-    Auth.auth().createUser(withEmail: email, password: password) { [unowned self] (user, error) in
+    Auth.auth().createUser(withEmail: email, password: password) { [unowned self] user, error in
       guard let user = user else {
         print("Error signing up: \(error!)")
         self.delegate?.emailLogin(self, failedWithError: error!)
