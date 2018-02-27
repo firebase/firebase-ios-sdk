@@ -96,6 +96,11 @@ class FieldValue {
     return tag_;
   }
 
+  bool boolean_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Boolean);
+    return boolean_value_;
+  }
+
   int64_t integer_value() const {
     FIREBASE_ASSERT(tag_ == Type::Integer);
     return integer_value_;
