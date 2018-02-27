@@ -38,10 +38,12 @@
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -465,7 +467,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
             @"Invalid query. When querying by document ID you must provide "
              "a valid document ID, but it was an empty string.");
       }
-      FSTResourcePath *path = [self.query.path pathByAppendingSegment:documentKey];
+      const ResourcePath path = self.query.path.Append(util::MakeStringView(documentKey));
       fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithPath:path]
                                           databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {

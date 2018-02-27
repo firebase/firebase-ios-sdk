@@ -16,15 +16,17 @@
 
 #import "FIRDocumentReference.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTDocumentKey;
-@class FSTResourcePath;
 
 /** Internal FIRDocumentReference API we don't want exposed in our public header files. */
 @interface FIRDocumentReference (Internal)
 
-+ (instancetype)referenceWithPath:(FSTResourcePath *)path firestore:(FIRFirestore *)firestore;
++ (instancetype)referenceWithPath:(const firebase::firestore::model::ResourcePath &)path
+                        firestore:(FIRFirestore *)firestore;
 + (instancetype)referenceWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;

@@ -33,6 +33,7 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
@@ -41,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 namespace util = firebase::firestore::util;
 using Firestore::StringView;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::ResourcePath;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::ReadOptions;
@@ -425,8 +427,8 @@ static ReadOptions StandardReadOptions() {
   FSTAssert(![query isDocumentQuery], @"Document queries shouldn't go down this path");
   NSString *userID = self.userID;
 
-  FSTResourcePath *queryPath = query.path;
-  int immediateChildrenPathLength = queryPath.length + 1;
+  const ResourcePath &queryPath = query.path;
+  size_t immediateChildrenPathLength = queryPath.size() + 1;
 
   // TODO(mcg): Actually implement a single-collection query
   //
@@ -466,7 +468,7 @@ static ReadOptions StandardReadOptions() {
     // Rows with document keys more than one segment longer than the query path can't be matches.
     // For example, a query on 'rooms' can't match the document /rooms/abc/messages/xyx.
     // TODO(mcg): we'll need a different scanner when we implement ancestor queries.
-    if (rowKey.documentKey.path.length != immediateChildrenPathLength) {
+    if (rowKey.documentKey.path.size() != immediateChildrenPathLength) {
       continue;
     }
 

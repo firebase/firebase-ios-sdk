@@ -38,11 +38,13 @@
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -252,7 +254,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
   [self ensureClientConfigured];
-  FSTResourcePath *path = [FSTResourcePath pathWithString:collectionPath];
+  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(collectionPath));
   return [FIRCollectionReference referenceWithPath:path firestore:self];
 }
 
@@ -261,7 +263,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FSTThrowInvalidArgument(@"Document path cannot be nil.");
   }
   [self ensureClientConfigured];
-  FSTResourcePath *path = [FSTResourcePath pathWithString:documentPath];
+  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(documentPath));
   return [FIRDocumentReference referenceWithPath:path firestore:self];
 }
 

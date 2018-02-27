@@ -19,8 +19,9 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/StringView.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
 @class FSTDocumentKey;
-@class FSTResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 // document_mutations:
 //   - tableName: string = "document_mutation"
 //   - userID: string
-//   - path: FSTResourcePath
+//   - path: ResourcePath
 //   - batchID: FSTBatchID
 //
 // mutation_queues:
@@ -56,16 +57,16 @@ NS_ASSUME_NONNULL_BEGIN
 // target_documents:
 //   - tableName: string = "target_document"
 //   - targetID: FSTTargetID
-//   - path: FSTResourcePath
+//   - path: ResourcePath
 //
 // document_targets:
 //   - tableName: string = "document_target"
-//   - path: FSTResourcePath
+//   - path: ResourcePath
 //   - targetID: FSTTargetID
 //
 // remote_documents:
 //   - tableName: string = "remote_document"
-//   - path: FSTResourcePath
+//   - path: ResourcePath
 
 /** Helpers for any LevelDB key. */
 @interface FSTLevelDBKey : NSObject
@@ -128,12 +129,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a key prefix that points just before the first key for the userID and resource path.
  *
- * Note that this uses an FSTResourcePath rather than an FSTDocumentKey in order to allow prefix
+ * Note that this uses a ResourcePath rather than an FSTDocumentKey in order to allow prefix
  * scans over a collection. However a naive scan over those results isn't useful since it would
  * match both immediate children of the collection and any subcollections.
  */
 + (std::string)keyPrefixWithUserID:(Firestore::StringView)userID
-                      resourcePath:(FSTResourcePath *)resourcePath;
+                      resourcePath:(const firebase::firestore::model::ResourcePath &)resourcePath;
 
 /** Creates a complete key that points to a specific userID, document key, and batchID. */
 + (std::string)keyWithUserID:(Firestore::StringView)userID
@@ -291,7 +292,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (std::string)keyPrefix;
 
 /** Creates a key that points to the first document-target association for document. */
-+ (std::string)keyPrefixWithResourcePath:(FSTResourcePath *)resourcePath;
++ (std::string)keyPrefixWithResourcePath:
+    (const firebase::firestore::model::ResourcePath &)resourcePath;
 
 /** Creates a key that points to a specific document-target entry. */
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)documentKey targetID:(FSTTargetID)targetID;
@@ -328,7 +330,8 @@ NS_ASSUME_NONNULL_BEGIN
  * a document key prefix will match the document itself and any documents that exist in its
  * subcollections.
  */
-+ (std::string)keyPrefixWithResourcePath:(FSTResourcePath *)resourcePath;
++ (std::string)keyPrefixWithResourcePath:
+    (const firebase::firestore::model::ResourcePath &)resourcePath;
 
 /**
  * Decodes the contents of a remote document key into properties on this instance. This can only

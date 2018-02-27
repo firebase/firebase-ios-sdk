@@ -45,11 +45,13 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -109,66 +111,64 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
-  FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:name];
-  FSTAssert([[path segmentAtIndex:1]
-                isEqualToString:util::WrapNSStringNoCopy(self.databaseID->project_id())],
+  const ResourcePath path = [self decodedResourcePathWithDatabaseID:name];
+  FSTAssert(path[1] == self.databaseID->project_id(),
             @"Tried to deserialize key from different project.");
-  FSTAssert([[path segmentAtIndex:3]
-                isEqualToString:util::WrapNSStringNoCopy(self.databaseID->database_id())],
+  FSTAssert(path[3] == self.databaseID->database_id(),
             @"Tried to deserialize key from different datbase.");
   return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
 }
 
 - (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
-                                          path:(FSTResourcePath *)path {
-  return [[[[self encodedResourcePathForDatabaseID:databaseID] pathByAppendingSegment:@"documents"]
-      pathByAppendingPath:path] canonicalString];
+                                          path:(const ResourcePath &)path {
+  return util::WrapNSString([self encodedResourcePathForDatabaseID:databaseID]
+                                .Append("documents")
+                                .Append(path)
+                                .CanonicalString());
 }
 
-- (FSTResourcePath *)decodedResourcePathWithDatabaseID:(NSString *)name {
-  FSTResourcePath *path = [FSTResourcePath pathWithString:name];
-  FSTAssert([self validQualifiedResourcePath:path], @"Tried to deserialize invalid key %@", path);
+- (ResourcePath)decodedResourcePathWithDatabaseID:(NSString *)name {
+  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(name));
+  FSTAssert([self validQualifiedResourcePath:path], @"Tried to deserialize invalid key %@",
+            util::WrapNSStringNoCopy(path.CanonicalString()));
   return path;
 }
 
-- (NSString *)encodedQueryPath:(FSTResourcePath *)path {
-  if (path.length == 0) {
+- (NSString *)encodedQueryPath:(const ResourcePath &)path {
+  if (path.size() == 0) {
     // If the path is empty, the backend requires we leave off the /documents at the end.
     return [self encodedDatabaseID];
   }
   return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
 }
 
-- (FSTResourcePath *)decodedQueryPath:(NSString *)name {
-  FSTResourcePath *resource = [self decodedResourcePathWithDatabaseID:name];
-  if (resource.length == 4) {
-    return [FSTResourcePath pathWithSegments:@[]];
+- (ResourcePath)decodedQueryPath:(NSString *)name {
+  const ResourcePath resource = [self decodedResourcePathWithDatabaseID:name];
+  if (resource.size() == 4) {
+    return ResourcePath{};
   } else {
     return [self localResourcePathForQualifiedResourcePath:resource];
   }
 }
 
-- (FSTResourcePath *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID {
-  return [FSTResourcePath pathWithSegments:@[
-    @"projects", util::WrapNSStringNoCopy(databaseID->project_id()), @"databases",
-    util::WrapNSStringNoCopy(databaseID->database_id())
-  ]];
+- (ResourcePath)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID {
+  return ResourcePath{"projects", databaseID->project_id(), "databases", databaseID->database_id()};
 }
 
-- (FSTResourcePath *)localResourcePathForQualifiedResourcePath:(FSTResourcePath *)resourceName {
-  FSTAssert(
-      resourceName.length > 4 && [[resourceName segmentAtIndex:4] isEqualToString:@"documents"],
-      @"Tried to deserialize invalid key %@", resourceName);
-  return [resourceName pathByRemovingFirstSegments:5];
+- (ResourcePath)localResourcePathForQualifiedResourcePath:(const ResourcePath &)resourceName {
+  FSTAssert(resourceName.size() > 4 && resourceName[4] == "documents",
+            @"Tried to deserialize invalid key %@",
+            util::WrapNSStringNoCopy(resourceName.CanonicalString()));
+  return resourceName.PopFirst(5);
 }
 
-- (BOOL)validQualifiedResourcePath:(FSTResourcePath *)path {
-  return path.length >= 4 && [[path segmentAtIndex:0] isEqualToString:@"projects"] &&
-         [[path segmentAtIndex:2] isEqualToString:@"databases"];
+- (BOOL)validQualifiedResourcePath:(const ResourcePath &)path {
+  return path.size() >= 4 && path[0] == "projects" && path[2] == "databases";
 }
 
 - (NSString *)encodedDatabaseID {
-  return [[self encodedResourcePathForDatabaseID:self.databaseID] canonicalString];
+  return util::WrapNSString(
+      [self encodedResourcePathForDatabaseID:self.databaseID].CanonicalString());
 }
 
 #pragma mark - FSTFieldValue <=> Value proto
@@ -319,13 +319,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTReferenceValue *)decodedReferenceValue:(NSString *)resourceName {
-  FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:resourceName];
-  NSString *project = [path segmentAtIndex:1];
-  NSString *database = [path segmentAtIndex:3];
+  const ResourcePath path = [self decodedResourcePathWithDatabaseID:resourceName];
+  const std::string &project = path[1];
+  const std::string &database = path[3];
   FSTDocumentKey *key =
       [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
 
-  const DatabaseId database_id(util::MakeStringView(project), util::MakeStringView(database));
+  const DatabaseId database_id(project, database);
   FSTAssert(database_id == *self.databaseID, @"Database %@:%@ cannot encode reference from %@:%@",
             util::WrapNSStringNoCopy(self.databaseID->project_id()),
             util::WrapNSStringNoCopy(self.databaseID->database_id()),
@@ -555,7 +555,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
   std::vector<FieldPath> fields(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
-    fields.push_back([FieldPath pathWithServerFormat:path]);
+    fields.push_back(FieldPath::FromServerFormat(path));
   }
   return [[FSTFieldMask alloc] initWithFields:std::move(fields)];
 }
@@ -583,7 +583,7 @@ NS_ASSUME_NONNULL_BEGIN
         @"Unknown transform setToServerValue: %d", proto.setToServerValue);
     [fieldTransforms
         addObject:[[FSTFieldTransform alloc]
-                      initWithPath:FieldPath::WithServerFormat(proto.fieldPath)
+                      initWithPath:FieldPath::FromServerFormat(proto.fieldPath)
                          transform:[FSTServerTimestampTransform serverTimestampTransform]]];
   }
   return fieldTransforms;
@@ -670,14 +670,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query {
   // Dissect the path into parent, collectionId, and optional key filter.
   GCFSTarget_QueryTarget *queryTarget = [GCFSTarget_QueryTarget message];
-  if (query.path.length == 0) {
+  if (query.path.size() == 0) {
     queryTarget.parent = [self encodedQueryPath:query.path];
   } else {
-    FSTResourcePath *path = query.path;
-    FSTAssert(path.length % 2 != 0, @"Document queries with filters are not supported.");
-    queryTarget.parent = [self encodedQueryPath:[path pathByRemovingLastSegment]];
+    const ResourcePath &path = query.path;
+    FSTAssert(path.size() % 2 != 0, @"Document queries with filters are not supported.");
+    queryTarget.parent = [self encodedQueryPath:path.PopLast()];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
-    from.collectionId = path.lastSegment;
+    from.collectionId = util::WrapNSString(path.last_segment());
     [queryTarget.structuredQuery.fromArray addObject:from];
   }
 
@@ -708,7 +708,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target {
-  FSTResourcePath *path = [self decodedQueryPath:target.parent];
+  const ResourcePath path = [self decodedQueryPath:target.parent];
 
   GCFSStructuredQuery *query = target.structuredQuery;
   NSUInteger fromCount = query.fromArray_Count;
@@ -717,7 +717,7 @@ NS_ASSUME_NONNULL_BEGIN
               @"StructuredQuery.from with more than one collection is not supported.");
 
     GCFSStructuredQuery_CollectionSelector *from = query.fromArray[0];
-    path = [path pathByAppendingSegment:from.collectionId];
+    path = path.Append(util::MakeStringView(from.collectionId));
   }
 
   NSArray<id<FSTFilter>> *filterBy;
@@ -825,7 +825,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTRelationFilter *)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
-  FieldPath fieldPath = FieldPath::WithServerFormat(proto.field.fieldPath);
+  FieldPath fieldPath = FieldPath::FromServerFormat(proto.field.fieldPath);
   FSTRelationFilterOperator filterOperator = [self decodedRelationFilterOperator:proto.op];
   FSTFieldValue *value = [self decodedFieldValue:proto.value];
   return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
@@ -845,7 +845,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FSTFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
-  FieldPath field = FieldPath::WithServerFormat(proto.field.fieldPath);
+  FieldPath field = FieldPath::FromServerFormat(proto.field.fieldPath);
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
       return [[FSTNanFilter alloc] initWithField:field];
@@ -860,7 +860,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSStructuredQuery_FieldReference *)encodedFieldPath:(const FieldPath &)fieldPath {
   GCFSStructuredQuery_FieldReference *ref = [GCFSStructuredQuery_FieldReference message];
-  ref.fieldPath = fieldPath.CanonicalString();
+  ref.fieldPath = util::WrapNSString(fieldPath.CanonicalString());
   return ref;
 }
 
@@ -930,7 +930,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSortOrder *)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
-  FieldPath fieldPath = FieldPath::WithServerFormat(proto.field.fieldPath);
+  FieldPath fieldPath = FieldPath::FromServerFormat(proto.field.fieldPath);
   BOOL ascending;
   switch (proto.direction) {
     case GCFSStructuredQuery_Direction_Ascending:

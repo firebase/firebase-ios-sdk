@@ -27,6 +27,10 @@
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+using firebase::firestore::model::ResourcePath;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalDocumentsView ()
@@ -81,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(FSTResourcePath *)docPath {
+- (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
   FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
   // Just do a simple document lookup.
   FSTMaybeDocument *doc = [self documentForKey:[FSTDocumentKey keyWithPath:docPath]];
