@@ -63,60 +63,27 @@ class SerializerTest : public ::testing::Test {
   Serializer serializer;
 
   void ExpectRoundTrip(const FieldValue& model,
-                       const Serializer::TypedValue& proto,
+                       const std::vector<uint8_t>& bytes,
                        FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
-    EXPECT_EQ(type, proto.type);
-    Serializer::TypedValue actual_proto = serializer.EncodeFieldValue(model);
-    EXPECT_EQ(type, actual_proto.type);
-    EXPECT_EQ(proto, actual_proto);
-    EXPECT_EQ(model, serializer.DecodeFieldValue(proto));
-  }
-
-  void ExpectRoundTrip(const Serializer::TypedValue& proto,
-                       std::vector<uint8_t> bytes,
-                       FieldValue::Type type) {
-    EXPECT_EQ(type, proto.type);
     std::vector<uint8_t> actual_bytes;
-    Serializer::EncodeTypedValue(proto, &actual_bytes);
+    serializer.EncodeFieldValue(model, &actual_bytes);
     EXPECT_EQ(bytes, actual_bytes);
-    Serializer::TypedValue actual_proto = Serializer::DecodeTypedValue(bytes);
-    EXPECT_EQ(type, actual_proto.type);
-    EXPECT_EQ(proto, actual_proto);
+    FieldValue actual_model = serializer.DecodeFieldValue(bytes);
+    EXPECT_EQ(type, actual_model.type());
+    EXPECT_EQ(model, actual_model);
   }
 };
 
-TEST_F(SerializerTest, EncodesNullModelToProto) {
+TEST_F(SerializerTest, EncodesNullModelToBytes) {
   FieldValue model = FieldValue::NullValue();
-  Serializer::TypedValue proto{FieldValue::Type::Null,
-                               google_firestore_v1beta1_Value_init_default};
-  // sanity check (the _init_default above should set this to _NULL_VALUE)
-  EXPECT_EQ(google_protobuf_NullValue_NULL_VALUE, proto.value.null_value);
-  ExpectRoundTrip(model, proto, FieldValue::Type::Null);
-}
-
-TEST_F(SerializerTest, EncodesNullProtoToBytes) {
-  Serializer::TypedValue proto{FieldValue::Type::Null,
-                               google_firestore_v1beta1_Value_init_default};
-  // sanity check (the _init_default above should set this to _NULL_VALUE)
-  EXPECT_EQ(google_protobuf_NullValue_NULL_VALUE, proto.value.null_value);
 
   // TEXT_FORMAT_PROTO: 'null_value: NULL_VALUE'
   std::vector<uint8_t> bytes{0x58, 0x00};
-  ExpectRoundTrip(proto, bytes, FieldValue::Type::Null);
+  ExpectRoundTrip(model, bytes, FieldValue::Type::Null);
 }
 
-TEST_F(SerializerTest, EncodesBoolModelToProto) {
-  for (bool test : {true, false}) {
-    FieldValue model = FieldValue::BooleanValue(test);
-    Serializer::TypedValue proto{FieldValue::Type::Boolean,
-                                 google_firestore_v1beta1_Value_init_default};
-    proto.value.boolean_value = test;
-    ExpectRoundTrip(model, proto, FieldValue::Type::Boolean);
-  }
-}
-
-TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
+TEST_F(SerializerTest, EncodesBoolModelToBytes) {
   struct TestCase {
     bool value;
     std::vector<uint8_t> bytes;
@@ -128,31 +95,12 @@ TEST_F(SerializerTest, EncodesBoolProtoToBytes) {
                               {false, {0x08, 0x00}}};
 
   for (const TestCase& test : cases) {
-    Serializer::TypedValue proto{FieldValue::Type::Boolean,
-                                 google_firestore_v1beta1_Value_init_default};
-    proto.value.boolean_value = test.value;
-    ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Boolean);
+    FieldValue model = FieldValue::BooleanValue(test.value);
+    ExpectRoundTrip(model, test.bytes, FieldValue::Type::Boolean);
   }
 }
 
-TEST_F(SerializerTest, EncodesIntegersModelToProto) {
-  std::vector<int64_t> testCases{0,
-                                 1,
-                                 -1,
-                                 100,
-                                 -100,
-                                 std::numeric_limits<int64_t>::min(),
-                                 std::numeric_limits<int64_t>::max()};
-  for (int64_t test : testCases) {
-    FieldValue model = FieldValue::IntegerValue(test);
-    Serializer::TypedValue proto{FieldValue::Type::Integer,
-                                 google_firestore_v1beta1_Value_init_default};
-    proto.value.integer_value = test;
-    ExpectRoundTrip(model, proto, FieldValue::Type::Integer);
-  }
-}
-
-TEST_F(SerializerTest, EncodesIntegersProtoToBytes) {
+TEST_F(SerializerTest, EncodesIntegersModelToBytes) {
   // NB: because we're calculating the bytes via protoc (instead of
   // libprotobuf) we have to look at values from numeric_limits<T> ahead of
   // time. So these test cases make the following assumptions about
@@ -198,10 +146,8 @@ TEST_F(SerializerTest, EncodesIntegersProtoToBytes) {
                {0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f}}};
 
   for (const TestCase& test : cases) {
-    Serializer::TypedValue proto{FieldValue::Type::Integer,
-                                 google_firestore_v1beta1_Value_init_default};
-    proto.value.integer_value = test.value;
-    ExpectRoundTrip(proto, test.bytes, FieldValue::Type::Integer);
+    FieldValue model = FieldValue::IntegerValue(test.value);
+    ExpectRoundTrip(model, test.bytes, FieldValue::Type::Integer);
   }
 }
 
