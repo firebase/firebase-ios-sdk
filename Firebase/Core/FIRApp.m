@@ -229,6 +229,8 @@ static NSMutableDictionary *sLibraryVersions;
   sDefaultApp = nil;
   [sAllApps removeAllObjects];
   sAllApps = nil;
+  [sLibraryVersions removeAllObjects];
+  sLibraryVersions = nil;
 }
 
 - (void)deleteApp:(FIRAppVoidBoolCallback)completion {
@@ -426,8 +428,8 @@ static NSMutableDictionary *sLibraryVersions;
   NSMutableArray<NSString *> *libraries =
       [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
   for (NSString *libraryName in sLibraryVersions) {
-    [libraries addObject:
-        [NSString stringWithFormat:@"%@/%@", libraryName, sLibraryVersions[libraryName]]];
+    [libraries
+        addObject:[NSString stringWithFormat:@"%@/%@", libraryName, sLibraryVersions[libraryName]]];
   }
   [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
   return [libraries componentsJoinedByString:@" "];
