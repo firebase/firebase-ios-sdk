@@ -19,7 +19,7 @@ import FirebaseFirestore
 /**
  * A protocol describing the encodable properties of a FirebaseFirestore.
  *
- * Note: this protocol exists as a workaround for the Swift compiler: if the FirebaseFirestore class was
+ * Note: this protocol exists as a workaround for the Swift compiler: if the FieldValue class was
  * extended directly to conform to Codable, the methods implementing the protcol would be need to be
  * marked required but that can't be done in an extension. Declaring the extension on the protocol
  * sidesteps this issue.
