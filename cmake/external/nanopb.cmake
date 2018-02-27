@@ -24,7 +24,7 @@ ExternalProject_Add(
 
   DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
   URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.8.tar.gz
-  URL_HASH MD5=c1dcfe49ced36227167dca0f6bcad703
+  URL_HASH SHA256=f192c7c7cc036be36babc303b7d2315d4f62e2fe4be28c172cfed4cfa0ed5f22
 
   BUILD_IN_SOURCE ON
 
