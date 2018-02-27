@@ -131,12 +131,7 @@ void Serializer::EncodeFieldValue(const FieldValue& field_value,
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      if (field_value == FieldValue::TrueValue()) {
-        EncodeBool(&stream, true);
-      } else {
-        FIREBASE_DEV_ASSERT(field_value == FieldValue::FalseValue());
-        EncodeBool(&stream, false);
-      }
+      EncodeBool(&stream, field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
