@@ -142,8 +142,8 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * @param version Version of the library
  */
 // clang-format off
-+ (void)registerLibrary:(nonnull NSString *)library
-            withVersion:(nonnull NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
++ (void)registerLibrary:(NSString *)library
+            withVersion:(NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
 // clang-format on
 
 /**
