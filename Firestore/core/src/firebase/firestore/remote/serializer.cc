@@ -127,7 +127,7 @@ std::string DecodeString(pb_istream_t* stream) {
 
   // NB: future versions of nanopb read the remaining characters out of the
   // substream (and return false if that fails) as an additional safety
-  // check within pb_clost_string_substream. Unfortunately, that's not present
+  // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
   if (substream.bytes_left != 0) {

@@ -167,13 +167,12 @@ TEST_F(SerializerTest, EncodesStringModelToBytes) {
       // TEXT_FORMAT_PROTO: 'string_value: "æ"'
       {"æ", {0x8a, 0x01, 0x02, 0xc3, 0xa6}},
       // TEXT_FORMAT_PROTO: 'string_value: "\0\ud7ff\ue000\uffff"'
-      // Some magic: Due to the unicode escapes (\u) and
-      // the lack of u"" prefix, this gets narrowed to a
-      // multibyte string. This is the same as
-      // "\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf". The
-      // size of 10 must be added, or else std::string
-      // will see the \0 at the start and assume that's
-      // the end of the string.
+      // Note: Each one of the three embedded universal character names
+      // (\u-escaped) maps to three chars, so the total length of the string
+      // literal is 10 (ignoring the terminating null), and the resulting string
+      // literal is the same as '\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf'". The
+      // size of 10 must be added, or else std::string will see the \0 at the
+      // start and assume that's the end of the string.
       {{"\0\ud7ff\ue000\uffff", 10},
        {0x8a, 0x01, 0x0a, 0x00, 0xed, 0x9f, 0xbf, 0xee, 0x80, 0x80, 0xef, 0xbf,
         0xbf}},
