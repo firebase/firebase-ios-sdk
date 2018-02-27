@@ -424,23 +424,6 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         return currentIndex >= count!
     }
     
-    private func expectNotAtEnd() throws {
-        guard !isAtEnd else {
-            throw DecodingError.valueNotFound(Any?.self, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
-        }
-    }
-    
-    private mutating func require<T>(value: T?) throws -> T {
-        guard let value = value else {
-            let message = "Expected \(T.self) value but found null instead."
-            let context = DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: message)
-            throw DecodingError.valueNotFound(T.self, context)
-        }
-        
-        currentIndex += 1
-        return value
-    }
-    
     public mutating func decodeNil() throws -> Bool {
         try expectNotAtEnd()
         
@@ -606,18 +589,10 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(KeyedDecodingContainer<NestedKey>.self,
-                                              DecodingError.Context(codingPath: self.codingPath,
-                                                                    debugDescription: "Cannot get nested keyed container -- unkeyed container is at end."))
-        }
+        try expectNotAtEnd()
         
         let value = self.container[self.currentIndex]
-        guard !(value is NSNull) else {
-            throw DecodingError.valueNotFound(KeyedDecodingContainer<NestedKey>.self,
-                                              DecodingError.Context(codingPath: self.codingPath,
-                                                                    debugDescription: "Cannot get keyed decoding container -- found null value instead."))
-        }
+        try requireNotNSNull(value)
         
         guard let dictionary = value as? [String : Any] else {
             throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self, reality: value)
@@ -632,18 +607,10 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(UnkeyedDecodingContainer.self,
-                                              DecodingError.Context(codingPath: self.codingPath,
-                                                                    debugDescription: "Cannot get nested unkeyed container -- unkeyed container is at end."))
-        }
+        try expectNotAtEnd()
         
         let value = self.container[self.currentIndex]
-        guard !(value is NSNull) else {
-            throw DecodingError.valueNotFound(UnkeyedDecodingContainer.self,
-                                              DecodingError.Context(codingPath: self.codingPath,
-                                                                    debugDescription: "Cannot get keyed decoding container -- found null value instead."))
-        }
+        try requireNotNSNull(value)
         
         guard let array = value as? [Any] else {
             throw DecodingError._typeMismatch(at: self.codingPath, expectation: [Any].self, reality: value)
@@ -657,14 +624,38 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard !self.isAtEnd else {
-            throw DecodingError.valueNotFound(Decoder.self, DecodingError.Context(codingPath: self.codingPath,
-                                                                                  debugDescription: "Cannot get superDecoder() -- unkeyed container is at end."))
-        }
+        try expectNotAtEnd()
         
         let value = self.container[self.currentIndex]
         self.currentIndex += 1
         return _FirestoreDecoder(referencing: value, at: decoder.codingPath)
+    }
+    
+    private func expectNotAtEnd() throws {
+        guard !isAtEnd else {
+            throw DecodingError.valueNotFound(Any?.self, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Unkeyed container is at end."))
+        }
+    }
+    
+    private func requireNotNSNull(_ value: Any) throws {
+        if !(value is NSNull) {
+            return
+        }
+        
+        let description = "Cannot get keyed decoding container -- found null value instead."
+        let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: description)
+        throw DecodingError.valueNotFound(UnkeyedDecodingContainer.self, context)
+    }
+    
+    private mutating func require<T>(value: T?) throws -> T {
+        guard let value = value else {
+            let message = "Expected \(T.self) value but found null instead."
+            let context = DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: message)
+            throw DecodingError.valueNotFound(T.self, context)
+        }
+        
+        currentIndex += 1
+        return value
     }
 }
 
