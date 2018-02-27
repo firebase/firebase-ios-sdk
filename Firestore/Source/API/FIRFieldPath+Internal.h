@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFieldPath ()
 
+/** Internal field path representation */
+- (const firebase::firestore::model::FieldPath &)internalValue;
+
 - (instancetype)initPrivate:(firebase::firestore::model::FieldPath)path NS_DESIGNATED_INITIALIZER;
 
 @end

@@ -44,10 +44,12 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -383,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block FSTObjectValue *result = [FSTObjectValue objectValue];
   [fields enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, GCFSValue *_Nonnull obj,
                                               BOOL *_Nonnull stop) {
-    FSTFieldPath *path = [FSTFieldPath pathWithSegments:@[ key ]];
+    FieldPath path{util::MakeStringView(key)};
     FSTFieldValue *value = [self decodedFieldValue:obj];
     result = [result objectBySettingValue:value forPath:path];
   }];
@@ -544,19 +546,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSDocumentMask *)encodedFieldMask:(FSTFieldMask *)fieldMask {
   GCFSDocumentMask *mask = [GCFSDocumentMask message];
-  for (FSTFieldPath *field in fieldMask.fields) {
-    [mask.fieldPathsArray addObject:field.canonicalString];
+  for (const FieldPath &field : fieldMask.fields) {
+    [mask.fieldPathsArray addObject:field.CanonicalString()];
   }
   return mask;
 }
 
 - (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  NSMutableArray<FSTFieldPath *> *fields =
-      [NSMutableArray arrayWithCapacity:fieldMask.fieldPathsArray_Count];
+  std::vector<FieldPath> fields(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
-    [fields addObject:[FSTFieldPath pathWithServerFormat:path]];
+    fields.push_back([FieldPath pathWithServerFormat:path]);
   }
-  return [[FSTFieldMask alloc] initWithFields:fields];
+  return [[FSTFieldMask alloc] initWithFields:std::move(fields)];
 }
 
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
@@ -582,7 +583,7 @@ NS_ASSUME_NONNULL_BEGIN
         @"Unknown transform setToServerValue: %d", proto.setToServerValue);
     [fieldTransforms
         addObject:[[FSTFieldTransform alloc]
-                      initWithPath:[FSTFieldPath pathWithServerFormat:proto.fieldPath]
+                      initWithPath:FieldPath::WithServerFormat(proto.fieldPath)
                          transform:[FSTServerTimestampTransform serverTimestampTransform]]];
   }
   return fieldTransforms;
@@ -824,7 +825,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTRelationFilter *)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
-  FSTFieldPath *fieldPath = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
+  FieldPath fieldPath = FieldPath::WithServerFormat(proto.field.fieldPath);
   FSTRelationFilterOperator filterOperator = [self decodedRelationFilterOperator:proto.op];
   FSTFieldValue *value = [self decodedFieldValue:proto.value];
   return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
@@ -844,7 +845,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FSTFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
-  FSTFieldPath *field = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
+  FieldPath field = FieldPath::WithServerFormat(proto.field.fieldPath);
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
       return [[FSTNanFilter alloc] initWithField:field];
@@ -857,9 +858,9 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (GCFSStructuredQuery_FieldReference *)encodedFieldPath:(FSTFieldPath *)fieldPath {
+- (GCFSStructuredQuery_FieldReference *)encodedFieldPath:(const FieldPath &)fieldPath {
   GCFSStructuredQuery_FieldReference *ref = [GCFSStructuredQuery_FieldReference message];
-  ref.fieldPath = fieldPath.canonicalString;
+  ref.fieldPath = fieldPath.CanonicalString();
   return ref;
 }
 
@@ -929,7 +930,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSortOrder *)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
-  FSTFieldPath *fieldPath = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
+  FieldPath fieldPath = FieldPath::WithServerFormat(proto.field.fieldPath);
   BOOL ascending;
   switch (proto.direction) {
     case GCFSStructuredQuery_Direction_Ascending:

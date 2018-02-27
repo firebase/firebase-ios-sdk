@@ -113,6 +113,10 @@ NS_ASSUME_NONNULL_BEGIN
   return _internalValue.Hash();
 }
 
+- (const firebase::firestore::model::FieldPath &)internalValue {
+  return _internalValue;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

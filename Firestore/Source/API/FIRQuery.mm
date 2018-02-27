@@ -37,6 +37,12 @@
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::FieldPath;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRQueryListenOptions ()
@@ -443,10 +449,10 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 }
 
 - (FIRQuery *)queryWithFilterOperator:(FSTRelationFilterOperator)filterOperator
-                                 path:(FSTFieldPath *)fieldPath
+                                 path:(const FieldPath &)fieldPath
                                 value:(id)value {
   FSTFieldValue *fieldValue;
-  if ([fieldPath isKeyFieldPath]) {
+  if (fieldPath.IsKeyFieldPath()) {
     if ([value isKindOfClass:[NSString class]]) {
       NSString *documentKey = (NSString *)value;
       if ([documentKey containsString:@"/"]) {
@@ -501,35 +507,35 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 
 - (void)validateNewRelationFilter:(FSTRelationFilter *)filter {
   if ([filter isInequality]) {
-    FSTFieldPath *existingField = [self.query inequalityFilterField];
-    if (existingField && ![existingField isEqual:filter.field]) {
+    FieldPath *existingField = [self.query inequalityFilterField];
+    if (existingField && *existingField != filter.field]) {
       FSTThrowInvalidUsage(
           @"InvalidQueryException",
           @"Invalid Query. All where filters with an inequality "
            "(lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the same "
            "field. But you have inequality filters on '%@' and '%@'",
-          existingField, filter.field);
+          existingField->CanonicalString(), filter.field->CanonicalString);
     }
 
-    FSTFieldPath *firstOrderByField = [self.query firstSortOrderField];
+    FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
       [self validateOrderByField:firstOrderByField matchesInequalityField:filter.field];
     }
   }
 }
 
-- (void)validateNewOrderByPath:(FSTFieldPath *)fieldPath {
+- (void)validateNewOrderByPath:(const FieldPath &)fieldPath {
   if (![self.query firstSortOrderField]) {
     // This is the first order by. It must match any inequality.
-    FSTFieldPath *inequalityField = [self.query inequalityFilterField];
+    FieldPath *inequalityField = [self.query inequalityFilterField];
     if (inequalityField) {
-      [self validateOrderByField:fieldPath matchesInequalityField:inequalityField];
+      [self validateOrderByField:fieldPath matchesInequalityField:*inequalityField];
     }
   }
 }
 
-- (void)validateOrderByField:(FSTFieldPath *)orderByField
-      matchesInequalityField:(FSTFieldPath *)inequalityField {
+- (void)validateOrderByField:(const FieldPath &)orderByField
+      matchesInequalityField:(const FieldPath &)inequalityField {
   if (!([orderByField isEqual:inequalityField])) {
     FSTThrowInvalidUsage(
         @"InvalidQueryException",
@@ -564,7 +570,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   // continues/ends exactly at the provided document. Without the key (by using the explicit sort
   // orders), multiple documents could match the position, yielding duplicate results.
   for (FSTSortOrder *sortOrder in self.query.sortOrders) {
-    if ([sortOrder.field isEqual:[FSTFieldPath keyFieldPath]]) {
+    if (sortOrder.field == FieldPath::KeyFieldPath()) {
       [components addObject:[FSTReferenceValue referenceValue:document.key
                                                    databaseID:self.firestore.databaseID]];
     } else {
@@ -596,7 +602,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   NSMutableArray<FSTFieldValue *> *components = [NSMutableArray array];
   [fieldValues enumerateObjectsUsingBlock:^(id rawValue, NSUInteger idx, BOOL *stop) {
     FSTSortOrder *sortOrder = explicitSortOrders[idx];
-    if ([sortOrder.field isEqual:[FSTFieldPath keyFieldPath]]) {
+    if (sortOrder.field == FieldPath::KeyFieldPath()) {
       if (![rawValue isKindOfClass:[NSString class]]) {
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. Expected a string for the document ID.");

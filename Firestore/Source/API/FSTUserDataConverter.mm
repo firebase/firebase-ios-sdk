@@ -16,6 +16,10 @@
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 #import "FIRTimestamp.h"
 
 #import "FIRGeoPoint.h"
@@ -31,10 +35,12 @@
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -124,10 +130,12 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 /**
  * A "context" object passed around while parsing user data.
  */
-@interface FSTParseContext : NSObject
-/** The current path being parsed. */
-// TODO(b/34871131): path should never be nil, but we don't support array paths right now.
-@property(nonatomic, strong, readonly, nullable) FSTFieldPath *path;
+@interface FSTParseContext : NSObject {
+  /** The current path being parsed. */
+  // TODO(b/34871131): path should never be nullptr, but we don't support array paths right now.
+  std::unique_ptr<FieldPath> _path;
+  std::vector<FieldPath> _fieldMask;
+}
 
 /** Whether or not this context corresponds to an element of an array. */
 @property(nonatomic, assign, readonly, getter=isArrayElement) BOOL arrayElement;
@@ -138,7 +146,6 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
  */
 @property(nonatomic, assign) FSTUserDataSource dataSource;
 @property(nonatomic, strong, readonly) NSMutableArray<FSTFieldTransform *> *fieldTransforms;
-@property(nonatomic, strong, readonly) NSMutableArray<FSTFieldPath *> *fieldMask;
 
 - (instancetype)init NS_UNAVAILABLE;
 /**
@@ -149,20 +156,19 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
  *   the context represents the root of the data being parsed), or a nonempty path (indicating the
  *   context represents a nested location within the data).
  *
- * TODO(b/34871131): We don't support array paths right now, so path can be nil to indicate
+ * TODO(b/34871131): We don't support array paths right now, so path can be nullptr to indicate
  * the context represents any location within an array (in which case certain features will not work
  * and errors will be somewhat compromised).
  */
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
-                          path:(nullable FSTFieldPath *)path
+                          path:(std::unique_ptr<FieldPath>)path
                   arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
-                     fieldMask:(NSMutableArray<FSTFieldPath *> *)fieldMask
-    NS_DESIGNATED_INITIALIZER;
+                     fieldMask:(std::vector<FieldPath>)fieldMask NS_DESIGNATED_INITIALIZER;
 
 // Helpers to get a FSTParseContext for a child field.
 - (instancetype)contextForField:(NSString *)fieldName;
-- (instancetype)contextForFieldPath:(FSTFieldPath *)fieldPath;
+- (instancetype)contextForFieldPath:(const FieldPath &)fieldPath;
 - (instancetype)contextForArrayIndex:(NSUInteger)index;
 
 /** Returns true for the non-query parse contexts (Set, MergeSet and Update) */
@@ -171,27 +177,28 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 @implementation FSTParseContext
 
-+ (instancetype)contextWithSource:(FSTUserDataSource)dataSource path:(nullable FSTFieldPath *)path {
++ (instancetype)contextWithSource:(FSTUserDataSource)dataSource
+                             path:(std::unique_ptr<FieldPath>)path {
   FSTParseContext *context = [[FSTParseContext alloc] initWithSource:dataSource
-                                                                path:path
+                                                                path:std::move(path)
                                                         arrayElement:NO
                                                      fieldTransforms:[NSMutableArray array]
-                                                           fieldMask:[NSMutableArray array]];
+                                                           fieldMask:std::vector<FieldPath>{}];
   [context validatePath];
   return context;
 }
 
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
-                          path:(nullable FSTFieldPath *)path
+                          path:(std::unique_ptr<FieldPath>)path
                   arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
-                     fieldMask:(NSMutableArray<FSTFieldPath *> *)fieldMask {
+                     fieldMask:(std::vector<FieldPath>)fieldMask {
   if (self = [super init]) {
     _dataSource = dataSource;
-    _path = path;
+    _path = std::move(path);
     _arrayElement = arrayElement;
     _fieldTransforms = fieldTransforms;
-    _fieldMask = fieldMask;
+    _fieldMask = std::move(fieldMask);
   }
   return self;
 }
@@ -207,13 +214,12 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   return context;
 }
 
-- (instancetype)contextForFieldPath:(FSTFieldPath *)fieldPath {
-  FSTParseContext *context =
-      [[FSTParseContext alloc] initWithSource:self.dataSource
-                                         path:[self.path pathByAppendingPath:fieldPath]
-                                 arrayElement:NO
-                              fieldTransforms:self.fieldTransforms
-                                    fieldMask:self.fieldMask];
+- (instancetype)contextForFieldPath:(const FieldPath &)fieldPath {
+  FSTParseContext *context = [[FSTParseContext alloc] initWithSource:self.dataSource
+                                                                path:_path.Append(fieldPath)
+                                                        arrayElement:NO
+                                                     fieldTransforms:self.fieldTransforms
+                                                           fieldMask:_fieldMask];
   [context validatePath];
   return context;
 }
@@ -315,13 +321,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   }
 
   FSTParseContext *context =
-      [FSTParseContext contextWithSource:FSTUserDataSourceMergeSet path:[FSTFieldPath emptyPath]];
+      [FSTParseContext contextWithSource:FSTUserDataSourceMergeSet path:FieldPath::EmptyPath()];
   FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  return
-      [[FSTParsedSetData alloc] initWithData:updateData
-                                   fieldMask:[[FSTFieldMask alloc] initWithFields:context.fieldMask]
-                             fieldTransforms:context.fieldTransforms];
+  return [[FSTParsedSetData alloc]
+         initWithData:updateData
+            fieldMask:[[FSTFieldMask alloc] initWithFields:context._fieldMask]
+      fieldTransforms:context.fieldTransforms];
 }
 
 - (FSTParsedSetData *)parsedSetData:(id)input {
@@ -332,7 +338,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   }
 
   FSTParseContext *context =
-      [FSTParseContext contextWithSource:FSTUserDataSourceSet path:[FSTFieldPath emptyPath]];
+      [FSTParseContext contextWithSource:FSTUserDataSourceSet path:FieldPath::EmptyPath()];
   FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
   return [[FSTParsedSetData alloc] initWithData:updateData
@@ -349,16 +355,16 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   NSDictionary *dict = input;
 
-  NSMutableArray<FSTFieldPath *> *fieldMaskPaths = [NSMutableArray array];
+  std::vector<FieldPath> fieldMaskPaths{};
   __block FSTObjectValue *updateData = [FSTObjectValue objectValue];
 
   FSTParseContext *context =
-      [FSTParseContext contextWithSource:FSTUserDataSourceUpdate path:[FSTFieldPath emptyPath]];
+      [FSTParseContext contextWithSource:FSTUserDataSourceUpdate path:FieldPath::EmptyPath()];
   [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-    FSTFieldPath *path;
+    FieldPath path{};
 
     if ([key isKindOfClass:[NSString class]]) {
-      path = [FIRFieldPath pathWithDotSeparatedString:key].internalValue;
+      path = FieldPath::FromServerFormat(key);
     } else if ([key isKindOfClass:[FIRFieldPath class]]) {
       path = ((FIRFieldPath *)key).internalValue;
     } else {
@@ -388,7 +394,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (FSTFieldValue *)parsedQueryValue:(id)input {
   FSTParseContext *context =
-      [FSTParseContext contextWithSource:FSTUserDataSourceQueryValue path:[FSTFieldPath emptyPath]];
+      [FSTParseContext contextWithSource:FSTUserDataSourceQueryValue path:FieldPath::EmptyPath()];
   FSTFieldValue *_Nullable parsed = [self parseData:input context:context];
   FSTAssert(parsed, @"Parsed data should not be nil.");
   FSTAssert(context.fieldTransforms.count == 0, @"Field transforms should have been disallowed.");
