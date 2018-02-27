@@ -159,7 +159,17 @@ FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
 
-firebase::firestore::model::FieldPath FSTTestFieldPath(const absl::string_view field);
+#if __cplusplus
+}  // extern "C"
+#endif
+
+inline firebase::firestore::model::FieldPath FSTTestFieldPath(const absl::string_view field) {
+  return firebase::firestore::model::FieldPath::FromServerFormat(field);
+}
+
+#if __cplusplus
+extern "C" {
+#endif
 
 /** Wraps a plain value into an FSTFieldValue instance. */
 FSTFieldValue *FSTTestFieldValue(id _Nullable value);
@@ -188,8 +198,16 @@ FSTDocument *FSTTestDoc(NSString *path,
 /** A convenience method for creating deleted docs for tests. */
 FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version);
 
+#if __cplusplus
+}  // extern "C"
+#endif
+
 /** A convenience method for creating resource paths from a path string. */
 firebase::firestore::model::ResourcePath FSTTestPath(const absl::string_view path);
+
+#if __cplusplus
+extern "C" {
+#endif
 
 /**
  * A convenience method for creating a document reference from a path string.

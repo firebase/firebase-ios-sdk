@@ -104,10 +104,6 @@ NSDateComponents *FSTTestDateComponents(
   return comps;
 }
 
-FieldPath FSTTestFieldPath(const absl::string_view field) {
-  return FieldPath::FromServerFormat(field);
-}
-
 FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static DatabaseId database_id{"project", DatabaseId::kDefault};
@@ -219,7 +215,7 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
 }
 
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
-  const FieldPath &path = FSTTestFieldPath(field);
+  const FieldPath path = FSTTestFieldPath(field);
   BOOL ascending;
   if ([direction isEqualToString:@"asc"]) {
     ascending = YES;
@@ -258,7 +254,7 @@ FSTPatchMutation *FSTTestPatchMutation(NSString *path,
   BOOL merge = !updateMask.empty();
 
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  std::vector<const FieldPath> fieldMaskPaths{};
+  __block std::vector<FieldPath> fieldMaskPaths{};
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     const FieldPath path = FSTTestFieldPath(util::MakeStringView(key));
     fieldMaskPaths.push_back(path);
@@ -268,7 +264,7 @@ FSTPatchMutation *FSTTestPatchMutation(NSString *path,
     }
   }];
 
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:FSTTestPath(path)];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:FSTTestPath([path UTF8String])];
   FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:merge ? updateMask : fieldMaskPaths];
   return [[FSTPatchMutation alloc] initWithKey:key
                                      fieldMask:mask
@@ -279,7 +275,7 @@ FSTPatchMutation *FSTTestPatchMutation(NSString *path,
 // For now this only creates TransformMutations with server timestamps.
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:FSTTestPath(path)];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:FSTTestPath([path UTF8String])];
   NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
   for (NSString *field in serverTimestampFields) {
     const FieldPath fieldPath = FSTTestFieldPath(util::MakeStringView(field));

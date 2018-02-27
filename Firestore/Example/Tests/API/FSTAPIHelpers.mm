@@ -68,11 +68,11 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                           fromCache:fromCache];
 }
 
-FIRCollectionReference *FSTTestCollectionRef(NSString *path) {
+FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
   return [FIRCollectionReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
 }
 
-FIRDocumentReference *FSTTestDocRef(NSString *path) {
+FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
   return [FIRDocumentReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
 }
 
@@ -111,7 +111,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             hasPendingWrites:hasPendingWrites
                             syncStateChanged:YES];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
-                                   originalQuery:FSTTestQuery(path)
+                                   originalQuery:FSTTestQuery([path UTF8String])
                                         snapshot:viewSnapshot
                                         metadata:metadata];
 }

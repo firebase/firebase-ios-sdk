@@ -385,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block FSTObjectValue *result = [FSTObjectValue objectValue];
   [fields enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, GCFSValue *_Nonnull obj,
                                               BOOL *_Nonnull stop) {
-    FieldPath path{util::MakeStringView(key)};
+    FieldPath path{[key UTF8String]};
     FSTFieldValue *value = [self decodedFieldValue:obj];
     result = [result objectBySettingValue:value forPath:path];
   }];
@@ -547,7 +547,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSDocumentMask *)encodedFieldMask:(FSTFieldMask *)fieldMask {
   GCFSDocumentMask *mask = [GCFSDocumentMask message];
   for (const FieldPath &field : fieldMask.fields) {
-    [mask.fieldPathsArray addObject:field.CanonicalString()];
+    [mask.fieldPathsArray addObject:util::WrapNSString(field.CanonicalString())];
   }
   return mask;
 }
@@ -555,7 +555,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
   std::vector<FieldPath> fields(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
-    fields.push_back(FieldPath::FromServerFormat(path));
+    fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));
   }
   return [[FSTFieldMask alloc] initWithFields:std::move(fields)];
 }
@@ -567,7 +567,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTAssert([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]],
               @"Unknown transform: %@", fieldTransform.transform);
     GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
-    proto.fieldPath = fieldTransform.path.canonicalString;
+    proto.fieldPath = util::WrapNSString(fieldTransform.path.CanonicalString());
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
     [protos addObject:proto];
   }
@@ -583,7 +583,8 @@ NS_ASSUME_NONNULL_BEGIN
         @"Unknown transform setToServerValue: %d", proto.setToServerValue);
     [fieldTransforms
         addObject:[[FSTFieldTransform alloc]
-                      initWithPath:FieldPath::FromServerFormat(proto.fieldPath)
+                      initWithPath:FieldPath::FromServerFormat(
+                                       util::MakeStringView(proto.fieldPath))
                          transform:[FSTServerTimestampTransform serverTimestampTransform]]];
   }
   return fieldTransforms;
@@ -708,7 +709,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target {
-  const ResourcePath path = [self decodedQueryPath:target.parent];
+  ResourcePath path = [self decodedQueryPath:target.parent];
 
   GCFSStructuredQuery *query = target.structuredQuery;
   NSUInteger fromCount = query.fromArray_Count;
@@ -717,7 +718,7 @@ NS_ASSUME_NONNULL_BEGIN
               @"StructuredQuery.from with more than one collection is not supported.");
 
     GCFSStructuredQuery_CollectionSelector *from = query.fromArray[0];
-    path = path.Append(util::MakeStringView(from.collectionId));
+    path = path.Append([from.collectionId UTF8String]);
   }
 
   NSArray<id<FSTFilter>> *filterBy;
@@ -825,7 +826,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTRelationFilter *)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
-  FieldPath fieldPath = FieldPath::FromServerFormat(proto.field.fieldPath);
+  FieldPath fieldPath = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
   FSTRelationFilterOperator filterOperator = [self decodedRelationFilterOperator:proto.op];
   FSTFieldValue *value = [self decodedFieldValue:proto.value];
   return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
@@ -845,7 +846,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FSTFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
-  FieldPath field = FieldPath::FromServerFormat(proto.field.fieldPath);
+  FieldPath field = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
       return [[FSTNanFilter alloc] initWithField:field];
@@ -930,7 +931,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSortOrder *)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
-  FieldPath fieldPath = FieldPath::FromServerFormat(proto.field.fieldPath);
+  FieldPath fieldPath = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
   BOOL ascending;
   switch (proto.direction) {
     case GCFSStructuredQuery_Direction_Ascending:

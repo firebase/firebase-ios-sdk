@@ -775,7 +775,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     return self.path == documentPath;
   } else {
     // Shallow ancestor queries by default.
-    return [self.path isPrefixOfPath:documentPath] && _path.size() == documentPath.length - 1;
+    return self.path.IsPrefixOf(documentPath) && _path.size() == documentPath.size() - 1;
   }
 }
 

@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)documentID {
-  return [self.internalKey.path lastSegment];
+  return util::WrapNSString(self.internalKey.path.last_segment());
 }
 
 - (FIRSnapshotMetadata *)metadata {

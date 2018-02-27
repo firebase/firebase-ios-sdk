@@ -36,16 +36,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testComparison {
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithSegments:@[ @"a", @"b", @"c", @"d" ]];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithSegments:@[ @"a", @"b", @"c", @"d" ]];
-  FSTDocumentKey *key3 = [FSTDocumentKey keyWithSegments:@[ @"x", @"y", @"z", @"w" ]];
+  FSTDocumentKey *key1 = [FSTDocumentKey keyWithSegments:{"a", "b", "c", "d"}];
+  FSTDocumentKey *key2 = [FSTDocumentKey keyWithSegments:{"a", "b", "c", "d"}];
+  FSTDocumentKey *key3 = [FSTDocumentKey keyWithSegments:{"x", "y", "z", "w"}];
   XCTAssertTrue([key1 isEqualToKey:key2]);
   XCTAssertFalse([key1 isEqualToKey:key3]);
 
-  FSTDocumentKey *empty = [FSTDocumentKey keyWithSegments:@[]];
-  FSTDocumentKey *a = [FSTDocumentKey keyWithSegments:@[ @"a", @"a" ]];
-  FSTDocumentKey *b = [FSTDocumentKey keyWithSegments:@[ @"b", @"b" ]];
-  FSTDocumentKey *ab = [FSTDocumentKey keyWithSegments:@[ @"a", @"a", @"b", @"b" ]];
+  FSTDocumentKey *empty = [FSTDocumentKey keyWithSegments:{}];
+  FSTDocumentKey *a = [FSTDocumentKey keyWithSegments:{"a", "a"}];
+  FSTDocumentKey *b = [FSTDocumentKey keyWithSegments:{"b", "b"}];
+  FSTDocumentKey *ab = [FSTDocumentKey keyWithSegments:{"a", "a", "b", "b"}];
 
   XCTAssertEqual(NSOrderedAscending, [empty compare:a]);
   XCTAssertEqual(NSOrderedAscending, [a compare:b]);

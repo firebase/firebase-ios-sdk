@@ -52,7 +52,7 @@
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
   FSTMutation *patch =
-      FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, nil);
+      FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
@@ -65,7 +65,7 @@
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
   FSTDocumentKey *key = FSTTestDocKey(@"collection/key");
-  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:@[ FSTTestFieldPath(@"foo.bar") ]];
+  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:{FSTTestFieldPath("foo.bar")}];
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:mask
                                                        value:[FSTObjectValue objectValue]
@@ -82,7 +82,7 @@
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
   FSTMutation *patch =
-      FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, nil);
+      FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
@@ -92,7 +92,7 @@
 
 - (void)testPatchingDeletedDocumentsDoesNothing {
   FSTMaybeDocument *baseDoc = FSTTestDeletedDoc(@"collection/key", 0);
-  FSTMutation *patch = FSTTestPatchMutation(@"collection/key", @{@"foo" : @"bar"}, nil);
+  FSTMutation *patch = FSTTestPatchMutation(@"collection/key", @{@"foo" : @"bar"}, {});
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
   XCTAssertEqualObjects(patchedDoc, baseDoc);
@@ -114,7 +114,7 @@
       [expectedData objectBySettingValue:[FSTServerTimestampValue
                                              serverTimestampValueWithLocalWriteTime:_timestamp
                                                                       previousValue:nil]
-                                 forPath:FSTTestFieldPath(@"foo.bar")];
+                                 forPath:FSTTestFieldPath("foo.bar")];
 
   FSTDocument *expectedDoc = [FSTDocument documentWithData:expectedData
                                                        key:FSTTestDocKey(@"collection/key")
@@ -175,7 +175,7 @@
   NSDictionary *docData = @{@"foo" : @"bar"};
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
-  FSTMutation *patch = FSTTestPatchMutation(@"collection/key", @{@"foo" : @"new-bar"}, nil);
+  FSTMutation *patch = FSTTestPatchMutation(@"collection/key", @{@"foo" : @"new-bar"}, {});
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(4) transformResults:nil];
   FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc
@@ -209,7 +209,7 @@
   FSTDeletedDocument *deletedV3 = FSTTestDeletedDoc(@"collection/key", 3);
 
   FSTMutation *setMutation = FSTTestSetMutation(@"collection/key", @{});
-  FSTMutation *patchMutation = FSTTestPatchMutation(@"collection/key", @{}, nil);
+  FSTMutation *patchMutation = FSTTestPatchMutation(@"collection/key", @{}, {});
   FSTMutation *deleteMutation = FSTTestDeleteMutation(@"collection/key");
 
   ASSERT_VERSION_TRANSITION(setMutation, docV3, docV3);

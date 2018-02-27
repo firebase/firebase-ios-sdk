@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{ @"a" : @"b", @"num" : @1 });
   FSTMutation *patch = [[FSTPatchMutation alloc]
        initWithKey:FSTTestDocKey(@"bar/baz")
-         fieldMask:[[FSTFieldMask alloc] initWithFields:@[ FSTTestFieldPath(@"a") ]]
+         fieldMask:[[FSTFieldMask alloc] initWithFields:{FSTTestFieldPath("a")}]
              value:FSTTestObjectValue(
                        @{ @"a" : @"b",
                           @"num" : @1 })

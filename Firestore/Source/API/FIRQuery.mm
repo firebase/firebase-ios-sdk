@@ -467,7 +467,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
             @"Invalid query. When querying by document ID you must provide "
              "a valid document ID, but it was an empty string.");
       }
-      const ResourcePath path = self.query.path.Append(util::MakeStringView(documentKey));
+      const ResourcePath path = self.query.path.Append([documentKey UTF8String]);
       fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithPath:path]
                                           databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {
@@ -509,19 +509,20 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 
 - (void)validateNewRelationFilter:(FSTRelationFilter *)filter {
   if ([filter isInequality]) {
-    FieldPath *existingField = [self.query inequalityFilterField];
-    if (existingField && *existingField != filter.field]) {
+    const FieldPath *existingField = [self.query inequalityFilterField];
+    if (existingField && *existingField != filter.field) {
       FSTThrowInvalidUsage(
           @"InvalidQueryException",
           @"Invalid Query. All where filters with an inequality "
            "(lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the same "
            "field. But you have inequality filters on '%@' and '%@'",
-          existingField->CanonicalString(), filter.field->CanonicalString);
+          util::WrapNSStringNoCopy(existingField->CanonicalString()),
+          util::WrapNSStringNoCopy(filter.field.CanonicalString()));
     }
 
-    FieldPath *firstOrderByField = [self.query firstSortOrderField];
+    const FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
-      [self validateOrderByField:firstOrderByField matchesInequalityField:filter.field];
+      [self validateOrderByField:*firstOrderByField matchesInequalityField:filter.field];
     }
   }
 }
@@ -529,7 +530,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 - (void)validateNewOrderByPath:(const FieldPath &)fieldPath {
   if (![self.query firstSortOrderField]) {
     // This is the first order by. It must match any inequality.
-    FieldPath *inequalityField = [self.query inequalityFilterField];
+    const FieldPath *inequalityField = [self.query inequalityFilterField];
     if (inequalityField) {
       [self validateOrderByField:fieldPath matchesInequalityField:*inequalityField];
     }
@@ -538,14 +539,16 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 
 - (void)validateOrderByField:(const FieldPath &)orderByField
       matchesInequalityField:(const FieldPath &)inequalityField {
-  if (!([orderByField isEqual:inequalityField])) {
+  if (orderByField != inequalityField) {
     FSTThrowInvalidUsage(
         @"InvalidQueryException",
         @"Invalid query. You have a where filter with an "
          "inequality (lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) on field '%@' "
          "and so you must also use '%@' as your first queryOrderedBy field, but your first "
          "queryOrderedBy is currently on field '%@' instead.",
-        inequalityField, inequalityField, orderByField);
+        util::WrapNSStringNoCopy(inequalityField.CanonicalString()),
+        util::WrapNSStringNoCopy(inequalityField.CanonicalString()),
+        util::WrapNSStringNoCopy(orderByField.CanonicalString()));
   }
 }
 
@@ -584,7 +587,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                              @"Invalid query. You are trying to start or end a query using a "
                               "document for which the field '%@' (used as the order by) "
                               "does not exist.",
-                             sortOrder.field.canonicalString);
+                             util::WrapNSStringNoCopy(sortOrder.field.CanonicalString()));
       }
     }
   }
@@ -615,7 +618,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                              @"Invalid query. Document ID '%@' contains a slash.", documentID);
       }
       FSTDocumentKey *key =
-          [FSTDocumentKey keyWithPath:[self.query.path pathByAppendingSegment:documentID]];
+          [FSTDocumentKey keyWithPath:self.query.path.Append([documentID UTF8String])];
       [components
           addObject:[FSTReferenceValue referenceValue:key databaseID:self.firestore.databaseID]];
     } else {

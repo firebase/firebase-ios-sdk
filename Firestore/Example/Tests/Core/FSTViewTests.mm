@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter =
-      [FSTRelationFilter filterWithField:FSTTestFieldPath(@"sort")
+      [FSTRelationFilter filterWithField:FSTTestFieldPath("sort")
                           filterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                    value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter =
-      [FSTRelationFilter filterWithField:FSTTestFieldPath(@"sort")
+      [FSTRelationFilter filterWithField:FSTTestFieldPath("sort")
                           filterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                    value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
@@ -234,9 +234,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDoesntReportChangesForDocumentBeyondLimitOfQuery {
   FSTQuery *query = [self queryForMessages];
-  query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"num")
-                                                               ascending:YES]];
+  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath("num")
+                                                                   ascending:YES]];
   query = [query queryBySettingLimit:2];
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
 
@@ -387,7 +386,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReturnsNeedsRefillOnReorderInLimitQuery {
   FSTQuery *query = [self queryForMessages];
   query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"order")
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:2];
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/0", 0, @{ @"order" : @1 }, NO);
@@ -421,7 +420,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDoesntNeedRefillOnReorderWithinLimit {
   FSTQuery *query = [self queryForMessages];
   query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"order")
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/0", 0, @{ @"order" : @1 }, NO);
@@ -451,7 +450,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDoesntNeedRefillOnReorderAfterLimitQuery {
   FSTQuery *query = [self queryForMessages];
   query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"order")
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/0", 0, @{ @"order" : @1 }, NO);

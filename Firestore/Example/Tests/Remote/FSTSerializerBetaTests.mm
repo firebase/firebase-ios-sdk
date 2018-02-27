@@ -339,7 +339,7 @@ NS_ASSUME_NONNULL_BEGIN
                            @{ @"a" : @"b",
                               @"num" : @1,
                               @"some.de\\\\ep.th\\ing'" : @2 },
-                           nil);
+                           {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.updateMask = [self.serializer encodedFieldMask:mutation.fieldMask];
@@ -580,7 +580,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrders {
   FSTQuery *q = [FSTTestQuery("docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath("prop")
                                                         ascending:YES]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
@@ -600,7 +600,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrdersDescending {
   FSTQuery *q = [FSTTestQuery("rooms/1/messages/10/attachments")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath("prop")
                                                         ascending:NO]];
   FSTQueryData *model = [self queryDataForQuery:q];
 

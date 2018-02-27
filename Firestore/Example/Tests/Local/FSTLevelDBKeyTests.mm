@@ -35,7 +35,8 @@ static std::string RemoteDocKey(NSString *pathString) {
 }
 
 static std::string RemoteDocKeyPrefix(NSString *pathString) {
-  return [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:FSTTestPath(pathString)];
+  return
+      [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:FSTTestPath([pathString UTF8String])];
 }
 
 static std::string DocMutationKey(NSString *userID, NSString *key, FSTBatchID batchID) {
@@ -197,7 +198,7 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
                                   @"[document_mutation: userID=user1 incomplete key]");
 
   auto key = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:@"user1"
-                                                   resourcePath:FSTTestPath(@"foo/bar")];
+                                                   resourcePath:FSTTestPath("foo/bar")];
   FSTAssertExpectedKeyDescription(key,
                                   @"[document_mutation: userID=user1 key=foo/bar incomplete key]");
 

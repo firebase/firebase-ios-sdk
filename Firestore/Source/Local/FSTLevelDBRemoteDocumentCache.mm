@@ -111,7 +111,7 @@ static ReadOptions StandardReadOptions() {
   for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
     FSTMaybeDocument *maybeDoc =
         [self decodedMaybeDocument:it->value() withKey:currentKey.documentKey];
-    if (![query.path isPrefixOfPath:maybeDoc.key.path]) {
+    if (!query.path.IsPrefixOf(maybeDoc.key.path)) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];

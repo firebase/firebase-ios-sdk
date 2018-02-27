@@ -54,9 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc =
       [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
 
-  XCTAssertEqualObjects([doc fieldForPath:FSTTestFieldPath(@"desc")],
+  XCTAssertEqualObjects([doc fieldForPath:FSTTestFieldPath("desc")],
                         [FSTStringValue stringValue:@"Discuss all the project related stuff"]);
-  XCTAssertEqualObjects([doc fieldForPath:FSTTestFieldPath(@"owner.title")],
+  XCTAssertEqualObjects([doc fieldForPath:FSTTestFieldPath("owner.title")],
                         [FSTStringValue stringValue:@"scallywag"]);
 }
 

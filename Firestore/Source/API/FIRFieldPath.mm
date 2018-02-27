@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
   firebase::firestore::model::FieldPath _internalValue;
 }
 
+@end
+
 @implementation FIRFieldPath
 
 - (instancetype)initWithFields:(NSArray<NSString *> *)fieldNames {
@@ -106,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
     return NO;
   }
 
-  return [_internalValue isEqual:((FIRFieldPath *)object)._internalValue];
+  return _internalValue == ((FIRFieldPath *)object)->_internalValue;
 }
 
 - (NSUInteger)hash {

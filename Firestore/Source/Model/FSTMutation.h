@@ -52,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFields:(std::vector<firebase::firestore::model::FieldPath>)fields
     NS_DESIGNATED_INITIALIZER;
 
+- (const std::vector<firebase::firestore::model::FieldPath> &)fields;
 @end
 
 #pragma mark - FSTFieldTransform
@@ -70,6 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithPath:(firebase::firestore::model::FieldPath)path
                    transform:(id<FSTTransformOperation>)transform NS_DESIGNATED_INITIALIZER;
+- (const firebase::firestore::model::FieldPath &)path;
 @property(nonatomic, strong, readonly) id<FSTTransformOperation> transform;
 @end
 

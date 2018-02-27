@@ -107,11 +107,11 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (nullable FSTQuery *)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return FSTTestQuery(querySpec);
+    return FSTTestQuery([(NSString *)querySpec UTF8String]);
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = FSTTestQuery(path);
+    __block FSTQuery *query = FSTTestQuery([path UTF8String]);
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -175,7 +175,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doPatch:(NSArray *)patchSpec {
-  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0], patchSpec[1], nil)];
+  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0], patchSpec[1], {})];
 }
 
 - (void)doDelete:(NSString *)key {

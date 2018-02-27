@@ -130,9 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *)documentWithAutoID {
-  NSString *autoID = [NSString stringWithUTF8String:CreateAutoId().c_str()];
-  FSTDocumentKey *key =
-      [FSTDocumentKey keyWithPath:[self.query.path pathByAppendingSegment:autoID]];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:self.query.path.Append(CreateAutoId())];
   return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
 }
 

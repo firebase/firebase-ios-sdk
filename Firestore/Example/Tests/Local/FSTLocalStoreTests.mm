@@ -341,7 +341,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testHandlesPatchWithoutPriorDocument {
   if ([self isTestBaseClass]) return;
 
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertNotContains(@"foo/bar");
 
@@ -353,7 +353,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testHandlesPatchMutationThenDocumentThenAck {
   if ([self isTestBaseClass]) return;
 
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertNotContains(@"foo/bar");
 
@@ -370,7 +370,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testHandlesPatchMutationThenAckThenDocument {
   if ([self isTestBaseClass]) return;
 
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertNotContains(@"foo/bar");
 
@@ -455,7 +455,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, YES) ]);
   FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, YES));
 
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
   FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
@@ -478,7 +478,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self writeMutations:@[
     FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"}),
-    FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)
+    FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})
   ]];
 
   FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
@@ -492,7 +492,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self acknowledgeMutationWithVersion:1];
   FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO));
 
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self rejectMutation];
@@ -506,7 +506,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self writeMutations:@[
     FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"}),
     FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"}),
-    FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)
+    FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})
   ]];
 
   FSTAssertChanged((@[
@@ -524,7 +524,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
 
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
 
@@ -576,7 +576,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO),
                                                   @[ @1 ], @[])];
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
   [self collectGarbage];
@@ -608,7 +608,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO),
                                                   @[ @1 ], @[])];
-  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, nil)];
+  [self writeMutation:FSTTestPatchMutation(@"foo/bar", @{@"foo" : @"bar"}, {})];
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
   [self collectGarbage];

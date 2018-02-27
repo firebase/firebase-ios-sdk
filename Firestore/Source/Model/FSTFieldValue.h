@@ -243,20 +243,20 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
-- (nullable FSTFieldValue *)valueForPath:(const firebase::firestore::mode::FieldPath &)fieldPath;
+- (nullable FSTFieldValue *)valueForPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has its value set to the given value.
  * This object remains unmodified.
  */
 - (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value
-                                 forPath:(const firebase::firestore::mode::FieldPath &)fieldPath;
+                                 forPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has been removed. If any segment of the
  * path does not exist within this object's structure, no change is performed.
  */
-- (FSTObjectValue *)objectByDeletingPath:(const firebase::firestore::mode::FieldPath &)fieldPath;
+- (FSTObjectValue *)objectByDeletingPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 @end
 
 /**

@@ -23,6 +23,9 @@
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -392,7 +395,8 @@ NSString *InvalidKey(const Slice &key) {
       if (!ReadDocumentKey(&tmp, &documentKey)) {
         break;
       }
-      [description appendFormat:@" key=%@", [documentKey.path description]];
+      [description
+          appendFormat:@" key=%@", util::WrapNSStringNoCopy(documentKey.path.CanonicalString())];
 
     } else if (label == FSTComponentLabelTableName) {
       std::string table;
