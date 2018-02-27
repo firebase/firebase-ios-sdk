@@ -59,7 +59,7 @@
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
-		61CC13FA2007D0C90021F5BF /* FIRGetOptionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 61CC13F82007D0C20021F5BF /* FIRGetOptionsTests.m */; };
+		61287373203C92C5000EAD3F /* FIRSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 61287372203C92C5000EAD3F /* FIRSourceTests.m */; };
 		61E1D8B11FCF6C5700753285 /* StringViewTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */; };
 		6ED54761B845349D43DB6B78 /* Pods_Firestore_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75A6FE51C1A02DF38F62FAAD /* Pods_Firestore_Example.framework */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
@@ -236,7 +236,7 @@
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		61CC13F82007D0C20021F5BF /* FIRGetOptionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetOptionsTests.m; sourceTree = "<group>"; };
+		61287372203C92C5000EAD3F /* FIRSourceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRSourceTests.m; sourceTree = "<group>"; };
 		61E1D8AF1FCF6AF500753285 /* StringViewTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringViewTests.mm; sourceTree = "<group>"; };
 		69F6A10DBD6187489481CD76 /* Pods_Firestore_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -725,7 +725,7 @@
 		DE51B1BC1F0D48AC0013853F /* API */ = {
 			isa = PBXGroup;
 			children = (
-				61CC13F82007D0C20021F5BF /* FIRGetOptionsTests.m */,
+				61287372203C92C5000EAD3F /* FIRSourceTests.m */,
 				DE51B1BD1F0D48AC0013853F /* FIRCursorTests.m */,
 				DE51B1BE1F0D48AC0013853F /* FIRDatabaseTests.m */,
 				DE51B1BF1F0D48AC0013853F /* FIRFieldsTests.m */,
@@ -1274,6 +1274,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61287373203C92C5000EAD3F /* FIRSourceTests.m in Sources */,
 				DE03B2EE1F214BAA00A30B9C /* FIRWriteBatchTests.m in Sources */,
 				DE03B2F01F214BAA00A30B9C /* FIRDatabaseTests.m in Sources */,
 				5491BC731FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
@@ -1284,7 +1285,6 @@
 				54E928251F33953400C1953E /* FSTEventAccumulator.m in Sources */,
 				DE03B2ED1F214BA200A30B9C /* FSTSmokeTests.m in Sources */,
 				DE03B2F31F214BAA00A30B9C /* FIRQueryTests.m in Sources */,
-				61CC13FA2007D0C90021F5BF /* FIRGetOptionsTests.m in Sources */,
 				DE03B35E1F21586C00A30B9C /* FSTHelpers.m in Sources */,
 				DE03B2F51F214BAA00A30B9C /* FIRTypeTests.m in Sources */,
 				DE03B2EF1F214BAA00A30B9C /* FIRCursorTests.m in Sources */,

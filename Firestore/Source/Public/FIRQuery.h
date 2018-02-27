@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRGetSource.h"
 #import "FIRListenerRegistration.h"
 
 @class FIRFieldPath;
 @class FIRFirestore;
-@class FIRGetOptions;
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
 
@@ -85,15 +85,29 @@ NS_SWIFT_NAME(Query)
 /**
  * Reads the documents matching this query.
  *
+ * This method attempts to provide up-to-date data when possible by waiting for
+ * data from the server, but it may return cached data or fail if you are
+ * offline and the server cannot be reached. See the
+ * `getDocuments(source:completion:)` method to change this behavior.
+ *
  * @param completion a block to execute once the documents have been successfully read.
  *     documentSet will be `nil` only if error is `non-nil`.
  */
 - (void)getDocumentsWithCompletion:(FIRQuerySnapshotBlock)completion
     NS_SWIFT_NAME(getDocuments(completion:));
 
+/**
+ * Reads the documents matching this query.
+ *
+ * @param source indicates whether the results should be fetched from the cache
+ *     only (`Source.cache`), the server only (`Source.server`), or to attempt
+ *     the server and fall back to the cache (`Source.default`).
+ * @param completion a block to execute once the documents have been successfully read.
+ *     documentSet will be `nil` only if error is `non-nil`.
+ */
 // clang-format off
-- (void)getDocumentsWithOptions:(FIRGetOptions *)options completion:(FIRQuerySnapshotBlock)completion
-    NS_SWIFT_NAME(getDocuments(options:completion:));
+- (void)getDocumentsWithSource:(FIRGetSource)source completion:(FIRQuerySnapshotBlock)completion
+    NS_SWIFT_NAME(getDocuments(source:completion:));
 // clang-format on
 
 /**

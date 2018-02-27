@@ -271,17 +271,15 @@ NS_ASSUME_NONNULL_BEGIN
                                                   fromCache:YES],
                  nil);
     } else {
-      completion(
-          nil,
-          [NSError errorWithDomain:FIRFirestoreErrorDomain
-                              code:FIRFirestoreErrorCodeUnavailable
-                          userInfo:@{
-                            NSLocalizedDescriptionKey :
-                                @"Failed to get document from cache. (However, this "
-                                @"document may exist on the server. Run again without "
-                                @"setting FIRGetSourceCache in the FIRGetOptions to attempt to "
-                                @"retrieve the document from the server.)",
-                          }]);
+      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                          code:FIRFirestoreErrorCodeUnavailable
+                                      userInfo:@{
+                                        NSLocalizedDescriptionKey :
+                                            @"Failed to get document from cache. (However, this "
+                                            @"document may exist on the server. Run again without "
+                                            @"setting source to FIRGetSourceCache to attempt to "
+                                            @"retrieve the document from the server.)",
+                                      }]);
     }
   }];
 }
