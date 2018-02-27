@@ -669,8 +669,7 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         }
         
         guard let dictionary = value as? [String : Any] else {
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Not a dictionary")
-            throw DecodingError.typeMismatch([String : Any].self, context)
+            throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self, reality: value)
         }
         
         self.currentIndex += 1
@@ -696,8 +695,7 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         }
         
         guard let array = value as? [Any] else {
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Not an array")
-            throw DecodingError.typeMismatch([String : Any].self, context)
+            throw DecodingError._typeMismatch(at: self.codingPath, expectation: [Any].self, reality: value)
         }
         
         self.currentIndex += 1
