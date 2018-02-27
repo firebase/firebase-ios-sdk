@@ -141,9 +141,10 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * @param library Name of the library
  * @param version Version of the library
  */
+// clang-format off
 + (void)registerLibrary:(nonnull NSString *)library
-            withVersion:(nonnull NSString *)version NS_SWIFT_NAME(registerLibrary(_:version
-:));
+            withVersion:(nonnull NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
+// clang-format on
 
 /**
  * A concatenated string representing all the third-party libraries and version numbers.
