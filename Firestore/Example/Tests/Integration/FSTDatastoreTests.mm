@@ -23,7 +23,6 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -41,11 +40,13 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -141,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDatastoreTests {
   FSTDispatchQueue *_testWorkerQueue;
   FSTLocalStore *_localStore;
-  id<FSTCredentialsProvider> _credentials;
+  EmptyCredentialsProvider _credentials;
 
   DatabaseInfo _databaseInfo;
   FSTDatastore *_datastore;
@@ -170,11 +171,9 @@ NS_ASSUME_NONNULL_BEGIN
       queueWith:dispatch_queue_create("com.google.firestore.FSTDatastoreTestsWorkerQueue",
                                       DISPATCH_QUEUE_SERIAL)];
 
-  _credentials = [[FSTEmptyCredentialsProvider alloc] init];
-
   _datastore = [FSTDatastore datastoreWithDatabase:&_databaseInfo
                                workerDispatchQueue:_testWorkerQueue
-                                       credentials:_credentials];
+                                       credentials:&_credentials];
 
   _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:_datastore];
 

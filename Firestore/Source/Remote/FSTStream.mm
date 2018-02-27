@@ -21,7 +21,6 @@
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTBufferedWriter.h"
@@ -38,9 +37,11 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
@@ -103,12 +104,12 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
  */
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @end
@@ -126,7 +127,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 // Does not own this DatabaseInfo.
 @property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
-@property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentials;
+@property(nonatomic, assign, readonly) CredentialsProvider *credentials;
 @property(nonatomic, unsafe_unretained, readonly) Class responseMessageClass;
 @property(nonatomic, strong, readonly) FSTExponentialBackoff *backoff;
 
@@ -213,7 +214,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                connectionTimerID:(FSTTimerID)connectionTimerID
                      idleTimerID:(FSTTimerID)idleTimerID
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
             responseMessageClass:(Class)responseMessageClass {
   if (self = [super init]) {
     _databaseInfo = database;
@@ -263,13 +264,14 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTAssert(_delegate == nil, @"Delegate must be nil");
   _delegate = delegate;
 
-  [self.credentials getTokenForcingRefresh:NO
-                                completion:^(Token result, NSError *_Nullable error) {
-                                  error = [FSTDatastore firestoreErrorForError:error];
-                                  [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-                                    [self resumeStartWithToken:result error:error];
-                                  }];
-                                }];
+  _credentials->GetToken(
+      /*force_refresh=*/false,
+      [self](Token result, const int64_t error_code, const absl::string_view error_msg) {
+        NSError *error = util::WrapNSError(error_code, error_msg);
+        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+          [self resumeStartWithToken:result error:error];
+        }];
+      });
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
@@ -614,7 +616,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue
@@ -699,7 +701,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:database
              workerDispatchQueue:workerDispatchQueue

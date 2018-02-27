@@ -37,10 +37,16 @@
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
+using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,7 +89,9 @@ NS_ASSUME_NONNULL_BEGIN
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
 
+  DatabaseInfo _databaseInfo;
   User _currentUser;
+  EmptyCredentialsProvider _credentialProvider;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
@@ -106,13 +114,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     _events = [NSMutableArray array];
 
+    _databaseInfo = {DatabaseId{"project", "database"}, "persistence", "host", false};
+
     // Set up the sync engine and various stores.
     dispatch_queue_t mainQueue = dispatch_get_main_queue();
     FSTDispatchQueue *dispatchQueue = [FSTDispatchQueue queueWith:mainQueue];
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
                                             garbageCollector:garbageCollector
                                                  initialUser:initialUser];
-    _datastore = [FSTMockDatastore mockDatastoreWithWorkerDispatchQueue:dispatchQueue];
+    _datastore = [[FSTMockDatastore alloc] initWithDatabaseInfo:&_databaseInfo
+                                            workerDispatchQueue:dispatchQueue
+                                                    credentials:&_credentialProvider];
 
     _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:_datastore];
 

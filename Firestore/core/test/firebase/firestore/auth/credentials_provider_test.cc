@@ -25,10 +25,11 @@ namespace auth {
 #define UNUSED(x) (void)(x)
 
 TEST(CredentialsProvider, Typedef) {
-  TokenListener token_listener = [](Token token,
-                                    const absl::string_view error) {
+  TokenListener token_listener = [](Token token, const int64_t error_code,
+                                    const absl::string_view error_msg) {
     UNUSED(token);
-    UNUSED(error);
+    UNUSED(error_code);
+    UNUSED(error_msg);
   };
   EXPECT_NE(nullptr, token_listener);
   EXPECT_TRUE(token_listener);
