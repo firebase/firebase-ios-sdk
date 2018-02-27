@@ -111,6 +111,11 @@ class FieldValue {
     return string_value_;
   }
 
+  const std::map<const std::string, const FieldValue> object_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Object);
+    return object_value_;
+  }
+
   /** factory methods. */
   static const FieldValue& NullValue();
   static const FieldValue& TrueValue();

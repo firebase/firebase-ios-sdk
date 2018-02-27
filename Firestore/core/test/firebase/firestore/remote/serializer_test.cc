@@ -191,6 +191,13 @@ TEST_F(SerializerTest, EncodesStringModelToBytes) {
   }
 }
 
+TEST_F(SerializerTest, EncodesEmptyMapToBytes) {
+  FieldValue model = FieldValue::ObjectValue({});
+  // TEXT_FORMAT_PROTO: 'map_value: {}'
+  std::vector<uint8_t> bytes{0x32, 0x00};
+  ExpectRoundTrip(model, bytes, FieldValue::Type::Object);
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
 

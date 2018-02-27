@@ -19,11 +19,14 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 
+#include <map>
 #include <string>
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+using firebase::firestore::model::FieldValue;
 
 namespace {
 
@@ -141,9 +144,36 @@ std::string DecodeString(pb_istream_t* stream) {
   return result;
 }
 
-}  // namespace
+void EncodeObject(
+    pb_ostream_t* stream,
+    const std::map<const std::string, const FieldValue>& object_value
+    __attribute__((unused))) {
+  google_firestore_v1beta1_MapValue mapValue =
+      google_firestore_v1beta1_MapValue_init_zero;
+  bool status = pb_encode_delimited(
+      stream, google_firestore_v1beta1_MapValue_fields, &mapValue);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+}
 
-using firebase::firestore::model::FieldValue;
+std::map<const std::string, const FieldValue> DecodeObject(
+    pb_istream_t* stream) {
+  google_firestore_v1beta1_MapValue mapValue =
+      google_firestore_v1beta1_MapValue_init_zero;
+  bool status = pb_decode_delimited(
+      stream, google_firestore_v1beta1_MapValue_fields, &mapValue);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  std::map<const std::string, const FieldValue> result;
+  return result;
+}
+
+}  // namespace
 
 void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
@@ -197,6 +227,17 @@ void Serializer::EncodeFieldValue(const FieldValue& field_value,
       EncodeString(&stream, field_value.string_value());
       break;
 
+    case FieldValue::Type::Object:
+      // NB: submessages use a wiretype of PB_WT_STRING
+      status = pb_encode_tag(&stream, PB_WT_STRING,
+                             google_firestore_v1beta1_Value_map_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
+      EncodeObject(&stream, field_value.object_value());
+      break;
+
     default:
       // TODO(rsgowman): implement the other types
       abort();
@@ -228,6 +269,7 @@ FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
       break;
 
     case google_firestore_v1beta1_Value_string_value_tag:
+    case google_firestore_v1beta1_Value_map_value_tag:
       if (wire_type != PB_WT_STRING) {
         abort();
       }
@@ -247,6 +289,8 @@ FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
       return FieldValue::IntegerValue(DecodeInteger(&stream));
     case google_firestore_v1beta1_Value_string_value_tag:
       return FieldValue::StringValue(DecodeString(&stream));
+    case google_firestore_v1beta1_Value_map_value_tag:
+      return FieldValue::ObjectValue(DecodeObject(&stream));
 
     default:
       // TODO(rsgowman): figure out error handling
