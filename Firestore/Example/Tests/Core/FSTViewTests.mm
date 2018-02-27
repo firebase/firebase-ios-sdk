@@ -29,6 +29,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+using firebase::firestore::model::ResourcePath;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTViewTests : XCTestCase
@@ -38,8 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Returns a new empty query to use for testing. */
 - (FSTQuery *)queryForMessages {
-  return [FSTQuery
-      queryWithPath:[FSTResourcePath pathWithSegments:@[ @"rooms", @"eros", @"messages" ]]];
+  return [FSTQuery queryWithPath:ResourcePath{"rooms", "eros", "messages"}];
 }
 
 - (void)testAddsDocumentsBasedOnQuery {

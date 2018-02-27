@@ -26,10 +26,12 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -118,10 +120,14 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   return self.filterOperator != FSTRelationFilterOperatorEqual;
 }
 
+- (const firebase::firestore::model::FieldPath &)field {
+  return _field;
+}
+
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"%@ %@ %@", [self.field canonicalString],
+  return [NSString stringWithFormat:@"%@ %@ %@", util::WrapNSStringNoCopy(_field.CanonicalString()),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
                                     self.value];
 }
@@ -217,7 +223,12 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%@ IS NULL", [self.field canonicalString]];
+  return
+      [NSString stringWithFormat:@"%@ IS NULL", util::WrapNSStringNoCopy(_field.CanonicalString())];
+}
+
+- (const firebase::firestore::model::FieldPath &)field {
+  return _field;
 }
 
 - (NSString *)description {
@@ -228,11 +239,11 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
 
-  return [self.field isEqual:((FSTNullFilter *)other).field];
+  return _field == ((FSTNullFilter *)other)->_field;
 }
 
 - (NSUInteger)hash {
-  return [self.field hash];
+  return _field.Hash();
 }
 
 @end
@@ -259,7 +270,12 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%@ IS NaN", [self.field canonicalString]];
+  return
+      [NSString stringWithFormat:@"%@ IS NaN", util::WrapNSStringNoCopy(_field.CanonicalString())];
+}
+
+- (const firebase::firestore::model::FieldPath &)field {
+  return _field;
 }
 
 - (NSString *)description {
@@ -270,11 +286,11 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
 
-  return [self.field isEqual:((FSTNanFilter *)other).field];
+  return _field == ((FSTNanFilter *)other)->_field;
 }
 
 - (NSUInteger)hash {
-  return [self.field hash];
+  return _field.Hash();
 }
 @end
 
@@ -309,6 +325,10 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   return self;
 }
 
+- (const firebase::firestore::model::FieldPath &)field {
+  return _field;
+}
+
 #pragma mark - Public methods
 
 - (NSComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2 {
@@ -329,18 +349,19 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (NSString *)canonicalID {
-  return [NSString
-      stringWithFormat:@"%@%@", self.field.canonicalString, self.isAscending ? @"asc" : @"desc"];
+  return [NSString stringWithFormat:@"%@%@", util::WrapNSStringNoCopy(_field.CanonicalString()),
+                                    self.isAscending ? @"asc" : @"desc"];
 }
 
 - (BOOL)isEqualToSortOrder:(FSTSortOrder *)other {
-  return [self.field isEqual:other.field] && self.isAscending == other.isAscending;
+  return _field == other->_field && self.isAscending == other.isAscending;
 }
 
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSortOrder: path:%@ dir:%@>", self.field,
+  return [NSString stringWithFormat:@"<FSTSortOrder: path:%@ dir:%@>",
+                                    util::WrapNSStringNoCopy(_field.CanonicalString()),
                                     self.ascending ? @"asc" : @"desc"];
 }
 
@@ -462,6 +483,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 @interface FSTQuery () {
   // Cached value of the canonicalID property.
   NSString *_canonicalID;
+  /** The base path of the query. */
+  ResourcePath _path;
 }
 
 /**
@@ -472,7 +495,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
  * @param sortOrders The fields and directions to sort the results.
  * @param limit If not NSNotFound, only this many results will be returned.
  */
-- (instancetype)initWithPath:(FSTResourcePath *)path
+- (instancetype)initWithPath:(ResourcePath)path
                     filterBy:(NSArray<id<FSTFilter>> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(NSInteger)limit
@@ -491,8 +514,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 #pragma mark - Constructors
 
-+ (instancetype)queryWithPath:(FSTResourcePath *)path {
-  return [[FSTQuery alloc] initWithPath:path
++ (instancetype)queryWithPath:(ResourcePath)path {
+  return [[FSTQuery alloc] initWithPath:std::move(path)
                                filterBy:@[]
                                 orderBy:@[]
                                   limit:NSNotFound
@@ -500,14 +523,14 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
                                   endAt:nil];
 }
 
-- (instancetype)initWithPath:(FSTResourcePath *)path
+- (instancetype)initWithPath:(ResourcePath)path
                     filterBy:(NSArray<id<FSTFilter>> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(NSInteger)limit
                      startAt:(nullable FSTBound *)startAtBound
                        endAt:(nullable FSTBound *)endAtBound {
   if (self = [super init]) {
-    _path = path;
+    _path = std::move(path);
     _filters = filters;
     _explicitSortOrders = sortOrders;
     _limit = limit;
@@ -556,7 +579,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
             @[ [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath() ascending:YES] ];
       } else {
         self.memoizedSortOrders = @[
-          [FSTSortOrder sortOrderWithFieldPath:inequalityField ascending:YES],
+          [FSTSortOrder sortOrderWithFieldPath:*inequalityField ascending:YES],
           [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath() ascending:YES]
         ];
       }
@@ -592,17 +615,17 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingFilter:(id<FSTFilter>)filter {
-  FSTAssert(![FSTDocumentKey isDocumentKey:self.path], @"No filtering allowed for document query");
+  FSTAssert(![FSTDocumentKey isDocumentKey:_path], @"No filtering allowed for document query");
 
-  FieldPath *newInequalityField == nullptr;
+  const FieldPath *newInequalityField = nullptr;
   if ([filter isKindOfClass:[FSTRelationFilter class]] &&
       [((FSTRelationFilter *)filter)isInequality]) {
-    newInequalityField = filter.field;
+    newInequalityField = &filter.field;
   }
-  FieldPath *queryInequalityField = [self inequalityFilterField];
-  FSTAssert(!queryInequalityField || !newInequalityField ||
-                [queryInequalityField isEqual:newInequalityField],
-            @"Query must only have one inequality field.");
+  const FieldPath *queryInequalityField = [self inequalityFilterField];
+  FSTAssert(
+      !queryInequalityField || !newInequalityField || *queryInequalityField == *newInequalityField,
+      @"Query must only have one inequality field.");
 
   return [[FSTQuery alloc] initWithPath:self.path
                                filterBy:[self.filters arrayByAddingObject:filter]
@@ -613,8 +636,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
-  FSTAssert(![FSTDocumentKey isDocumentKey:self.path],
-            @"No ordering is allowed for a document query.");
+  FSTAssert(![FSTDocumentKey isDocumentKey:_path], @"No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
   return [[FSTQuery alloc] initWithPath:self.path
@@ -653,7 +675,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)isDocumentQuery {
-  return [FSTDocumentKey isDocumentKey:self.path] && self.filters.count == 0;
+  return [FSTDocumentKey isDocumentKey:_path] && self.filters.count == 0;
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
@@ -693,6 +715,11 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   return nullptr;
 }
 
+/** The base path of the query. */
+- (const firebase::firestore::model::ResourcePath &)path {
+  return _path;
+}
+
 #pragma mark - Private properties
 
 - (NSString *)canonicalID {
@@ -700,7 +727,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     return _canonicalID;
   }
 
-  NSMutableString *canonicalID = [[self.path canonicalString] mutableCopy];
+  NSMutableString *canonicalID = [util::WrapNSStringNoCopy(_path.CanonicalString()) mutableCopy];
 
   // Add filters.
   [canonicalID appendString:@"|f:"];
@@ -734,7 +761,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Private methods
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
-  return [self.path isEqual:other.path] && self.limit == other.limit &&
+  return self.path == other.path && self.limit == other.limit &&
          [self.filters isEqual:other.filters] && [self.sortOrders isEqual:other.sortOrders] &&
          (self.startAt == other.startAt || [self.startAt isEqual:other.startAt]) &&
          (self.endAt == other.endAt || [self.endAt isEqual:other.endAt]);
@@ -742,13 +769,13 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 /* Returns YES if the document matches the path for the receiver. */
 - (BOOL)pathMatchesDocument:(FSTDocument *)document {
-  FSTResourcePath *documentPath = document.key.path;
-  if ([FSTDocumentKey isDocumentKey:self.path]) {
+  const ResourcePath &documentPath = document.key.path;
+  if ([FSTDocumentKey isDocumentKey:_path]) {
     // Exact match for document queries.
-    return [self.path isEqual:documentPath];
+    return self.path == documentPath;
   } else {
     // Shallow ancestor queries by default.
-    return [self.path isPrefixOfPath:documentPath] && self.path.length == documentPath.length - 1;
+    return [self.path isPrefixOfPath:documentPath] && _path.size() == documentPath.length - 1;
   }
 }
 

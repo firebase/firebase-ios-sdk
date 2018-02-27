@@ -26,22 +26,25 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/strings/string_view.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Convenience methods for building test queries. */
 @interface FSTQuery (Tests)
-- (FSTQuery *)queryByAddingSortBy:(NSString *)key ascending:(BOOL)ascending;
+- (FSTQuery *)queryByAddingSortBy:(const absl::string_view)key ascending:(BOOL)ascending;
 @end
 
 @implementation FSTQuery (Tests)
 
-- (FSTQuery *)queryByAddingSortBy:(NSString *)key ascending:(BOOL)ascending {
+- (FSTQuery *)queryByAddingSortBy:(const absl::string_view)key ascending:(BOOL)ascending {
   return [self queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(key)
                                                                  ascending:ascending]];
 }
@@ -54,32 +57,31 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTQueryTests
 
 - (void)testConstructor {
-  FSTResourcePath *path =
-      [FSTResourcePath pathWithSegments:@[ @"rooms", @"Firestore", @"messages", @"0001" ]];
+  const ResourcePath path{"rooms", "Firestore", "messages", "0001"};
   FSTQuery *query = [FSTQuery queryWithPath:path];
   XCTAssertNotNil(query);
 
   XCTAssertEqual(query.sortOrders.count, 1);
-  XCTAssertEqualObjects(query.sortOrders[0].field.canonicalString, kDocumentKeyPath);
+  XCTAssertEqual(query.sortOrders[0].field.CanonicalString(), FieldPath::kDocumentKeyPath);
   XCTAssertEqual(query.sortOrders[0].ascending, YES);
 
   XCTAssertEqual(query.explicitSortOrders.count, 0);
 }
 
 - (void)testOrderBy {
-  FSTQuery *query = FSTTestQuery(@"rooms/Firestore/messages");
+  FSTQuery *query = FSTTestQuery("rooms/Firestore/messages");
   query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"length")
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath("length")
                                                                ascending:NO]];
 
   XCTAssertEqual(query.sortOrders.count, 2);
-  XCTAssertEqualObjects(query.sortOrders[0].field.canonicalString, @"length");
+  XCTAssertEqualObjects(query.sortOrders[0].field.CanonicalString(), "length");
   XCTAssertEqual(query.sortOrders[0].ascending, NO);
-  XCTAssertEqualObjects(query.sortOrders[1].field.canonicalString, kDocumentKeyPath);
+  XCTAssertEqualObjects(query.sortOrders[1].field.CanonicalString(), FieldPath::kDocumentKeyPath);
   XCTAssertEqual(query.sortOrders[1].ascending, NO);
 
   XCTAssertEqual(query.explicitSortOrders.count, 1);
-  XCTAssertEqualObjects(query.explicitSortOrders[0].field.canonicalString, @"length");
+  XCTAssertEqualObjects(query.explicitSortOrders[0].field.CanonicalString(), "length");
   XCTAssertEqual(query.explicitSortOrders[0].ascending, NO);
 }
 
@@ -89,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc3 = FSTTestDoc(@"rooms/other/messages/1", 0, @{@"text" : @"msg3"}, NO);
 
   // document query
-  FSTQuery *query = FSTTestQuery(@"rooms/eros/messages/1");
+  FSTQuery *query = FSTTestQuery("rooms/eros/messages/1");
   XCTAssertTrue([query matchesDocument:doc1]);
   XCTAssertFalse([query matchesDocument:doc2]);
   XCTAssertFalse([query matchesDocument:doc3]);
@@ -102,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc3 = FSTTestDoc(@"rooms/other/messages/1", 0, @{@"text" : @"msg3"}, NO);
 
   // shallow ancestor query
-  FSTQuery *query = FSTTestQuery(@"rooms/eros/messages");
+  FSTQuery *query = FSTTestQuery("rooms/eros/messages");
   XCTAssertTrue([query matchesDocument:doc1]);
   XCTAssertFalse([query matchesDocument:doc1Meta]);
   XCTAssertTrue([query matchesDocument:doc2]);
@@ -113,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"rooms/eros/messages/2", 0, @{}, NO);
 
-  FSTQuery *query = [FSTTestQuery(@"rooms/eros/messages")
+  FSTQuery *query = [FSTTestQuery("rooms/eros/messages")
       queryByAddingFilter:FSTTestFilter("text", @"==", @"msg1")];
   XCTAssertTrue([query matchesDocument:doc1]);
   XCTAssertFalse([query matchesDocument:doc2]);
@@ -121,9 +123,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testMatchesPrimitiveValuesForFilters {
   FSTQuery *query1 =
-      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
+      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
   FSTQuery *query2 =
-      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
+      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
 
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @1 }, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
@@ -149,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testNullFilter {
   FSTQuery *query =
-      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter("sort", @"==", [NSNull null])];
+      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", [NSNull null])];
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{@"sort" : [NSNull null]}, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
   FSTDocument *doc3 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @3.1 }, NO);
@@ -165,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testNanFilter {
   FSTQuery *query =
-      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter("sort", @"==", @(NAN))];
+      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", @(NAN))];
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @(NAN) }, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
   FSTDocument *doc3 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @3.1 }, NO);
@@ -181,9 +183,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDoesNotMatchComplexObjectsForFilters {
   FSTQuery *query1 =
-      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
+      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
   FSTQuery *query2 =
-      [FSTTestQuery(@"collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
+      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
 
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @2 }, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @[] }, NO);
@@ -211,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDoesntRemoveComplexObjectsWithOrderBy {
-  FSTQuery *query1 = [FSTTestQuery(@"collection")
+  FSTQuery *query1 = [FSTTestQuery("collection")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"sort")
                                                         ascending:YES]];
 
@@ -231,7 +233,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testFiltersBasedOnArrayValue {
-  FSTQuery *baseQuery = FSTTestQuery(@"collection");
+  FSTQuery *baseQuery = FSTTestQuery("collection");
   FSTDocument *doc1 = FSTTestDoc(@"collection/doc", 0, @{ @"tags" : @[ @"foo", @1, @YES ] }, NO);
 
   NSArray<id<FSTFilter>> *matchingFilters =
@@ -253,7 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testFiltersBasedOnObjectValue {
-  FSTQuery *baseQuery = FSTTestQuery(@"collection");
+  FSTQuery *baseQuery = FSTTestQuery("collection");
   FSTDocument *doc1 =
       FSTTestDoc(@"collection/doc", 0,
                  @{ @"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)} }, NO);
@@ -305,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSortsDocumentsInTheCorrectOrder {
-  FSTQuery *query = FSTTestQuery(@"collection");
+  FSTQuery *query = FSTTestQuery("collection");
   query =
       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"sort")
                                                                ascending:YES]];
@@ -334,7 +336,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSortsDocumentsUsingMultipleFields {
-  FSTQuery *query = FSTTestQuery(@"collection");
+  FSTQuery *query = FSTTestQuery("collection");
   query =
       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"sort1")
                                                                ascending:YES]];
@@ -361,7 +363,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSortsDocumentsWithDescendingToo {
-  FSTQuery *query = FSTTestQuery(@"collection");
+  FSTQuery *query = FSTTestQuery("collection");
   query =
       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"sort1")
                                                                ascending:NO]];
@@ -388,40 +390,40 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEquality {
-  FSTQuery *q11 = FSTTestQuery(@"foo");
+  FSTQuery *q11 = FSTTestQuery("foo");
   q11 = [q11 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
   q11 = [q11 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
-  FSTQuery *q12 = FSTTestQuery(@"foo");
+  FSTQuery *q12 = FSTTestQuery("foo");
   q12 = [q12 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
   q12 = [q12 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
 
-  FSTQuery *q21 = FSTTestQuery(@"foo");
-  FSTQuery *q22 = FSTTestQuery(@"foo");
+  FSTQuery *q21 = FSTTestQuery("foo");
+  FSTQuery *q22 = FSTTestQuery("foo");
 
-  FSTQuery *q31 = FSTTestQuery(@"foo/bar");
-  FSTQuery *q32 = FSTTestQuery(@"foo/bar");
+  FSTQuery *q31 = FSTTestQuery("foo/bar");
+  FSTQuery *q32 = FSTTestQuery("foo/bar");
 
-  FSTQuery *q41 = FSTTestQuery(@"foo");
-  q41 = [q41 queryByAddingSortBy:@"foo" ascending:YES];
-  q41 = [q41 queryByAddingSortBy:@"bar" ascending:YES];
-  FSTQuery *q42 = FSTTestQuery(@"foo");
-  q42 = [q42 queryByAddingSortBy:@"foo" ascending:YES];
-  q42 = [q42 queryByAddingSortBy:@"bar" ascending:YES];
-  FSTQuery *q43Diff = FSTTestQuery(@"foo");
-  q43Diff = [q43Diff queryByAddingSortBy:@"bar" ascending:YES];
-  q43Diff = [q43Diff queryByAddingSortBy:@"foo" ascending:YES];
+  FSTQuery *q41 = FSTTestQuery("foo");
+  q41 = [q41 queryByAddingSortBy:"foo" ascending:YES];
+  q41 = [q41 queryByAddingSortBy:"bar" ascending:YES];
+  FSTQuery *q42 = FSTTestQuery("foo");
+  q42 = [q42 queryByAddingSortBy:"foo" ascending:YES];
+  q42 = [q42 queryByAddingSortBy:"bar" ascending:YES];
+  FSTQuery *q43Diff = FSTTestQuery("foo");
+  q43Diff = [q43Diff queryByAddingSortBy:"bar" ascending:YES];
+  q43Diff = [q43Diff queryByAddingSortBy:"foo" ascending:YES];
 
-  FSTQuery *q51 = FSTTestQuery(@"foo");
-  q51 = [q51 queryByAddingSortBy:@"foo" ascending:YES];
+  FSTQuery *q51 = FSTTestQuery("foo");
+  q51 = [q51 queryByAddingSortBy:"foo" ascending:YES];
   q51 = [q51 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
-  FSTQuery *q52 = FSTTestQuery(@"foo");
+  FSTQuery *q52 = FSTTestQuery("foo");
   q52 = [q52 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
-  q52 = [q52 queryByAddingSortBy:@"foo" ascending:YES];
-  FSTQuery *q53Diff = FSTTestQuery(@"foo");
+  q52 = [q52 queryByAddingSortBy:"foo" ascending:YES];
+  FSTQuery *q53Diff = FSTTestQuery("foo");
   q53Diff = [q53Diff queryByAddingFilter:FSTTestFilter("bar", @">", @(2))];
-  q53Diff = [q53Diff queryByAddingSortBy:@"bar" ascending:YES];
+  q53Diff = [q53Diff queryByAddingSortBy:"bar" ascending:YES];
 
-  FSTQuery *q61 = FSTTestQuery(@"foo");
+  FSTQuery *q61 = FSTTestQuery("foo");
   q61 = [q61 queryBySettingLimit:10];
 
   // XCTAssertEqualObjects(q11, q12);  // TODO(klimt): not canonical yet
@@ -453,40 +455,40 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testUniqueIds {
-  FSTQuery *q11 = FSTTestQuery(@"foo");
+  FSTQuery *q11 = FSTTestQuery("foo");
   q11 = [q11 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
   q11 = [q11 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
-  FSTQuery *q12 = FSTTestQuery(@"foo");
+  FSTQuery *q12 = FSTTestQuery("foo");
   q12 = [q12 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
   q12 = [q12 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
 
-  FSTQuery *q21 = FSTTestQuery(@"foo");
-  FSTQuery *q22 = FSTTestQuery(@"foo");
+  FSTQuery *q21 = FSTTestQuery("foo");
+  FSTQuery *q22 = FSTTestQuery("foo");
 
-  FSTQuery *q31 = FSTTestQuery(@"foo/bar");
-  FSTQuery *q32 = FSTTestQuery(@"foo/bar");
+  FSTQuery *q31 = FSTTestQuery("foo/bar");
+  FSTQuery *q32 = FSTTestQuery("foo/bar");
 
-  FSTQuery *q41 = FSTTestQuery(@"foo");
-  q41 = [q41 queryByAddingSortBy:@"foo" ascending:YES];
-  q41 = [q41 queryByAddingSortBy:@"bar" ascending:YES];
-  FSTQuery *q42 = FSTTestQuery(@"foo");
-  q42 = [q42 queryByAddingSortBy:@"foo" ascending:YES];
-  q42 = [q42 queryByAddingSortBy:@"bar" ascending:YES];
-  FSTQuery *q43Diff = FSTTestQuery(@"foo");
-  q43Diff = [q43Diff queryByAddingSortBy:@"bar" ascending:YES];
-  q43Diff = [q43Diff queryByAddingSortBy:@"foo" ascending:YES];
+  FSTQuery *q41 = FSTTestQuery("foo");
+  q41 = [q41 queryByAddingSortBy:"foo" ascending:YES];
+  q41 = [q41 queryByAddingSortBy:"bar" ascending:YES];
+  FSTQuery *q42 = FSTTestQuery("foo");
+  q42 = [q42 queryByAddingSortBy:"foo" ascending:YES];
+  q42 = [q42 queryByAddingSortBy:"bar" ascending:YES];
+  FSTQuery *q43Diff = FSTTestQuery("foo");
+  q43Diff = [q43Diff queryByAddingSortBy:"bar" ascending:YES];
+  q43Diff = [q43Diff queryByAddingSortBy:"foo" ascending:YES];
 
-  FSTQuery *q51 = FSTTestQuery(@"foo");
-  q51 = [q51 queryByAddingSortBy:@"foo" ascending:YES];
+  FSTQuery *q51 = FSTTestQuery("foo");
+  q51 = [q51 queryByAddingSortBy:"foo" ascending:YES];
   q51 = [q51 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
-  FSTQuery *q52 = FSTTestQuery(@"foo");
+  FSTQuery *q52 = FSTTestQuery("foo");
   q52 = [q52 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
-  q52 = [q52 queryByAddingSortBy:@"foo" ascending:YES];
-  FSTQuery *q53Diff = FSTTestQuery(@"foo");
+  q52 = [q52 queryByAddingSortBy:"foo" ascending:YES];
+  FSTQuery *q53Diff = FSTTestQuery("foo");
   q53Diff = [q53Diff queryByAddingFilter:FSTTestFilter("bar", @">", @(2))];
-  q53Diff = [q53Diff queryByAddingSortBy:@"bar" ascending:YES];
+  q53Diff = [q53Diff queryByAddingSortBy:"bar" ascending:YES];
 
-  FSTQuery *q61 = FSTTestQuery(@"foo");
+  FSTQuery *q61 = FSTTestQuery("foo");
   q61 = [q61 queryBySettingLimit:10];
 
   // XCTAssertEqual(q11.hash, q12.hash);  // TODO(klimt): not canonical yet
@@ -518,7 +520,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testImplicitOrderBy {
-  FSTQuery *baseQuery = FSTTestQuery(@"foo");
+  FSTQuery *baseQuery = FSTTestQuery("foo");
   // Default is ascending
   XCTAssertEqualObjects(baseQuery.sortOrders,
                         @[ FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc") ]);

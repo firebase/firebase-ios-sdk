@@ -23,6 +23,7 @@
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
 
 @class FIRGeoPoint;
@@ -36,7 +37,6 @@
 @class FSTPatchMutation;
 @class FSTQuery;
 @class FSTRemoteEvent;
-@class FSTResourcePath;
 @class FSTSetMutation;
 @class FSTSnapshotVersion;
 @class FSTSortOrder;
@@ -189,7 +189,7 @@ FSTDocument *FSTTestDoc(NSString *path,
 FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version);
 
 /** A convenience method for creating resource paths from a path string. */
-FSTResourcePath *FSTTestPath(NSString *path);
+firebase::firestore::model::ResourcePath FSTTestPath(const absl::string_view path);
 
 /**
  * A convenience method for creating a document reference from a path string.
@@ -199,7 +199,7 @@ FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
                                     NSString *path);
 
 /** A convenience method for creating a query for the given path (without any other filters). */
-FSTQuery *FSTTestQuery(NSString *path);
+FSTQuery *FSTTestQuery(const absl::string_view path);
 
 /**
  * A convenience method to create a FSTFilter using a string representation for both field

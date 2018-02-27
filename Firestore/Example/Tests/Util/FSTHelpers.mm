@@ -42,11 +42,13 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -169,8 +171,8 @@ static NSArray<NSString *> *FSTTestSplitPath(NSString *path) {
   }
 }
 
-FSTResourcePath *FSTTestPath(NSString *path) {
-  return [FSTResourcePath pathWithSegments:FSTTestSplitPath(path)];
+ResourcePath FSTTestPath(const absl::string_view path) {
+  return ResourcePath::FromString(path);
 }
 
 FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
@@ -183,7 +185,7 @@ FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
                                            databaseID:&database_ids.back()];
 }
 
-FSTQuery *FSTTestQuery(NSString *path) {
+FSTQuery *FSTTestQuery(const absl::string_view path) {
   return [FSTQuery queryWithPath:FSTTestPath(path)];
 }
 
@@ -230,7 +232,7 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
 }
 
 NSComparator FSTTestDocComparator(const absl::string_view fieldPath) {
-  FSTQuery *query = [FSTTestQuery(@"docs")
+  FSTQuery *query = [FSTTestQuery("docs")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(fieldPath)
                                                         ascending:YES]];
   return [query comparator];

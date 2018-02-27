@@ -32,6 +32,10 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+
 NS_ASSUME_NONNULL_BEGIN
 
 FIRFirestore *FSTTestFirestore() {
@@ -98,13 +102,14 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                                 changeWithDocument:docToAdd
                                               type:FSTDocumentViewChangeTypeAdded]];
   }
-  FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
-                                                               documents:newDocuments
-                                                            oldDocuments:oldDocuments
-                                                         documentChanges:documentChanges
-                                                               fromCache:fromCache
-                                                        hasPendingWrites:hasPendingWrites
-                                                        syncStateChanged:YES];
+  FSTViewSnapshot *viewSnapshot =
+      [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(util::MakeStringView(path))
+                                   documents:newDocuments
+                                oldDocuments:oldDocuments
+                             documentChanges:documentChanges
+                                   fromCache:fromCache
+                            hasPendingWrites:hasPendingWrites
+                            syncStateChanged:YES];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
                                    originalQuery:FSTTestQuery(path)
                                         snapshot:viewSnapshot

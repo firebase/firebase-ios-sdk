@@ -18,6 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+using firebase::firestore::model::ResourcePath;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTDocumentKeyTests : XCTestCase
@@ -26,8 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDocumentKeyTests
 
 - (void)testConstructor {
-  FSTResourcePath *path =
-      [FSTResourcePath pathWithSegments:@[ @"rooms", @"firestore", @"messages", @"1" ]];
+  const ResourcePath path{"rooms", "firestore", "messages", "1"};
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:path];
   XCTAssertEqual(path, key.path);
 }
