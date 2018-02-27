@@ -430,6 +430,17 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         }
     }
     
+    private mutating func require<T>(value: T?) throws -> T {
+        guard let value = value else {
+            let message = "Expected \(T.self) value but found null instead."
+            let context = DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: message)
+            throw DecodingError.valueNotFound(T.self, context)
+        }
+        
+        currentIndex += 1
+        return value
+    }
+    
     public mutating func decodeNil() throws -> Bool {
         try expectNotAtEnd()
         
@@ -447,12 +458,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: Bool.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Bool.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: Int.Type) throws -> Int {
@@ -461,12 +468,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: Int.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Int.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: Int8.Type) throws -> Int8 {
@@ -475,12 +478,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: Int8.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Int8.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: Int16.Type) throws -> Int16 {
@@ -489,12 +488,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: Int16.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Int16.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: Int32.Type) throws -> Int32 {
@@ -503,12 +498,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: Int32.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Int32.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: Int64.Type) throws -> Int64 {
@@ -517,12 +508,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: Int64.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Int64.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: UInt.Type) throws -> UInt {
@@ -531,12 +518,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: UInt.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: UInt.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: UInt8.Type) throws -> UInt8 {
@@ -545,12 +528,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: UInt8.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: UInt8.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: UInt16.Type) throws -> UInt16 {
@@ -559,12 +538,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: UInt16.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: UInt16.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: UInt32.Type) throws -> UInt32 {
@@ -573,12 +548,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: UInt32.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: UInt32.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: UInt64.Type) throws -> UInt64 {
@@ -587,12 +558,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         decoder.codingPath.append(_FirestoreKey(index: currentIndex))
         defer { decoder.codingPath.removeLast() }
         
-        guard let decoded = try decoder.unbox(container[currentIndex], as: UInt64.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: UInt64.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: Float.Type) throws -> Float {
@@ -601,12 +568,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Float.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        self.currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Float.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: Double.Type) throws -> Double {
@@ -615,12 +578,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Double.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        self.currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: Double.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode(_ type: String.Type) throws -> String {
@@ -629,12 +588,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: String.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        self.currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: String.self)
+        return try require(value: decoded)
     }
     
     public mutating func decode<T : Decodable>(_ type: T.Type) throws -> T {
@@ -643,12 +598,8 @@ fileprivate struct _FirestoreUnkeyedDecodingContainer : UnkeyedDecodingContainer
         self.decoder.codingPath.append(_FirestoreKey(index: self.currentIndex))
         defer { self.decoder.codingPath.removeLast() }
         
-        guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: T.self) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath + [_FirestoreKey(index: self.currentIndex)], debugDescription: "Expected \(type) but found null instead."))
-        }
-        
-        self.currentIndex += 1
-        return decoded
+        let decoded = try decoder.unbox(container[currentIndex], as: T.self)
+        return try require(value: decoded)
     }
     
     public mutating func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> {
