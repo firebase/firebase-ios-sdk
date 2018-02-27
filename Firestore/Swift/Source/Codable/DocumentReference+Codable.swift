@@ -16,14 +16,6 @@
 
 import FirebaseFirestore
 
-enum FirestoreDecodingError: Error {
-    case decodingIsNotSupported
-}
-
-enum FirestoreEncodingError: Error {
-    case encodingIsNotSupported
-}
-
 /**
  * A protocol describing the encodable properties of a DocumentReference.
  *
