@@ -18,6 +18,7 @@
 
 #include <pb_decode.h>
 #include <pb_encode.h>
+
 #include <string>
 
 namespace firebase {
