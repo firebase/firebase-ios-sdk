@@ -160,9 +160,9 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
     if (completion) {
       NSMutableArray *handlers = lastBatch.topicHandlers[topic];
       if (!handlers) {
-        handlers = [NSMutableArray arrayWithCapacity:1];
+        lastBatch.topicHandlers[topic] = [[NSMutableArray alloc] init];
       }
-      [handlers addObject:completion];
+      [lastBatch.topicHandlers[topic] addObject:completion];
     }
     if (!self.currentBatch) {
       self.currentBatch = lastBatch;
