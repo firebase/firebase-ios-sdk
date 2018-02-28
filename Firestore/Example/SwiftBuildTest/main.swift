@@ -31,11 +31,11 @@ func main() {
 
   addDocument(to: collectionRef)
 
-  readDocument(at: documentRef);
-  readDocumentWithOptions(at: documentRef);
+  readDocument(at: documentRef)
+  readDocumentWithOptions(at: documentRef)
 
-  readDocuments(matching: query);
-  readDocumentsWithOptions(matching: query);
+  readDocuments(matching: query)
+  readDocumentsWithOptions(matching: query)
 
   listenToDocument(at: documentRef)
 
@@ -219,11 +219,11 @@ func readDocument(at docRef: DocumentReference) {
 }
 
 func readDocumentWithOptions(at docRef: DocumentReference) {
-  docRef.getDocument(source:Source.default) { document, error in
+  docRef.getDocument(source: Source.default) { document, error in
   }
-  docRef.getDocument(source:.server) { document, error in
+  docRef.getDocument(source: .server) { document, error in
   }
-  docRef.getDocument(source:Source.cache) { document, error in
+  docRef.getDocument(source: Source.cache) { document, error in
   }
 }
 
@@ -238,11 +238,11 @@ func readDocuments(matching query: Query) {
 }
 
 func readDocumentsWithOptions(matching query: Query) {
-  query.getDocuments(source:Source.default) { querySnapshot, error in
+  query.getDocuments(source: Source.default) { querySnapshot, error in
   }
-  query.getDocuments(source:.server) { querySnapshot, error in
+  query.getDocuments(source: .server) { querySnapshot, error in
   }
-  query.getDocuments(source:Source.cache) { querySnapshot, error in
+  query.getDocuments(source: Source.cache) { querySnapshot, error in
   }
 }
 
