@@ -151,6 +151,46 @@ TEST_F(SerializerTest, EncodesIntegersModelToBytes) {
   }
 }
 
+TEST_F(SerializerTest, EncodesStringModelToBytes) {
+  struct TestCase {
+    std::string value;
+    std::vector<uint8_t> bytes;
+  };
+
+  std::vector<TestCase> cases{
+      // TEXT_FORMAT_PROTO: 'string_value: ""'
+      {"", {0x8a, 0x01, 0x00}},
+      // TEXT_FORMAT_PROTO: 'string_value: "a"'
+      {"a", {0x8a, 0x01, 0x01, 0x61}},
+      // TEXT_FORMAT_PROTO: 'string_value: "abc def"'
+      {"abc def", {0x8a, 0x01, 0x07, 0x61, 0x62, 0x63, 0x20, 0x64, 0x65, 0x66}},
+      // TEXT_FORMAT_PROTO: 'string_value: "æ"'
+      {"æ", {0x8a, 0x01, 0x02, 0xc3, 0xa6}},
+      // TEXT_FORMAT_PROTO: 'string_value: "\0\ud7ff\ue000\uffff"'
+      // Note: Each one of the three embedded universal character names
+      // (\u-escaped) maps to three chars, so the total length of the string
+      // literal is 10 (ignoring the terminating null), and the resulting string
+      // literal is the same as '\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf'". The
+      // size of 10 must be added, or else std::string will see the \0 at the
+      // start and assume that's the end of the string.
+      {{"\0\ud7ff\ue000\uffff", 10},
+       {0x8a, 0x01, 0x0a, 0x00, 0xed, 0x9f, 0xbf, 0xee, 0x80, 0x80, 0xef, 0xbf,
+        0xbf}},
+      {{"\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf", 10},
+       {0x8a, 0x01, 0x0a, 0x00, 0xed, 0x9f, 0xbf, 0xee, 0x80, 0x80, 0xef, 0xbf,
+        0xbf}},
+      // TEXT_FORMAT_PROTO: 'string_value: "(╯°□°）╯︵ ┻━┻"'
+      {"(╯°□°）╯︵ ┻━┻",
+       {0x8a, 0x01, 0x1e, 0x28, 0xe2, 0x95, 0xaf, 0xc2, 0xb0, 0xe2, 0x96,
+        0xa1, 0xc2, 0xb0, 0xef, 0xbc, 0x89, 0xe2, 0x95, 0xaf, 0xef, 0xb8,
+        0xb5, 0x20, 0xe2, 0x94, 0xbb, 0xe2, 0x94, 0x81, 0xe2, 0x94, 0xbb}}};
+
+  for (const TestCase& test : cases) {
+    FieldValue model = FieldValue::StringValue(test.value);
+    ExpectRoundTrip(model, test.bytes, FieldValue::Type::String);
+  }
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
 

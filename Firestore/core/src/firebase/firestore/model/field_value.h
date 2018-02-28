@@ -106,6 +106,11 @@ class FieldValue {
     return integer_value_;
   }
 
+  const std::string& string_value() const {
+    FIREBASE_ASSERT(tag_ == Type::String);
+    return string_value_;
+  }
+
   /** factory methods. */
   static const FieldValue& NullValue();
   static const FieldValue& TrueValue();

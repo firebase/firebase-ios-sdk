@@ -19,6 +19,8 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -98,6 +100,47 @@ int64_t DecodeInteger(pb_istream_t* stream) {
   return DecodeVarint(stream);
 }
 
+void EncodeString(pb_ostream_t* stream, const std::string& string_value) {
+  bool status = pb_encode_string(
+      stream, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
+      string_value.length());
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+}
+
+std::string DecodeString(pb_istream_t* stream) {
+  pb_istream_t substream;
+  bool status = pb_make_string_substream(stream, &substream);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  std::string result(substream.bytes_left, '\0');
+  status = pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
+                   substream.bytes_left);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  // NB: future versions of nanopb read the remaining characters out of the
+  // substream (and return false if that fails) as an additional safety
+  // check within pb_close_string_substream. Unfortunately, that's not present
+  // in the current version (0.38).  We'll make a stronger assertion and check
+  // to make sure there *are* no remaining characters in the substream.
+  if (substream.bytes_left != 0) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  pb_close_string_substream(stream, &substream);
+
+  return result;
+}
+
 }  // namespace
 
 using firebase::firestore::model::FieldValue;
@@ -144,6 +187,16 @@ void Serializer::EncodeFieldValue(const FieldValue& field_value,
       EncodeInteger(&stream, field_value.integer_value());
       break;
 
+    case FieldValue::Type::String:
+      status = pb_encode_tag(&stream, PB_WT_STRING,
+                             google_firestore_v1beta1_Value_string_value_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
+      EncodeString(&stream, field_value.string_value());
+      break;
+
     default:
       // TODO(rsgowman): implement the other types
       abort();
@@ -158,9 +211,30 @@ FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
   uint32_t tag;
   bool eof;
   bool status = pb_decode_tag(&stream, &wire_type, &tag, &eof);
-  if (!status || wire_type != PB_WT_VARINT) {
+  if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
+  }
+
+  // Ensure the tag matches the wire type
+  // TODO(rsgowman): figure out error handling
+  switch (tag) {
+    case google_firestore_v1beta1_Value_null_value_tag:
+    case google_firestore_v1beta1_Value_boolean_value_tag:
+    case google_firestore_v1beta1_Value_integer_value_tag:
+      if (wire_type != PB_WT_VARINT) {
+        abort();
+      }
+      break;
+
+    case google_firestore_v1beta1_Value_string_value_tag:
+      if (wire_type != PB_WT_STRING) {
+        abort();
+      }
+      break;
+
+    default:
+      abort();
   }
 
   switch (tag) {
@@ -171,6 +245,8 @@ FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
       return FieldValue::BooleanValue(DecodeBool(&stream));
     case google_firestore_v1beta1_Value_integer_value_tag:
       return FieldValue::IntegerValue(DecodeInteger(&stream));
+    case google_firestore_v1beta1_Value_string_value_tag:
+      return FieldValue::StringValue(DecodeString(&stream));
 
     default:
       // TODO(rsgowman): figure out error handling
