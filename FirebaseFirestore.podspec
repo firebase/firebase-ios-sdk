@@ -31,6 +31,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.source_files = [
     'Firestore/Source/**/*',
     'Firestore/Port/**/*',
+    'Firestore/Protos/nanopb/**/*.[hm]',
     'Firestore/Protos/objc/**/*.[hm]',
     'Firestore/core/include/**/*.{h,cc,mm}',
     'Firestore/core/src/**/*.{h,cc,mm}',
