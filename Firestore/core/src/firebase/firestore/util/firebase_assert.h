@@ -52,7 +52,7 @@
 #else
 #define FIREBASE_DEV_ASSERT_WITH_EXPRESSION(condition, expression) \
   FIREBASE_ASSERT_WITH_EXPRESSION(condition, expression)
-#endif  // !defined(NDEBUG)
+#endif  // defined(NDEBUG)
 
 // Custom assert() implementation that is not compiled out in release builds.
 #define FIREBASE_ASSERT(expression) \
@@ -75,6 +75,10 @@
     }                                                                       \
   } while (0)
 
+// Assert with custom message that is not compiled out in release builds.
+#define FIREBASE_ASSERT_MESSAGE(expression, ...) \
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, __VA_ARGS__)
+
 // Assert condition is true otherwise display the specified expression,
 // message and abort. Compiled out of release builds.
 #if defined(NDEBUG)
@@ -85,7 +89,18 @@
 #define FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, \
                                                     ...)                   \
   FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, expression, __VA_ARGS__)
-#endif  // !defined(NDEBUG)
+#endif  // defined(NDEBUG)
+
+// Assert expression is true otherwise display the specified message and
+// abort.
+#define FIREBASE_ASSERT_MESSAGE(expression, ...) \
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, __VA_ARGS__)
+
+// Assert expression is true otherwise display the specified message and
+// abort. Compiled out of release builds.
+#define FIREBASE_DEV_ASSERT_MESSAGE(expression, ...)                  \
+  FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, \
+                                              __VA_ARGS__)
 
 namespace firebase {
 namespace firestore {

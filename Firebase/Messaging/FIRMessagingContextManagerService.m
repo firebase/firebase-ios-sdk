@@ -144,7 +144,10 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
     // |alertTitle| is iOS 8.2+, so check if we can set it
       if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
       notification.alertTitle = apsDictionary[kFIRMessagingContextManagerTitleKey];
+#pragma pop
     }
   }
 

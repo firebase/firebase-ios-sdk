@@ -17,17 +17,17 @@ include(ExternalProject)
 ExternalProject_Add(
   googletest
 
-  GIT_REPOSITORY "https://github.com/google/googletest.git"
-  GIT_TAG "release-1.8.0"
+  DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+  DOWNLOAD_NAME googletest-1.8.0.tar.gz
+  URL https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+  URL_HASH SHA256=58a6f4277ca2bc8565222b3bbd58a177609e9c488e8a72649359ba51450db7d8
 
-  PREFIX ${PROJECT_BINARY_DIR}/third_party/googletest
+  PREFIX ${PROJECT_BINARY_DIR}/external/googletest
 
-  INSTALL_DIR ${FIREBASE_INSTALL_DIR}
-
+  # Just download the sources without building.
+  UPDATE_COMMAND ""
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
   TEST_COMMAND ""
-
-  CMAKE_ARGS
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-      -DBUILD_SHARED_LIBS:BOOL=OFF
 )

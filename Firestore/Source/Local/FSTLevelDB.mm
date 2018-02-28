@@ -19,16 +19,25 @@
 #include <leveldb/db.h>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Local/FSTWriteGroupTracker.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::User;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,6 +45,7 @@ static NSString *const kReservedPathComponent = @"firestore";
 
 using leveldb::DB;
 using leveldb::Options;
+using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
 
@@ -49,6 +59,15 @@ using leveldb::WriteOptions;
 @end
 
 @implementation FSTLevelDB
+
+/**
+ * For now this is paranoid, but perhaps disable that in production builds.
+ */
++ (const ReadOptions)standardReadOptions {
+  ReadOptions options;
+  options.verify_checksums = true;
+  return options;
+}
 
 - (instancetype)initWithDirectory:(NSString *)directory
                        serializer:(FSTLocalSerializer *)serializer {
@@ -78,7 +97,7 @@ using leveldb::WriteOptions;
 #endif
 }
 
-+ (NSString *)storageDirectoryForDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
++ (NSString *)storageDirectoryForDatabaseInfo:(const DatabaseInfo &)databaseInfo
                            documentsDirectory:(NSString *)documentsDirectory {
   // Use two different path formats:
   //
@@ -88,11 +107,14 @@ using leveldb::WriteOptions;
   // projectIDs are DNS-compatible names and cannot contain dots so there's
   // no danger of collisions.
   NSString *directory = documentsDirectory;
-  directory = [directory stringByAppendingPathComponent:databaseInfo.persistenceKey];
+  directory = [directory
+      stringByAppendingPathComponent:util::WrapNSStringNoCopy(databaseInfo.persistence_key())];
 
-  NSString *segment = databaseInfo.databaseID.projectID;
-  if (![databaseInfo.databaseID isDefaultDatabase]) {
-    segment = [NSString stringWithFormat:@"%@.%@", segment, databaseInfo.databaseID.databaseID];
+  NSString *segment = util::WrapNSStringNoCopy(databaseInfo.database_id().project_id());
+  if (!databaseInfo.database_id().IsDefaultDatabase()) {
+    segment = [NSString
+        stringWithFormat:@"%@.%@", segment,
+                         util::WrapNSStringNoCopy(databaseInfo.database_id().database_id())];
   }
   directory = [directory stringByAppendingPathComponent:segment];
 
@@ -115,8 +137,8 @@ using leveldb::WriteOptions;
   if (!database) {
     return NO;
   }
-
   _ptr.reset(database);
+  [FSTLevelDBMigrations runMigrationsOnDB:_ptr];
   return YES;
 }
 
@@ -178,7 +200,7 @@ using leveldb::WriteOptions;
 
 #pragma mark - Persistence Factory methods
 
-- (id<FSTMutationQueue>)mutationQueueForUser:(FSTUser *)user {
+- (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
   return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:_ptr serializer:self.serializer];
 }
 

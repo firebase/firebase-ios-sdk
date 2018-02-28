@@ -38,6 +38,19 @@ test_iOS() {
     | xcpretty
 }
 
+test_CMake() {
+  echo "cpu core: $(sysctl -n hw.ncpu)"
+  echo "prepare cmake build" && \
+    mkdir -p build && \
+    cd build && \
+    cmake .. || \
+    exit 1
+
+  echo "cmake build and test" && \
+    make -j $(sysctl -n hw.ncpu) all || \
+    exit 2
+}
+
 test_iOS; RESULT=$?
 if [[ $RESULT == 65 ]]; then
   echo "xcodebuild exited with 65, retrying"
@@ -46,4 +59,8 @@ if [[ $RESULT == 65 ]]; then
   test_iOS; RESULT=$?
 fi
 
-exit $RESULT
+if [ $RESULT != 0 ]; then exit $RESULT; fi
+
+test_CMake; RESULT=$?
+
+if [ $RESULT != 0 ]; then exit $RESULT; fi

@@ -18,6 +18,34 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Well-known "timer" IDs used when scheduling delayed callbacks on the FSTDispatchQueue. These IDs
+ * can then be used from tests to check for the presence of callbacks or to run them early.
+ */
+typedef NS_ENUM(NSInteger, FSTTimerID) {
+  FSTTimerIDAll,  // Sentinel value to be used with runDelayedCallbacksUntil: to run all blocks.
+  FSTTimerIDListenStreamIdle,
+  FSTTimerIDListenStreamConnection,
+  FSTTimerIDWriteStreamIdle,
+  FSTTimerIDWriteStreamConnection
+};
+
+/**
+ * Handle to a callback scheduled via [FSTDispatchQueue dispatchAfterDelay:]. Supports cancellation
+ * via the cancel method.
+ */
+@interface FSTDelayedCallback : NSObject
+
+/**
+ * Cancels the callback if it hasn't already been executed or canceled.
+ *
+ * As long as the callback has not yet been run, calling cancel() (from a callback already running
+ * on the dispatch queue) provides a guarantee that the operation will not be run.
+ */
+- (void)cancel;
+
+@end
+
 @interface FSTDispatchQueue : NSObject
 
 /** Creates and returns an FSTDispatchQueue wrapping the specified dispatch_queue_t. */
@@ -56,12 +84,32 @@ NS_ASSUME_NONNULL_BEGIN
  * Schedules a callback after the specified delay.
  *
  * Unlike dispatchAsync: this method does not require you to dispatch to a different queue than
- * the current one (thus it is equivalent to a raw dispatch_after()).
+ * the current one.
+ *
+ * The returned FSTDelayedCallback handle can be used to cancel the callback prior to its running.
  *
  * @param block The block to run.
  * @param delay The delay (in seconds) after which to run the block.
+ * @param timerID An FSTTimerID that can be used from tests to check for the presence of this
+ *   callback or to schedule it to run early.
+ * @return A FSTDelayedCallback instance that can be used for cancellation.
  */
-- (void)dispatchAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block;
+- (FSTDelayedCallback *)dispatchAfterDelay:(NSTimeInterval)delay
+                                   timerID:(FSTTimerID)timerID
+                                     block:(void (^)(void))block;
+
+/**
+ * For Tests: Determine if a delayed callback with a particular FSTTimerID exists.
+ */
+- (BOOL)containsDelayedCallbackWithTimerID:(FSTTimerID)timerID;
+
+/**
+ * For Tests: Runs delayed callbacks early, blocking until completion.
+ *
+ * @param lastTimerID Only delayed callbacks up to and including one that was scheduled using this
+ *   FSTTimerID will be run. Method throws if no matching callback exists.
+ */
+- (void)runDelayedCallbacksUntil:(FSTTimerID)lastTimerID;
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;

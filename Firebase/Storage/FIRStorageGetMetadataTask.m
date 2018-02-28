@@ -65,7 +65,7 @@
       if (callback) {
         callback(nil, self.error);
       }
-      _fetcherCompletion = nil;
+      self->_fetcherCompletion = nil;
       return;
     }
 
@@ -90,7 +90,7 @@
         callback(nil, self.error);
       }
     }
-    _fetcherCompletion = nil;
+    self->_fetcherCompletion = nil;
   };
 #pragma clang diagnostic pop
 

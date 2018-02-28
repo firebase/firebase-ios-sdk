@@ -68,13 +68,13 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   _pendingCallbacks =
       [[NSMutableArray<FIRAuthAPNSTokenCallback> alloc] initWithObjects:callback, nil];
   dispatch_async(dispatch_get_main_queue(), ^{
-    if ([_application respondsToSelector:@selector(registerForRemoteNotifications)]) {
-      [_application registerForRemoteNotifications];
+    if ([self->_application respondsToSelector:@selector(registerForRemoteNotifications)]) {
+      [self->_application registerForRemoteNotifications];
     } else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #if TARGET_OS_IOS
-      [_application registerForRemoteNotificationTypes:UIRemoteNotificationTypeAlert];
+      [self->_application registerForRemoteNotificationTypes:UIRemoteNotificationTypeAlert];
 #endif  // TARGET_OS_IOS
 #pragma clang diagnostic pop
     }
@@ -83,7 +83,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)),
                                FIRAuthGlobalWorkQueue(), ^{
     // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
-    if (applicableCallbacks == _pendingCallbacks) {
+    if (applicableCallbacks == self->_pendingCallbacks) {
       [self callBackWithToken:nil error:nil];
     }
   });

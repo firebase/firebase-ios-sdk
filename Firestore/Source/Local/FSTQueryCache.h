@@ -53,6 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTTargetID)highestTargetID;
 
 /**
+ * Returns the highest listen sequence number of any query seen by the cache.
+ */
+- (FSTListenSequenceNumber)highestListenSequenceNumber;
+
+/**
  * A global snapshot version representing the last consistent snapshot we received from the
  * backend. This is monotonically increasing and any snapshots received from the backend prior to
  * this version (e.g. for targets resumed with a resume_token) should be suppressed (buffered)
@@ -73,17 +78,28 @@ NS_ASSUME_NONNULL_BEGIN
                                group:(FSTWriteGroup *)group;
 
 /**
- * Adds or replaces an entry in the cache.
+ * Adds an entry in the cache.
  *
- * The cache key is extracted from `queryData.query`. If there is already a cache entry for the
- * key, it will be replaced.
+ * The cache key is extracted from `queryData.query`. The key must not already exist in the cache.
  *
- * @param queryData An FSTQueryData instance to put in the cache.
+ * @param queryData A new FSTQueryData instance to put in the cache.
  */
 - (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
 
+/**
+ * Updates an entry in the cache.
+ *
+ * The cache key is extracted from `queryData.query`. The entry must already exist in the cache,
+ * and it will be replaced.
+ * @param queryData An FSTQueryData instance to replace an existing entry in the cache
+ */
+- (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
+
 /** Removes the cached entry for the given query data (no-op if no entry exists). */
 - (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
+
+/** Returns the number of targets cached. */
+- (int32_t)count;
 
 /**
  * Looks up an FSTQueryData entry in the cache.
