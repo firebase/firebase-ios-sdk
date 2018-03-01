@@ -581,8 +581,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrders {
   FSTQuery *q = [FSTTestQuery(@"docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
-                                                        ascending:YES]];
+      queryByAddingSortOrder:[FSTSortOrder
+                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"prop") toCPPFieldPath]
+                                              ascending:YES]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -601,8 +602,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrdersDescending {
   FSTQuery *q = [FSTTestQuery(@"rooms/1/messages/10/attachments")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
-                                                        ascending:NO]];
+      queryByAddingSortOrder:[FSTSortOrder
+                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"prop") toCPPFieldPath]
+                                              ascending:NO]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];

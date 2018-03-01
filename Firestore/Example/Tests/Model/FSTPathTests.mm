@@ -195,6 +195,28 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects([[pathHead pathByRemovingFirstSegment] canonicalString], @"bar");
 }
 
+- (void)testRoundTrip {
+  FSTFieldPath *path = [FSTFieldPath pathWithSegments:@[ @"rooms", @"Eros", @"messages" ]];
+  XCTAssertEqualObjects(path, [FSTFieldPath fromCPPFieldPath:[path toCPPFieldPath]]);
+
+  const firebase::firestore::model::FieldPath cppPath{"rooms", "Eros", "messages"};
+  XCTAssertEqual(cppPath, [[FSTFieldPath fromCPPFieldPath:cppPath] toCPPFieldPath]);
+}
+
 @end
 
+@interface FSTResourcePathTests : XCTestCase
+@end
+
+@implementation FSTResourcePathTests
+
+- (void)testRoundTrip {
+  FSTResourcePath *path = [FSTResourcePath pathWithSegments:@[ @"rooms", @"Eros", @"messages" ]];
+  XCTAssertEqualObjects(path, [FSTResourcePath fromCPPResourcePath:[path toCPPResourcePath]]);
+
+  const firebase::firestore::model::ResourcePath cppPath{"rooms", "Eros", "messages"};
+  XCTAssertEqual(cppPath, [[FSTResourcePath fromCPPResourcePath:cppPath] toCPPResourcePath]);
+}
+
+@end
 NS_ASSUME_NONNULL_END
