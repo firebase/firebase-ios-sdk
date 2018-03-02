@@ -469,7 +469,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
             @"Invalid query. When querying by document ID you must provide "
              "a valid document ID, but it was an empty string.");
       }
-      FSTResourcePath *path = [[FSTResourcePath fromCPPResourcePath:self.query.path]
+      FSTResourcePath *path = [[FSTResourcePath resourcePathWithCPPResourcePath:self.query.path]
           pathByAppendingSegment:documentKey];
       fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithPath:path]
                                           databaseID:self.firestore.databaseID];
@@ -525,8 +525,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 
     const FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
-      [self validateOrderByField:[FSTFieldPath fromCPPFieldPath:*firstOrderByField]
-          matchesInequalityField:[FSTFieldPath fromCPPFieldPath:filter.field]];
+      [self validateOrderByField:[FSTFieldPath fieldPathWithCPPFieldPath:*firstOrderByField]
+          matchesInequalityField:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
     }
   }
 }
@@ -537,7 +537,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     const FieldPath *inequalityField = [self.query inequalityFilterField];
     if (inequalityField) {
       [self validateOrderByField:fieldPath
-          matchesInequalityField:[FSTFieldPath fromCPPFieldPath:*inequalityField]];
+          matchesInequalityField:[FSTFieldPath fieldPathWithCPPFieldPath:*inequalityField]];
     }
   }
 }
@@ -583,7 +583,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                                    databaseID:self.firestore.databaseID]];
     } else {
       FSTFieldValue *value =
-          [document fieldForPath:[FSTFieldPath fromCPPFieldPath:sortOrder.field]];
+          [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrder.field]];
       if (value != nil) {
         [components addObject:value];
       } else {
@@ -623,7 +623,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
       }
       FSTDocumentKey *key = [FSTDocumentKey
           keyWithPath:[FSTResourcePath
-                          fromCPPResourcePath:self.query.path.Append([documentID UTF8String])]];
+                          resourcePathWithCPPResourcePath:self.query.path.Append(
+                                                              [documentID UTF8String])]];
       [components
           addObject:[FSTReferenceValue referenceValue:key databaseID:self.firestore.databaseID]];
     } else {

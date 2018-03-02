@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
     return nil;
   } else {
     FSTDocumentKey *key =
-        [FSTDocumentKey keyWithPath:[FSTResourcePath fromCPPResourcePath:parentPath]];
+        [FSTDocumentKey keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:parentPath]];
     return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
   }
 }
@@ -117,8 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
   }
   const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(documentPath));
   const ResourcePath path = self.query.path.Append(subPath);
-  return [FIRDocumentReference referenceWithPath:[FSTResourcePath fromCPPResourcePath:path]
-                                       firestore:self.firestore];
+  return
+      [FIRDocumentReference referenceWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:path]
+                                    firestore:self.firestore];
 }
 
 - (FIRDocumentReference *)addDocumentWithData:(NSDictionary<NSString *, id> *)data {
@@ -135,7 +136,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRDocumentReference *)documentWithAutoID {
   const ResourcePath path = self.query.path.Append(CreateAutoId());
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:[FSTResourcePath fromCPPResourcePath:path]];
+  FSTDocumentKey *key =
+      [FSTDocumentKey keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:path]];
   return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
 }
 

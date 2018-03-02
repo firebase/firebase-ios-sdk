@@ -120,7 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param fieldPath A C++ FieldPath.
  */
-+ (instancetype)fromCPPFieldPath:(const firebase::firestore::model::FieldPath &)fieldPath;
++ (instancetype)fieldPathWithCPPFieldPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 
 /**
  * Creates and returns a new C++ FieldPath.
@@ -155,7 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param resourcePath A C++ ResourcePath.
  */
-+ (instancetype)fromCPPResourcePath:(const firebase::firestore::model::ResourcePath &)resourcePath;
++ (instancetype)resourcePathWithCPPResourcePath:
+    (const firebase::firestore::model::ResourcePath &)resourcePath;
 
 /**
  * Creates and returns a new C++ ResourcePath.

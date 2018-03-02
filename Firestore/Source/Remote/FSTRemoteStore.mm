@@ -447,8 +447,8 @@ static const int kOnlineAttemptsBeforeFailure = 2;
         // updates. Without applying a deleted document there might be another query that will
         // raise this document as part of a snapshot until it is resolved, essentially exposing
         // inconsistency between queries
-        FSTDocumentKey *key =
-            [FSTDocumentKey keyWithPath:[FSTResourcePath fromCPPResourcePath:query.path]];
+        FSTDocumentKey *key = [FSTDocumentKey
+            keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]];
         FSTDeletedDocument *deletedDoc =
             [FSTDeletedDocument documentWithKey:key version:snapshotVersion];
         [remoteEvent addDocumentUpdate:deletedDoc];

@@ -153,7 +153,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     NSComparisonResult comparison = FSTDocumentKeyComparator(document.key, refValue.value);
     return [self matchesComparison:comparison];
   } else {
-    return [self matchesValue:[document fieldForPath:[FSTFieldPath fromCPPFieldPath:self.field]]];
+    return [self
+        matchesValue:[document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]]];
   }
 }
 
@@ -219,7 +220,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue = [document fieldForPath:[FSTFieldPath fromCPPFieldPath:self.field]];
+  FSTFieldValue *fieldValue =
+      [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
   return fieldValue != nil && [fieldValue isEqual:[FSTNullValue nullValue]];
 }
 
@@ -266,7 +268,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue = [document fieldForPath:[FSTFieldPath fromCPPFieldPath:self.field]];
+  FSTFieldValue *fieldValue =
+      [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
   return fieldValue != nil && [fieldValue isEqual:[FSTDoubleValue nanValue]];
 }
 
@@ -337,8 +340,10 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (_field == FieldPath::KeyFieldPath()) {
     result = FSTDocumentKeyComparator(document1.key, document2.key);
   } else {
-    FSTFieldValue *value1 = [document1 fieldForPath:[FSTFieldPath fromCPPFieldPath:self.field]];
-    FSTFieldValue *value2 = [document2 fieldForPath:[FSTFieldPath fromCPPFieldPath:self.field]];
+    FSTFieldValue *value1 =
+        [document1 fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
+    FSTFieldValue *value2 =
+        [document2 fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
     FSTAssert(value1 != nil && value2 != nil,
               @"Trying to compare documents on fields that don't exist.");
     result = [value1 compare:value2];
@@ -432,7 +437,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       comparison = [refValue.value compare:document.key];
     } else {
       FSTFieldValue *docValue =
-          [document fieldForPath:[FSTFieldPath fromCPPFieldPath:sortOrderComponent.field]];
+          [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrderComponent.field]];
       FSTAssert(docValue != nil, @"Field should exist since document matched the orderBy already.");
       comparison = [fieldValue compare:docValue];
     }
@@ -617,7 +622,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingFilter:(id<FSTFilter>)filter {
-  FSTAssert(![FSTDocumentKey isDocumentKey:[FSTResourcePath fromCPPResourcePath:_path]],
+  FSTAssert(![FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]],
             @"No filtering allowed for document query");
 
   const FieldPath *newInequalityField = nullptr;
@@ -639,7 +644,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
-  FSTAssert(![FSTDocumentKey isDocumentKey:[FSTResourcePath fromCPPResourcePath:_path]],
+  FSTAssert(![FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]],
             @"No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
@@ -679,7 +684,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)isDocumentQuery {
-  return [FSTDocumentKey isDocumentKey:[FSTResourcePath fromCPPResourcePath:_path]] &&
+  return [FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]] &&
          self.filters.count == 0;
 }
 
@@ -775,7 +780,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 /* Returns YES if the document matches the path for the receiver. */
 - (BOOL)pathMatchesDocument:(FSTDocument *)document {
   FSTResourcePath *documentPath = document.key.path;
-  if ([FSTDocumentKey isDocumentKey:[FSTResourcePath fromCPPResourcePath:_path]]) {
+  if ([FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]]) {
     // Exact match for document queries.
     return self.path == [documentPath toCPPResourcePath];
   } else {
@@ -793,7 +798,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     const FieldPath &fieldPath = orderBy.field;
     // order by key always matches
     if (fieldPath != FieldPath::KeyFieldPath() &&
-        [document fieldForPath:[FSTFieldPath fromCPPFieldPath:fieldPath]] == nil) {
+        [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:fieldPath]] == nil) {
       return NO;
     }
   }

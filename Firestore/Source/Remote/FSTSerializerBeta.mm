@@ -654,7 +654,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(FSTQuery *)query {
   GCFSTarget_DocumentsTarget *result = [GCFSTarget_DocumentsTarget message];
   NSMutableArray<NSString *> *docs = result.documentsArray;
-  [docs addObject:[self encodedQueryPath:[FSTResourcePath fromCPPResourcePath:query.path]]];
+  [docs addObject:[self encodedQueryPath:[FSTResourcePath
+                                             resourcePathWithCPPResourcePath:query.path]]];
   return result;
 }
 
@@ -671,9 +672,10 @@ NS_ASSUME_NONNULL_BEGIN
   // Dissect the path into parent, collectionId, and optional key filter.
   GCFSTarget_QueryTarget *queryTarget = [GCFSTarget_QueryTarget message];
   if (query.path.empty()) {
-    queryTarget.parent = [self encodedQueryPath:[FSTResourcePath fromCPPResourcePath:query.path]];
+    queryTarget.parent =
+        [self encodedQueryPath:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]];
   } else {
-    FSTResourcePath *path = [FSTResourcePath fromCPPResourcePath:query.path];
+    FSTResourcePath *path = [FSTResourcePath resourcePathWithCPPResourcePath:query.path];
     FSTAssert(path.length % 2 != 0, @"Document queries with filters are not supported.");
     queryTarget.parent = [self encodedQueryPath:[path pathByRemovingLastSegment]];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
@@ -818,7 +820,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSStructuredQuery_Filter *)encodedRelationFilter:(FSTRelationFilter *)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *fieldFilter = proto.fieldFilter;
-  fieldFilter.field = [self encodedFieldPath:[FSTFieldPath fromCPPFieldPath:filter.field]];
+  fieldFilter.field = [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
   fieldFilter.op = [self encodedRelationFilterOperator:filter.filterOperator];
   fieldFilter.value = [self encodedFieldValue:filter.value];
   return proto;
@@ -835,7 +837,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(id<FSTFilter>)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
-  proto.unaryFilter.field = [self encodedFieldPath:[FSTFieldPath fromCPPFieldPath:filter.field]];
+  proto.unaryFilter.field =
+      [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
   if ([filter isKindOfClass:[FSTNanFilter class]]) {
     proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNan;
   } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
@@ -922,7 +925,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSStructuredQuery_Order *)encodedSortOrder:(FSTSortOrder *)sortOrder {
   GCFSStructuredQuery_Order *proto = [GCFSStructuredQuery_Order message];
-  proto.field = [self encodedFieldPath:[FSTFieldPath fromCPPFieldPath:sortOrder.field]];
+  proto.field = [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrder.field]];
   if (sortOrder.ascending) {
     proto.direction = GCFSStructuredQuery_Direction_Ascending;
   } else {

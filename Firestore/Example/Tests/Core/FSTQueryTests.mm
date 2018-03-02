@@ -29,7 +29,9 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
@@ -45,9 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTQuery (Tests)
 
 - (FSTQuery *)queryByAddingSortBy:(NSString *)key ascending:(BOOL)ascending {
-  return [self queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:[FSTTestFieldPath(key)
-                                                                               toCPPFieldPath]
-                                                                 ascending:ascending]];
+  return [self
+      queryByAddingSortOrder:[FSTSortOrder
+                                 sortOrderWithFieldPath:testutil::Field(util::MakeStringView(key))
+                                              ascending:ascending]];
 }
 
 @end
@@ -72,10 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testOrderBy {
   FSTQuery *query = FSTTestQuery(@"rooms/Firestore/messages");
-  query = [query
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"length") toCPPFieldPath]
-                                              ascending:NO]];
+  query =
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("length")
+                                                               ascending:NO]];
 
   XCTAssertEqual(query.sortOrders.count, 2);
   XCTAssertEqual(query.sortOrders[0].field.CanonicalString(), "length");
@@ -217,9 +219,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDoesntRemoveComplexObjectsWithOrderBy {
   FSTQuery *query1 = [FSTTestQuery(@"collection")
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"sort") toCPPFieldPath]
-                                              ascending:YES]];
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort")
+                                                        ascending:YES]];
 
   FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @2 }, NO);
   FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @[] }, NO);
@@ -312,10 +313,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testSortsDocumentsInTheCorrectOrder {
   FSTQuery *query = FSTTestQuery(@"collection");
-  query = [query
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"sort") toCPPFieldPath]
-                                              ascending:YES]];
+  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort")
+                                                                   ascending:YES]];
 
   // clang-format off
   NSArray<FSTDocument *> *docs = @[
@@ -342,14 +341,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testSortsDocumentsUsingMultipleFields {
   FSTQuery *query = FSTTestQuery(@"collection");
-  query = [query
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"sort1") toCPPFieldPath]
-                                              ascending:YES]];
-  query = [query
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"sort2") toCPPFieldPath]
-                                              ascending:YES]];
+  query =
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort1")
+                                                               ascending:YES]];
+  query =
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort2")
+                                                               ascending:YES]];
 
   // clang-format off
   NSArray<FSTDocument *> *docs =
@@ -371,14 +368,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testSortsDocumentsWithDescendingToo {
   FSTQuery *query = FSTTestQuery(@"collection");
-  query = [query
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"sort1") toCPPFieldPath]
-                                              ascending:NO]];
-  query = [query
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"sort2") toCPPFieldPath]
-                                              ascending:NO]];
+  query =
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort1")
+                                                               ascending:NO]];
+  query =
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort2")
+                                                               ascending:NO]];
 
   // clang-format off
   NSArray<FSTDocument *> *docs =

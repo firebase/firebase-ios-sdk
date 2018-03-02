@@ -323,7 +323,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-+ (instancetype)fromCPPFieldPath:(const FieldPath &)fieldPath {
++ (instancetype)fieldPathWithCPPFieldPath:(const FieldPath &)fieldPath {
   NSMutableArray<NSString *> *segments = [NSMutableArray arrayWithCapacity:fieldPath.size()];
   for (int i = 0; i < fieldPath.size(); i++) {
     segments[i] = util::WrapNSString(fieldPath[i]);
@@ -378,7 +378,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-+ (instancetype)fromCPPResourcePath:(const ResourcePath &)resourcePath {
++ (instancetype)resourcePathWithCPPResourcePath:(const ResourcePath &)resourcePath {
   NSMutableArray<NSString *> *segments = [NSMutableArray arrayWithCapacity:resourcePath.size()];
   for (int i = 0; i < resourcePath.size(); i++) {
     segments[i] = util::WrapNSString(resourcePath[i]);

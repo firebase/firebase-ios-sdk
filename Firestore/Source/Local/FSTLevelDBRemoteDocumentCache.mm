@@ -105,7 +105,7 @@ static ReadOptions StandardReadOptions() {
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
   std::string startKey = [FSTLevelDBRemoteDocumentKey
-      keyPrefixWithResourcePath:[FSTResourcePath fromCPPResourcePath:query.path]];
+      keyPrefixWithResourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]];
   std::unique_ptr<Iterator> it(_db->NewIterator(StandardReadOptions()));
   it->Seek(startKey);
 

@@ -75,8 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  if ([FSTDocumentKey isDocumentKey:[FSTResourcePath fromCPPResourcePath:query.path]]) {
-    return [self documentsMatchingDocumentQuery:[FSTResourcePath fromCPPResourcePath:query.path]];
+  if ([FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]]) {
+    return [self documentsMatchingDocumentQuery:[FSTResourcePath
+                                                    resourcePathWithCPPResourcePath:query.path]];
   } else {
     return [self documentsMatchingCollectionQuery:query];
   }

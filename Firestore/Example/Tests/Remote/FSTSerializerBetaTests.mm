@@ -48,7 +48,9 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 
@@ -581,9 +583,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrders {
   FSTQuery *q = [FSTTestQuery(@"docs")
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"prop") toCPPFieldPath]
-                                              ascending:YES]];
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
+                                                        ascending:YES]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -602,9 +603,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrdersDescending {
   FSTQuery *q = [FSTTestQuery(@"rooms/1/messages/10/attachments")
-      queryByAddingSortOrder:[FSTSortOrder
-                                 sortOrderWithFieldPath:[FSTTestFieldPath(@"prop") toCPPFieldPath]
-                                              ascending:NO]];
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
+                                                        ascending:NO]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
