@@ -128,7 +128,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"%@ %@ %@", util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"%s %@ %@", _field.CanonicalString().c_str(),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
                                     self.value];
 }
@@ -160,7 +160,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (NSString *)canonicalID {
   // TODO(b/37283291): This should be collision robust and avoid relying on |description| methods.
-  return [NSString stringWithFormat:@"%@%@%@", util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"%s%@%@", _field.CanonicalString().c_str(),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
                                     [self.value value]];
 }
@@ -226,8 +226,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (NSString *)canonicalID {
-  return
-      [NSString stringWithFormat:@"%@ IS NULL", util::WrapNSStringNoCopy(_field.CanonicalString())];
+  return [NSString stringWithFormat:@"%s IS NULL", _field.CanonicalString().c_str()];
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
@@ -274,8 +273,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (NSString *)canonicalID {
-  return
-      [NSString stringWithFormat:@"%@ IS NaN", util::WrapNSStringNoCopy(_field.CanonicalString())];
+  return [NSString stringWithFormat:@"%s IS NaN", _field.CanonicalString().c_str()];
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
@@ -355,7 +353,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%@%@", util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"%s%@", _field.CanonicalString().c_str(),
                                     self.isAscending ? @"asc" : @"desc"];
 }
 
@@ -366,8 +364,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSortOrder: path:%@ dir:%@>",
-                                    util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"<FSTSortOrder: path:%s dir:%@>",
+                                    _field.CanonicalString().c_str(),
                                     self.ascending ? @"asc" : @"desc"];
 }
 
