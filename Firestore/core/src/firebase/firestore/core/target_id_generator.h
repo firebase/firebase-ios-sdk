@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TARGET_ID_GENERATOR_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TARGET_ID_GENERATOR_H_
 
-#include "Firestore/core/src/firebase/firestore/core/types.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 namespace firebase {
 namespace firestore {
@@ -48,7 +48,7 @@ class TargetIdGenerator {
    * @param after An ID to start at. Every call to NextId returns a larger id.
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGenerator LocalStoreTargetIdGenerator(TargetId after) {
+  static TargetIdGenerator LocalStoreTargetIdGenerator(model::TargetId after) {
     return TargetIdGenerator(TargetIdGeneratorId::LocalStore, after);
   }
 
@@ -58,7 +58,7 @@ class TargetIdGenerator {
    * @param after An ID to start at. Every call to NextId returns a larger id.
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGenerator SyncEngineTargetIdGenerator(TargetId after) {
+  static TargetIdGenerator SyncEngineTargetIdGenerator(model::TargetId after) {
     return TargetIdGenerator(TargetIdGeneratorId::SyncEngine, after);
   }
 
@@ -66,12 +66,12 @@ class TargetIdGenerator {
     return generator_id_;
   }
 
-  TargetId NextId();
+  model::TargetId NextId();
 
  private:
-  TargetIdGenerator(TargetIdGeneratorId generator_id, TargetId after);
+  TargetIdGenerator(TargetIdGeneratorId generator_id, model::TargetId after);
   TargetIdGeneratorId generator_id_;
-  TargetId previous_id_;
+  model::TargetId previous_id_;
 
   static const int kReservedBits = 1;
 };
