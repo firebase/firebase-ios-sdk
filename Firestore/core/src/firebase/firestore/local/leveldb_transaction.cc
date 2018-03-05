@@ -2,10 +2,12 @@
 
 #include "Firestore/Source/Local/FSTLevelDBTransaction.h"
 
+#include <leveldb/write_batch.h>
+#ifdef __OBJC__
 #import <Protobuf/GPBProtocolBuffers.h>
+#endif
 
-#import "FSTAssert.h"
-#import "write_batch.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 using leveldb::DB;
 using leveldb::ReadOptions;
@@ -29,11 +31,13 @@ void LevelDBTransaction::Put(const std::string& key, const Slice& value) {
   deletions_.erase(key);
 }
 
+#ifdef __OBJC__
 void LevelDBTransaction::Put(const std::string& key, GPBMessage *message) {
   NSData *data = [message data];
   Slice value((const char *)data.bytes, data.length);
   mutations_[key] = value;
 }
+#endif
 
 LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
     : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
