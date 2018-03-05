@@ -104,7 +104,8 @@ static ReadOptions StandardReadOptions() {
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
-  std::string startKey = [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:query.path];
+  std::string startKey = [FSTLevelDBRemoteDocumentKey
+      keyPrefixWithResourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]];
   std::unique_ptr<Iterator> it(_db->NewIterator(StandardReadOptions()));
   it->Seek(startKey);
 
@@ -112,7 +113,7 @@ static ReadOptions StandardReadOptions() {
   for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
     FSTMaybeDocument *maybeDoc =
         [self decodedMaybeDocument:it->value() withKey:currentKey.documentKey];
-    if (![query.path isPrefixOfPath:maybeDoc.key.path]) {
+    if (!query.path.IsPrefixOf([maybeDoc.key.path toCPPResourcePath])) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];

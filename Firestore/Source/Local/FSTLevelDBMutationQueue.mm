@@ -426,7 +426,7 @@ static ReadOptions StandardReadOptions() {
   FSTAssert(![query isDocumentQuery], @"Document queries shouldn't go down this path");
   NSString *userID = self.userID;
 
-  FSTResourcePath *queryPath = query.path;
+  FSTResourcePath *queryPath = [FSTResourcePath resourcePathWithCPPResourcePath:query.path];
   int immediateChildrenPathLength = queryPath.length + 1;
 
   // TODO(mcg): Actually implement a single-collection query

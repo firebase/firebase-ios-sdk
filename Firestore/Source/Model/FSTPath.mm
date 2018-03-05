@@ -16,10 +16,20 @@
 
 #import "Firestore/Source/Model/FSTPath.h"
 
+#include <string>
+
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
+
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -313,6 +323,22 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
++ (instancetype)fieldPathWithCPPFieldPath:(const FieldPath &)fieldPath {
+  NSMutableArray<NSString *> *segments = [NSMutableArray arrayWithCapacity:fieldPath.size()];
+  for (int i = 0; i < fieldPath.size(); i++) {
+    segments[i] = util::WrapNSString(fieldPath[i]);
+  }
+  return [FSTFieldPath pathWithSegments:segments];
+}
+
+- (FieldPath)toCPPFieldPath {
+  std::vector<std::string> segments(self.length);
+  for (int i = 0; i < self.length; i++) {
+    segments[i] = [[self segmentAtIndex:i] UTF8String];
+  }
+  return FieldPath(segments.begin(), segments.end());
+}
+
 @end
 
 @implementation FSTResourcePath
@@ -351,6 +377,23 @@ NS_ASSUME_NONNULL_BEGIN
   }
   return result;
 }
+
++ (instancetype)resourcePathWithCPPResourcePath:(const ResourcePath &)resourcePath {
+  NSMutableArray<NSString *> *segments = [NSMutableArray arrayWithCapacity:resourcePath.size()];
+  for (int i = 0; i < resourcePath.size(); i++) {
+    segments[i] = util::WrapNSString(resourcePath[i]);
+  }
+  return [FSTResourcePath pathWithSegments:segments];
+}
+
+- (ResourcePath)toCPPResourcePath {
+  std::vector<std::string> segments(self.length);
+  for (int i = 0; i < self.length; i++) {
+    segments[i] = [[self segmentAtIndex:i] UTF8String];
+  }
+  return ResourcePath(segments.begin(), segments.end());
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

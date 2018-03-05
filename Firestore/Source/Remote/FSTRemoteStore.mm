@@ -27,6 +27,7 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
@@ -446,7 +447,8 @@ static const int kOnlineAttemptsBeforeFailure = 2;
         // updates. Without applying a deleted document there might be another query that will
         // raise this document as part of a snapshot until it is resolved, essentially exposing
         // inconsistency between queries
-        FSTDocumentKey *key = [FSTDocumentKey keyWithPath:query.path];
+        FSTDocumentKey *key = [FSTDocumentKey
+            keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]];
         FSTDeletedDocument *deletedDoc =
             [FSTDeletedDocument documentWithKey:key version:snapshotVersion];
         [remoteEvent addDocumentUpdate:deletedDoc];
