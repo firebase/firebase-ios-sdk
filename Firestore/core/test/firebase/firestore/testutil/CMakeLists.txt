@@ -30,6 +30,7 @@ endif()
 cc_library(
   firebase_firestore_testutil
   SOURCES
+    testutil.cc
     testutil.h
   DEPENDS
     ${TESTUTIL_DEPENDS}

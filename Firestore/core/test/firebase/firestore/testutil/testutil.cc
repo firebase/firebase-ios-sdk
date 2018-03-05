@@ -14,28 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
-#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
-
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "absl/strings/string_view.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace firebase {
 namespace firestore {
 namespace testutil {
 
-// Below are convenience methods for creating instances for tests.
-
-inline model::FieldPath Field(absl::string_view field) {
-  return model::FieldPath::FromServerFormat(field);
+void dummy() {
 }
-
-// Add a non-inline function to make this library buildable.
-// TODO(zxu123): remove once there is non-inline function.
-void dummy();
 
 }  // namespace testutil
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
