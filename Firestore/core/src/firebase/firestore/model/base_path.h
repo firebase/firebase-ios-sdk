@@ -160,7 +160,7 @@ class BasePath {
   }
 
 #if defined(__OBJC__)
-  // For objective-c++ hash; to be removed after migration.
+  // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
   uint64_t Hash() const {
     std::hash<std::string> hash_fn;

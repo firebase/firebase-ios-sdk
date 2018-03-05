@@ -61,7 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
          "number of segments, but %@ has %d",
         util::WrapNSStringNoCopy(path.CanonicalString()), path.size());
   }
-  self = [super initWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
+  self =
+      [super initWithQuery:[FSTQuery queryWithPath:[path toCPPResourcePath]] firestore:firestore];
   return self;
 }
 
@@ -99,7 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
   if (parentPath.empty()) {
     return nil;
   } else {
-    FSTDocumentKey *key = [FSTDocumentKey keyWithPath:parentPath];
+    FSTDocumentKey *key =
+        [FSTDocumentKey keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:parentPath]];
     return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
   }
 }

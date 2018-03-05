@@ -655,7 +655,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(FSTQuery *)query {
   GCFSTarget_DocumentsTarget *result = [GCFSTarget_DocumentsTarget message];
   NSMutableArray<NSString *> *docs = result.documentsArray;
-  [docs addObject:[self encodedQueryPath:query.path]];
+  [docs addObject:[self encodedQueryPath:[FSTResourcePath
+                                             resourcePathWithCPPResourcePath:query.path]]];
   return result;
 }
 
@@ -665,7 +666,7 @@ NS_ASSUME_NONNULL_BEGIN
             (unsigned long)documents.count);
 
   NSString *name = documents[0];
-  return [FSTQuery queryWithPath:[self decodedQueryPath:name]];
+  return [FSTQuery queryWithPath:[[self decodedQueryPath:name] toCPPResourcePath]];
 }
 
 - (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query {
@@ -750,7 +751,7 @@ NS_ASSUME_NONNULL_BEGIN
     endAt = [self decodedBound:query.endAt];
   }
 
-  return [[FSTQuery alloc] initWithPath:path
+  return [[FSTQuery alloc] initWithPath:[path toCPPResourcePath]
                                filterBy:filterBy
                                 orderBy:orderBy
                                   limit:limit
@@ -819,7 +820,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSStructuredQuery_Filter *)encodedRelationFilter:(FSTRelationFilter *)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *fieldFilter = proto.fieldFilter;
-  fieldFilter.field = [self encodedFieldPath:filter.field];
+  fieldFilter.field = [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
   fieldFilter.op = [self encodedRelationFilterOperator:filter.filterOperator];
   fieldFilter.value = [self encodedFieldValue:filter.value];
   return proto;
@@ -829,12 +830,15 @@ NS_ASSUME_NONNULL_BEGIN
   FieldPath fieldPath = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
   FSTRelationFilterOperator filterOperator = [self decodedRelationFilterOperator:proto.op];
   FSTFieldValue *value = [self decodedFieldValue:proto.value];
-  return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
+  return [FSTRelationFilter filterWithField:[fieldPath toCPPFieldPath]
+                             filterOperator:filterOperator
+                                      value:value];
 }
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(id<FSTFilter>)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
-  proto.unaryFilter.field = [self encodedFieldPath:filter.field];
+  proto.unaryFilter.field =
+      [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
   if ([filter isKindOfClass:[FSTNanFilter class]]) {
     proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNan;
   } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
@@ -849,10 +853,10 @@ NS_ASSUME_NONNULL_BEGIN
   FieldPath field = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
-      return [[FSTNanFilter alloc] initWithField:field];
+      return [[FSTNanFilter alloc] initWithField:[field toCPPFieldPath]];
 
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:
-      return [[FSTNullFilter alloc] initWithField:field];
+      return [[FSTNullFilter alloc] initWithField:[field toCPPFieldPath]];
 
     default:
       FSTFail(@"Unrecognized UnaryFilter.operator %d", proto.op);
@@ -921,7 +925,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSStructuredQuery_Order *)encodedSortOrder:(FSTSortOrder *)sortOrder {
   GCFSStructuredQuery_Order *proto = [GCFSStructuredQuery_Order message];
-  proto.field = [self encodedFieldPath:sortOrder.field];
+  proto.field = [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrder.field]];
   if (sortOrder.ascending) {
     proto.direction = GCFSStructuredQuery_Direction_Ascending;
   } else {
@@ -943,7 +947,7 @@ NS_ASSUME_NONNULL_BEGIN
     default:
       FSTFail(@"Unrecognized GCFSStructuredQuery_Direction %d", proto.direction);
   }
-  return [FSTSortOrder sortOrderWithFieldPath:fieldPath ascending:ascending];
+  return [FSTSortOrder sortOrderWithFieldPath:[fieldPath toCPPFieldPath] ascending:ascending];
 }
 
 #pragma mark - Bounds/Cursors

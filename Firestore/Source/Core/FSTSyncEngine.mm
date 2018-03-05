@@ -36,6 +36,7 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
@@ -496,7 +497,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   if (!self.limboTargetsByKey[key]) {
     FSTLog(@"New document in limbo: %@", key);
     FSTTargetID limboTargetID = _targetIdGenerator.NextId();
-    FSTQuery *query = [FSTQuery queryWithPath:key.path];
+    FSTQuery *query = [FSTQuery queryWithPath:[key.path toCPPResourcePath]];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
                                              listenSequenceNumber:kIrrelevantSequenceNumber

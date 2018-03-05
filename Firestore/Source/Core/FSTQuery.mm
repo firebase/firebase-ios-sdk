@@ -127,7 +127,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"%@ %@ %@", util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"%s %@ %@", _field.CanonicalString().c_str(),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
                                     self.value];
 }
@@ -152,13 +152,14 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     NSComparisonResult comparison = FSTDocumentKeyComparator(document.key, refValue.value);
     return [self matchesComparison:comparison];
   } else {
-    return [self matchesValue:[document fieldForPath:self.field]];
+    return [self
+        matchesValue:[document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]]];
   }
 }
 
 - (NSString *)canonicalID {
   // TODO(b/37283291): This should be collision robust and avoid relying on |description| methods.
-  return [NSString stringWithFormat:@"%@%@%@", util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"%s%@%@", _field.CanonicalString().c_str(),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
                                     [self.value value]];
 }
@@ -218,13 +219,13 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue = [document fieldForPath:self.field];
+  FSTFieldValue *fieldValue =
+      [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
   return fieldValue != nil && [fieldValue isEqual:[FSTNullValue nullValue]];
 }
 
 - (NSString *)canonicalID {
-  return
-      [NSString stringWithFormat:@"%@ IS NULL", util::WrapNSStringNoCopy(_field.CanonicalString())];
+  return [NSString stringWithFormat:@"%s IS NULL", _field.CanonicalString().c_str()];
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
@@ -265,13 +266,13 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue = [document fieldForPath:self.field];
+  FSTFieldValue *fieldValue =
+      [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
   return fieldValue != nil && [fieldValue isEqual:[FSTDoubleValue nanValue]];
 }
 
 - (NSString *)canonicalID {
-  return
-      [NSString stringWithFormat:@"%@ IS NaN", util::WrapNSStringNoCopy(_field.CanonicalString())];
+  return [NSString stringWithFormat:@"%s IS NaN", _field.CanonicalString().c_str()];
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
@@ -336,8 +337,10 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (_field == FieldPath::KeyFieldPath()) {
     result = FSTDocumentKeyComparator(document1.key, document2.key);
   } else {
-    FSTFieldValue *value1 = [document1 fieldForPath:self.field];
-    FSTFieldValue *value2 = [document2 fieldForPath:self.field];
+    FSTFieldValue *value1 =
+        [document1 fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
+    FSTFieldValue *value2 =
+        [document2 fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
     FSTAssert(value1 != nil && value2 != nil,
               @"Trying to compare documents on fields that don't exist.");
     result = [value1 compare:value2];
@@ -349,7 +352,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%@%@", util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"%s%@", _field.CanonicalString().c_str(),
                                     self.isAscending ? @"asc" : @"desc"];
 }
 
@@ -360,8 +363,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSortOrder: path:%@ dir:%@>",
-                                    util::WrapNSStringNoCopy(_field.CanonicalString()),
+  return [NSString stringWithFormat:@"<FSTSortOrder: path:%s dir:%@>",
+                                    _field.CanonicalString().c_str(),
                                     self.ascending ? @"asc" : @"desc"];
 }
 
@@ -430,7 +433,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
       comparison = [refValue.value compare:document.key];
     } else {
-      FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
+      FSTFieldValue *docValue =
+          [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrderComponent.field]];
       FSTAssert(docValue != nil, @"Field should exist since document matched the orderBy already.");
       comparison = [fieldValue compare:docValue];
     }

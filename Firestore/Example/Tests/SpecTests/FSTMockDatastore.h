@@ -34,8 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic) int writeStreamRequestCount;
 
-+ (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
-
 #pragma mark - Watch Stream manipulation.
 
 /** Injects an Added WatchChange containing the given targetIDs. */

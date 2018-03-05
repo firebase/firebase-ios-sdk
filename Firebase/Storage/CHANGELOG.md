@@ -1,3 +1,6 @@
+# v2.1.3
+- [changed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of Xcode and CocoaPods.
+
 # v2.1.2
 - [added] Firebase Storage is now community-supported on tvOS.
 

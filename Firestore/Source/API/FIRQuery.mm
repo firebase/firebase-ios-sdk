@@ -378,7 +378,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
         @"Invalid query. You must not specify an ending point before specifying the order by.");
   }
   FSTSortOrder *sortOrder =
-      [FSTSortOrder sortOrderWithFieldPath:fieldPath.internalValue ascending:!descending];
+      [FSTSortOrder sortOrderWithFieldPath:[fieldPath.internalValue toCPPFieldPath]
+                                 ascending:!descending];
   return [FIRQuery referenceWithQuery:[self.query queryByAddingSortOrder:sortOrder]
                             firestore:self.firestore];
 }
@@ -490,15 +491,15 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                            @"Invalid Query. You can only perform equality comparisons on nil / "
                             "NSNull.");
     }
-    filter = [[FSTNullFilter alloc] initWithField:fieldPath];
+    filter = [[FSTNullFilter alloc] initWithField:[fieldPath toCPPFieldPath]];
   } else if ([fieldValue isEqual:[FSTDoubleValue nanValue]]) {
     if (filterOperator != FSTRelationFilterOperatorEqual) {
       FSTThrowInvalidUsage(@"InvalidQueryException",
                            @"Invalid Query. You can only perform equality comparisons on NaN.");
     }
-    filter = [[FSTNanFilter alloc] initWithField:fieldPath];
+    filter = [[FSTNanFilter alloc] initWithField:[fieldPath toCPPFieldPath]];
   } else {
-    filter = [FSTRelationFilter filterWithField:fieldPath
+    filter = [FSTRelationFilter filterWithField:[fieldPath toCPPFieldPath]
                                  filterOperator:filterOperator
                                           value:fieldValue];
     [self validateNewRelationFilter:filter];
@@ -579,7 +580,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
       [components addObject:[FSTReferenceValue referenceValue:document.key
                                                    databaseID:self.firestore.databaseID]];
     } else {
-      FSTFieldValue *value = [document fieldForPath:sortOrder.field];
+      FSTFieldValue *value =
+          [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrder.field]];
       if (value != nil) {
         [components addObject:value];
       } else {

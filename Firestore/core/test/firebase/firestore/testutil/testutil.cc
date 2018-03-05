@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
-#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
+namespace firebase {
+namespace firestore {
+namespace testutil {
 
-NS_ASSUME_NONNULL_BEGIN
+void dummy() {
+}
 
-/** `FSTEmptyCredentialsProvider` always yields an empty token. */
-@interface FSTEmptyCredentialsProvider : NSObject <FSTCredentialsProvider>
-
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace testutil
+}  // namespace firestore
+}  // namespace firebase

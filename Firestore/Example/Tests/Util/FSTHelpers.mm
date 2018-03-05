@@ -205,12 +205,12 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
   FSTFieldValue *data = FSTTestFieldValue(value);
   if ([data isEqual:[FSTDoubleValue nanValue]]) {
     FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with NAN.");
-    return [[FSTNanFilter alloc] initWithField:path];
+    return [[FSTNanFilter alloc] initWithField:[path toCPPFieldPath]];
   } else if ([data isEqual:[FSTNullValue nullValue]]) {
     FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with Null.");
-    return [[FSTNullFilter alloc] initWithField:path];
+    return [[FSTNullFilter alloc] initWithField:[path toCPPFieldPath]];
   } else {
-    return [FSTRelationFilter filterWithField:path filterOperator:op value:data];
+    return [FSTRelationFilter filterWithField:[path toCPPFieldPath] filterOperator:op value:data];
   }
 }
 
@@ -224,7 +224,7 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
   } else {
     FSTCFail(@"Unsupported direction: %@", direction);
   }
-  return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
+  return [FSTSortOrder sortOrderWithFieldPath:[path toCPPFieldPath] ascending:ascending];
 }
 
 NSComparator FSTTestDocComparator(const absl::string_view fieldPath) {

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(ExternalProjectFlags)
 
 if(WIN32 OR LEVELDB_ROOT)
   # If the user has supplied a LEVELDB_ROOT then just use it. Add an empty
@@ -42,16 +41,13 @@ else()
       $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>"
   )
 
-  ExternalProject_GitSource(
-    LEVELDB_GIT
-    GIT_REPOSITORY "https://github.com/google/leveldb.git"
-    GIT_TAG "v1.20"
-  )
-
   ExternalProject_Add(
     leveldb
 
-    ${LEVELDB_GIT}
+    DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+    DOWNLOAD_NAME leveldb-v1.20.tar.gz
+    URL https://github.com/google/leveldb/archive/v1.20.tar.gz
+    URL_HASH SHA256=f5abe8b5b209c2f36560b75f32ce61412f39a2922f7045ae764a2c23335b6664
 
     PREFIX ${PROJECT_BINARY_DIR}/external/leveldb
 
