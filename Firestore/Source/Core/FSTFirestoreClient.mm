@@ -181,7 +181,9 @@ NS_ASSUME_NONNULL_BEGIN
                                             workerDispatchQueue:self.workerDispatchQueue
                                                     credentials:_credentialsProvider];
 
-  _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:datastore];
+  _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                                  datastore:datastore
+                                        workerDispatchQueue:self.workerDispatchQueue];
 
   _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                               remoteStore:_remoteStore

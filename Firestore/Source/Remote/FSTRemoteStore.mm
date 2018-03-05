@@ -30,6 +30,7 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
+#import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
@@ -50,20 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static const int kMaxPendingWrites = 10;
 
-/**
- * The FSTRemoteStore notifies an onlineStateDelegate with FSTOnlineStateFailed if we fail to
- * connect to the backend. This subsequently triggers get() requests to fail or use cached data,
- * etc. Unfortunately, our connections have historically been subject to various transient failures.
- * So we wait for multiple failures before notifying the onlineStateDelegate.
- */
-static const int kOnlineAttemptsBeforeFailure = 2;
-
 #pragma mark - FSTRemoteStore
 
 @interface FSTRemoteStore () <FSTWatchStreamDelegate, FSTWriteStreamDelegate>
-
-- (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:(FSTDatastore *)datastore NS_DESIGNATED_INITIALIZER;
 
 /**
  * The local store, used to fill the write pipeline with outbound mutations and resolve existence
@@ -110,28 +100,12 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 @property(nonatomic, strong) NSMutableArray<FSTWatchChange *> *accumulatedChanges;
 @property(nonatomic, assign) FSTBatchID lastBatchSeen;
 
-/**
- * The online state of the watch stream. The state is set to healthy if and only if there are
- * messages received by the backend.
- */
-@property(nonatomic, assign) FSTOnlineState watchStreamOnlineState;
-
-/** A count of consecutive failures to open the stream. */
-@property(nonatomic, assign) int watchStreamFailures;
-
-/** Whether the client should fire offline warning. */
-@property(nonatomic, assign) BOOL shouldWarnOffline;
+@property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
 
 #pragma mark Write Stream
 // The writeStream is null when the network is disabled. The non-null check is performed by
 // isNetworkEnabled.
 @property(nonatomic, strong, nullable) FSTWriteStream *writeStream;
-
-/**
- * The approximate time the StreamingWrite stream was opened. Used to estimate if stream was
- * closed due to an auth expiration (a recoverable error) or some other more permanent error.
- */
-@property(nonatomic, strong, nullable) NSDate *writeStreamOpenTime;
 
 /**
  * A FIFO queue of in-flight writes. This is in-flight from the point of view of the caller of
@@ -143,12 +117,9 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 
 @implementation FSTRemoteStore
 
-+ (instancetype)remoteStoreWithLocalStore:(FSTLocalStore *)localStore
-                                datastore:(FSTDatastore *)datastore {
-  return [[FSTRemoteStore alloc] initWithLocalStore:localStore datastore:datastore];
-}
-
-- (instancetype)initWithLocalStore:(FSTLocalStore *)localStore datastore:(FSTDatastore *)datastore {
+- (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
+                         datastore:(FSTDatastore *)datastore
+               workerDispatchQueue:(FSTDispatchQueue *)queue {
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = datastore;
@@ -157,9 +128,8 @@ static const int kOnlineAttemptsBeforeFailure = 2;
     _accumulatedChanges = [NSMutableArray array];
 
     _lastBatchSeen = kFSTBatchIDUnknown;
-    _watchStreamOnlineState = FSTOnlineStateUnknown;
-    _shouldWarnOffline = YES;
     _pendingWrites = [NSMutableArray array];
+    _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerDispatchQueue:queue];
   }
   return self;
 }
@@ -169,48 +139,14 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   [self enableNetwork];
 }
 
-/**
- * Updates our OnlineState to the new state, updating local state and notifying the
- * onlineStateHandler as appropriate.
- */
-- (void)updateOnlineState:(FSTOnlineState)newState {
-  // Update and broadcast the new state.
-  if (newState != self.watchStreamOnlineState) {
-    if (newState == FSTOnlineStateHealthy) {
-      // We've connected to watch at least once. Don't warn the developer about being offline going
-      // forward.
-      self.shouldWarnOffline = NO;
-    } else if (newState == FSTOnlineStateUnknown) {
-      // The state is set to unknown when a healthy stream is closed (e.g. due to a token timeout)
-      // or when we have no active listens and therefore there's no need to start the stream.
-      // Assuming there is (possibly in the future) an active listen, then we will eventually move
-      // to state Online or Failed, but we always want to make at least kOnlineAttemptsBeforeFailure
-      // attempts before failing, so we reset the count here.
-      self.watchStreamFailures = 0;
-    }
-    self.watchStreamOnlineState = newState;
-    [self.onlineStateDelegate applyChangedOnlineState:newState];
-  }
+@dynamic onlineStateDelegate;
+
+- (nullable id<FSTOnlineStateDelegate>)onlineStateDelegate {
+  return self.onlineStateTracker.onlineStateDelegate;
 }
 
-/**
- * Updates our FSTOnlineState as appropriate after the watch stream reports a failure. The first
- * failure moves us to the 'Unknown' state. We then may allow multiple failures (based on
- * kOnlineAttemptsBeforeFailure) before we actually transition to FSTOnlineStateFailed.
- */
-- (void)updateOnlineStateAfterFailure {
-  if (self.watchStreamOnlineState == FSTOnlineStateHealthy) {
-    [self updateOnlineState:FSTOnlineStateUnknown];
-  } else {
-    self.watchStreamFailures++;
-    if (self.watchStreamFailures >= kOnlineAttemptsBeforeFailure) {
-      if (self.shouldWarnOffline) {
-        FSTWarn(@"Could not reach Firestore backend.");
-        self.shouldWarnOffline = NO;
-      }
-      [self updateOnlineState:FSTOnlineStateFailed];
-    }
-  }
+- (void)setOnlineStateDelegate:(nullable id<FSTOnlineStateDelegate>)delegate {
+  self.onlineStateTracker.onlineStateDelegate = delegate;
 }
 
 #pragma mark Online/Offline state
@@ -235,18 +171,17 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
+  } else {
+    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
   }
 
   [self fillWritePipeline];  // This may start the writeStream.
-
-  // We move back to the unknown state because we might not want to re-open the stream
-  [self updateOnlineState:FSTOnlineStateUnknown];
 }
 
 - (void)disableNetwork {
   [self disableNetworkInternal];
-  // Set the FSTOnlineState to failed so get()'s return from cache, etc.
-  [self updateOnlineState:FSTOnlineStateFailed];
+  // Set the FSTOnlineState to Offline so get()s return from cache, etc.
+  [self.onlineStateTracker updateState:FSTOnlineStateOffline];
 }
 
 /** Disables the network, setting the FSTOnlineState to the specified targetOnlineState. */
@@ -270,9 +205,9 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 - (void)shutdown {
   FSTLog(@"FSTRemoteStore %p shutting down", (__bridge void *)self);
   [self disableNetworkInternal];
-  // Set the FSTOnlineState to Unknown (rather than Failed) to avoid potentially triggering
+  // Set the FSTOnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
-  [self updateOnlineState:FSTOnlineStateUnknown];
+  [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
 }
 
 - (void)userDidChange:(const User &)user {
@@ -283,7 +218,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
     // (since mutations are per-user).
     [self disableNetworkInternal];
-    [self updateOnlineState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
     [self enableNetwork];
   }
 }
@@ -294,6 +229,7 @@ static const int kOnlineAttemptsBeforeFailure = 2;
   FSTAssert([self shouldStartWatchStream],
             @"startWatchStream: called when shouldStartWatchStream: is false.");
   [self.watchStream startWithDelegate:self];
+  [self.onlineStateTracker handleWatchStreamStart];
 }
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
@@ -365,8 +301,8 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 
 - (void)watchStreamDidChange:(FSTWatchChange *)change
              snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
-  // Mark the connection as healthy because we got a message from the server.
-  [self updateOnlineState:FSTOnlineStateHealthy];
+  // Mark the connection as Online because we got a message from the server.
+  [self.onlineStateTracker updateState:FSTOnlineStateOnline];
 
   FSTWatchTargetChange *watchTargetChange =
       [change isKindOfClass:[FSTWatchTargetChange class]] ? (FSTWatchTargetChange *)change : nil;
@@ -397,19 +333,20 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 
 - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
   FSTAssert([self isNetworkEnabled],
-            @"watchStreamDidClose should only be called when the network is enabled");
+            @"watchStreamWasInterruptedWithError: should only be called when the network is "
+             "enabled");
 
   [self cleanUpWatchStreamState];
+  [self.onlineStateTracker handleWatchStreamFailure];
 
   // If the watch stream closed due to an error, retry the connection if there are any active
   // watch targets.
   if ([self shouldStartWatchStream]) {
-    [self updateOnlineStateAfterFailure];
     [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
     // state is set to unknown because there is no active attempt at establishing a connection.
-    [self updateOnlineState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
   }
 }
 
@@ -604,8 +541,6 @@ static const int kOnlineAttemptsBeforeFailure = 2;
 }
 
 - (void)writeStreamDidOpen {
-  self.writeStreamOpenTime = [NSDate date];
-
   [self.writeStream writeHandshake];
 }
 

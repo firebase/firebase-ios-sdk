@@ -1,4 +1,8 @@
 # Unreleased
+- [changed] If the SDK's attempt to connect to the Cloud Firestore backend
+  neither succeeds nor fails within 10 seconds, the SDK will consider itself
+  "offline", causing getDocument() calls to resolve with cached results, rather
+  than continuing to wait.
 
 # v0.10.2
 - [changed] When you delete a FirebaseApp, the associated Firestore instances
