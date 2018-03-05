@@ -1,14 +1,18 @@
 
 
 #include "Firestore/Source/Local/FSTLevelDBTransaction.h"
+
+#import <Protobuf/GPBProtocolBuffers.h>
+
 #import "FSTAssert.h"
+#import "write_batch.h"
 
 using leveldb::DB;
 using leveldb::ReadOptions;
 using leveldb::Slice;
 using leveldb::Status;
+using leveldb::WriteBatch;
 using leveldb::WriteOptions;
-using Firestore::StringView;
 
 namespace firebase {
 namespace firestore {
@@ -23,6 +27,12 @@ LevelDBTransaction::LevelDBTransaction(std::shared_ptr<DB> db,
 void LevelDBTransaction::Put(const std::string& key, const Slice& value) {
   mutations_[key] = value;
   deletions_.erase(key);
+}
+
+void LevelDBTransaction::Put(const std::string& key, GPBMessage *message) {
+  NSData *data = [message data];
+  Slice value((const char *)data.bytes, data.length);
+  mutations_[key] = value;
 }
 
 LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
@@ -116,6 +126,22 @@ Status LevelDBTransaction::Get(const std::string& key, std::string* value) {
 void LevelDBTransaction::Delete(const std::string& key) {
   deletions_.insert(key);
   mutations_.erase(key);
+}
+
+void LevelDBTransaction::Commit() {
+  WriteBatch toWrite;
+  for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
+    toWrite.Delete(*it);
+  }
+
+  for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
+    toWrite.Put(it->first, it->second);
+  }
+
+  Status status = db_->Write(writeOptions_, &toWrite);
+  if (!status.ok()) {
+    FSTCFail(@"Failed to commit transaction: %s", status.ToString().c_str());
+  }
 }
 
 }  // namespace local

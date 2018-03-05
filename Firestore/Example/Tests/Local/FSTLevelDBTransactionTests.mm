@@ -17,6 +17,7 @@
 
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
+#import <Firestore/Protos/objc/firestore/local/Target.pbobjc.h>
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Source/Local/FSTLevelDBTransaction.h"
@@ -131,8 +132,9 @@ using firebase::firestore::local::LevelDBTransaction;
 }
 
 - (void)testMutateDeleted {
-  // delete something, then mutate it, then read it
-  for (int i = 0; i < 3; ++i) {
+  // delete something, then mutate it, then read it.
+  // Also include an actual deletion
+  for (int i = 0; i < 4; ++i) {
     Status status =
         _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
@@ -148,6 +150,8 @@ using firebase::firestore::local::LevelDBTransaction;
   XCTAssertTrue(status.ok());
   XCTAssertEqual(value, "new_value");
 
+  transaction.Delete("key_3");
+
   LevelDBTransaction::Iterator iter(&transaction);
   iter.Seek("");
   XCTAssertEqual(iter.key(), "key_0");
@@ -158,7 +162,46 @@ using firebase::firestore::local::LevelDBTransaction;
   XCTAssertEqual(iter.key(), "key_2");
   iter.Next();
   XCTAssertFalse(iter.Valid());
+
+  // Commit, then check underlying db.
+  transaction.Commit();
+
+  status = _db->Get(_readOptions, "key_0", &value);
+  XCTAssertTrue(status.ok());
+  XCTAssertEqual("value_0", value);
+
+  status = _db->Get(_readOptions, "key_1", &value);
+  XCTAssertTrue(status.ok());
+  XCTAssertEqual("new_value", value);
+
+  status = _db->Get(_readOptions, "key_2", &value);
+  XCTAssertTrue(status.ok());
+  XCTAssertEqual("value_2", value);
+
+  status = _db->Get(_readOptions, "key_3", &value);
+  XCTAssertTrue(status.IsNotFound());
 }
+
+- (void)testProtobufSupport {
+  LevelDBTransaction transaction(_db, _readOptions, _writeOptions);
+
+  FSTPBTarget *target = [FSTPBTarget message];
+  target.targetId = 1;
+  target.lastListenSequenceNumber = 2;
+
+  std::string key("theKey");
+  transaction.Put(key, target);
+  NSData *data = [target data];
+
+  std::string value;
+  Status status = transaction.Get("theKey", &value);
+  NSData *result = [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+  NSError *error;
+  FSTPBTarget *parsed = [FSTPBTarget parseFromData:result error:&error];
+  XCTAssertNil(error);
+  XCTAssertTrue([target isEqual:parsed]);
+}
+
 
 @end
 

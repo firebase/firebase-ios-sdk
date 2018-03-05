@@ -21,7 +21,9 @@
 #include <set>
 #include "leveldb/db.h"
 
+#ifdef __OBJC__
 @class GPBMessage;
+#endif
 
 namespace firebase {
 namespace firestore {
@@ -37,9 +39,9 @@ class LevelDBTransaction {
                      const leveldb::WriteOptions& writeOptions);
 
   void Delete(const std::string& key);
-
-  void Put(const std::string& key, GPBMessage* value);
-
+#ifdef __OBJC__
+  void Put(const std::string& key, GPBMessage* message);
+#endif
   void Put(const std::string& key, const leveldb::Slice& value);
 
   leveldb::Status Get(const std::string& key, std::string* value);
@@ -63,6 +65,8 @@ class LevelDBTransaction {
   };
 
   Iterator* NewIterator();
+
+  void Commit();
 
  private:
   std::shared_ptr<leveldb::DB> db_;
