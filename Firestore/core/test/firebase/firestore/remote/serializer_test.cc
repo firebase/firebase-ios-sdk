@@ -205,12 +205,12 @@ TEST_F(SerializerTest, EncodesNestedObjectsToBytes) {
   FieldValue model = FieldValue::ObjectValue(
       {{"b", FieldValue::TrueValue()},
        // TODO(rsgowman): add doubles (once they're supported)
-       //{"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
+       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
        {"i", FieldValue::IntegerValue(1)},
        {"n", FieldValue::NullValue()},
        {"s", FieldValue::StringValue("foo")},
        // TODO(rsgowman): add arrays (once they're supported)
-       //{"a", [2, "bar", {"b", false}]},
+       // {"a", [2, "bar", {"b", false}]},
        {"o", FieldValue::ObjectValue(
                  {{"d", FieldValue::IntegerValue(100)},
                   {"nested",

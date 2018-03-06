@@ -452,9 +452,8 @@ std::map<const std::string, const FieldValue> DecodeObject(
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
   // object_value via the arg field (and therefore need to do a bunch of
   // casting).
-  map_value.fields.funcs.decode =
-      [](pb_istream_t* stream, const pb_field_t* field __attribute((unused)),
-         void** arg) -> bool {
+  map_value.fields.funcs.decode = [](pb_istream_t* stream, const pb_field_t*,
+                                     void** arg) -> bool {
     auto* result =
         reinterpret_cast<std::map<const std::string, const FieldValue>*>(*arg);
 
