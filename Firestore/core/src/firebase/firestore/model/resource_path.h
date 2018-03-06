@@ -41,6 +41,8 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   }
   ResourcePath(std::initializer_list<std::string> list) : BasePath{list} {
   }
+  explicit ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  }
   /**
    * Creates and returns a new path from the given resource-path string, where
    * the path segments are separated by a slash "/".
@@ -67,14 +69,6 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   }
   bool operator>=(const ResourcePath& rhs) const {
     return BasePath::operator>=(rhs);
-  }
-
-#if defined(__OBJC__)
- public:
-#else
- private:
-#endif  // defined(__OBJC__)
-  explicit ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
  private:
