@@ -111,7 +111,7 @@ class FieldValue {
     return string_value_;
   }
 
-  const std::map<std::string, const FieldValue>& object_value() const {
+  const std::map<std::string, FieldValue>& object_value() const {
     FIREBASE_ASSERT(tag_ == Type::Object);
     return object_value_;
   }
@@ -140,9 +140,9 @@ class FieldValue {
   static FieldValue ArrayValue(const std::vector<FieldValue>& value);
   static FieldValue ArrayValue(std::vector<FieldValue>&& value);
   static FieldValue ObjectValue(
-      const std::map<std::string, const FieldValue>& value);
+      const std::map<std::string, FieldValue>& value);
   static FieldValue ObjectValue(
-      std::map<std::string, const FieldValue>&& value);
+      std::map<std::string, FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -169,7 +169,7 @@ class FieldValue {
     firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
     std::vector<FieldValue> array_value_;
-    std::map<std::string, const FieldValue> object_value_;
+    std::map<std::string, FieldValue> object_value_;
   };
 };
 

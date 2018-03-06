@@ -116,6 +116,8 @@ TEST_F(SerializerTest, EncodesIntegersModelToBytes) {
   // For now, lets at least verify these values:
   EXPECT_EQ(-9223372036854775807 - 1, std::numeric_limits<int64_t>::min());
   EXPECT_EQ(9223372036854775807, std::numeric_limits<int64_t>::max());
+  // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
+  // above.
 
   struct TestCase {
     int64_t value;
@@ -201,6 +203,8 @@ TEST_F(SerializerTest, EncodesEmptyMapToBytes) {
 TEST_F(SerializerTest, EncodesNestedObjectsToBytes) {
   // As above, verify max int64_t value.
   EXPECT_EQ(9223372036854775807, std::numeric_limits<int64_t>::max());
+  // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
+  // above.
 
   FieldValue model = FieldValue::ObjectValue(
       {{"b", FieldValue::TrueValue()},

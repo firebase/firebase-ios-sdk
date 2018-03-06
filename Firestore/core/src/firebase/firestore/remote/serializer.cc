@@ -149,8 +149,8 @@ std::string DecodeString(pb_istream_t* stream) {
 
 void EncodeObject(
     pb_ostream_t* stream,
-    const std::map<std::string, const FieldValue>& object_value);
-std::map<std::string, const FieldValue> DecodeObject(
+    const std::map<std::string, FieldValue>& object_value);
+std::map<std::string, FieldValue> DecodeObject(
     pb_istream_t* stream);
 
 // Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
@@ -426,16 +426,16 @@ std::pair<const std::string, const FieldValue> DecodeFieldsEntry(
 
 void EncodeObject(
     pb_ostream_t* stream,
-    const std::map<std::string, const FieldValue>& object_value) {
-  google_firestore_v1beta1_MapValue mapValue =
+    const std::map<std::string, FieldValue>& object_value) {
+  google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
   // object_value via the arg field (and therefore need to do a bunch of
   // casting).
-  mapValue.fields.funcs.encode = [](pb_ostream_t* stream, const pb_field_t*,
+  map_value.fields.funcs.encode = [](pb_ostream_t* stream, const pb_field_t*,
                                     void* const* arg) -> bool {
     auto* object_value =
-        reinterpret_cast<const std::map<std::string, const FieldValue>*>(
+        reinterpret_cast<const std::map<std::string, FieldValue>*>(
             *arg);
 
     // Encode each FieldsEntry (i.e. key value pair.)
@@ -453,29 +453,29 @@ void EncodeObject(
 
     return true;
   };
-  mapValue.fields.arg =
+  map_value.fields.arg =
       const_cast<void*>(reinterpret_cast<const void*>(&object_value));
 
   bool status = pb_encode_delimited(
-      stream, google_firestore_v1beta1_MapValue_fields, &mapValue);
+      stream, google_firestore_v1beta1_MapValue_fields, &map_value);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
 }
 
-std::map<std::string, const FieldValue> DecodeObject(
+std::map<std::string, FieldValue> DecodeObject(
     pb_istream_t* stream) {
   google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
-  std::map<std::string, const FieldValue> result;
+  std::map<std::string, FieldValue> result;
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
   // object_value via the arg field (and therefore need to do a bunch of
   // casting).
   map_value.fields.funcs.decode = [](pb_istream_t* stream, const pb_field_t*,
                                      void** arg) -> bool {
     auto* result =
-        reinterpret_cast<std::map<std::string, const FieldValue>*>(*arg);
+        reinterpret_cast<std::map<std::string, FieldValue>*>(*arg);
 
     std::pair<const std::string, const FieldValue> fv =
         DecodeFieldsEntry(stream);
@@ -510,7 +510,6 @@ void Serializer::EncodeFieldValue(const FieldValue& field_value,
   // investigation to see if we can get nanopb to tell us how much space it's
   // going to need. (Hint: use a sizing stream, i.e. PB_OSTREAM_SIZING)
   uint8_t buf[1024];
-  memset(buf, 0x42, sizeof(buf));
   pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
   EncodeFieldValueImpl(&stream, field_value);
   out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
