@@ -1,13 +1,13 @@
 
 
-#include "Firestore/core/include/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 #include <leveldb/write_batch.h>
 #ifdef __OBJC__
 #import <Protobuf/GPBProtocolBuffers.h>
 #endif
 
-#import "Firestore/Source/Util/FSTAssert.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 using leveldb::DB;
 using leveldb::ReadOptions;
@@ -30,14 +30,6 @@ void LevelDBTransaction::Put(const std::string& key, const Slice& value) {
   mutations_[key] = value;
   deletions_.erase(key);
 }
-
-#ifdef __OBJC__
-void LevelDBTransaction::Put(const std::string& key, GPBMessage *message) {
-  NSData *data = [message data];
-  Slice value((const char *)data.bytes, data.length);
-  mutations_[key] = value;
-}
-#endif
 
 LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
     : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
@@ -71,7 +63,7 @@ bool LevelDBTransaction::Iterator::is_mutation() {
 }
 
 std::string LevelDBTransaction::Iterator::key() {
-  FSTCAssert(this->Valid(), @"key() called on invalid iterator");
+  FIREBASE_ASSERT_MESSAGE(this->Valid(), "key() called on invalid iterator");
   if (is_mutation()) {
     return (*mutations_iter_)->first;
   } else {
@@ -80,7 +72,7 @@ std::string LevelDBTransaction::Iterator::key() {
 }
 
 Slice LevelDBTransaction::Iterator::value() {
-  FSTCAssert(this->Valid(), @"value() called on invalid iterator");
+  FIREBASE_ASSERT_MESSAGE(this->Valid(), "value() called on invalid iterator");
   if (is_mutation()) {
     return (*mutations_iter_)->second;
   } else {
@@ -96,7 +88,7 @@ void LevelDBTransaction::Iterator::AdvanceLDB() {
 }
 
 void LevelDBTransaction::Iterator::Next() {
-  FSTCAssert(this->Valid(), @"Next() called on invalid iterator");
+  FIREBASE_ASSERT_MESSAGE(this->Valid(), "Next() called on invalid iterator");
   if (is_mutation()) {
     // A mutation might be shadowing leveldb. If so, advance both.
     if (ldb_iter_->Valid() && ldb_iter_->key() == (*mutations_iter_)->first) {
@@ -143,9 +135,7 @@ void LevelDBTransaction::Commit() {
   }
 
   Status status = db_->Write(writeOptions_, &toWrite);
-  if (!status.ok()) {
-    FSTCFail(@"Failed to commit transaction: %s", status.ToString().c_str());
-  }
+  FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction: %s", status.ToString().c_str());
 }
 
 }  // namespace local

@@ -17,10 +17,10 @@
 
 #import <XCTest/XCTest.h>
 #include <leveldb/db.h>
-#import <Firestore/Protos/objc/firestore/local/Target.pbobjc.h>
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-#include "Firestore/core/include/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -191,7 +191,6 @@ using firebase::firestore::local::LevelDBTransaction;
 
   std::string key("theKey");
   transaction.Put(key, target);
-  NSData *data = [target data];
 
   std::string value;
   Status status = transaction.Get("theKey", &value);
@@ -201,7 +200,6 @@ using firebase::firestore::local::LevelDBTransaction;
   XCTAssertNil(error);
   XCTAssertTrue([target isEqual:parsed]);
 }
-
 
 @end
 

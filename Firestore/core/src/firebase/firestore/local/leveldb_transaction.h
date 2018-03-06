@@ -22,7 +22,7 @@
 #include <leveldb/db.h>
 
 
-#ifdef __OBJC__
+#if __OBJC__
 @class GPBMessage;
 #endif
 
@@ -40,9 +40,15 @@ class LevelDBTransaction {
                      const leveldb::WriteOptions& writeOptions);
 
   void Delete(const std::string& key);
-#ifdef __OBJC__
-  void Put(const std::string& key, GPBMessage* message);
+
+#if __OBJC__
+  void Put(const std::string& key, GPBMessage* message) {
+    NSData *data = [message data];
+    leveldb::Slice value((const char *)data.bytes, data.length);
+    mutations_[key] = value;
+  }
 #endif
+
   void Put(const std::string& key, const leveldb::Slice& value);
 
   leveldb::Status Get(const std::string& key, std::string* value);
