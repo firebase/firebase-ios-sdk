@@ -69,10 +69,15 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
     return BasePath::operator>=(rhs);
   }
 
+#if defined(__OBJC__)
+ public:
+#else
  private:
+#endif  // defined(__OBJC__)
   explicit ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
 
+ private:
   // So that methods of base can construct ResourcePath using the private
   // constructor.
   friend class BasePath;

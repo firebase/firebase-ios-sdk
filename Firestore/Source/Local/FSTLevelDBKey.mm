@@ -295,7 +295,7 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
     completeSegments = leveldb::Slice(readPosition.data(), readPosition.size());
   }
 
-  ResourcePath path{path_segments.begin(), path_segments.end()};
+  ResourcePath path{std::move(path_segments)};
   if (path.size() > 0 && [FSTDocumentKey isDocumentKey:path]) {
     *contents = completeSegments;
     *result = [FSTDocumentKey keyWithPath:path];

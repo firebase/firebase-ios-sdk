@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
