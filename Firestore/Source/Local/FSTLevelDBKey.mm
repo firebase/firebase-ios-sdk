@@ -540,7 +540,7 @@ NSString *InvalidKey(const Slice &key) {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
   WriteUserID(&result, userID);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
+  WriteResourcePath(&result, documentKey.path);
   WriteBatchID(&result, batchID);
   WriteTerminator(&result);
   return result;
@@ -694,7 +694,7 @@ NSString *InvalidKey(const Slice &key) {
   std::string result;
   WriteTableName(&result, kTargetDocumentsTable);
   WriteTargetID(&result, targetID);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
+  WriteResourcePath(&result, documentKey.path);
   WriteTerminator(&result);
   return result;
 }
@@ -728,7 +728,7 @@ NSString *InvalidKey(const Slice &key) {
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)documentKey targetID:(FSTTargetID)targetID {
   std::string result;
   WriteTableName(&result, kDocumentTargetsTable);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
+  WriteResourcePath(&result, documentKey.path);
   WriteTargetID(&result, targetID);
   WriteTerminator(&result);
   return result;
@@ -763,7 +763,7 @@ NSString *InvalidKey(const Slice &key) {
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)key {
   std::string result;
   WriteTableName(&result, kRemoteDocumentsTable);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:key.path]);
+  WriteResourcePath(&result, key.path);
   WriteTerminator(&result);
   return result;
 }

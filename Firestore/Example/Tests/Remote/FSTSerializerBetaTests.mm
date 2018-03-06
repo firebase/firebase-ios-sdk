@@ -581,7 +581,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSortOrders {
-  FSTQuery *q = [FSTTestQuery(@"docs")
+  FSTQuery *q = [FSTTestQuery("docs")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
                                                         ascending:YES]];
   FSTQueryData *model = [self queryDataForQuery:q];

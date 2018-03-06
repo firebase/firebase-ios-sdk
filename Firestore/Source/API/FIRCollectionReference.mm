@@ -61,8 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
          "number of segments, but %@ has %d",
         util::WrapNSStringNoCopy(path.CanonicalString()), path.size());
   }
-  self =
-      [super initWithQuery:[FSTQuery queryWithPath:[path toCPPResourcePath]] firestore:firestore];
+  self = [super initWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
   return self;
 }
 

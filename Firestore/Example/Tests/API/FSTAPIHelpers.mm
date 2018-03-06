@@ -71,12 +71,12 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
-  return [FIRCollectionReference referenceWithPath:testutil::resource(path)
+  return [FIRCollectionReference referenceWithPath:testutil::Resource(path)
                                          firestore:FSTTestFirestore()];
 }
 
 FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
-  return [FIRDocumentReference referenceWithPath:testutil::resource(path)
+  return [FIRDocumentReference referenceWithPath:testutil::Resource(path)
                                        firestore:FSTTestFirestore()];
 }
 

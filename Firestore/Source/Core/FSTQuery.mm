@@ -152,8 +152,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     NSComparisonResult comparison = FSTDocumentKeyComparator(document.key, refValue.value);
     return [self matchesComparison:comparison];
   } else {
-    return [self
-        matchesValue:[document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]]];
+    return [self matchesValue:[document fieldForPath:self.field]];
   }
 }
 
@@ -219,8 +218,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue =
-      [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
+  FSTFieldValue *fieldValue = [document fieldForPath:self.field];
   return fieldValue != nil && [fieldValue isEqual:[FSTNullValue nullValue]];
 }
 
@@ -266,8 +264,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue =
-      [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
+  FSTFieldValue *fieldValue = [document fieldForPath:self.field];
   return fieldValue != nil && [fieldValue isEqual:[FSTDoubleValue nanValue]];
 }
 
@@ -337,10 +334,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (_field == FieldPath::KeyFieldPath()) {
     result = FSTDocumentKeyComparator(document1.key, document2.key);
   } else {
-    FSTFieldValue *value1 =
-        [document1 fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
-    FSTFieldValue *value2 =
-        [document2 fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:self.field]];
+    FSTFieldValue *value1 = [document1 fieldForPath:self.field];
+    FSTFieldValue *value2 = [document2 fieldForPath:self.field];
     FSTAssert(value1 != nil && value2 != nil,
               @"Trying to compare documents on fields that don't exist.");
     result = [value1 compare:value2];
@@ -433,8 +428,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
       comparison = [refValue.value compare:document.key];
     } else {
-      FSTFieldValue *docValue =
-          [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrderComponent.field]];
+      FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
       FSTAssert(docValue != nil, @"Field should exist since document matched the orderBy already.");
       comparison = [fieldValue compare:docValue];
     }

@@ -98,8 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
         util::WrapNSStringNoCopy(path.CanonicalString()), path.size());
   }
   return
-      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:[path toCPPResourcePath]]
-                                   firestore:firestore];
+      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:path] firestore:firestore];
 }
 
 + (instancetype)referenceWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore {
@@ -146,9 +145,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRCollectionReference *)parent {
-  return [FIRCollectionReference
-      referenceWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:self.key.path.PopLast()]
-              firestore:self.firestore];
+  return
+      [FIRCollectionReference referenceWithPath:self.key.path.PopLast() firestore:self.firestore];
 }
 
 - (NSString *)path {

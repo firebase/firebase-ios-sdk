@@ -215,7 +215,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDoesntRemoveComplexObjectsWithOrderBy {
-  FSTQuery *query1 = [FSTTestQuery(@"collection")
+  FSTQuery *query1 = [FSTTestQuery("collection")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort")
                                                         ascending:YES]];
 
@@ -309,7 +309,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSortsDocumentsInTheCorrectOrder {
-  FSTQuery *query = FSTTestQuery(@"collection");
+  FSTQuery *query = FSTTestQuery("collection");
   query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort")
                                                                    ascending:YES]];
 
