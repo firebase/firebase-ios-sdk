@@ -20,7 +20,7 @@
 #import <Firestore/Protos/objc/firestore/local/Target.pbobjc.h>
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-#import "Firestore/Source/Local/FSTLevelDBTransaction.h"
+#include "Firestore/core/include/firebase/firestore/local/leveldb_transaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
