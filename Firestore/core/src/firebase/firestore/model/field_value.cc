@@ -113,7 +113,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     }
     case Type::Object: {
       // copy-and-swap
-      std::map<const std::string, const FieldValue> tmp = value.object_value_;
+      std::map<std::string, FieldValue> tmp = value.object_value_;
       std::swap(object_value_, tmp);
       break;
     }
@@ -281,13 +281,12 @@ FieldValue FieldValue::ArrayValue(std::vector<FieldValue>&& value) {
 }
 
 FieldValue FieldValue::ObjectValue(
-    const std::map<const std::string, const FieldValue>& value) {
-  std::map<const std::string, const FieldValue> copy(value);
+    const std::map<std::string, FieldValue>& value) {
+  std::map<std::string, FieldValue> copy(value);
   return ObjectValue(std::move(copy));
 }
 
-FieldValue FieldValue::ObjectValue(
-    std::map<const std::string, const FieldValue>&& value) {
+FieldValue FieldValue::ObjectValue(std::map<std::string, FieldValue>&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
   std::swap(result.object_value_, value);
@@ -418,7 +417,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&array_value_) std::vector<FieldValue>();
       break;
     case Type::Object:
-      new (&object_value_) std::map<const std::string, const FieldValue>();
+      new (&object_value_) std::map<std::string, FieldValue>();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
