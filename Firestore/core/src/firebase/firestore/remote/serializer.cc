@@ -21,6 +21,9 @@
 
 #include <map>
 #include <string>
+#include <utility>
+
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -264,12 +267,175 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
   }
 }
 
+void EncodeSubFieldValue(pb_ostream_t* stream, const FieldValue& field_value) {
+  // Implementation note: This is roughly modeled on pb_encode_delimited (which
+  // is actually pb_encode_submessage), adjusted to account for the oneof in
+  // FieldValue.
+
+  // First calculate the message size using a non-writing substream.
+  pb_ostream_t substream = PB_OSTREAM_SIZING;
+  EncodeFieldValueImpl(&substream, field_value);
+  size_t size = substream.bytes_written;
+
+  // Write out the size to the output stream.
+  EncodeVarint(stream, size);
+
+  // If stream is itself a sizing stream, then we don't need to actually parse
+  // field_value a second time; just update the bytes_written via a call to
+  // pb_write. (If we try to write the contents into a sizing stream, it'll
+  // fail since sizing streams don't actually have any buffer space.)
+  if (stream->callback == NULL) {
+    bool status = pb_write(stream, NULL, size);
+    if (!status) {
+      // TODO(rsgowman): figure out error handling
+      abort();
+    }
+    return;
+  }
+
+  // Ensure the output stream has enough space
+  if (stream->bytes_written + size > stream->max_size) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  // Use a substream to verify that a callback doesn't write more than what it
+  // did the first time. (Use an initializer rather than setting fields
+  // individually like nanopb does. This gives us a *chance* of noticing if
+  // nanopb adds new fields.)
+  substream = {stream->callback, stream->state, /*max_size=*/size,
+               /*bytes_written=*/0, /*errmsg=*/NULL};
+
+  EncodeFieldValueImpl(&substream, field_value);
+  stream->bytes_written += substream.bytes_written;
+  stream->state = substream.state;
+  stream->errmsg = substream.errmsg;
+
+  if (substream.bytes_written != size) {
+    // submsg size changed
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+}
+
+FieldValue DecodeSubFieldValue(pb_istream_t* stream) {
+  // Implementation note: This is roughly modeled on pb_decode_delimited,
+  // adjusted to account for the oneof in FieldValue.
+  pb_istream_t substream;
+  bool status = pb_make_string_substream(stream, &substream);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  FieldValue fv = DecodeFieldValueImpl(&substream);
+
+  // NB: future versions of nanopb read the remaining characters out of the
+  // substream (and return false if that fails) as an additional safety
+  // check within pb_clost_string_substream. Unfortunately, that's not present
+  // in the current version (0.38).  We'll make a stronger assertion and check
+  // to make sure there *are* no remaining characters in the substream.
+  if (substream.bytes_left != 0) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+  pb_close_string_substream(stream, &substream);
+
+  return fv;
+}
+
+void EncodeFieldEntry(
+    pb_ostream_t* stream,
+    const std::pair<const std::string, const FieldValue>& kv) {
+  // Calculate the size of this FieldEntry. This is the size of the key and
+  // value, plus an additional 2 for the two tags.
+  pb_ostream_t sizing_stream = PB_OSTREAM_SIZING;
+  EncodeString(&sizing_stream, kv.first);
+  EncodeSubFieldValue(&sizing_stream, kv.second);
+
+  // additional 2 for the two tags
+  EncodeVarint(stream, sizing_stream.bytes_written + 2);
+
+  // Encode the key (string)
+  bool status =
+      pb_encode_tag(stream, PB_WT_STRING,
+                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+  EncodeString(stream, kv.first);
+
+  // Encode the value (FieldValue)
+  status =
+      pb_encode_tag(stream, PB_WT_STRING,
+                    google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+  EncodeSubFieldValue(stream, kv.second);
+}
+
+std::pair<const std::string, const FieldValue> DecodeFieldEntry(
+    pb_istream_t* stream) {
+  pb_wire_type_t wire_type;
+  uint32_t tag;
+  bool eof;
+  bool status = pb_decode_tag(stream, &wire_type, &tag, &eof);
+  // TODO(rsgowman): figure out error handling: We can do better than a failed
+  // assertion.
+  FIREBASE_ASSERT(tag == google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  FIREBASE_ASSERT(wire_type == PB_WT_STRING);
+  FIREBASE_ASSERT(!eof);
+  FIREBASE_ASSERT(status);
+  std::string key = DecodeString(stream);
+
+  status = pb_decode_tag(stream, &wire_type, &tag, &eof);
+  FIREBASE_ASSERT(tag ==
+                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  // NB: PB_WT_STRING is used for submessages too.
+  FIREBASE_ASSERT(wire_type == PB_WT_STRING);
+  FIREBASE_ASSERT(!eof);
+  FIREBASE_ASSERT(status);
+
+  FieldValue value = DecodeSubFieldValue(stream);
+
+  return std::make_pair(key, value);
+}
+
 void EncodeObject(
     pb_ostream_t* stream,
-    const std::map<const std::string, const FieldValue>& object_value
-    __attribute__((unused))) {
+    const std::map<const std::string, const FieldValue>& object_value) {
   google_firestore_v1beta1_MapValue mapValue =
       google_firestore_v1beta1_MapValue_init_zero;
+  // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
+  // object_value via the arg field (and therefore need to do a bunch of
+  // casting).
+  mapValue.fields.funcs.encode = [](pb_ostream_t* stream, const pb_field_t*,
+                                    void* const* arg) -> bool {
+    auto* object_value =
+        reinterpret_cast<const std::map<const std::string, const FieldValue>*>(
+            *arg);
+
+    // Encode each FieldEntry (i.e. key value pair.)
+    for (const auto& kv : *object_value) {
+      bool status =
+          pb_encode_tag(stream, PB_WT_STRING,
+                        google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+      if (!status) {
+        // TODO(rsgowman): figure out error handling
+        abort();
+      }
+
+      EncodeFieldEntry(stream, kv);
+    }
+
+    return true;
+  };
+  mapValue.fields.arg =
+      const_cast<void*>(reinterpret_cast<const void*>(&object_value));
+
   bool status = pb_encode_delimited(
       stream, google_firestore_v1beta1_MapValue_fields, &mapValue);
   if (!status) {
@@ -282,6 +448,31 @@ std::map<const std::string, const FieldValue> DecodeObject(
     pb_istream_t* stream) {
   google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
+  std::map<const std::string, const FieldValue> result;
+  // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
+  // object_value via the arg field (and therefore need to do a bunch of
+  // casting).
+  map_value.fields.funcs.decode =
+      [](pb_istream_t* stream, const pb_field_t* field __attribute((unused)),
+         void** arg) -> bool {
+    auto* result =
+        reinterpret_cast<std::map<const std::string, const FieldValue>*>(*arg);
+
+    std::pair<const std::string, const FieldValue> fv =
+        DecodeFieldEntry(stream);
+
+    // Sanity check: ensure that this key doesn't already exist in the map.
+    // TODO(rsgowman): figure out error handling: We can do better than a failed
+    // assertion.
+    FIREBASE_ASSERT(result->find(fv.first) == result->end());
+
+    // Add this key,fieldvalue to the results map.
+    result->emplace(fv);
+
+    return true;
+  };
+  map_value.fields.arg = &result;
+
   bool status = pb_decode_delimited(
       stream, google_firestore_v1beta1_MapValue_fields, &map_value);
   if (!status) {
@@ -289,7 +480,6 @@ std::map<const std::string, const FieldValue> DecodeObject(
     abort();
   }
 
-  std::map<const std::string, const FieldValue> result;
   return result;
 }
 
