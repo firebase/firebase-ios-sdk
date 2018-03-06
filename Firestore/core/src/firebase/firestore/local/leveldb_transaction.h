@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 
+#include <leveldb/db.h>
 #include <map>
 #include <set>
-#include <leveldb/db.h>
 
 #if __OBJC__
 @class GPBMessage;
@@ -33,9 +33,9 @@ typedef std::map<std::string, leveldb::Slice> Mutations;
 typedef std::set<std::string> Deletions;
 
 /**
- * LevelDBTransaction tracks pending changes to entries in leveldb, including deletions.
- * It also provides an Iterator to traverse a merged view of pending changes and committed
- * values.
+ * LevelDBTransaction tracks pending changes to entries in leveldb, including
+ * deletions. It also provides an Iterator to traverse a merged view of pending
+ * changes and committed values.
  */
 class LevelDBTransaction {
  public:
@@ -49,8 +49,8 @@ class LevelDBTransaction {
 
 #if __OBJC__
   void Put(const std::string& key, GPBMessage* message) {
-    NSData *data = [message data];
-    leveldb::Slice value((const char *)data.bytes, data.length);
+    NSData* data = [message data];
+    leveldb::Slice value((const char*)data.bytes, data.length);
     mutations_[key] = value;
   }
 #endif
@@ -60,8 +60,8 @@ class LevelDBTransaction {
   leveldb::Status Get(const std::string& key, std::string* value);
 
   /**
-   * Iterator iterates over a merged view of pending changes from the transaction and
-   * any unchanged values in the underlying leveldb instance.
+   * Iterator iterates over a merged view of pending changes from the
+   * transaction and any unchanged values in the underlying leveldb instance.
    */
   class Iterator {
    public:
@@ -70,7 +70,8 @@ class LevelDBTransaction {
     Iterator& operator=(const Iterator& other) = delete;
 
     /**
-     * Seeks this iterator to the first key equal to or greater than the given key
+     * Seeks this iterator to the first key equal to or greater than the given
+     * key
      */
     void Seek(const std::string& key);
 
@@ -100,7 +101,8 @@ class LevelDBTransaction {
     Deletions* deletions_;
     std::unique_ptr<Mutations::iterator> mutations_iter_;
     /**
-     * Returns true if the current entry is a pending mutation, rather than a committed value.
+     * Returns true if the current entry is a pending mutation, rather than a
+     * committed value.
      */
     bool is_mutation();
 
@@ -111,8 +113,8 @@ class LevelDBTransaction {
   };
 
   /**
-   * Returns a new Iterator over the pending changes in this transaction, merged with the
-   * existing values already in leveldb.
+   * Returns a new Iterator over the pending changes in this transaction, merged
+   * with the existing values already in leveldb.
    */
   Iterator* NewIterator();
 

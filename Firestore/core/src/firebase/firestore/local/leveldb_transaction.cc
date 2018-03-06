@@ -35,17 +35,20 @@ LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
     : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
       mutations_(&txn->mutations_),
       deletions_(&txn->deletions_),
-      mutations_iter_(std::make_unique<Mutations::iterator>(txn->mutations_.begin())) {
+      mutations_iter_(
+          std::make_unique<Mutations::iterator>(txn->mutations_.begin())) {
 }
 
 void LevelDBTransaction::Iterator::Seek(const std::string& key) {
   ldb_iter_->Seek(key);
-  for (; ldb_iter_->Valid() && deletions_->find(ldb_iter_->key().ToString()) != deletions_->end();
+  for (; ldb_iter_->Valid() &&
+         deletions_->find(ldb_iter_->key().ToString()) != deletions_->end();
        ldb_iter_->Next()) {
   }
   mutations_iter_.reset();
   mutations_iter_ = std::make_unique<Mutations::iterator>(mutations_->begin());
-  for (; (*mutations_iter_) != mutations_->end() && (*mutations_iter_)->first < key;
+  for (; (*mutations_iter_) != mutations_->end() &&
+         (*mutations_iter_)->first < key;
        ++(*mutations_iter_)) {
   }
 }
@@ -135,7 +138,8 @@ void LevelDBTransaction::Commit() {
   }
 
   Status status = db_->Write(writeOptions_, &toWrite);
-  FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction: %s", status.ToString().c_str());
+  FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction: %s",
+                          status.ToString().c_str());
 }
 
 }  // namespace local

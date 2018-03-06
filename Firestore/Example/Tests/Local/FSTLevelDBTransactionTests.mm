@@ -194,7 +194,8 @@ using firebase::firestore::local::LevelDBTransaction;
 
   std::string value;
   Status status = transaction.Get("theKey", &value);
-  NSData *result = [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+  NSData *result =
+      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
   NSError *error;
   FSTPBTarget *parsed = [FSTPBTarget parseFromData:result error:&error];
   XCTAssertNil(error);
