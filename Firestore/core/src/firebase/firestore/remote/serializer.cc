@@ -146,112 +146,78 @@ std::string DecodeString(pb_istream_t* stream) {
 
 void EncodeObject(
     pb_ostream_t* stream,
-    const std::map<const std::string, const FieldValue>& object_value
-    __attribute__((unused))) {
-  google_firestore_v1beta1_MapValue mapValue =
-      google_firestore_v1beta1_MapValue_init_zero;
-  bool status = pb_encode_delimited(
-      stream, google_firestore_v1beta1_MapValue_fields, &mapValue);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-}
-
+    const std::map<const std::string, const FieldValue>& object_value);
 std::map<const std::string, const FieldValue> DecodeObject(
-    pb_istream_t* stream) {
-  google_firestore_v1beta1_MapValue mapValue =
-      google_firestore_v1beta1_MapValue_init_zero;
-  bool status = pb_decode_delimited(
-      stream, google_firestore_v1beta1_MapValue_fields, &mapValue);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
+    pb_istream_t* stream);
 
-  std::map<const std::string, const FieldValue> result;
-  return result;
-}
-
-}  // namespace
-
-void Serializer::EncodeFieldValue(const FieldValue& field_value,
-                                  std::vector<uint8_t>* out_bytes) {
-  // TODO(rsgowman): how large should the output buffer be? Do some
-  // investigation to see if we can get nanopb to tell us how much space it's
-  // going to need.
-  uint8_t buf[1024];
-  pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-
+// Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
+void EncodeFieldValueImpl(pb_ostream_t* stream, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   bool status = false;
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      status = pb_encode_tag(&stream, PB_WT_VARINT,
+      status = pb_encode_tag(stream, PB_WT_VARINT,
                              google_firestore_v1beta1_Value_null_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeNull(&stream);
+      EncodeNull(stream);
       break;
 
     case FieldValue::Type::Boolean:
-      status = pb_encode_tag(&stream, PB_WT_VARINT,
+      status = pb_encode_tag(stream, PB_WT_VARINT,
                              google_firestore_v1beta1_Value_boolean_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeBool(&stream, field_value.boolean_value());
+      EncodeBool(stream, field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
-      status = pb_encode_tag(&stream, PB_WT_VARINT,
+      status = pb_encode_tag(stream, PB_WT_VARINT,
                              google_firestore_v1beta1_Value_integer_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeInteger(&stream, field_value.integer_value());
+      EncodeInteger(stream, field_value.integer_value());
       break;
 
     case FieldValue::Type::String:
-      status = pb_encode_tag(&stream, PB_WT_STRING,
+      status = pb_encode_tag(stream, PB_WT_STRING,
                              google_firestore_v1beta1_Value_string_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeString(&stream, field_value.string_value());
+      EncodeString(stream, field_value.string_value());
       break;
 
     case FieldValue::Type::Object:
       // NB: submessages use a wiretype of PB_WT_STRING
-      status = pb_encode_tag(&stream, PB_WT_STRING,
+      status = pb_encode_tag(stream, PB_WT_STRING,
                              google_firestore_v1beta1_Value_map_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeObject(&stream, field_value.object_value());
+      EncodeObject(stream, field_value.object_value());
       break;
 
     default:
       // TODO(rsgowman): implement the other types
       abort();
   }
-
-  out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
 }
 
-FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
-  pb_istream_t stream = pb_istream_from_buffer(bytes, length);
+FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
-  bool status = pb_decode_tag(&stream, &wire_type, &tag, &eof);
+  bool status = pb_decode_tag(stream, &wire_type, &tag, &eof);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -281,21 +247,69 @@ FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
 
   switch (tag) {
     case google_firestore_v1beta1_Value_null_value_tag:
-      DecodeNull(&stream);
+      DecodeNull(stream);
       return FieldValue::NullValue();
     case google_firestore_v1beta1_Value_boolean_value_tag:
-      return FieldValue::BooleanValue(DecodeBool(&stream));
+      return FieldValue::BooleanValue(DecodeBool(stream));
     case google_firestore_v1beta1_Value_integer_value_tag:
-      return FieldValue::IntegerValue(DecodeInteger(&stream));
+      return FieldValue::IntegerValue(DecodeInteger(stream));
     case google_firestore_v1beta1_Value_string_value_tag:
-      return FieldValue::StringValue(DecodeString(&stream));
+      return FieldValue::StringValue(DecodeString(stream));
     case google_firestore_v1beta1_Value_map_value_tag:
-      return FieldValue::ObjectValue(DecodeObject(&stream));
+      return FieldValue::ObjectValue(DecodeObject(stream));
 
     default:
       // TODO(rsgowman): figure out error handling
       abort();
   }
+}
+
+void EncodeObject(
+    pb_ostream_t* stream,
+    const std::map<const std::string, const FieldValue>& object_value
+    __attribute__((unused))) {
+  google_firestore_v1beta1_MapValue mapValue =
+      google_firestore_v1beta1_MapValue_init_zero;
+  bool status = pb_encode_delimited(
+      stream, google_firestore_v1beta1_MapValue_fields, &mapValue);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+}
+
+std::map<const std::string, const FieldValue> DecodeObject(
+    pb_istream_t* stream) {
+  google_firestore_v1beta1_MapValue map_value =
+      google_firestore_v1beta1_MapValue_init_zero;
+  bool status = pb_decode_delimited(
+      stream, google_firestore_v1beta1_MapValue_fields, &map_value);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+
+  std::map<const std::string, const FieldValue> result;
+  return result;
+}
+
+}  // namespace
+
+void Serializer::EncodeFieldValue(const FieldValue& field_value,
+                                  std::vector<uint8_t>* out_bytes) {
+  // TODO(rsgowman): how large should the output buffer be? Do some
+  // investigation to see if we can get nanopb to tell us how much space it's
+  // going to need. (Hint: use a sizing stream, i.e. PB_OSTREAM_SIZING)
+  uint8_t buf[1024];
+  memset(buf, 0x42, sizeof(buf));
+  pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
+  EncodeFieldValueImpl(&stream, field_value);
+  out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
+}
+
+FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
+  pb_istream_t stream = pb_istream_from_buffer(bytes, length);
+  return DecodeFieldValueImpl(&stream);
 }
 
 }  // namespace remote
