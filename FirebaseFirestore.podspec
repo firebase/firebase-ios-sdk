@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.10.1'
+  s.version          = '0.10.2'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -31,6 +31,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.source_files = [
     'Firestore/Source/**/*',
     'Firestore/Port/**/*',
+    'Firestore/Protos/nanopb/**/*.[hc]',
     'Firestore/Protos/objc/**/*.[hm]',
     'Firestore/core/include/**/*.{h,cc,mm}',
     'Firestore/core/src/**/*.{h,cc,mm}',
@@ -67,7 +68,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp" ' +
       '"${PODS_ROOT}/nanopb" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',
-    'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s
+    'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s + ' -DPB_FIELD_16BIT'
   }
 
   s.prepare_command = <<-CMD
