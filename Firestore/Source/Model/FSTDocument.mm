@@ -94,8 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocument: key:%@ version:%@ localMutations:%@ data:%@>",
-                                    self.key.path, self.version,
+  return [NSString stringWithFormat:@"<FSTDocument: key:%s version:%@ localMutations:%@ data:%@>",
+                                    self.key.path.CanonicalString().c_str(), self.version,
                                     self.localMutations ? @"YES" : @"NO", self.data];
 }
 

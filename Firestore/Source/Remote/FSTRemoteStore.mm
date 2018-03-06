@@ -384,8 +384,7 @@ static const int kMaxPendingWrites = 10;
         // updates. Without applying a deleted document there might be another query that will
         // raise this document as part of a snapshot until it is resolved, essentially exposing
         // inconsistency between queries
-        FSTDocumentKey *key = [FSTDocumentKey
-            keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]];
+        FSTDocumentKey *key = [FSTDocumentKey keyWithPath:query.path];
         FSTDeletedDocument *deletedDoc =
             [FSTDeletedDocument documentWithKey:key version:snapshotVersion];
         [remoteEvent addDocumentUpdate:deletedDoc];

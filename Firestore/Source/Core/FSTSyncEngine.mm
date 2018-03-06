@@ -497,7 +497,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   if (!self.limboTargetsByKey[key]) {
     FSTLog(@"New document in limbo: %@", key);
     FSTTargetID limboTargetID = _targetIdGenerator.NextId();
-    FSTQuery *query = [FSTQuery queryWithPath:[key.path toCPPResourcePath]];
+    FSTQuery *query = [FSTQuery queryWithPath:key.path];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
                                              listenSequenceNumber:kIrrelevantSequenceNumber

@@ -101,8 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (parentPath.empty()) {
     return nil;
   } else {
-    FSTDocumentKey *key =
-        [FSTDocumentKey keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:parentPath]];
+    FSTDocumentKey *key = [FSTDocumentKey keyWithPath:parentPath];
     return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
   }
 }
@@ -135,9 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *)documentWithAutoID {
-  const ResourcePath path = self.query.path.Append(CreateAutoId());
-  FSTDocumentKey *key =
-      [FSTDocumentKey keyWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:path]];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:self.query.path.Append(CreateAutoId())];
   return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
 }
 

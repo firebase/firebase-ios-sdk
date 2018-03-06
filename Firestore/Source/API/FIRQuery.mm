@@ -469,8 +469,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
             @"Invalid query. When querying by document ID you must provide "
              "a valid document ID, but it was an empty string.");
       }
-      FSTResourcePath *path = [[FSTResourcePath resourcePathWithCPPResourcePath:self.query.path]
-          pathByAppendingSegment:documentKey];
+      ResourcePath path = self.query.path.Append([documentKey UTF8String]);
       fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithPath:path]
                                           databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {
@@ -621,10 +620,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. Document ID '%@' contains a slash.", documentID);
       }
-      FSTDocumentKey *key = [FSTDocumentKey
-          keyWithPath:[FSTResourcePath
-                          resourcePathWithCPPResourcePath:self.query.path.Append(
-                                                              [documentID UTF8String])]];
+      FSTDocumentKey *key =
+          [FSTDocumentKey keyWithPath:self.query.path.Append([documentID UTF8String])];
       [components
           addObject:[FSTReferenceValue referenceValue:key databaseID:self.firestore.databaseID]];
     } else {

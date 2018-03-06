@@ -104,7 +104,9 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTDocumentKey <=> Key proto
 
 - (NSString *)encodedDocumentKey:(FSTDocumentKey *)key {
-  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path];
+  return [self
+      encodedResourcePathForDatabaseID:self.databaseID
+                                  path:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
 }
 
 - (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
@@ -115,7 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert([[path segmentAtIndex:3]
                 isEqualToString:util::WrapNSStringNoCopy(self.databaseID->database_id())],
             @"Tried to deserialize key from different datbase.");
-  return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  return [FSTDocumentKey
+      keyWithPath:[[self localResourcePathForQualifiedResourcePath:path] toCPPResourcePath]];
 }
 
 - (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
@@ -313,7 +316,9 @@ NS_ASSUME_NONNULL_BEGIN
             util::WrapNSStringNoCopy(databaseID->project_id()),
             util::WrapNSStringNoCopy(databaseID->database_id()));
   GCFSValue *result = [GCFSValue message];
-  result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];
+  result.referenceValue = [self
+      encodedResourcePathForDatabaseID:databaseID
+                                  path:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
   return result;
 }
 
@@ -321,8 +326,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:resourceName];
   NSString *project = [path segmentAtIndex:1];
   NSString *database = [path segmentAtIndex:3];
-  FSTDocumentKey *key =
-      [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  FSTDocumentKey *key = [FSTDocumentKey
+      keyWithPath:[[self localResourcePathForQualifiedResourcePath:path] toCPPResourcePath]];
 
   const DatabaseId database_id(util::MakeStringView(project), util::MakeStringView(database));
   FSTAssert(database_id == *self.databaseID, @"Database %@:%@ cannot encode reference from %@:%@",

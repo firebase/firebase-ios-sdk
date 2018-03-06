@@ -620,8 +620,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingFilter:(id<FSTFilter>)filter {
-  FSTAssert(![FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]],
-            @"No filtering allowed for document query");
+  FSTAssert(![FSTDocumentKey isDocumentKey:_path], @"No filtering allowed for document query");
 
   const FieldPath *newInequalityField = nullptr;
   if ([filter isKindOfClass:[FSTRelationFilter class]] &&
@@ -642,8 +641,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
-  FSTAssert(![FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]],
-            @"No ordering is allowed for a document query.");
+  FSTAssert(![FSTDocumentKey isDocumentKey:_path], @"No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
   return [[FSTQuery alloc] initWithPath:self.path
@@ -682,8 +680,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)isDocumentQuery {
-  return [FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]] &&
-         self.filters.count == 0;
+  return [FSTDocumentKey isDocumentKey:_path] && self.filters.count == 0;
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
@@ -777,14 +774,13 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 /* Returns YES if the document matches the path for the receiver. */
 - (BOOL)pathMatchesDocument:(FSTDocument *)document {
-  FSTResourcePath *documentPath = document.key.path;
-  if ([FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:_path]]) {
+  const ResourcePath &documentPath = document.key.path;
+  if ([FSTDocumentKey isDocumentKey:_path]) {
     // Exact match for document queries.
-    return self.path == [documentPath toCPPResourcePath];
+    return self.path == documentPath;
   } else {
     // Shallow ancestor queries by default.
-    return self.path.IsPrefixOf([documentPath toCPPResourcePath]) &&
-           _path.size() == documentPath.length - 1;
+    return self.path.IsPrefixOf(documentPath) && _path.size() == documentPath.size() - 1;
   }
 }
 
