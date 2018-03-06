@@ -33,6 +33,11 @@ using firebase::firestore::model::FieldValue;
 
 namespace {
 
+void EncodeObject(pb_ostream_t* stream,
+                  const std::map<std::string, FieldValue>& object_value);
+
+std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
+
 /**
  * Note that (despite the value parameter type) this works for bool, enum,
  * int32, int64, uint32 and uint64 proto field types.
@@ -147,13 +152,10 @@ std::string DecodeString(pb_istream_t* stream) {
   return result;
 }
 
-void EncodeObject(
-    pb_ostream_t* stream,
-    const std::map<std::string, FieldValue>& object_value);
-std::map<std::string, FieldValue> DecodeObject(
-    pb_istream_t* stream);
-
 // Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
+// TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
+// This will help with error handling, and should eliminate the issue of two
+// 'EncodeFieldValue' methods.
 void EncodeFieldValueImpl(pb_ostream_t* stream, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
@@ -267,7 +269,19 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
   }
 }
 
-void EncodeSubFieldValue(pb_ostream_t* stream, const FieldValue& field_value) {
+/**
+ * Encodes a FieldValue *and* it's length.
+ *
+ * When encoding a top level message, protobuf doesn't include the length (since
+ * you can get that already from the length of the binary output.) But when
+ * encoding a sub/nested message, you must include the length in the
+ * serialization.
+ *
+ * Call this method when encoding a non top level FieldValue. Otherwise call
+ * EncodeFieldValue[Impl].
+ */
+void EncodeNestedFieldValue(pb_ostream_t* stream,
+                            const FieldValue& field_value) {
   // Implementation note: This is roughly modeled on pb_encode_delimited (which
   // is actually pb_encode_submessage), adjusted to account for the oneof in
   // FieldValue.
@@ -332,7 +346,7 @@ FieldValue DecodeSubFieldValue(pb_istream_t* stream) {
 
   // NB: future versions of nanopb read the remaining characters out of the
   // substream (and return false if that fails) as an additional safety
-  // check within pb_clost_string_substream. Unfortunately, that's not present
+  // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
   if (substream.bytes_left != 0) {
@@ -364,18 +378,8 @@ FieldValue DecodeSubFieldValue(pb_istream_t* stream) {
  *
  * @param kv The individual key/value pair to encode.
  */
-void EncodeFieldsEntry(
-    pb_ostream_t* stream,
-    const std::pair<const std::string, const FieldValue>& kv) {
-  // Calculate the size of this FieldsEntry. This is the size of the key and
-  // value, plus an additional 2 for the two tags.
-  pb_ostream_t sizing_stream = PB_OSTREAM_SIZING;
-  EncodeString(&sizing_stream, kv.first);
-  EncodeSubFieldValue(&sizing_stream, kv.second);
-
-  // additional 2 for the two tags
-  EncodeVarint(stream, sizing_stream.bytes_written + 2);
-
+void EncodeFieldsEntry(pb_ostream_t* stream,
+                       const std::pair<std::string, FieldValue>& kv) {
   // Encode the key (string)
   bool status =
       pb_encode_tag(stream, PB_WT_STRING,
@@ -394,11 +398,10 @@ void EncodeFieldsEntry(
     // TODO(rsgowman): figure out error handling
     abort();
   }
-  EncodeSubFieldValue(stream, kv.second);
+  EncodeNestedFieldValue(stream, kv.second);
 }
 
-std::pair<const std::string, const FieldValue> DecodeFieldsEntry(
-    pb_istream_t* stream) {
+std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
@@ -421,25 +424,23 @@ std::pair<const std::string, const FieldValue> DecodeFieldsEntry(
 
   FieldValue value = DecodeSubFieldValue(stream);
 
-  return std::make_pair(key, value);
+  return {key, value};
 }
 
-void EncodeObject(
-    pb_ostream_t* stream,
-    const std::map<std::string, FieldValue>& object_value) {
+void EncodeObject(pb_ostream_t* stream,
+                  const std::map<std::string, FieldValue>& object_value) {
   google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
   // object_value via the arg field (and therefore need to do a bunch of
   // casting).
   map_value.fields.funcs.encode = [](pb_ostream_t* stream, const pb_field_t*,
-                                    void* const* arg) -> bool {
-    auto* object_value =
-        reinterpret_cast<const std::map<std::string, FieldValue>*>(
-            *arg);
+                                     void* const* arg) -> bool {
+    auto& object_value =
+        *static_cast<const std::map<std::string, FieldValue>*>(*arg);
 
-    // Encode each FieldsEntry (i.e. key value pair.)
-    for (const auto& kv : *object_value) {
+    // Encode each FieldsEntry (i.e. key-value pair.)
+    for (const auto& kv : object_value) {
       bool status =
           pb_encode_tag(stream, PB_WT_STRING,
                         google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
@@ -448,13 +449,20 @@ void EncodeObject(
         abort();
       }
 
+      // Calculate the size of this FieldsEntry using a non-writing substream.
+      pb_ostream_t sizing_stream = PB_OSTREAM_SIZING;
+      EncodeFieldsEntry(&sizing_stream, kv);
+      size_t size = sizing_stream.bytes_written;
+      // Write out the size to the output stream.
+      EncodeVarint(stream, size);
+
       EncodeFieldsEntry(stream, kv);
     }
 
     return true;
   };
   map_value.fields.arg =
-      const_cast<void*>(reinterpret_cast<const void*>(&object_value));
+      const_cast<std::map<std::string, FieldValue>*>(&object_value);
 
   bool status = pb_encode_delimited(
       stream, google_firestore_v1beta1_MapValue_fields, &map_value);
@@ -464,8 +472,7 @@ void EncodeObject(
   }
 }
 
-std::map<std::string, FieldValue> DecodeObject(
-    pb_istream_t* stream) {
+std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
   google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
   std::map<std::string, FieldValue> result;
@@ -474,19 +481,17 @@ std::map<std::string, FieldValue> DecodeObject(
   // casting).
   map_value.fields.funcs.decode = [](pb_istream_t* stream, const pb_field_t*,
                                      void** arg) -> bool {
-    auto* result =
-        reinterpret_cast<std::map<std::string, FieldValue>*>(*arg);
+    auto& result = *static_cast<std::map<std::string, FieldValue>*>(*arg);
 
-    std::pair<const std::string, const FieldValue> fv =
-        DecodeFieldsEntry(stream);
+    std::pair<std::string, FieldValue> fv = DecodeFieldsEntry(stream);
 
     // Sanity check: ensure that this key doesn't already exist in the map.
     // TODO(rsgowman): figure out error handling: We can do better than a failed
     // assertion.
-    FIREBASE_ASSERT(result->find(fv.first) == result->end());
+    FIREBASE_ASSERT(result.find(fv.first) == result.end());
 
     // Add this key,fieldvalue to the results map.
-    result->emplace(fv);
+    result.emplace(std::move(fv));
 
     return true;
   };

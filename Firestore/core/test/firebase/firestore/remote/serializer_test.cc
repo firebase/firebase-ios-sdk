@@ -227,10 +227,11 @@ TEST_F(SerializerTest, EncodesNestedObjectsToBytes) {
    * order."
    * - https://developers.google.com/protocol-buffers/docs/proto#maps-features
    *
-   * In reality, the map items are serialized in whatever order you provide them
-   * in. Since FieldValue::ObjectValue is currently backed by a std::map (and
-   * not an unordered_map) this implies ~alpha ordering. So we need to provide
-   * the text format input in alpha ordering for things to match up.
+   * In reality, the map items are serialized by protoc in whatever order you
+   * provide them in. Since FieldValue::ObjectValue is currently backed by a
+   * std::map (and not an unordered_map) this implies ~alpha ordering. So we
+   * need to provide the text format input in alpha ordering for things to match
+   * up.
    *
    * This is... not ideal. Nothing stops libprotobuf from changing this
    * behaviour (since it's not guaranteed) nor does anything stop us from

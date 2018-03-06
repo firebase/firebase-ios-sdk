@@ -286,8 +286,7 @@ FieldValue FieldValue::ObjectValue(
   return ObjectValue(std::move(copy));
 }
 
-FieldValue FieldValue::ObjectValue(
-    std::map<std::string, FieldValue>&& value) {
+FieldValue FieldValue::ObjectValue(std::map<std::string, FieldValue>&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
   std::swap(result.object_value_, value);
