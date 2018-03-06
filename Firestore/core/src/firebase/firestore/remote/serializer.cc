@@ -344,10 +344,30 @@ FieldValue DecodeSubFieldValue(pb_istream_t* stream) {
   return fv;
 }
 
-void EncodeFieldEntry(
+/**
+ * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
+ *
+ * In protobuf, maps are implemented as a repeated set of key/values. For
+ * instance, this:
+ *   message Foo {
+ *     map<string, Value> fields = 1;
+ *   }
+ * would be encoded (in proto text format) as:
+ *   {
+ *     fields: {key:"key string 1", value:{<Value message here>}}
+ *     fields: {key:"key string 2", value:{<Value message here>}}
+ *     ...
+ *   }
+ *
+ * This method encodes an individual entry from that list. It is expected that
+ * this method will be called once for each entry in the map.
+ *
+ * @param kv The individual key/value pair to encode.
+ */
+void EncodeFieldsEntry(
     pb_ostream_t* stream,
     const std::pair<const std::string, const FieldValue>& kv) {
-  // Calculate the size of this FieldEntry. This is the size of the key and
+  // Calculate the size of this FieldsEntry. This is the size of the key and
   // value, plus an additional 2 for the two tags.
   pb_ostream_t sizing_stream = PB_OSTREAM_SIZING;
   EncodeString(&sizing_stream, kv.first);
@@ -377,7 +397,7 @@ void EncodeFieldEntry(
   EncodeSubFieldValue(stream, kv.second);
 }
 
-std::pair<const std::string, const FieldValue> DecodeFieldEntry(
+std::pair<const std::string, const FieldValue> DecodeFieldsEntry(
     pb_istream_t* stream) {
   pb_wire_type_t wire_type;
   uint32_t tag;
@@ -418,7 +438,7 @@ void EncodeObject(
         reinterpret_cast<const std::map<const std::string, const FieldValue>*>(
             *arg);
 
-    // Encode each FieldEntry (i.e. key value pair.)
+    // Encode each FieldsEntry (i.e. key value pair.)
     for (const auto& kv : *object_value) {
       bool status =
           pb_encode_tag(stream, PB_WT_STRING,
@@ -428,7 +448,7 @@ void EncodeObject(
         abort();
       }
 
-      EncodeFieldEntry(stream, kv);
+      EncodeFieldsEntry(stream, kv);
     }
 
     return true;
@@ -458,7 +478,7 @@ std::map<const std::string, const FieldValue> DecodeObject(
         reinterpret_cast<std::map<const std::string, const FieldValue>*>(*arg);
 
     std::pair<const std::string, const FieldValue> fv =
-        DecodeFieldEntry(stream);
+        DecodeFieldsEntry(stream);
 
     // Sanity check: ensure that this key doesn't already exist in the map.
     // TODO(rsgowman): figure out error handling: We can do better than a failed
