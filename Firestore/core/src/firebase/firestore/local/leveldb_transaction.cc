@@ -3,7 +3,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 #include <leveldb/write_batch.h>
-#ifdef __OBJC__
+#if __OBJC__
 #import <Protobuf/GPBProtocolBuffers.h>
 #endif
 
