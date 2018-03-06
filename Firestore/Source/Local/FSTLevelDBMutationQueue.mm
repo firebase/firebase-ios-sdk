@@ -375,8 +375,9 @@ static ReadOptions StandardReadOptions() {
   NSString *userID = self.userID;
 
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey
+      keyPrefixWithUserID:self.userID
+             resourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator(StandardReadOptions()));
   indexIterator->Seek(indexPrefix);
 
@@ -467,7 +468,7 @@ static ReadOptions StandardReadOptions() {
     // Rows with document keys more than one segment longer than the query path can't be matches.
     // For example, a query on 'rooms' can't match the document /rooms/abc/messages/xyx.
     // TODO(mcg): we'll need a different scanner when we implement ancestor queries.
-    if (rowKey.documentKey.path.length != immediateChildrenPathLength) {
+    if (rowKey.documentKey.path.size() != immediateChildrenPathLength) {
       continue;
     }
 
@@ -614,8 +615,9 @@ static ReadOptions StandardReadOptions() {
 #pragma mark - FSTGarbageSource implementation
 
 - (BOOL)containsKey:(FSTDocumentKey *)documentKey {
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey
+      keyPrefixWithUserID:self.userID
+             resourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator(StandardReadOptions()));
   indexIterator->Seek(indexPrefix);
 

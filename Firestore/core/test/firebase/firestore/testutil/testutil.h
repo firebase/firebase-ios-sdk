@@ -30,6 +30,10 @@ inline model::FieldPath Field(absl::string_view field) {
   return model::FieldPath::FromServerFormat(field);
 }
 
+inline model::ResourcePath Resource(absl::string_view field) {
+  return model::ResourcePath::FromString(field);
+}
+
 // Add a non-inline function to make this library buildable.
 // TODO(zxu123): remove once there is non-inline function.
 void dummy();

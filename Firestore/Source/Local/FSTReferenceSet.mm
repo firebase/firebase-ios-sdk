@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeReferencesForID:(int)ID {
-  FSTDocumentKey *emptyKey = [FSTDocumentKey keyWithSegments:@[]];
+  FSTDocumentKey *emptyKey = [FSTDocumentKey keyWithSegments:{}];
   FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:ID];
   FSTDocumentReference *end = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:(ID + 1)];
 
@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKeySet *)referencedKeysForID:(int)ID {
-  FSTDocumentKey *emptyKey = [FSTDocumentKey keyWithSegments:@[]];
+  FSTDocumentKey *emptyKey = [FSTDocumentKey keyWithSegments:{}];
   FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:ID];
   FSTDocumentReference *end = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:(ID + 1)];
 

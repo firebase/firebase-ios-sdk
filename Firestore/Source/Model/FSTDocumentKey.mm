@@ -16,35 +16,43 @@
 
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 
+#include <utility>
+
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTDocumentKey ()
-/** The path to the document. */
-@property(strong, nonatomic, readwrite) FSTResourcePath *path;
+@interface FSTDocumentKey () {
+  /** The path to the document. */
+  ResourcePath _path;
+}
 @end
 
 @implementation FSTDocumentKey
 
-+ (instancetype)keyWithPath:(FSTResourcePath *)path {
-  return [[FSTDocumentKey alloc] initWithPath:path];
++ (instancetype)keyWithPath:(ResourcePath)path {
+  return [[FSTDocumentKey alloc] initWithPath:std::move(path)];
 }
 
-+ (instancetype)keyWithSegments:(NSArray<NSString *> *)segments {
-  return [FSTDocumentKey keyWithPath:[FSTResourcePath pathWithSegments:segments]];
++ (instancetype)keyWithSegments:(std::initializer_list<std::string>)segments {
+  return [FSTDocumentKey keyWithPath:ResourcePath(segments)];
 }
 
 + (instancetype)keyWithPathString:(NSString *)resourcePath {
-  NSArray<NSString *> *segments = [resourcePath componentsSeparatedByString:@"/"];
-  return [FSTDocumentKey keyWithSegments:segments];
+  return [FSTDocumentKey keyWithPath:ResourcePath::FromString(util::MakeStringView(resourcePath))];
 }
 
 /** Designated initializer. */
-- (instancetype)initWithPath:(FSTResourcePath *)path {
-  FSTAssert([FSTDocumentKey isDocumentKey:path], @"invalid document key path: %@", path);
+- (instancetype)initWithPath:(ResourcePath)path {
+  FSTAssert([FSTDocumentKey isDocumentKey:path], @"invalid document key path: %s",
+            path.CanonicalString().c_str());
 
   if (self = [super init]) {
     _path = path;
@@ -63,11 +71,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  return self.path.hash;
+  return _path.Hash();
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocumentKey: %@>", self.path];
+  return [NSString stringWithFormat:@"<FSTDocumentKey: %s>", _path.CanonicalString().c_str()];
 }
 
 /** Implements NSCopying without actually copying because FSTDocumentKeys are immutable. */
@@ -89,15 +97,26 @@ NS_ASSUME_NONNULL_BEGIN
   };
 }
 
-+ (BOOL)isDocumentKey:(FSTResourcePath *)path {
-  return path.length % 2 == 0;
++ (BOOL)isDocumentKey:(const ResourcePath &)path {
+  return path.size() % 2 == 0;
+}
+
+- (const firebase::firestore::model::ResourcePath &)path {
+  return _path;
 }
 
 @end
 
 const NSComparator FSTDocumentKeyComparator =
     ^NSComparisonResult(FSTDocumentKey *key1, FSTDocumentKey *key2) {
-      return [key1.path compare:key2.path];
+      if (key1.path < key2.path) {
+        return NSOrderedAscending;
+      } else if (key1.path > key2.path) {
+        return NSOrderedDescending;
+      } else {
+        return NSOrderedSame;
+      }
+
     };
 
 NSString *const kDocumentKeyPath = @"__name__";
