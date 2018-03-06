@@ -149,8 +149,8 @@ std::string DecodeString(pb_istream_t* stream) {
 
 void EncodeObject(
     pb_ostream_t* stream,
-    const std::map<const std::string, const FieldValue>& object_value);
-std::map<const std::string, const FieldValue> DecodeObject(
+    const std::map<std::string, const FieldValue>& object_value);
+std::map<std::string, const FieldValue> DecodeObject(
     pb_istream_t* stream);
 
 // Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
@@ -426,7 +426,7 @@ std::pair<const std::string, const FieldValue> DecodeFieldsEntry(
 
 void EncodeObject(
     pb_ostream_t* stream,
-    const std::map<const std::string, const FieldValue>& object_value) {
+    const std::map<std::string, const FieldValue>& object_value) {
   google_firestore_v1beta1_MapValue mapValue =
       google_firestore_v1beta1_MapValue_init_zero;
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
@@ -435,7 +435,7 @@ void EncodeObject(
   mapValue.fields.funcs.encode = [](pb_ostream_t* stream, const pb_field_t*,
                                     void* const* arg) -> bool {
     auto* object_value =
-        reinterpret_cast<const std::map<const std::string, const FieldValue>*>(
+        reinterpret_cast<const std::map<std::string, const FieldValue>*>(
             *arg);
 
     // Encode each FieldsEntry (i.e. key value pair.)
@@ -464,18 +464,18 @@ void EncodeObject(
   }
 }
 
-std::map<const std::string, const FieldValue> DecodeObject(
+std::map<std::string, const FieldValue> DecodeObject(
     pb_istream_t* stream) {
   google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
-  std::map<const std::string, const FieldValue> result;
+  std::map<std::string, const FieldValue> result;
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
   // object_value via the arg field (and therefore need to do a bunch of
   // casting).
   map_value.fields.funcs.decode = [](pb_istream_t* stream, const pb_field_t*,
                                      void** arg) -> bool {
     auto* result =
-        reinterpret_cast<std::map<const std::string, const FieldValue>*>(*arg);
+        reinterpret_cast<std::map<std::string, const FieldValue>*>(*arg);
 
     std::pair<const std::string, const FieldValue> fv =
         DecodeFieldsEntry(stream);
