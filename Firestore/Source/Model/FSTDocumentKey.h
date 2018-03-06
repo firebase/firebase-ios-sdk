@@ -51,7 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Returns true iff the given path is a path to a document. */
 + (BOOL)isDocumentKey:(const firebase::firestore::model::ResourcePath &)path;
-
 - (BOOL)isEqualToKey:(FSTDocumentKey *)other;
 - (NSComparisonResult)compare:(FSTDocumentKey *)other;
 

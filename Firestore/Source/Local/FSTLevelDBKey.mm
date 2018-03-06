@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -26,6 +27,9 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -276,7 +280,7 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
   Slice completeSegments = *contents;
 
   std::string segment;
-  std::vector<std::string> pathSegments{};
+  std::vector<std::string> path_segments{};
   for (;;) {
     // Advance a temporary slice to avoid advancing contents into the next key component which may
     // not be a path segment.
@@ -288,13 +292,13 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
       return NO;
     }
 
-    pathSegments.push_back(segment);
+    path_segments.push_back(std::move(segment));
     segment.clear();
 
     completeSegments = leveldb::Slice(readPosition.data(), readPosition.size());
   }
 
-  const ResourcePath path(pathSegments.begin(), pathSegments.end());
+  ResourcePath path{std::move(path_segments)};
   if (path.size() > 0 && [FSTDocumentKey isDocumentKey:path]) {
     *contents = completeSegments;
     *result = [FSTDocumentKey keyWithPath:path];
@@ -395,8 +399,7 @@ NSString *InvalidKey(const Slice &key) {
       if (!ReadDocumentKey(&tmp, &documentKey)) {
         break;
       }
-      [description
-          appendFormat:@" key=%@", util::WrapNSStringNoCopy(documentKey.path.CanonicalString())];
+      [description appendFormat:@" key=%s", documentKey.path.CanonicalString().c_str()];
 
     } else if (label == FSTComponentLabelTableName) {
       std::string table;
@@ -537,7 +540,7 @@ NSString *InvalidKey(const Slice &key) {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
   WriteUserID(&result, userID);
-  WriteResourcePath(&result, documentKey.path);
+  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
   WriteBatchID(&result, batchID);
   WriteTerminator(&result);
   return result;
@@ -691,7 +694,7 @@ NSString *InvalidKey(const Slice &key) {
   std::string result;
   WriteTableName(&result, kTargetDocumentsTable);
   WriteTargetID(&result, targetID);
-  WriteResourcePath(&result, documentKey.path);
+  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
   WriteTerminator(&result);
   return result;
 }
@@ -725,7 +728,7 @@ NSString *InvalidKey(const Slice &key) {
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)documentKey targetID:(FSTTargetID)targetID {
   std::string result;
   WriteTableName(&result, kDocumentTargetsTable);
-  WriteResourcePath(&result, documentKey.path);
+  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
   WriteTargetID(&result, targetID);
   WriteTerminator(&result);
   return result;
@@ -760,7 +763,7 @@ NSString *InvalidKey(const Slice &key) {
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)key {
   std::string result;
   WriteTableName(&result, kRemoteDocumentsTable);
-  WriteResourcePath(&result, key.path);
+  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:key.path]);
   WriteTerminator(&result);
   return result;
 }

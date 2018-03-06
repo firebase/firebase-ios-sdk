@@ -376,8 +376,9 @@ static ReadOptions StandardReadOptions() {
   NSString *userID = self.userID;
 
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey
+      keyPrefixWithUserID:self.userID
+             resourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator(StandardReadOptions()));
   indexIterator->Seek(indexPrefix);
 
@@ -615,8 +616,9 @@ static ReadOptions StandardReadOptions() {
 #pragma mark - FSTGarbageSource implementation
 
 - (BOOL)containsKey:(FSTDocumentKey *)documentKey {
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey
+      keyPrefixWithUserID:self.userID
+             resourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator(StandardReadOptions()));
   indexIterator->Seek(indexPrefix);
 

@@ -107,7 +107,9 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTDocumentKey <=> Key proto
 
 - (NSString *)encodedDocumentKey:(FSTDocumentKey *)key {
-  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path];
+  return [self
+      encodedResourcePathForDatabaseID:self.databaseID
+                                  path:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
 }
 
 - (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
@@ -116,7 +118,8 @@ NS_ASSUME_NONNULL_BEGIN
             @"Tried to deserialize key from different project.");
   FSTAssert(path[3] == self.databaseID->database_id(),
             @"Tried to deserialize key from different datbase.");
-  return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  return [FSTDocumentKey
+      keyWithPath:[[self localResourcePathForQualifiedResourcePath:path] toCPPResourcePath]];
 }
 
 - (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
@@ -314,7 +317,9 @@ NS_ASSUME_NONNULL_BEGIN
             util::WrapNSStringNoCopy(databaseID->project_id()),
             util::WrapNSStringNoCopy(databaseID->database_id()));
   GCFSValue *result = [GCFSValue message];
-  result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];
+  result.referenceValue = [self
+      encodedResourcePathForDatabaseID:databaseID
+                                  path:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
   return result;
 }
 

@@ -468,7 +468,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
             @"Invalid query. When querying by document ID you must provide "
              "a valid document ID, but it was an empty string.");
       }
-      const ResourcePath path = self.query.path.Append([documentKey UTF8String]);
+      ResourcePath path = self.query.path.Append([documentKey UTF8String]);
       fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithPath:path]
                                           databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {

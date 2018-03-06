@@ -99,9 +99,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocument: key:%@ version:%@ localMutations:%@ data:%@>",
-                                    util::WrapNSString(self.key.path.CanonicalString()),
-                                    self.version, self.localMutations ? @"YES" : @"NO", self.data];
+  return [NSString stringWithFormat:@"<FSTDocument: key:%s version:%@ localMutations:%@ data:%@>",
+                                    self.key.path.CanonicalString().c_str(), self.version,
+                                    self.localMutations ? @"YES" : @"NO", self.data];
 }
 
 - (nullable FSTFieldValue *)fieldForPath:(const FieldPath &)path {

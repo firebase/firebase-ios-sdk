@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDocumentKeyTests
 
 - (void)testConstructor {
-  const ResourcePath path{"rooms", "firestore", "messages", "1"};
+  ResourcePath path{"rooms", "firestore", "messages", "1"};
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:path];
   XCTAssertEqual(path, key.path);
 }

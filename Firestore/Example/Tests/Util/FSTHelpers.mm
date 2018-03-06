@@ -44,8 +44,10 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace util = firebase::firestore::util;
+namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
@@ -264,7 +266,7 @@ FSTPatchMutation *FSTTestPatchMutation(NSString *path,
     }
   }];
 
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:FSTTestPath([path UTF8String])];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource([path UTF8String])];
   FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:merge ? updateMask : fieldMaskPaths];
   return [[FSTPatchMutation alloc] initWithKey:key
                                      fieldMask:mask
@@ -275,7 +277,7 @@ FSTPatchMutation *FSTTestPatchMutation(NSString *path,
 // For now this only creates TransformMutations with server timestamps.
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:FSTTestPath([path UTF8String])];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource([path UTF8String])];
   NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
   for (NSString *field in serverTimestampFields) {
     const FieldPath fieldPath = FSTTestFieldPath(util::MakeStringView(field));

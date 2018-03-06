@@ -98,7 +98,8 @@ NS_ASSUME_NONNULL_BEGIN
         util::WrapNSStringNoCopy(path.CanonicalString()), path.size());
   }
   return
-      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:path] firestore:firestore];
+      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:[path toCPPResourcePath]]
+                                   firestore:firestore];
 }
 
 + (instancetype)referenceWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore {
@@ -145,8 +146,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRCollectionReference *)parent {
-  const ResourcePath parentPath = self.key.path.PopLast();
-  return [FIRCollectionReference referenceWithPath:parentPath firestore:self.firestore];
+  return [FIRCollectionReference
+      referenceWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:self.key.path.PopLast()]
+              firestore:self.firestore];
 }
 
 - (NSString *)path {
@@ -271,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
 addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                               listener:(FIRDocumentSnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
-  FSTQuery *query = [FSTQuery queryWithPath:[self.key.path toCPPResourcePath]];
+  FSTQuery *query = [FSTQuery queryWithPath:self.key.path];
   FSTDocumentKey *key = self.key;
 
   FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {

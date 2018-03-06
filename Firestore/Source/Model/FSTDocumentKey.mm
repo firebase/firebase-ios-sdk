@@ -51,8 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Designated initializer. */
 - (instancetype)initWithPath:(ResourcePath)path {
-  FSTAssert([FSTDocumentKey isDocumentKey:path], @"invalid document key path: %@",
-            util::WrapNSStringNoCopy(path.CanonicalString()));
+  FSTAssert([FSTDocumentKey isDocumentKey:path], @"invalid document key path: %s",
+            path.CanonicalString().c_str());
 
   if (self = [super init]) {
     _path = path;
@@ -75,8 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocumentKey: %@>",
-                                    util::WrapNSStringNoCopy(self.path.CanonicalString())];
+  return [NSString stringWithFormat:@"<FSTDocumentKey: %s>", _path.CanonicalString().c_str()];
 }
 
 /** Implements NSCopying without actually copying because FSTDocumentKeys are immutable. */

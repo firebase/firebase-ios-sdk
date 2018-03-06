@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  if ([FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]]) {
+  if ([FSTDocumentKey isDocumentKey:query.path]) {
     return [self documentsMatchingDocumentQuery:[FSTResourcePath
                                                     resourcePathWithCPPResourcePath:query.path]];
   } else {
@@ -90,7 +90,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
   FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
   // Just do a simple document lookup.
-  FSTMaybeDocument *doc = [self documentForKey:[FSTDocumentKey keyWithPath:docPath]];
+  FSTMaybeDocument *doc =
+      [self documentForKey:[FSTDocumentKey keyWithPath:[docPath toCPPResourcePath]]];
   if ([doc isKindOfClass:[FSTDocument class]]) {
     result = [result dictionaryBySettingObject:(FSTDocument *)doc forKey:doc.key];
   }
