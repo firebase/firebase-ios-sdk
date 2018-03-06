@@ -20,6 +20,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLevelDBKeyTests : XCTestCase
@@ -35,8 +39,8 @@ static std::string RemoteDocKey(NSString *pathString) {
 }
 
 static std::string RemoteDocKeyPrefix(NSString *pathString) {
-  return
-      [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:FSTTestPath([pathString UTF8String])];
+  return [FSTLevelDBRemoteDocumentKey
+      keyPrefixWithResourcePath:testutil::resource([pathString UTF8String])];
 }
 
 static std::string DocMutationKey(NSString *userID, NSString *key, FSTBatchID batchID) {
@@ -198,7 +202,7 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
                                   @"[document_mutation: userID=user1 incomplete key]");
 
   auto key = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:@"user1"
-                                                   resourcePath:FSTTestPath("foo/bar")];
+                                                   resourcePath:testutil::resource("foo/bar")];
   FSTAssertExpectedKeyDescription(key,
                                   @"[document_mutation: userID=user1 key=foo/bar incomplete key]");
 

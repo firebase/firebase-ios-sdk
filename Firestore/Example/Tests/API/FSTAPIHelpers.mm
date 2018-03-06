@@ -33,7 +33,9 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -69,11 +71,13 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
-  return [FIRCollectionReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
+  return [FIRCollectionReference referenceWithPath:testutil::resource(path)
+                                         firestore:FSTTestFirestore()];
 }
 
 FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
-  return [FIRDocumentReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
+  return [FIRDocumentReference referenceWithPath:testutil::resource(path)
+                                       firestore:FSTTestFirestore()];
 }
 
 /** A convenience method for creating a query snapshots for tests. */

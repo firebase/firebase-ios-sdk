@@ -42,7 +42,9 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -76,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{ @"a" : @"b", @"num" : @1 });
   FSTMutation *patch = [[FSTPatchMutation alloc]
        initWithKey:FSTTestDocKey(@"bar/baz")
-         fieldMask:[[FSTFieldMask alloc] initWithFields:{FSTTestFieldPath("a")}]
+         fieldMask:[[FSTFieldMask alloc] initWithFields:{testutil::Field("a")}]
              value:FSTTestObjectValue(
                        @{ @"a" : @"b",
                           @"num" : @1 })

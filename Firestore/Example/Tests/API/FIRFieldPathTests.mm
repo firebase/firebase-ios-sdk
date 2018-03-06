@@ -22,6 +22,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFieldPathTests : XCTestCase
@@ -30,9 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFieldPathTests
 
 - (void)testEquals {
-  FIRFieldPath *foo = [[FIRFieldPath alloc] initPrivate:FSTTestFieldPath("foo.ooo.oooo")];
-  FIRFieldPath *fooDup = [[FIRFieldPath alloc] initPrivate:FSTTestFieldPath("foo.ooo.oooo")];
-  FIRFieldPath *bar = [[FIRFieldPath alloc] initPrivate:FSTTestFieldPath("baa.aaa.aaar")];
+  FIRFieldPath *foo = [[FIRFieldPath alloc] initPrivate:testutil::Field("foo.ooo.oooo")];
+  FIRFieldPath *fooDup = [[FIRFieldPath alloc] initPrivate:testutil::Field("foo.ooo.oooo")];
+  FIRFieldPath *bar = [[FIRFieldPath alloc] initPrivate:testutil::Field("baa.aaa.aaar")];
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, bar);
 

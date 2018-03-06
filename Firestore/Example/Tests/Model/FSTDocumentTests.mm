@@ -24,6 +24,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTDocumentTests : XCTestCase
@@ -54,9 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc =
       [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
 
-  XCTAssertEqualObjects([doc fieldForPath:FSTTestFieldPath("desc")],
+  XCTAssertEqualObjects([doc fieldForPath:testutil::Field("desc")],
                         [FSTStringValue stringValue:@"Discuss all the project related stuff"]);
-  XCTAssertEqualObjects([doc fieldForPath:FSTTestFieldPath("owner.title")],
+  XCTAssertEqualObjects([doc fieldForPath:testutil::Field("owner.title")],
                         [FSTStringValue stringValue:@"scallywag"]);
 }
 

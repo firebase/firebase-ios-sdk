@@ -25,6 +25,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+
 @interface FSTMutationTests : XCTestCase
 @end
 
@@ -65,7 +69,7 @@
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
   FSTDocumentKey *key = FSTTestDocKey(@"collection/key");
-  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:{FSTTestFieldPath("foo.bar")}];
+  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:{testutil::Field("foo.bar")}];
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:mask
                                                        value:[FSTObjectValue objectValue]
@@ -114,7 +118,7 @@
       [expectedData objectBySettingValue:[FSTServerTimestampValue
                                              serverTimestampValueWithLocalWriteTime:_timestamp
                                                                       previousValue:nil]
-                                 forPath:FSTTestFieldPath("foo.bar")];
+                                 forPath:testutil::Field("foo.bar")];
 
   FSTDocument *expectedDoc = [FSTDocument documentWithData:expectedData
                                                        key:FSTTestDocKey(@"collection/key")

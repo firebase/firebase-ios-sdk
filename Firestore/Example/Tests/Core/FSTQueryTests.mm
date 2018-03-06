@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTQuery (Tests)
 
 - (FSTQuery *)queryByAddingSortBy:(const absl::string_view)key ascending:(BOOL)ascending {
-  return [self queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(key)
+  return [self queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field(key)
                                                                  ascending:ascending]];
 }
 

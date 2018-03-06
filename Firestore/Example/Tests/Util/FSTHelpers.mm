@@ -169,10 +169,6 @@ static NSArray<NSString *> *FSTTestSplitPath(NSString *path) {
   }
 }
 
-ResourcePath FSTTestPath(const absl::string_view path) {
-  return ResourcePath::FromString(path);
-}
-
 FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
                                     const absl::string_view database,
                                     NSString *path) {
@@ -184,11 +180,11 @@ FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
 }
 
 FSTQuery *FSTTestQuery(const absl::string_view path) {
-  return [FSTQuery queryWithPath:FSTTestPath(path)];
+  return [FSTQuery queryWithPath:testutil::resource(path)];
 }
 
 id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, id value) {
-  const FieldPath path = FSTTestFieldPath(field);
+  const FieldPath path = testutil::Field(field);
   FSTRelationFilterOperator op;
   if ([opString isEqualToString:@"<"]) {
     op = FSTRelationFilterOperatorLessThan;
@@ -217,7 +213,7 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
 }
 
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
-  const FieldPath path = FSTTestFieldPath(field);
+  const FieldPath path = testutil::Field(field);
   BOOL ascending;
   if ([direction isEqualToString:@"asc"]) {
     ascending = YES;
@@ -231,7 +227,7 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
 
 NSComparator FSTTestDocComparator(const absl::string_view fieldPath) {
   FSTQuery *query = [FSTTestQuery("docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(fieldPath)
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field(fieldPath)
                                                         ascending:YES]];
   return [query comparator];
 }
@@ -258,7 +254,7 @@ FSTPatchMutation *FSTTestPatchMutation(NSString *path,
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
   __block std::vector<FieldPath> fieldMaskPaths{};
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    const FieldPath path = FSTTestFieldPath(util::MakeStringView(key));
+    const FieldPath path = testutil::Field(util::MakeStringView(key));
     fieldMaskPaths.push_back(path);
     if (![value isEqual:kDeleteSentinel]) {
       FSTFieldValue *parsedValue = FSTTestFieldValue(value);
@@ -280,7 +276,7 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path,
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource([path UTF8String])];
   NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
   for (NSString *field in serverTimestampFields) {
-    const FieldPath fieldPath = FSTTestFieldPath(util::MakeStringView(field));
+    const FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
     id<FSTTransformOperation> transformOp = [FSTServerTimestampTransform serverTimestampTransform];
     FSTFieldTransform *transform =
         [[FSTFieldTransform alloc] initWithPath:fieldPath transform:transformOp];
