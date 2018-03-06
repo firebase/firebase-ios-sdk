@@ -248,8 +248,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   if (!_path || _path->empty()) {
     return @"";
   } else {
-    return [NSString stringWithFormat:@" (found in field %@)",
-                                      util::WrapNSStringNoCopy(_path->CanonicalString())];
+    return [NSString stringWithFormat:@" (found in field %s)", _path->CanonicalString().c_str()];
   }
 }
 
@@ -582,11 +581,10 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     if (*reference.databaseID != *self.databaseID) {
       const DatabaseId *other = reference.databaseID;
       FSTThrowInvalidArgument(
-          @"Document Reference is for database %@/%@ but should be for database %@/%@%@",
-          util::WrapNSStringNoCopy(other->project_id()),
-          util::WrapNSStringNoCopy(other->database_id()),
-          util::WrapNSStringNoCopy(self.databaseID->project_id()),
-          util::WrapNSStringNoCopy(self.databaseID->database_id()), [context fieldDescription]);
+          @"Document Reference is for database %s/%s but should be for database %s/%s%@",
+          other->project_id().c_str(), other->database_id().c_str(),
+          self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
+          [context fieldDescription]);
     }
     return [FSTReferenceValue referenceValue:reference.key databaseID:self.databaseID];
 

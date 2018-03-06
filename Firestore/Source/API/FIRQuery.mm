@@ -515,9 +515,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
           @"InvalidQueryException",
           @"Invalid Query. All where filters with an inequality "
            "(lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the same "
-           "field. But you have inequality filters on '%@' and '%@'",
-          util::WrapNSStringNoCopy(existingField->CanonicalString()),
-          util::WrapNSStringNoCopy(filter.field.CanonicalString()));
+           "field. But you have inequality filters on '%s' and '%s'",
+          existingField->CanonicalString().c_str(), filter.field.CanonicalString().c_str());
     }
 
     const FieldPath *firstOrderByField = [self.query firstSortOrderField];
@@ -543,12 +542,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     FSTThrowInvalidUsage(
         @"InvalidQueryException",
         @"Invalid query. You have a where filter with an "
-         "inequality (lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) on field '%@' "
-         "and so you must also use '%@' as your first queryOrderedBy field, but your first "
-         "queryOrderedBy is currently on field '%@' instead.",
-        util::WrapNSStringNoCopy(inequalityField.CanonicalString()),
-        util::WrapNSStringNoCopy(inequalityField.CanonicalString()),
-        util::WrapNSStringNoCopy(orderByField.CanonicalString()));
+         "inequality (lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) on field '%s' "
+         "and so you must also use '%s' as your first queryOrderedBy field, but your first "
+         "queryOrderedBy is currently on field '%s' instead.",
+        inequalityField.CanonicalString().c_str(), inequalityField.CanonicalString().c_str(),
+        orderByField.CanonicalString().c_str());
   }
 }
 
@@ -585,9 +583,9 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
       } else {
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. You are trying to start or end a query using a "
-                              "document for which the field '%@' (used as the order by) "
+                              "document for which the field '%s' (used as the order by) "
                               "does not exist.",
-                             util::WrapNSStringNoCopy(sortOrder.field.CanonicalString()));
+                             sortOrder.field.CanonicalString().c_str());
       }
     }
   }

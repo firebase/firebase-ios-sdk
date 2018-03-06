@@ -58,8 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
   if (path.size() % 2 != 1) {
     FSTThrowInvalidArgument(
         @"Invalid collection reference. Collection references must have an odd "
-         "number of segments, but %@ has %d",
-        util::WrapNSStringNoCopy(path.CanonicalString()), path.size());
+         "number of segments, but %s has %d",
+        path.CanonicalString().c_str(), path.size());
   }
   self = [super initWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
   return self;

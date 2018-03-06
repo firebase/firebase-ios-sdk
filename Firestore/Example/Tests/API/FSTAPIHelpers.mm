@@ -115,7 +115,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             hasPendingWrites:hasPendingWrites
                             syncStateChanged:YES];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
-                                   originalQuery:FSTTestQuery([path UTF8String])
+                                   originalQuery:FSTTestQuery(util::MakeStringView(path))
                                         snapshot:viewSnapshot
                                         metadata:metadata];
 }
