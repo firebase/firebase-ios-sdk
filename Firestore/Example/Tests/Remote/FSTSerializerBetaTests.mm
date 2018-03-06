@@ -48,7 +48,9 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 
@@ -239,9 +241,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResourceNames {
-  FSTDocumentKeyReference *reference =
-      FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/bar");
-  _databaseId = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
+  FSTDocumentKeyReference *reference = FSTTestRef("project", DatabaseId::kDefault, @"foo/bar");
+  _databaseId = DatabaseId("project", DatabaseId::kDefault);
   GCFSValue *proto = [GCFSValue message];
   proto.referenceValue = @"projects/project/databases/(default)/documents/foo/bar";
 
@@ -582,7 +583,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrders {
   FSTQuery *q = [FSTTestQuery(@"docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
                                                         ascending:YES]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
@@ -602,7 +603,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrdersDescending {
   FSTQuery *q = [FSTTestQuery(@"rooms/1/messages/10/attachments")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
                                                         ascending:NO]];
   FSTQueryData *model = [self queryDataForQuery:q];
 

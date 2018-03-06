@@ -30,6 +30,7 @@
 @class FSTQueryData;
 @class FSTRemoteEvent;
 @class FSTTransaction;
+@class FSTDispatchQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -95,10 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTRemoteStore : NSObject
 
-+ (instancetype)remoteStoreWithLocalStore:(FSTLocalStore *)localStore
-                                datastore:(FSTDatastore *)datastore;
+- (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
+                         datastore:(FSTDatastore *)datastore
+               workerDispatchQueue:(FSTDispatchQueue *)queue;
 
-- (instancetype)init __attribute__((unavailable("Use static constructor method.")));
+- (instancetype)init NS_UNAVAILABLE;
 
 @property(nonatomic, weak) id<FSTRemoteSyncer> syncEngine;
 

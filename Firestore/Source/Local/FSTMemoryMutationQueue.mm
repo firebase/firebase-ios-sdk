@@ -248,13 +248,13 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingQuery:(FSTQuery *)query {
   // Use the query path as a prefix for testing if a document matches the query.
-  FSTResourcePath *prefix = query.path;
+  FSTResourcePath *prefix = [FSTResourcePath resourcePathWithCPPResourcePath:query.path];
   int immediateChildrenPathLength = prefix.length + 1;
 
   // Construct a document reference for actually scanning the index. Unlike the prefix, the document
   // key in this reference must have an even number of segments. The empty segment can be used as
   // a suffix of the query path because it precedes all other segments in an ordered traversal.
-  FSTResourcePath *startPath = query.path;
+  FSTResourcePath *startPath = [FSTResourcePath resourcePathWithCPPResourcePath:query.path];
   if (![FSTDocumentKey isDocumentKey:startPath]) {
     startPath = [startPath pathByAppendingSegment:@""];
   }

@@ -21,9 +21,9 @@
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 // In these generic tests the specific TimerIDs don't matter.
-static const FSTTimerID timerID1 = FSTTimerIDListenStreamConnection;
+static const FSTTimerID timerID1 = FSTTimerIDListenStreamConnectionBackoff;
 static const FSTTimerID timerID2 = FSTTimerIDListenStreamIdle;
-static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnection;
+static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 
 @interface FSTDispatchQueueTests : XCTestCase
 @end

@@ -38,6 +38,14 @@
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ResourcePath;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRQueryListenOptions ()
@@ -371,7 +379,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
         @"Invalid query. You must not specify an ending point before specifying the order by.");
   }
   FSTSortOrder *sortOrder =
-      [FSTSortOrder sortOrderWithFieldPath:fieldPath.internalValue ascending:!descending];
+      [FSTSortOrder sortOrderWithFieldPath:[fieldPath.internalValue toCPPFieldPath]
+                                 ascending:!descending];
   return [FIRQuery referenceWithQuery:[self.query queryByAddingSortOrder:sortOrder]
                             firestore:self.firestore];
 }
@@ -460,7 +469,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
             @"Invalid query. When querying by document ID you must provide "
              "a valid document ID, but it was an empty string.");
       }
-      FSTResourcePath *path = [self.query.path pathByAppendingSegment:documentKey];
+      FSTResourcePath *path = [[FSTResourcePath resourcePathWithCPPResourcePath:self.query.path]
+          pathByAppendingSegment:documentKey];
       fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithPath:path]
                                           databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {
@@ -483,15 +493,15 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                            @"Invalid Query. You can only perform equality comparisons on nil / "
                             "NSNull.");
     }
-    filter = [[FSTNullFilter alloc] initWithField:fieldPath];
+    filter = [[FSTNullFilter alloc] initWithField:[fieldPath toCPPFieldPath]];
   } else if ([fieldValue isEqual:[FSTDoubleValue nanValue]]) {
     if (filterOperator != FSTRelationFilterOperatorEqual) {
       FSTThrowInvalidUsage(@"InvalidQueryException",
                            @"Invalid Query. You can only perform equality comparisons on NaN.");
     }
-    filter = [[FSTNanFilter alloc] initWithField:fieldPath];
+    filter = [[FSTNanFilter alloc] initWithField:[fieldPath toCPPFieldPath]];
   } else {
-    filter = [FSTRelationFilter filterWithField:fieldPath
+    filter = [FSTRelationFilter filterWithField:[fieldPath toCPPFieldPath]
                                  filterOperator:filterOperator
                                           value:fieldValue];
     [self validateNewRelationFilter:filter];
@@ -502,19 +512,21 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 
 - (void)validateNewRelationFilter:(FSTRelationFilter *)filter {
   if ([filter isInequality]) {
-    FSTFieldPath *existingField = [self.query inequalityFilterField];
-    if (existingField && ![existingField isEqual:filter.field]) {
+    const FieldPath *existingField = [self.query inequalityFilterField];
+    if (existingField && *existingField != filter.field) {
       FSTThrowInvalidUsage(
           @"InvalidQueryException",
           @"Invalid Query. All where filters with an inequality "
            "(lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the same "
            "field. But you have inequality filters on '%@' and '%@'",
-          existingField, filter.field);
+          util::WrapNSStringNoCopy(existingField->CanonicalString()),
+          util::WrapNSStringNoCopy(filter.field.CanonicalString()));
     }
 
-    FSTFieldPath *firstOrderByField = [self.query firstSortOrderField];
+    const FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
-      [self validateOrderByField:firstOrderByField matchesInequalityField:filter.field];
+      [self validateOrderByField:[FSTFieldPath fieldPathWithCPPFieldPath:*firstOrderByField]
+          matchesInequalityField:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
     }
   }
 }
@@ -522,9 +534,10 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 - (void)validateNewOrderByPath:(FSTFieldPath *)fieldPath {
   if (![self.query firstSortOrderField]) {
     // This is the first order by. It must match any inequality.
-    FSTFieldPath *inequalityField = [self.query inequalityFilterField];
+    const FieldPath *inequalityField = [self.query inequalityFilterField];
     if (inequalityField) {
-      [self validateOrderByField:fieldPath matchesInequalityField:inequalityField];
+      [self validateOrderByField:fieldPath
+          matchesInequalityField:[FSTFieldPath fieldPathWithCPPFieldPath:*inequalityField]];
     }
   }
 }
@@ -565,11 +578,12 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   // continues/ends exactly at the provided document. Without the key (by using the explicit sort
   // orders), multiple documents could match the position, yielding duplicate results.
   for (FSTSortOrder *sortOrder in self.query.sortOrders) {
-    if ([sortOrder.field isEqual:[FSTFieldPath keyFieldPath]]) {
+    if (sortOrder.field == FieldPath::KeyFieldPath()) {
       [components addObject:[FSTReferenceValue referenceValue:document.key
                                                    databaseID:self.firestore.databaseID]];
     } else {
-      FSTFieldValue *value = [document fieldForPath:sortOrder.field];
+      FSTFieldValue *value =
+          [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrder.field]];
       if (value != nil) {
         [components addObject:value];
       } else {
@@ -577,7 +591,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                              @"Invalid query. You are trying to start or end a query using a "
                               "document for which the field '%@' (used as the order by) "
                               "does not exist.",
-                             sortOrder.field.canonicalString);
+                             util::WrapNSStringNoCopy(sortOrder.field.CanonicalString()));
       }
     }
   }
@@ -597,7 +611,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   NSMutableArray<FSTFieldValue *> *components = [NSMutableArray array];
   [fieldValues enumerateObjectsUsingBlock:^(id rawValue, NSUInteger idx, BOOL *stop) {
     FSTSortOrder *sortOrder = explicitSortOrders[idx];
-    if ([sortOrder.field isEqual:[FSTFieldPath keyFieldPath]]) {
+    if (sortOrder.field == FieldPath::KeyFieldPath()) {
       if (![rawValue isKindOfClass:[NSString class]]) {
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. Expected a string for the document ID.");
@@ -607,8 +621,10 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. Document ID '%@' contains a slash.", documentID);
       }
-      FSTDocumentKey *key =
-          [FSTDocumentKey keyWithPath:[self.query.path pathByAppendingSegment:documentID]];
+      FSTDocumentKey *key = [FSTDocumentKey
+          keyWithPath:[FSTResourcePath
+                          resourcePathWithCPPResourcePath:self.query.path.Append(
+                                                              [documentID UTF8String])]];
       [components
           addObject:[FSTReferenceValue referenceValue:key databaseID:self.firestore.databaseID]];
     } else {

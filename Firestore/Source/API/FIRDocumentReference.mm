@@ -266,7 +266,7 @@ NS_ASSUME_NONNULL_BEGIN
 addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                               listener:(FIRDocumentSnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
-  FSTQuery *query = [FSTQuery queryWithPath:self.key.path];
+  FSTQuery *query = [FSTQuery queryWithPath:[self.key.path toCPPResourcePath]];
   FSTDocumentKey *key = self.key;
 
   FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {

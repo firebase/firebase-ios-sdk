@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRErrors.h"
 #import "Private/FIRLogger.h"
@@ -107,6 +108,30 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 #pragma mark - Private class methods
+
++ (void)load {
+  // Report FirebaseCore version for useragent string
+  NSRange major = NSMakeRange(0, 1);
+  NSRange minor = NSMakeRange(1, 2);
+  NSRange patch = NSMakeRange(3, 2);
+  [FIRApp
+      registerLibrary:@"fire-ios"
+          withVersion:[NSString stringWithFormat:@"%@.%d.%d",
+                                                 [kFIRLibraryVersionID substringWithRange:major],
+                                                 [[kFIRLibraryVersionID substringWithRange:minor]
+                                                     intValue],
+                                                 [[kFIRLibraryVersionID substringWithRange:patch]
+                                                     intValue]]];
+  NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
+  NSString *xcodeVersion = info[@"DTXcodeBuild"];
+  NSString *sdkVersion = info[@"DTSDKBuild"];
+  if (xcodeVersion) {
+    [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
+  }
+  if (sdkVersion) {
+    [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
+  }
+}
 
 + (NSDictionary *)defaultOptionsDictionary {
   if (sDefaultOptionsDictionary != nil) {

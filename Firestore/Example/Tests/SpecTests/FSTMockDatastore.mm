@@ -16,7 +16,6 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -27,10 +26,14 @@
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 
@@ -44,17 +47,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @property(nonatomic, assign) BOOL open;
@@ -69,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:datastore.databaseInfo
              workerDispatchQueue:workerDispatchQueue
@@ -170,17 +173,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
 
 - (instancetype)initWithDatabase:(const DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(CredentialsProvider *)credentials
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 @property(nonatomic, strong, readonly) FSTMockDatastore *datastore;
@@ -193,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      credentials:(id<FSTCredentialsProvider>)credentials
+                      credentials:(CredentialsProvider *)credentials
                        serializer:(FSTSerializerBeta *)serializer {
   self = [super initWithDatabase:datastore.databaseInfo
              workerDispatchQueue:workerDispatchQueue
@@ -279,23 +282,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Properties implemented in FSTDatastore that are nonpublic. */
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
-@property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentials;
+@property(nonatomic, assign, readonly) CredentialsProvider *credentials;
 
 @end
 
 @implementation FSTMockDatastore
-
-+ (instancetype)mockDatastoreWithWorkerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
-  // This owns the DatabaseInfos since we do not have FirestoreClient instance to own them.
-  static DatabaseInfo database_info{DatabaseId{"project", "database"}, "persistence", "host",
-                                    false};
-
-  FSTEmptyCredentialsProvider *credentials = [[FSTEmptyCredentialsProvider alloc] init];
-
-  return [[FSTMockDatastore alloc] initWithDatabaseInfo:&database_info
-                                    workerDispatchQueue:workerDispatchQueue
-                                            credentials:credentials];
-}
 
 #pragma mark - Overridden FSTDatastore methods.
 

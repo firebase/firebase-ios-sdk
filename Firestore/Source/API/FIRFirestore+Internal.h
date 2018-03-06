@@ -16,14 +16,17 @@
 
 #import "FIRFirestore.h"
 
+#include <memory>
+
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "absl/strings/string_view.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTDispatchQueue;
 @class FSTFirestoreClient;
 @class FSTUserDataConverter;
-@protocol FSTCredentialsProvider;
 
 @interface FIRFirestore (/* Init */)
 
@@ -31,10 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a Firestore object with all the required parameters directly. This exists so that
  * tests can create FIRFirestore objects without needing FIRApp.
  */
-- (instancetype)initWithProjectID:(NSString *)projectID
-                         database:(NSString *)database
+- (instancetype)initWithProjectID:(const absl::string_view)projectID
+                         database:(const absl::string_view)database
                    persistenceKey:(NSString *)persistenceKey
-              credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
+              credentialsProvider:(std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)
+                                      credentialsProvider
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app;
 

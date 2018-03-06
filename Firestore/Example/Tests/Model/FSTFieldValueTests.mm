@@ -254,8 +254,8 @@ union DoubleBits {
 
 - (void)testWrapResourceNames {
   NSArray *values = @[
-    FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/bar"),
-    FSTTestRef(@"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"foo/baz")
+    FSTTestRef("project", DatabaseId::kDefault, @"foo/bar"),
+    FSTTestRef("project", DatabaseId::kDefault, @"foo/baz")
   ];
   for (FSTDocumentKeyReference *value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
@@ -423,7 +423,7 @@ union DoubleBits {
 }
 
 - (void)testValueEquality {
-  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefaultDatabaseId);
+  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefault);
   NSArray *groups = @[
     @[ FSTTestFieldValue(@YES), [FSTBooleanValue booleanValue:YES] ],
     @[ FSTTestFieldValue(@NO), [FSTBooleanValue booleanValue:NO] ],
@@ -467,10 +467,9 @@ union DoubleBits {
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
       [FSTReferenceValue referenceValue:FSTTestDocKey(@"coll/doc1") databaseID:&database_id],
-      FSTTestFieldValue(FSTTestRef(
-          @"project", util::WrapNSStringNoCopy(DatabaseId::kDefaultDatabaseId), @"coll/doc1"))
+      FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefault, @"coll/doc1"))
     ],
-    @[ FSTTestRef(@"project", @"(default)", @"coll/doc2") ],
+    @[ FSTTestRef("project", "(default)", @"coll/doc2") ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar" ]), FSTTestFieldValue(@[ @"foo", @"bar" ]) ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar", @"baz" ]) ], @[ FSTTestFieldValue(@[ @"foo" ]) ],
     @[
@@ -531,9 +530,9 @@ union DoubleBits {
     @[ FSTTestData(0, 1, 2, 4, 3, -1) ], @[ FSTTestData(255, -1) ],
 
     // resource names
-    @[ FSTTestRef(@"p1", @"d1", @"c1/doc1") ], @[ FSTTestRef(@"p1", @"d1", @"c1/doc2") ],
-    @[ FSTTestRef(@"p1", @"d1", @"c10/doc1") ], @[ FSTTestRef(@"p1", @"d1", @"c2/doc1") ],
-    @[ FSTTestRef(@"p1", @"d2", @"c1/doc1") ], @[ FSTTestRef(@"p2", @"d1", @"c1/doc1") ],
+    @[ FSTTestRef("p1", "d1", @"c1/doc1") ], @[ FSTTestRef("p1", "d1", @"c1/doc2") ],
+    @[ FSTTestRef("p1", "d1", @"c10/doc1") ], @[ FSTTestRef("p1", "d1", @"c2/doc1") ],
+    @[ FSTTestRef("p1", "d2", @"c1/doc1") ], @[ FSTTestRef("p2", "d1", @"c1/doc1") ],
 
     // Geo points
     @[ FSTTestGeoPoint(-90, -180) ], @[ FSTTestGeoPoint(-90, 0) ], @[ FSTTestGeoPoint(-90, 180) ],

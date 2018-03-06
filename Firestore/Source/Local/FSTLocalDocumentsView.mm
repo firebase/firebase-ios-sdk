@@ -25,6 +25,7 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -74,8 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  if ([FSTDocumentKey isDocumentKey:query.path]) {
-    return [self documentsMatchingDocumentQuery:query.path];
+  if ([FSTDocumentKey isDocumentKey:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]]) {
+    return [self documentsMatchingDocumentQuery:[FSTResourcePath
+                                                    resourcePathWithCPPResourcePath:query.path]];
   } else {
     return [self documentsMatchingCollectionQuery:query];
   }

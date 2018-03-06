@@ -187,6 +187,10 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_async(self.queue, block);
 }
 
+- (void)dispatchSync:(void (^)(void))block {
+  dispatch_sync(self.queue, block);
+}
+
 - (FSTDelayedCallback *)dispatchAfterDelay:(NSTimeInterval)delay
                                    timerID:(FSTTimerID)timerID
                                      block:(void (^)(void))block {

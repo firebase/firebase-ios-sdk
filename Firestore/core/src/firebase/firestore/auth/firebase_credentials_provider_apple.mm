@@ -28,8 +28,7 @@ namespace firestore {
 namespace auth {
 
 FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
-    : contents_(
-          std::make_shared<Contents>(app, util::MakeStringView([app getUID]))) {
+    : contents_(std::make_shared<Contents>(app, User::FromUid([app getUID]))) {
   std::weak_ptr<Contents> weak_contents = contents_;
 
   auth_listener_handle_ = [[NSNotificationCenter defaultCenter]
@@ -54,7 +53,7 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
 
                 NSString* user_id =
                     user_info[FIRAuthStateDidChangeInternalNotificationUIDKey];
-                User new_user(util::MakeStringView(user_id));
+                User new_user = User::FromUid(user_id);
                 if (new_user != contents->current_user) {
                   contents->current_user = new_user;
                   contents->user_counter++;
@@ -97,11 +96,12 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
       // Cancel the request since the user changed while the request was
       // outstanding so the response is likely for a previous user (which
       // user, we can't be sure).
-      completion({"", User::Unauthenticated()},
+      completion(Token::Invalid(), FirestoreErrorCode::Aborted,
                  "getToken aborted due to user change.");
     } else {
       completion(
-          {util::MakeStringView(token), contents->current_user},
+          Token{util::MakeStringView(token), contents->current_user},
+          error == nil ? FirestoreErrorCode::Ok : error.code,
           error == nil ? "" : util::MakeStringView(error.localizedDescription));
     }
   };

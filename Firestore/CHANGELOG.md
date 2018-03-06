@@ -1,4 +1,16 @@
 # Unreleased
+- [changed] If the SDK's attempt to connect to the Cloud Firestore backend
+  neither succeeds nor fails within 10 seconds, the SDK will consider itself
+  "offline", causing getDocument() calls to resolve with cached results, rather
+  than continuing to wait.
+
+# v0.10.2
+- [changed] When you delete a FirebaseApp, the associated Firestore instances
+  are now also deleted (#683).
+- [fixed] Fixed race conditions in streams that could be exposed by rapidly
+  toggling the network from enabled to disabled and back (#772) or encountering
+  a failure from the server (#835).
+- [fixed] Addressed warnings shown by the latest versions of Xcode and CocoaPods.
 
 # v0.10.1
 - [fixed] Fixed a regression in Firebase iOS release 4.8.1 that could in certain

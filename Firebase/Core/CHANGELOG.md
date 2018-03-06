@@ -1,5 +1,8 @@
 # Unreleased
 
+# 2018-03-06 -- v4.0.16 -- M22
+- [changed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of Xcode and CocoaPods.
+
 # 2018-01-18 -- v4.0.14 -- M21.1
 - [changed] Removed AppKit dependency for community macOS build.
 

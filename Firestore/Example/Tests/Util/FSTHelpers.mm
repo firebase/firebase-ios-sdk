@@ -107,7 +107,7 @@ FSTFieldPath *FSTTestFieldPath(NSString *field) {
 
 FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static DatabaseId database_id{"project", DatabaseId::kDefaultDatabaseId};
+  static DatabaseId database_id{"project", DatabaseId::kDefault};
   FSTUserDataConverter *converter =
       [[FSTUserDataConverter alloc] initWithDatabaseID:&database_id
                                           preConverter:^id _Nullable(id _Nullable input) {
@@ -172,16 +172,18 @@ FSTResourcePath *FSTTestPath(NSString *path) {
   return [FSTResourcePath pathWithSegments:FSTTestSplitPath(path)];
 }
 
-FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *database, NSString *path) {
+FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
+                                    const absl::string_view database,
+                                    NSString *path) {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static std::list<DatabaseId> database_ids;
-  database_ids.emplace_back(util::MakeStringView(projectID), util::MakeStringView(database));
+  database_ids.emplace_back(projectID, database);
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
                                            databaseID:&database_ids.back()];
 }
 
 FSTQuery *FSTTestQuery(NSString *path) {
-  return [FSTQuery queryWithPath:FSTTestPath(path)];
+  return [FSTQuery queryWithPath:[FSTTestPath(path) toCPPResourcePath]];
 }
 
 id<FSTFilter> FSTTestFilter(NSString *field, NSString *opString, id value) {
@@ -204,12 +206,12 @@ id<FSTFilter> FSTTestFilter(NSString *field, NSString *opString, id value) {
   FSTFieldValue *data = FSTTestFieldValue(value);
   if ([data isEqual:[FSTDoubleValue nanValue]]) {
     FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with NAN.");
-    return [[FSTNanFilter alloc] initWithField:path];
+    return [[FSTNanFilter alloc] initWithField:[path toCPPFieldPath]];
   } else if ([data isEqual:[FSTNullValue nullValue]]) {
     FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with Null.");
-    return [[FSTNullFilter alloc] initWithField:path];
+    return [[FSTNullFilter alloc] initWithField:[path toCPPFieldPath]];
   } else {
-    return [FSTRelationFilter filterWithField:path filterOperator:op value:data];
+    return [FSTRelationFilter filterWithField:[path toCPPFieldPath] filterOperator:op value:data];
   }
 }
 
@@ -223,13 +225,14 @@ FSTSortOrder *FSTTestOrderBy(NSString *field, NSString *direction) {
   } else {
     FSTCFail(@"Unsupported direction: %@", direction);
   }
-  return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
+  return [FSTSortOrder sortOrderWithFieldPath:[path toCPPFieldPath] ascending:ascending];
 }
 
 NSComparator FSTTestDocComparator(NSString *fieldPath) {
   FSTQuery *query = [FSTTestQuery(@"docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(fieldPath)
-                                                        ascending:YES]];
+      queryByAddingSortOrder:[FSTSortOrder
+                                 sortOrderWithFieldPath:[FSTTestFieldPath(fieldPath) toCPPFieldPath]
+                                              ascending:YES]];
   return [query comparator];
 }
 

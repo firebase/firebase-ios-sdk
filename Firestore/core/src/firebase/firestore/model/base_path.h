@@ -159,6 +159,19 @@ class BasePath {
     return segments_ >= rhs.segments_;
   }
 
+#if defined(__OBJC__)
+  // For Objective-C++ hash; to be removed after migration.
+  // Do NOT use in C++ code.
+  uint64_t Hash() const {
+    std::hash<std::string> hash_fn;
+    uint64_t hash_result = 0;
+    for (const std::string& segment : segments_) {
+      hash_result = hash_result * 31u + hash_fn(segment);
+    }
+    return hash_result;
+  }
+#endif  // defined(__OBJC__)
+
  protected:
   BasePath() = default;
   template <typename IterT>

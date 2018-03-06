@@ -20,6 +20,7 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
@@ -222,6 +223,11 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * Enables RemoteStore's network connection.
  */
 - (void)enableNetwork;
+
+/**
+ * Runs a pending timer callback on the FSTDispatchQueue.
+ */
+- (void)runTimer:(FSTTimerID)timerID;
 
 /**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for
