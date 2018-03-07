@@ -64,7 +64,7 @@ jobs:
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - bundle install
         - gem install xcpretty
-        - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+        - bundle exec pod install --project-directory=Firestore/Example --repo-update
         - |
           if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
             SKIP_FIREBASE=0
