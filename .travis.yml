@@ -1,5 +1,5 @@
 osx_image: xcode9.2
-language: objective-c
+language: c
 cache:
   - bundler
   - cocoapods
@@ -20,12 +20,71 @@ jobs:
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
     - stage: test
+      language: objective-c
+      rvm: 2.3.1
+      env:
+        - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Firebase PLATFORM=macOS METHOD=xcodebuild
+        - PROJECT=Firebase PLATFORM=tvOS METHOD=xcodebuild
       before_install:
         # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - bundle install
         - gem install xcpretty
         - bundle exec pod install --project-directory=Example --repo-update
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
+      script:
+        - |
+          if [ $SKIP_FIREBASE != 1 ]; then
+            ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+          fi
+
+        - |
+          # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
+          if [ $SKIP_FIREBASE != 1 && $PLATFORM == iOS ]; then
+            bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
+          fi
+
+    - stage: test
+      language: objective-c
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+        # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+        - bundle install
+        - gem install xcpretty
+        - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
+      script:
+        - |
+          if [ $SKIP_FIRESTORE != 1 ]; then
+            ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+          fi
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+      before_install:
+        - gem install xcpretty
         - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
         - brew install cmake
         - brew install go # Somehow the build for Abseil requires this.
@@ -43,18 +102,8 @@ jobs:
           fi
       script:
         - |
-          if [ $SKIP_FIREBASE != 1 ]; then
-            ./test.sh
-          fi
-        - |
           if [ $SKIP_FIRESTORE != 1 ]; then
-            ./Firestore/test.sh
-          fi
-
-        - |
-          # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
-          if [ $SKIP_FIREBASE != 1 ]; then
-            bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
+            ./scripts/build.sh $PROJECT $PLATFORM $METHOD
           fi
 
 # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
