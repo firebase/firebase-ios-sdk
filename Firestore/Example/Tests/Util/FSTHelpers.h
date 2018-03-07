@@ -24,6 +24,7 @@
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
 
@@ -235,7 +236,7 @@ FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> 
 /** Creates a patch mutation for the document key at the given path. */
 FSTPatchMutation *FSTTestPatchMutation(
     const absl::string_view path,
-    const std::map<std::string, std::string> &values,
+    NSDictionary<NSString *, id> *values,
     const std::vector<firebase::firestore::model::FieldPath> &updateMask);
 
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,

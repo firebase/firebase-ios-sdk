@@ -177,15 +177,8 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doPatch:(NSArray *)patchSpec {
-  __block std::map<std::string, std::string> values{};
-  values.clear();
-  [patchSpec[1] enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    // TODO(zxu123): refactoring such that value is not restricted to string type.
-    XCTAssert([value isKindOfClass:[NSString class]], @"spec is %@", patchSpec);
-    values.emplace(std::make_pair(util::MakeString(key), util::MakeString((NSString *)value)));
-  }];
   [self.driver
-      writeUserMutation:FSTTestPatchMutation(util::MakeStringView(patchSpec[0]), values, {})];
+      writeUserMutation:FSTTestPatchMutation(util::MakeStringView(patchSpec[0]), patchSpec[1], {})];
 }
 
 - (void)doDelete:(NSString *)key {

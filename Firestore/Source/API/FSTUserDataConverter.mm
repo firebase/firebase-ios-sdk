@@ -131,12 +131,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 /**
  * A "context" object passed around while parsing user data.
  */
-@interface FSTParseContext : NSObject {
-  /** The current path being parsed. */
-  // TODO(b/34871131): path should never be nullptr, but we don't support array paths right now.
-  std::unique_ptr<FieldPath> _path;
-  std::vector<FieldPath> _fieldMask;
-}
+@interface FSTParseContext : NSObject
 
 /** Whether or not this context corresponds to an element of an array. */
 @property(nonatomic, assign, readonly, getter=isArrayElement) BOOL arrayElement;
@@ -181,7 +176,12 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 @end
 
-@implementation FSTParseContext
+@implementation FSTParseContext {
+  /** The current path being parsed. */
+  // TODO(b/34871131): path should never be nullptr, but we don't support array paths right now.
+  std::unique_ptr<FieldPath> _path;
+  std::vector<FieldPath> _fieldMask;
+}
 
 + (instancetype)contextWithSource:(FSTUserDataSource)dataSource
                              path:(std::unique_ptr<FieldPath>)path {
@@ -457,7 +457,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     // If context.path is nil we are already inside an array and we don't support field mask paths
     // more granular than the top-level array.
     if (context.path) {
-      context.fieldMask->push_back(*(context.path));
+      context.fieldMask->push_back(*context.path);
     }
     return [[FSTArrayValue alloc] initWithValueNoCopy:result];
 

@@ -43,6 +43,7 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -51,12 +52,13 @@ namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A string sentinel that can be used with FSTTestPatchMutation() to mark a field for deletion. */
-static const char kDeleteSentinel[] = "<DELETE>";
+static NSString *const kDeleteSentinel = @"<DELETE>";
 
 static const int kMicrosPerSec = 1000000;
 static const int kMillisPerSec = 1000;
@@ -240,21 +242,20 @@ FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> 
 }
 
 FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
-                                       const std::map<std::string, std::string> &values,
+                                       NSDictionary<NSString *, id> *values,
                                        const std::vector<FieldPath> &updateMask) {
   BOOL merge = !updateMask.empty();
 
-  FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  std::vector<FieldPath> fieldMaskPaths{};
-  fieldMaskPaths.reserve(values.size());
-  for (const auto &value : values) {
-    const FieldPath path = testutil::Field(value.first);
+  __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
+  __block std::vector<FieldPath> fieldMaskPaths{};
+  [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+    const FieldPath path = testutil::Field(util::MakeStringView(key));
     fieldMaskPaths.push_back(path);
-    if (value.second != kDeleteSentinel) {
-      FSTFieldValue *parsedValue = FSTTestFieldValue(util::WrapNSString(value.second));
+    if (![value isEqual:kDeleteSentinel]) {
+      FSTFieldValue *parsedValue = FSTTestFieldValue(value);
       objectValue = [objectValue objectBySettingValue:parsedValue forPath:path];
     }
-  }
+  }];
 
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(path)];
   FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:merge ? updateMask : fieldMaskPaths];
