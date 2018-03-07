@@ -16,6 +16,7 @@
 
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 
+
 @implementation FIRAnalyticsConfiguration
 
 + (FIRAnalyticsConfiguration *)sharedInstance {
