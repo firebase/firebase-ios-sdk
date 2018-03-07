@@ -12,23 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Lints C++ files for conformance with the Google C++ style guide
+# Check source files for copyright notices
 
 options=(
-    -z    # \0 terminate output
+  -E  # Use extended regexps
+  -I  # Exclude binary files
+  -L  # Show files that don't have a match
+  'Copyright [0-9]{4}.*Google'
 )
 
-if [[ $# -gt 0 ]]; then
-  # Interpret any command-line argument as a revision range
-  command=(git diff --name-only)
-  options+=("$@")
-
-else
-  # Default to operating on all files that match the pattern
-  command=(git ls-files)
+git grep "${options[@]}" \
+    -- '*.'{c,cc,h,m,mm,sh,swift} \
+    ':(exclude)**/third_party/**'
+if [[ $? == 0 ]]; then
+  echo "ERROR: Missing copyright notices in the files above. Please fix."
+  exit 1
 fi
 
-
-"${command[@]}" "${options[@]}" \
-    -- 'Firestore/core/**/*.'{h,cc} \
-  | xargs -0 python scripts/cpplint.py --quiet

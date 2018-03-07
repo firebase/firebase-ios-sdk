@@ -12,23 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Lints C++ files for conformance with the Google C++ style guide
-
+# Fail on an trailing whitespace characters, excluding
+#   * binary files (-I)
+#   * nanopb-generated files
+#
+# Note: specifying revisions we care about makes this go slower than just
+# grepping through the whole repo.
 options=(
-    -z    # \0 terminate output
+  -n  # show line numbers
+  -I  # exclude binary files
+  ' $'
 )
 
-if [[ $# -gt 0 ]]; then
-  # Interpret any command-line argument as a revision range
-  command=(git diff --name-only)
-  options+=("$@")
-
-else
-  # Default to operating on all files that match the pattern
-  command=(git ls-files)
+git grep "${options[@]}" \
+    -- ':(exclude)Firestore/Protos/nanopb'
+if [[ $? == 0 ]]; then
+  echo "ERROR: Trailing whitespace found in the files above. Please fix."
+  exit 1
 fi
 
-
-"${command[@]}" "${options[@]}" \
-    -- 'Firestore/core/**/*.'{h,cc} \
-  | xargs -0 python scripts/cpplint.py --quiet
