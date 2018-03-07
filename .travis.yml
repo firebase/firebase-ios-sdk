@@ -5,44 +5,42 @@ cache:
   - cocoapods
 
 rvm: 2.3.1
-before_install:
-# Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
-#  - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
-  - bundle install
-  - gem install xcpretty
-  - bundle exec pod install --project-directory=Example --repo-update
-  - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
-  - brew install clang-format
-  - brew install swiftformat
-  - brew install cmake
-  - brew install go # Somehow the build for Abseil requires this.
-  - echo "$TRAVIS_COMMIT_RANGE"
-  - echo "$TRAVIS_PULL_REQUEST"
-  - |
-    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-      SKIP_FIREBASE=0
-      SKIP_FIRESTORE=0
-    else
-      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
-      SKIP_FIREBASE="$?"
-      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
-      SKIP_FIRESTORE="$?"
-    fi
 
 jobs:
   include:
     - stage: checks
+      before_install:
+        - brew install clang-format
+        - brew install swiftformat
       script:
         - ./scripts/check_whitespace.sh
         - ./scripts/check_copyright.sh
         - ./scripts/style.sh test-only $TRAVIS_COMMIT_RANGE
-        - |
-          # Google C++ style compliance
-          if [ $SKIP_FIRESTORE != 1 ]; then
-            ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
-          fi
+        # Google C++ style compliance
+        - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
     - stage: test
+      before_install:
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+        # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+        - bundle install
+        - gem install xcpretty
+        - bundle exec pod install --project-directory=Example --repo-update
+        - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+        - brew install cmake
+        - brew install go # Somehow the build for Abseil requires this.
+        - echo "$TRAVIS_COMMIT_RANGE"
+        - echo "$TRAVIS_PULL_REQUEST"
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
       script:
         - |
           if [ $SKIP_FIREBASE != 1 ]; then
