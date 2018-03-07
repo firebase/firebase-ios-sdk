@@ -51,6 +51,8 @@
 #import "FIRVerifyCustomTokenResponse.h"
 #import "FIRVerifyPasswordRequest.h"
 #import "FIRVerifyPasswordResponse.h"
+#import "FIREmailLinkSignInRequest.h"
+#import "FIREmailLinkSignInResponse.h"
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
@@ -430,6 +432,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyPassword:request callback:callback];
 }
 
++ (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
+               callback:(FIREmailLinkSigninResponseCallback)callback {
+  [[self implementation] emailLinkSignin:request callback:callback];
+}
+
 + (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   [[self implementation] secureToken:request callback:callback];
@@ -614,6 +621,18 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)verifyPassword:(FIRVerifyPasswordRequest *)request
               callback:(FIRVerifyPasswordResponseCallback)callback {
   FIRVerifyPasswordResponse *response = [[FIRVerifyPasswordResponse alloc] init];
+  [self postWithRequest:request response:response callback:^(NSError *error) {
+    if (error) {
+      callback(nil, error);
+    } else {
+      callback(response, nil);
+    }
+  }];
+}
+
+- (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
+               callback:(FIREmailLinkSigninResponseCallback)callback {
+  FIREmailLinkSignInResponse *response = [[FIREmailLinkSignInResponse alloc] init];
   [self postWithRequest:request response:response callback:^(NSError *error) {
     if (error) {
       callback(nil, error);

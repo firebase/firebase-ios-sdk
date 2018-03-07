@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FIRCreateAuthURIResponse.h"
+#import "FIREmailLinkSignInResponse.h"
 
-@implementation FIRCreateAuthURIResponse
+@implementation FIREmailLinkSignInResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                    error:(NSError *_Nullable *_Nullable)error {
-  _providerID = [dictionary[@"providerId"] copy];
-  _authURI = [dictionary[@"authUri"] copy];
-  _registered = [dictionary[@"registered"] boolValue];
-  _forExistingProvider = [dictionary[@"forExistingProvider"] boolValue];
-  _allProviders = [dictionary[@"allProviders"] copy];
-  _signinMethods = [dictionary[@"signinMethods"] copy];
+                    error:(NSError *_Nullable  *_Nullable)error {
+  _email = [dictionary[@"email"] copy];
+  _IDToken = [dictionary[@"idToken"] copy];
+  _isNewUser = [dictionary[@"isNewUser"] boolValue];
+  _refreshToken = [dictionary[@"refreshToken"] copy];
+  _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
+      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
   return YES;
 }
 

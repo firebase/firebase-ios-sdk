@@ -33,6 +33,8 @@
 #import "FIRAuthBackend.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
+#import "FIREmailLinkSignInRequest.h"
+#import "FIREmailLinkSignInResponse.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
@@ -56,6 +58,7 @@
 #import "FIRApp+FIRAuthUnitTests.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 #import <OCMock/OCMock.h>
+#import "FIRActionCodeSettings.h"
 
 #if TARGET_OS_IOS
 #import "FIRPhoneAuthCredential.h"
@@ -166,6 +169,38 @@ static NSString *const kVerificationCode = @"12345678";
     @brief Fake verification ID for testing.
  */
 static NSString *const kVerificationID = @"55432";
+
+/** @var kContinueURL
+    @brief Fake string value of continue url.
+ */
+static NSString *const kContinueURL = @"continueURL";
+
+/** @var kCanHandleCodeInAppKey
+    @brief The key for the request parameter indicating whether the action code can be handled in
+        the app or not.
+ */
+static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
+
+/** @var kFIREmailLinkAuthSignInMethod
+    @brief Fake email link sign-in method for testing.
+ */
+static NSString *const kFIREmailLinkAuthSignInMethod = @"emailLink";
+
+/** @var kFIRFacebookAuthSignInMethod
+    @brief Fake Facebook sign-in method for testing.
+ */
+static NSString *const kFIRFacebookAuthSignInMethod = @"facebook.com";
+
+/** @var kBadSignInEmailLink
+    @brief Bad sign-in link to test email link sign-in
+ */
+static NSString *const kBadSignInEmailLink = @"http://www.facebook.com";
+
+/** @var kFakeEmailSignInlink
+    @brief Fake email sign-in link
+ */
+static NSString *const kFakeEmailSignInlink = @"https://fex9s.app.goo.gl?link="
+    "https://fb-sa-upgraded.firebaseapp.com/_?mode%3DsignIn%26oobCode%3Dtestoobcode";
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
@@ -360,6 +395,39 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testFetchSignInMethodsForEmailSuccess
+    @brief Tests the flow of a successful @c fetchSignInMethodsForEmail:completion: call.
+ */
+- (void)testFetchSignInMethodsForEmailSuccess {
+  NSArray<NSString *> *allSignInMethods =
+      @[ kFIREmailLinkAuthSignInMethod, kFIRFacebookAuthSignInMethod ];
+  OCMExpect([_mockBackend createAuthURI:[OCMArg any]
+                               callback:[OCMArg any]])
+      .andCallBlock2(^(FIRCreateAuthURIRequest *_Nullable request,
+                       FIRCreateAuthURIResponseCallback callback) {
+    XCTAssertEqualObjects(request.identifier, kEmail);
+    XCTAssertNotNil(request.endpoint);
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockCreateAuthURIResponse = OCMClassMock([FIRCreateAuthURIResponse class]);
+      OCMStub([mockCreateAuthURIResponse signinMethods]).andReturn(allSignInMethods);
+      callback(mockCreateAuthURIResponse, nil);
+    });
+  });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
+                                  completion:^(NSArray<NSString *> *_Nullable signInMethods,
+                                               NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqualObjects(signInMethods, allSignInMethods);
+    XCTAssertTrue([allSignInMethods isKindOfClass:[NSArray class]]);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testFetchProvidersForEmailSuccessDeprecatedProviderID
     @brief Tests the flow of a successful @c fetchProvidersForEmail:completion: call using the
         deprecated FIREmailPasswordAuthProviderID.
@@ -416,6 +484,25 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testFetchSignInMethodsForEmailFailure
+    @brief Tests the flow of a failed @c fetchSignInMethodsForEmail:completion: call.
+ */
+- (void)testFetchSignInMethodsForEmailFailure {
+  OCMExpect([_mockBackend createAuthURI:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils tooManyRequestsErrorWithMessage:nil]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
+                                  completion:^(NSArray<NSString *> *_Nullable signInMethods,
+                                               NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNil(signInMethods);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeTooManyRequests);
+    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
 #if TARGET_OS_IOS
 /** @fn testPhoneAuthSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion for phone auth.
@@ -501,6 +588,63 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 #endif
 
+/** @fn testSignInWithEmailLinkSuccess
+    @brief Tests the flow of a successful @c signInWithEmail:link:completion: call.
+ */
+- (void)testSignInWithEmailLinkSuccess {
+  NSString *fakeCode = @"testoobcode";
+  OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIREmailLinkSignInRequest *_Nullable request,
+                       FIREmailLinkSigninResponseCallback callback) {
+    XCTAssertEqualObjects(request.email, kEmail);
+    XCTAssertEqualObjects(request.oobCode, fakeCode);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockEmailLinkSignInResponse = OCMClassMock([FIREmailLinkSignInResponse class]);
+      [self stubTokensWithMockResponse:mockEmailLinkSignInResponse];
+      callback(mockEmailLinkSignInResponse, nil);
+    OCMStub([mockEmailLinkSignInResponse refreshToken]).andReturn(kRefreshToken);
+    });
+  });
+  [self expectGetAccountInfo];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInWithEmail:kEmail
+                             link:kFakeEmailSignInlink
+                       completion:^(FIRAuthDataResult *_Nullable authResult,
+                                    NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNotNil(authResult.user);
+    XCTAssertEqualObjects(authResult.user.refreshToken, kRefreshToken);
+    XCTAssertFalse(authResult.user.anonymous);
+    XCTAssertEqualObjects(authResult.user.email, kEmail);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUser:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInWithEmailLinkFailure
+    @brief Tests the flow of a failed @c signInWithEmail:link:completion: call.
+ */
+- (void)testSignInWithEmailLinkFailure {
+  OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
+      ._andDispatchError2([FIRAuthErrorUtils invalidActionCodeErrorWithMessage:nil]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInWithEmail:kEmail
+                             link:kFakeEmailSignInlink
+                       completion:^(FIRAuthDataResult *_Nullable authResult,
+                                    NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeInvalidActionCode);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testSignInWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c signInWithEmail:password:completion: call.
  */
@@ -521,8 +665,10 @@ static const NSTimeInterval kWaitInterval = .5;
   [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                             NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithEmail:kEmail
+                         password:kFakePassword
+                       completion:^(FIRUser *_Nullable user,
+                                    NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:user];
     XCTAssertNil(error);
@@ -541,8 +687,10 @@ static const NSTimeInterval kWaitInterval = .5;
       .andDispatchError2([FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                             NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithEmail:kEmail
+                         password:kFakePassword
+                       completion:^(FIRUser *_Nullable user,
+                                    NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWrongPassword);
@@ -826,6 +974,68 @@ static const NSTimeInterval kWaitInterval = .5;
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInWithEmailLinkCredentialSuccess
+    @brief Tests the flow of a successfully @c signInWithCredential:completion: call with an
+        email sign-in link credential using FIREmailAuthProvider.
+ */
+- (void)testSignInWithEmailLinkCredentialSuccess {
+  NSString *fakeCode = @"testoobcode";
+  OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
+  .andCallBlock2(^(FIREmailLinkSignInRequest *_Nullable request,
+                   FIREmailLinkSigninResponseCallback callback) {
+    XCTAssertEqualObjects(request.email, kEmail);
+    XCTAssertEqualObjects(request.oobCode, fakeCode);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockEmailLinkSigninResponse = OCMClassMock([FIREmailLinkSignInResponse class]);
+      [self stubTokensWithMockResponse:mockEmailLinkSigninResponse];
+      callback(mockEmailLinkSigninResponse, nil);
+    });
+  });
+  [self expectGetAccountInfo];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *emailCredential =
+  [FIREmailAuthProvider credentialWithEmail:kEmail link:kFakeEmailSignInlink];
+  [[FIRAuth auth] signInAndRetrieveDataWithCredential:emailCredential
+                                           completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNotNil(authResult.user);
+    XCTAssertEqualObjects(authResult.user.refreshToken, kRefreshToken);
+    XCTAssertFalse(authResult.user.anonymous);
+    XCTAssertEqualObjects(authResult.user.email, kEmail);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUser:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInWithEmailLinkCredentialFailure
+    @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
+        email-email sign-in link credential using FIREmailAuthProvider.
+ */
+- (void)testSignInWithEmailLinkCredentialFailure {
+  OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils userDisabledErrorWithMessage:nil]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *emailCredential =
+      [FIREmailAuthProvider credentialWithEmail:kEmail link:kFakeEmailSignInlink];
+  [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
+                                                                    NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNil(user);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeUserDisabled);
+    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
 
@@ -1504,6 +1714,65 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testSendSignInLinkToEmailSuccess
+    @brief Tests the flow of a successful @c sendSignInLinkToEmail:actionCodeSettings:completion:
+        call.
+ */
+- (void)testSendSignInLinkToEmailSuccess {
+  OCMExpect([_mockBackend getOOBConfirmationCode:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRGetOOBConfirmationCodeRequest *_Nullable request,
+                       FIRGetOOBConfirmationCodeResponseCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertEqualObjects(request.email, kEmail);
+    XCTAssertEqualObjects(request.continueURL, kContinueURL);
+    XCTAssertTrue(request.handleCodeInApp);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      callback([[FIRGetOOBConfirmationCodeResponse alloc] init], nil);
+    });
+  });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] sendSignInLinkToEmail:kEmail
+                     actionCodeSettings:[self fakeActionCodeSettings]
+                             completion:^(NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSendSignInLinkToEmailFailure
+    @brief Tests the flow of a failed @c sendSignInLinkToEmail:actionCodeSettings:completion:
+        call.
+ */
+- (void)testSendSignInLinkToEmailFailure {
+  OCMExpect([_mockBackend getOOBConfirmationCode:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils appNotAuthorizedError]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] sendSignInLinkToEmail:kEmail
+                     actionCodeSettings:[self fakeActionCodeSettings]
+                             completion:^(NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeAppNotAuthorized);
+    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn fakeActionCodeSettings
+    @brief Constructs and returns a fake instance of @c FIRActionCodeSettings for testing.
+    @return An instance of @c FIRActionCodeSettings for testing.
+ */
+- (FIRActionCodeSettings *)fakeActionCodeSettings {
+  FIRActionCodeSettings *actionCodeSettings = [[FIRActionCodeSettings alloc]init];
+  actionCodeSettings.URL = [NSURL URLWithString:kContinueURL];
+  actionCodeSettings.handleCodeInApp = YES;
+  return actionCodeSettings;
+}
+
 /** @fn testSignOut
     @brief Tests the @c signOut: method.
  */
@@ -1513,6 +1782,15 @@ static const NSTimeInterval kWaitInterval = .5;
   NSError *error;
   XCTAssertTrue([[FIRAuth auth] signOut:&error]);
   XCTAssertNil([FIRAuth auth].currentUser);
+}
+
+/** @fn testIsSignInWithEmailLink
+    @brief Tests the @c isSignInWithEmailLink: method.
+*/
+- (void)testIsSignInWithEmailLink {
+  XCTAssertTrue([[FIRAuth auth] isSignInWithEmailLink:kFakeEmailSignInlink]);
+  XCTAssertFalse([[FIRAuth auth] isSignInWithEmailLink:kBadSignInEmailLink]);
+  XCTAssertFalse([[FIRAuth auth] isSignInWithEmailLink:@""]);
 }
 
 /** @fn testAuthStateChanges

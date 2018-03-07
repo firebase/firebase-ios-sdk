@@ -39,6 +39,8 @@
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
+#import "FIREmailLinkSignInRequest.h"
+#import "FIREmailLinkSignInResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
 #import "FIRResetPasswordRequest.h"
@@ -117,6 +119,11 @@ static NSString *const kVerifyEmailRequestType = @"VERIFY_EMAIL";
  */
 static NSString *const kRecoverEmailRequestType = @"RECOVER_EMAIL";
 
+/** @var kEmailLinkSignInRequestType
+    @brief The action code type value for an email sign-in link in the check action code response.
+*/
+static NSString *const kEmailLinkSignInRequestType = @"EMAIL_SIGNIN";
+
 /** @var kMissingPasswordReason
     @brief The reason why the @c FIRAuthErrorCodeWeakPassword error is thrown.
     @remarks This error message will be localized in the future.
@@ -185,6 +192,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
   if ([requestType isEqualToString:kRecoverEmailRequestType]) {
     return FIRActionCodeOperationRecoverEmail;
+  }
+  if ([requestType isEqualToString:kEmailLinkSignInRequestType]) {
+    return FIRActionCodeOperationEmailLink;
   }
   return FIRActionCodeOperationUnknown;
 }
@@ -509,6 +519,24 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)fetchSignInMethodsForEmail:(nonnull NSString *)email
+                        completion:(nullable FIRSignInMethodQueryCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRCreateAuthURIRequest *request =
+        [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
+                                                continueURI:@"http://www.google.com/"
+                                       requestConfiguration:_requestConfiguration];
+    [FIRAuthBackend createAuthURI:request callback:^(FIRCreateAuthURIResponse *_Nullable response,
+                                                     NSError *_Nullable error) {
+      if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(response.signinMethods, error);
+        });
+      }
+    }];
+  });
+}
+
 - (void)signInWithEmail:(NSString *)email
                password:(NSString *)password
              completion:(FIRAuthResultCallback)completion {
@@ -520,6 +548,23 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                       completion:^(FIRAuthDataResult *_Nullable authResult,
                                                    NSError *_Nullable error) {
       decoratedCallback(authResult.user, error);
+    }];
+  });
+}
+
+- (void)signInWithEmail:(NSString *)email
+                   link:(NSString *)link
+             completion:(FIRAuthDataResultCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
+    FIREmailPasswordAuthCredential *credential =
+        [[FIREmailPasswordAuthCredential alloc] initWithEmail:email link:link];
+    [self internalSignInAndRetrieveDataWithCredential:credential
+                                   isReauthentication:NO
+                                             callback:^(FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error) {
+      decoratedCallback(authResult, error);
     }];
   });
 }
@@ -536,6 +581,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)signInWithEmail:(NSString *)email
                password:(NSString *)password
                callback:(FIRAuthResultCallback)callback {
+
   FIRVerifyPasswordRequest *request =
       [[FIRVerifyPasswordRequest alloc] initWithEmail:email
                                              password:password
@@ -591,6 +637,40 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                            callback:completion];
 }
 
+/** @fn internalSignInWithEmail:link:completion:
+    @brief Signs in using an email and email sign-in link.
+    @param email The user's email address.
+    @param link The email sign-in link.
+    @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+        asynchronously on the global auth work queue in the future.
+ */
+- (void)internalSignInWithEmail:(nonnull NSString *)email
+                           link:(nonnull NSString *)link
+                       callback:(nullable FIRAuthResultCallback)callback {
+  NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
+  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(urlComponents.query);
+  NSString *actionCode = queryItems[@"oobCode"];
+
+  FIREmailLinkSignInRequest *request =
+      [[FIREmailLinkSignInRequest alloc] initWithEmail:email
+                                               oobCode:actionCode
+                                  requestConfiguration:_requestConfiguration];
+
+  [FIRAuthBackend emailLinkSignin:request
+                         callback:^(FIREmailLinkSignInResponse *_Nullable response,
+                                    NSError *_Nullable error) {
+    if (error) {
+      callback(nil, error);
+      return;
+    }
+    [self completeSignInWithAccessToken:response.IDToken
+              accessTokenExpirationDate:response.approximateExpirationDate
+                           refreshToken:response.refreshToken
+                              anonymous:NO
+                               callback:callback];
+  }];
+}
+
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(FIRAuthResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
@@ -628,24 +708,31 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     // Special case for email/password credentials
     FIREmailPasswordAuthCredential *emailPasswordCredential =
         (FIREmailPasswordAuthCredential *)credential;
-    [self signInWithEmail:emailPasswordCredential.email
-                 password:emailPasswordCredential.password
-                 callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+    FIRAuthResultCallback completeEmailSignIn = ^(FIRUser *user, NSError *error) {
       if (callback) {
         if (error) {
           callback(nil, error);
           return;
         }
-        FIRAdditionalUserInfo *additionalUserInfo =
-            [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
-                                                      profile:nil
-                                                     username:nil
-                                                    isNewUser:NO];
+    FIRAdditionalUserInfo *additionalUserInfo =
+        [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                  profile:nil
+                                                 username:nil
+                                                isNewUser:NO];
         FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:user
                                                          additionalUserInfo:additionalUserInfo];
-        callback(result, nil);
+        callback(result, error);
       }
-    }];
+    };
+    if (emailPasswordCredential.link) {
+      [self internalSignInWithEmail:emailPasswordCredential.email
+                               link:emailPasswordCredential.link
+                           callback:completeEmailSignIn];
+    } else {
+      [self signInWithEmail:emailPasswordCredential.email
+                   password:emailPasswordCredential.password
+                   callback:completeEmailSignIn];
+    }
     return;
   }
 
@@ -1013,6 +1100,31 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)sendSignInLinkToEmail:(nonnull NSString *)email
+           actionCodeSettings:(nonnull FIRActionCodeSettings *)actionCodeSettings
+                   completion:(nullable FIRSendSignInLinkToEmailCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    if (!email) {
+      [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
+          kMissingEmailInvalidParameterExceptionReason];
+    }
+    FIRGetOOBConfirmationCodeRequest *request =
+        [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
+                                                  actionCodeSettings:actionCodeSettings
+                                                requestConfiguration:_requestConfiguration];
+    [FIRAuthBackend getOOBConfirmationCode:request
+                                  callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                             NSError *_Nullable error) {
+      if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(error);
+        });
+      }
+    }];
+  });
+}
+
+
 - (BOOL)signOut:(NSError *_Nullable __autoreleasing *_Nullable)error {
   __block BOOL result = YES;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -1029,6 +1141,50 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return YES;
   }
   return [self updateCurrentUser:nil byForce:YES savingToDisk:YES error:error];
+}
+
+- (BOOL)isSignInWithEmailLink:(NSString *)link {
+  if (link.length == 0) {
+    return NO;
+  }
+  NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
+  if (!urlComponents.query) {
+    return NO;
+  }
+  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(urlComponents.query);
+
+  NSString *actionCode = queryItems[@"oobCode"];
+  NSString *mode = queryItems[@"mode"];
+
+  if (actionCode && [mode isEqualToString:@"signIn"]) {
+    return YES;
+  }
+  return NO;
+}
+
+/** @fn FIRAuthParseURL:NSString
+    @brief Parses an incoming URL into all available query items.
+    @param urlString The url to be parsed.
+    @return A dictionary of available query items in the target URL.
+ */
+static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString) {
+  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
+  NSMutableDictionary<NSString *, NSString *> *queryItems =
+      [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
+  for (NSString *component in URLComponents) {
+    NSRange equalRange = [component rangeOfString:@"="];
+    if (equalRange.location != NSNotFound) {
+      NSString *queryItemKey =
+          [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
+      NSString *queryItemValue =
+          [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
+      if (queryItemKey && queryItemValue) {
+        queryItems[queryItemKey] = queryItemValue;
+      }
+    }
+  }
+  return queryItems;
 }
 
 - (FIRAuthStateDidChangeListenerHandle)addAuthStateDidChangeListener:

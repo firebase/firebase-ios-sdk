@@ -91,6 +91,16 @@ static NSString *const kSetPhotoURLText = @"Set Photo url";
  */
 static NSString *const kSignInGoogleButtonText = @"Sign in with Google";
 
+/** @var kSignInWithEmailLink
+    @brief The text of the "Sign in with Email Link" button.
+ */
+static NSString *const kSignInWithEmailLink = @"Sign in with Email Link";
+
+/** @var kSendEmailSignInLink
+    @brief The text of the "Send Email SignIn link" button
+*/
+static NSString *const kSendEmailSignInLink = @"Send Email Sign in Link";
+
 /** @var kSignInAndRetrieveGoogleButtonText
     @brief The text of the "Sign in with Google and retrieve data" button.
  */
@@ -278,6 +288,11 @@ static NSString *const kUnlinkFromEmailPassword = @"Unlink from Email/Password";
     @brief The text of the "Get Provider IDs for Email" button.
  */
 static NSString *const kGetProvidersForEmail = @"Get Provider IDs for Email";
+
+/** @var kGetAllSignInMethodsForEmail
+    @brief The text of the "Get sign-in methods for Email" button.
+ */
+static NSString *const kGetAllSignInMethodsForEmail = @"Get Sign-in methods for Email";
 
 /** @var kActionCodeTypeDescription
     @brief The description of the "Action Type" entry.
@@ -722,6 +737,10 @@ typedef enum {
                                            action:^{ [weakSelf createUserAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleButtonText
                                            action:^{ [weakSelf signInGoogle]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInWithEmailLink
+                                           action:^{ [weakSelf signInWithEmailLink]; }],
+        [StaticContentTableViewCell cellWithTitle:kSendEmailSignInLink
+                                           action:^{ [weakSelf sendEmailSignInLink]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleAndRetrieveDataButtonText
                                            action:^{ [weakSelf signInGoogleAndRetrieveData]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInFacebookButtonText
@@ -754,6 +773,8 @@ typedef enum {
                                            action:^{ [weakSelf reloadUser]; }],
         [StaticContentTableViewCell cellWithTitle:kGetProvidersForEmail
                                            action:^{ [weakSelf getProvidersForEmail]; }],
+        [StaticContentTableViewCell cellWithTitle:kGetAllSignInMethodsForEmail
+                                           action:^{ [weakSelf getAllSignInMethodsForEmail]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdateEmailText
                                            action:^{ [weakSelf updateEmail]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdatePasswordText
@@ -1657,7 +1678,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn signInEmailPassword
-    @brief Invoked when "sign in with Email/Password" row is pressed.
+    @brief Invoked when "Sign in with Email/Password" row is pressed.
  */
 - (void)signInEmailPassword {
   [self showTextInputPromptWithMessage:@"Email Address:"
@@ -1720,6 +1741,75 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }];
         }];
       }];
+    }];
+  }];
+}
+
+/** @fn signInWithEmailLink
+    @brief Invoked when "Sign in with email link" row is pressed.
+ */
+- (void)signInWithEmailLink {
+  [self showTextInputPromptWithMessage:@"Email Address:"
+                          keyboardType:UIKeyboardTypeEmailAddress
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+    [self showTextInputPromptWithMessage:@"Email Sign-In Link:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable link) {
+      if (!userPressedOK) {
+        return;
+      }
+      if ([[FIRAuth auth] isSignInWithEmailLink:link]) {
+        [self showSpinner:^{
+          [[AppManager auth] signInWithEmail:email
+                                        link:link
+                                  completion:^(FIRAuthDataResult *_Nullable authResult,
+                                               NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"sign-in with Email/Sign-In failed" error:error];
+            } else {
+              [self logSuccess:@"sign-in with Email/Sign-In link succeeded."];
+              [self log:[NSString stringWithFormat:@"UID: %@",authResult.user.uid]];
+            }
+            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+          }];
+        }];
+        }];
+      } else {
+        [self log:@"The sign-in link is invalid"];
+      }
+    }];
+  }];
+}
+
+/** @fn sendEmailSignInLink
+    @brief Invoked when "Send email sign-in link" row is pressed.
+ */
+- (void)sendEmailSignInLink {
+  [self showTextInputPromptWithMessage:@"Email:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+      if (!userPressedOK) {
+        return;
+      }
+      [self showSpinner:^{
+        void (^requestEmailSignInLink)(void (^)(NSError *)) = ^(void (^completion)(NSError *)) {
+          [[AppManager auth] sendSignInLinkToEmail:userInput
+                                actionCodeSettings:[self actionCodeSettings]
+                                        completion:completion];
+        };
+        requestEmailSignInLink(^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Email Link request failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Email Link request succeeded."];
+            [self showMessagePrompt:@"Sent"];
+          }];
+       });
     }];
   }];
 }
@@ -2245,6 +2335,39 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+/** @fn getAllSignInMethodsForEmail
+    @brief Prompts user for an email address, calls @c FIRAuth.getAllSignInMethodsForEmail:callback:
+        and displays the result.
+ */
+- (void)getAllSignInMethodsForEmail {
+  [self showTextInputPromptWithMessage:@"Email:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+    if (!userPressedOK || !userInput.length) {
+      return;
+    }
+
+    [self showSpinner:^{
+      [[AppManager auth] fetchSignInMethodsForEmail:userInput
+                                         completion:^(NSArray<NSString *> *_Nullable signInMethods,
+                                                      NSError *_Nullable error) {
+        if (error) {
+          [self logFailure:@"get sign-in methods for email failed" error:error];
+        } else {
+          [self logSuccess:@"get sign-in methods for email succeeded."];
+        }
+        [self hideSpinner:^{
+          if (error) {
+            [self showMessagePrompt:error.localizedDescription];
+            return;
+          }
+          [self showMessagePrompt:[signInMethods componentsJoinedByString:@", "]];
+        }];
+      }];
+    }];
+  }];
+}
+
+
 /** @fn actionCodeRequestTypeString
     @brief Returns a string description for the type of the next action code request.
  */
@@ -2486,6 +2609,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     return @"Recover Email";
   case FIRActionCodeOperationPasswordReset:
     return @"Password Reset";
+  case FIRActionCodeOperationEmailLink:
+    return @"Email Sign-In Link";
   case FIRActionCodeOperationUnknown:
     return @"Unknown action";
   }
