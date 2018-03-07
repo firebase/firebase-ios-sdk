@@ -43,6 +43,15 @@
   return self;
 }
 
+- (nullable instancetype)initWithEmail:(NSString *)email link:(NSString *)link {
+  self = [super initWithProvider:FIREmailAuthProviderID];
+  if (self) {
+    _email = [email copy];
+    _link = [link copy];
+  }
+  return self;
+}
+
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request {
   [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
       @"Attempt to call prepareVerifyAssertionRequest: on a FIREmailPasswordAuthCredential."];
