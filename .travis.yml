@@ -32,7 +32,7 @@ before_install:
 script:
   - ./scripts/check_whitespace.sh
   - ./scripts/check_copyright.sh $TRAVIS_COMMIT_RANGE
-  - ./scripts/style.sh test-only # Validate clang-format compliance
+  - ./scripts/style.sh test-only $TRAVIS_COMMIT_RANGE
   - |
     if [ $SKIP_FIREBASE != 1 ]; then
       ./test.sh
