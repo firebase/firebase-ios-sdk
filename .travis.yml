@@ -84,8 +84,8 @@ jobs:
         fi
 
     - stage lint
-      # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
       script: |
+        # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
         if [ $SKIP_FIREBASE != 1 ]; then
           bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
         fi
