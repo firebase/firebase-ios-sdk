@@ -7,12 +7,19 @@ cache:
 
 rvm: 2.3.1
 
+# All valid combinations of project, platform, and builder
 env:
   - PROJECT=Firebase  PLATFORM=iOS   METHOD=xcodebuild
   - PROJECT=Firebase  PLATFORM=macOS METHOD=xcodebuild
   - PROJECT=Firebase  PLATFORM=tvOS  METHOD=xcodebuild
   - PROJECT=Firestore PLATFORM=iOS   METHOD=xcodebuild
   - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+
+# Explicitly name and order stages to prevent the default build matrix
+# expansion from the above from starting with "test".
+stages:
+  - checks
+  - test
 
 before_install:
   # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
@@ -33,7 +40,7 @@ before_install:
 jobs:
   include:
     - stage: checks
-      # Only enabled on one project/platform combo
+      # This only needs to be run once, so restrict it to an arbitrary combination
       if: env(PROJECT) = Firebase AND env(PLATFORM) = iOS
       before_install:
         - brew install clang-format
@@ -46,7 +53,7 @@ jobs:
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
     - stage: test
-      if: env(PROJECT) = Firebase
+      if: env(PROJECT) = Firebase AND env(METHOD) = xcodebuild
       language: objective-c
       before_install:
         - |
@@ -59,6 +66,7 @@ jobs:
             ./scripts/build.sh $PROJECT $PLATFORM $METHOD
           fi
 
+        # Only need to run pod lib lint in one configuration.
         - |
           # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
           if [ $SKIP_FIREBASE != 1 && $PLATFORM == iOS ]; then
