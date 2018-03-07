@@ -5,13 +5,20 @@ cache:
   - cocoapods
 
 rvm: 2.3.1
-
 before_install:
 # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
 #  - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+  - bundle install
+  - gem install xcpretty
+  - bundle exec pod install --project-directory=Example --repo-update
+  - bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+  - brew install clang-format
+  - brew install swiftformat
+  - brew install cmake
+  - brew install go # Somehow the build for Abseil requires this.
+  - echo "$TRAVIS_COMMIT_RANGE"
+  - echo "$TRAVIS_PULL_REQUEST"
   - |
-    echo "TRAVIS_COMMIT_RANGE=$TRAVIS_COMMIT_RANGE"
-    echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST"
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
       SKIP_FIREBASE=0
       SKIP_FIRESTORE=0
@@ -20,40 +27,11 @@ before_install:
       SKIP_FIREBASE="$?"
       git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
       SKIP_FIRESTORE="$?"
-      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore/core
-      SKIP_FIRESTORE_CMAKE="$?"
-    fi
-  - |
-    if [[ "$PRODUCT" != Checks ]]; then
-      bundle install
-    fi
-  - |
-    if [[ "$PRODUCT" == Checks ]]; then
-      brew install clang-format
-      brew install swiftformat
-    fi
-  - |
-    if [[ "$METHOD" == xcodebuild ]]; then
-      gem install xcpretty
-    fi
-  - |
-    if [[ "$METHOD" == cmake ]]; then
-      brew install cmake
-      brew install go # Somehow the build for Abseil requires this.
-    fi
-
-  - |
-    if [[ "$PRODUCT" == Firebase ]]; then
-      bundle exec pod install --project-directory=Example --repo-update
-    fi
-  - |
-    if [[ "$PRODUCT" == Firestore ]]; then
-      bundle exec pod install --project-directory=Firestore/Example --no-repo-update
     fi
 
 jobs:
   include:
-    - stage: checks
+    - stage: mono
       script:
         - ./scripts/check_whitespace.sh
         - ./scripts/check_copyright.sh
@@ -64,31 +42,20 @@ jobs:
             ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
           fi
 
-    - stage: test
-      env:
-        - PLATFORM=iOS
-        - PLATFORM=macOS
-        - PLATFORM=tvOS
-      script: |
-        if [ $SKIP_FIREBASE != 1 ]; then
-          ./scripts/build.sh Firebase $PLATFORM
-        fi
+        - |
+          if [ $SKIP_FIREBASE != 1 ]; then
+            ./test.sh
+          fi
+        - |
+          if [ $SKIP_FIRESTORE != 1 ]; then
+            ./Firestore/test.sh
+          fi
 
-    - stage test
-      env:
-        - PLATFORM=iOS METHOD=xcodebuild
-        - PLATFORM=macOS METHOD=cmake
-      script: |
-        if [ $SKIP_FIRESTORE != 1 ]; then
-          ./scripts/build.sh Firestore $PLATFORM $METHOD
-        fi
-
-    - stage lint
-      script: |
-        # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
-        if [ $SKIP_FIREBASE != 1 ]; then
-          bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
-        fi
+        - |
+          # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
+          if [ $SKIP_FIREBASE != 1 ]; then
+            bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
+          fi
 
 # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
 #  - bundle exec pod lib lint FirebaseAuth.podspec
