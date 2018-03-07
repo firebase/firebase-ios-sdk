@@ -24,10 +24,6 @@ options=(
   ' $'
 )
 
-# Allow a revision range to be specified on the command-line, e.g.
-# $TRAVIS_COMMIT_RANGE
-options+=("$@")
-
 git grep "${options[@]}" \
     -- ':(exclude)Firestore/Protos/nanopb'
 if [[ $? == 0 ]]; then

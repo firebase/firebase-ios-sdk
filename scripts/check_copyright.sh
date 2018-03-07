@@ -21,10 +21,6 @@ options=(
   'Copyright [0-9]{4}.*Google'
 )
 
-# Allow a revision range to be specified on the command-line, e.g.
-# $TRAVIS_COMMIT_RANGE
-options+=("$@")
-
 git grep "${options[@]}" \
     -- '*.'{c,cc,h,m,mm,sh,swift} \
     ':(exclude)**/third_party/**'
