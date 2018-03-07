@@ -38,8 +38,9 @@ script:
       ./test.sh
     fi
   - |
+    # Google C++ style compliance
     if [ $SKIP_FIRESTORE != 1 ]; then
-      ./scripts/lint.sh # Google C++ style compliance
+      ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
     fi
   - |
     if [ $SKIP_FIRESTORE != 1 ]; then
