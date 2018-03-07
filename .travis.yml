@@ -31,7 +31,7 @@ before_install:
 
 script:
   - ./scripts/check_whitespace.sh
-  - "! git grep -EL --name-only 'Copyright [0-9]{4}.*Google' | grep -v third_party | egrep '\\.(m|h|cc|mm|c)$'"
+  - ./scripts/check_copyright.sh $TRAVIS_COMMIT_RANGE
   - ./scripts/style.sh test-only # Validate clang-format compliance
   - |
     if [ $SKIP_FIREBASE != 1 ]; then
