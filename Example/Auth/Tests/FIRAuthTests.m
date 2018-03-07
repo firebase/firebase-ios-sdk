@@ -1715,7 +1715,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 /** @fn testSendSignInLinkToEmailSuccess
-    @brief Tests the flow of a successful @c sendSignInLinkToEmail:actionCodeSettings:completion: 
+    @brief Tests the flow of a successful @c sendSignInLinkToEmail:actionCodeSettings:completion:
         call.
  */
 - (void)testSendSignInLinkToEmailSuccess {

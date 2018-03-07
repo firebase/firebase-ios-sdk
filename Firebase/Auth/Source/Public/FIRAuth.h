@@ -206,7 +206,7 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
 
     /** Action code for email link operation. */
     FIRActionCodeOperationEmailLink = 4,
-  
+
 
 } NS_SWIFT_NAME(ActionCodeOperation);
 
@@ -317,12 +317,12 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn fetchSignInMethodsForEmail:completion:
     @brief Fetches the list of all sign-in methods previously used for the provided email address.
- 
+
     @param email The email address for which to obtain a list of sign-in methods.
     @param completion Optionally; a block which is invoked when the list of sign in methods for the
         specified email address is ready or an error was encountered. Invoked asynchronously on the
         main thread in the future.
- 
+
     @remarks Possible error codes:
 
         + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
@@ -716,7 +716,7 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
     @brief Sends a sign in with email link to provided email address.
- 
+
     @param email The email address of the user.
     @param actionCodeSettings An @c FIRActionCodeSettings object containing settings related to
         handling action codes.
