@@ -85,11 +85,6 @@ class FieldPath : public impl::BasePath<FieldPath> {
   bool operator>=(const FieldPath& rhs) const {
     return BasePath::operator>=(rhs);
   }
-
- private:
-  // So that methods of base can construct FieldPath using the private
-  // constructor.
-  friend class BasePath;
 };
 
 }  // namespace model

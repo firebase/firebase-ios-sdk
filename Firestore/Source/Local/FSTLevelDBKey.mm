@@ -259,9 +259,9 @@ BOOL ReadLabeledStringMatching(Slice *contents,
  * label and a string containing the path segment.
  */
 void WriteResourcePath(std::string *dest, const ResourcePath &path) {
-  for (int i = 0; i < path.size(); i++) {
+  for (const auto &segment : path) {
     WriteComponentLabel(dest, FSTComponentLabelPathSegment);
-    OrderedCode::WriteString(dest, path[i]);
+    OrderedCode::WriteString(dest, segment);
   }
 }
 

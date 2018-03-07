@@ -276,8 +276,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   if (_path == nullptr) {
     return;
   }
-  for (int i = 0; i < _path->size(); i++) {
-    [self validatePathSegment:util::WrapNSStringNoCopy((*_path)[i])];
+  for (const auto &segment : *_path) {
+    [self validatePathSegment:util::WrapNSStringNoCopy(segment)];
   }
 }
 
