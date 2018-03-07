@@ -71,6 +71,13 @@ jobs:
             bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
           fi
 
+        # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
+        #  - bundle exec pod lib lint FirebaseAuth.podspec
+        #  - bundle exec pod lib lint FirebaseDatabase.podspec
+        #  - bundle exec pod lib lint FirebaseMessaging.podspec --allow-warnings #pending #390 fix
+        #  - bundle exec pod lib lint FirebaseStorage.podspec
+        #  - bundle exec pod lib lint Firestore/Firestore.podspec
+
     - stage: test
       if: env(PROJECT) = Firestore AND env(METHOD) = xcodebuild
       before_install:
@@ -98,13 +105,6 @@ jobs:
           if [ $SKIP_FIRESTORE != 1 ]; then
             ./scripts/build.sh $PROJECT $PLATFORM $METHOD
           fi
-
-# TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
-#  - bundle exec pod lib lint FirebaseAuth.podspec
-#  - bundle exec pod lib lint FirebaseDatabase.podspec
-#  - bundle exec pod lib lint FirebaseMessaging.podspec --allow-warnings #pending #390 fix
-#  - bundle exec pod lib lint FirebaseStorage.podspec
-#  - bundle exec pod lib lint Firestore/Firestore.podspec
 
 branches:
   only:
