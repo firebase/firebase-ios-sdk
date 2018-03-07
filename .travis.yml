@@ -1,6 +1,6 @@
 os: osx
 osx_image: xcode9.2
-language: c
+language: objective-c
 cache:
   - bundler
   - cocoapods
@@ -53,7 +53,6 @@ jobs:
 
     - stage: test
       if: env(PROJECT) = Firebase AND env(METHOD) = xcodebuild
-      language: objective-c
       before_install:
         - |
           if [[ $SKIP_FIREBASE != 1 ]]; then
@@ -74,7 +73,6 @@ jobs:
 
     - stage: test
       if: env(PROJECT) = Firestore AND env(METHOD) = xcodebuild
-      language: objective-c
       before_install:
         - |
           if [[ $SKIP_FIRESTORE != 1 ]]; then
