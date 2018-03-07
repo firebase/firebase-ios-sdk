@@ -31,7 +31,7 @@ before_install:
 
 jobs:
   include:
-    - stage: mono
+    - stage: checks
       script:
         - ./scripts/check_whitespace.sh
         - ./scripts/check_copyright.sh
@@ -42,6 +42,8 @@ jobs:
             ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
           fi
 
+    - stage: test
+      script:
         - |
           if [ $SKIP_FIREBASE != 1 ]; then
             ./test.sh
