@@ -124,17 +124,23 @@ extern "C" {
     }                                                                                            \
   } while (0)
 
+static NSString *kExceptionPrefix = @"FIRESTORE INTERNAL ASSERTION FAILED: ";
+
 // Helper for validating API exceptions.
-#define FSTAssertThrows(expression, exceptionReason, ...)       \
-  ({                                                            \
-    BOOL __didThrow = NO;                                       \
-    @try {                                                      \
-      (void)(expression);                                       \
-    } @catch (NSException * exception) {                        \
-      __didThrow = YES;                                         \
-      XCTAssertEqualObjects(exception.reason, exceptionReason); \
-    }                                                           \
-    XCTAssertTrue(__didThrow, ##__VA_ARGS__);                   \
+#define FSTAssertThrows(expression, exceptionReason, ...)             \
+  ({                                                                  \
+    BOOL __didThrow = NO;                                             \
+    @try {                                                            \
+      (void)(expression);                                             \
+    } @catch (NSException * exception) {                              \
+      __didThrow = YES;                                               \
+      NSString *reason = exception.reason;                            \
+      if ([reason hasPrefix:kExceptionPrefix]) {                      \
+        reason = [reason substringFromIndex:kExceptionPrefix.length]; \
+      }                                                               \
+      XCTAssertEqualObjects(reason, exceptionReason);                 \
+    }                                                                 \
+    XCTAssertTrue(__didThrow, ##__VA_ARGS__);                         \
   })
 
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */

@@ -224,12 +224,15 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (instancetype)contextForFieldPath:(const FieldPath &)fieldPath {
-  FSTParseContext *context =
-      [[FSTParseContext alloc] initWithSource:self.dataSource
-                                         path:absl::make_unique<FieldPath>(_path->Append(fieldPath))
-                                 arrayElement:NO
-                              fieldTransforms:self.fieldTransforms
-                                    fieldMask:_fieldMask];
+  std::unique_ptr<FieldPath> path{};
+  if (_path) {
+    path = absl::make_unique<FieldPath>(_path->Append(fieldPath));
+  }
+  FSTParseContext *context = [[FSTParseContext alloc] initWithSource:self.dataSource
+                                                                path:std::move(path)
+                                                        arrayElement:NO
+                                                     fieldTransforms:self.fieldTransforms
+                                                           fieldMask:_fieldMask];
   [context validatePath];
   return context;
 }
@@ -385,7 +388,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     FieldPath path{};
 
     if ([key isKindOfClass:[NSString class]]) {
-      path = FieldPath::FromServerFormat(util::MakeStringView((NSString *)key));
+      path = [FIRFieldPath pathWithDotSeparatedString:key].internalValue;
     } else if ([key isKindOfClass:[FIRFieldPath class]]) {
       path = ((FIRFieldPath *)key).internalValue;
     } else {
