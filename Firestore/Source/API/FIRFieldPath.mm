@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
     field_names.push_back([fieldNames[i] UTF8String]);
   }
 
-  return [self initPrivate:FieldPath(field_names.begin(), field_names.end())];
+  return [self initPrivate:FieldPath(std::move(field_names))];
 }
 
 + (instancetype)documentID {

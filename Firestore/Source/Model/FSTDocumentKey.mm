@@ -116,6 +116,7 @@ const NSComparator FSTDocumentKeyComparator =
       } else {
         return NSOrderedSame;
       }
+
     };
 
 NSString *const kDocumentKeyPath = @"__name__";

@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A new instance of FSTDocumentKey.
  */
 + (instancetype)keyWithPath:(firebase::firestore::model::ResourcePath)path;
-
 /**
  * Creates and returns a new document key with a path with the given segments.
  *
@@ -40,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A new instance of FSTDocumentKey.
  */
 + (instancetype)keyWithSegments:(std::initializer_list<std::string>)segments;
-
 /**
  * Creates and returns a new document key from the given resource path string.
  *

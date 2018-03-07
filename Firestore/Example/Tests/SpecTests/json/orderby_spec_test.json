@@ -20,7 +20,7 @@
         "userPatch": [
           "collection/b",
           {
-            "sort": 2
+            "sort": "2"
           }
         ]
       },
@@ -139,7 +139,7 @@
                 1001,
                 {
                   "key": "b",
-                  "sort": 2
+                  "sort": "2"
                 },
                 "local"
               ]

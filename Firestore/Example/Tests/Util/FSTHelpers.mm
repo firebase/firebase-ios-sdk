@@ -18,6 +18,7 @@
 
 #include <inttypes.h>
 #include <list>
+#include <map>
 #include <vector>
 
 #import <FirebaseFirestore/FIRFieldPath.h>
@@ -55,7 +56,7 @@ using firebase::firestore::model::ResourcePath;
 NS_ASSUME_NONNULL_BEGIN
 
 /** A string sentinel that can be used with FSTTestPatchMutation() to mark a field for deletion. */
-static NSString *const kDeleteSentinel = @"<DELETE>";
+static const char kDeleteSentinel[] = "<DELETE>";
 
 static const int kMicrosPerSec = 1000000;
 static const int kMillisPerSec = 1000;
@@ -161,14 +162,6 @@ FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion ver
   return [FSTDeletedDocument documentWithKey:key version:FSTTestVersion(version)];
 }
 
-static NSArray<NSString *> *FSTTestSplitPath(NSString *path) {
-  if ([path isEqualToString:@""]) {
-    return @[];
-  } else {
-    return [path componentsSeparatedByString:@"/"];
-  }
-}
-
 FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
                                     const absl::string_view database,
                                     NSString *path) {
@@ -246,23 +239,23 @@ FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> 
                                 precondition:[FSTPrecondition none]];
 }
 
-FSTPatchMutation *FSTTestPatchMutation(NSString *path,
-                                       NSDictionary<NSString *, id> *values,
+FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
+                                       const std::map<std::string, std::string> &values,
                                        const std::vector<FieldPath> &updateMask) {
   BOOL merge = !updateMask.empty();
 
-  __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  __block std::vector<FieldPath> fieldMaskPaths{};
-  [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    const FieldPath path = testutil::Field(util::MakeStringView(key));
+  FSTObjectValue *objectValue = [FSTObjectValue objectValue];
+  std::vector<FieldPath> fieldMaskPaths{};
+  for (const auto &value : values) {
+    const FieldPath path = testutil::Field(value.first);
     fieldMaskPaths.push_back(path);
-    if (![value isEqual:kDeleteSentinel]) {
-      FSTFieldValue *parsedValue = FSTTestFieldValue(value);
+    if (value.second != kDeleteSentinel) {
+      FSTFieldValue *parsedValue = FSTTestFieldValue(util::WrapNSString(value.second));
       objectValue = [objectValue objectBySettingValue:parsedValue forPath:path];
     }
-  }];
+  }
 
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource([path UTF8String])];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(path)];
   FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:merge ? updateMask : fieldMaskPaths];
   return [[FSTPatchMutation alloc] initWithKey:key
                                      fieldMask:mask

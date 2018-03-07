@@ -336,12 +336,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesPatchMutation {
-  FSTPatchMutation *mutation =
-      FSTTestPatchMutation(@"docs/1",
-                           @{ @"a" : @"b",
-                              @"num" : @1,
-                              @"some.de\\\\ep.th\\ing'" : @2 },
-                           {});
+  FSTPatchMutation *mutation = FSTTestPatchMutation(
+      "docs/1", {{"a", "b"}, {"num", "1"}, {"some.de\\\\ep.th\\ing'", "2"}}, {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.updateMask = [self.serializer encodedFieldMask:mutation.fieldMask];

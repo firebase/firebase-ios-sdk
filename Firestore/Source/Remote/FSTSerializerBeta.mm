@@ -129,8 +129,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (ResourcePath)decodedResourcePathWithDatabaseID:(NSString *)name {
   const ResourcePath path = ResourcePath::FromString(util::MakeStringView(name));
-  FSTAssert([self validQualifiedResourcePath:path], @"Tried to deserialize invalid key %@",
-            util::WrapNSStringNoCopy(path.CanonicalString()));
+  FSTAssert([self validQualifiedResourcePath:path], @"Tried to deserialize invalid key %s",
+            path.CanonicalString().c_str());
   return path;
 }
 
@@ -157,8 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (ResourcePath)localResourcePathForQualifiedResourcePath:(const ResourcePath &)resourceName {
   FSTAssert(resourceName.size() > 4 && resourceName[4] == "documents",
-            @"Tried to deserialize invalid key %@",
-            util::WrapNSStringNoCopy(resourceName.CanonicalString()));
+            @"Tried to deserialize invalid key %s", resourceName.CanonicalString().c_str());
   return resourceName.PopFirst(5);
 }
 

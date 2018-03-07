@@ -843,7 +843,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       // there.
       childObject = [FSTObjectValue objectValue];
     }
-    FSTFieldValue *newChild = [childObject objectBySettingValue:value forPath:fieldPath.PopLast()];
+    FSTFieldValue *newChild = [childObject objectBySettingValue:value forPath:fieldPath.PopFirst()];
     return [self objectBySettingValue:newChild forField:childName];
   }
 }

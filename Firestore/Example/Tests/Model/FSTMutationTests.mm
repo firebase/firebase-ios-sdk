@@ -55,8 +55,7 @@ namespace testutil = firebase::firestore::testutil;
   NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value" };
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
-  FSTMutation *patch =
-      FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
+  FSTMutation *patch = FSTTestPatchMutation("collection/key", {{"foo.bar", "new-bar-value"}}, {});
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
@@ -85,8 +84,7 @@ namespace testutil = firebase::firestore::testutil;
   NSDictionary *docData = @{@"foo" : @"foo-value", @"baz" : @"baz-value"};
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
-  FSTMutation *patch =
-      FSTTestPatchMutation(@"collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
+  FSTMutation *patch = FSTTestPatchMutation("collection/key", {{"foo.bar", "new-bar-value"}}, {});
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
@@ -96,7 +94,7 @@ namespace testutil = firebase::firestore::testutil;
 
 - (void)testPatchingDeletedDocumentsDoesNothing {
   FSTMaybeDocument *baseDoc = FSTTestDeletedDoc(@"collection/key", 0);
-  FSTMutation *patch = FSTTestPatchMutation(@"collection/key", @{@"foo" : @"bar"}, {});
+  FSTMutation *patch = FSTTestPatchMutation("collection/key", {{"foo", "bar"}}, {});
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
   XCTAssertEqualObjects(patchedDoc, baseDoc);
@@ -179,7 +177,7 @@ namespace testutil = firebase::firestore::testutil;
   NSDictionary *docData = @{@"foo" : @"bar"};
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
-  FSTMutation *patch = FSTTestPatchMutation(@"collection/key", @{@"foo" : @"new-bar"}, {});
+  FSTMutation *patch = FSTTestPatchMutation("collection/key", {{"foo", "new-bar"}}, {});
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(4) transformResults:nil];
   FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc
@@ -213,7 +211,7 @@ namespace testutil = firebase::firestore::testutil;
   FSTDeletedDocument *deletedV3 = FSTTestDeletedDoc(@"collection/key", 3);
 
   FSTMutation *setMutation = FSTTestSetMutation(@"collection/key", @{});
-  FSTMutation *patchMutation = FSTTestPatchMutation(@"collection/key", @{}, {});
+  FSTMutation *patchMutation = FSTTestPatchMutation("collection/key", {}, {});
   FSTMutation *deleteMutation = FSTTestDeleteMutation(@"collection/key");
 
   ASSERT_VERSION_TRANSITION(setMutation, docV3, docV3);
