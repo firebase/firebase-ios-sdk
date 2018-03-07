@@ -34,7 +34,7 @@ jobs:
   include:
     - stage: checks
       # Only enabled on one project/platform combo
-      if: env(PROJECT) = Firestore AND env(PLATFORM) = iOS
+      if: env(PROJECT) = Firebase AND env(PLATFORM) = iOS
       before_install:
         - brew install clang-format
         - brew install swiftformat
