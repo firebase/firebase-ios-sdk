@@ -36,7 +36,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 

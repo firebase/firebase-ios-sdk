@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#include <utility>
+
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
@@ -180,7 +182,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   [patchSpec[1] enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     // TODO(zxu123): refactoring such that value is not restricted to string type.
     XCTAssert([value isKindOfClass:[NSString class]], @"spec is %@", patchSpec);
-    values[util::MakeString(key)] = util::MakeString((NSString *)value);
+    values.emplace(std::make_pair(util::MakeString(key), util::MakeString((NSString *)value)));
   }];
   [self.driver
       writeUserMutation:FSTTestPatchMutation(util::MakeStringView(patchSpec[0]), values, {})];
