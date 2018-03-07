@@ -246,6 +246,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 
   FSTObjectValue *objectValue = [FSTObjectValue objectValue];
   std::vector<FieldPath> fieldMaskPaths{};
+  fieldMaskPaths.reserve(values.size());
   for (const auto &value : values) {
     const FieldPath path = testutil::Field(value.first);
     fieldMaskPaths.push_back(path);
@@ -266,7 +267,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 // For now this only creates TransformMutations with server timestamps.
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource([path UTF8String])];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
   NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
   for (NSString *field in serverTimestampFields) {
     const FieldPath fieldPath = testutil::Field(util::MakeStringView(field));

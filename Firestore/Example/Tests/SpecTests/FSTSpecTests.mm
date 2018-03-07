@@ -107,11 +107,11 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (nullable FSTQuery *)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return FSTTestQuery([(NSString *)querySpec UTF8String]);
+    return FSTTestQuery(util::MakeStringView((NSString *)querySpec));
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = FSTTestQuery([path UTF8String]);
+    __block FSTQuery *query = FSTTestQuery(util::MakeStringView(path));
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -179,10 +179,11 @@ static NSString *const kNoIOSTag = @"no-ios";
   values.clear();
   [patchSpec[1] enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     // TODO(zxu123): refactoring such that value is not restricted to string type.
-    XCTAssert([value isKindOfClass:[NSString class]]);
-    values[[key UTF8String]] = [(NSString *)value UTF8String];
+    XCTAssert([value isKindOfClass:[NSString class]], @"spec is %@", patchSpec);
+    values[util::MakeString(key)] = util::MakeString((NSString *)value);
   }];
-  [self.driver writeUserMutation:FSTTestPatchMutation([patchSpec[0] UTF8String], values, {})];
+  [self.driver
+      writeUserMutation:FSTTestPatchMutation(util::MakeStringView(patchSpec[0]), values, {})];
 }
 
 - (void)doDelete:(NSString *)key {

@@ -36,6 +36,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
@@ -210,12 +211,15 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (instancetype)contextForField:(NSString *)fieldName {
-  FSTParseContext *context = [[FSTParseContext alloc]
-       initWithSource:self.dataSource
-                 path:absl::make_unique<FieldPath>(_path->Append([fieldName UTF8String]))
-         arrayElement:NO
-      fieldTransforms:self.fieldTransforms
-            fieldMask:_fieldMask];
+  std::unique_ptr<FieldPath> path{};
+  if (_path) {
+    path = absl::make_unique<FieldPath>(_path->Append(util::MakeString(fieldName)));
+  }
+  FSTParseContext *context = [[FSTParseContext alloc] initWithSource:self.dataSource
+                                                                path:std::move(path)
+                                                        arrayElement:NO
+                                                     fieldTransforms:self.fieldTransforms
+                                                           fieldMask:_fieldMask];
   [context validatePathSegment:fieldName];
   return context;
 }

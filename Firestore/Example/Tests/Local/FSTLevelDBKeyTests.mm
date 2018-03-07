@@ -20,8 +20,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,7 +42,7 @@ static std::string RemoteDocKey(NSString *pathString) {
 
 static std::string RemoteDocKeyPrefix(NSString *pathString) {
   return [FSTLevelDBRemoteDocumentKey
-      keyPrefixWithResourcePath:testutil::Resource([pathString UTF8String])];
+      keyPrefixWithResourcePath:testutil::Resource(util::MakeStringView(pathString))];
 }
 
 static std::string DocMutationKey(NSString *userID, NSString *key, FSTBatchID batchID) {

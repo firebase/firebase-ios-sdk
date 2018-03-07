@@ -45,12 +45,14 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidArgument(@"Invalid field path. Provided names must not be empty.");
   }
 
-  std::vector<std::string> field_names(fieldNames.count);
+  std::vector<std::string> field_names{};
+  field_names.reserve(fieldNames.count);
   for (int i = 0; i < fieldNames.count; ++i) {
     if (fieldNames[i].length == 0) {
       FSTThrowInvalidArgument(@"Invalid field name at index %d. Field names must not be empty.", i);
     }
-    field_names.push_back([fieldNames[i] UTF8String]);
+    field_names.emplace_back([fieldNames[i] UTF8String],
+                             [fieldNames[i] lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
   }
 
   return [self initPrivate:FieldPath(std::move(field_names))];

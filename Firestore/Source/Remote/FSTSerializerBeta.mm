@@ -384,7 +384,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block FSTObjectValue *result = [FSTObjectValue objectValue];
   [fields enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, GCFSValue *_Nonnull obj,
                                               BOOL *_Nonnull stop) {
-    FieldPath path{[key UTF8String]};
+    FieldPath path{util::MakeString(key)};
     FSTFieldValue *value = [self decodedFieldValue:obj];
     result = [result objectBySettingValue:value forPath:path];
   }];
@@ -552,7 +552,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields(fieldMask.fieldPathsArray_Count);
+  std::vector<FieldPath> fields{};
+  fields.reserve(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
     fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));
   }
@@ -717,7 +718,7 @@ NS_ASSUME_NONNULL_BEGIN
               @"StructuredQuery.from with more than one collection is not supported.");
 
     GCFSStructuredQuery_CollectionSelector *from = query.fromArray[0];
-    path = path.Append([from.collectionId UTF8String]);
+    path = path.Append(util::MakeString(from.collectionId));
   }
 
   NSArray<id<FSTFilter>> *filterBy;
@@ -825,7 +826,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTRelationFilter *)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
-  FieldPath fieldPath = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
+  FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   FSTRelationFilterOperator filterOperator = [self decodedRelationFilterOperator:proto.op];
   FSTFieldValue *value = [self decodedFieldValue:proto.value];
   return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
@@ -845,7 +846,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FSTFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
-  FieldPath field = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
+  FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
       return [[FSTNanFilter alloc] initWithField:field];
@@ -930,7 +931,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSortOrder *)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
-  FieldPath fieldPath = FieldPath::FromServerFormat([proto.field.fieldPath UTF8String]);
+  FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   BOOL ascending;
   switch (proto.direction) {
     case GCFSStructuredQuery_Direction_Ascending:
