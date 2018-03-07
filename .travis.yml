@@ -34,13 +34,14 @@ script:
   - ./scripts/check_copyright.sh $TRAVIS_COMMIT_RANGE
   - ./scripts/style.sh test-only $TRAVIS_COMMIT_RANGE
   - |
-    if [ $SKIP_FIREBASE != 1 ]; then
-      ./test.sh
-    fi
-  - |
     # Google C++ style compliance
     if [ $SKIP_FIRESTORE != 1 ]; then
       ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
+    fi
+
+  - |
+    if [ $SKIP_FIREBASE != 1 ]; then
+      ./test.sh
     fi
   - |
     if [ $SKIP_FIRESTORE != 1 ]; then
