@@ -270,7 +270,7 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
 }
 
 /**
- * Encodes a FieldValue *and* it's length.
+ * Encodes a FieldValue *and* its length.
  *
  * When encoding a top level message, protobuf doesn't include the length (since
  * you can get that already from the length of the binary output.) But when
