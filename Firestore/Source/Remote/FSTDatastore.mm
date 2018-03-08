@@ -319,7 +319,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
             [FSTDatastore
                 prepareHeadersForRPC:rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:(result.is_valid() ? result.token() : absl::string_view())];
+                               token:(result.user().is_authenticated() ? result.token()
+                                                                       : absl::string_view())];
             [rpc start];
           }
         }];
