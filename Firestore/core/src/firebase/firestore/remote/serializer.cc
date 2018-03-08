@@ -202,7 +202,6 @@ void EncodeFieldValueImpl(pb_ostream_t* stream, const FieldValue& field_value) {
       break;
 
     case FieldValue::Type::Object:
-      // NB: submessages use a wiretype of PB_WT_STRING
       status = pb_encode_tag(stream, PB_WT_STRING,
                              google_firestore_v1beta1_Value_map_value_tag);
       if (!status) {
@@ -332,7 +331,7 @@ void EncodeNestedFieldValue(pb_ostream_t* stream,
   }
 }
 
-FieldValue DecodeSubFieldValue(pb_istream_t* stream) {
+FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
   pb_istream_t substream;
@@ -417,12 +416,11 @@ std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
   status = pb_decode_tag(stream, &wire_type, &tag, &eof);
   FIREBASE_ASSERT(tag ==
                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  // NB: PB_WT_STRING is used for submessages too.
   FIREBASE_ASSERT(wire_type == PB_WT_STRING);
   FIREBASE_ASSERT(!eof);
   FIREBASE_ASSERT(status);
 
-  FieldValue value = DecodeSubFieldValue(stream);
+  FieldValue value = DecodeNestedFieldValue(stream);
 
   return {key, value};
 }
