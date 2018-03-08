@@ -92,7 +92,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                          credentials:(id<FSTCredentialsProvider>)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    NSString *host = util::WrapNSStringNoCopy(databaseInfo->host());
+    NSString *host = util::WrapNSString(databaseInfo->host());
     if (!databaseInfo->ssl_enabled()) {
       GRPCHost *hostConfig = [GRPCHost hostWithAddress:host];
       hostConfig.secure = NO;
