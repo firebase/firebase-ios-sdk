@@ -509,13 +509,18 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
 
 void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
-  // TODO(rsgowman): how large should the output buffer be? Do some
-  // investigation to see if we can get nanopb to tell us how much space it's
-  // going to need. (Hint: use a sizing stream, i.e. PB_OSTREAM_SIZING)
-  uint8_t buf[1024];
-  pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
+  pb_ostream_t stream = {
+      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
+                      size_t count) -> bool {
+        auto* out_bytes = static_cast<std::vector<uint8_t>*>(stream->state);
+        out_bytes->insert(out_bytes->end(), buf, buf + count);
+        return true;
+      },
+      /*state=*/out_bytes,
+      /*max_size=*/SIZE_MAX,
+      /*bytes_written=*/0,
+      /*errmsg=*/NULL};
   EncodeFieldValueImpl(&stream, field_value);
-  out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
 }
 
 FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
