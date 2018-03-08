@@ -201,6 +201,73 @@ using firebase::firestore::local::LevelDBTransaction;
   XCTAssertTrue([target isEqual:parsed]);
 }
 
+- (void)testCanIterateAndDelete {
+  LevelDBTransaction transaction(_db, _readOptions, _writeOptions);
+
+  for (int i = 0; i < 4; ++i) {
+    transaction.Put("key_" + std::to_string(i), "value_" + std::to_string(i));
+  }
+
+  std::unique_ptr<LevelDBTransaction::Iterator> it(transaction.NewIterator());
+  it->Seek("key_0");
+  for (int i = 0; i < 4; ++i) {
+    XCTAssertTrue(it->Valid());
+    std::string key = it->key();
+    std::string expected = "key_" + std::to_string(i);
+    XCTAssertEqual(expected, key);
+    transaction.Delete(key);
+    it->Next();
+  }
+}
+
+- (void)testCanIterateFromDeletionToCommitted {
+  // Write keys key_0 and key_1
+  for (int i = 0; i < 2; ++i) {
+    Status status =
+            _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
+    XCTAssertTrue(status.ok());
+  }
+
+  // Create a transaction, iterate, deleting key_0. Verify we still iterate key_1.
+  LevelDBTransaction transaction(_db, _readOptions, _writeOptions);
+  std::unique_ptr<LevelDBTransaction::Iterator> it(transaction.NewIterator());
+  it->Seek("key_0");
+  XCTAssertTrue(it->Valid());
+  XCTAssertEqual("key_0", it->key());
+  transaction.Delete("key_0");
+  it->Next();
+  XCTAssertTrue(it->Valid());
+  XCTAssertEqual("key_1", it->key());
+  it->Next();
+  XCTAssertFalse(it->Valid());
+}
+
+- (void)testDeletingAheadOfAnIterator {
+  // Write keys
+  for (int i = 0; i < 4; ++i) {
+    Status status =
+            _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
+    XCTAssertTrue(status.ok());
+  }
+
+  // Create a transaction, iterate to key_1, delete key_2. Verify we still iterate key_3.
+  LevelDBTransaction transaction(_db, _readOptions, _writeOptions);
+  std::unique_ptr<LevelDBTransaction::Iterator> it(transaction.NewIterator());
+  it->Seek("key_0");
+  XCTAssertTrue(it->Valid());
+  XCTAssertEqual("key_0", it->key());
+  it->Next();
+  XCTAssertTrue(it->Valid());
+  XCTAssertEqual("key_1", it->key());
+  transaction.Delete("key_2");
+  it->Next();
+  XCTAssertTrue(it->Valid());
+  XCTAssertEqual("key_3", it->key());
+  XCTAssertTrue(it->Valid());
+  it->Next();
+  XCTAssertFalse(it->Valid());
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

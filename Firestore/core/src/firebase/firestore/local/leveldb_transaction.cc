@@ -43,57 +43,77 @@ LevelDBTransaction::LevelDBTransaction(std::shared_ptr<DB> db,
 void LevelDBTransaction::Put(const std::string& key, const Slice& value) {
   mutations_[key] = value;
   deletions_.erase(key);
+  version_++;
 }
 
 LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
     : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
-      mutations_(&txn->mutations_),
-      deletions_(&txn->deletions_),
+      txn_(txn),
+      last_version_(txn->version_),
+      is_valid_(false), // Iterator doesn't really point to anything yet, so is invalid
       mutations_iter_(
           std::make_unique<Mutations::iterator>(txn->mutations_.begin())) {
+}
+
+void LevelDBTransaction::Iterator::UpdateCurrent() {
+  bool mutation_is_valid = *mutations_iter_ != txn_->mutations_.end();
+  is_valid_ = mutation_is_valid || ldb_iter_->Valid();
+
+  if (is_valid_) {
+    if (!mutation_is_valid) {
+      is_mutation_ = false;
+    } else if (!ldb_iter_->Valid()) {
+      is_mutation_ = true;
+    } else {
+      // both are valid
+      const std::string mutation_key = (*mutations_iter_)->first;
+      const std::string ldb_key = ldb_iter_->key().ToString();
+      is_mutation_ = mutation_key <= ldb_key;
+    }
+    if (is_mutation_) {
+      current_.first = (*mutations_iter_)->first;
+      current_.second = (*mutations_iter_)->second;
+    } else {
+      current_.first = ldb_iter_->key().ToString();
+      current_.second = ldb_iter_->value();
+    }
+  }
 }
 
 void LevelDBTransaction::Iterator::Seek(const std::string& key) {
   ldb_iter_->Seek(key);
   for (; ldb_iter_->Valid() &&
-         deletions_->find(ldb_iter_->key().ToString()) != deletions_->end();
+         txn_->deletions_.find(ldb_iter_->key().ToString()) != txn_->deletions_.end();
        ldb_iter_->Next()) {
   }
   mutations_iter_.reset();
-  mutations_iter_ = std::make_unique<Mutations::iterator>(mutations_->begin());
-  for (; (*mutations_iter_) != mutations_->end() &&
+  mutations_iter_ = std::make_unique<Mutations::iterator>(txn_->mutations_.begin());
+  for (; (*mutations_iter_) != txn_->mutations_.end() &&
          (*mutations_iter_)->first < key;
        ++(*mutations_iter_)) {
   }
-}
-
-bool LevelDBTransaction::Iterator::is_mutation() {
-  if (*mutations_iter_ == mutations_->end()) {
-    return false;
-  } else if (!ldb_iter_->Valid()) {
-    return true;
-  } else {
-    const std::string key1 = (*mutations_iter_)->first;
-    const std::string key2 = ldb_iter_->key().ToString();
-    return key1 <= key2;
-  }
+  UpdateCurrent();
+  last_version_ = txn_->version_;
 }
 
 std::string LevelDBTransaction::Iterator::key() {
-  FIREBASE_ASSERT_MESSAGE(this->Valid(), "key() called on invalid iterator");
-  if (is_mutation()) {
-    return (*mutations_iter_)->first;
-  } else {
-    return ldb_iter_->key().ToString();
-  }
+  FIREBASE_ASSERT_MESSAGE(Valid(), "key() called on invalid iterator");
+  return current_.first;
 }
 
 Slice LevelDBTransaction::Iterator::value() {
-  FIREBASE_ASSERT_MESSAGE(this->Valid(), "value() called on invalid iterator");
-  if (is_mutation()) {
-    return (*mutations_iter_)->second;
+  FIREBASE_ASSERT_MESSAGE(Valid(), "value() called on invalid iterator");
+  return current_.second;
+}
+
+bool LevelDBTransaction::Iterator::SyncToTransaction() {
+  if (last_version_ < txn_->version_) {
+    std::string current_key = current_.first;
+    Seek(current_key);
+    // If we advanced, we don't need to advance again.
+    return is_valid_  && current_.first > current_key;
   } else {
-    return ldb_iter_->value();
+    return false;
   }
 }
 
@@ -101,24 +121,28 @@ void LevelDBTransaction::Iterator::AdvanceLDB() {
   do {
     ldb_iter_->Next();
   } while (ldb_iter_->Valid() &&
-           deletions_->find(ldb_iter_->key().ToString()) != deletions_->end());
+           txn_->deletions_.find(ldb_iter_->key().ToString()) != txn_->deletions_.end());
 }
 
 void LevelDBTransaction::Iterator::Next() {
-  FIREBASE_ASSERT_MESSAGE(this->Valid(), "Next() called on invalid iterator");
-  if (is_mutation()) {
-    // A mutation might be shadowing leveldb. If so, advance both.
-    if (ldb_iter_->Valid() && ldb_iter_->key() == (*mutations_iter_)->first) {
+  FIREBASE_ASSERT_MESSAGE(Valid(), "Next() called on invalid iterator");
+  bool advanced = SyncToTransaction();
+  if (!advanced) {
+    if (is_mutation_) {
+      // A mutation might be shadowing leveldb. If so, advance both.
+      if (ldb_iter_->Valid() && ldb_iter_->key() == (*mutations_iter_)->first) {
+        AdvanceLDB();
+      }
+      ++(*mutations_iter_);
+    } else {
       AdvanceLDB();
     }
-    ++(*mutations_iter_);
-  } else {
-    AdvanceLDB();
+    UpdateCurrent();
   }
 }
 
 bool LevelDBTransaction::Iterator::Valid() {
-  return ldb_iter_->Valid() || *mutations_iter_ != mutations_->end();
+  return is_valid_;
 }
 
 LevelDBTransaction::Iterator* LevelDBTransaction::NewIterator() {
@@ -139,6 +163,7 @@ Status LevelDBTransaction::Get(const std::string& key, std::string* value) {
 void LevelDBTransaction::Delete(const std::string& key) {
   deletions_.insert(key);
   mutations_.erase(key);
+  version_++;
 }
 
 void LevelDBTransaction::Commit() {

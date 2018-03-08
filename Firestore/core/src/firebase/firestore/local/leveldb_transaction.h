@@ -52,6 +52,7 @@ class LevelDBTransaction {
     NSData* data = [message data];
     leveldb::Slice value((const char*)data.bytes, data.length);
     mutations_[key] = value;
+    version_++;
   }
 #endif
 
@@ -97,19 +98,38 @@ class LevelDBTransaction {
 
    private:
     std::unique_ptr<leveldb::Iterator> ldb_iter_;
-    Mutations* mutations_;
-    Deletions* deletions_;
+
+    // The last observed version of the underlying transaction
+    unsigned int last_version_;
+    // The underlying transaction.
+    LevelDBTransaction* txn_;
     std::unique_ptr<Mutations::iterator> mutations_iter_;
-    /**
-     * Returns true if the current entry is a pending mutation, rather than a
-     * committed value.
-     */
-    bool is_mutation();
+    // We save the current key and value so that once an iterator is Valid(), it remains
+    // so at least until the next call to Seek() or Next(), even if the underlying data
+    // is deleted.
+    std::pair<std::string, leveldb::Slice> current_;
+    // True if current_ represents a mutation, rather than committed data.
+    bool is_mutation_;
+    // True if the iterator pointed to a valid entry the last time Next() or Seek() was
+    // called.
+    bool is_valid_;
+
 
     /**
      * Advances to the next non-deleted key in leveldb.
      */
     void AdvanceLDB();
+
+    /**
+     * Syncs with the underlying transaction. If the transaction has been updated, the mutation
+     * iterator may need to be reset.
+     */
+    bool SyncToTransaction();
+
+    /**
+     * Given the current state of the internal iterators, set is_valid_, is_mutation_, and current_.
+     */
+    void UpdateCurrent();
   };
 
   /**
@@ -130,6 +150,7 @@ class LevelDBTransaction {
   Deletions deletions_;
   leveldb::WriteOptions writeOptions_;
   leveldb::ReadOptions readOptions_;
+  unsigned int version_ = 0;
 };
 
 }  // namespace local
