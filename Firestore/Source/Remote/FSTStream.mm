@@ -297,7 +297,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:(token.is_valid() ? token.token() : absl::string_view())];
+                               token:(token.user().is_authenticated() ? token.token() : absl::string_view())];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];
