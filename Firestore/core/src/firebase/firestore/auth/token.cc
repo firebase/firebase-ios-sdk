@@ -22,6 +22,9 @@ namespace auth {
 
 Token::Token(const absl::string_view token, const User& user)
     : token_(token), user_(user), is_valid_(true) {
+  // We use "" to represent the absence of a token, which should
+  // be the case if the user is unauthenticated.
+  FIREBASE_ASSERT((!user_.is_authenticated()) == (token == ""));
 }
 
 Token::Token() : token_(), user_(User::Unauthenticated()), is_valid_(false) {

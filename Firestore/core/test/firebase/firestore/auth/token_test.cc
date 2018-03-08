@@ -32,7 +32,7 @@ TEST(Token, Getter) {
 TEST(Token, InvalidToken) {
   const Token& token = Token::Invalid();
   EXPECT_ANY_THROW(token.token());
-  EXPECT_EQ(User::Unauthenticated(), token.user());
+  EXPECT_ANY_THROW(token.user());
   EXPECT_FALSE(token.is_valid());
 }
 

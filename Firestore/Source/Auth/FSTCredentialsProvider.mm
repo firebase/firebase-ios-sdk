@@ -121,6 +121,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                    userInfo:errorInfo];
             completion(Token::Invalid(), cancelError);
           } else {
+            if (!token) {
+              // We use "" to represent the lack of a token in the C++ Token object.
+              token = @"";
+            }
             completion(Token(util::MakeStringView(token), self->_currentUser), error);
           }
         };

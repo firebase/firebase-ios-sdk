@@ -96,7 +96,7 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
       // Cancel the request since the user changed while the request was
       // outstanding so the response is likely for a previous user (which
       // user, we can't be sure).
-      completion({"", User::Unauthenticated()},
+      completion(Token::Invalid(),
                  "getToken aborted due to user change.");
     } else {
       completion(

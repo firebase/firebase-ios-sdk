@@ -44,7 +44,7 @@ class Token {
  public:
   Token(const absl::string_view token, const User& user);
 
-  /** The actual raw token. */
+  /** The actual raw token; will be "" if the user is unauthenticated. */
   const std::string& token() const {
     FIREBASE_ASSERT(is_valid_);
     return token_;
@@ -55,21 +55,22 @@ class Token {
    * state on disk, etc.).
    */
   const User& user() const {
+    FIREBASE_ASSERT(is_valid_);
     return user_;
   }
 
   /**
-   * Whether the token is a valid one.
+   * Whether this Token object is valid. All methods will throw if it's not.
    *
-   * ## Portability notes: Invalid token is the equivalent of nil in the iOS
-   * token implementation. We use value instead of pointer for Token instance in
-   * the C++ migration.
+   * ## Portability notes: An invalid Token is the equivalent of nil in the
+   * iOS token implementation. We use value instead of pointer for Token
+   * instances in the C++ migration.
    */
   bool is_valid() const {
     return is_valid_;
   }
 
-  /** Returns an invalid token. */
+  /** Returns an invalid Token. */
   static const Token& Invalid();
 
  private:

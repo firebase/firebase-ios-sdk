@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 
 #include "absl/strings/string_view.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -53,6 +54,9 @@ inline NSString* WrapNSString(const absl::string_view str) {
 // Creates an absl::string_view wrapper for the contents of the given
 // NSString.
 inline absl::string_view MakeStringView(NSString* str) {
+  // Avoid creating nullptr string_views since it's undefined behavior once
+  // we assign it to an std::string (https://stackoverflow.com/a/10771938).
+  FIREBASE_ASSERT(str != nil);
   return absl::string_view(
       [str UTF8String], [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
 }

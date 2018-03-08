@@ -274,6 +274,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
 - (void)resumeStartWithToken:(const Token &)token error:(NSError *)error {
+  FSTAssert(token.is_valid(), @"resumeStartWithToken: called with invalid token.");
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   if (self.state == FSTStreamStateStopped) {
@@ -297,7 +298,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   [FSTDatastore prepareHeadersForRPC:_rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:(token.is_valid() ? token.token() : absl::string_view())];
+                               token:(token.token())];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];

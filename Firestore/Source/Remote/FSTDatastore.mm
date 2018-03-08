@@ -309,12 +309,13 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                       if (error) {
                         errorHandler(error);
                       } else {
+                        FSTAssert(result.is_valid(),
+                            @"invalid token result even though there was no error.");
                         GRPCProtoCall *rpc = rpcFactory();
                         [FSTDatastore
                             prepareHeadersForRPC:rpc
                                       databaseID:&self.databaseInfo->database_id()
-                                           token:(result.is_valid() ? result.token()
-                                                                    : absl::string_view())];
+                                           token:result.token()];
                         [rpc start];
                       }
                     }];
@@ -339,7 +340,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const DatabaseId *)databaseID
                        token:(const absl::string_view)token {
-  rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token);
+  // "" represents the lack of a token.
+  rpc.oauth2AccessToken = token == "" ? nil : util::WrapNSString(token);
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =
