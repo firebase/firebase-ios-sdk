@@ -1,5 +1,12 @@
 # Unreleased
 
+# v0.10.3
+- [fixed] Fixed a regression in the 4.10.0 Firebase iOS SDK release that
+  prevented the SDK from communicating with the backend until successfully
+  authenticating via Firebase Authentication. All reads and writes would
+  silently be executed only locally rather than being sent as unauthenticated
+  requests.
+
 # v0.10.2
 - [changed] When you delete a FirebaseApp, the associated Firestore instances
   are now also deleted (#683).
