@@ -28,8 +28,6 @@
 @class FIRDocumentSnapshot;
 @class FIRQuery;
 @class FIRQuerySnapshot;
-@class FSTDatabaseID;
-@class FSTDatabaseInfo;
 @class FSTDispatchQueue;
 @class FSTDocument;
 @class FSTListenOptions;
