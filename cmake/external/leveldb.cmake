@@ -44,20 +44,31 @@ else()
   ExternalProject_Add(
     leveldb
 
-    GIT_REPOSITORY "https://github.com/google/leveldb.git"
-    GIT_TAG "v1.20"
+    DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+    DOWNLOAD_NAME leveldb-v1.20.tar.gz
+    URL https://github.com/google/leveldb/archive/v1.20.tar.gz
+    URL_HASH SHA256=f5abe8b5b209c2f36560b75f32ce61412f39a2922f7045ae764a2c23335b6664
 
-    PREFIX ${PROJECT_BINARY_DIR}/third_party/leveldb
+    PREFIX ${PROJECT_BINARY_DIR}/external/leveldb
 
+    # LevelDB's configuration is done in the Makefile
     CONFIGURE_COMMAND ""
-    BUILD_ALWAYS ON
+
+    # The Makefile-based build of leveldb does not support building
+    # out-of-source.
     BUILD_IN_SOURCE ON
+
+    # Only build the leveldb library skipping the tools and in-memory
+    # implementation we don't use.
     BUILD_COMMAND
-      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT} make -j all
+      env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT}
+        make -j out-static/libleveldb.a
 
     INSTALL_DIR ${FIREBASE_INSTALL_DIR}
 
+    UPDATE_COMMAND ""
     INSTALL_COMMAND ""
     TEST_COMMAND ""
   )
+
 endif(WIN32 OR LEVELDB_ROOT)

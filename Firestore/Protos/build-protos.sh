@@ -20,7 +20,21 @@ rm Podfile.lock
 pod update
 
 # Generate the objective C files from the protos.
-./Pods/!ProtoCompiler/protoc --plugin=protoc-gen-grpc=Pods/\!ProtoCompiler-gRPCPlugin/grpc_objective_c_plugin -I protos --objc_out=objc --grpc_out=objc `find protos -name *.proto -print | xargs`
+./Pods/!ProtoCompiler/protoc \
+  --plugin=protoc-gen-grpc=Pods/\!ProtoCompiler-gRPCPlugin/grpc_objective_c_plugin \
+  --plugin=../../build/external/nanopb/src/nanopb/generator/protoc-gen-nanopb \
+  -I protos --objc_out=objc --grpc_out=objc \
+  --nanopb_out="--options-file=protos/%s.options:nanopb" \
+  `find protos -name *.proto -print | xargs`
+
+# Remove "well-known" protos from objc. (We get these for free. We only need
+# them for nanopb.)
+rm -rf objc/google/protobuf/
+
+# If a proto uses a field named 'delete', nanopb happily uses that in the
+# message definition. Works fine for C; not so much for C++. Rename uses of this
+# to delete_ (which is how protoc does it for c++ files.)
+perl -i -pe 's/\bdelete\b/delete_/g' `find nanopb -type f`
 
 # CocoaPods does not like paths in library imports, flatten them.
 

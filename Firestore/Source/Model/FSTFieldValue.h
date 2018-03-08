@@ -18,10 +18,11 @@
 
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
-@class FSTDatabaseID;
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
 @class FSTDocumentKey;
 @class FSTFieldPath;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
 @class FIRSnapshotOptions;
@@ -163,8 +164,8 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * A timestamp value stored in Firestore.
  */
 @interface FSTTimestampValue : FSTFieldValue <NSDate *>
-+ (instancetype)timestampValue:(FSTTimestamp *)value;
-- (FSTTimestamp *)internalValue;
++ (instancetype)timestampValue:(FIRTimestamp *)value;
+- (FIRTimestamp *)internalValue;
 @end
 
 /**
@@ -180,10 +181,10 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue <id>
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FIRTimestamp *)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue;
 
-@property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
 @property(nonatomic, strong, readonly, nullable) FSTFieldValue *previousValue;
 
 @end
@@ -208,9 +209,11 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
++ (instancetype)referenceValue:(FSTDocumentKey *)value
+                    databaseID:(const firebase::firestore::model::DatabaseId *)databaseID;
 - (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
-@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
+// Does not own this DatabaseId.
+@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
 @end
 
 /**

@@ -18,10 +18,10 @@
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
-#include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -29,12 +29,8 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/Port/ordered_code.h"
-#include "Firestore/Port/string_util.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::OrderedCode;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Iterator;
@@ -42,17 +38,6 @@ using leveldb::ReadOptions;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
-
-/**
- * Returns a standard set of read options.
- *
- * For now this is paranoid, but perhaps disable that in production builds.
- */
-static ReadOptions GetStandardReadOptions() {
-  ReadOptions options;
-  options.verify_checksums = true;
-  return options;
-}
 
 @interface FSTLevelDBQueryCache ()
 
@@ -74,88 +59,10 @@ static ReadOptions GetStandardReadOptions() {
   FSTSnapshotVersion *_lastRemoteSnapshotVersion;
 }
 
-- (instancetype)initWithDB:(std::shared_ptr<DB>)db serializer:(FSTLocalSerializer *)serializer {
-  if (self = [super init]) {
-    FSTAssert(db, @"db must not be NULL");
-    _db = db;
-    _serializer = serializer;
-  }
-  return self;
-}
-
-- (void)start {
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<DB>)db {
   std::string key = [FSTLevelDBTargetGlobalKey key];
-  FSTPBTargetGlobal *metadata = [self metadataForKey:key];
-  if (!metadata) {
-    metadata = [FSTPBTargetGlobal message];
-  }
-  _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
-
-  self.metadata = metadata;
-}
-
-#pragma mark - FSTQueryCache implementation
-
-- (FSTTargetID)highestTargetID {
-  return self.metadata.highestTargetId;
-}
-
-- (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
-  return _lastRemoteSnapshotVersion;
-}
-
-- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-                               group:(FSTWriteGroup *)group {
-  _lastRemoteSnapshotVersion = snapshotVersion;
-  self.metadata.lastRemoteSnapshotVersion = [self.serializer encodedVersion:snapshotVersion];
-  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
-}
-
-- (void)shutdown {
-  _db.reset();
-}
-
-- (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
-  // TODO(mcg): actually populate listen sequence number
-  FSTTargetID targetID = queryData.targetID;
-  std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
-  [group setMessage:[self.serializer encodedQueryData:queryData] forKey:key];
-
-  NSString *canonicalID = queryData.query.canonicalID;
-  std::string indexKey =
-      [FSTLevelDBQueryTargetKey keyWithCanonicalID:canonicalID targetID:targetID];
-  std::string emptyBuffer;
-  [group setData:emptyBuffer forKey:indexKey];
-
-  FSTPBTargetGlobal *metadata = self.metadata;
-  if (targetID > metadata.highestTargetId) {
-    metadata.highestTargetId = targetID;
-    [group setMessage:metadata forKey:[FSTLevelDBTargetGlobalKey key]];
-  }
-}
-
-- (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
-  FSTTargetID targetID = queryData.targetID;
-
-  [self removeMatchingKeysForTargetID:targetID group:group];
-
-  std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
-  [group removeMessageForKey:key];
-
-  std::string indexKey =
-      [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
-  [group removeMessageForKey:indexKey];
-}
-
-/**
- * Looks up the query global metadata associated with the given key.
- *
- * @return the parsed protocol buffer message or nil if the row referenced by the given key does
- *     not exist.
- */
-- (nullable FSTPBTargetGlobal *)metadataForKey:(const std::string &)key {
   std::string value;
-  Status status = _db->Get(GetStandardReadOptions(), key, &value);
+  Status status = db->Get([FSTLevelDB standardReadOptions], key, &value);
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
@@ -173,6 +80,116 @@ static ReadOptions GetStandardReadOptions() {
   }
 
   return proto;
+}
+
+- (instancetype)initWithDB:(std::shared_ptr<DB>)db serializer:(FSTLocalSerializer *)serializer {
+  if (self = [super init]) {
+    FSTAssert(db, @"db must not be NULL");
+    _db = db;
+    _serializer = serializer;
+  }
+  return self;
+}
+
+- (void)start {
+  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+  FSTAssert(
+      metadata != nil,
+      @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
+  _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
+
+  self.metadata = metadata;
+}
+
+#pragma mark - FSTQueryCache implementation
+
+- (FSTTargetID)highestTargetID {
+  return self.metadata.highestTargetId;
+}
+
+- (FSTListenSequenceNumber)highestListenSequenceNumber {
+  return self.metadata.highestListenSequenceNumber;
+}
+
+- (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
+  return _lastRemoteSnapshotVersion;
+}
+
+- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+                               group:(FSTWriteGroup *)group {
+  _lastRemoteSnapshotVersion = snapshotVersion;
+  self.metadata.lastRemoteSnapshotVersion = [self.serializer encodedVersion:snapshotVersion];
+  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+}
+
+- (void)shutdown {
+  _db.reset();
+}
+
+- (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+  FSTTargetID targetID = queryData.targetID;
+  std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
+  [group setMessage:[self.serializer encodedQueryData:queryData] forKey:key];
+}
+
+- (void)saveMetadataInGroup:(FSTWriteGroup *)group {
+  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+}
+
+- (BOOL)updateMetadataForQueryData:(FSTQueryData *)queryData {
+  BOOL updatedMetadata = NO;
+
+  if (queryData.targetID > self.metadata.highestTargetId) {
+    self.metadata.highestTargetId = queryData.targetID;
+    updatedMetadata = YES;
+  }
+
+  if (queryData.sequenceNumber > self.metadata.highestListenSequenceNumber) {
+    self.metadata.highestListenSequenceNumber = queryData.sequenceNumber;
+    updatedMetadata = YES;
+  }
+  return updatedMetadata;
+}
+
+- (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+  [self saveQueryData:queryData group:group];
+
+  NSString *canonicalID = queryData.query.canonicalID;
+  std::string indexKey =
+      [FSTLevelDBQueryTargetKey keyWithCanonicalID:canonicalID targetID:queryData.targetID];
+  std::string emptyBuffer;
+  [group setData:emptyBuffer forKey:indexKey];
+
+  self.metadata.targetCount += 1;
+  [self updateMetadataForQueryData:queryData];
+  [self saveMetadataInGroup:group];
+}
+
+- (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+  [self saveQueryData:queryData group:group];
+
+  if ([self updateMetadataForQueryData:queryData]) {
+    [self saveMetadataInGroup:group];
+  }
+}
+
+- (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+  FSTTargetID targetID = queryData.targetID;
+
+  [self removeMatchingKeysForTargetID:targetID group:group];
+
+  std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
+  [group removeMessageForKey:key];
+
+  std::string indexKey =
+      [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
+  [group removeMessageForKey:indexKey];
+  self.metadata.targetCount -= 1;
+  [self saveMetadataInGroup:group];
+}
+
+- (int32_t)count {
+  return self.metadata.targetCount;
 }
 
 /**
@@ -197,7 +214,7 @@ static ReadOptions GetStandardReadOptions() {
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
   Slice canonicalID = StringView(query.canonicalID);
-  std::unique_ptr<Iterator> indexItererator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexItererator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   std::string indexPrefix = [FSTLevelDBQueryTargetKey keyPrefixWithCanonicalID:canonicalID];
   indexItererator->Seek(indexPrefix);
 
@@ -205,7 +222,7 @@ static ReadOptions GetStandardReadOptions() {
   // unique and ordered, so when scanning a table prefixed by exactly one canonicalID, all the
   // targetIDs will be unique and in order.
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
-  std::unique_ptr<Iterator> targetIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> targetIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
 
   FSTLevelDBQueryTargetKey *rowKey = [[FSTLevelDBQueryTargetKey alloc] init];
   for (; indexItererator->Valid(); indexItererator->Next()) {
@@ -277,7 +294,7 @@ static ReadOptions GetStandardReadOptions() {
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
@@ -300,7 +317,7 @@ static ReadOptions GetStandardReadOptions() {
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
   FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
@@ -323,7 +340,7 @@ static ReadOptions GetStandardReadOptions() {
 
 - (BOOL)containsKey:(FSTDocumentKey *)key {
   std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator(GetStandardReadOptions()));
+  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
   if (indexIterator->Valid()) {

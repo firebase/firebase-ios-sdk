@@ -135,6 +135,23 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
 + (BOOL)isDefaultAppConfigured;
 
 /**
+ * Registers a given third-party library with the given version number to be reported for
+ * analyitcs.
+ *
+ * @param library Name of the library
+ * @param version Version of the library
+ */
+// clang-format off
++ (void)registerLibrary:(NSString *)library
+            withVersion:(NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
+// clang-format on
+
+/**
+ * A concatenated string representing all the third-party libraries and version numbers.
+ */
++ (NSString *)firebaseUserAgent;
+
+/**
  * Used by each SDK to send logs about SDK configuration status to Clearcut.
  */
 - (void)sendLogsWithServiceName:(NSString *)serviceName

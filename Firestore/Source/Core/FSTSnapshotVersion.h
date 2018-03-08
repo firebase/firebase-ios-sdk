@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTTimestamp;
+@class FIRTimestamp;
 
 /**
  * A version of a document in Firestore. This corresponds to the version timestamp, such as
@@ -30,13 +30,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)noVersion;
 
 /** Creates a new version representing the given timestamp. */
-+ (instancetype)versionWithTimestamp:(FSTTimestamp *)timestamp;
++ (instancetype)versionWithTimestamp:(FIRTimestamp *)timestamp;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (NSComparisonResult)compare:(FSTSnapshotVersion *)other;
 
-@property(nonatomic, strong, readonly) FSTTimestamp *timestamp;
+@property(nonatomic, strong, readonly) FIRTimestamp *timestamp;
 
 @end
 

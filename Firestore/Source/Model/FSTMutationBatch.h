@@ -21,7 +21,7 @@
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 @class FSTMutation;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTMutationResult;
 @class FSTMutationBatchResult;
 @class FSTSnapshotVersion;
@@ -45,7 +45,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 
 /** Initializes a mutation batch with the given batchID, localWriteTime, and mutations. */
 - (instancetype)initWithBatchID:(FSTBatchID)batchID
-                 localWriteTime:(FSTTimestamp *)localWriteTime
+                 localWriteTime:(FIRTimestamp *)localWriteTime
                       mutations:(NSArray<FSTMutation *> *)mutations NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
@@ -86,7 +86,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 - (FSTDocumentKeySet *)keys;
 
 @property(nonatomic, assign, readonly) FSTBatchID batchID;
-@property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
 @property(nonatomic, strong, readonly) NSArray<FSTMutation *> *mutations;
 
 @end

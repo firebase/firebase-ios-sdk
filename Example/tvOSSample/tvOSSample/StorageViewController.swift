@@ -31,7 +31,7 @@ class StorageViewController: UIViewController {
     case failed(String)
 
     /// Equatable support for UIState.
-    static func ==(lhs: StorageViewController.UIState, rhs: StorageViewController.UIState) -> Bool {
+    static func == (lhs: StorageViewController.UIState, rhs: StorageViewController.UIState) -> Bool {
       switch (lhs, rhs) {
       case (.cleared, .cleared): return true
       case (.downloading, .downloading): return true
@@ -52,16 +52,16 @@ class StorageViewController: UIViewController {
   // MARK: Interface
 
   /// Image view to display the downloaded image.
-  @IBOutlet weak var imageView: UIImageView!
+  @IBOutlet var imageView: UIImageView!
 
   /// The download button.
-  @IBOutlet weak var downloadButton: UIButton!
+  @IBOutlet var downloadButton: UIButton!
 
   /// The clear button.
-  @IBOutlet weak var clearButton: UIButton!
+  @IBOutlet var clearButton: UIButton!
 
   /// A visual representation of the state.
-  @IBOutlet weak var stateLabel: UILabel!
+  @IBOutlet var stateLabel: UILabel!
 
   // MARK: - User Actions
 
@@ -72,7 +72,7 @@ class StorageViewController: UIViewController {
     let storage = Storage.storage()
     let ref = storage.reference(withPath: Constants.downloadPath)
     // TODO: Show progress bar here using proper API.
-    let task = ref.getData(maxSize: Constants.maxSize) { [unowned self] (data, error) in
+    let task = ref.getData(maxSize: Constants.maxSize) { [unowned self] data, error in
       guard let data = data else {
         self.state = .failed("Error downloading: \(error!.localizedDescription)")
         return
@@ -114,7 +114,7 @@ class StorageViewController: UIViewController {
       stateLabel.text = "State: Downloading..."
 
     //  Download complete, ensure the download button is still off and enable the clear button.
-    case (_, .downloaded(let image)):
+    case let (_, .downloaded(image)):
       imageView.image = image
       stateLabel.text = "State: Image downloaded!"
 
@@ -124,7 +124,7 @@ class StorageViewController: UIViewController {
       stateLabel.text = "State: Pending download"
 
     // An error occurred.
-    case (_, .failed(let error)):
+    case let (_, .failed(error)):
       stateLabel.text = "State: \(error)"
 
     // For now, as the default, throw a fatal error because it's an unexpected state. This will

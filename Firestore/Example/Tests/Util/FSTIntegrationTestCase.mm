@@ -16,23 +16,31 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include <memory>
+#include <utility>
+
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
-#import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::EmptyCredentialsProvider;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -129,18 +137,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
-  FSTTestDispatchQueue *workerDispatchQueue = [FSTTestDispatchQueue
+  FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
-
-  FSTEmptyCredentialsProvider *credentialsProvider = [[FSTEmptyCredentialsProvider alloc] init];
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:projectID
-                                                           database:kDefaultDatabaseID
+  std::unique_ptr<CredentialsProvider> credentials_provider =
+      absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
+
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
+                                                           database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
-                                                credentialsProvider:credentialsProvider
+                                                credentialsProvider:std::move(credentials_provider)
                                                 workerDispatchQueue:workerDispatchQueue
                                                         firebaseApp:app];
 
@@ -148,14 +157,6 @@ NS_ASSUME_NONNULL_BEGIN
 
   [_firestores addObject:firestore];
   return firestore;
-}
-
-- (void)waitForIdleFirestore:(FIRFirestore *)firestore {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"idle"];
-  // Note that we wait on any task that is scheduled with a delay of 60s. Currently, the idle
-  // timeout is the only task that uses this delay.
-  [((FSTTestDispatchQueue *)firestore.workerDispatchQueue) fulfillOnExecution:expectation];
-  [self awaitExpectations];
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
@@ -293,6 +294,10 @@ NS_ASSUME_NONNULL_BEGIN
   [self.db.client
       enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
   [self awaitExpectations];
+}
+
+- (FSTDispatchQueue *)queueForFirestore:(FIRFirestore *)firestore {
+  return firestore.workerDispatchQueue;
 }
 
 - (void)waitUntil:(BOOL (^)())predicate {

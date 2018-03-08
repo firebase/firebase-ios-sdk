@@ -64,7 +64,7 @@ TEST(StringPrintf, DontOverwriteErrno) {
 
 TEST(StringPrintf, LargeBuf) {
   // Check that the large buffer is handled correctly.
-  int n = 2048;
+  size_t n = 2048;
   char* buf = new char[n + 1];
   memset(buf, ' ', n);
   buf[n] = 0;

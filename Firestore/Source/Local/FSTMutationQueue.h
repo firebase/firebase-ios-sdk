@@ -23,7 +23,7 @@
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTQuery;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTWriteGroup;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setLastStreamToken:(nullable NSData *)streamToken group:(FSTWriteGroup *)group;
 
 /** Creates a new mutation batch and adds it to this mutation queue. */
-- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FSTTimestamp *)localWriteTime
+- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
                                           mutations:(NSArray<FSTMutation *> *)mutations
                                               group:(FSTWriteGroup *)group;
 

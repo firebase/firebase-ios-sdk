@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-
 #include <exception>
 
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "gtest/gtest.h"
 
 namespace firebase {

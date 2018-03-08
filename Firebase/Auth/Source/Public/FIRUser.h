@@ -56,7 +56,11 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error)
     NS_SWIFT_NAME(SendEmailVerificationCallback);
 
 /** @class FIRUser
-    @brief Represents a user.
+    @brief Represents a user. Firebase Auth does not attempt to validate users
+        when loading them from the keychain. Invalidated users (such as those
+        whose passwords have been changed on another client) are automatically
+        logged out when an auth-dependent operation is attempted or when the
+        ID token is automatically refreshed.
     @remarks This class is thread-safe.
  */
 NS_SWIFT_NAME(User)
@@ -158,7 +162,7 @@ NS_SWIFT_NAME(User)
         updated.
 
     @param phoneNumberCredential The new phone number credential corresponding to the phone number
-        to be added to the firebaes account, if a phone number is already linked to the account this
+        to be added to the Firebase account, if a phone number is already linked to the account this
         new phone number will replace it.
     @param completion Optionally; the block invoked when the user profile change has finished.
         Invoked asynchronously on the main thread in the future.

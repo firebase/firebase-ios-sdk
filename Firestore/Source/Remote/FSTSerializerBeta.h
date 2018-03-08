@@ -16,7 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class FSTDatabaseID;
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
 @class FSTDocumentKey;
 @class FSTFieldValue;
 @class FSTMaybeDocument;
@@ -27,7 +28,7 @@
 @class FSTQuery;
 @class FSTQueryData;
 @class FSTSnapshotVersion;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTWatchChange;
 
 @class GCFSBatchGetDocumentsResponse;
@@ -57,10 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDatabaseID:(const firebase::firestore::model::DatabaseId *)databaseID
+    NS_DESIGNATED_INITIALIZER;
 
-- (GPBTimestamp *)encodedTimestamp:(FSTTimestamp *)timestamp;
-- (FSTTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp;
+- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp;
+- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp;
 
 - (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version;
 - (FSTSnapshotVersion *)decodedVersion:(GPBTimestamp *)version;
