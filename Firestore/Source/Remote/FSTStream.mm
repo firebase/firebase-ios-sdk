@@ -629,7 +629,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
+  return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Listen"
                          requestsWriter:requestsWriter];
 }
@@ -714,7 +714,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
+  return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Write"
                          requestsWriter:requestsWriter];
 }

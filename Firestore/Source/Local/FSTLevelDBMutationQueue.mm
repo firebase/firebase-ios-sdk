@@ -94,7 +94,7 @@ static ReadOptions StandardReadOptions() {
 + (instancetype)mutationQueueWithUser:(const User &)user
                                    db:(std::shared_ptr<DB>)db
                            serializer:(FSTLocalSerializer *)serializer {
-  NSString *userID = user.is_authenticated() ? util::WrapNSStringNoCopy(user.uid()) : @"";
+  NSString *userID = user.is_authenticated() ? util::WrapNSString(user.uid()) : @"";
 
   return [[FSTLevelDBMutationQueue alloc] initWithUserID:userID db:db serializer:serializer];
 }
@@ -103,7 +103,7 @@ static ReadOptions StandardReadOptions() {
                             db:(std::shared_ptr<DB>)db
                     serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
-    _userID = userID;
+    _userID = [userID copy];
     _db = db;
     _serializer = serializer;
   }
