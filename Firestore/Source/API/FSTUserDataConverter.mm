@@ -160,7 +160,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                           path:(std::unique_ptr<FieldPath>)path
                   arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
-                     fieldMask:(std::vector<FieldPath>)fieldMask NS_DESIGNATED_INITIALIZER;
+                     fieldMask:(std::shared_ptr<std::vector<FieldPath>>)fieldMask
+    NS_DESIGNATED_INITIALIZER;
 
 // Helpers to get a FSTParseContext for a child field.
 - (instancetype)contextForField:(NSString *)fieldName;
@@ -180,16 +181,18 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   /** The current path being parsed. */
   // TODO(b/34871131): path should never be nullptr, but we don't support array paths right now.
   std::unique_ptr<FieldPath> _path;
-  std::vector<FieldPath> _fieldMask;
+  // Context and context of field/path are sharing this.
+  std::shared_ptr<std::vector<FieldPath>> _fieldMask;
 }
 
 + (instancetype)contextWithSource:(FSTUserDataSource)dataSource
                              path:(std::unique_ptr<FieldPath>)path {
-  FSTParseContext *context = [[FSTParseContext alloc] initWithSource:dataSource
-                                                                path:std::move(path)
-                                                        arrayElement:NO
-                                                     fieldTransforms:[NSMutableArray array]
-                                                           fieldMask:std::vector<FieldPath>{}];
+  FSTParseContext *context =
+      [[FSTParseContext alloc] initWithSource:dataSource
+                                         path:std::move(path)
+                                 arrayElement:NO
+                              fieldTransforms:[NSMutableArray array]
+                                    fieldMask:std::make_shared<std::vector<FieldPath>>()];
   [context validatePath];
   return context;
 }
@@ -198,7 +201,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                           path:(std::unique_ptr<FieldPath>)path
                   arrayElement:(BOOL)arrayElement
                fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
-                     fieldMask:(std::vector<FieldPath>)fieldMask {
+                     fieldMask:(std::shared_ptr<std::vector<FieldPath>>)fieldMask {
   if (self = [super init]) {
     _dataSource = dataSource;
     _path = std::move(path);
@@ -243,7 +246,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                             path:nil
                                     arrayElement:YES
                                  fieldTransforms:self.fieldTransforms
-                                       fieldMask:*self.fieldMask];
+                                       fieldMask:_fieldMask];
 }
 
 /**
@@ -294,7 +297,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (std::vector<FieldPath> *)fieldMask {
-  return &_fieldMask;
+  return _fieldMask.get();
 }
 
 @end
