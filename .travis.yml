@@ -7,36 +7,6 @@ cache:
 
 rvm: 2.3.1
 
-# All valid combinations of project, platform, and builder
-env:
-  - PROJECT=Firebase  PLATFORM=iOS   METHOD=xcodebuild
-  - PROJECT=Firebase  PLATFORM=macOS METHOD=xcodebuild
-  - PROJECT=Firebase  PLATFORM=tvOS  METHOD=xcodebuild
-  - PROJECT=Firestore PLATFORM=iOS   METHOD=xcodebuild
-  - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
-
-# Explicitly name and order stages to prevent the default build matrix
-# expansion from the above from starting with "test".
-stages:
-  - checks
-  - test
-
-before_install:
-  # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
-  # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
-  - bundle install
-  - gem install xcpretty
-  - |
-    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-      SKIP_FIREBASE=0
-      SKIP_FIRESTORE=0
-    else
-      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
-      SKIP_FIREBASE="$?"
-      git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
-      SKIP_FIRESTORE="$?"
-    fi
-
 jobs:
   include:
     - stage: checks
@@ -52,8 +22,24 @@ jobs:
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
     - stage: test
-      if: env(PROJECT) = Firebase AND env(METHOD) = xcodebuild
+      env:
+        - PROJECT=Firebase PLATFORM=iOS
       before_install:
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
+
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+        # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+        - bundle install
+        - gem install xcpretty
         - |
           if [[ $SKIP_FIREBASE != 1 ]]; then
             bundle exec pod install --project-directory=Example --repo-update
@@ -61,7 +47,7 @@ jobs:
       script:
         - |
           if [ $SKIP_FIREBASE != 1 ]; then
-            ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+            ./scripts/build.sh $PROJECT $PLATFORM
           fi
 
         # Only need to run pod lib lint in one configuration.
@@ -79,8 +65,82 @@ jobs:
         #  - bundle exec pod lib lint Firestore/Firestore.podspec
 
     - stage: test
-      if: env(PROJECT) = Firestore AND env(METHOD) = xcodebuild
+      env:
+        - PROJECT=Firebase PLATFORM=macOS
       before_install:
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
+
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+        # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+        - bundle install
+        - gem install xcpretty
+        - |
+          if [[ $SKIP_FIREBASE != 1 ]]; then
+            bundle exec pod install --project-directory=Example --repo-update
+          fi
+      script:
+        - |
+          if [ $SKIP_FIREBASE != 1 ]; then
+            ./scripts/build.sh $PROJECT $PLATFORM
+          fi
+
+    - stage: test
+      env:
+        - PROJECT=Firebase PLATFORM=tvOS
+      before_install:
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
+
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+        # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+        - bundle install
+        - gem install xcpretty
+        - |
+          if [[ $SKIP_FIREBASE != 1 ]]; then
+            bundle exec pod install --project-directory=Example --repo-update
+          fi
+      script:
+        - |
+          if [ $SKIP_FIREBASE != 1 ]; then
+            ./scripts/build.sh $PROJECT $PLATFORM
+          fi
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
+
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+        # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+        - bundle install
+        - gem install xcpretty
         - |
           if [[ $SKIP_FIRESTORE != 1 ]]; then
             bundle exec pod install --project-directory=Firestore/Example --repo-update
@@ -92,8 +152,19 @@ jobs:
           fi
 
     - stage: test
-      if: env(PROJECT) = Firestore AND env(PLATFORM) = macOS AND env(METHOD) = cmake
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            SKIP_FIREBASE=0
+            SKIP_FIRESTORE=0
+          else
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -Eq '^(Firebase|Example)'
+            SKIP_FIREBASE="$?"
+            git diff --name-only $TRAVIS_COMMIT_RANGE | grep -q Firestore
+            SKIP_FIRESTORE="$?"
+          fi
         - brew install cmake
         - brew install go # Somehow the build for Abseil requires this.
         - |
