@@ -116,6 +116,8 @@ TEST_F(SerializerTest, EncodesIntegersModelToBytes) {
   // For now, lets at least verify these values:
   EXPECT_EQ(-9223372036854775807 - 1, std::numeric_limits<int64_t>::min());
   EXPECT_EQ(9223372036854775807, std::numeric_limits<int64_t>::max());
+  // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
+  // above.
 
   struct TestCase {
     int64_t value;
@@ -189,6 +191,86 @@ TEST_F(SerializerTest, EncodesStringModelToBytes) {
     FieldValue model = FieldValue::StringValue(test.value);
     ExpectRoundTrip(model, test.bytes, FieldValue::Type::String);
   }
+}
+
+TEST_F(SerializerTest, EncodesEmptyMapToBytes) {
+  FieldValue model = FieldValue::ObjectValue({});
+  // TEXT_FORMAT_PROTO: 'map_value: {}'
+  std::vector<uint8_t> bytes{0x32, 0x00};
+  ExpectRoundTrip(model, bytes, FieldValue::Type::Object);
+}
+
+TEST_F(SerializerTest, EncodesNestedObjectsToBytes) {
+  // As above, verify max int64_t value.
+  EXPECT_EQ(9223372036854775807, std::numeric_limits<int64_t>::max());
+  // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
+  // above.
+
+  FieldValue model = FieldValue::ObjectValue(
+      {{"b", FieldValue::TrueValue()},
+       // TODO(rsgowman): add doubles (once they're supported)
+       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
+       {"i", FieldValue::IntegerValue(1)},
+       {"n", FieldValue::NullValue()},
+       {"s", FieldValue::StringValue("foo")},
+       // TODO(rsgowman): add arrays (once they're supported)
+       // {"a", [2, "bar", {"b", false}]},
+       {"o", FieldValue::ObjectValue(
+                 {{"d", FieldValue::IntegerValue(100)},
+                  {"nested",
+                   FieldValue::ObjectValue(
+                       {{"e", FieldValue::IntegerValue(
+                                  std::numeric_limits<int64_t>::max())}})}})}});
+
+  /* WARNING: "Wire format ordering and map iteration ordering of map values is
+   * undefined, so you cannot rely on your map items being in a particular
+   * order."
+   * - https://developers.google.com/protocol-buffers/docs/proto#maps-features
+   *
+   * In reality, the map items are serialized by protoc in whatever order you
+   * provide them in. Since FieldValue::ObjectValue is currently backed by a
+   * std::map (and not an unordered_map) this implies ~alpha ordering. So we
+   * need to provide the text format input in alpha ordering for things to match
+   * up.
+   *
+   * This is... not ideal. Nothing stops libprotobuf from changing this
+   * behaviour (since it's not guaranteed) nor does anything stop us from
+   * switching map->unordered_map in FieldValue. (Arguably, that would be
+   * better.) But the alternative is to not test the serializing to bytes, and
+   * instead just assume we got that right. A *better* solution is to serialize
+   * to bytes, and then deserialize with libprotobuf (rather than nanopb) and
+   * then do a second test of serializing via libprotobuf and deserializing via
+   * nanopb. In both cases, we would ignore the bytes themselves (since the
+   * ordering is not defined) and instead compare the input objects with the
+   * output objects.
+   *
+   * TODO(rsgowman): ^
+   *
+   * TEXT_FORMAT_PROTO (with multi-line formatting to preserve sanity):
+   'map_value: {
+     fields: {key:"b", value:{boolean_value: true}}
+     fields: {key:"i", value:{integer_value: 1}}
+     fields: {key:"n", value:{null_value: NULL_VALUE}}
+     fields: {key:"o", value:{map_value: {
+       fields: {key:"d", value:{integer_value: 100}}
+       fields: {key:"nested", value{map_value: {
+         fields: {key:"e", value:{integer_value: 9223372036854775807}}
+       }}}
+     }}}
+     fields: {key:"s", value:{string_value: "foo"}}
+   }'
+   */
+  std::vector<uint8_t> bytes{
+      0x32, 0x59, 0x0a, 0x07, 0x0a, 0x01, 0x62, 0x12, 0x02, 0x08, 0x01, 0x0a,
+      0x07, 0x0a, 0x01, 0x69, 0x12, 0x02, 0x10, 0x01, 0x0a, 0x07, 0x0a, 0x01,
+      0x6e, 0x12, 0x02, 0x58, 0x00, 0x0a, 0x2f, 0x0a, 0x01, 0x6f, 0x12, 0x2a,
+      0x32, 0x28, 0x0a, 0x07, 0x0a, 0x01, 0x64, 0x12, 0x02, 0x10, 0x64, 0x0a,
+      0x1d, 0x0a, 0x06, 0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x12, 0x13, 0x32,
+      0x11, 0x0a, 0x0f, 0x0a, 0x01, 0x65, 0x12, 0x0a, 0x10, 0xff, 0xff, 0xff,
+      0xff, 0xff, 0xff, 0xff, 0xff, 0x7f, 0x0a, 0x0b, 0x0a, 0x01, 0x73, 0x12,
+      0x06, 0x8a, 0x01, 0x03, 0x66, 0x6f, 0x6f};
+
+  ExpectRoundTrip(model, bytes, FieldValue::Type::Object);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
