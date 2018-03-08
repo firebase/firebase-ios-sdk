@@ -127,21 +127,27 @@ extern "C" {
 
 static NSString *kExceptionPrefix = @"FIRESTORE INTERNAL ASSERTION FAILED: ";
 
+// Remove possible exception-prefix.
+inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
+  if ([exception hasPrefix:kExceptionPrefix]) {
+    return [exception substringFromIndex:kExceptionPrefix.length];
+  } else {
+    return exception;
+  }
+}
+
 // Helper for validating API exceptions.
-#define FSTAssertThrows(expression, exceptionReason, ...)                 \
-  ({                                                                      \
-    BOOL __didThrow = NO;                                                 \
-    @try {                                                                \
-      (void)(expression);                                                 \
-    } @catch (NSException * exception) {                                  \
-      __didThrow = YES;                                                   \
-      NSString *__reason = exception.reason;                              \
-      if ([__reason hasPrefix:kExceptionPrefix]) {                        \
-        __reason = [__reason substringFromIndex:kExceptionPrefix.length]; \
-      }                                                                   \
-      XCTAssertEqualObjects(__reason, exceptionReason);                   \
-    }                                                                     \
-    XCTAssertTrue(__didThrow, ##__VA_ARGS__);                             \
+#define FSTAssertThrows(expression, exceptionReason, ...)               \
+  ({                                                                    \
+    BOOL __didThrow = NO;                                               \
+    @try {                                                              \
+      (void)(expression);                                               \
+    } @catch (NSException * exception) {                                \
+      __didThrow = YES;                                                 \
+      XCTAssertEqualObjects(FSTRemoveExceptionPrefix(exception.reason), \
+                            FSTRemoveExceptionPrefix(exceptionReason)); \
+    }                                                                   \
+    XCTAssertTrue(__didThrow, ##__VA_ARGS__);                           \
   })
 
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
