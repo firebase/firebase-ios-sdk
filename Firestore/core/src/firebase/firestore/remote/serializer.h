@@ -33,7 +33,7 @@ namespace remote {
  * @brief Converts internal model objects to their equivalent protocol buffer
  * form, and protocol buffer objects to their equivalent bytes.
  *
- * Methods starting with "Encode" convert from a model object to a protocol
+ * Methods starting with "Write" convert from a model object to a protocol
  * buffer (or directly to bytes in cases where the proto uses a 'oneof', due to
  * limitations in nanopb), and methods starting with "Decode" convert from a
  * protocol buffer to a model object (or from bytes directly to a model
@@ -70,7 +70,7 @@ class Serializer {
   // TODO(rsgowman): If we never support any output except to a vector, it may
   // make sense to have Serializer own the vector and provide an accessor rather
   // than asking the user to create it first.
-  static void EncodeFieldValue(
+  static void WriteFieldValue(
       const firebase::firestore::model::FieldValue& field_value,
       std::vector<uint8_t>* out_bytes);
 
