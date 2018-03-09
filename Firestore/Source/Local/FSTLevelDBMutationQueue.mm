@@ -145,6 +145,10 @@ static ReadOptions StandardReadOptions() {
 
 + (FSTBatchID)loadNextBatchIDFromDB:(std::shared_ptr<DB>)db {
   std::unique_ptr<Iterator> it(db->NewIterator(StandardReadOptions()));
+  // Trailing iterator that follows one entry behind `it`. When `it` crosses over to a new
+  // user, the batchId is read from `batch_iter`, which corresponds to the max id from the
+  // previous user.
+  std::unique_ptr<Iterator> batch_iter(db->NewIterator(StandardReadOptions()));
 
   auto tableKey = [FSTLevelDBMutationKey keyPrefix];
 
@@ -158,6 +162,8 @@ static ReadOptions StandardReadOptions() {
   if (it->Valid() && [rowKey decodeKey:it->key()]) {
     moreUserIDs = YES;
     nextUserID = rowKey.userID;
+    batch_iter->Seek(tableKey);
+    it->Next();
   }
 
   // This loop assumes that nextUserId contains the next username at the start of the iteration.
@@ -165,10 +171,14 @@ static ReadOptions StandardReadOptions() {
     // Compute the first key after the last mutation for nextUserID.
     auto userEnd = [FSTLevelDBMutationKey keyPrefixWithUserID:nextUserID];
     userEnd = util::PrefixSuccessor(userEnd);
+    Slice userEndSlice = userEnd;
 
     // Seek to that key with the intent of finding the boundary between nextUserID's mutations
-    // and the one after that (if any).
-    it->Seek(userEnd);
+    // and the one after that (if any). `batch_iter` trails by one entry, so it will point to
+    // the previous user's max batchID row.
+    for (; it->Valid() && it->key().compare(userEndSlice) < 0; it->Next()) {
+      batch_iter->Next();
+    }
 
     // At this point there are three possible cases to handle differently. Each case must prepare
     // the next iteration (by assigning to nextUserID or setting moreUserIDs = NO) and seek the
@@ -177,22 +187,19 @@ static ReadOptions StandardReadOptions() {
       // The iterator is past the last row altogether (there are no additional userIDs and now
       // rows in any table after mutations). The last row will have the highest batchID.
       moreUserIDs = NO;
-      it->SeekToLast();
 
     } else if ([rowKey decodeKey:it->key()]) {
       // The iterator is valid and the key decoded successfully so the next user was just decoded.
       nextUserID = rowKey.userID;
-      it->Prev();
 
     } else {
       // The iterator is past the end of the mutations table but there are other rows.
       moreUserIDs = NO;
-      it->Prev();
     }
 
     // In all the cases above there was at least one row for the current user and each case has
     // set things up such that iterator points to it.
-    if (![rowKey decodeKey:it->key()]) {
+    if (![rowKey decodeKey:batch_iter->key()]) {
       FSTFail(@"There should have been a key previous to %s", userEnd.c_str());
     }
 
