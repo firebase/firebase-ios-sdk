@@ -43,6 +43,7 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
  * pb_ostream_t. Eventually, this might use static factory methods to create the
  * underlying pb_ostream_t rather than directly passing it in.
  */
+// TODO(rsgowman): Encode* -> Write*
 class Writer {
  public:
   explicit Writer(pb_ostream_t* stream) : stream_(stream) {
