@@ -239,7 +239,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       if (!_settings.enableTimestampsInSnapshots) {
         // TODO(varconst): DO NOT SUBMIT: doublecheck these code snippets before submitting.
         FSTWarn(
-            @"The default behavior for NSDate objects stored in Firestore is going to change "
+            @"The default behavior for system Date objects stored in Firestore is going to change "
              "AND YOUR APP MAY BREAK.\n"
              "To hide this warning and ensure your app does not break, you need to add "
              "the following code to your app before calling any other Cloud Firestore methods:\n"
