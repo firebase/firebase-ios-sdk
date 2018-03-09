@@ -21,10 +21,12 @@
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -101,8 +103,12 @@ NS_ASSUME_NONNULL_BEGIN
   return path.size() % 2 == 0;
 }
 
-- (const firebase::firestore::model::ResourcePath &)path {
+- (const ResourcePath &)path {
   return _path;
+}
+
+- (DocumentKey)toCppDocumentKey {
+  return DocumentKey{_path};
 }
 
 @end

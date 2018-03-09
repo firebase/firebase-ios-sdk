@@ -21,8 +21,19 @@
 #include <memory>
 #include <string>
 
+#if defined(__OBJC__)
+#include "Firestore/Source/Model/FSTDocumentKey.h"
+#endif  // defined(__OBJC__)
+
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
+
+#if defined(__OBJC__)
+// Somehow, when ObjC header includes a C++ that includes that ObjC header, the
+// ObjC class declaration is not visible. So manually forward-declares the class
+// here.
+@class FSTDocumentKey;
+#endif  // defined(__OBJC__)
 
 namespace firebase {
 namespace firestore {
@@ -68,6 +79,11 @@ class DocumentKey {
   const ResourcePath& path() const {
     return path_ ? *path_ : Empty().path();
   }
+
+#if defined(__OBJC__)
+  // Helper function to convert to FSTDocumentKey during the C++ migration.
+  FSTDocumentKey* ToFSTDocumentKey() const;
+#endif  // defined(__OBJC__)
 
  private:
   // This is an optimization to make passing DocumentKey around cheaper (it's

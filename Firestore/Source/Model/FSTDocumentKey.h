@@ -18,9 +18,22 @@
 
 #include <initializer_list>
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+// Somehow, when ObjC header includes a C++ that includes that ObjC header, the C++ class
+// declaration is not visible. So manually forward-declares the class here.
+namespace firebase {
+namespace firestore {
+namespace model {
+class DocumentKey;
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
+
+@class FSTDocumentKey;
 
 /** FSTDocumentKey represents the location of a document in the Firestore database. */
 @interface FSTDocumentKey : NSObject <NSCopying>
@@ -54,6 +67,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The path to the document. */
 - (const firebase::firestore::model::ResourcePath &)path;
+
+/** Converts to C++ DocumentKey. */
+- (firebase::firestore::model::DocumentKey)toCppDocumentKey;
 
 @end
 
