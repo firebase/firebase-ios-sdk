@@ -173,7 +173,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (const FieldPath *)path;
 
-- (std::vector<FieldPath> *)fieldMask;
+- (const std::vector<FieldPath> *)fieldMask;
+
+- (void)appendToFieldMaskWithFieldPath:(FieldPath)fieldPath;
 
 @end
 
@@ -181,7 +183,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   /** The current path being parsed. */
   // TODO(b/34871131): path should never be nullptr, but we don't support array paths right now.
   std::unique_ptr<FieldPath> _path;
-  // Context and context of field/path are sharing this.
+  // _fieldMask is shared across all active context objects to accumulate the result. For example,
+  // the result of calling any of contextForField, contextForFieldPath and contextForArrayIndex
+  // shares the ownership of _fieldMask.
   std::shared_ptr<std::vector<FieldPath>> _fieldMask;
 }
 
@@ -296,8 +300,12 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   return _path.get();
 }
 
-- (std::vector<FieldPath> *)fieldMask {
+- (const std::vector<FieldPath> *)fieldMask {
   return _fieldMask.get();
+}
+
+- (void)appendToFieldMaskWithFieldPath:(FieldPath)fieldPath {
+  _fieldMask->push_back(std::move(fieldPath));
 }
 
 @end
@@ -460,7 +468,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     // If context.path is nil we are already inside an array and we don't support field mask paths
     // more granular than the top-level array.
     if (context.path) {
-      context.fieldMask->push_back(*context.path);
+      [context appendToFieldMaskWithFieldPath:*context.path];
     }
     return [[FSTArrayValue alloc] initWithValueNoCopy:result];
 
@@ -481,7 +489,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     // If context.path is null, we are inside an array and we should have already added the root of
     // the array to the field mask.
     if (context.path) {
-      context.fieldMask->push_back(*context.path);
+      [context appendToFieldMaskWithFieldPath:*context.path];
     }
     return [self parseScalarValue:input context:context];
   }

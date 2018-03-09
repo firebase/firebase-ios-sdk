@@ -210,8 +210,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)userDidChange:(const User &)user {
-  FSTLog(@"FSTRemoteStore %p changing users: %@", (__bridge void *)self,
-         util::WrapNSStringNoCopy(user.uid()));
+  FSTLog(@"FSTRemoteStore %p changing users: %s", (__bridge void *)self, user.uid().c_str());
   if ([self isNetworkEnabled]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore

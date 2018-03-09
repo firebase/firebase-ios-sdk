@@ -142,9 +142,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
   if (!database) {
     FSTThrowInvalidArgument(
-        @"database identifier may not be nil. Use '%@' if you want the default "
+        @"database identifier may not be nil. Use '%s' if you want the default "
          "database",
-        util::WrapNSStringNoCopy(DatabaseId::kDefault));
+        DatabaseId::kDefault);
   }
 
   // Note: If the key format changes, please change the code that detects FIRApps being deleted

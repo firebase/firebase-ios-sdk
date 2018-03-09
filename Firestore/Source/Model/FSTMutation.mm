@@ -33,13 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTFieldMask
 
-@interface FSTFieldMask () {
+@implementation FSTFieldMask {
   std::vector<FieldPath> _fields;
 }
-
-@end
-
-@implementation FSTFieldMask
 
 - (instancetype)initWithFields:(std::vector<FieldPath>)fields {
   if (self = [super init]) {
@@ -102,13 +98,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTFieldTransform
 
-@interface FSTFieldTransform () {
+@implementation FSTFieldTransform {
   FieldPath _path;
 }
-
-@end
-
-@implementation FSTFieldTransform
 
 - (instancetype)initWithPath:(FieldPath)path transform:(id<FSTTransformOperation>)transform {
   self = [super init];

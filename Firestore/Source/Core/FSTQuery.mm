@@ -583,9 +583,9 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       }
     } else {
       FSTAssert(!inequalityField || *inequalityField == *firstSortOrderField,
-                @"First orderBy %@ should match inequality field %@.",
-                util::WrapNSStringNoCopy(firstSortOrderField->CanonicalString()),
-                util::WrapNSStringNoCopy(inequalityField->CanonicalString()));
+                @"First orderBy %s should match inequality field %s.",
+                firstSortOrderField->CanonicalString().c_str(),
+                inequalityField->CanonicalString().c_str());
 
       __block BOOL foundKeyOrder = NO;
 

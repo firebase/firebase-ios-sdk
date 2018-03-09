@@ -307,11 +307,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSValue *)encodedReferenceValueForDatabaseID:(const DatabaseId *)databaseID
                                               key:(FSTDocumentKey *)key {
-  FSTAssert(*databaseID == *self.databaseID, @"Database %@:%@ cannot encode reference from %@:%@",
-            util::WrapNSStringNoCopy(self.databaseID->project_id()),
-            util::WrapNSStringNoCopy(self.databaseID->database_id()),
-            util::WrapNSStringNoCopy(databaseID->project_id()),
-            util::WrapNSStringNoCopy(databaseID->database_id()));
+  FSTAssert(*databaseID == *self.databaseID, @"Database %s:%s cannot encode reference from %s:%s",
+            self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
+            databaseID->project_id().c_str(), databaseID->database_id().c_str());
   GCFSValue *result = [GCFSValue message];
   result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];
   return result;
@@ -325,11 +323,9 @@ NS_ASSUME_NONNULL_BEGIN
       [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
 
   const DatabaseId database_id(project, database);
-  FSTAssert(database_id == *self.databaseID, @"Database %@:%@ cannot encode reference from %@:%@",
-            util::WrapNSStringNoCopy(self.databaseID->project_id()),
-            util::WrapNSStringNoCopy(self.databaseID->database_id()),
-            util::WrapNSStringNoCopy(database_id.project_id()),
-            util::WrapNSStringNoCopy(database_id.database_id()));
+  FSTAssert(database_id == *self.databaseID, @"Database %s:%s cannot encode reference from %s:%s",
+            self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
+            database_id.project_id().c_str(), database_id.database_id().c_str());
   return [FSTReferenceValue referenceValue:key databaseID:self.databaseID];
 }
 
