@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 using firebase::firestore::model::ResourcePath;
@@ -54,6 +55,15 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(NSOrderedDescending, [a compare:empty]);
   XCTAssertEqual(NSOrderedDescending, [b compare:a]);
   XCTAssertEqual(NSOrderedDescending, [ab compare:a]);
+}
+
+- (void)testConverter {
+  const ResourcePath path{"rooms", "firestore", "messages", "1"};
+  FSTDocumentKey *objcKey = [FSTDocumentKey keyWithPath:path];
+  XCTAssertEqualObjects(objcKey, objcKey.toCppDocumentKey.ToFSTDocumentKey());
+
+  firebase::firestore::model::DocumentKey cpp_key{path};
+  XCTAssertEqual(cpp_key, cpp_key.ToFSTDocumentKey().toCppDocumentKey);
 }
 
 @end
