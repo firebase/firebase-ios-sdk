@@ -75,6 +75,13 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 - (void)verifyIsCurrentQueue;
 
 /**
+ * Declares that a dispatch queue operation is already in progress. To be used only when called
+ * back by some other API directly onto our queue. This allows us to safely dispatch directly onto
+ * the worker queue without destroying the invariants this class helps us maintain.
+ */
+- (void)enterCheckedOperation:(void (^)(void))block;
+
+/**
  * Same as dispatch_async() except it asserts that we're not already on the queue, since this
  * generally indicates a bug (and can lead to re-ordering of operations, etc).
  *
