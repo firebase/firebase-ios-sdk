@@ -152,8 +152,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTResourcePath *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID {
   return [FSTResourcePath pathWithSegments:@[
-    @"projects", util::WrapNSStringNoCopy(databaseID->project_id()), @"databases",
-    util::WrapNSStringNoCopy(databaseID->database_id())
+    @"projects", util::WrapNSString(databaseID->project_id()), @"databases",
+    util::WrapNSString(databaseID->database_id())
   ]];
 }
 
