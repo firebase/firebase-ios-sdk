@@ -43,9 +43,9 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
  * pb_ostream_t. Eventually, this might use static factory methods to create the
  * underlying pb_ostream_t rather than directly passing it in.
  */
-class PbOstream {
+class Writer {
  public:
-  explicit PbOstream(pb_ostream_t* stream) : stream_(stream) {
+  explicit Writer(pb_ostream_t* stream) : stream_(stream) {
   }
 
   /**
@@ -85,12 +85,12 @@ class PbOstream {
 };
 
 // TODO(rsgowman): I've left the methods as near as possible to where they were
-// before, which implies that the PbOstream methods are interspersed with the
+// before, which implies that the Writer methods are interspersed with the
 // PbIstream methods (or what will become the PbIstream methods). This should
 // make it a bit easier to review. Refactor these to group the related methods
 // together (probably within their own file rather than here).
 
-void PbOstream::EncodeTag(pb_wire_type_t wiretype, uint32_t field_number) {
+void Writer::EncodeTag(pb_wire_type_t wiretype, uint32_t field_number) {
   bool status = pb_encode_tag(stream_, wiretype, field_number);
   if (!status) {
     // TODO(rsgowman): figure out error handling
@@ -98,11 +98,11 @@ void PbOstream::EncodeTag(pb_wire_type_t wiretype, uint32_t field_number) {
   }
 }
 
-void PbOstream::EncodeSize(size_t size) {
+void Writer::EncodeSize(size_t size) {
   return EncodeVarint(size);
 }
 
-void PbOstream::EncodeVarint(uint64_t value) {
+void Writer::EncodeVarint(uint64_t value) {
   bool status = pb_encode_varint(stream_, value);
   if (!status) {
     // TODO(rsgowman): figure out error handling
@@ -129,7 +129,7 @@ uint64_t DecodeVarint(pb_istream_t* stream) {
   return varint_value;
 }
 
-void PbOstream::EncodeNull() {
+void Writer::EncodeNull() {
   return EncodeVarint(google_protobuf_NullValue_NULL_VALUE);
 }
 
@@ -141,7 +141,7 @@ void DecodeNull(pb_istream_t* stream) {
   }
 }
 
-void PbOstream::EncodeBool(bool bool_value) {
+void Writer::EncodeBool(bool bool_value) {
   return EncodeVarint(bool_value);
 }
 
@@ -158,7 +158,7 @@ bool DecodeBool(pb_istream_t* stream) {
   }
 }
 
-void PbOstream::EncodeInteger(int64_t integer_value) {
+void Writer::EncodeInteger(int64_t integer_value) {
   return EncodeVarint(integer_value);
 }
 
@@ -215,7 +215,7 @@ void EncodeFieldValueImpl(pb_ostream_t* raw_stream,
                           const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  PbOstream stream(raw_stream);
+  Writer stream(raw_stream);
   bool status = false;
   switch (field_value.type()) {
     case FieldValue::Type::Null:
@@ -336,7 +336,7 @@ void EncodeNestedFieldValue(pb_ostream_t* stream,
   size_t size = substream.bytes_written;
 
   // Write out the size to the output stream.
-  PbOstream(stream).EncodeSize(size);
+  Writer(stream).EncodeSize(size);
 
   // If stream is itself a sizing stream, then we don't need to actually parse
   // field_value a second time; just update the bytes_written via a call to
@@ -497,7 +497,7 @@ void EncodeObject(pb_ostream_t* stream,
       EncodeFieldsEntry(&sizing_stream, kv);
       size_t size = sizing_stream.bytes_written;
       // Write out the size to the output stream.
-      PbOstream(stream).EncodeSize(size);
+      Writer(stream).EncodeSize(size);
 
       EncodeFieldsEntry(stream, kv);
     }
