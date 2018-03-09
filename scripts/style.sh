@@ -23,8 +23,12 @@
 
 system=$(uname -s)
 
-if [[ $(clang-format --version) != *"version 6"* ]]; then
-  echo "Please upgrade to clang-format version 6."
+version=$(clang-format --version)
+version="${version/*version /}"
+version="${version/.*/}"
+if [[ "$version" != 6 && "$version" != 7 ]]; then
+  # Allow an older clang-format to accommodate Travis version skew.
+  echo "Please upgrade to clang-format version 7."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
   exit 1
 fi

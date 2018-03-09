@@ -27,6 +27,7 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -339,7 +340,8 @@ using leveldb::WriteOptions;
 #pragma mark - FSTGarbageSource implementation
 
 - (BOOL)containsKey:(FSTDocumentKey *)key {
-  std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path];
+  std::string indexPrefix = [FSTLevelDBDocumentTargetKey
+      keyPrefixWithResourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 

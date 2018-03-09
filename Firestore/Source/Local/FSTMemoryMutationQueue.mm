@@ -24,6 +24,10 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+using firebase::firestore::model::ResourcePath;
+
 NS_ASSUME_NONNULL_BEGIN
 
 static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left, NSNumber *right) {
@@ -248,15 +252,15 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingQuery:(FSTQuery *)query {
   // Use the query path as a prefix for testing if a document matches the query.
-  FSTResourcePath *prefix = query.path;
-  int immediateChildrenPathLength = prefix.length + 1;
+  const ResourcePath &prefix = query.path;
+  size_t immediateChildrenPathLength = prefix.size() + 1;
 
   // Construct a document reference for actually scanning the index. Unlike the prefix, the document
   // key in this reference must have an even number of segments. The empty segment can be used as
   // a suffix of the query path because it precedes all other segments in an ordered traversal.
-  FSTResourcePath *startPath = query.path;
+  ResourcePath startPath = query.path;
   if (![FSTDocumentKey isDocumentKey:startPath]) {
-    startPath = [startPath pathByAppendingSegment:@""];
+    startPath = startPath.Append("");
   }
   FSTDocumentReference *start =
       [[FSTDocumentReference alloc] initWithKey:[FSTDocumentKey keyWithPath:startPath] ID:0];
@@ -265,8 +269,8 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   __block FSTImmutableSortedSet<NSNumber *> *uniqueBatchIDs =
       [FSTImmutableSortedSet setWithComparator:NumberComparator];
   FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-    FSTResourcePath *rowKeyPath = reference.key.path;
-    if (![prefix isPrefixOfPath:rowKeyPath]) {
+    const ResourcePath &rowKeyPath = reference.key.path;
+    if (!prefix.IsPrefixOf(rowKeyPath)) {
       *stop = YES;
       return;
     }
@@ -274,7 +278,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     // Rows with document keys more than one segment longer than the query path can't be matches.
     // For example, a query on 'rooms' can't match the document /rooms/abc/messages/xyx.
     // TODO(mcg): we'll need a different scanner when we implement ancestor queries.
-    if (rowKeyPath.length != immediateChildrenPathLength) {
+    if (rowKeyPath.size() != immediateChildrenPathLength) {
       return;
     }
 

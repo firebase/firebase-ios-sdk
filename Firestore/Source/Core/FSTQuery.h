@@ -16,11 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
 @class FSTDocument;
 @class FSTDocumentKey;
-@class FSTFieldPath;
 @class FSTFieldValue;
-@class FSTResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,7 +41,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 @protocol FSTFilter <NSObject>
 
 /** Returns the field the Filter operates over. */
-- (FSTFieldPath *)field;
+- (const firebase::firestore::model::FieldPath &)field;
 
 /** Returns true if a document matches the filter. */
 - (BOOL)matchesDocument:(FSTDocument *)document;
@@ -64,7 +65,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * @param value A constant value to compare @a field to. The RHS of the expression.
  * @return A new instance of FSTRelationFilter.
  */
-+ (instancetype)filterWithField:(FSTFieldPath *)field
++ (instancetype)filterWithField:(firebase::firestore::model::FieldPath)field
                  filterOperator:(FSTRelationFilterOperator)filterOperator
                           value:(FSTFieldValue *)value;
 
@@ -74,7 +75,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 - (BOOL)isInequality;
 
 /** The left hand side of the relation. A path into a document field. */
-@property(nonatomic, strong, readonly) FSTFieldPath *field;
+- (const firebase::firestore::model::FieldPath &)field;
 
 /** The type of equality/inequality operator to use in the relation. */
 @property(nonatomic, assign, readonly) FSTRelationFilterOperator filterOperator;
@@ -87,31 +88,34 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 /** Filter that matches NULL values. */
 @interface FSTNullFilter : NSObject <FSTFilter>
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithField:(FSTFieldPath *)field NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithField:(firebase::firestore::model::FieldPath)field
+    NS_DESIGNATED_INITIALIZER;
 @end
 
 /** Filter that matches NAN values. */
 @interface FSTNanFilter : NSObject <FSTFilter>
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithField:(FSTFieldPath *)field NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithField:(firebase::firestore::model::FieldPath)field
+    NS_DESIGNATED_INITIALIZER;
 @end
 
 /** FSTSortOrder is a field and direction to order query results by. */
 @interface FSTSortOrder : NSObject <NSCopying>
 
 /** Creates a new sort order with the given field and direction. */
-+ (instancetype)sortOrderWithFieldPath:(FSTFieldPath *)fieldPath ascending:(BOOL)ascending;
++ (instancetype)sortOrderWithFieldPath:(firebase::firestore::model::FieldPath)fieldPath
+                             ascending:(BOOL)ascending;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Compares two documents based on the field and direction of this sort order. */
 - (NSComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2;
 
+/** The field to sort by. */
+- (const firebase::firestore::model::FieldPath &)field;
+
 /** The direction of the sort. */
 @property(nonatomic, assign, readonly, getter=isAscending) BOOL ascending;
-
-/** The field to sort by. */
-@property(nonatomic, strong, readonly) FSTFieldPath *field;
 
 @end
 
@@ -157,7 +161,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 /**
  * Initializes a query with all of its components directly.
  */
-- (instancetype)initWithPath:(FSTResourcePath *)path
+- (instancetype)initWithPath:(firebase::firestore::model::ResourcePath)path
                     filterBy:(NSArray<id<FSTFilter>> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(NSInteger)limit
@@ -170,7 +174,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * @param path The path to the collection to be queried over.
  * @return A new instance of FSTQuery.
  */
-+ (instancetype)queryWithPath:(FSTResourcePath *)path;
++ (instancetype)queryWithPath:(firebase::firestore::model::ResourcePath)path;
 
 /**
  * Returns the list of ordering constraints that were explicitly requested on the query by the
@@ -237,14 +241,15 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 /** Returns a comparator that will sort documents according to the receiver's sort order. */
 - (NSComparator)comparator;
 
-/** Returns the field of the first filter on the receiver that's an inequality, or nil if none. */
-- (FSTFieldPath *_Nullable)inequalityFilterField;
+/** Returns the field of the first filter on the receiver that's an inequality, or nullptr if none.
+ */
+- (const firebase::firestore::model::FieldPath *)inequalityFilterField;
 
-/** Returns the first field in an order-by constraint, or nil if none. */
-- (FSTFieldPath *_Nullable)firstSortOrderField;
+/** Returns the first field in an order-by constraint, or nullptr if none. */
+- (const firebase::firestore::model::FieldPath *)firstSortOrderField;
 
 /** The base path of the query. */
-@property(nonatomic, strong, readonly) FSTResourcePath *path;
+- (const firebase::firestore::model::ResourcePath &)path;
 
 /** The filters on the documents returned by the query. */
 @property(nonatomic, strong, readonly) NSArray<id<FSTFilter>> *filters;

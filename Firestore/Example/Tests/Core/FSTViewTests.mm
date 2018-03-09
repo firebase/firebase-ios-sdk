@@ -30,6 +30,12 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::model::ResourcePath;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTViewTests : XCTestCase
@@ -39,8 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Returns a new empty query to use for testing. */
 - (FSTQuery *)queryForMessages {
-  return [FSTQuery
-      queryWithPath:[FSTResourcePath pathWithSegments:@[ @"rooms", @"eros", @"messages" ]]];
+  return [FSTQuery queryWithPath:ResourcePath{"rooms", "eros", "messages"}];
 }
 
 - (void)testAddsDocumentsBasedOnQuery {
@@ -128,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter =
-      [FSTRelationFilter filterWithField:FSTTestFieldPath(@"sort")
+      [FSTRelationFilter filterWithField:testutil::Field("sort")
                           filterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                    value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
@@ -160,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter =
-      [FSTRelationFilter filterWithField:FSTTestFieldPath(@"sort")
+      [FSTRelationFilter filterWithField:testutil::Field("sort")
                           filterOperator:FSTRelationFilterOperatorLessThanOrEqual
                                    value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
@@ -232,9 +237,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDoesntReportChangesForDocumentBeyondLimitOfQuery {
   FSTQuery *query = [self queryForMessages];
-  query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"num")
-                                                               ascending:YES]];
+  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("num")
+                                                                   ascending:YES]];
   query = [query queryBySettingLimit:2];
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
 
@@ -385,7 +389,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReturnsNeedsRefillOnReorderInLimitQuery {
   FSTQuery *query = [self queryForMessages];
   query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"order")
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:2];
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/0", 0, @{ @"order" : @1 }, NO);
@@ -419,7 +423,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDoesntNeedRefillOnReorderWithinLimit {
   FSTQuery *query = [self queryForMessages];
   query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"order")
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/0", 0, @{ @"order" : @1 }, NO);
@@ -449,7 +453,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDoesntNeedRefillOnReorderAfterLimitQuery {
   FSTQuery *query = [self queryForMessages];
   query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"order")
+      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/0", 0, @{ @"order" : @1 }, NO);

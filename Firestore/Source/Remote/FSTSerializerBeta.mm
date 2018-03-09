@@ -104,7 +104,9 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTDocumentKey <=> Key proto
 
 - (NSString *)encodedDocumentKey:(FSTDocumentKey *)key {
-  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path];
+  return [self
+      encodedResourcePathForDatabaseID:self.databaseID
+                                  path:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
 }
 
 - (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
@@ -115,7 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert([[path segmentAtIndex:3]
                 isEqualToString:util::WrapNSStringNoCopy(self.databaseID->database_id())],
             @"Tried to deserialize key from different datbase.");
-  return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  return [FSTDocumentKey
+      keyWithPath:[[self localResourcePathForQualifiedResourcePath:path] toCPPResourcePath]];
 }
 
 - (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
@@ -313,7 +316,9 @@ NS_ASSUME_NONNULL_BEGIN
             util::WrapNSStringNoCopy(databaseID->project_id()),
             util::WrapNSStringNoCopy(databaseID->database_id()));
   GCFSValue *result = [GCFSValue message];
-  result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];
+  result.referenceValue = [self
+      encodedResourcePathForDatabaseID:databaseID
+                                  path:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
   return result;
 }
 
@@ -321,8 +326,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:resourceName];
   NSString *project = [path segmentAtIndex:1];
   NSString *database = [path segmentAtIndex:3];
-  FSTDocumentKey *key =
-      [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  FSTDocumentKey *key = [FSTDocumentKey
+      keyWithPath:[[self localResourcePathForQualifiedResourcePath:path] toCPPResourcePath]];
 
   const DatabaseId database_id(util::MakeStringView(project), util::MakeStringView(database));
   FSTAssert(database_id == *self.databaseID, @"Database %@:%@ cannot encode reference from %@:%@",
@@ -654,7 +659,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(FSTQuery *)query {
   GCFSTarget_DocumentsTarget *result = [GCFSTarget_DocumentsTarget message];
   NSMutableArray<NSString *> *docs = result.documentsArray;
-  [docs addObject:[self encodedQueryPath:query.path]];
+  [docs addObject:[self encodedQueryPath:[FSTResourcePath
+                                             resourcePathWithCPPResourcePath:query.path]]];
   return result;
 }
 
@@ -664,16 +670,17 @@ NS_ASSUME_NONNULL_BEGIN
             (unsigned long)documents.count);
 
   NSString *name = documents[0];
-  return [FSTQuery queryWithPath:[self decodedQueryPath:name]];
+  return [FSTQuery queryWithPath:[[self decodedQueryPath:name] toCPPResourcePath]];
 }
 
 - (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query {
   // Dissect the path into parent, collectionId, and optional key filter.
   GCFSTarget_QueryTarget *queryTarget = [GCFSTarget_QueryTarget message];
-  if (query.path.length == 0) {
-    queryTarget.parent = [self encodedQueryPath:query.path];
+  if (query.path.empty()) {
+    queryTarget.parent =
+        [self encodedQueryPath:[FSTResourcePath resourcePathWithCPPResourcePath:query.path]];
   } else {
-    FSTResourcePath *path = query.path;
+    FSTResourcePath *path = [FSTResourcePath resourcePathWithCPPResourcePath:query.path];
     FSTAssert(path.length % 2 != 0, @"Document queries with filters are not supported.");
     queryTarget.parent = [self encodedQueryPath:[path pathByRemovingLastSegment]];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
@@ -749,7 +756,7 @@ NS_ASSUME_NONNULL_BEGIN
     endAt = [self decodedBound:query.endAt];
   }
 
-  return [[FSTQuery alloc] initWithPath:path
+  return [[FSTQuery alloc] initWithPath:[path toCPPResourcePath]
                                filterBy:filterBy
                                 orderBy:orderBy
                                   limit:limit
@@ -818,7 +825,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSStructuredQuery_Filter *)encodedRelationFilter:(FSTRelationFilter *)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *fieldFilter = proto.fieldFilter;
-  fieldFilter.field = [self encodedFieldPath:filter.field];
+  fieldFilter.field = [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
   fieldFilter.op = [self encodedRelationFilterOperator:filter.filterOperator];
   fieldFilter.value = [self encodedFieldValue:filter.value];
   return proto;
@@ -828,12 +835,15 @@ NS_ASSUME_NONNULL_BEGIN
   FSTFieldPath *fieldPath = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
   FSTRelationFilterOperator filterOperator = [self decodedRelationFilterOperator:proto.op];
   FSTFieldValue *value = [self decodedFieldValue:proto.value];
-  return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
+  return [FSTRelationFilter filterWithField:[fieldPath toCPPFieldPath]
+                             filterOperator:filterOperator
+                                      value:value];
 }
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(id<FSTFilter>)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
-  proto.unaryFilter.field = [self encodedFieldPath:filter.field];
+  proto.unaryFilter.field =
+      [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
   if ([filter isKindOfClass:[FSTNanFilter class]]) {
     proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNan;
   } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
@@ -848,10 +858,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTFieldPath *field = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
-      return [[FSTNanFilter alloc] initWithField:field];
+      return [[FSTNanFilter alloc] initWithField:[field toCPPFieldPath]];
 
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:
-      return [[FSTNullFilter alloc] initWithField:field];
+      return [[FSTNullFilter alloc] initWithField:[field toCPPFieldPath]];
 
     default:
       FSTFail(@"Unrecognized UnaryFilter.operator %d", proto.op);
@@ -920,7 +930,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSStructuredQuery_Order *)encodedSortOrder:(FSTSortOrder *)sortOrder {
   GCFSStructuredQuery_Order *proto = [GCFSStructuredQuery_Order message];
-  proto.field = [self encodedFieldPath:sortOrder.field];
+  proto.field = [self encodedFieldPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrder.field]];
   if (sortOrder.ascending) {
     proto.direction = GCFSStructuredQuery_Direction_Ascending;
   } else {
@@ -942,7 +952,7 @@ NS_ASSUME_NONNULL_BEGIN
     default:
       FSTFail(@"Unrecognized GCFSStructuredQuery_Direction %d", proto.direction);
   }
-  return [FSTSortOrder sortOrderWithFieldPath:fieldPath ascending:ascending];
+  return [FSTSortOrder sortOrderWithFieldPath:[fieldPath toCPPFieldPath] ascending:ascending];
 }
 
 #pragma mark - Bounds/Cursors

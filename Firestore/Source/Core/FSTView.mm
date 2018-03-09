@@ -337,7 +337,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 }
 
 - (FSTViewChange *)applyChangedOnlineState:(FSTOnlineState)onlineState {
-  if (self.isCurrent && onlineState == FSTOnlineStateFailed) {
+  if (self.isCurrent && onlineState == FSTOnlineStateOffline) {
     // If we're offline, set `current` to NO and then call applyChanges to refresh our syncState
     // and generate an FSTViewChange as appropriate. We are guaranteed to get a new FSTTargetChange
     // that sets `current` back to YES once the client is back online.

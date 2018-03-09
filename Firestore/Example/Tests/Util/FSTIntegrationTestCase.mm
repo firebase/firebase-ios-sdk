@@ -16,25 +16,30 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include <memory>
+#include <utility>
+
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-
 namespace util = firebase::firestore::util;
+using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
 
@@ -135,15 +140,16 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
-  FSTEmptyCredentialsProvider *credentialsProvider = [[FSTEmptyCredentialsProvider alloc] init];
-
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
+  std::unique_ptr<CredentialsProvider> credentials_provider =
+      absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
+
   FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
                                                            database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
-                                                credentialsProvider:credentialsProvider
+                                                credentialsProvider:std::move(credentials_provider)
                                                 workerDispatchQueue:workerDispatchQueue
                                                         firebaseApp:app];
 

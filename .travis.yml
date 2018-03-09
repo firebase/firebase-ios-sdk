@@ -30,17 +30,18 @@ before_install:
     fi
 
 script:
-  # Fail on trailing whitespace in non-binary, non-generated-nanopb files
-  - "! git grep -I ' $' ':(exclude)Firestore/Protos/nanopb'"
-  - "! git grep -EL --name-only 'Copyright [0-9]{4}.*Google' | grep -v third_party | egrep '\\.(m|h|cc|mm|c)$'"
-  - ./scripts/style.sh test-only # Validate clang-format compliance
+  - ./scripts/check_whitespace.sh
+  - ./scripts/check_copyright.sh
+  - ./scripts/style.sh test-only $TRAVIS_COMMIT_RANGE
+  - |
+    # Google C++ style compliance
+    if [ $SKIP_FIRESTORE != 1 ]; then
+      ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
+    fi
+
   - |
     if [ $SKIP_FIREBASE != 1 ]; then
       ./test.sh
-    fi
-  - |
-    if [ $SKIP_FIRESTORE != 1 ]; then
-      ./scripts/lint.sh # Google C++ style compliance
     fi
   - |
     if [ $SKIP_FIRESTORE != 1 ]; then

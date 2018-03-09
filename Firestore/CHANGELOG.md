@@ -1,4 +1,8 @@
 # Unreleased
+- [changed] If the SDK's attempt to connect to the Cloud Firestore backend
+  neither succeeds nor fails within 10 seconds, the SDK will consider itself
+  "offline", causing getDocument() calls to resolve with cached results, rather
+  than continuing to wait.
 
 # v0.10.3
 - [fixed] Fixed a regression in the 4.10.0 Firebase iOS SDK release that

@@ -25,6 +25,7 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
+#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -75,7 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
   if ([FSTDocumentKey isDocumentKey:query.path]) {
-    return [self documentsMatchingDocumentQuery:query.path];
+    return [self documentsMatchingDocumentQuery:[FSTResourcePath
+                                                    resourcePathWithCPPResourcePath:query.path]];
   } else {
     return [self documentsMatchingCollectionQuery:query];
   }
@@ -84,7 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(FSTResourcePath *)docPath {
   FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
   // Just do a simple document lookup.
-  FSTMaybeDocument *doc = [self documentForKey:[FSTDocumentKey keyWithPath:docPath]];
+  FSTMaybeDocument *doc =
+      [self documentForKey:[FSTDocumentKey keyWithPath:[docPath toCPPResourcePath]]];
   if ([doc isKindOfClass:[FSTDocument class]]) {
     result = [result dictionaryBySettingObject:(FSTDocument *)doc forKey:doc.key];
   }

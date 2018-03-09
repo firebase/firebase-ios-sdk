@@ -33,25 +33,17 @@ namespace remote {
  * @brief Converts internal model objects to their equivalent protocol buffer
  * form, and protocol buffer objects to their equivalent bytes.
  *
- * Methods starting with "Encode" either convert from a model object to a
- * protocol buffer or from a protocol buffer to bytes, and methods starting with
- * "Decode" either convert from a protocol buffer to a model object or from
- * bytes to a protocol buffer.
- *
+ * Methods starting with "Encode" convert from a model object to a protocol
+ * buffer (or directly to bytes in cases where the proto uses a 'oneof', due to
+ * limitations in nanopb), and methods starting with "Decode" convert from a
+ * protocol buffer to a model object (or from bytes directly to a model
+ * objects.)
  */
 // TODO(rsgowman): Original docs also has this: "Throws an exception if a
 // protocol buffer is missing a critical field or has a value we can't
 // interpret." Adjust for C++.
 class Serializer {
  public:
-  /**
-   * @brief Wraps (nanopb) google_firestore_v1beta1_Value with type information.
-   */
-  struct TypedValue {
-    firebase::firestore::model::FieldValue::Type type;
-    google_firestore_v1beta1_Value value;
-  };
-
   Serializer() {
   }
   // TODO(rsgowman): We eventually need the DatabaseId, but can't add it just
@@ -68,61 +60,45 @@ class Serializer {
   //}
 
   /**
-   * Converts the FieldValue model passed into the Value proto equivalent.
+   * Converts the FieldValue model passed into bytes.
    *
    * @param field_value the model to convert.
-   * @return the proto representation of the model.
-   */
-  static Serializer::TypedValue EncodeFieldValue(
-      const firebase::firestore::model::FieldValue& field_value);
-
-  /**
-   * @brief Converts the value proto passed into bytes.
-   *
    * @param[out] out_bytes A buffer to place the output. The bytes will be
    * appended to this vector.
    */
   // TODO(rsgowman): error handling, incl return code.
-  static void EncodeTypedValue(const TypedValue& value,
-                               std::vector<uint8_t>* out_bytes);
+  static void EncodeFieldValue(
+      const firebase::firestore::model::FieldValue& field_value,
+      std::vector<uint8_t>* out_bytes);
 
   /**
-   * Converts from the proto Value format to the model FieldValue format
+   * @brief Converts from bytes to the model FieldValue format.
    *
-   * @return The model equivalent of the proto data.
+   * @param bytes The bytes to convert. It's assumed that exactly all of the
+   * bytes will be used by this conversion.
+   * @return The model equivalent of the bytes.
    */
+  // TODO(rsgowman): error handling.
   static firebase::firestore::model::FieldValue DecodeFieldValue(
-      const Serializer::TypedValue& value_proto);
+      const uint8_t* bytes, size_t length);
 
   /**
-   * @brief Converts from bytes to the nanopb proto.
+   * @brief Converts from bytes to the model FieldValue format.
    *
    * @param bytes The bytes to convert. It's assumed that exactly all of the
    * bytes will be used by this conversion.
-   * @return The (nanopb) proto equivalent of the bytes.
+   * @return The model equivalent of the bytes.
    */
   // TODO(rsgowman): error handling.
-  static TypedValue DecodeTypedValue(const uint8_t* bytes, size_t length);
-
-  /**
-   * @brief Converts from bytes to the nanopb proto.
-   *
-   * @param bytes The bytes to convert. It's assumed that exactly all of the
-   * bytes will be used by this conversion.
-   * @return The (nanopb) proto equivalent of the bytes.
-   */
-  // TODO(rsgowman): error handling.
-  static TypedValue DecodeTypedValue(const std::vector<uint8_t>& bytes) {
-    return DecodeTypedValue(bytes.data(), bytes.size());
+  static firebase::firestore::model::FieldValue DecodeFieldValue(
+      const std::vector<uint8_t>& bytes) {
+    return DecodeFieldValue(bytes.data(), bytes.size());
   }
 
  private:
   // TODO(rsgowman): We don't need the database_id_ yet (but will eventually).
   // const firebase::firestore::model::DatabaseId& database_id_;
 };
-
-bool operator==(const Serializer::TypedValue& lhs,
-                const Serializer::TypedValue& rhs);
 
 }  // namespace remote
 }  // namespace firestore

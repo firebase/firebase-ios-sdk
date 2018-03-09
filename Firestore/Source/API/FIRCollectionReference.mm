@@ -28,6 +28,11 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,7 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
          "number of segments, but %@ has %d",
         path.canonicalString, path.length);
   }
-  self = [super initWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
+  self =
+      [super initWithQuery:[FSTQuery queryWithPath:[path toCPPResourcePath]] firestore:firestore];
   return self;
 }
 
@@ -87,12 +93,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)collectionID {
-  return [self.query.path lastSegment];
+  return util::WrapNSString(self.query.path.last_segment());
 }
 
 - (FIRDocumentReference *_Nullable)parent {
-  FSTResourcePath *parentPath = [self.query.path pathByRemovingLastSegment];
-  if (parentPath.isEmpty) {
+  const ResourcePath parentPath = self.query.path.PopLast();
+  if (parentPath.empty()) {
     return nil;
   } else {
     FSTDocumentKey *key = [FSTDocumentKey keyWithPath:parentPath];
@@ -101,16 +107,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)path {
-  return [self.query.path canonicalString];
+  return util::WrapNSString(self.query.path.CanonicalString());
 }
 
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath {
   if (!documentPath) {
     FSTThrowInvalidArgument(@"Document path cannot be nil.");
   }
-  FSTResourcePath *subPath = [FSTResourcePath pathWithString:documentPath];
-  FSTResourcePath *path = [self.query.path pathByAppendingPath:subPath];
-  return [FIRDocumentReference referenceWithPath:path firestore:self.firestore];
+  const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(documentPath));
+  const ResourcePath path = self.query.path.Append(subPath);
+  return
+      [FIRDocumentReference referenceWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:path]
+                                    firestore:self.firestore];
 }
 
 - (FIRDocumentReference *)addDocumentWithData:(NSDictionary<NSString *, id> *)data {
@@ -126,9 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *)documentWithAutoID {
-  NSString *autoID = [NSString stringWithUTF8String:CreateAutoId().c_str()];
-  FSTDocumentKey *key =
-      [FSTDocumentKey keyWithPath:[self.query.path pathByAppendingSegment:autoID]];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:self.query.path.Append(CreateAutoId())];
   return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
 }
 
