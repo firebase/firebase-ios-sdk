@@ -31,8 +31,7 @@ jobs:
         - gem install xcpretty
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
       script:
-        - ./scripts/if_changed.sh \
-          ./scripts/build.sh $PROJECT $PLATFORM
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
         # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
         - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
@@ -86,8 +85,7 @@ jobs:
       before_install:
         - brew install cmake
         - brew install go # Somehow the build for Abseil requires this.
-        - ./scripts/if_changed.sh \
-          bundle exec pod install --project-directory=Firestore/Example --repo-update
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --repo-update
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
