@@ -33,7 +33,7 @@ function check_changes() {
 
 run=false
 
-if [[ "$TRAVIS_PULL_REQUEST" == "886" ]]; then
+if [[ "$TRAVIS_PULL_REQUEST" == "904" ]]; then
   # Full builds should run everything
   run=true
 

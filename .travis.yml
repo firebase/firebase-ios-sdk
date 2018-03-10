@@ -29,15 +29,13 @@ jobs:
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - bundle install
         - gem install xcpretty
-        - ./scripts/if_changed.sh \
-          bundle exec pod install --project-directory=Example --repo-update
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
       script:
         - ./scripts/if_changed.sh \
           ./scripts/build.sh $PROJECT $PLATFORM
 
         # TODO fix os_log deprecation warning in FIRLogger to remove --allow-warnings
-        - ./scripts/if_changed.sh \
-          bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec --allow-warnings
 
         # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
         #  - bundle exec pod lib lint FirebaseAuth.podspec
