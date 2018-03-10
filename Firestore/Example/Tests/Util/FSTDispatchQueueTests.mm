@@ -143,32 +143,28 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 
 - (void)testVerifyIsCurrentQueueWorksWithOperationIsInProgress {
   __block NSException *caught = nil;
-  dispatch_sync(_underlyingQueue, ^{
-    [_queue enterCheckedOperation:^{
-      @try {
-        [_queue verifyIsCurrentQueue];
-      } @catch (NSException *ex) {
-        caught = ex;
-      }
-    }];
-  });
+  [_queue dispatchSync:^{
+    @try {
+      [_queue verifyIsCurrentQueue];
+    } @catch (NSException *ex) {
+      caught = ex;
+    }
+  }];
   XCTAssertNil(caught);
 }
 
 - (void)testEnterCheckedOperationDisallowsNesting {
   __block NSException *caught = nil;
   __block NSString *problem = nil;
-  dispatch_sync(_underlyingQueue, ^{
-    [_queue enterCheckedOperation:^{
-      @try {
-        [_queue enterCheckedOperation:^{
-        }];
-        problem = @"Should not have been able to enter nested enterCheckedOperation";
-      } @catch (NSException *ex) {
-        caught = ex;
-      }
-    }];
-  });
+  [_queue dispatchSync:^{
+    @try {
+      [_queue enterCheckedOperation:^{
+      }];
+      problem = @"Should not have been able to enter nested enterCheckedOperation";
+    } @catch (NSException *ex) {
+      caught = ex;
+    }
+  }];
   XCTAssertNil(problem);
   XCTAssertNotNil(caught);
   XCTAssertTrue([caught.reason

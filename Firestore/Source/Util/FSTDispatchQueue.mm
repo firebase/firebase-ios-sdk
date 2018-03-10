@@ -154,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) NSMutableArray<FSTDelayedCallback *> *delayedCallbacks;
 
 /**
- * Flag set while there's an outstanding FSTDispatchQueue operation, used for assertion
+ * Flag set while an FSTDispatchQueue operation is currently executing. Used for assertion
  * sanity-checks.
  */
 @property(nonatomic, assign) BOOL operationInProgress;
@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)dispatchAsync:(void (^)(void))block {
-  FSTAssert(!_operationInProgress || ![self onTargetQueue],
+  FSTAssert(!_operationInProgress,
             @"dispatchAsync called when we are already running on target dispatch queue '%@'",
             [self targetQueueLabel]);
 
@@ -216,7 +216,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)dispatchSync:(void (^)(void))block {
-  dispatch_sync(self.queue, block);
+  dispatch_sync(self.queue, ^{
+    [self enterCheckedOperation:block];
+  });
 }
 
 - (FSTDelayedCallback *)dispatchAfterDelay:(NSTimeInterval)delay

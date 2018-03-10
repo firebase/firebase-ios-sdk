@@ -243,9 +243,9 @@ using firebase::firestore::model::DatabaseId;
   }];
 
   // Writing before the handshake should throw
-  dispatch_sync(_testQueue, ^{
+  [_workerDispatchQueue dispatchSync:^{
     XCTAssertThrows([writeStream writeMutations:_mutations]);
-  });
+  }];
 
   [_delegate awaitNotificationFromBlock:^{
     [writeStream writeHandshake];
@@ -285,11 +285,11 @@ using firebase::firestore::model::DatabaseId;
 
   [_workerDispatchQueue runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
 
-  dispatch_sync(_testQueue, ^{
+  [_workerDispatchQueue dispatchSync:^{
     [_workerDispatchQueue enterCheckedOperation:^{
       XCTAssertFalse([writeStream isOpen]);
     }];
-  });
+  }];
 
   [self verifyDelegateObservedStates:@[
     @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamWasInterrupted"
@@ -317,11 +317,11 @@ using firebase::firestore::model::DatabaseId;
         [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
   }];
 
-  dispatch_sync(_testQueue, ^{
+  [_workerDispatchQueue dispatchSync:^{
     [_workerDispatchQueue enterCheckedOperation:^{
       XCTAssertTrue([writeStream isOpen]);
     }];
-  });
+  }];
 
   [self verifyDelegateObservedStates:@[
     @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
