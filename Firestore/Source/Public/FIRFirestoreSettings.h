@@ -59,7 +59,7 @@ NS_SWIFT_NAME(FirestoreSettings)
  * will be removed so you should change your code to use FIRTimestamp now and opt-in to this new
  * behavior as soon as you can.
  */
-@property(nonatomic) BOOL enableTimestampsInSnapshots;
+@property(nonatomic, getter=areTimestampsInSnapshotsEnabled) BOOL timestampsInSnapshotsEnabled;
 
 @end
 

@@ -518,7 +518,7 @@ struct Comparator<NSString *> {
     case FSTServerTimestampBehaviorNone:
       return [NSNull null];
     case FSTServerTimestampBehaviorEstimate:
-      return [self.localWriteTime approximateDateValue];
+      return [[FSTTimestampValue timestampValue: self.localWriteTime] valueWithOptions: options];
     case FSTServerTimestampBehaviorPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:

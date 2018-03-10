@@ -261,19 +261,19 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 
 // Settings can only be redefined before client is initialized, so this has to happen in setUp.
 // TODO(b/73820332): there will be no need for this once enableTimestampsInSnapshots is the default.
-@interface FIREnableTimestampsInSnapshotsTests : FSTIntegrationTestCase
+@interface FIRTimestampsInSnapshotsEnabledTests : FSTIntegrationTestCase
 @end
 
-@implementation FIREnableTimestampsInSnapshotsTests
+@implementation FIRTimestampsInSnapshotsEnabledTests
 
 - (void)setUp {
   [super setUp];
   FIRFirestoreSettings *settings = self.db.settings;
-  settings.enableTimestampsInSnapshots = YES;
+  settings.timestampsInSnapshotsEnabled = YES;
   self.db.settings = settings;
 }
 
-- (void)testSetEnableTimestampsInSnapshots {
+- (void)testSetTimestampsInSnapshotsEnabledAffectsTimestampFields {
   FIRTimestamp *originalTimestamp = [FIRTimestamp timestampWithSeconds:100 nanoseconds:123456789];
   FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:testDataWithTimestamps(originalTimestamp)];
@@ -294,6 +294,15 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   timestampFromData = data[@"nested"][@"timestamp2"];
   XCTAssertEqualObjects(truncatedTimestamp, timestampFromData);
   XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
+}
+
+- (void)testSetTimestampsInSnapshotsEnabledAffectsServerTimestampFields {
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"when" : [FIRFieldValue fieldValueForServerTimestamp]}];
+
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+  XCTAssertTrue([snapshot[@"when"] isKindOfClass:[FIRTimestamp class]]);
+  XCTAssertTrue([snapshot.data[@"when"] isKindOfClass:[FIRTimestamp class]]);
 }
 
 @end

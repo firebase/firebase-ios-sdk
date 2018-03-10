@@ -236,7 +236,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
       FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
 
-      if (!_settings.enableTimestampsInSnapshots) {
+      if (!_settings.timestampsInSnapshotsEnabled) {
         // TODO(varconst): DO NOT SUBMIT: doublecheck these code snippets before submitting.
         FSTWarn(
             @"The default behavior for system Date objects stored in Firestore is going to change "

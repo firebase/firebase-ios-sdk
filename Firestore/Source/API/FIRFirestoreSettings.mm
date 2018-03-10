@@ -24,7 +24,7 @@ static NSString *const kDefaultHost = @"firestore.googleapis.com";
 static const BOOL kDefaultSSLEnabled = YES;
 static const BOOL kDefaultPersistenceEnabled = YES;
 // TODO(b/73820332): flip the default.
-static const BOOL kDefaultEnableTimestampsInSnapshots = NO;
+static const BOOL kDefaultTimestampsInSnapshotsEnabled = NO;
 
 @implementation FIRFirestoreSettings
 
@@ -34,7 +34,7 @@ static const BOOL kDefaultEnableTimestampsInSnapshots = NO;
     _sslEnabled = kDefaultSSLEnabled;
     _dispatchQueue = dispatch_get_main_queue();
     _persistenceEnabled = kDefaultPersistenceEnabled;
-    _enableTimestampsInSnapshots = kDefaultEnableTimestampsInSnapshots;
+    _timestampsInSnapshotsEnabled = kDefaultTimestampsInSnapshotsEnabled;
   }
   return self;
 }
@@ -51,7 +51,7 @@ static const BOOL kDefaultEnableTimestampsInSnapshots = NO;
          self.isSSLEnabled == otherSettings.isSSLEnabled &&
          self.dispatchQueue == otherSettings.dispatchQueue &&
          self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
-         self.enableTimestampsInSnapshots == otherSettings.enableTimestampsInSnapshots;
+         self.timestampsInSnapshotsEnabled == otherSettings.timestampsInSnapshotsEnabled;
 }
 
 - (NSUInteger)hash {
@@ -59,7 +59,7 @@ static const BOOL kDefaultEnableTimestampsInSnapshots = NO;
   result = 31 * result + (self.isSSLEnabled ? 1231 : 1237);
   // Ignore the dispatchQueue to avoid having to deal with sizeof(dispatch_queue_t).
   result = 31 * result + (self.isPersistenceEnabled ? 1231 : 1237);
-  result = 31 * result + (self.enableTimestampsInSnapshots ? 1231 : 1237);
+  result = 31 * result + (self.timestampsInSnapshotsEnabled ? 1231 : 1237);
   return result;
 }
 
@@ -69,7 +69,7 @@ static const BOOL kDefaultEnableTimestampsInSnapshots = NO;
   copy.sslEnabled = _sslEnabled;
   copy.dispatchQueue = _dispatchQueue;
   copy.persistenceEnabled = _persistenceEnabled;
-  copy.enableTimestampsInSnapshots = _enableTimestampsInSnapshots;
+  copy.timestampsInSnapshotsEnabled = _timestampsInSnapshotsEnabled;
   return copy;
 }
 
