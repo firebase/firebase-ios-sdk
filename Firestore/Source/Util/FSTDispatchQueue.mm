@@ -216,6 +216,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)dispatchSync:(void (^)(void))block {
+  FSTAssert(!_operationInProgress || ![self onTargetQueue],
+            @"dispatchSync called when we are already running on target dispatch queue '%@'",
+            [self targetQueueLabel]);
+
   dispatch_sync(self.queue, ^{
     [self enterCheckedOperation:block];
   });

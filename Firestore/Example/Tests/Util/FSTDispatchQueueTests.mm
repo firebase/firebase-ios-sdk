@@ -111,6 +111,33 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   XCTAssertNil(caught);
 }
 
+- (void)testDispatchSyncBlocksSubmissionFromTasksOnTheQueue {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+  __block NSString *problem = nil;
+
+  [_queue dispatchSync:^{
+    @try {
+      [self->_queue dispatchSync:^{
+      }];
+      problem = @"Should have disallowed submission into the queue while running";
+      [expectation fulfill];
+    } @catch (NSException *ex) {
+      caught = ex;
+      [expectation fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  XCTAssertNil(problem);
+  XCTAssertNotNil(caught);
+
+  XCTAssertEqualObjects(caught.name, NSInternalInconsistencyException);
+  XCTAssertTrue(
+                [caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
+                 @"dispatchSync called when we are already running on target"]);
+}
+
 - (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {
   XCTAssertNotEqualObjects(_underlyingQueue, dispatch_get_main_queue());
 
