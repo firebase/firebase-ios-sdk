@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)dispatchAsync:(void (^)(void))block {
-  FSTAssert(!_operationInProgress,
+  FSTAssert(!_operationInProgress || ![self onTargetQueue],
             @"dispatchAsync called when we are already running on target dispatch queue '%@'",
             [self targetQueueLabel]);
 
