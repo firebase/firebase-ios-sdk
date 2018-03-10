@@ -77,8 +77,10 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
+        - bundle install
         - brew install cmake
         - brew install go # Somehow the build for Abseil requires this.
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --repo-update
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
