@@ -39,16 +39,72 @@ void EncodeObject(pb_ostream_t* stream,
 std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
 
 /**
- * Note that (despite the value parameter type) this works for bool, enum,
- * int32, int64, uint32 and uint64 proto field types.
- *
- * Note: This is not expected to be called direclty, but rather only via the
- * other Encode* methods (i.e. EncodeBool, EncodeLong, etc)
- *
- * @param value The value to encode, represented as a uint64_t.
+ * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
+ * pb_ostream_t. Eventually, this might use static factory methods to create the
+ * underlying pb_ostream_t rather than directly passing it in.
  */
-void EncodeVarint(pb_ostream_t* stream, uint64_t value) {
-  bool status = pb_encode_varint(stream, value);
+// TODO(rsgowman): Encode* -> Write*
+class Writer {
+ public:
+  explicit Writer(pb_ostream_t* stream) : stream_(stream) {
+  }
+
+  /**
+   * Encodes a message type to the output stream.
+   *
+   * This essentially wraps calls to nanopb's pb_encode_tag() method.
+   *
+   * @param field_number is one of the field tags that nanopb generates based
+   * off of the proto messages. They're typically named in the format:
+   * <parentNameSpace>_<childNameSpace>_<message>_<field>_tag, e.g.
+   * google_firestore_v1beta1_Document_name_tag.
+   */
+  void EncodeTag(pb_wire_type_t wiretype, uint32_t field_number);
+
+  void EncodeSize(size_t size);
+  void EncodeNull();
+  void EncodeBool(bool bool_value);
+  void EncodeInteger(int64_t integer_value);
+
+ private:
+  /**
+   * Encodes a "varint" to the output stream.
+   *
+   * This essentially wraps calls to nanopb's pb_encode_varint() method.
+   *
+   * Note that (despite the value parameter type) this works for bool, enum,
+   * int32, int64, uint32 and uint64 proto field types.
+   *
+   * Note: This is not expected to be called directly, but rather only
+   * via the other Encode* methods (i.e. EncodeBool, EncodeLong, etc)
+   *
+   * @param value The value to encode, represented as a uint64_t.
+   */
+  void EncodeVarint(uint64_t value);
+
+  pb_ostream_t* stream_;
+};
+
+// TODO(rsgowman): I've left the methods as near as possible to where they were
+// before, which implies that the Writer methods are interspersed with the
+// PbIstream methods (or what will become the PbIstream methods). This should
+// make it a bit easier to review. Refactor these to group the related methods
+// together (probably within their own file rather than here).
+
+void Writer::EncodeTag(pb_wire_type_t wiretype, uint32_t field_number) {
+  bool status = pb_encode_tag(stream_, wiretype, field_number);
+  if (!status) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+}
+
+void Writer::EncodeSize(size_t size) {
+  return EncodeVarint(size);
+}
+
+void Writer::EncodeVarint(uint64_t value) {
+  bool status = pb_encode_varint(stream_, value);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -74,8 +130,8 @@ uint64_t DecodeVarint(pb_istream_t* stream) {
   return varint_value;
 }
 
-void EncodeNull(pb_ostream_t* stream) {
-  return EncodeVarint(stream, google_protobuf_NullValue_NULL_VALUE);
+void Writer::EncodeNull() {
+  return EncodeVarint(google_protobuf_NullValue_NULL_VALUE);
 }
 
 void DecodeNull(pb_istream_t* stream) {
@@ -86,8 +142,8 @@ void DecodeNull(pb_istream_t* stream) {
   }
 }
 
-void EncodeBool(pb_ostream_t* stream, bool bool_value) {
-  return EncodeVarint(stream, bool_value);
+void Writer::EncodeBool(bool bool_value) {
+  return EncodeVarint(bool_value);
 }
 
 bool DecodeBool(pb_istream_t* stream) {
@@ -103,8 +159,8 @@ bool DecodeBool(pb_istream_t* stream) {
   }
 }
 
-void EncodeInteger(pb_ostream_t* stream, int64_t integer_value) {
-  return EncodeVarint(stream, integer_value);
+void Writer::EncodeInteger(int64_t integer_value) {
+  return EncodeVarint(integer_value);
 }
 
 int64_t DecodeInteger(pb_istream_t* stream) {
@@ -156,59 +212,49 @@ std::string DecodeString(pb_istream_t* stream) {
 // TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
 // This will help with error handling, and should eliminate the issue of two
 // 'EncodeFieldValue' methods.
-void EncodeFieldValueImpl(pb_ostream_t* stream, const FieldValue& field_value) {
+void EncodeFieldValueImpl(pb_ostream_t* raw_stream,
+                          const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
+  Writer stream(raw_stream);
   bool status = false;
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      status = pb_encode_tag(stream, PB_WT_VARINT,
-                             google_firestore_v1beta1_Value_null_value_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-      EncodeNull(stream);
+      stream.EncodeTag(PB_WT_VARINT,
+                       google_firestore_v1beta1_Value_null_value_tag);
+      stream.EncodeNull();
       break;
 
     case FieldValue::Type::Boolean:
-      status = pb_encode_tag(stream, PB_WT_VARINT,
-                             google_firestore_v1beta1_Value_boolean_value_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-      EncodeBool(stream, field_value.boolean_value());
+      stream.EncodeTag(PB_WT_VARINT,
+                       google_firestore_v1beta1_Value_boolean_value_tag);
+      stream.EncodeBool(field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
-      status = pb_encode_tag(stream, PB_WT_VARINT,
-                             google_firestore_v1beta1_Value_integer_value_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-      EncodeInteger(stream, field_value.integer_value());
+      stream.EncodeTag(PB_WT_VARINT,
+                       google_firestore_v1beta1_Value_integer_value_tag);
+      stream.EncodeInteger(field_value.integer_value());
       break;
 
     case FieldValue::Type::String:
-      status = pb_encode_tag(stream, PB_WT_STRING,
+      status = pb_encode_tag(raw_stream, PB_WT_STRING,
                              google_firestore_v1beta1_Value_string_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeString(stream, field_value.string_value());
+      EncodeString(raw_stream, field_value.string_value());
       break;
 
     case FieldValue::Type::Object:
-      status = pb_encode_tag(stream, PB_WT_STRING,
+      status = pb_encode_tag(raw_stream, PB_WT_STRING,
                              google_firestore_v1beta1_Value_map_value_tag);
       if (!status) {
         // TODO(rsgowman): figure out error handling
         abort();
       }
-      EncodeObject(stream, field_value.object_value());
+      EncodeObject(raw_stream, field_value.object_value());
       break;
 
     default:
@@ -291,7 +337,7 @@ void EncodeNestedFieldValue(pb_ostream_t* stream,
   size_t size = substream.bytes_written;
 
   // Write out the size to the output stream.
-  EncodeVarint(stream, size);
+  Writer(stream).EncodeSize(size);
 
   // If stream is itself a sizing stream, then we don't need to actually parse
   // field_value a second time; just update the bytes_written via a call to
@@ -452,7 +498,7 @@ void EncodeObject(pb_ostream_t* stream,
       EncodeFieldsEntry(&sizing_stream, kv);
       size_t size = sizing_stream.bytes_written;
       // Write out the size to the output stream.
-      EncodeVarint(stream, size);
+      Writer(stream).EncodeSize(size);
 
       EncodeFieldsEntry(stream, kv);
     }
