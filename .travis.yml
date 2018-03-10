@@ -54,11 +54,9 @@ jobs:
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - bundle install
         - gem install xcpretty
-        - ./scripts/if_changed.sh \
-          bundle exec pod install --project-directory=Example --repo-update
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
       script:
-        - ./scripts/if_changed.sh \
-          ./scripts/build.sh $PROJECT $PLATFORM
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -68,11 +66,9 @@ jobs:
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - bundle install
         - gem install xcpretty
-        - ./scripts/if_changed.sh \
-          bundle exec pod install --project-directory=Example --repo-update
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
       script:
-        - ./scripts/if_changed.sh \
-          ./scripts/build.sh $PROJECT $PLATFORM
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -82,11 +78,9 @@ jobs:
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - bundle install
         - gem install xcpretty
-        - ./scripts/if_changed.sh \
-          bundle exec pod install --project-directory=Firestore/Example --repo-update
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --repo-update
       script:
-        - ./scripts/if_changed.sh \
-          ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
@@ -97,8 +91,7 @@ jobs:
         - ./scripts/if_changed.sh \
           bundle exec pod install --project-directory=Firestore/Example --repo-update
       script:
-        - ./scripts/if_changed.sh \
-          ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
 branches:
   only:
