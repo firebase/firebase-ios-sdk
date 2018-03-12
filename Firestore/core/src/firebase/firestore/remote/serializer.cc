@@ -66,6 +66,8 @@ class Writer {
   void EncodeBool(bool bool_value);
   void EncodeInteger(int64_t integer_value);
 
+  void EncodeString(const std::string& string_value);
+
  private:
   /**
    * Encodes a "varint" to the output stream.
@@ -167,9 +169,9 @@ int64_t DecodeInteger(pb_istream_t* stream) {
   return DecodeVarint(stream);
 }
 
-void EncodeString(pb_ostream_t* stream, const std::string& string_value) {
+void Writer::EncodeString(const std::string& string_value) {
   bool status = pb_encode_string(
-      stream, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
+      stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
       string_value.length());
   if (!status) {
     // TODO(rsgowman): figure out error handling
@@ -238,13 +240,9 @@ void EncodeFieldValueImpl(pb_ostream_t* raw_stream,
       break;
 
     case FieldValue::Type::String:
-      status = pb_encode_tag(raw_stream, PB_WT_STRING,
-                             google_firestore_v1beta1_Value_string_value_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-      EncodeString(raw_stream, field_value.string_value());
+      stream.EncodeTag(PB_WT_STRING,
+                       google_firestore_v1beta1_Value_string_value_tag);
+      stream.EncodeString(field_value.string_value());
       break;
 
     case FieldValue::Type::Object:
@@ -423,27 +421,24 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  *
  * @param kv The individual key/value pair to encode.
  */
-void EncodeFieldsEntry(pb_ostream_t* stream,
+void EncodeFieldsEntry(pb_ostream_t* raw_stream,
                        const std::pair<std::string, FieldValue>& kv) {
+  Writer stream(raw_stream);
+
   // Encode the key (string)
-  bool status =
-      pb_encode_tag(stream, PB_WT_STRING,
-                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-  EncodeString(stream, kv.first);
+  stream.EncodeTag(PB_WT_STRING,
+                   google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  stream.EncodeString(kv.first);
 
   // Encode the value (FieldValue)
-  status =
-      pb_encode_tag(stream, PB_WT_STRING,
+  bool status =
+      pb_encode_tag(raw_stream, PB_WT_STRING,
                     google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
-  EncodeNestedFieldValue(stream, kv.second);
+  EncodeNestedFieldValue(raw_stream, kv.second);
 }
 
 std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
