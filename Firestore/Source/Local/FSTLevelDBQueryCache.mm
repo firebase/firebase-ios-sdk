@@ -50,7 +50,7 @@ using leveldb::WriteOptions;
 @end
 
 @implementation FSTLevelDBQueryCache {
-  FSTLevelDB* _db;
+  FSTLevelDB *_db;
 
   /**
    * The last received snapshot version. This is part of `metadata` but we store it separately to
@@ -239,7 +239,8 @@ using leveldb::WriteOptions;
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
   Slice canonicalID = StringView(query.canonicalID);
-  std::unique_ptr<LevelDBTransaction::Iterator> indexItererator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> indexItererator(
+      _db.current_transaction->NewIterator());
   std::string indexPrefix = [FSTLevelDBQueryTargetKey keyPrefixWithCanonicalID:canonicalID];
   indexItererator->Seek(indexPrefix);
 
@@ -247,14 +248,14 @@ using leveldb::WriteOptions;
   // unique and ordered, so when scanning a table prefixed by exactly one canonicalID, all the
   // targetIDs will be unique and in order.
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
-  std::unique_ptr<LevelDBTransaction::Iterator> targetIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> targetIterator(
+      _db.current_transaction->NewIterator());
 
   FSTLevelDBQueryTargetKey *rowKey = [[FSTLevelDBQueryTargetKey alloc] init];
   for (; indexItererator->Valid(); indexItererator->Next()) {
-
     // Only consider rows matching exactly the specific canonicalID of interest.
-    if (!indexItererator->key_starts_with(indexPrefix) || ![rowKey decodeKey:indexItererator->key()] ||
-        canonicalID != rowKey.canonicalID) {
+    if (!indexItererator->key_starts_with(indexPrefix) ||
+        ![rowKey decodeKey:indexItererator->key()] || canonicalID != rowKey.canonicalID) {
       // End of this canonicalID's possible targets.
       break;
     }
@@ -271,8 +272,8 @@ using leveldb::WriteOptions;
       FSTFail(
           @"Dangling query-target reference found: "
           @"%@ points to %@; seeking there found %@",
-          [FSTLevelDBKey descriptionForKey:indexItererator->key()], [FSTLevelDBKey descriptionForKey:targetKey],
-          foundKeyDescription);
+          [FSTLevelDBKey descriptionForKey:indexItererator->key()],
+          [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
     }
 
     // Finally after finding a potential match, check that the query is actually equal to the
@@ -318,7 +319,8 @@ using leveldb::WriteOptions;
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+      _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
@@ -341,7 +343,8 @@ using leveldb::WriteOptions;
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+      _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
@@ -365,7 +368,8 @@ using leveldb::WriteOptions;
 - (BOOL)containsKey:(FSTDocumentKey *)key {
   std::string indexPrefix = [FSTLevelDBDocumentTargetKey
       keyPrefixWithResourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+      _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   if (indexIterator->Valid()) {

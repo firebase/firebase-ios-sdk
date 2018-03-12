@@ -159,7 +159,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQueryRemovesMatchingKeysToo {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveQueryRemovesMatchingKeysToo"];
+  FSTWriteGroup *group =
+      [self.persistence startGroupWithAction:@"RemoveQueryRemovesMatchingKeysToo"];
   FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
   [self.queryCache addQueryData:rooms group:group];
 
@@ -189,10 +190,10 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertTrue([self.queryCache containsKey:key]);
 
   [self addMatchingKey:key forTargetID:2 group:group];
-   XCTAssertTrue([self.queryCache containsKey:key]);
+  XCTAssertTrue([self.queryCache containsKey:key]);
 
   [self removeMatchingKey:key forTargetID:1 group:group];
-   XCTAssertTrue([self.queryCache containsKey:key]);
+  XCTAssertTrue([self.queryCache containsKey:key]);
 
   [self removeMatchingKey:key forTargetID:2 group:group];
   XCTAssertFalse([self.queryCache containsKey:key]);
@@ -322,7 +323,6 @@ NS_ASSUME_NONNULL_BEGIN
   self.queryCache = [self.persistence queryCache];
   [self.queryCache start];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
-
 }
 
 - (void)testHighestTargetID {
@@ -419,13 +419,17 @@ NS_ASSUME_NONNULL_BEGIN
                                  resumeToken:resumeToken];
 }
 
-- (void)addMatchingKey:(FSTDocumentKey *)key forTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
+- (void)addMatchingKey:(FSTDocumentKey *)key
+           forTargetID:(FSTTargetID)targetID
+                 group:(FSTWriteGroup *)group {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
   [self.queryCache addMatchingKeys:keys forTargetID:targetID group:group];
 }
 
-- (void)removeMatchingKey:(FSTDocumentKey *)key forTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
+- (void)removeMatchingKey:(FSTDocumentKey *)key
+              forTargetID:(FSTTargetID)targetID
+                    group:(FSTWriteGroup *)group {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
   [self.queryCache removeMatchingKeys:keys forTargetID:targetID group:group];

@@ -211,7 +211,7 @@ using leveldb::WriteOptions;
 - (void)runTransaction:(void (^)())block {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
   _transaction = std::make_unique<LevelDBTransaction>(_ptr, [FSTLevelDB standardReadOptions],
-          [FSTLevelDB standardWriteOptions]);
+                                                      [FSTLevelDB standardWriteOptions]);
   block();
   _transaction->Commit();
   _transaction.reset();

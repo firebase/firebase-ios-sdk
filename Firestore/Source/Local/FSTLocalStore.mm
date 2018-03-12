@@ -31,6 +31,7 @@
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -42,7 +43,6 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
-#import "FSTWriteGroup.h"
 
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
@@ -407,7 +407,6 @@ NS_ASSUME_NONNULL_BEGIN
                             listenSequenceNumber:sequenceNumber
                                          purpose:FSTQueryPurposeListen];
     [self.queryCache addQueryData:cached group:group];
-
   }
   [self.persistence commitGroup:group];
   // Sanity check to ensure that even when resuming a query it's not currently active.
