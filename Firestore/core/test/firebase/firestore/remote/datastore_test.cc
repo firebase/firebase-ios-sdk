@@ -25,4 +25,5 @@ TEST(Datastore, CanLinkToGrpc) {
   // libraries required for gRPC to work are actually linked correctly into the
   // test.
   grpc_init();
+  grpc_shutdown();
 }

@@ -45,9 +45,9 @@ namespace {
  */
 bool Comparable(Type lhs, Type rhs) {
   switch (lhs) {
-    case Type::Long:
+    case Type::Integer:
     case Type::Double:
-      return rhs == Type::Long || rhs == Type::Double;
+      return rhs == Type::Integer || rhs == Type::Double;
     case Type::Timestamp:
     case Type::ServerTimestamp:
       return rhs == Type::Timestamp || rhs == Type::ServerTimestamp;
@@ -78,7 +78,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::Boolean:
       boolean_value_ = value.boolean_value_;
       break;
-    case Type::Long:
+    case Type::Integer:
       integer_value_ = value.integer_value_;
       break;
     case Type::Double:
@@ -113,7 +113,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     }
     case Type::Object: {
       // copy-and-swap
-      std::map<const std::string, const FieldValue> tmp = value.object_value_;
+      std::map<std::string, FieldValue> tmp = value.object_value_;
       std::swap(object_value_, tmp);
       break;
     }
@@ -179,7 +179,7 @@ const FieldValue& FieldValue::NanValue() {
 
 FieldValue FieldValue::IntegerValue(int64_t value) {
   FieldValue result;
-  result.SwitchTo(Type::Long);
+  result.SwitchTo(Type::Integer);
   result.integer_value_ = value;
   return result;
 }
@@ -281,13 +281,12 @@ FieldValue FieldValue::ArrayValue(std::vector<FieldValue>&& value) {
 }
 
 FieldValue FieldValue::ObjectValue(
-    const std::map<const std::string, const FieldValue>& value) {
-  std::map<const std::string, const FieldValue> copy(value);
+    const std::map<std::string, FieldValue>& value) {
+  std::map<std::string, FieldValue> copy(value);
   return ObjectValue(std::move(copy));
 }
 
-FieldValue FieldValue::ObjectValue(
-    std::map<const std::string, const FieldValue>&& value) {
+FieldValue FieldValue::ObjectValue(std::map<std::string, FieldValue>&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
   std::swap(result.object_value_, value);
@@ -304,8 +303,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return false;
     case Type::Boolean:
       return Comparator<bool>()(lhs.boolean_value_, rhs.boolean_value_);
-    case Type::Long:
-      if (rhs.type() == Type::Long) {
+    case Type::Integer:
+      if (rhs.type() == Type::Integer) {
         return Comparator<int64_t>()(lhs.integer_value_, rhs.integer_value_);
       } else {
         return util::CompareMixedNumber(rhs.double_value_,
@@ -418,7 +417,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&array_value_) std::vector<FieldValue>();
       break;
     case Type::Object:
-      new (&object_value_) std::map<const std::string, const FieldValue>();
+      new (&object_value_) std::map<std::string, FieldValue>();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }

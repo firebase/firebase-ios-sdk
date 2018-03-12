@@ -18,7 +18,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Model/FSTPath.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,23 +30,22 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDocumentKeyTests
 
 - (void)testConstructor {
-  FSTResourcePath *path =
-      [FSTResourcePath pathWithSegments:@[ @"rooms", @"firestore", @"messages", @"1" ]];
+  ResourcePath path{"rooms", "firestore", "messages", "1"};
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:path];
   XCTAssertEqual(path, key.path);
 }
 
 - (void)testComparison {
-  FSTDocumentKey *key1 = [FSTDocumentKey keyWithSegments:@[ @"a", @"b", @"c", @"d" ]];
-  FSTDocumentKey *key2 = [FSTDocumentKey keyWithSegments:@[ @"a", @"b", @"c", @"d" ]];
-  FSTDocumentKey *key3 = [FSTDocumentKey keyWithSegments:@[ @"x", @"y", @"z", @"w" ]];
+  FSTDocumentKey *key1 = [FSTDocumentKey keyWithSegments:{"a", "b", "c", "d"}];
+  FSTDocumentKey *key2 = [FSTDocumentKey keyWithSegments:{"a", "b", "c", "d"}];
+  FSTDocumentKey *key3 = [FSTDocumentKey keyWithSegments:{"x", "y", "z", "w"}];
   XCTAssertTrue([key1 isEqualToKey:key2]);
   XCTAssertFalse([key1 isEqualToKey:key3]);
 
-  FSTDocumentKey *empty = [FSTDocumentKey keyWithSegments:@[]];
-  FSTDocumentKey *a = [FSTDocumentKey keyWithSegments:@[ @"a", @"a" ]];
-  FSTDocumentKey *b = [FSTDocumentKey keyWithSegments:@[ @"b", @"b" ]];
-  FSTDocumentKey *ab = [FSTDocumentKey keyWithSegments:@[ @"a", @"a", @"b", @"b" ]];
+  FSTDocumentKey *empty = [FSTDocumentKey keyWithSegments:{}];
+  FSTDocumentKey *a = [FSTDocumentKey keyWithSegments:{"a", "a"}];
+  FSTDocumentKey *b = [FSTDocumentKey keyWithSegments:{"b", "b"}];
+  FSTDocumentKey *ab = [FSTDocumentKey keyWithSegments:{"a", "a", "b", "b"}];
 
   XCTAssertEqual(NSOrderedAscending, [empty compare:a]);
   XCTAssertEqual(NSOrderedAscending, [a compare:b]);

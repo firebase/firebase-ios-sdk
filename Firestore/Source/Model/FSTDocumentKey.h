@@ -16,7 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-@class FSTResourcePath;
+#include <initializer_list>
+
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,16 +31,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param path The path to the document.
  * @return A new instance of FSTDocumentKey.
  */
-+ (instancetype)keyWithPath:(FSTResourcePath *)path;
-
++ (instancetype)keyWithPath:(firebase::firestore::model::ResourcePath)path;
 /**
  * Creates and returns a new document key with a path with the given segments.
  *
  * @param segments The segments of the path to the document.
  * @return A new instance of FSTDocumentKey.
  */
-+ (instancetype)keyWithSegments:(NSArray<NSString *> *)segments;
-
++ (instancetype)keyWithSegments:(std::initializer_list<std::string>)segments;
 /**
  * Creates and returns a new document key from the given resource path string.
  *
@@ -48,13 +48,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)keyWithPathString:(NSString *)resourcePath;
 
 /** Returns true iff the given path is a path to a document. */
-+ (BOOL)isDocumentKey:(FSTResourcePath *)path;
-
++ (BOOL)isDocumentKey:(const firebase::firestore::model::ResourcePath &)path;
 - (BOOL)isEqualToKey:(FSTDocumentKey *)other;
 - (NSComparisonResult)compare:(FSTDocumentKey *)other;
 
 /** The path to the document. */
-@property(strong, nonatomic, readonly) FSTResourcePath *path;
+- (const firebase::firestore::model::ResourcePath &)path;
 
 @end
 

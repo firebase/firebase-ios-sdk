@@ -41,6 +41,8 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   }
   ResourcePath(std::initializer_list<std::string> list) : BasePath{list} {
   }
+  explicit ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  }
   /**
    * Creates and returns a new path from the given resource-path string, where
    * the path segments are separated by a slash "/".
@@ -70,9 +72,6 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   }
 
  private:
-  explicit ResourcePath(SegmentsT&& segments) : BasePath{std::move(segments)} {
-  }
-
   // So that methods of base can construct ResourcePath using the private
   // constructor.
   friend class BasePath;

@@ -35,12 +35,25 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) NSString *password;
 
+/** @property link
+    @brief The email sign-in link.
+ */
+@property(nonatomic, readonly) NSString *link;
+
 /** @fn initWithEmail:password:
     @brief Designated initializer.
     @param email The user's email address.
     @param password The user's password.
  */
 - (nullable instancetype)initWithEmail:(NSString *)email password:(NSString *)password
+    NS_DESIGNATED_INITIALIZER;
+
+/** @fn initWithEmail:link:
+    @brief Designated initializer.
+    @param email The user's email address.
+    @param link The email sign-in link.
+ */
+- (nullable instancetype)initWithEmail:(NSString *)email link:(NSString *)link
     NS_DESIGNATED_INITIALIZER;
 
 @end

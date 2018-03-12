@@ -20,6 +20,7 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
@@ -30,7 +31,6 @@
 @class FSTQuery;
 @class FSTQueryListener;
 @class FSTTransaction;
-@protocol FSTCredentialsProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,7 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
-                   credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
+                   credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
+                                           credentialsProvider  // no passing ownership
                      userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
 

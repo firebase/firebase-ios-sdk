@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -63,7 +64,7 @@ class FieldValue {
   enum class Type {
     Null,     // Null
     Boolean,  // Boolean
-    Long,     // Number type starts here
+    Integer,  // Number type starts here
     Double,
     Timestamp,  // Timestamp type starts here
     ServerTimestamp,
@@ -95,6 +96,26 @@ class FieldValue {
     return tag_;
   }
 
+  bool boolean_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Boolean);
+    return boolean_value_;
+  }
+
+  int64_t integer_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Integer);
+    return integer_value_;
+  }
+
+  const std::string& string_value() const {
+    FIREBASE_ASSERT(tag_ == Type::String);
+    return string_value_;
+  }
+
+  const std::map<std::string, FieldValue>& object_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Object);
+    return object_value_;
+  }
+
   /** factory methods. */
   static const FieldValue& NullValue();
   static const FieldValue& TrueValue();
@@ -118,10 +139,8 @@ class FieldValue {
   static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<FieldValue>& value);
   static FieldValue ArrayValue(std::vector<FieldValue>&& value);
-  static FieldValue ObjectValue(
-      const std::map<const std::string, const FieldValue>& value);
-  static FieldValue ObjectValue(
-      std::map<const std::string, const FieldValue>&& value);
+  static FieldValue ObjectValue(const std::map<std::string, FieldValue>& value);
+  static FieldValue ObjectValue(std::map<std::string, FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -148,7 +167,7 @@ class FieldValue {
     firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
     std::vector<FieldValue> array_value_;
-    std::map<const std::string, const FieldValue> object_value_;
+    std::map<std::string, FieldValue> object_value_;
   };
 };
 

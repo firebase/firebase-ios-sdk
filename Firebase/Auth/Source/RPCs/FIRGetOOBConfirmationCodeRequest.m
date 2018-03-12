@@ -79,6 +79,11 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
  */
 static NSString *const kPasswordResetRequestTypeValue = @"PASSWORD_RESET";
 
+/** @var kEmailLinkSignInTypeValue
+    @brief The value for the "EMAIL_SIGNIN" request type.
+ */
+static NSString *const kEmailLinkSignInTypeValue= @"EMAIL_SIGNIN";
+
 /** @var kVerifyEmailRequestTypeValue
     @brief The value for the "VERIFY_EMAIL" request type.
  */
@@ -116,6 +121,8 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
       return kPasswordResetRequestTypeValue;
     case FIRGetOOBConfirmationCodeRequestTypeVerifyEmail:
       return kVerifyEmailRequestTypeValue;
+    case FIRGetOOBConfirmationCodeRequestTypeEmailLink:
+      return kEmailLinkSignInTypeValue;
     // No default case so that we get a compiler warning if a new value was added to the enum.
   }
 }
@@ -138,6 +145,17 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeVerifyEmail
                                      email:nil
                                accessToken:accessToken
+                        actionCodeSettings:actionCodeSettings
+                      requestConfiguration:requestConfiguration];
+}
+
++ (FIRGetOOBConfirmationCodeRequest *)
+    signInWithEmailLinkRequest:(NSString *)email
+            actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+          requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeEmailLink
+                                     email:email
+                               accessToken:nil
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
@@ -178,6 +196,12 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
   // fields.
   if (_requestType == FIRGetOOBConfirmationCodeRequestTypeVerifyEmail) {
     body[kIDTokenKey] = _accessToken;
+  }
+
+  // For email sign-in link requests, we only need an email address in addition to the already
+  // required fields.
+  if (_requestType == FIRGetOOBConfirmationCodeRequestTypeEmailLink) {
+    body[kEmailKey] = _email;
   }
 
   if (_continueURL) {

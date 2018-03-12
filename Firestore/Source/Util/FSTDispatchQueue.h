@@ -23,11 +23,24 @@ NS_ASSUME_NONNULL_BEGIN
  * can then be used from tests to check for the presence of callbacks or to run them early.
  */
 typedef NS_ENUM(NSInteger, FSTTimerID) {
-  FSTTimerIDAll,  // Sentinel value to be used with runDelayedCallbacksUntil: to run all blocks.
+  /** All can be used with runDelayedCallbacksUntil: to run all timers. */
+  FSTTimerIDAll,
+
+  /**
+   * The following 4 timers are used in FSTStream for the listen and write streams. The "Idle" timer
+   * is used to close the stream due to inactivity. The "ConnectionBackoff" timer is used to
+   * restart a stream once the appropriate backoff delay has elapsed.
+   */
   FSTTimerIDListenStreamIdle,
-  FSTTimerIDListenStreamConnection,
+  FSTTimerIDListenStreamConnectionBackoff,
   FSTTimerIDWriteStreamIdle,
-  FSTTimerIDWriteStreamConnection
+  FSTTimerIDWriteStreamConnectionBackoff,
+
+  /**
+   * A timer used in FSTOnlineStateTracker to transition from FSTOnlineState Unknown to Offline
+   * after a set timeout, rather than waiting indefinitely for success or failure.
+   */
+  FSTTimerIDOnlineStateTimeout
 };
 
 /**
@@ -79,6 +92,13 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
  * @param block The block to run.
  */
 - (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block;
+
+/**
+ * Wrapper for dispatch_sync(). Mostly meant for use in tests.
+ *
+ * @param block The block to run.
+ */
+- (void)dispatchSync:(void (^)(void))block;
 
 /**
  * Schedules a callback after the specified delay.

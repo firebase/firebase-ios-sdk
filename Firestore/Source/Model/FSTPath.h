@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -113,6 +116,17 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns YES if this is the `FSTFieldPath.keyFieldPath` field path. */
 - (BOOL)isKeyFieldPath;
 
+/** Creates and returns a new path from C++ FieldPath.
+ *
+ * @param fieldPath A C++ FieldPath.
+ */
++ (instancetype)fieldPathWithCPPFieldPath:(const firebase::firestore::model::FieldPath &)fieldPath;
+
+/**
+ * Creates and returns a new C++ FieldPath.
+ */
+- (firebase::firestore::model::FieldPath)toCPPFieldPath;
+
 @end
 
 /** A slash-separated path for navigating resources (documents and collections) within Firestore. */
@@ -136,6 +150,18 @@ NS_ASSUME_NONNULL_BEGIN
  * @param resourcePath A slash-separated string representing the path.
  */
 + (instancetype)pathWithString:(NSString *)resourcePath;
+
+/** Creates and returns a new path from C++ ResourcePath.
+ *
+ * @param resourcePath A C++ ResourcePath.
+ */
++ (instancetype)resourcePathWithCPPResourcePath:
+    (const firebase::firestore::model::ResourcePath &)resourcePath;
+
+/**
+ * Creates and returns a new C++ ResourcePath.
+ */
+- (firebase::firestore::model::ResourcePath)toCPPResourcePath;
 @end
 
 NS_ASSUME_NONNULL_END

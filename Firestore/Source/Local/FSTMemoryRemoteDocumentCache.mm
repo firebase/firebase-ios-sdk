@@ -60,10 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
-  FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:[query.path pathByAppendingSegment:@""]];
+  FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:query.path.Append("")];
   NSEnumerator<FSTDocumentKey *> *enumerator = [self.docs keyEnumeratorFrom:prefix];
   for (FSTDocumentKey *key in enumerator) {
-    if (![query.path isPrefixOfPath:key.path]) {
+    if (!query.path.IsPrefixOf(key.path)) {
       break;
     }
     FSTMaybeDocument *maybeDoc = self.docs[key];

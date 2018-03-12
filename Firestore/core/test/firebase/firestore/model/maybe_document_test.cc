@@ -49,7 +49,7 @@ TEST(MaybeDocument, Getter) {
 TEST(MaybeDocument, Comparison) {
   EXPECT_TRUE(MakeMaybeDocument("root/123", Timestamp(456, 123)) <
               MakeMaybeDocument("root/456", Timestamp(123, 456)));
-  // MaybeDocument comparision is purely key-based.
+  // MaybeDocument comparison is purely key-based.
   EXPECT_FALSE(MakeMaybeDocument("root/123", Timestamp(111, 111)) <
                MakeMaybeDocument("root/123", Timestamp(222, 222)));
 

@@ -47,12 +47,12 @@ NSDate *TestDate(int year, int month, int day, int hour, int minute, int second)
   FIRTimestamp *actual = [FIRTimestamp timestampWithDate:input];
   static const int64_t kSecondsFromEpochToReferenceDate = 978307200;
   XCTAssertEqual(kSecondsFromEpochToReferenceDate + 1, actual.seconds);
-  XCTAssertEqual(500000000, actual.nanoseconds);
+  XCTAssertEqual(actual.nanoseconds, 500000000);
 
   FIRTimestamp *expected =
       [[FIRTimestamp alloc] initWithSeconds:(kSecondsFromEpochToReferenceDate + 1)
                                 nanoseconds:500000000];
-  XCTAssertEqualObjects(expected, actual);
+  XCTAssertEqualObjects(actual, expected);
 }
 
 - (void)testSO8601String {
@@ -92,8 +92,8 @@ NSDate *TestDate(int year, int month, int day, int hour, int minute, int second)
     [[FIRTimestamp alloc] initWithSeconds:12346 nanoseconds:0],
   ];
   for (int i = 0; i < timestamps.count - 1; ++i) {
-    XCTAssertEqual(NSOrderedAscending, [timestamps[i] compare:timestamps[i + 1]]);
-    XCTAssertEqual(NSOrderedDescending, [timestamps[i + 1] compare:timestamps[i]]);
+    XCTAssertEqual([timestamps[i] compare:timestamps[i + 1]], NSOrderedAscending);
+    XCTAssertEqual([timestamps[i + 1] compare:timestamps[i]], NSOrderedDescending);
   }
 }
 
