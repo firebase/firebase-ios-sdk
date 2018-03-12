@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
-#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 
 #include <leveldb/db.h>
 #include <map>
+#include <memory>
 #include <set>
+#include <string>
+#include <utility>
 
 #if __OBJC__
 #if !defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS)
@@ -168,4 +171,4 @@ class LevelDBTransaction {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
