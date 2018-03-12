@@ -49,6 +49,11 @@ static NSString *const kPasswordResetRequestTypeValue = @"PASSWORD_RESET";
  */
 static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
+/** @var kEmailLinkSignInTypeValue
+    @brief The value for the "EMAIL_SIGNIN" request type.
+ */
+static NSString *const kEmailLinkSignInTypeValue = @"EMAIL_SIGNIN";
+
 /** @var kEmailKey
     @brief The name of the "email" property in the request.
  */
@@ -124,6 +129,7 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
 /** @class FIRGetOOBConfirmationCodeRequestTests
     @brief Tests for @c FIRGetOOBConfirmationCodeRequest.
  */
+
 @interface FIRGetOOBConfirmationCodeRequestTests : XCTestCase
 @end
 @implementation FIRGetOOBConfirmationCodeRequestTests {
@@ -189,6 +195,43 @@ static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
                         [NSNumber numberWithBool:YES]);
 }
+
+/** @fn testSignInWithEmailLinkRequest
+    @brief Tests the encoding of a email sign-in link request.
+ */
+- (void)testSignInWithEmailLinkRequest {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:kTestEmail
+                                                actionCodeSettings:[self fakeActionCodeSettings]
+                                              requestConfiguration:_requestConfiguration];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+    callbackInvoked = YES;
+    RPCResponse = response;
+    RPCError = error;
+  }];
+
+  XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
+  XCTAssertNotNil(_RPCIssuer.decodedRequest);
+  XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kEmailLinkSignInTypeValue);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
+                        kAndroidMinimumVersion);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidInstallAppKey],
+                        [NSNumber numberWithBool:YES]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
+                        [NSNumber numberWithBool:YES]);
+}
+
 
 /** @fn testEmailVerificationRequest
     @brief Tests the encoding of an email verification request.

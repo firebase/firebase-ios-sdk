@@ -3,6 +3,16 @@
   neither succeeds nor fails within 10 seconds, the SDK will consider itself
   "offline", causing getDocument() calls to resolve with cached results, rather
   than continuing to wait.
+- [fixed] Fixed a potential race condition after calling `enableNetwork()` that
+  could result in a "Mutation batchIDs must be acknowledged in order" assertion
+  crash.
+
+# v0.10.3
+- [fixed] Fixed a regression in the 4.10.0 Firebase iOS SDK release that
+  prevented the SDK from communicating with the backend before successfully
+  authenticating via Firebase Authentication or after unauthenticating and
+  re-authenticating. Reads and writes would silently be executed locally
+  but not sent to the backend.
 
 # v0.10.2
 - [changed] When you delete a FirebaseApp, the associated Firestore instances

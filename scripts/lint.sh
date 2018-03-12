@@ -12,7 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find Firestore/core \( \
-  -name \*.h -o \
-  -name \*.cc \) -print0 \
+# Lints C++ files for conformance with the Google C++ style guide
+
+options=(
+    -z    # \0 terminate output
+)
+
+if [[ $# -gt 0 ]]; then
+  # Interpret any command-line argument as a revision range
+  command=(git diff --name-only)
+  options+=("$@")
+
+else
+  # Default to operating on all files that match the pattern
+  command=(git ls-files)
+fi
+
+
+"${command[@]}" "${options[@]}" \
+    -- 'Firestore/core/**/*.'{h,cc} \
   | xargs -0 python scripts/cpplint.py --quiet

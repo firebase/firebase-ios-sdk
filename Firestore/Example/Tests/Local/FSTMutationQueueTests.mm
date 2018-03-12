@@ -217,6 +217,22 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNil(notFound);
 }
 
+- (void)testNextMutationBatchAfterBatchIDSkipsAcknowledgedBatches {
+  if ([self isTestBaseClass]) return;
+
+  NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:3];
+  XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
+                        batches[0]);
+
+  [self acknowledgeBatch:batches[0]];
+  XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
+                        batches[1]);
+  XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:batches[0].batchID],
+                        batches[1]);
+  XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:batches[1].batchID],
+                        batches[2]);
+}
+
 - (void)testAllMutationBatchesThroughBatchID {
   if ([self isTestBaseClass]) return;
 

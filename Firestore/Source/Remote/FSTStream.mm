@@ -297,9 +297,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [_rpc setResponseDispatchQueue:self.workerDispatchQueue.queue];
 
-  [FSTDatastore prepareHeadersForRPC:_rpc
-                          databaseID:&self.databaseInfo->database_id()
-                               token:(token.is_valid() ? token.token() : absl::string_view())];
+  [FSTDatastore
+      prepareHeadersForRPC:_rpc
+                databaseID:&self.databaseInfo->database_id()
+                     token:(token.user().is_authenticated() ? token.token() : absl::string_view())];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];
@@ -631,7 +632,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
+  return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Listen"
                          requestsWriter:requestsWriter];
 }
@@ -716,7 +717,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
+  return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Write"
                          requestsWriter:requestsWriter];
 }

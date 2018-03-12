@@ -97,7 +97,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                          credentials:(CredentialsProvider *)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    NSString *host = util::WrapNSStringNoCopy(databaseInfo->host());
+    NSString *host = util::WrapNSString(databaseInfo->host());
     if (!databaseInfo->ssl_enabled()) {
       GRPCHost *hostConfig = [GRPCHost hostWithAddress:host];
       hostConfig.secure = NO;
@@ -319,7 +319,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
             [FSTDatastore
                 prepareHeadersForRPC:rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:(result.is_valid() ? result.token() : absl::string_view())];
+                               token:(result.user().is_authenticated() ? result.token()
+                                                                       : absl::string_view())];
             [rpc start];
           }
         }];
