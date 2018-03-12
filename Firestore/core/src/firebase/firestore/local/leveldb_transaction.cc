@@ -50,7 +50,8 @@ LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
     : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
       txn_(txn),
       last_version_(txn->version_),
-      is_valid_(false), // Iterator doesn't really point to anything yet, so is invalid
+      is_valid_(false),  // Iterator doesn't really point to anything yet, so is
+                         // invalid
       mutations_iter_(
           std::make_unique<Mutations::iterator>(txn->mutations_.begin())) {
 }
@@ -83,11 +84,13 @@ void LevelDBTransaction::Iterator::UpdateCurrent() {
 void LevelDBTransaction::Iterator::Seek(const std::string& key) {
   ldb_iter_->Seek(key);
   for (; ldb_iter_->Valid() &&
-         txn_->deletions_.find(ldb_iter_->key().ToString()) != txn_->deletions_.end();
+         txn_->deletions_.find(ldb_iter_->key().ToString()) !=
+             txn_->deletions_.end();
        ldb_iter_->Next()) {
   }
   mutations_iter_.reset();
-  mutations_iter_ = std::make_unique<Mutations::iterator>(txn_->mutations_.begin());
+  mutations_iter_ =
+      std::make_unique<Mutations::iterator>(txn_->mutations_.begin());
   for (; (*mutations_iter_) != txn_->mutations_.end() &&
          (*mutations_iter_)->first < key;
        ++(*mutations_iter_)) {
@@ -103,7 +106,8 @@ std::string LevelDBTransaction::Iterator::key() {
 
 bool LevelDBTransaction::Iterator::key_starts_with(const std::string& prefix) {
   std::string current_key = key();
-  return std::mismatch(prefix.begin(), prefix.end(), current_key.begin()).first == prefix.end();
+  return std::mismatch(prefix.begin(), prefix.end(), current_key.begin())
+             .first == prefix.end();
 }
 
 Slice LevelDBTransaction::Iterator::value() {
@@ -116,7 +120,7 @@ bool LevelDBTransaction::Iterator::SyncToTransaction() {
     std::string current_key = current_.first;
     Seek(current_key);
     // If we advanced, we don't need to advance again.
-    return is_valid_  && current_.first > current_key;
+    return is_valid_ && current_.first > current_key;
   } else {
     return false;
   }
@@ -126,7 +130,8 @@ void LevelDBTransaction::Iterator::AdvanceLDB() {
   do {
     ldb_iter_->Next();
   } while (ldb_iter_->Valid() &&
-           txn_->deletions_.find(ldb_iter_->key().ToString()) != txn_->deletions_.end());
+           txn_->deletions_.find(ldb_iter_->key().ToString()) !=
+               txn_->deletions_.end());
 }
 
 void LevelDBTransaction::Iterator::Next() {

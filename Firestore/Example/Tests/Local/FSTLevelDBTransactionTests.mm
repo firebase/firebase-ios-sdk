@@ -224,7 +224,7 @@ using firebase::firestore::local::LevelDBTransaction;
   // Write keys key_0 and key_1
   for (int i = 0; i < 2; ++i) {
     Status status =
-            _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
+        _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
 
@@ -246,7 +246,7 @@ using firebase::firestore::local::LevelDBTransaction;
   // Write keys
   for (int i = 0; i < 4; ++i) {
     Status status =
-            _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
+        _db->Put(_writeOptions, "key_" + std::to_string(i), "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
 

@@ -115,16 +115,15 @@ class LevelDBTransaction {
     // The underlying transaction.
     LevelDBTransaction* txn_;
     std::unique_ptr<Mutations::iterator> mutations_iter_;
-    // We save the current key and value so that once an iterator is Valid(), it remains
-    // so at least until the next call to Seek() or Next(), even if the underlying data
-    // is deleted.
+    // We save the current key and value so that once an iterator is Valid(), it
+    // remains so at least until the next call to Seek() or Next(), even if the
+    // underlying data is deleted.
     std::pair<std::string, std::string> current_;
     // True if current_ represents a mutation, rather than committed data.
     bool is_mutation_;
-    // True if the iterator pointed to a valid entry the last time Next() or Seek() was
-    // called.
+    // True if the iterator pointed to a valid entry the last time Next() or
+    // Seek() was called.
     bool is_valid_;
-
 
     /**
      * Advances to the next non-deleted key in leveldb.
@@ -132,13 +131,14 @@ class LevelDBTransaction {
     void AdvanceLDB();
 
     /**
-     * Syncs with the underlying transaction. If the transaction has been updated, the mutation
-     * iterator may need to be reset.
+     * Syncs with the underlying transaction. If the transaction has been
+     * updated, the mutation iterator may need to be reset.
      */
     bool SyncToTransaction();
 
     /**
-     * Given the current state of the internal iterators, set is_valid_, is_mutation_, and current_.
+     * Given the current state of the internal iterators, set is_valid_,
+     * is_mutation_, and current_.
      */
     void UpdateCurrent();
   };
