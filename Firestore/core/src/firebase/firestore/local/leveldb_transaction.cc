@@ -40,7 +40,7 @@ LevelDBTransaction::LevelDBTransaction(std::shared_ptr<DB> db,
     : db_(db), readOptions_(readOptions), writeOptions_(writeOptions) {
 }
 
-void LevelDBTransaction::Put(const std::string& key, const Slice& value) {
+void LevelDBTransaction::Put(const std::string& key, const std::string& value) {
   mutations_[key] = value;
   deletions_.erase(key);
   version_++;
@@ -75,7 +75,7 @@ void LevelDBTransaction::Iterator::UpdateCurrent() {
       current_.second = (*mutations_iter_)->second;
     } else {
       current_.first = ldb_iter_->key().ToString();
-      current_.second = ldb_iter_->value();
+      current_.second = ldb_iter_->value().ToString();
     }
   }
 }
@@ -99,6 +99,11 @@ void LevelDBTransaction::Iterator::Seek(const std::string& key) {
 std::string LevelDBTransaction::Iterator::key() {
   FIREBASE_ASSERT_MESSAGE(Valid(), "key() called on invalid iterator");
   return current_.first;
+}
+
+bool LevelDBTransaction::Iterator::key_starts_with(const std::string& prefix) {
+  std::string current_key = key();
+  return std::mismatch(prefix.begin(), prefix.end(), current_key.begin()).first == prefix.end();
 }
 
 Slice LevelDBTransaction::Iterator::value() {

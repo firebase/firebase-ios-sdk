@@ -22,14 +22,22 @@
 #include <set>
 
 #if __OBJC__
-@class GPBMessage;
+#if !defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS)
+#define GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS 0
+#endif
+
+#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/GPBProtocolBuffers.h>
+#else
+#import "GPBProtocolBuffers.h"
+#endif
 #endif
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
-typedef std::map<std::string, leveldb::Slice> Mutations;
+typedef std::map<std::string, std::string> Mutations;
 typedef std::set<std::string> Deletions;
 
 /**
@@ -43,6 +51,8 @@ class LevelDBTransaction {
                      const leveldb::ReadOptions& readOptions,
                      const leveldb::WriteOptions& writeOptions);
 
+  LevelDBTransaction(const LevelDBTransaction& other) = delete;
+
   LevelDBTransaction& operator=(const LevelDBTransaction& other) = delete;
 
   void Delete(const std::string& key);
@@ -50,13 +60,12 @@ class LevelDBTransaction {
 #if __OBJC__
   void Put(const std::string& key, GPBMessage* message) {
     NSData* data = [message data];
-    leveldb::Slice value((const char*)data.bytes, data.length);
-    mutations_[key] = value;
+    mutations_[key] = std::string((const char*)data.bytes, data.length);
     version_++;
   }
 #endif
 
-  void Put(const std::string& key, const leveldb::Slice& value);
+  void Put(const std::string& key, const std::string& value);
 
   leveldb::Status Get(const std::string& key, std::string* value);
 
@@ -91,6 +100,8 @@ class LevelDBTransaction {
      */
     std::string key();
 
+    bool key_starts_with(const std::string& prefix);
+
     /**
      * Returns the value of the current entry
      */
@@ -107,7 +118,7 @@ class LevelDBTransaction {
     // We save the current key and value so that once an iterator is Valid(), it remains
     // so at least until the next call to Seek() or Next(), even if the underlying data
     // is deleted.
-    std::pair<std::string, leveldb::Slice> current_;
+    std::pair<std::string, std::string> current_;
     // True if current_ represents a mutation, rather than committed data.
     bool is_mutation_;
     // True if the iterator pointed to a valid entry the last time Next() or Seek() was
