@@ -77,14 +77,14 @@ class Writer {
    * when encoding a sub/nested message, you must include the length in the
    * serialization.
    *
-   * Call this method when encoding a non top level message. Provide a function
-   * to encode the message itself. This method will calculate the size of the
+   * Call this method when encoding a nested message. Provide a function to
+   * encode the message itself. This method will calculate the size of the
    * encoded message (using the provided function with a non-writing sizing
    * stream), write out the size (and perform sanity checks), and then serialize
    * the message by calling the provided function a second time.
    */
   void EncodeNestedMessage(
-      const std::function<void(Writer&)>& encode_message_fn);
+      const std::function<void(Writer*)>& encode_message_fn);
 
   size_t bytes_written() const {
     return stream_->bytes_written;
@@ -337,11 +337,11 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
 }
 
 void Writer::EncodeNestedMessage(
-    const std::function<void(Writer&)>& encode_message_fn) {
+    const std::function<void(Writer*)>& encode_message_fn) {
   // First calculate the message size using a non-writing substream.
   pb_ostream_t raw_sizing_substream = PB_OSTREAM_SIZING;
   Writer sizing_substream(&raw_sizing_substream);
-  encode_message_fn(sizing_substream);
+  encode_message_fn(&sizing_substream);
   size_t size = sizing_substream.bytes_written();
 
   // Write out the size to the output stream.
@@ -351,8 +351,8 @@ void Writer::EncodeNestedMessage(
   // parse field_value a second time; just update the bytes_written via a call
   // to pb_write. (If we try to write the contents into a sizing stream, it'll
   // fail since sizing streams don't actually have any buffer space.)
-  if (stream_->callback == NULL) {
-    bool status = pb_write(stream_, NULL, size);
+  if (stream_->callback == nullptr) {
+    bool status = pb_write(stream_, nullptr, size);
     if (!status) {
       // TODO(rsgowman): figure out error handling
       abort();
@@ -372,9 +372,10 @@ void Writer::EncodeNestedMessage(
   // nanopb adds new fields.)
   pb_ostream_t raw_writing_substream = {stream_->callback, stream_->state,
                                         /*max_size=*/size,
-                                        /*bytes_written=*/0, /*errmsg=*/NULL};
+                                        /*bytes_written=*/0,
+                                        /*errmsg=*/nullptr};
   Writer writing_substream(&raw_writing_substream);
-  encode_message_fn(writing_substream);
+  encode_message_fn(&writing_substream);
 
   stream_->bytes_written += raw_writing_substream.bytes_written;
   stream_->state = raw_writing_substream.state;
@@ -445,8 +446,8 @@ void EncodeFieldsEntry(pb_ostream_t* raw_stream,
   // Encode the value (FieldValue)
   stream.EncodeTag(PB_WT_STRING,
                    google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  stream.EncodeNestedMessage([&kv](Writer& stream) {
-    EncodeFieldValueImpl(stream.stream_, kv.second);
+  stream.EncodeNestedMessage([&kv](Writer* stream) {
+    EncodeFieldValueImpl(stream->stream_, kv.second);
   });
 }
 
