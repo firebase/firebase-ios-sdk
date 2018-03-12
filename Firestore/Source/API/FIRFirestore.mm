@@ -252,7 +252,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
              "\n"
              "let db = Firestore.firestore()\n"
              "let settings = db.settings\n"
-             "settings.timestampsInSnapshotsEnabled = true\n"
+             "settings.areTimestampsInSnapshotsEnabled = true\n"
              "db.settings = settings\n"
              "\n"
              "With this change, timestamps stored in Cloud Firestore will be read back as "
