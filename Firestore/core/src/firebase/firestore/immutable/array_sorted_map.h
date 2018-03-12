@@ -25,6 +25,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -101,7 +102,7 @@ class FixedArray {
   void append(SourceIterator src_begin, SourceIterator src_end) {
     size_type appending = static_cast<size_type>(src_end - src_begin);
     size_type new_size = size_ + appending;
-    assert(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= fixed_size);
 
     std::copy(src_begin, src_end, end());
     size_ = new_size;
@@ -112,7 +113,7 @@ class FixedArray {
    */
   void append(T&& value) {
     size_type new_size = size_ + 1;
-    assert(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= fixed_size);
 
     *end() = std::move(value);
     size_ = new_size;
