@@ -100,20 +100,20 @@ inline static bool IsSpecialByte(char c) {
  * assertion checking).
  */
 inline static int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
-  FIREBASE_ASSERT(UNALIGNED_LOAD32(p) == v_32);
+  FIREBASE_DEV_ASSERT(UNALIGNED_LOAD32(p) == v_32);
   // See comments in SkipToNextSpecialByte if you wish to
   // understand this expression (which checks for the occurrence
   // of the special byte values 0 or 255 in any of the bytes of v_32).
   if ((v_32 - 0x01010101u) & ~(v_32 + 0x01010101u) & 0x80808080u) {
     // Special byte is in p[0..3]
-    FIREBASE_ASSERT(IsSpecialByte(p[0]) || IsSpecialByte(p[1]) ||
-                    IsSpecialByte(p[2]) || IsSpecialByte(p[3]));
+    FIREBASE_DEV_ASSERT(IsSpecialByte(p[0]) || IsSpecialByte(p[1]) ||
+                        IsSpecialByte(p[2]) || IsSpecialByte(p[3]));
     return 0;
   } else {
-    FIREBASE_ASSERT(!IsSpecialByte(p[0]));
-    FIREBASE_ASSERT(!IsSpecialByte(p[1]));
-    FIREBASE_ASSERT(!IsSpecialByte(p[2]));
-    FIREBASE_ASSERT(!IsSpecialByte(p[3]));
+    FIREBASE_DEV_ASSERT(!IsSpecialByte(p[0]));
+    FIREBASE_DEV_ASSERT(!IsSpecialByte(p[1]));
+    FIREBASE_DEV_ASSERT(!IsSpecialByte(p[2]));
+    FIREBASE_DEV_ASSERT(!IsSpecialByte(p[3]));
     return 4;
   }
 }
@@ -126,8 +126,8 @@ inline static int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
 inline static const char* SkipToNextSpecialByte(const char* start,
                                                 const char* limit) {
   // If these constants were ever changed, this routine needs to change
-  FIREBASE_ASSERT(kEscape1 == 0);
-  FIREBASE_ASSERT((kEscape2 & 0xff) == 255);
+  FIREBASE_DEV_ASSERT(kEscape1 == 0);
+  FIREBASE_DEV_ASSERT((kEscape2 & 0xff) == 255);
   const char* p = start;
   while (p + 8 <= limit) {
     // Find out if any of the next 8 bytes are either 0 or 255 (our
@@ -165,7 +165,7 @@ inline static const char* SkipToNextSpecialByte(const char* start,
       if (IsSpecialByte(p[0])) return p;
       if (IsSpecialByte(p[1])) return p + 1;
       if (IsSpecialByte(p[2])) return p + 2;
-      FIREBASE_ASSERT(
+      FIREBASE_DEV_ASSERT(
           IsSpecialByte(p[3]));  // Last byte must be the special one
       return p + 3;
     }
@@ -199,14 +199,14 @@ inline static void EncodeStringFragment(std::string* dest,
     p = SkipToNextSpecialByte(p, limit);
     if (p >= limit) break;  // No more special characters that need escaping
     char c = *(p++);
-    FIREBASE_ASSERT(IsSpecialByte(c));
+    FIREBASE_DEV_ASSERT(IsSpecialByte(c));
     if (c == kEscape1) {
       AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start) - 1);
       dest->push_back(kEscape1);
       dest->push_back(kNullCharacter);
       copy_start = p;
     } else {
-      FIREBASE_ASSERT(c == kEscape2);
+      FIREBASE_DEV_ASSERT(c == kEscape2);
       AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start) - 1);
       dest->push_back(kEscape2);
       dest->push_back(kFFCharacter);
@@ -303,7 +303,7 @@ inline static bool ReadStringInternal(absl::string_view* src,
     // If inversion is required, instead of inverting 'c', we invert the
     // character constants to which 'c' is compared.  We get the same
     // behavior but save the runtime cost of inverting 'c'.
-    FIREBASE_ASSERT(IsSpecialByte(c));
+    FIREBASE_DEV_ASSERT(IsSpecialByte(c));
     if (c == kEscape1) {
       if (result) {
         AppendBytes(result, copy_start,
@@ -324,7 +324,7 @@ inline static bool ReadStringInternal(absl::string_view* src,
       }
       copy_start = start;
     } else {
-      FIREBASE_ASSERT(c == kEscape2);
+      FIREBASE_DEV_ASSERT(c == kEscape2);
       if (result) {
         AppendBytes(result, copy_start,
                     static_cast<size_t>(start - copy_start) - 1);
@@ -360,7 +360,7 @@ bool OrderedCode::ReadNumIncreasing(absl::string_view* src, uint64_t* result) {
   // If len > 0 and src is longer than 1, the first byte of "payload"
   // must be non-zero (otherwise the encoding is not minimal).
   // In opt mode, we don't enforce that encodings must be minimal.
-  FIREBASE_ASSERT(0 == len || src->size() == 1 || (*src)[1] != '\0');
+  FIREBASE_DEV_ASSERT(0 == len || src->size() == 1 || (*src)[1] != '\0');
 
   if (len + 1 > src->size() || len > 8) {
     return false;  // Not enough bytes or too many bytes
@@ -558,11 +558,11 @@ void OrderedCode::WriteSignedNumIncreasing(std::string* dest, int64_t val) {
   };
   UNALIGNED_STORE64(buf + 2, absl::ghtonll(static_cast<uint64_t>(val)));
 
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(sizeof(buf) == kMaxSigned64Length,
-                                          sizeof(buf) == kMaxSigned64Length,
-                                          "max length size mismatch");
+  FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(sizeof(buf) == kMaxSigned64Length,
+                                              sizeof(buf) == kMaxSigned64Length,
+                                              "max length size mismatch");
   const size_t len = static_cast<size_t>(SignedEncodingLengthPositive(x));
-  FIREBASE_ASSERT(len >= 2);
+  FIREBASE_DEV_ASSERT(len >= 2);
   char* const begin = buf + sizeof(buf) - len;
   begin[0] ^= kLengthToHeaderBits[len][0];
   begin[1] ^= kLengthToHeaderBits[len][1];  // ok because len >= 2
@@ -609,8 +609,8 @@ bool OrderedCode::ReadSignedNumIncreasing(absl::string_view* src,
 
   x ^= kLengthToMask[len];  // remove spurious header bits
 
-  FIREBASE_ASSERT(len == static_cast<size_t>(
-                             SignedEncodingLength(static_cast<int64_t>(x))));
+  FIREBASE_DEV_ASSERT(len == static_cast<size_t>(SignedEncodingLength(
+                                 static_cast<int64_t>(x))));
 
   if (result) *result = static_cast<int64_t>(x);
   src->remove_prefix(static_cast<size_t>(len));
