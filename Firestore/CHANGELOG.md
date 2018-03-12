@@ -3,6 +3,9 @@
   neither succeeds nor fails within 10 seconds, the SDK will consider itself
   "offline", causing getDocument() calls to resolve with cached results, rather
   than continuing to wait.
+- [fixed] Fixed a potential race condition after calling `enableNetwork()` that
+  could result in a "Mutation batchIDs must be acknowledged in order" assertion
+  crash.
 
 # v0.10.3
 - [fixed] Fixed a regression in the 4.10.0 Firebase iOS SDK release that

@@ -192,10 +192,10 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
   // All batches with batchID <= self.highestAcknowledgedBatchID have been acknowledged so the
   // first unacknowledged batch after batchID will have a batchID larger than both of these values.
-  batchID = MAX(batchID + 1, self.highestAcknowledgedBatchID);
+  FSTBatchID nextBatchID = MAX(batchID, self.highestAcknowledgedBatchID) + 1;
 
   // The requested batchID may still be out of range so normalize it to the start of the queue.
-  NSInteger rawIndex = [self indexOfBatchID:batchID];
+  NSInteger rawIndex = [self indexOfBatchID:nextBatchID];
   NSUInteger index = rawIndex < 0 ? 0 : (NSUInteger)rawIndex;
 
   // Finally return the first non-tombstone batch.
