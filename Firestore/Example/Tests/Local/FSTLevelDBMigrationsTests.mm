@@ -61,7 +61,8 @@ using leveldb::Status;
 - (void)testAddsTargetGlobal {
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
-  LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions], [FSTLevelDB standardWriteOptions]);
+  LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions],
+                                 [FSTLevelDB standardWriteOptions]);
   [FSTLevelDBMigrations runMigrations:&transaction];
   transaction.Commit();
   metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
@@ -69,7 +70,8 @@ using leveldb::Status;
 }
 
 - (void)testSetsVersionNumber {
-  LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions], [FSTLevelDB standardWriteOptions]);
+  LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions],
+                                 [FSTLevelDB standardWriteOptions]);
   FSTLevelDBSchemaVersion initial = [FSTLevelDBMigrations schemaVersion:&transaction];
   XCTAssertEqual(0, initial, "No version should be equivalent to 0");
 
@@ -82,7 +84,8 @@ using leveldb::Status;
 - (void)testCountsQueries {
   NSUInteger expected = 50;
   {
-    LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions], [FSTLevelDB standardWriteOptions]);
+    LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions],
+                                   [FSTLevelDB standardWriteOptions]);
     for (int i = 0; i < expected; i++) {
       std::string key = [FSTLevelDBTargetKey keyWithTargetID:i];
       transaction.Put(key, "dummy");
@@ -99,7 +102,8 @@ using leveldb::Status;
   }
 
   {
-    LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions], [FSTLevelDB standardWriteOptions]);
+    LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions],
+                                   [FSTLevelDB standardWriteOptions]);
     [FSTLevelDBMigrations runMigrations:&transaction];
     transaction.Commit();
     FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
