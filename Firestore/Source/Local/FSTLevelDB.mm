@@ -219,8 +219,8 @@ using leveldb::WriteOptions;
 - (void)commitGroup:(FSTWriteGroup *)group {
   [self.writeGroupTracker endGroup:group];
 
-  NSString *description = [group description];
-  FSTLog(@"Committing %@", description);
+  //NSString *description = [group description];
+  //FSTLog(@"Committing %@", description);
 
   Status status = [group writeToDB:_ptr];
   if (!status.ok()) {

@@ -23,6 +23,7 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+using firebase::firestore::local::LevelDBTransaction;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Slice;
@@ -85,25 +86,36 @@ void BatchDescription::Delete(const Slice &key) {
 
 @interface FSTWriteGroup ()
 - (instancetype)initWithAction:(NSString *)action NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithAction:(NSString *)action andTransaction:(LevelDBTransaction *)transaction;
 @end
 
 @implementation FSTWriteGroup {
-  int _changes;
-  WriteBatch _contents;
 }
 
 + (instancetype)groupWithAction:(NSString *)action {
   return [[FSTWriteGroup alloc] initWithAction:action];
 }
 
++ (instancetype)groupWithAction:(NSString *)action andTransaction:(firebase::firestore::local::LevelDBTransaction *)transaction {
+  return [[FSTWriteGroup alloc] initWithAction:action andTransaction:transaction];
+}
+
 - (instancetype)initWithAction:(NSString *)action {
   if (self = [super init]) {
     _action = action;
+    _transaction = nullptr;
   }
   return self;
 }
 
-- (NSString *)description {
+- (instancetype)initWithAction:(NSString *)action andTransaction:(LevelDBTransaction *)transaction {
+  if (self = [super init]) {
+    _action = action;
+    _transaction = nullptr;
+  }
+}
+
+/*- (NSString *)description {
   Firestore::BatchDescription description;
   Status status = _contents.Iterate(&description);
   if (!status.ok()) {
@@ -111,11 +123,13 @@ void BatchDescription::Delete(const Slice &key) {
   }
   return [NSString
       stringWithFormat:@"<FSTWriteGroup for %@: %@>", self.action, description.ToString()];
-}
+}*/
 
 - (void)removeMessageForKey:(StringView)key {
-  _contents.Delete(key);
-  _changes += 1;
+  //_contents.Delete(key);
+  //_changes += 1;
+  FSTAssert(_transaction != nullptr, @"Using group without a transaction");
+  _transaction->Delete(key);
 }
 
 - (void)setMessage:(GPBMessage *)message forKey:(StringView)key {
@@ -133,10 +147,6 @@ void BatchDescription::Delete(const Slice &key) {
 
 - (leveldb::Status)writeToDB:(std::shared_ptr<leveldb::DB>)db {
   return db->Write(leveldb::WriteOptions(), &_contents);
-}
-
-- (BOOL)isEmpty {
-  return _changes == 0;
 }
 
 @end
