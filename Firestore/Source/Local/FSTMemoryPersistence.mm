@@ -107,6 +107,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(group.isEmpty, @"Memory persistence shouldn't use write groups: %@", group.action);
 }
 
+- (void)runTransaction:(void (^)())block {
+  block();
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

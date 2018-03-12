@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
 
+@class FSTLevelDB;
 @class FSTLocalSerializer;
 @class FSTPBTargetGlobal;
 @protocol FSTGarbageCollector;
@@ -53,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param db The LevelDB in which to create the cache.
  */
-- (instancetype)initWithDB:(std::shared_ptr<leveldb::DB>)db
+- (instancetype)initWithDB:(FSTLevelDB *)db
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
 
 @end

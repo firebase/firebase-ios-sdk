@@ -99,6 +99,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)commitGroup:(FSTWriteGroup *)group;
 
+- (void)runTransaction:(void (^)())block;
+
 @end
 
 NS_ASSUME_NONNULL_END
