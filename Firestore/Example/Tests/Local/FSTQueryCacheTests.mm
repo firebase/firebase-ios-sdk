@@ -184,20 +184,21 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"AddOrRemoveMatchingKeys"];
   FSTDocumentKey *key = FSTTestDocKey(@"foo/bar");
 
-  XCTAssertFalse([self.queryCache containsKey:key]);
+  [_persistence runTransaction:^{
+    XCTAssertFalse([self.queryCache containsKey:key]);
 
-  [self addMatchingKey:key forTargetID:1 group:group];
-  XCTAssertTrue([self.queryCache containsKey:key]);
+    [self addMatchingKey:key forTargetID:1];
+    XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self addMatchingKey:key forTargetID:2 group:group];
-  XCTAssertTrue([self.queryCache containsKey:key]);
+    [self addMatchingKey:key forTargetID:2];
+    XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self removeMatchingKey:key forTargetID:1 group:group];
-  XCTAssertTrue([self.queryCache containsKey:key]);
+    [self removeMatchingKey:key forTargetID:1];
+    XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self removeMatchingKey:key forTargetID:2 group:group];
-  XCTAssertFalse([self.queryCache containsKey:key]);
-  [self.persistence commitGroup:group];
+    [self removeMatchingKey:key forTargetID:2];
+    XCTAssertFalse([self.queryCache containsKey:key]);
+  }];
 }
 
 - (void)testRemoveMatchingKeysForTargetID {
@@ -208,23 +209,28 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
   FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
 
-  [self addMatchingKey:key1 forTargetID:1 group:group];
-  [self addMatchingKey:key2 forTargetID:1 group:group];
-  [self addMatchingKey:key3 forTargetID:2 group:group];
-  XCTAssertTrue([self.queryCache containsKey:key1]);
-  XCTAssertTrue([self.queryCache containsKey:key2]);
-  XCTAssertTrue([self.queryCache containsKey:key3]);
+  [self addMatchingKey:key1 forTargetID:1];
+  [self addMatchingKey:key2 forTargetID:1];
+  [self addMatchingKey:key3 forTargetID:2];
+  [_persistence runTransaction:^{
+    XCTAssertTrue([self.queryCache containsKey:key1]);
+    XCTAssertTrue([self.queryCache containsKey:key2]);
+    XCTAssertTrue([self.queryCache containsKey:key3]);
+  }];
 
-  [self.queryCache removeMatchingKeysForTargetID:1 group:group];
-  XCTAssertFalse([self.queryCache containsKey:key1]);
-  XCTAssertFalse([self.queryCache containsKey:key2]);
-  XCTAssertTrue([self.queryCache containsKey:key3]);
+  [self removeMatchingKeysForTargetID:1];
+  [_persistence runTransaction:^{
+    XCTAssertFalse([self.queryCache containsKey:key1]);
+    XCTAssertFalse([self.queryCache containsKey:key2]);
+    XCTAssertTrue([self.queryCache containsKey:key3]);
+  }];
 
-  [self.queryCache removeMatchingKeysForTargetID:2 group:group];
-  XCTAssertFalse([self.queryCache containsKey:key1]);
-  XCTAssertFalse([self.queryCache containsKey:key2]);
-  XCTAssertFalse([self.queryCache containsKey:key3]);
-  [self.persistence commitGroup:group];
+    [self removeMatchingKeysForTargetID:2];
+  [_persistence runTransaction:^{
+    XCTAssertFalse([self.queryCache containsKey:key1]);
+    XCTAssertFalse([self.queryCache containsKey:key2]);
+    XCTAssertFalse([self.queryCache containsKey:key3]);
+  }];
 }
 
 - (void)testRemoveEmitsGarbageEvents {

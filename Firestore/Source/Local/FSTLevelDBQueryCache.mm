@@ -45,7 +45,7 @@ using leveldb::Status;
 @end
 
 @implementation FSTLevelDBQueryCache {
-  FSTLevelDB *_db;
+  FSTLevelDB* _db;
 
   /**
    * The last received snapshot version. This is part of `metadata` but we store it separately to
@@ -265,8 +265,8 @@ using leveldb::Status;
       FSTFail(
           @"Dangling query-target reference found: "
           @"%@ points to %@; seeking there found %@",
-          [FSTLevelDBKey descriptionForKey:indexItererator->key()],
-          [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
+          [FSTLevelDBKey descriptionForKey:indexItererator->key()], [FSTLevelDBKey descriptionForKey:targetKey],
+          foundKeyDescription);
     }
 
     // Finally after finding a potential match, check that the query is actually equal to the
