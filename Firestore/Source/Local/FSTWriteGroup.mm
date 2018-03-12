@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 
-#import <Protobuf/GPBProtocolBuffers.h>
-#include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
@@ -35,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace Firestore {
 
+// TODO(gsoltis): consider porting something like this to leveldb_transaction.
 /**
  * A WriteBatch::Handler implementation that extracts batch details from a leveldb::WriteBatch.
  * This is used for describing a write batch primarily in log messages after a failure.
@@ -90,6 +89,7 @@ void BatchDescription::Delete(const Slice &key) {
 @end
 
 @implementation FSTWriteGroup {
+  int _changes;
 }
 
 + (instancetype)groupWithAction:(NSString *)action {
@@ -109,44 +109,37 @@ void BatchDescription::Delete(const Slice &key) {
 }
 
 - (instancetype)initWithAction:(NSString *)action andTransaction:(LevelDBTransaction *)transaction {
-  if (self = [super init]) {
-    _action = action;
-    _transaction = nullptr;
+  if (self = [self initWithAction:action]) {
+    _transaction = transaction;
   }
+  return self;
 }
 
-/*- (NSString *)description {
-  Firestore::BatchDescription description;
-  Status status = _contents.Iterate(&description);
-  if (!status.ok()) {
-    FSTFail(@"Iterate over write batch should not fail");
-  }
-  return [NSString
-      stringWithFormat:@"<FSTWriteGroup for %@: %@>", self.action, description.ToString()];
-}*/
-
 - (void)removeMessageForKey:(StringView)key {
-  //_contents.Delete(key);
-  //_changes += 1;
   FSTAssert(_transaction != nullptr, @"Using group without a transaction");
-  _transaction->Delete(key);
+  Slice keySlice = key;
+  _transaction->Delete(keySlice.ToString());
+  _changes += 1;
 }
 
 - (void)setMessage:(GPBMessage *)message forKey:(StringView)key {
-  NSData *data = [message data];
-  Slice value((const char *)data.bytes, data.length);
-
-  _contents.Put(key, value);
+  FSTAssert(_transaction != nullptr, @"Using group without a transaction");
+  Slice keySlice = key;
+  _transaction->Put(keySlice.ToString(), message);
   _changes += 1;
 }
 
 - (void)setData:(StringView)data forKey:(StringView)key {
-  _contents.Put(key, data);
+  FSTAssert(_transaction != nullptr, @"Using group without a transaction");
+  Slice keySlice = key;
+  Slice valueSlice = data;
+  std::string value = valueSlice.ToString();
+  _transaction->Put(keySlice.ToString(), value);
   _changes += 1;
 }
 
-- (leveldb::Status)writeToDB:(std::shared_ptr<leveldb::DB>)db {
-  return db->Write(leveldb::WriteOptions(), &_contents);
+- (BOOL)isEmpty {
+  return _changes == 0;
 }
 
 @end

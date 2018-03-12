@@ -18,6 +18,7 @@
 
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #include "leveldb/db.h"
 
@@ -32,8 +33,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Retrieves the global singleton metadata row from the given database, if it exists.
+ * TODO(gsoltis): remove this method once fully ported to transactions.
  */
 + (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<leveldb::DB>)db;
+
+/**
+ * Retrieves the global singleton metadata row using the given transaction, if it exists.
+ */
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromTransaction:(firebase::firestore::local::LevelDBTransaction *)transaction;
 
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -31,6 +31,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -43,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kReservedPathComponent = @"firestore";
 
+using firebase::firestore::local::LevelDBTransaction;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::ReadOptions;
@@ -58,7 +60,9 @@ using leveldb::WriteOptions;
 
 @end
 
-@implementation FSTLevelDB
+@implementation FSTLevelDB {
+  std::unique_ptr<LevelDBTransaction> _transaction;
+}
 
 /**
  * For now this is paranoid, but perhaps disable that in production builds.
@@ -66,6 +70,11 @@ using leveldb::WriteOptions;
 + (const ReadOptions)standardReadOptions {
   ReadOptions options;
   options.verify_checksums = true;
+  return options;
+}
+
++ (const WriteOptions)standardWriteOptions {
+  WriteOptions options;
   return options;
 }
 
@@ -138,7 +147,9 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  [FSTLevelDBMigrations runMigrationsOnDB:_ptr];
+  LevelDBTransaction transaction(_ptr, [FSTLevelDB standardReadOptions], [FSTLevelDB standardWriteOptions]);
+  [FSTLevelDBMigrations runMigrations:&transaction];
+  transaction.Commit();
   return YES;
 }
 
@@ -213,20 +224,21 @@ using leveldb::WriteOptions;
 }
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
-  return [self.writeGroupTracker startGroupWithAction:action];
+  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
+  _transaction = std::make_unique<LevelDBTransaction>(
+          _ptr,
+          [FSTLevelDB standardReadOptions],
+          [FSTLevelDB standardWriteOptions]
+  );
+  return [self.writeGroupTracker startGroupWithAction:action andTransaction:_transaction.get()];
 }
 
 - (void)commitGroup:(FSTWriteGroup *)group {
+  FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
   [self.writeGroupTracker endGroup:group];
-
-  //NSString *description = [group description];
-  //FSTLog(@"Committing %@", description);
-
-  Status status = [group writeToDB:_ptr];
-  if (!status.ok()) {
-    FSTFail(@"%@ failed with status: %s, description: %@", group.action, status.ToString().c_str(),
-            description);
-  }
+  // TODO(gsoltis): log transaction contents?
+  _transaction->Commit();
+  _transaction.reset();
 }
 
 - (void)shutdown {
