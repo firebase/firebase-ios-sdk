@@ -260,7 +260,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 @end
 
 // Settings can only be redefined before client is initialized, so this has to happen in setUp.
-// TODO(b/73820332): there will be no need for this once enableTimestampsInSnapshots is the default.
+// TODO(b/73820332): there will be no need for this once timestampsInSnapshotsEnabled is the
+// default.
 @interface FIRTimestampsInSnapshotsEnabledTests : FSTIntegrationTestCase
 @end
 

@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTFieldValueOptions
 
 + (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options
-              enableTimestampsInSnapshots:(BOOL)enableTimestampsInSnapshots {
+              timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
   FSTServerTimestampBehavior convertedServerTimestampBehavior = FSTServerTimestampBehaviorNone;
   switch (options.serverTimestampBehavior) {
     case FIRServerTimestampBehaviorNone:
@@ -66,16 +66,16 @@ NS_ASSUME_NONNULL_BEGIN
 
   return
       [[FSTFieldValueOptions alloc] initWithServerTimestampBehavior:convertedServerTimestampBehavior
-                                        enableTimestampsInSnapshots:enableTimestampsInSnapshots];
+                                        timestampsInSnapshotsEnabled:timestampsInSnapshotsEnabled];
 }
 
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
-                    enableTimestampsInSnapshots:(BOOL)enableTimestampsInSnapshots {
+                    timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
   self = [super init];
 
   if (self) {
     _serverTimestampBehavior = serverTimestampBehavior;
-    _enableTimestampsInSnapshots = enableTimestampsInSnapshots;
+    _timestampsInSnapshotsEnabled = timestampsInSnapshotsEnabled;
   }
   return self;
 }
@@ -457,10 +457,10 @@ struct Comparator<NSString *> {
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  if (options.enableTimestampsInSnapshots) {
+  if (options.timestampsInSnapshotsEnabled) {
     return self.value;
   } else {
-    return [self.value approximateDateValue];
+    return [self.value dateValue];
   }
 }
 
