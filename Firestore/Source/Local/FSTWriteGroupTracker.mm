@@ -41,11 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action
-                         andTransaction:(firebase::firestore::local::LevelDBTransaction *)transaction {
+                         andTransaction:
+                             (firebase::firestore::local::LevelDBTransaction *)transaction {
   // NOTE: We can relax this to allow nesting if/when we find we need it.
   FSTAssert(!self.activeGroup,
-          @"Attempt to create write group (%@) while existing write group (%@) still active.",
-          action, self.activeGroup.action);
+            @"Attempt to create write group (%@) while existing write group (%@) still active.",
+            action, self.activeGroup.action);
   self.activeGroup = [FSTWriteGroup groupWithAction:action andTransaction:transaction];
   return self.activeGroup;
 }

@@ -18,8 +18,8 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/Source/Local/StringView.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN

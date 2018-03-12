@@ -96,7 +96,8 @@ void BatchDescription::Delete(const Slice &key) {
   return [[FSTWriteGroup alloc] initWithAction:action];
 }
 
-+ (instancetype)groupWithAction:(NSString *)action andTransaction:(firebase::firestore::local::LevelDBTransaction *)transaction {
++ (instancetype)groupWithAction:(NSString *)action
+                 andTransaction:(firebase::firestore::local::LevelDBTransaction *)transaction {
   return [[FSTWriteGroup alloc] initWithAction:action andTransaction:transaction];
 }
 

@@ -18,8 +18,8 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
 
 @class FSTLocalSerializer;
@@ -40,7 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Retrieves the global singleton metadata row using the given transaction, if it exists.
  */
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataFromTransaction:(firebase::firestore::local::LevelDBTransaction *)transaction;
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromTransaction:
+    (firebase::firestore::local::LevelDBTransaction *)transaction;
 
 - (instancetype)init NS_UNAVAILABLE;
 

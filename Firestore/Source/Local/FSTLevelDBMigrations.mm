@@ -40,7 +40,8 @@ using leveldb::WriteOptions;
  * @param db The db in which to require the row.
  */
 static void EnsureTargetGlobal(LevelDBTransaction *transaction) {
-  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBQueryCache readTargetMetadataFromTransaction:transaction];
+  FSTPBTargetGlobal *targetGlobal =
+      [FSTLevelDBQueryCache readTargetMetadataFromTransaction:transaction];
   if (!targetGlobal) {
     transaction->Put([FSTLevelDBTargetGlobalKey key], [FSTPBTargetGlobal message]);
   }
@@ -54,7 +55,7 @@ static void EnsureTargetGlobal(LevelDBTransaction *transaction) {
 static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDBTransaction *transaction) {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string = std::to_string(version);
-  transaction->Put(key,  version_string);
+  transaction->Put(key, version_string);
 }
 
 /**
@@ -75,7 +76,8 @@ static void AddTargetCount(LevelDBTransaction *transaction) {
     it->Next();
   }
 
-  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBQueryCache readTargetMetadataFromTransaction:transaction];
+  FSTPBTargetGlobal *targetGlobal =
+      [FSTLevelDBQueryCache readTargetMetadataFromTransaction:transaction];
   FSTCAssert(targetGlobal != nil,
              @"We should have a metadata row as it was added in an earlier migration");
   targetGlobal.targetCount = count;

@@ -61,7 +61,8 @@ using leveldb::WriteOptions;
   FSTSnapshotVersion *_lastRemoteSnapshotVersion;
 }
 
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataFromTransaction:(LevelDBTransaction *)transaction {
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromTransaction:
+    (LevelDBTransaction *)transaction {
   std::string key = [FSTLevelDBTargetGlobalKey key];
   std::string value;
   Status status = transaction->Get(key, &value);
@@ -73,7 +74,7 @@ using leveldb::WriteOptions;
   }
 
   NSData *data =
-          [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
 
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
