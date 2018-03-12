@@ -509,6 +509,18 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
 
 void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
+  // TODO(rsgowman): find a better home for this constant.
+  // A document is defined to have a max size of 1MiB - 4 bytes.
+  static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
+
+  // Construct a nanopb output stream.
+  //
+  // Set the max_size to be the max document size (as an upper bound; one would
+  // expect individual FieldValue's to be smaller than this).
+  //
+  // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
+  // care about the underlying output vector, so where we are in the vector
+  // itself is irrelevant. i.e. don't use out_bytes->size())
   pb_ostream_t stream = {
       /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
                       size_t count) -> bool {
@@ -517,7 +529,7 @@ void Serializer::EncodeFieldValue(const FieldValue& field_value,
         return true;
       },
       /*state=*/out_bytes,
-      /*max_size=*/SIZE_MAX,
+      /*max_size=*/kMaxDocumentSize,
       /*bytes_written=*/0,
       /*errmsg=*/NULL};
   EncodeFieldValueImpl(&stream, field_value);
