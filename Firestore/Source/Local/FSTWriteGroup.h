@@ -81,8 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setData:(Firestore::StringView)data forKey:(Firestore::StringView)key;
 
-/** Writes the contents to the given LevelDB. */
-- (leveldb::Status)writeToDB:(std::shared_ptr<leveldb::DB>)db;
+/** Returns YES if the write group has no messages in it. */
+- (BOOL)isEmpty;
 
 @end
 
