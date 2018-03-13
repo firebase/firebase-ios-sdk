@@ -7,6 +7,7 @@
   than continuing to wait.
 - [fixed] Fixed a race condition after calling `enableNetwork()` that could
   result in a "Mutation batchIDs must be acknowledged in order" assertion crash.
+- [fixed] Fixed undefined symbols in the absl namespace (#898).
 
 # v0.10.3
 - [fixed] Fixed a regression in the 4.10.0 Firebase iOS SDK release that
