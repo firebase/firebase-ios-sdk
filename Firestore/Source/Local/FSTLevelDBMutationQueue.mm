@@ -355,19 +355,21 @@ using leveldb::WriteOptions;
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
   std::string indexPrefix =
       [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
-  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
+      _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   // Simultaneously scan the mutation queue. This works because each (key, batchID) pair is unique
   // and ordered, so when scanning a table prefixed by exactly key, all the batchIDs encountered
   // will be unique and in order.
   std::string mutationsPrefix = [FSTLevelDBMutationKey keyPrefixWithUserID:userID];
-  std::unique_ptr<LevelDbTransaction::Iterator> mutationIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDvTransaction::Iterator> mutationIterator(
+      _db.current_transaction->NewIterator());
 
   NSMutableArray *result = [NSMutableArray array];
   FSTLevelDBDocumentMutationKey *rowKey = [[FSTLevelDBDocumentMutationKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    //Slice indexKey = indexIterator->key();
+    // Slice indexKey = indexIterator->key();
 
     // Only consider rows matching exactly the specific key of interest. Note that because we order
     // by path first, and we order terminators before path separators, we'll encounter all the
@@ -391,8 +393,8 @@ using leveldb::WriteOptions;
       FSTFail(
           @"Dangling document-mutation reference found: "
           @"%@ points to %@; seeking there found %@",
-          [FSTLevelDBKey descriptionForKey:indexIterator->key()], [FSTLevelDBKey descriptionForKey:mutationKey],
-          foundKeyDescription);
+          [FSTLevelDBKey descriptionForKey:indexIterator->key()],
+          [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
     [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
@@ -422,7 +424,8 @@ using leveldb::WriteOptions;
   // unique nor in order. This means an efficient simultaneous scan isn't possible.
   std::string indexPrefix =
       [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:queryPath];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+      _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   NSMutableArray *result = [NSMutableArray array];
@@ -452,7 +455,8 @@ using leveldb::WriteOptions;
 
   // Given an ordered set of unique batchIDs perform a skipping scan over the main table to find
   // the mutation batches.
-  std::unique_ptr<LevelDBTransaction::Iterator> mutationIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> mutationIterator(
+      _db.current_transaction->NewIterator());
 
   for (FSTBatchID batchID : uniqueBatchIds) {
     std::string mutationKey = [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID];
@@ -491,7 +495,8 @@ using leveldb::WriteOptions;
   NSString *userID = self.userID;
   id<FSTGarbageCollector> garbageCollector = self.garbageCollector;
 
-  std::unique_ptr<LevelDBTransaction::Iterator> checkIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> checkIterator(
+      _db.current_transaction->NewIterator());
 
   for (FSTMutationBatch *batch in batches) {
     FSTBatchID batchID = batch.batchID;
@@ -525,7 +530,8 @@ using leveldb::WriteOptions;
 
   // Verify that there are no entries in the document-mutation index if the queue is empty.
   std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+      _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   NSMutableArray<NSString *> *danglingMutationReferences = [NSMutableArray array];
@@ -585,7 +591,8 @@ using leveldb::WriteOptions;
 - (BOOL)containsKey:(FSTDocumentKey *)documentKey {
   std::string indexPrefix =
       [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
-  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
+      _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   if (indexIterator->Valid()) {

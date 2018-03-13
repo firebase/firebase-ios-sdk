@@ -20,7 +20,6 @@
 #include <leveldb/write_batch.h>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -32,6 +31,7 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

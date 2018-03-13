@@ -237,13 +237,15 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:3];
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"NextMutationBatchAfterBatchIDSkipsAcknowledgedBatches"];
+  FSTWriteGroup *group = [self.persistence
+      startGroupWithAction:@"NextMutationBatchAfterBatchIDSkipsAcknowledgedBatches"];
   XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
                         batches[0]);
   [self.persistence commitGroup:group];
 
   [self acknowledgeBatch:batches[0]];
-  group = [self.persistence startGroupWithAction:@"NextMutationBatchAfterBatchIDSkipsAcknowledgedBatches"];
+  group = [self.persistence
+      startGroupWithAction:@"NextMutationBatchAfterBatchIDSkipsAcknowledgedBatches"];
   XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
                         batches[1]);
   XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:batches[0].batchID],
@@ -261,7 +263,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   NSArray<FSTMutationBatch *> *found, *expected;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"AllMutationBatchesThroughBatchID"];
+  FSTWriteGroup *group =
+      [self.persistence startGroupWithAction:@"AllMutationBatchesThroughBatchID"];
   found = [self.mutationQueue allMutationBatchesThroughBatchID:batches[0].batchID - 1];
   XCTAssertEqualObjects(found, (@[]));
 
@@ -437,7 +440,8 @@ NS_ASSUME_NONNULL_BEGIN
   ]];
 
   [self removeMutationBatches:@[ batches[0] ]];
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveMutationBatchesEmitsGarbageEvents"];
+  FSTWriteGroup *group =
+      [self.persistence startGroupWithAction:@"RemoveMutationBatchesEmitsGarbageEvents"];
   NSSet<FSTDocumentKey *> *garbage = [garbageCollector collectGarbage];
   FSTAssertEqualSets(garbage, @[]);
   [self.persistence commitGroup:group];
