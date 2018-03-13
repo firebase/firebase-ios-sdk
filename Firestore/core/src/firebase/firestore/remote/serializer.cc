@@ -34,7 +34,9 @@ using firebase::firestore::model::FieldValue;
 
 namespace {
 
-void EncodeObject(pb_ostream_t* stream,
+class Writer;
+
+void EncodeObject(Writer* stream,
                   const std::map<std::string, FieldValue>& object_value);
 
 std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
@@ -243,7 +245,6 @@ void EncodeFieldValueImpl(pb_ostream_t* raw_stream,
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   Writer stream(raw_stream);
-  bool status = false;
   switch (field_value.type()) {
     case FieldValue::Type::Null:
       stream.EncodeTag(PB_WT_VARINT,
@@ -270,13 +271,9 @@ void EncodeFieldValueImpl(pb_ostream_t* raw_stream,
       break;
 
     case FieldValue::Type::Object:
-      status = pb_encode_tag(raw_stream, PB_WT_STRING,
-                             google_firestore_v1beta1_Value_map_value_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-      EncodeObject(raw_stream, field_value.object_value());
+      stream.EncodeTag(PB_WT_STRING,
+                       google_firestore_v1beta1_Value_map_value_tag);
+      EncodeObject(&stream, field_value.object_value());
       break;
 
     default:
@@ -434,19 +431,17 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  *
  * @param kv The individual key/value pair to encode.
  */
-void EncodeFieldsEntry(pb_ostream_t* raw_stream,
+void EncodeFieldsEntry(Writer* stream,
                        const std::pair<std::string, FieldValue>& kv) {
-  Writer stream(raw_stream);
-
   // Encode the key (string)
-  stream.EncodeTag(PB_WT_STRING,
-                   google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-  stream.EncodeString(kv.first);
+  stream->EncodeTag(PB_WT_STRING,
+                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  stream->EncodeString(kv.first);
 
   // Encode the value (FieldValue)
-  stream.EncodeTag(PB_WT_STRING,
-                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  stream.EncodeNestedMessage([&kv](Writer* stream) {
+  stream->EncodeTag(PB_WT_STRING,
+                    google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  stream->EncodeNestedMessage([&kv](Writer* stream) {
     EncodeFieldValueImpl(stream->stream_, kv.second);
   });
 }
@@ -476,49 +471,19 @@ std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
   return {key, value};
 }
 
-void EncodeObject(pb_ostream_t* stream,
+void EncodeObject(Writer* stream,
                   const std::map<std::string, FieldValue>& object_value) {
-  google_firestore_v1beta1_MapValue map_value =
-      google_firestore_v1beta1_MapValue_init_zero;
-  // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
-  // object_value via the arg field (and therefore need to do a bunch of
-  // casting).
-  map_value.fields.funcs.encode = [](pb_ostream_t* stream, const pb_field_t*,
-                                     void* const* arg) -> bool {
-    auto& object_value =
-        *static_cast<const std::map<std::string, FieldValue>*>(*arg);
-
+  stream->EncodeNestedMessage([&object_value](Writer* stream) {
     // Encode each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value) {
-      bool status =
-          pb_encode_tag(stream, PB_WT_STRING,
+      stream->EncodeTag(PB_WT_STRING,
                         google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-
-      // Calculate the size of this FieldsEntry using a non-writing substream.
-      pb_ostream_t sizing_stream = PB_OSTREAM_SIZING;
-      EncodeFieldsEntry(&sizing_stream, kv);
-      size_t size = sizing_stream.bytes_written;
-      // Write out the size to the output stream.
-      Writer(stream).EncodeSize(size);
-
-      EncodeFieldsEntry(stream, kv);
+      stream->EncodeNestedMessage(
+          [&kv](Writer* stream) { EncodeFieldsEntry(stream, kv); });
     }
 
     return true;
-  };
-  map_value.fields.arg =
-      const_cast<std::map<std::string, FieldValue>*>(&object_value);
-
-  bool status = pb_encode_delimited(
-      stream, google_firestore_v1beta1_MapValue_fields, &map_value);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
+  });
 }
 
 std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
