@@ -16,9 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
-
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -34,11 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::local::LevelDbTransaction;
 using Firestore::StringView;
 using leveldb::DB;
-using leveldb::Iterator;
-using leveldb::ReadOptions;
 using leveldb::Slice;
 using leveldb::Status;
-using leveldb::WriteOptions;
 
 @interface FSTLevelDBQueryCache ()
 
