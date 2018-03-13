@@ -20,6 +20,7 @@
 #include <leveldb/write_batch.h>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -34,6 +35,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbTransaction;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::ReadOptions;
@@ -86,7 +88,7 @@ static ReadOptions StandardReadOptions() {
 - (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey {
   std::string key = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:documentKey];
   std::string value;
-  Status status = _db->Get(StandardReadOptions(), key, &value);
+  Status status = _db.current_transaction->Get(key, &value);
   if (status.IsNotFound()) {
     return nil;
   } else if (status.ok()) {
@@ -103,7 +105,7 @@ static ReadOptions StandardReadOptions() {
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
   std::string startKey = [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:query.path];
-  std::unique_ptr<Iterator> it(_db->NewIterator(StandardReadOptions()));
+  std::unique_ptr<LevelDbTransaction::Iterator> it(_db.current_transaction->NewIterator());
   it->Seek(startKey);
 
   FSTLevelDBRemoteDocumentKey *currentKey = [[FSTLevelDBRemoteDocumentKey alloc] init];
@@ -115,12 +117,6 @@ static ReadOptions StandardReadOptions() {
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
     }
-  }
-
-  Status status = it->status();
-  if (!status.ok()) {
-    FSTFail(@"Find documents matching query (%@) failed with status: %s", query,
-            status.ToString().c_str());
   }
 
   return results;
