@@ -478,16 +478,8 @@ void EncodeObject(Writer* stream,
     for (const auto& kv : object_value) {
       stream->EncodeTag(PB_WT_STRING,
                         google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-
-      // Calculate the size of this FieldsEntry using a non-writing substream.
-      pb_ostream_t raw_sizing_stream = PB_OSTREAM_SIZING;
-      Writer sizing_stream(&raw_sizing_stream);
-      EncodeFieldsEntry(&sizing_stream, kv);
-      size_t size = sizing_stream.bytes_written();
-      // Write out the size to the output stream.
-      stream->EncodeSize(size);
-
-      EncodeFieldsEntry(stream, kv);
+      stream->EncodeNestedMessage(
+          [&kv](Writer* stream) { EncodeFieldsEntry(stream, kv); });
     }
 
     return true;
