@@ -48,6 +48,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
     they're added to the right build target(s).
 - Add the -ObjC flag to "Other Linker Flags".
 - Make sure that the build target(s) includes your project's `GoogleService-Info.plist`.
+- [Delete Firebase.framework from the Link Binary With Libraries Build Phase](https://github.com/firebase/firebase-ios-sdk/issues/911#issuecomment-372455235).
 
 ## Versioning
 
