@@ -22,6 +22,7 @@
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
@@ -58,11 +59,10 @@ static ReadOptions StandardReadOptions() {
 }
 
 @implementation FSTLevelDBRemoteDocumentCache {
-  // The DB pointer is shared with all cooperating LevelDB-related objects.
-  std::shared_ptr<DB> _db;
+  FSTLevelDB *_db;
 }
 
-- (instancetype)initWithDB:(std::shared_ptr<DB>)db serializer:(FSTLocalSerializer *)serializer {
+- (instancetype)initWithDB:(FSTLevelDB *)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     _db = db;
     _serializer = serializer;
@@ -71,7 +71,6 @@ static ReadOptions StandardReadOptions() {
 }
 
 - (void)shutdown {
-  _db.reset();
 }
 
 - (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
