@@ -148,7 +148,6 @@ using leveldb::WriteOptions;
 }
 
 - (void)shutdown {
-  //_db.reset();
 }
 
 - (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
