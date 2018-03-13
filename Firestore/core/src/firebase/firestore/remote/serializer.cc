@@ -36,17 +36,14 @@ namespace {
 
 class Writer;
 
-void EncodeObject(Writer* writer,
-                  const std::map<std::string, FieldValue>& object_value);
+void EncodeObject(Writer* writer, const FieldValue::ObjectT& object_value);
 
-std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
+FieldValue::ObjectT DecodeObject(pb_istream_t* stream);
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
  * pb_ostream_t.
  */
-// TODO(rsgowman): Define ObjectT alias (in field_value.h) and use it
-// throughout.
 class Writer {
  public:
   /**
@@ -475,7 +472,7 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  * @param kv The individual key/value pair to write.
  */
 void EncodeFieldsEntry(Writer* writer,
-                       const std::pair<std::string, FieldValue>& kv) {
+                       const FieldValue::ObjectT::value_type& kv) {
   // Write the key (string)
   writer->WriteTag(PB_WT_STRING,
                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
@@ -488,7 +485,7 @@ void EncodeFieldsEntry(Writer* writer,
       [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
 }
 
-std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
+FieldValue::ObjectT::value_type DecodeFieldsEntry(pb_istream_t* stream) {
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
@@ -513,8 +510,7 @@ std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
   return {key, value};
 }
 
-void EncodeObject(Writer* writer,
-                  const std::map<std::string, FieldValue>& object_value) {
+void EncodeObject(Writer* writer, const FieldValue::ObjectT& object_value) {
   writer->WriteNestedMessage([&object_value](Writer* writer) {
     // Write each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value) {
@@ -528,18 +524,18 @@ void EncodeObject(Writer* writer,
   });
 }
 
-std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
+FieldValue::ObjectT DecodeObject(pb_istream_t* stream) {
   google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
-  std::map<std::string, FieldValue> result;
+  FieldValue::ObjectT result;
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
   // object_value via the arg field (and therefore need to do a bunch of
   // casting).
   map_value.fields.funcs.decode = [](pb_istream_t* stream, const pb_field_t*,
                                      void** arg) -> bool {
-    auto& result = *static_cast<std::map<std::string, FieldValue>*>(*arg);
+    auto& result = *static_cast<FieldValue::ObjectT*>(*arg);
 
-    std::pair<std::string, FieldValue> fv = DecodeFieldsEntry(stream);
+    FieldValue::ObjectT::value_type fv = DecodeFieldsEntry(stream);
 
     // Sanity check: ensure that this key doesn't already exist in the map.
     // TODO(rsgowman): figure out error handling: We can do better than a failed
