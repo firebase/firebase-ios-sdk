@@ -286,9 +286,7 @@ using firebase::firestore::model::DatabaseId;
   [_workerDispatchQueue runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
 
   [_workerDispatchQueue dispatchSync:^{
-    [_workerDispatchQueue enterCheckedOperation:^{
-      XCTAssertFalse([writeStream isOpen]);
-    }];
+    XCTAssertFalse([writeStream isOpen]);
   }];
 
   [self verifyDelegateObservedStates:@[
@@ -318,9 +316,7 @@ using firebase::firestore::model::DatabaseId;
   }];
 
   [_workerDispatchQueue dispatchSync:^{
-    [_workerDispatchQueue enterCheckedOperation:^{
-      XCTAssertTrue([writeStream isOpen]);
-    }];
+    XCTAssertTrue([writeStream isOpen]);
   }];
 
   [self verifyDelegateObservedStates:@[
