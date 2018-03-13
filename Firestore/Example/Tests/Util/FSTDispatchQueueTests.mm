@@ -134,8 +134,8 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 
   XCTAssertEqualObjects(caught.name, NSInternalInconsistencyException);
   XCTAssertTrue(
-                [caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
-                 @"dispatchSync called when we are already running on target"]);
+      [caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
+                               @"dispatchSync called when we are already running on target"]);
 }
 
 - (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {
