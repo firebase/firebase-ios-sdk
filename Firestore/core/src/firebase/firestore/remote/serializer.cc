@@ -57,7 +57,7 @@ class Writer {
    *
    * @param out_bytes where the output should be serialized to.
    */
-  static Writer FromBuffer(std::vector<uint8_t>* out_bytes);
+  static Writer Wrap(std::vector<uint8_t>* out_bytes);
 
   /**
    * Creates a non-writing output stream used to calculate the size of
@@ -134,7 +134,7 @@ class Writer {
   pb_ostream_t stream_;
 };
 
-Writer Writer::FromBuffer(std::vector<uint8_t>* out_bytes) {
+Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   // TODO(rsgowman): find a better home for this constant.
   // A document is defined to have a max size of 1MiB - 4 bytes.
   static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
@@ -567,7 +567,7 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
 
 void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
-  Writer stream = Writer::FromBuffer(out_bytes);
+  Writer stream = Writer::Wrap(out_bytes);
   EncodeFieldValueImpl(&stream, field_value);
 }
 
