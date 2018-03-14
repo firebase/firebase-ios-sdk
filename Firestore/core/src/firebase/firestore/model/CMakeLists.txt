@@ -21,7 +21,6 @@ cc_library(
     document.cc
     document.h
     document_key.cc
-    document_key.mm
     document_key.h
     field_path.cc
     field_path.h

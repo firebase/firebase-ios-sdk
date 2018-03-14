@@ -22,18 +22,11 @@
 #include <string>
 
 #if defined(__OBJC__)
-#include "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 #endif  // defined(__OBJC__)
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
-
-#if defined(__OBJC__)
-// Somehow, when ObjC header includes a C++ that includes that ObjC header, the
-// ObjC class declaration is not visible. So manually forward-declares the class
-// here.
-@class FSTDocumentKey;
-#endif  // defined(__OBJC__)
 
 namespace firebase {
 namespace firestore {
@@ -53,6 +46,16 @@ class DocumentKey {
 
   /** Creates a new document key, taking ownership of the given path. */
   explicit DocumentKey(ResourcePath&& path);
+
+#if defined(__OBJC__)
+  DocumentKey(FSTDocumentKey* key)
+      : path_(std::make_shared<ResourcePath>(key.path)) {
+  }
+
+  operator FSTDocumentKey*() const {
+    return [FSTDocumentKey keyWithPath:path()];
+  }
+#endif
 
   /**
    * Creates and returns a new document key using '/' to split the string into
