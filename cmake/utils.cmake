@@ -53,12 +53,12 @@ endfunction()
 # )
 #
 # Defines a new test executable target with the given target name, sources, and
-# dependencies.  Implicitly adds DEPENDS on GTest::GTest and GTest::Main.
+# dependencies.  Implicitly adds DEPENDS on GTest::Main.
 function(cc_test name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(cct "" "" "${multi}" ${ARGN})
 
-  list(APPEND cct_DEPENDS GTest::GTest GTest::Main)
+  list(APPEND cct_DEPENDS GTest::Main)
 
   add_executable(${name} ${cct_SOURCES})
   add_objc_flags(${name} cct)
