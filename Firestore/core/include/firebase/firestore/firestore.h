@@ -22,17 +22,15 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_H_
 
+#include <memory>
 #include <string>
 
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
-// they exist)
-namespace firebase {
-class App;
-class InitResult;
-}  // namespace firebase
+#include "firebase/app.h"
 
 namespace firebase {
 namespace firestore {
+
+class FirestoreInternal;
 
 // TODO(rsgowman): replace these forward decl's with appropriate includes (once
 // they exist)
@@ -152,6 +150,16 @@ class Firestore {
 
   /** Globally enables / disables Firestore logging for the SDK. */
   static void set_logging_enabled(bool logging_enabled);
+
+  Firestore(const Firestore& src) = delete;
+  Firestore& operator=(const Firestore& src) = delete;
+
+ private:
+  Firestore(::firebase::App* app);
+
+  // TODO(zxu123): investigate possibility to use std::unique_ptr or
+  // firebase::UniquePtr.
+  FirestoreInternal* internal_;
 };
 
 }  // namespace firestore
