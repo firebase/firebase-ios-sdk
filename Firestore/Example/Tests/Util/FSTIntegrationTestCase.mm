@@ -129,6 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   settings.host = host;
   settings.persistenceEnabled = YES;
+  settings.timestampsInSnapshotsEnabled = YES;
   NSLog(@"Configured integration test for %@ with SSL: %@", settings.host,
         settings.sslEnabled ? @"YES" : @"NO");
   return settings;
@@ -153,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                 workerDispatchQueue:workerDispatchQueue
                                                         firebaseApp:app];
 
-  firestore.settings = [[self class] settings];
+  firestore.settings = [FSTIntegrationTestCase settings];
 
   [_firestores addObject:firestore];
   return firestore;

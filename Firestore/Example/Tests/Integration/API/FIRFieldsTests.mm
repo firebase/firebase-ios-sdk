@@ -234,47 +234,9 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   return [self readDocumentForRef:doc];
 }
 
-// TODO(b/73820332): this test should break once the default for how timestamps are returned
-// changes.
-- (void)testSnapshotsReturnNSDatesByDefault {
-  NSDate *originalDate = [NSDate date];
-  FIRDocumentReference *doc = [self documentRef];
-  [self writeDocumentRef:doc
-                    data:testDataWithTimestamps([FIRTimestamp timestampWithDate:originalDate])];
-  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  NSDictionary<NSString *, id> *data = [snapshot data];
-  double microsecond = 0.000001;
-
-  NSDate *timestampFromSnapshot = snapshot[@"timestamp"];
-  NSDate *timestampFromData = data[@"timestamp"];
-  XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
-  XCTAssertEqualWithAccuracy([timestampFromSnapshot timeIntervalSince1970],
-                             [originalDate timeIntervalSince1970], microsecond);
-
-  timestampFromSnapshot = snapshot[@"nested.timestamp2"];
-  timestampFromData = data[@"nested"][@"timestamp2"];
-  XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
-  XCTAssertEqualWithAccuracy([timestampFromSnapshot timeIntervalSince1970],
-                             [originalDate timeIntervalSince1970], microsecond);
-}
-@end
-
-// Settings can only be redefined before client is initialized, so this has to happen in setUp.
-// TODO(b/73820332): there will be no need for this once timestampsInSnapshotsEnabled is the
-// default.
-@interface FIRTimestampsInSnapshotsEnabledTests : FSTIntegrationTestCase
-@end
-
-@implementation FIRTimestampsInSnapshotsEnabledTests
-
-- (void)setUp {
-  [super setUp];
-  FIRFirestoreSettings *settings = self.db.settings;
-  settings.timestampsInSnapshotsEnabled = YES;
-  self.db.settings = settings;
-}
-
-- (void)testSetTimestampsInSnapshotsEnabledAffectsTimestampFields {
+// Note: timestampsInSnapshotsEnabled is set to "true" in FSTIntegrationTestCase, so this test is
+// not affected by the current default in FIRFirestoreSettings.
+- (void)testTimestampsInSnapshots {
   FIRTimestamp *originalTimestamp = [FIRTimestamp timestampWithSeconds:100 nanoseconds:123456789];
   FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:testDataWithTimestamps(originalTimestamp)];
@@ -296,14 +258,50 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   XCTAssertEqualObjects(truncatedTimestamp, timestampFromData);
   XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
 }
+@end
 
-- (void)testSetTimestampsInSnapshotsEnabledAffectsServerTimestampFields {
+// Settings can only be redefined before client is initialized, so this has to happen in setUp.
+@interface FIRTimestampsInSnapshotsLegacyBehaviorTests : FSTIntegrationTestCase
+@end
+
+@implementation FIRTimestampsInSnapshotsLegacyBehaviorTests
+
+- (void)setUp {
+  [super setUp];
+  FIRFirestoreSettings *settings = self.db.settings;
+  settings.timestampsInSnapshotsEnabled = NO;
+  self.db.settings = settings;
+}
+
+- (void)testLegacyBehaviorForTimestampFields {
+  NSDate *originalDate = [NSDate date];
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc
+                    data:testDataWithTimestamps([FIRTimestamp timestampWithDate:originalDate])];
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+  NSDictionary<NSString *, id> *data = [snapshot data];
+  double microsecond = 0.000001;
+
+  NSDate *timestampFromSnapshot = snapshot[@"timestamp"];
+  NSDate *timestampFromData = data[@"timestamp"];
+  XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
+  XCTAssertEqualWithAccuracy([timestampFromSnapshot timeIntervalSince1970],
+                             [originalDate timeIntervalSince1970], microsecond);
+
+  timestampFromSnapshot = snapshot[@"nested.timestamp2"];
+  timestampFromData = data[@"nested"][@"timestamp2"];
+  XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
+  XCTAssertEqualWithAccuracy([timestampFromSnapshot timeIntervalSince1970],
+                             [originalDate timeIntervalSince1970], microsecond);
+}
+
+- (void)testLegacyBehaviorForServerTimestampFields {
   FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:@{@"when" : [FIRFieldValue fieldValueForServerTimestamp]}];
 
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertTrue([snapshot[@"when"] isKindOfClass:[FIRTimestamp class]]);
-  XCTAssertTrue([snapshot.data[@"when"] isKindOfClass:[FIRTimestamp class]]);
+  XCTAssertTrue([snapshot[@"when"] isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([snapshot.data[@"when"] isKindOfClass:[NSDate class]]);
 }
 
 @end
