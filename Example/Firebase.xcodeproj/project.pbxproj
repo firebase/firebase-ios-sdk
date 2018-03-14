@@ -135,6 +135,8 @@
 		7E26CF28514D041D284F00A5 /* Pods_Database_Tests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5318F3AE32EEBCC9FF608813 /* Pods_Database_Tests_tvOS.framework */; };
 		7E5BD38D202BFB8CD9CCEB53 /* Pods_Auth_EarlGreyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FAA82401DA4259800B142EA /* Pods_Auth_EarlGreyTests.framework */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
+		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
+		7EE21F7C1FE8919E009B1370 /* FIREmailLinkSignInResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */; };
 		7EFA2E041F71C93300DD354F /* FIRUserMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */; };
 		7F41B0EFBDDA90CB9CE6CE5B /* Pods_Database_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61377AC9FE132A8D7BF71881 /* Pods_Database_Tests_macOS.framework */; };
 		822CE316AE9827F7F0889B30 /* Pods_Auth_Example_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9878B57CF73D2F865992E6EA /* Pods_Auth_Example_macOS.framework */; };
@@ -1037,6 +1039,8 @@
 		7981511F571E13DECA09B4B1 /* Pods-Core_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example_macOS/Pods-Core_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthURLPresenterTests.m; sourceTree = "<group>"; };
 		7ED0DF69C095C21EFC81F672 /* Pods-Database_Example_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Example_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Example_tvOS/Pods-Database_Example_tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIREmailLinkRequestTests.m; sourceTree = "<group>"; };
+		7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIREmailLinkSignInResponseTests.m; sourceTree = "<group>"; };
 		7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRUserMetadataTests.m; sourceTree = "<group>"; };
 		8496034D8156555C5FCF8F14 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		84EC7975F05977AE75E90A12 /* Pods_Database_Example_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_Example_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2371,9 +2375,11 @@
 				DE9315001E86C6FF0083EDBF /* FIRAuthGlobalWorkQueueTests.m */,
 				DE9315011E86C6FF0083EDBF /* FIRAuthKeychainTests.m */,
 				DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */,
+				7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */,
 				DE9315021E86C6FF0083EDBF /* FIRAuthSerialTaskQueueTests.m */,
 				DE9315031E86C6FF0083EDBF /* FIRAuthTests.m */,
 				7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */,
+				7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */,
 				DE9315041E86C6FF0083EDBF /* FIRAuthUserDefaultsStorageTests.m */,
 				DE9315051E86C6FF0083EDBF /* FIRCreateAuthURIRequestTests.m */,
 				DE9315061E86C6FF0083EDBF /* FIRCreateAuthURIResponseTests.m */,
@@ -4662,6 +4668,7 @@
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-Database_Tests_tvOS-checkManifestLockResult.txt",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5425,6 +5432,7 @@
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -6188,6 +6196,7 @@
 				DE9315571E86C71C0083EDBF /* FIRAdditionalUserInfoTests.m in Sources */,
 				DE750DBF1EB3DD6C00A75E47 /* FIRAuthAppCredentialManagerTests.m in Sources */,
 				DE93157B1E86C71C0083EDBF /* FIRVerifyPasswordResponseTests.m in Sources */,
+				7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */,
 				DE93155B1E86C71C0083EDBF /* FIRAuthDispatcherTests.m in Sources */,
 				DE9315791E86C71C0083EDBF /* FIRVerifyCustomTokenResponseTests.m in Sources */,
 				DE9315601E86C71C0083EDBF /* FIRAuthUserDefaultsStorageTests.m in Sources */,
@@ -6216,6 +6225,7 @@
 				DE93155A1E86C71C0083EDBF /* FIRAuthBackendRPCImplementationTests.m in Sources */,
 				DE93157D1E86C71C0083EDBF /* FIRVerifyPhoneNumberResponseTests.m in Sources */,
 				DE93157E1E86C71C0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */,
+				7EE21F7C1FE8919E009B1370 /* FIREmailLinkSignInResponseTests.m in Sources */,
 				DE9315771E86C71C0083EDBF /* FIRVerifyAssertionResponseTests.m in Sources */,
 				DE9315721E86C71C0083EDBF /* FIRSignUpNewUserRequestTests.m in Sources */,
 				DE9315671E86C71C0083EDBF /* FIRGetAccountInfoResponseTests.m in Sources */,

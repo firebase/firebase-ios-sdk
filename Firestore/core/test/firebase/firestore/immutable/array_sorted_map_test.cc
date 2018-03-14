@@ -244,7 +244,7 @@ TEST(ArraySortedMap, ChecksSize) {
   map = map.insert(5, 10);
 
   int next = kFixedSize;
-  ASSERT_DEATH_IF_SUPPORTED(map.insert(next, next), "new_size <= fixed_size");
+  ASSERT_ANY_THROW(map.insert(next, next));
 }
 
 TEST(ArraySortedMap, Empty) {
