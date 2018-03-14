@@ -95,7 +95,7 @@ static ReadOptions StandardReadOptions() {
 + (instancetype)mutationQueueWithUser:(const User &)user
                                    db:(std::shared_ptr<DB>)db
                            serializer:(FSTLocalSerializer *)serializer {
-  NSString *userID = user.is_authenticated() ? util::WrapNSStringNoCopy(user.uid()) : @"";
+  NSString *userID = user.is_authenticated() ? util::WrapNSString(user.uid()) : @"";
 
   return [[FSTLevelDBMutationQueue alloc] initWithUserID:userID db:db serializer:serializer];
 }
@@ -104,7 +104,7 @@ static ReadOptions StandardReadOptions() {
                             db:(std::shared_ptr<DB>)db
                     serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
-    _userID = userID;
+    _userID = [userID copy];
     _db = db;
     _serializer = serializer;
   }
@@ -316,7 +316,12 @@ static ReadOptions StandardReadOptions() {
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
-  std::string key = [self mutationKeyForBatchID:batchID + 1];
+  // All batches with batchID <= self.metadata.lastAcknowledgedBatchId have been acknowledged so
+  // the first unacknowledged batch after batchID will have a batchID larger than both of these
+  // values.
+  FSTBatchID nextBatchID = MAX(batchID, self.metadata.lastAcknowledgedBatchId) + 1;
+
+  std::string key = [self mutationKeyForBatchID:nextBatchID];
   std::unique_ptr<Iterator> it(_db->NewIterator(StandardReadOptions()));
   it->Seek(key);
 
@@ -337,7 +342,7 @@ static ReadOptions StandardReadOptions() {
     return nil;
   }
 
-  FSTAssert(rowKey.batchID > batchID, @"Should have found mutation after %d", batchID);
+  FSTAssert(rowKey.batchID >= nextBatchID, @"Should have found mutation after %d", nextBatchID);
   return [self decodedMutationBatch:it->value()];
 }
 

@@ -190,14 +190,13 @@ TEST(FieldValue, ArrayType) {
 
 TEST(FieldValue, ObjectType) {
   const FieldValue empty =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{});
-  std::map<const std::string, const FieldValue> object{
-      {"null", FieldValue::NullValue()},
-      {"true", FieldValue::TrueValue()},
-      {"false", FieldValue::FalseValue()}};
+      FieldValue::ObjectValue(std::map<std::string, FieldValue>{});
+  std::map<std::string, FieldValue> object{{"null", FieldValue::NullValue()},
+                                           {"true", FieldValue::TrueValue()},
+                                           {"false", FieldValue::FalseValue()}};
   // copy the map
   const FieldValue small = FieldValue::ObjectValue(object);
-  std::map<const std::string, const FieldValue> another_object{
+  std::map<std::string, FieldValue> another_object{
       {"null", FieldValue::NullValue()}, {"true", FieldValue::FalseValue()}};
   // move the array
   const FieldValue large = FieldValue::ObjectValue(std::move(another_object));
@@ -336,27 +335,23 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue object_value =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}});
+  const FieldValue object_value = FieldValue::ObjectValue(
+      std::map<std::string, FieldValue>{{"true", FieldValue::TrueValue()},
+                                        {"false", FieldValue::FalseValue()}});
   clone = object_value;
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      clone);
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      object_value);
+  EXPECT_EQ(FieldValue::ObjectValue(std::map<std::string, FieldValue>{
+                {"true", FieldValue::TrueValue()},
+                {"false", FieldValue::FalseValue()}}),
+            clone);
+  EXPECT_EQ(FieldValue::ObjectValue(std::map<std::string, FieldValue>{
+                {"true", FieldValue::TrueValue()},
+                {"false", FieldValue::FalseValue()}}),
+            object_value);
   clone = clone;
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      clone);
+  EXPECT_EQ(FieldValue::ObjectValue(std::map<std::string, FieldValue>{
+                {"true", FieldValue::TrueValue()},
+                {"false", FieldValue::FalseValue()}}),
+            clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 }
@@ -435,16 +430,14 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  FieldValue object_value =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}});
+  FieldValue object_value = FieldValue::ObjectValue(
+      std::map<std::string, FieldValue>{{"true", FieldValue::TrueValue()},
+                                        {"false", FieldValue::FalseValue()}});
   clone = std::move(object_value);
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      clone);
+  EXPECT_EQ(FieldValue::ObjectValue(std::map<std::string, FieldValue>{
+                {"true", FieldValue::TrueValue()},
+                {"false", FieldValue::FalseValue()}}),
+            clone);
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 }
@@ -463,7 +456,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<FieldValue>());
   const FieldValue object_value =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>());
+      FieldValue::ObjectValue(std::map<std::string, FieldValue>());
   EXPECT_TRUE(null_value < true_value);
   EXPECT_TRUE(true_value < number_value);
   EXPECT_TRUE(number_value < timestamp_value);

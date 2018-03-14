@@ -51,6 +51,15 @@ typedef FIREmailAuthProvider FIREmailPasswordAuthProvider __attribute__((depreca
  */
 + (FIRAuthCredential *)credentialWithEmail:(NSString *)email password:(NSString *)password;
 
+/** @fn credentialWithEmail:Link:
+    @brief Creates an `FIRAuthCredential` for an email & link sign in.
+
+    @param email The user's email address.
+    @param link The email sign-in link.
+    @return A FIRAuthCredential containing the email & link credential.
+ */
++ (FIRAuthCredential *)credentialWithEmail:(NSString *)email link:(NSString *)link;
+
 /** @fn init
     @brief This class is not meant to be initialized.
  */

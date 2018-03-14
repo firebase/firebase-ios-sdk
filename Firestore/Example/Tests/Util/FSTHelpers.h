@@ -138,17 +138,17 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
 
 // Helper for validating API exceptions.
 #define FSTAssertThrows(expression, exceptionReason, ...)               \
-  ({                                                                    \
-    BOOL __didThrow = NO;                                               \
+  do {                                                                  \
+    BOOL didThrow = NO;                                                 \
     @try {                                                              \
       (void)(expression);                                               \
     } @catch (NSException * exception) {                                \
-      __didThrow = YES;                                                 \
+      didThrow = YES;                                                   \
       XCTAssertEqualObjects(FSTRemoveExceptionPrefix(exception.reason), \
                             FSTRemoveExceptionPrefix(exceptionReason)); \
     }                                                                   \
-    XCTAssertTrue(__didThrow, ##__VA_ARGS__);                           \
-  })
+    XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
+  } while (0)
 
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
 FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);

@@ -297,9 +297,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [_rpc setResponseDispatchQueue:self.workerDispatchQueue.queue];
 
-  [FSTDatastore prepareHeadersForRPC:_rpc
-                          databaseID:&self.databaseInfo->database_id()
-                               token:(token.is_valid() ? token.token() : absl::string_view())];
+  [FSTDatastore
+      prepareHeadersForRPC:_rpc
+                databaseID:&self.databaseInfo->database_id()
+                     token:(token.user().is_authenticated() ? token.token() : absl::string_view())];
   FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];
@@ -563,24 +564,25 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * the RPC.
  */
 - (void)writeValue:(id)value {
-  [self.workerDispatchQueue verifyIsCurrentQueue];
-  FSTAssert([self isStarted], @"writeValue: called for stopped stream.");
+  [self.workerDispatchQueue enterCheckedOperation:^{
+    FSTAssert([self isStarted], @"writeValue: called for stopped stream.");
 
-  if (!self.messageReceived) {
-    self.messageReceived = YES;
-    if ([FIRFirestore isLoggingEnabled]) {
-      FSTLog(@"%@ %p headers (whitelisted): %@", NSStringFromClass([self class]),
-             (__bridge void *)self,
-             [FSTDatastore extractWhiteListedHeaders:self.rpc.responseHeaders]);
+    if (!self.messageReceived) {
+      self.messageReceived = YES;
+      if ([FIRFirestore isLoggingEnabled]) {
+        FSTLog(@"%@ %p headers (whitelisted): %@", NSStringFromClass([self class]),
+               (__bridge void *)self,
+               [FSTDatastore extractWhiteListedHeaders:self.rpc.responseHeaders]);
+      }
     }
-  }
-  NSError *error;
-  id proto = [self parseProto:self.responseMessageClass data:value error:&error];
-  if (proto) {
-    [self handleStreamMessage:proto];
-  } else {
-    [_rpc finishWithError:error];
-  }
+    NSError *error;
+    id proto = [self parseProto:self.responseMessageClass data:value error:&error];
+    if (proto) {
+      [self handleStreamMessage:proto];
+    } else {
+      [self.rpc finishWithError:error];
+    }
+  }];
 }
 
 /**
@@ -596,10 +598,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  */
 - (void)writesFinishedWithError:(nullable NSError *)error __used {
   error = [FSTDatastore firestoreErrorForError:error];
-  [self.workerDispatchQueue verifyIsCurrentQueue];
-  FSTAssert([self isStarted], @"writesFinishedWithError: called for stopped stream.");
+  [self.workerDispatchQueue enterCheckedOperation:^{
+    FSTAssert([self isStarted], @"writesFinishedWithError: called for stopped stream.");
 
-  [self handleStreamClose:error];
+    [self handleStreamClose:error];
+  }];
 }
 
 @end
@@ -631,7 +634,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
+  return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Listen"
                          requestsWriter:requestsWriter];
 }
@@ -716,7 +719,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:util::WrapNSStringNoCopy(self.databaseInfo->host())
+  return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
                                    path:@"/google.firestore.v1beta1.Firestore/Write"
                          requestsWriter:requestsWriter];
 }

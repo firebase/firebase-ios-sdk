@@ -51,8 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (fieldNames[i].length == 0) {
       FSTThrowInvalidArgument(@"Invalid field name at index %d. Field names must not be empty.", i);
     }
-    field_names.emplace_back([fieldNames[i] UTF8String],
-                             [fieldNames[i] lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
+    field_names.emplace_back(util::MakeString(fieldNames[i]));
   }
 
   return [self initPrivate:FieldPath(std::move(field_names))];
