@@ -21,7 +21,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -107,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testViewSnapshotConstructor {
-  FSTQuery *query = FSTTestQuery(@"a");
+  FSTQuery *query = FSTTestQuery("a");
   FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
   FSTDocumentSet *oldDocuments = documents;
   documents = [documents documentSetByAddingDocument:FSTTestDoc(@"c/a", 1, @{}, NO)];

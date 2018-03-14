@@ -113,8 +113,7 @@ using leveldb::WriteOptions;
   NSString *segment = util::WrapNSStringNoCopy(databaseInfo.database_id().project_id());
   if (!databaseInfo.database_id().IsDefaultDatabase()) {
     segment = [NSString
-        stringWithFormat:@"%@.%@", segment,
-                         util::WrapNSStringNoCopy(databaseInfo.database_id().database_id())];
+        stringWithFormat:@"%@.%s", segment, databaseInfo.database_id().database_id().c_str()];
   }
   directory = [directory stringByAppendingPathComponent:segment];
 

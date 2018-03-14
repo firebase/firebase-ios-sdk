@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRCollectionReferenceTests
 
 - (void)testEquals {
-  FIRCollectionReference *referenceFoo = FSTTestCollectionRef(@"foo");
-  FIRCollectionReference *referenceFooDup = FSTTestCollectionRef(@"foo");
-  FIRCollectionReference *referenceBar = FSTTestCollectionRef(@"bar");
+  FIRCollectionReference *referenceFoo = FSTTestCollectionRef("foo");
+  FIRCollectionReference *referenceFooDup = FSTTestCollectionRef("foo");
+  FIRCollectionReference *referenceBar = FSTTestCollectionRef("bar");
   XCTAssertEqualObjects(referenceFoo, referenceFooDup);
   XCTAssertNotEqualObjects(referenceFoo, referenceBar);
 

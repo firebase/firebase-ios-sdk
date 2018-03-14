@@ -16,10 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
+#include <map>
+#include <vector>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
 
 @class FIRGeoPoint;
@@ -28,13 +34,11 @@
 @class FSTDocument;
 @class FSTDocumentKeyReference;
 @class FSTDocumentSet;
-@class FSTFieldPath;
 @class FSTFieldValue;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
 @class FSTQuery;
 @class FSTRemoteEvent;
-@class FSTResourcePath;
 @class FSTSetMutation;
 @class FSTSnapshotVersion;
 @class FSTSortOrder;
@@ -121,18 +125,30 @@ extern "C" {
     }                                                                                            \
   } while (0)
 
+static NSString *kExceptionPrefix = @"FIRESTORE INTERNAL ASSERTION FAILED: ";
+
+// Remove possible exception-prefix.
+inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
+  if ([exception hasPrefix:kExceptionPrefix]) {
+    return [exception substringFromIndex:kExceptionPrefix.length];
+  } else {
+    return exception;
+  }
+}
+
 // Helper for validating API exceptions.
-#define FSTAssertThrows(expression, exceptionReason, ...)       \
-  ({                                                            \
-    BOOL __didThrow = NO;                                       \
-    @try {                                                      \
-      (void)(expression);                                       \
-    } @catch (NSException * exception) {                        \
-      __didThrow = YES;                                         \
-      XCTAssertEqualObjects(exception.reason, exceptionReason); \
-    }                                                           \
-    XCTAssertTrue(__didThrow, ##__VA_ARGS__);                   \
-  })
+#define FSTAssertThrows(expression, exceptionReason, ...)               \
+  do {                                                                  \
+    BOOL didThrow = NO;                                                 \
+    @try {                                                              \
+      (void)(expression);                                               \
+    } @catch (NSException * exception) {                                \
+      didThrow = YES;                                                   \
+      XCTAssertEqualObjects(FSTRemoveExceptionPrefix(exception.reason), \
+                            FSTRemoveExceptionPrefix(exceptionReason)); \
+    }                                                                   \
+    XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
+  } while (0)
 
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
 FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);
@@ -156,8 +172,6 @@ FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
  */
 NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
-
-FSTFieldPath *FSTTestFieldPath(NSString *field);
 
 /** Wraps a plain value into an FSTFieldValue instance. */
 FSTFieldValue *FSTTestFieldValue(id _Nullable value);
@@ -186,9 +200,6 @@ FSTDocument *FSTTestDoc(NSString *path,
 /** A convenience method for creating deleted docs for tests. */
 FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version);
 
-/** A convenience method for creating resource paths from a path string. */
-FSTResourcePath *FSTTestPath(NSString *path);
-
 /**
  * A convenience method for creating a document reference from a path string.
  */
@@ -197,22 +208,22 @@ FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
                                     NSString *path);
 
 /** A convenience method for creating a query for the given path (without any other filters). */
-FSTQuery *FSTTestQuery(NSString *path);
+FSTQuery *FSTTestQuery(const absl::string_view path);
 
 /**
  * A convenience method to create a FSTFilter using a string representation for both field
  * and operator (<, <=, ==, >=, >).
  */
-id<FSTFilter> FSTTestFilter(NSString *field, NSString *op, id value);
+id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *op, id value);
 
 /** A convenience method for creating sort orders. */
-FSTSortOrder *FSTTestOrderBy(NSString *field, NSString *direction);
+FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);
 
 /**
  * Creates an NSComparator that will compare FSTDocuments by the given fieldPath string then by
  * key.
  */
-NSComparator FSTTestDocComparator(NSString *fieldPath);
+NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
 
 /**
  * Creates a FSTDocumentSet based on the given comparator, initially containing the given
@@ -229,9 +240,10 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values);
 
 /** Creates a patch mutation for the document key at the given path. */
-FSTPatchMutation *FSTTestPatchMutation(NSString *path,
-                                       NSDictionary<NSString *, id> *values,
-                                       NSArray<FSTFieldPath *> *_Nullable updateMask);
+FSTPatchMutation *FSTTestPatchMutation(
+    const absl::string_view path,
+    NSDictionary<NSString *, id> *values,
+    const std::vector<firebase::firestore::model::FieldPath> &updateMask);
 
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields);

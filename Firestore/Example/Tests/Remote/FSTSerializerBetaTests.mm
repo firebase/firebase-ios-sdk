@@ -40,7 +40,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
@@ -338,11 +337,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesPatchMutation {
   FSTPatchMutation *mutation =
-      FSTTestPatchMutation(@"docs/1",
+      FSTTestPatchMutation("docs/1",
                            @{ @"a" : @"b",
                               @"num" : @1,
                               @"some.de\\\\ep.th\\ing'" : @2 },
-                           nil);
+                           {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.updateMask = [self.serializer encodedFieldMask:mutation.fieldMask];
@@ -406,7 +405,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesListenRequestLabels {
-  FSTQuery *query = FSTTestQuery(@"collection/key");
+  FSTQuery *query = FSTTestQuery("collection/key");
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                        targetID:2
                                            listenSequenceNumber:3
@@ -432,7 +431,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesRelationFilter {
-  FSTRelationFilter *input = FSTTestFilter(@"item.part.top", @"==", @"food");
+  FSTRelationFilter *input = FSTTestFilter("item.part.top", @"==", @"food");
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
@@ -446,7 +445,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - encodedQuery
 
 - (void)testEncodesFirstLevelKeyQueries {
-  FSTQuery *q = FSTTestQuery(@"docs/1");
+  FSTQuery *q = FSTTestQuery("docs/1");
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -457,7 +456,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesFirstLevelAncestorQueries {
-  FSTQuery *q = FSTTestQuery(@"messages");
+  FSTQuery *q = FSTTestQuery("messages");
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -473,7 +472,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesNestedAncestorQueries {
-  FSTQuery *q = FSTTestQuery(@"rooms/1/messages/10/attachments");
+  FSTQuery *q = FSTTestQuery("rooms/1/messages/10/attachments");
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -489,7 +488,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"<", @(42))];
+  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:FSTTestFilter("prop", @"<", @(42))];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -512,9 +511,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
-  FSTQuery *q = [[FSTTestQuery(@"rooms/1/messages/10/attachments")
-      queryByAddingFilter:FSTTestFilter(@"prop", @">=", @(42))]
-      queryByAddingFilter:FSTTestFilter(@"author", @"==", @"dimond")];
+  FSTQuery *q = [[FSTTestQuery("rooms/1/messages/10/attachments")
+      queryByAddingFilter:FSTTestFilter("prop", @">=", @(42))]
+      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -562,7 +561,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)unaryFilterTestWithValue:(id)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"==", value)];
+  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:FSTTestFilter("prop", @"==", value)];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -582,7 +581,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSortOrders {
-  FSTQuery *q = [FSTTestQuery(@"docs")
+  FSTQuery *q = [FSTTestQuery("docs")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
                                                         ascending:YES]];
   FSTQueryData *model = [self queryDataForQuery:q];
@@ -602,7 +601,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSortOrdersDescending {
-  FSTQuery *q = [FSTTestQuery(@"rooms/1/messages/10/attachments")
+  FSTQuery *q = [FSTTestQuery("rooms/1/messages/10/attachments")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
                                                         ascending:NO]];
   FSTQueryData *model = [self queryDataForQuery:q];
@@ -622,7 +621,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesLimits {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryBySettingLimit:26];
+  FSTQuery *q = [FSTTestQuery("docs") queryBySettingLimit:26];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -639,7 +638,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResumeTokens {
-  FSTQuery *q = FSTTestQuery(@"docs");
+  FSTQuery *q = FSTTestQuery("docs");
   FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:q
                                                    targetID:1
                                        listenSequenceNumber:0

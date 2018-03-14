@@ -205,7 +205,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)userDidChange:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  FSTLog(@"User Changed: %@", util::WrapNSStringNoCopy(user.uid()));
+  FSTLog(@"User Changed: %s", user.uid().c_str());
   [self.syncEngine userDidChange:user];
 }
 

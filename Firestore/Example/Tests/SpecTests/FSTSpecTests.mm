@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#include <utility>
+
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
@@ -30,7 +32,6 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -108,11 +109,11 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (nullable FSTQuery *)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return FSTTestQuery(querySpec);
+    return FSTTestQuery(util::MakeStringView((NSString *)querySpec));
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = FSTTestQuery(path);
+    __block FSTQuery *query = FSTTestQuery(util::MakeStringView(path));
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -121,14 +122,16 @@ static NSString *const kNoIOSTag = @"no-ios";
       NSArray *filters = queryDict[@"filters"];
       [filters enumerateObjectsUsingBlock:^(NSArray *_Nonnull filter, NSUInteger idx,
                                             BOOL *_Nonnull stop) {
-        query = [query queryByAddingFilter:FSTTestFilter(filter[0], filter[1], filter[2])];
+        query = [query queryByAddingFilter:FSTTestFilter(util::MakeStringView(filter[0]), filter[1],
+                                                         filter[2])];
       }];
     }
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
       [orderBys enumerateObjectsUsingBlock:^(NSArray *_Nonnull orderBy, NSUInteger idx,
                                              BOOL *_Nonnull stop) {
-        query = [query queryByAddingSortOrder:FSTTestOrderBy(orderBy[0], orderBy[1])];
+        query = [query
+            queryByAddingSortOrder:FSTTestOrderBy(util::MakeStringView(orderBy[0]), orderBy[1])];
       }];
     }
     return query;
@@ -174,7 +177,8 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doPatch:(NSArray *)patchSpec {
-  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0], patchSpec[1], nil)];
+  [self.driver
+      writeUserMutation:FSTTestPatchMutation(util::MakeStringView(patchSpec[0]), patchSpec[1], {})];
 }
 
 - (void)doDelete:(NSString *)key {

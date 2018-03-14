@@ -111,10 +111,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 }
 
 - (NSString *)description {
-  return [NSString
-      stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%@ host:%@>>",
-                       util::WrapNSStringNoCopy(self.databaseInfo->database_id().database_id()),
-                       util::WrapNSStringNoCopy(self.databaseInfo->host())];
+  return [NSString stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%s host:%s>>",
+                                    self.databaseInfo->database_id().database_id().c_str(),
+                                    self.databaseInfo->host().c_str()];
 }
 
 /**
@@ -186,9 +185,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 /** Returns the string to be used as google-cloud-resource-prefix header value. */
 + (NSString *)googleCloudResourcePrefixForDatabaseID:(const DatabaseId *)databaseID {
-  return [NSString stringWithFormat:@"projects/%@/databases/%@",
-                                    util::WrapNSStringNoCopy(databaseID->project_id()),
-                                    util::WrapNSStringNoCopy(databaseID->database_id())];
+  return [NSString stringWithFormat:@"projects/%s/databases/%s", databaseID->project_id().c_str(),
+                                    databaseID->database_id().c_str()];
 }
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers

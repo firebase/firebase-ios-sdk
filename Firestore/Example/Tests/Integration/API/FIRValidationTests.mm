@@ -132,7 +132,7 @@
 }
 
 - (void)testPathsWithEmptySegmentsFail {
-  // We're only testing using collectionWithPath since the validation happens in FSTPath which is
+  // We're only testing using collectionWithPath since the validation happens in BasePath which is
   // shared by all methods that accept paths.
 
   // leading / trailing slashes are okay.

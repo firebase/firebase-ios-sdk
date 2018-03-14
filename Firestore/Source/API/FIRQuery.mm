@@ -33,7 +33,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
@@ -379,8 +378,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
         @"Invalid query. You must not specify an ending point before specifying the order by.");
   }
   FSTSortOrder *sortOrder =
-      [FSTSortOrder sortOrderWithFieldPath:[fieldPath.internalValue toCPPFieldPath]
-                                 ascending:!descending];
+      [FSTSortOrder sortOrderWithFieldPath:fieldPath.internalValue ascending:!descending];
   return [FIRQuery referenceWithQuery:[self.query queryByAddingSortOrder:sortOrder]
                             firestore:self.firestore];
 }
@@ -453,10 +451,10 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 }
 
 - (FIRQuery *)queryWithFilterOperator:(FSTRelationFilterOperator)filterOperator
-                                 path:(FSTFieldPath *)fieldPath
+                                 path:(const FieldPath &)fieldPath
                                 value:(id)value {
   FSTFieldValue *fieldValue;
-  if ([fieldPath isKeyFieldPath]) {
+  if (fieldPath.IsKeyFieldPath()) {
     if ([value isKindOfClass:[NSString class]]) {
       NSString *documentKey = (NSString *)value;
       if ([documentKey containsString:@"/"]) {
@@ -492,15 +490,15 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                            @"Invalid Query. You can only perform equality comparisons on nil / "
                             "NSNull.");
     }
-    filter = [[FSTNullFilter alloc] initWithField:[fieldPath toCPPFieldPath]];
+    filter = [[FSTNullFilter alloc] initWithField:fieldPath];
   } else if ([fieldValue isEqual:[FSTDoubleValue nanValue]]) {
     if (filterOperator != FSTRelationFilterOperatorEqual) {
       FSTThrowInvalidUsage(@"InvalidQueryException",
                            @"Invalid Query. You can only perform equality comparisons on NaN.");
     }
-    filter = [[FSTNanFilter alloc] initWithField:[fieldPath toCPPFieldPath]];
+    filter = [[FSTNanFilter alloc] initWithField:fieldPath];
   } else {
-    filter = [FSTRelationFilter filterWithField:[fieldPath toCPPFieldPath]
+    filter = [FSTRelationFilter filterWithField:fieldPath
                                  filterOperator:filterOperator
                                           value:fieldValue];
     [self validateNewRelationFilter:filter];
@@ -517,40 +515,38 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
           @"InvalidQueryException",
           @"Invalid Query. All where filters with an inequality "
            "(lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the same "
-           "field. But you have inequality filters on '%@' and '%@'",
-          util::WrapNSStringNoCopy(existingField->CanonicalString()),
-          util::WrapNSStringNoCopy(filter.field.CanonicalString()));
+           "field. But you have inequality filters on '%s' and '%s'",
+          existingField->CanonicalString().c_str(), filter.field.CanonicalString().c_str());
     }
 
     const FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
-      [self validateOrderByField:[FSTFieldPath fieldPathWithCPPFieldPath:*firstOrderByField]
-          matchesInequalityField:[FSTFieldPath fieldPathWithCPPFieldPath:filter.field]];
+      [self validateOrderByField:*firstOrderByField matchesInequalityField:filter.field];
     }
   }
 }
 
-- (void)validateNewOrderByPath:(FSTFieldPath *)fieldPath {
+- (void)validateNewOrderByPath:(const FieldPath &)fieldPath {
   if (![self.query firstSortOrderField]) {
     // This is the first order by. It must match any inequality.
     const FieldPath *inequalityField = [self.query inequalityFilterField];
     if (inequalityField) {
-      [self validateOrderByField:fieldPath
-          matchesInequalityField:[FSTFieldPath fieldPathWithCPPFieldPath:*inequalityField]];
+      [self validateOrderByField:fieldPath matchesInequalityField:*inequalityField];
     }
   }
 }
 
-- (void)validateOrderByField:(FSTFieldPath *)orderByField
-      matchesInequalityField:(FSTFieldPath *)inequalityField {
-  if (!([orderByField isEqual:inequalityField])) {
+- (void)validateOrderByField:(const FieldPath &)orderByField
+      matchesInequalityField:(const FieldPath &)inequalityField {
+  if (orderByField != inequalityField) {
     FSTThrowInvalidUsage(
         @"InvalidQueryException",
         @"Invalid query. You have a where filter with an "
-         "inequality (lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) on field '%@' "
-         "and so you must also use '%@' as your first queryOrderedBy field, but your first "
-         "queryOrderedBy is currently on field '%@' instead.",
-        inequalityField, inequalityField, orderByField);
+         "inequality (lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) on field '%s' "
+         "and so you must also use '%s' as your first queryOrderedBy field, but your first "
+         "queryOrderedBy is currently on field '%s' instead.",
+        inequalityField.CanonicalString().c_str(), inequalityField.CanonicalString().c_str(),
+        orderByField.CanonicalString().c_str());
   }
 }
 
@@ -581,16 +577,15 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
       [components addObject:[FSTReferenceValue referenceValue:document.key
                                                    databaseID:self.firestore.databaseID]];
     } else {
-      FSTFieldValue *value =
-          [document fieldForPath:[FSTFieldPath fieldPathWithCPPFieldPath:sortOrder.field]];
+      FSTFieldValue *value = [document fieldForPath:sortOrder.field];
       if (value != nil) {
         [components addObject:value];
       } else {
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. You are trying to start or end a query using a "
-                              "document for which the field '%@' (used as the order by) "
+                              "document for which the field '%s' (used as the order by) "
                               "does not exist.",
-                             util::WrapNSStringNoCopy(sortOrder.field.CanonicalString()));
+                             sortOrder.field.CanonicalString().c_str());
       }
     }
   }

@@ -21,16 +21,19 @@
 #include <vector>
 
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
@@ -255,10 +258,10 @@ BOOL ReadLabeledStringMatching(Slice *contents,
  * For each segment in the given resource path writes an FSTComponentLabelPathSegment component
  * label and a string containing the path segment.
  */
-void WriteResourcePath(std::string *dest, FSTResourcePath *path) {
-  for (int i = 0; i < path.length; i++) {
+void WriteResourcePath(std::string *dest, const ResourcePath &path) {
+  for (const auto &segment : path) {
     WriteComponentLabel(dest, FSTComponentLabelPathSegment);
-    OrderedCode::WriteString(dest, StringView([path segmentAtIndex:i]));
+    OrderedCode::WriteString(dest, segment);
   }
 }
 
@@ -522,7 +525,8 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
-+ (std::string)keyPrefixWithUserID:(StringView)userID resourcePath:(FSTResourcePath *)resourcePath {
++ (std::string)keyPrefixWithUserID:(StringView)userID
+                      resourcePath:(const ResourcePath &)resourcePath {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
   WriteUserID(&result, userID);
@@ -536,7 +540,7 @@ NSString *InvalidKey(const Slice &key) {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
   WriteUserID(&result, userID);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
+  WriteResourcePath(&result, documentKey.path);
   WriteBatchID(&result, batchID);
   WriteTerminator(&result);
   return result;
@@ -690,7 +694,7 @@ NSString *InvalidKey(const Slice &key) {
   std::string result;
   WriteTableName(&result, kTargetDocumentsTable);
   WriteTargetID(&result, targetID);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
+  WriteResourcePath(&result, documentKey.path);
   WriteTerminator(&result);
   return result;
 }
@@ -714,7 +718,7 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
-+ (std::string)keyPrefixWithResourcePath:(FSTResourcePath *)resourcePath {
++ (std::string)keyPrefixWithResourcePath:(const ResourcePath &)resourcePath {
   std::string result;
   WriteTableName(&result, kDocumentTargetsTable);
   WriteResourcePath(&result, resourcePath);
@@ -724,7 +728,7 @@ NSString *InvalidKey(const Slice &key) {
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)documentKey targetID:(FSTTargetID)targetID {
   std::string result;
   WriteTableName(&result, kDocumentTargetsTable);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:documentKey.path]);
+  WriteResourcePath(&result, documentKey.path);
   WriteTargetID(&result, targetID);
   WriteTerminator(&result);
   return result;
@@ -749,7 +753,7 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
-+ (std::string)keyPrefixWithResourcePath:(FSTResourcePath *)path {
++ (std::string)keyPrefixWithResourcePath:(const ResourcePath &)path {
   std::string result;
   WriteTableName(&result, kRemoteDocumentsTable);
   WriteResourcePath(&result, path);
@@ -759,7 +763,7 @@ NSString *InvalidKey(const Slice &key) {
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)key {
   std::string result;
   WriteTableName(&result, kRemoteDocumentsTable);
-  WriteResourcePath(&result, [FSTResourcePath resourcePathWithCPPResourcePath:key.path]);
+  WriteResourcePath(&result, key.path);
   WriteTerminator(&result);
   return result;
 }

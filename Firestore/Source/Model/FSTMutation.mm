@@ -22,19 +22,24 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
+
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+
+using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTFieldMask
 
-@implementation FSTFieldMask
+@implementation FSTFieldMask {
+  std::vector<FieldPath> _fields;
+}
 
-- (instancetype)initWithFields:(NSArray<FSTFieldPath *> *)fields {
+- (instancetype)initWithFields:(std::vector<FieldPath>)fields {
   if (self = [super init]) {
-    _fields = fields;
+    _fields = std::move(fields);
   }
   return self;
 }
@@ -48,11 +53,19 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTFieldMask *otherMask = (FSTFieldMask *)other;
-  return [self.fields isEqual:otherMask.fields];
+  return _fields == otherMask->_fields;
 }
 
 - (NSUInteger)hash {
-  return self.fields.hash;
+  NSUInteger hashResult = 0;
+  for (const FieldPath &field : _fields) {
+    hashResult = hashResult * 31u + field.Hash();
+  }
+  return hashResult;
+}
+
+- (const std::vector<FieldPath> &)fields {
+  return _fields;
 }
 @end
 
@@ -85,12 +98,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTFieldTransform
 
-@implementation FSTFieldTransform
+@implementation FSTFieldTransform {
+  FieldPath _path;
+}
 
-- (instancetype)initWithPath:(FSTFieldPath *)path transform:(id<FSTTransformOperation>)transform {
+- (instancetype)initWithPath:(FieldPath)path transform:(id<FSTTransformOperation>)transform {
   self = [super init];
   if (self) {
-    _path = path;
+    _path = std::move(path);
     _transform = transform;
   }
   return self;
@@ -100,14 +115,18 @@ NS_ASSUME_NONNULL_BEGIN
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
   FSTFieldTransform *otherFieldTransform = other;
-  return [self.path isEqual:otherFieldTransform.path] &&
+  return self.path == otherFieldTransform.path &&
          [self.transform isEqual:otherFieldTransform.transform];
 }
 
 - (NSUInteger)hash {
-  NSUInteger hash = [self.path hash];
+  NSUInteger hash = self.path.Hash();
   hash = hash * 31 + [self.transform hash];
   return hash;
+}
+
+- (const firebase::firestore::model::FieldPath &)path {
+  return _path;
 }
 
 @end
@@ -405,7 +424,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTObjectValue *)patchObjectValue:(FSTObjectValue *)objectValue {
   FSTObjectValue *result = objectValue;
-  for (FSTFieldPath *fieldPath in self.fieldMask.fields) {
+  for (const FieldPath &fieldPath : self.fieldMask.fields) {
     FSTFieldValue *newValue = [self.value valueForPath:fieldPath];
     if (newValue) {
       result = [result objectBySettingValue:newValue forPath:fieldPath];
@@ -529,7 +548,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (NSUInteger i = 0; i < self.fieldTransforms.count; i++) {
     FSTFieldTransform *fieldTransform = self.fieldTransforms[i];
     id<FSTTransformOperation> transform = fieldTransform.transform;
-    FSTFieldPath *fieldPath = fieldTransform.path;
+    FieldPath fieldPath = fieldTransform.path;
     if ([transform isKindOfClass:[FSTServerTimestampTransform class]]) {
       objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
     } else {

@@ -24,7 +24,6 @@
 #import "Firestore/Source/API/FIRQuery_Init.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
@@ -38,7 +37,7 @@ using firebase::firestore::util::CreateAutoId;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRCollectionReference ()
-- (instancetype)initWithPath:(FSTResourcePath *)path
+- (instancetype)initWithPath:(const ResourcePath &)path
                    firestore:(FIRFirestore *)firestore NS_DESIGNATED_INITIALIZER;
 
 // Mark the super class designated initializer unavailable.
@@ -48,22 +47,21 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRCollectionReference (Internal)
-+ (instancetype)referenceWithPath:(FSTResourcePath *)path firestore:(FIRFirestore *)firestore {
++ (instancetype)referenceWithPath:(const ResourcePath &)path firestore:(FIRFirestore *)firestore {
   return [[FIRCollectionReference alloc] initWithPath:path firestore:firestore];
 }
 @end
 
 @implementation FIRCollectionReference
 
-- (instancetype)initWithPath:(FSTResourcePath *)path firestore:(FIRFirestore *)firestore {
-  if (path.length % 2 != 1) {
+- (instancetype)initWithPath:(const ResourcePath &)path firestore:(FIRFirestore *)firestore {
+  if (path.size() % 2 != 1) {
     FSTThrowInvalidArgument(
         @"Invalid collection reference. Collection references must have an odd "
-         "number of segments, but %@ has %d",
-        path.canonicalString, path.length);
+         "number of segments, but %s has %zu",
+        path.CanonicalString().c_str(), path.size());
   }
-  self =
-      [super initWithQuery:[FSTQuery queryWithPath:[path toCPPResourcePath]] firestore:firestore];
+  self = [super initWithQuery:[FSTQuery queryWithPath:path] firestore:firestore];
   return self;
 }
 
@@ -116,9 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(documentPath));
   const ResourcePath path = self.query.path.Append(subPath);
-  return
-      [FIRDocumentReference referenceWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:path]
-                                    firestore:self.firestore];
+  return [FIRDocumentReference referenceWithPath:path firestore:self.firestore];
 }
 
 - (FIRDocumentReference *)addDocumentWithData:(NSDictionary<NSString *, id> *)data {

@@ -24,15 +24,16 @@
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
 using firebase::firestore::util::DoubleBitwiseEquals;
@@ -808,25 +809,26 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   }
 }
 
-- (nullable FSTFieldValue *)valueForPath:(FSTFieldPath *)fieldPath {
+- (nullable FSTFieldValue *)valueForPath:(const FieldPath &)fieldPath {
   FSTFieldValue *value = self;
-  for (int i = 0, max = fieldPath.length; value && i < max; i++) {
+  for (size_t i = 0, max = fieldPath.size(); value && i < max; i++) {
     if (![value isMemberOfClass:[FSTObjectValue class]]) {
       return nil;
     }
 
-    NSString *fieldName = fieldPath[i];
+    NSString *fieldName = util::WrapNSStringNoCopy(fieldPath[i]);
     value = ((FSTObjectValue *)value).internalValue[fieldName];
   }
 
   return value;
 }
 
-- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value forPath:(FSTFieldPath *)fieldPath {
-  FSTAssert([fieldPath length] > 0, @"Cannot set value with an empty path");
+- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value
+                                 forPath:(const FieldPath &)fieldPath {
+  FSTAssert(fieldPath.size() > 0, @"Cannot set value with an empty path");
 
-  NSString *childName = [fieldPath firstSegment];
-  if ([fieldPath length] == 1) {
+  NSString *childName = util::WrapNSString(fieldPath.first_segment());
+  if (fieldPath.size() == 1) {
     // Recursive base case:
     return [self objectBySettingValue:value forField:childName];
   } else {
@@ -841,23 +843,22 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       // there.
       childObject = [FSTObjectValue objectValue];
     }
-    FSTFieldValue *newChild =
-        [childObject objectBySettingValue:value forPath:[fieldPath pathByRemovingFirstSegment]];
+    FSTFieldValue *newChild = [childObject objectBySettingValue:value forPath:fieldPath.PopFirst()];
     return [self objectBySettingValue:newChild forField:childName];
   }
 }
 
-- (FSTObjectValue *)objectByDeletingPath:(FSTFieldPath *)fieldPath {
-  FSTAssert([fieldPath length] > 0, @"Cannot delete an empty path");
-  NSString *childName = [fieldPath firstSegment];
-  if ([fieldPath length] == 1) {
+- (FSTObjectValue *)objectByDeletingPath:(const FieldPath &)fieldPath {
+  FSTAssert(fieldPath.size() > 0, @"Cannot delete an empty path");
+  NSString *childName = util::WrapNSString(fieldPath.first_segment());
+  if (fieldPath.size() == 1) {
     return [[FSTObjectValue alloc]
         initWithImmutableDictionary:[_internalValue dictionaryByRemovingObjectForKey:childName]];
   } else {
     FSTFieldValue *child = _internalValue[childName];
     if ([child isKindOfClass:[FSTObjectValue class]]) {
       FSTObjectValue *newChild =
-          [((FSTObjectValue *)child) objectByDeletingPath:[fieldPath pathByRemovingFirstSegment]];
+          [((FSTObjectValue *)child) objectByDeletingPath:fieldPath.PopFirst()];
       return [self objectBySettingValue:newChild forField:childName];
     } else {
       // If the child is not found or is a primitive type, make no modifications

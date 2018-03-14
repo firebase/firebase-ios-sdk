@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  _comp = FSTTestDocComparator(@"sort");
+  _comp = FSTTestDocComparator("sort");
   _doc1 = FSTTestDoc(@"docs/1", 0, @{ @"sort" : @2 }, NO);
   _doc2 = FSTTestDoc(@"docs/2", 0, @{ @"sort" : @3 }, NO);
   _doc3 = FSTTestDoc(@"docs/3", 0, @{ @"sort" : @1 }, NO);

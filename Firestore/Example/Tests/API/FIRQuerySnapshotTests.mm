@@ -18,8 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Model/FSTPath.h"
-
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
