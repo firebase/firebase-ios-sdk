@@ -108,8 +108,6 @@ class Writer {
    */
   void EncodeVarint(uint64_t value);
 
- public:
-  // TODO(rsgowman): make this private again.
   pb_ostream_t* stream_;
 };
 
@@ -240,40 +238,38 @@ std::string DecodeString(pb_istream_t* stream) {
 // TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
 // This will help with error handling, and should eliminate the issue of two
 // 'EncodeFieldValue' methods.
-void EncodeFieldValueImpl(pb_ostream_t* raw_stream,
-                          const FieldValue& field_value) {
+void EncodeFieldValueImpl(Writer* stream, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  Writer stream(raw_stream);
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      stream.EncodeTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_null_value_tag);
-      stream.EncodeNull();
+      stream->EncodeTag(PB_WT_VARINT,
+                        google_firestore_v1beta1_Value_null_value_tag);
+      stream->EncodeNull();
       break;
 
     case FieldValue::Type::Boolean:
-      stream.EncodeTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_boolean_value_tag);
-      stream.EncodeBool(field_value.boolean_value());
+      stream->EncodeTag(PB_WT_VARINT,
+                        google_firestore_v1beta1_Value_boolean_value_tag);
+      stream->EncodeBool(field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
-      stream.EncodeTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_integer_value_tag);
-      stream.EncodeInteger(field_value.integer_value());
+      stream->EncodeTag(PB_WT_VARINT,
+                        google_firestore_v1beta1_Value_integer_value_tag);
+      stream->EncodeInteger(field_value.integer_value());
       break;
 
     case FieldValue::Type::String:
-      stream.EncodeTag(PB_WT_STRING,
-                       google_firestore_v1beta1_Value_string_value_tag);
-      stream.EncodeString(field_value.string_value());
+      stream->EncodeTag(PB_WT_STRING,
+                        google_firestore_v1beta1_Value_string_value_tag);
+      stream->EncodeString(field_value.string_value());
       break;
 
     case FieldValue::Type::Object:
-      stream.EncodeTag(PB_WT_STRING,
-                       google_firestore_v1beta1_Value_map_value_tag);
-      EncodeObject(&stream, field_value.object_value());
+      stream->EncodeTag(PB_WT_STRING,
+                        google_firestore_v1beta1_Value_map_value_tag);
+      EncodeObject(stream, field_value.object_value());
       break;
 
     default:
@@ -441,9 +437,8 @@ void EncodeFieldsEntry(Writer* stream,
   // Encode the value (FieldValue)
   stream->EncodeTag(PB_WT_STRING,
                     google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  stream->EncodeNestedMessage([&kv](Writer* stream) {
-    EncodeFieldValueImpl(stream->stream_, kv.second);
-  });
+  stream->EncodeNestedMessage(
+      [&kv](Writer* stream) { EncodeFieldValueImpl(stream, kv.second); });
 }
 
 std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
@@ -537,7 +532,7 @@ void Serializer::EncodeFieldValue(const FieldValue& field_value,
   // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
   // care about the underlying output vector, so where we are in the vector
   // itself is irrelevant. i.e. don't use out_bytes->size())
-  pb_ostream_t stream = {
+  pb_ostream_t raw_stream = {
       /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
                       size_t count) -> bool {
         auto* out_bytes = static_cast<std::vector<uint8_t>*>(stream->state);
@@ -548,6 +543,7 @@ void Serializer::EncodeFieldValue(const FieldValue& field_value,
       /*max_size=*/kMaxDocumentSize,
       /*bytes_written=*/0,
       /*errmsg=*/NULL};
+  Writer stream(&raw_stream);
   EncodeFieldValueImpl(&stream, field_value);
 }
 
