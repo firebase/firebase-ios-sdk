@@ -40,7 +40,7 @@ LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
       is_mutation_(false),
       // Iterator doesn't really point to anything yet, so is
       // invalid
-      is_valid_(false)  {
+      is_valid_(false) {
 }
 
 void LevelDBTransaction::Iterator::UpdateCurrent() {
