@@ -126,8 +126,8 @@ class LevelDBTransaction {
 
   explicit LevelDBTransaction(
       leveldb::DB* db,
-      const leveldb::ReadOptions& readOptions = DefaultReadOptions(),
-      const leveldb::WriteOptions& writeOptions = DefaultWriteOptions());
+      const leveldb::ReadOptions& read_options = DefaultReadOptions(),
+      const leveldb::WriteOptions& write_options = DefaultWriteOptions());
 
   LevelDBTransaction(const LevelDBTransaction& other) = delete;
 

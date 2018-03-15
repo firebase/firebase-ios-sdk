@@ -143,9 +143,9 @@ LevelDBTransaction::LevelDBTransaction(DB* db,
 
 const ReadOptions& LevelDBTransaction::DefaultReadOptions() {
   static ReadOptions options = ([]() {
-    ReadOptions readOptions;
-    readOptions.verify_checksums = true;
-    return readOptions;
+    ReadOptions read_options;
+    read_options.verify_checksums = true;
+    return read_options;
   })();
   return options;
 }
