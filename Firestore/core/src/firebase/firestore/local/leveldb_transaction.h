@@ -138,6 +138,9 @@ class LevelDBTransaction {
    */
   static const leveldb::ReadOptions& DefaultReadOptions();
 
+  /**
+   * Returns a default set of WriteOptions
+   */
   static const leveldb::WriteOptions& DefaultWriteOptions();
 
   /**
