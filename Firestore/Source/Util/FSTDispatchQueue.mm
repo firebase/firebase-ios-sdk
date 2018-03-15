@@ -230,11 +230,8 @@ NS_ASSUME_NONNULL_BEGIN
                                      block:(void (^)(void))block {
   // While not necessarily harmful, we currently don't expect to have multiple callbacks with the
   // same timerID in the queue, so defensively reject them.
-  // TODO(b/74749605): If a user change happens while offline we can end up with multiple backoff
-  // callbacks in the dispatch queue. This is non-harmful so I'm just disabling the assert until we
-  // get that cleaned up.
-  // FSTAssert(![self containsDelayedCallbackWithTimerID:timerID],
-  //           @"Attempted to schedule multiple callbacks with id %ld", (unsigned long)timerID);
+  FSTAssert(![self containsDelayedCallbackWithTimerID:timerID],
+            @"Attempted to schedule multiple callbacks with id %ld", (unsigned long)timerID);
   FSTDelayedCallback *delayedCallback = [FSTDelayedCallback createAndScheduleWithQueue:self
                                                                                timerID:timerID
                                                                                  delay:delay

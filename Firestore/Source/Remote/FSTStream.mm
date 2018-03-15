@@ -326,7 +326,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /** Resumes stream start after backing off. */
 - (void)resumeStartFromBackoffWithDelegate:(id)delegate {
   if (self.state == FSTStreamStateStopped) {
-    // Streams can be stopped while waiting for backoff to complete.
+    // We should have canceled the backoff timer when the stream was closed, but just in case we
+    // make this a no-op.
     return;
   }
 
@@ -367,7 +368,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
             @"Can't provide an error when not in an error state.");
 
   [self.workerDispatchQueue verifyIsCurrentQueue];
+
+  // The stream will be closed so we don't need our idle close timer anymore.
   [self cancelIdleCheck];
+
+  // Ensure we don't leave a pending backoff operation queued (in case close()
+  // was called while we were waiting to reconnect).
+  [self.backoff cancel];
 
   if (finalState != FSTStreamStateError) {
     // If this is an intentional close ensure we don't delay our next connection attempt.
