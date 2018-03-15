@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(!self.activeGroup,
             @"Attempt to create write group (%@) while existing write group (%@) still active.",
             action, self.activeGroup.action);
-  self.activeGroup = [FSTWriteGroup groupWithAction:action andTransaction:transaction];
+  self.activeGroup = [FSTWriteGroup groupWithAction:action transaction:transaction];
   return self.activeGroup;
 }
 

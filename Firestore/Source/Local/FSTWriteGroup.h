@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)groupWithAction:(NSString *)action;
 
 + (instancetype)groupWithAction:(NSString *)action
-                 andTransaction:(firebase::firestore::local::LevelDBTransaction *)transaction;
+                    transaction:(firebase::firestore::local::LevelDBTransaction *)transaction;
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor instead")));
 

@@ -17,6 +17,7 @@
 #include "Firestore/Source/Local/FSTLevelDBMigrations.h"
 
 #include "leveldb/write_batch.h"
+#include <absl/strings/match.h>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
@@ -37,7 +38,6 @@ using leveldb::WriteOptions;
 
 /**
  * Ensures that the global singleton target metadata row exists in LevelDB.
- * @param db The db in which to require the row.
  */
 static void EnsureTargetGlobal(LevelDBTransaction *transaction) {
   FSTPBTargetGlobal *targetGlobal =
@@ -50,7 +50,7 @@ static void EnsureTargetGlobal(LevelDBTransaction *transaction) {
 /**
  * Save the given version number as the current version of the schema of the database.
  * @param version The version to save
- * @param group The transaction in which to save the new version number
+ * @param transaction The transaction in which to save the new version number
  */
 static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDBTransaction *transaction) {
   std::string key = [FSTLevelDBVersionKey key];
@@ -71,7 +71,7 @@ static void AddTargetCount(LevelDBTransaction *transaction) {
   it->Seek(start_key);
 
   int32_t count = 0;
-  while (it->Valid() && it->key_starts_with(start_key)) {
+  while (it->Valid() && absl::StartsWith(it->key(), start_key)) {
     count++;
     it->Next();
   }

@@ -147,8 +147,7 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  LevelDBTransaction transaction(_ptr, [FSTLevelDB standardReadOptions],
-                                 [FSTLevelDB standardWriteOptions]);
+  LevelDBTransaction transaction(_ptr.get());
   [FSTLevelDBMigrations runMigrations:&transaction];
   transaction.Commit();
   return YES;
@@ -226,8 +225,7 @@ using leveldb::WriteOptions;
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = std::make_unique<LevelDBTransaction>(_ptr, [FSTLevelDB standardReadOptions],
-                                                      [FSTLevelDB standardWriteOptions]);
+  _transaction = std::make_unique<LevelDBTransaction>(_ptr.get());
   return [self.writeGroupTracker startGroupWithAction:action andTransaction:_transaction.get()];
 }
 
