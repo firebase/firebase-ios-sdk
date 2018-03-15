@@ -20,14 +20,15 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::model::DocumentKey;
 
 @interface FSTMutationTests : XCTestCase
 @end
@@ -67,7 +68,7 @@ namespace testutil = firebase::firestore::testutil;
   NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value", @"baz" : @"baz-value"} };
   FSTDocument *baseDoc = FSTTestDoc(@"collection/key", 0, docData, NO);
 
-  FSTDocumentKey *key = FSTTestDocKey(@"collection/key");
+  DocumentKey key = testutil::DocKey("collection/key");
   FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:{testutil::Field("foo.bar")}];
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:mask

@@ -19,14 +19,15 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDocumentTests
 
 - (void)testConstructor {
-  FSTDocumentKey *key = FSTTestDocKey(@"messages/first");
+  DocumentKey key = testutil::DocKey("messages/first");
   FSTSnapshotVersion *version = FSTTestVersion(1);
   FSTObjectValue *data = FSTTestObjectValue(@{ @"a" : @1 });
   FSTDocument *doc =
@@ -49,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExtractsFields {
-  FSTDocumentKey *key = FSTTestDocKey(@"rooms/eros");
+  DocumentKey key = testutil::DocKey("rooms/eros");
   FSTSnapshotVersion *version = FSTTestVersion(1);
   FSTObjectValue *data = FSTTestObjectValue(@{
     @"desc" : @"Discuss all the project related stuff",

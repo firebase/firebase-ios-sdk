@@ -27,6 +27,10 @@ namespace testutil {
 
 // Below are convenience methods for creating instances for tests.
 
+inline model::DocumentKey DocKey(absl::string_view path) {
+  return model::DocumentKey::FromPathString(path);
+}
+
 inline model::FieldPath Field(absl::string_view field) {
   return model::FieldPath::FromServerFormat(field);
 }
