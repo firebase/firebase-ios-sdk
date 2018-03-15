@@ -100,7 +100,12 @@ using leveldb::Status;
   }
 
   {
+<<<<<<< HEAD
     LevelDBTransaction transaction(_db.get());
+=======
+    LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions],
+                                   [FSTLevelDB standardWriteOptions]);
+>>>>>>> 022c47785364888d9508fd0d12d82832574c7c16
     [FSTLevelDBMigrations runMigrations:&transaction];
     transaction.Commit();
     FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
