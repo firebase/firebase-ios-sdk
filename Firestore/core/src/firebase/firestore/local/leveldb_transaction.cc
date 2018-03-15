@@ -39,8 +39,8 @@ LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
       current_(),
       is_mutation_(false),
       is_valid_(false)  // Iterator doesn't really point to anything yet, so is
-                         // invalid
-       {
+                        // invalid
+{
 }
 
 void LevelDBTransaction::Iterator::UpdateCurrent() {
@@ -53,22 +53,24 @@ void LevelDBTransaction::Iterator::UpdateCurrent() {
     } else if (!db_iter_->Valid()) {
       is_mutation_ = true;
     } else {
-      // Both iterators are valid. If the leveldb key is equal to or greater than the
-      // current mutation key, we are looking at a mutation next. It's either sooner
-      // in the iteration or directly shadowing the underlying committed value in leveldb.
+      // Both iterators are valid. If the leveldb key is equal to or greater
+      // than the current mutation key, we are looking at a mutation next. It's
+      // either sooner in the iteration or directly shadowing the underlying
+      // committed value in leveldb.
       is_mutation_ = db_iter_->key().compare(mutations_iter_->first) >= 0;
     }
     if (is_mutation_) {
       current_ = *mutations_iter_;
     } else {
-      current_ = { db_iter_->key().ToString(), db_iter_->value().ToString() };
+      current_ = {db_iter_->key().ToString(), db_iter_->value().ToString()};
     }
   }
 }
 
 void LevelDBTransaction::Iterator::Seek(const std::string& key) {
   db_iter_->Seek(key);
-  for (; db_iter_->Valid() && IsDeleted(db_iter_->key()); db_iter_->Next()) {}
+  for (; db_iter_->Valid() && IsDeleted(db_iter_->key()); db_iter_->Next()) {
+  }
   mutations_iter_ = txn_->mutations_.lower_bound(key);
   UpdateCurrent();
   last_version_ = txn_->version_;
@@ -90,8 +92,8 @@ bool LevelDBTransaction::Iterator::IsDeleted(leveldb::Slice slice) {
 
 bool LevelDBTransaction::Iterator::SyncToTransaction() {
   if (last_version_ < txn_->version_) {
-    // Intentionally copying here since Seek() may update current_. We need the copy
-    // to do the comparison below.
+    // Intentionally copying here since Seek() may update current_. We need the
+    // copy to do the comparison below.
     const std::string current_key = current_.first;
     Seek(current_key);
     // If we advanced, we don't need to advance again.
@@ -128,10 +130,14 @@ bool LevelDBTransaction::Iterator::Valid() {
   return is_valid_;
 }
 
-LevelDBTransaction::LevelDBTransaction(DB *db,
-        const ReadOptions& readOptions,
-        const WriteOptions& writeOptions)
-        : db_(db), mutations_(), deletions_(), read_options_(readOptions), write_options_(writeOptions) {
+LevelDBTransaction::LevelDBTransaction(DB* db,
+                                       const ReadOptions& readOptions,
+                                       const WriteOptions& writeOptions)
+    : db_(db),
+      mutations_(),
+      deletions_(),
+      read_options_(readOptions),
+      write_options_(writeOptions) {
 }
 
 const ReadOptions& LevelDBTransaction::DefaultReadOptions() {
@@ -148,7 +154,8 @@ const WriteOptions& LevelDBTransaction::DefaultWriteOptions() {
   return options;
 }
 
-void LevelDBTransaction::Put(const absl::string_view& key, const absl::string_view& value) {
+void LevelDBTransaction::Put(const absl::string_view& key,
+                             const absl::string_view& value) {
   std::string key_string(key);
   std::string value_string(value);
   mutations_[key_string] = value_string;
@@ -156,12 +163,12 @@ void LevelDBTransaction::Put(const absl::string_view& key, const absl::string_vi
   version_++;
 }
 
-
 LevelDBTransaction::Iterator* LevelDBTransaction::NewIterator() {
   return new LevelDBTransaction::Iterator(this);
 }
 
-Status LevelDBTransaction::Get(const absl::string_view& key, std::string* value) {
+Status LevelDBTransaction::Get(const absl::string_view& key,
+                               std::string* value) {
   std::string key_string(key);
   if (deletions_.find(key_string) != deletions_.end()) {
     return Status::NotFound(key_string + " is not present in the transaction");

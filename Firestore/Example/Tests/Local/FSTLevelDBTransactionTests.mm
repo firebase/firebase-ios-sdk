@@ -16,11 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
-#include <absl/strings/string_view.h>
 #import <XCTest/XCTest.h>
+#include <absl/strings/string_view.h>
 #include <leveldb/db.h>
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -69,7 +69,7 @@ using firebase::firestore::local::LevelDBTransaction;
 - (void)testCanReadCommittedAndMutations {
   const std::string committed_key1 = "c_key1";
   const std::string committed_value1 = "c_value1";
-  const WriteOptions& writeOptions = LevelDBTransaction::DefaultWriteOptions();
+  const WriteOptions &writeOptions = LevelDBTransaction::DefaultWriteOptions();
   // add two things committed, mutate one, add another mutation
   // verify you can get the original committed, the mutation, and the addition
   Status status = _db->Put(writeOptions, committed_key1, committed_value1);
@@ -106,8 +106,8 @@ using firebase::firestore::local::LevelDBTransaction;
 - (void)testDeleteCommitted {
   // add something committed, delete it, verify you can't read it
   for (int i = 0; i < 3; ++i) {
-    Status status =
-        _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i), "value_" + std::to_string(i));
+    Status status = _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i),
+                             "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
   LevelDBTransaction transaction(_db.get());
@@ -134,8 +134,8 @@ using firebase::firestore::local::LevelDBTransaction;
   // delete something, then mutate it, then read it.
   // Also include an actual deletion
   for (int i = 0; i < 4; ++i) {
-    Status status =
-        _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i), "value_" + std::to_string(i));
+    Status status = _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i),
+                             "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
   std::string value;
@@ -165,7 +165,7 @@ using firebase::firestore::local::LevelDBTransaction;
   // Commit, then check underlying db.
   transaction.Commit();
 
-  const ReadOptions& readOptions = LevelDBTransaction::DefaultReadOptions();
+  const ReadOptions &readOptions = LevelDBTransaction::DefaultReadOptions();
   status = _db->Get(readOptions, "key_0", &value);
   XCTAssertTrue(status.ok());
   XCTAssertEqual("value_0", value);
@@ -213,7 +213,7 @@ using firebase::firestore::local::LevelDBTransaction;
   it->Seek("key_0");
   for (int i = 0; i < 4; ++i) {
     XCTAssertTrue(it->Valid());
-    const absl::string_view& key = it->key();
+    const absl::string_view &key = it->key();
     std::string expected = "key_" + std::to_string(i);
     XCTAssertEqual(expected, key);
     transaction.Delete(key);
@@ -224,8 +224,8 @@ using firebase::firestore::local::LevelDBTransaction;
 - (void)testCanIterateFromDeletionToCommitted {
   // Write keys key_0 and key_1
   for (int i = 0; i < 2; ++i) {
-    Status status =
-        _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i), "value_" + std::to_string(i));
+    Status status = _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i),
+                             "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
 
@@ -246,8 +246,8 @@ using firebase::firestore::local::LevelDBTransaction;
 - (void)testDeletingAheadOfAnIterator {
   // Write keys
   for (int i = 0; i < 4; ++i) {
-    Status status =
-        _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i), "value_" + std::to_string(i));
+    Status status = _db->Put(LevelDBTransaction::DefaultWriteOptions(), "key_" + std::to_string(i),
+                             "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
 

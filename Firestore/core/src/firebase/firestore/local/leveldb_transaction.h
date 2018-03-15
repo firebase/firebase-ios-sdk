@@ -17,10 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 
+#include <stdint.h>
 #include <map>
 #include <memory>
 #include <set>
-#include <stdint.h>
 #include <string>
 #include <utility>
 
@@ -43,6 +43,7 @@ namespace local {
 class LevelDBTransaction {
   using Deletions = std::set<std::string>;
   using Mutations = std::map<std::string, std::string>;
+
  public:
   /**
    * Iterator iterates over a merged view of pending changes from the
@@ -62,7 +63,6 @@ class LevelDBTransaction {
      * key
      */
     void Seek(const std::string& key);
-
 
     /**
      * Advances the iterator to the next entry
@@ -86,14 +86,16 @@ class LevelDBTransaction {
     void AdvanceLDB();
 
     /**
-     * Returns true if the given slice matches a key present in the deletions_ set.
+     * Returns true if the given slice matches a key present in the deletions_
+     * set.
      */
     bool IsDeleted(leveldb::Slice slice);
 
     /**
      * Syncs with the underlying transaction. If the transaction has been
-     * updated, the mutation iterator may need to be reset. Returns true if this resulted
-     * in moving to a new underlying entry (i.e. the entry represented by current_ was deleted).
+     * updated, the mutation iterator may need to be reset. Returns true if this
+     * resulted in moving to a new underlying entry (i.e. the entry represented
+     * by current_ was deleted).
      */
     bool SyncToTransaction();
 
@@ -114,18 +116,18 @@ class LevelDBTransaction {
     // remains so at least until the next call to Seek() or Next(), even if the
     // underlying data is deleted.
     std::pair<std::string, std::string> current_;
-    // True if current_ represents an entry in the mutations_ map, rather than committed data.
+    // True if current_ represents an entry in the mutations_ map, rather than
+    // committed data.
     bool is_mutation_;
     // True if the iterator pointed to a valid entry the last time Next() or
     // Seek() was called.
     bool is_valid_;
-
   };
 
   explicit LevelDBTransaction(
-          leveldb::DB *db,
-          const leveldb::ReadOptions& readOptions = DefaultReadOptions(),
-          const leveldb::WriteOptions& writeOptions = DefaultWriteOptions());
+      leveldb::DB* db,
+      const leveldb::ReadOptions& readOptions = DefaultReadOptions(),
+      const leveldb::WriteOptions& writeOptions = DefaultWriteOptions());
 
   LevelDBTransaction(const LevelDBTransaction& other) = delete;
 
@@ -146,7 +148,8 @@ class LevelDBTransaction {
 
 #if __OBJC__
   /**
-   * Schedules the row identified by `key` to be set to the given protocol buffer message when this transaction commits.
+   * Schedules the row identified by `key` to be set to the given protocol
+   * buffer message when this transaction commits.
    */
   void Put(const absl::string_view& key, GPBMessage* message) {
     NSData* data = [message data];
@@ -157,15 +160,16 @@ class LevelDBTransaction {
 #endif
 
   /**
-   * Schedules the row identified by `key` to be set to `value` when this transaction commits.
+   * Schedules the row identified by `key` to be set to `value` when this
+   * transaction commits.
    */
   void Put(const absl::string_view& key, const absl::string_view& value);
 
   /**
-   * Sets the contents of `value` to the latest known value for the given key, including
-   * any pending mutations and `Status::OK` is returned. If the key doesn't exist in
-   * leveldb, or it is scheduled for deletion in this transaction, `Status::NotFound` is
-   * returned.
+   * Sets the contents of `value` to the latest known value for the given key,
+   * including any pending mutations and `Status::OK` is returned. If the key
+   * doesn't exist in leveldb, or it is scheduled for deletion in this
+   * transaction, `Status::NotFound` is returned.
    */
   leveldb::Status Get(const absl::string_view& key, std::string* value);
 
@@ -182,7 +186,7 @@ class LevelDBTransaction {
   void Commit();
 
  private:
-  leveldb::DB *db_;
+  leveldb::DB* db_;
   Mutations mutations_;
   Deletions deletions_;
   leveldb::ReadOptions read_options_;
