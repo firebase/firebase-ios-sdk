@@ -1,3 +1,4 @@
+// TODO(rsgowman): how should the copyright be adapted?
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -27,72 +28,71 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#include <google/protobuf/stubs/status.h>
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 #include <ostream>
-#include <stdio.h>
-#include <string>
-#include <utility>
 
-namespace google {
-namespace protobuf {
+namespace firebase {
+namespace firestore {
 namespace util {
-namespace error {
-inline string CodeEnumToString(error::Code code) {
+
+namespace {
+inline std::string CodeEnumToString(FirestoreErrorCode code) {
   switch (code) {
-    case OK:
+    case Ok:
       return "OK";
-    case CANCELLED:
+    case Cancelled:
       return "CANCELLED";
-    case UNKNOWN:
+    case Unknown:
       return "UNKNOWN";
-    case INVALID_ARGUMENT:
+    case InvalidArgument:
       return "INVALID_ARGUMENT";
-    case DEADLINE_EXCEEDED:
+    case DeadlineExceeded:
       return "DEADLINE_EXCEEDED";
-    case NOT_FOUND:
+    case NotFound:
       return "NOT_FOUND";
-    case ALREADY_EXISTS:
+    case AlreadyExists:
       return "ALREADY_EXISTS";
-    case PERMISSION_DENIED:
+    case PermissionDenied:
       return "PERMISSION_DENIED";
-    case UNAUTHENTICATED:
-      return "UNAUTHENTICATED";
-    case RESOURCE_EXHAUSTED:
+    case ResourceExhausted:
       return "RESOURCE_EXHAUSTED";
-    case FAILED_PRECONDITION:
+    case FailedPrecondition:
       return "FAILED_PRECONDITION";
-    case ABORTED:
+    case Aborted:
       return "ABORTED";
-    case OUT_OF_RANGE:
+    case OutOfRange:
       return "OUT_OF_RANGE";
-    case UNIMPLEMENTED:
+    case Unimplemented:
       return "UNIMPLEMENTED";
-    case INTERNAL:
+    case Internal:
       return "INTERNAL";
-    case UNAVAILABLE:
+    case Unavailable:
       return "UNAVAILABLE";
-    case DATA_LOSS:
+    case DataLoss:
       return "DATA_LOSS";
+    case Unauthenticated:
+      return "UNAUTHENTICATED";
   }
 
   // No default clause, clang will abort if a code is missing from
   // above switch.
   return "UNKNOWN";
 }
-}  // namespace error.
+}  // namespace
 
 const Status Status::OK = Status();
-const Status Status::CANCELLED = Status(error::CANCELLED, "");
-const Status Status::UNKNOWN = Status(error::UNKNOWN, "");
+const Status Status::CANCELLED = Status(FirestoreErrorCode::Cancelled, "");
+const Status Status::UNKNOWN = Status(FirestoreErrorCode::Unknown, "");
 
-Status::Status() : error_code_(error::OK) {
+Status::Status() : error_code_(FirestoreErrorCode::Ok) {
 }
 
-Status::Status(error::Code error_code, StringPiece error_message)
+Status::Status(FirestoreErrorCode error_code, absl::string_view error_message)
     : error_code_(error_code) {
-  if (error_code != error::OK) {
-    error_message_ = error_message.ToString();
+  if (error_code != FirestoreErrorCode::Ok) {
+    error_message_ = std::string(error_message.data(),
+                                 error_message.data() + error_message.size());
   }
 }
 
@@ -107,28 +107,26 @@ Status& Status::operator=(const Status& other) {
 }
 
 bool Status::operator==(const Status& x) const {
-  return error_code_ == x.error_code_ &&
-      error_message_ == x.error_message_;
+  return error_code_ == x.error_code_ && error_message_ == x.error_message_;
 }
 
-string Status::ToString() const {
-  if (error_code_ == error::OK) {
+std::string Status::ToString() const {
+  if (error_code_ == FirestoreErrorCode::Ok) {
     return "OK";
   } else {
     if (error_message_.empty()) {
-      return error::CodeEnumToString(error_code_);
+      return CodeEnumToString(error_code_);
     } else {
-      return error::CodeEnumToString(error_code_) + ":" +
-          error_message_;
+      return CodeEnumToString(error_code_) + ":" + error_message_;
     }
   }
 }
 
-ostream& operator<<(ostream& os, const Status& x) {
+std::ostream& operator<<(std::ostream& os, const Status& x) {
   os << x.ToString();
   return os;
 }
 
 }  // namespace util
-}  // namespace protobuf
-}  // namespace google
+}  // namespace firestore
+}  // namespace firebase

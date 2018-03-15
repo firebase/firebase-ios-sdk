@@ -1,3 +1,4 @@
+// TODO(rsgowman): copyright?
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -28,19 +29,21 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <google/protobuf/stubs/statusor.h>
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
-namespace google {
-namespace protobuf {
+namespace firebase {
+namespace firestore {
 namespace util {
 namespace internal {
 
 void StatusOrHelper::Crash(const Status& status) {
-  GOOGLE_LOG(FATAL) << "Attempting to fetch value instead of handling error "
-                    << status.ToString();
+  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
+      false, "Attempting to fetch value instead of handling error %s",
+      status.ToString().c_str());
 }
 
 }  // namespace internal
 }  // namespace util
-}  // namespace protobuf
-}  // namespace google
+}  // namespace firestore
+}  // namespace firebase

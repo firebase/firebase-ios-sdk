@@ -1,3 +1,4 @@
+// TODO(rsgowman): copyright
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -30,15 +31,15 @@
 
 // From: util/task/contrib/status_macros/status_macros.h
 
-#ifndef GOOGLE_PROTOBUF_STUBS_STATUS_MACROS_H_
-#define GOOGLE_PROTOBUF_STUBS_STATUS_MACROS_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_MACROS_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_MACROS_H_
 
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/statusor.h>
 
-namespace google {
-namespace protobuf {
+namespace firebase {
+namespace firestore {
 namespace util {
 
 // Run a command that returns a util::Status.  If the called code returns an
@@ -49,8 +50,8 @@ namespace util {
 #define RETURN_IF_ERROR(expr) \
   do { \
     /* Using _status below to avoid capture problems if expr is "status". */ \
-    const ::google::protobuf::util::Status _status = (expr); \
-    if (GOOGLE_PREDICT_FALSE(!_status.ok())) return _status; \
+    const ::firebase::firestore::util::Status _status = (expr); \
+    if (!_status.ok()) return _status; \
   } while (0)
 
 // Internal helper for concatenating macro values.
@@ -67,7 +68,7 @@ Status DoAssignOrReturn(T& lhs, StatusOr<T> result) {
 
 #define ASSIGN_OR_RETURN_IMPL(status, lhs, rexpr) \
   Status status = DoAssignOrReturn(lhs, (rexpr)); \
-  if (GOOGLE_PREDICT_FALSE(!status.ok())) return status;
+  if (!status.ok()) return status;
 
 // Executes an expression that returns a util::StatusOr, extracting its value
 // into the variable defined by lhs (or returning on error).
@@ -83,7 +84,7 @@ Status DoAssignOrReturn(T& lhs, StatusOr<T> result) {
       STATUS_MACROS_CONCAT_NAME(_status_or_value, __COUNTER__), lhs, rexpr);
 
 }  // namespace util
-}  // namespace protobuf
-}  // namespace google
+}  // namespace firestore
+}  // namespace firebase
 
-#endif  // GOOGLE_PROTOBUF_STUBS_STATUS_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_MACROS_H_

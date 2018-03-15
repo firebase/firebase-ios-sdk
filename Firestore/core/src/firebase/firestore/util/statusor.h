@@ -1,3 +1,4 @@
+// TODO(rsgowman): copyright
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -62,7 +63,7 @@
 //
 //  StatusOr<std::unique_ptr<Foo>> result = FooFactory::MakeNewFoo(arg);
 //  if (result.ok()) {
-//    std::unique_ptr<Foo> foo = result.ConsumeValueOrDie();
+//    std::unique_ptr<Foo> foo = std::move(result).ValueOrDie();
 //    foo->DoSomethingCool();
 //  } else {
 //    LOG(ERROR) << result.status();
@@ -80,17 +81,18 @@
 //  }
 //
 
-#ifndef GOOGLE_PROTOBUF_STUBS_STATUSOR_H_
-#define GOOGLE_PROTOBUF_STUBS_STATUSOR_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_
 
 #include <new>
 #include <string>
 #include <utility>
 
-#include <google/protobuf/stubs/status.h>
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
-namespace google {
-namespace protobuf {
+namespace firebase {
+namespace firestore {
 namespace util {
 
 template<typename T>
@@ -102,15 +104,15 @@ class StatusOr {
   StatusOr();
 
   // Construct a new StatusOr with the given non-ok status. After calling
-  // this constructor, calls to ValueOrDie() will CHECK-fail.
+  // this constructor, calls to ValueOrDie() will FIREBASE_ASSERT-fail.
   //
   // NOTE: Not explicit - we want to use StatusOr<T> as a return
   // value, so it is convenient and sensible to be able to do 'return
   // Status()' when the return type is StatusOr<T>.
   //
-  // REQUIRES: status != Status::OK. This requirement is DCHECKed.
-  // In optimized builds, passing Status::OK here will have the effect
-  // of passing PosixErrorSpace::EINVAL as a fallback.
+  // REQUIRES: status != Status::OK. This requirement is FIREBASE_DEV_ASSERT
+  // checked. In optimized builds, passing Status::OK here will have the effect
+  // of passing FirebaseErrorCode::Internal as a fallback.
   StatusOr(const Status& status);  // NOLINT
 
   // Construct a new StatusOr with the given value. If T is a plain pointer,
@@ -122,8 +124,9 @@ class StatusOr {
   // when when the return type is StatusOr<T>.
   //
   // REQUIRES: if T is a plain pointer, value != NULL. This requirement is
-  // DCHECKed. In optimized builds, passing a NULL pointer here will have
-  // the effect of passing PosixErrorSpace::EINVAL as a fallback.
+  // FIREBASE_DEV_ASSERT checked. In optimized builds, passing a NULL pointer
+  // here will have the effect of passing FirebaseErrorCode::Internal as a
+  // fallback.
   StatusOr(const T& value);  // NOLINT
 
   // Copy constructor.
@@ -147,9 +150,25 @@ class StatusOr {
   // Returns this->status().ok()
   bool ok() const;
 
-  // Returns a reference to our current value, or CHECK-fails if !this->ok().
-  // If you need to initialize a T object from the stored value,
-  // ConsumeValueOrDie() may be more efficient.
+  // Returns a reference to our current value, or FIREBASE_ASSERT-fails if
+  // !this->ok().
+  //
+  // Note: for value types that are cheap to copy, prefer simple code:
+  //
+  //   T value = statusor.ValueOrDie();
+  //
+  // Otherwise, if the value type is expensive to copy, but can be left
+  // in the StatusOr, simply assign to a reference:
+  //
+  //   T& value = statusor.ValueOrDie();  // or `const T&`
+  //
+  // Otherwise, if the value type supports an efficient move, it can be
+  // used as follows:
+  //
+  //   T value = std::move(statusor).ValueOrDie();
+  //
+  // The std::move on statusor instead of on the whole expression enables
+  // warnings about possible uses of the statusor object after the move.
   const T& ValueOrDie() const;
 
  private:
@@ -162,7 +181,7 @@ class StatusOr {
 
 namespace internal {
 
-class LIBPROTOBUF_EXPORT StatusOrHelper {
+class StatusOrHelper {
  public:
   // Move type-agnostic error handling to the .cc.
   static void Crash(const util::Status& status);
@@ -175,7 +194,7 @@ class LIBPROTOBUF_EXPORT StatusOrHelper {
 template<typename T>
 struct StatusOrHelper::Specialize {
   // For non-pointer T, a reference can never be NULL.
-  static inline bool IsValueNull(const T& t) { return false; }
+  static inline bool IsValueNull(const T&) { return false; }
 };
 
 template<typename T>
@@ -193,7 +212,10 @@ inline StatusOr<T>::StatusOr()
 template<typename T>
 inline StatusOr<T>::StatusOr(const Status& status) {
   if (status.ok()) {
-    status_ = Status(error::INTERNAL, "Status::OK is not a valid argument.");
+    FIREBASE_DEV_ASSERT_WITH_EXPRESSION(false,
+                                        "Status::OK is not a valid argument.");
+    status_ = Status(FirestoreErrorCode::Internal,
+                     "Status::OK is not a valid argument.");
   } else {
     status_ = status;
   }
@@ -202,7 +224,9 @@ inline StatusOr<T>::StatusOr(const Status& status) {
 template<typename T>
 inline StatusOr<T>::StatusOr(const T& value) {
   if (internal::StatusOrHelper::Specialize<T>::IsValueNull(value)) {
-    status_ = Status(error::INTERNAL, "NULL is not a vaild argument.");
+    FIREBASE_DEV_ASSERT_WITH_EXPRESSION(false, "NULL is not a valid argument.");
+    status_ =
+        Status(FirestoreErrorCode::Internal, "NULL is not a vaild argument.");
   } else {
     status_ = Status::OK;
     value_ = value;
@@ -253,7 +277,7 @@ inline const T& StatusOr<T>::ValueOrDie() const {
   return value_;
 }
 }  // namespace util
-}  // namespace protobuf
-}  // namespace google
+}  // namespace firestore
+}  // namespace firebase
 
-#endif  // GOOGLE_PROTOBUF_STUBS_STATUSOR_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_

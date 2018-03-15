@@ -1,3 +1,4 @@
+// TODO(rsgowman): how should the copyright be adapted?
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -27,51 +28,28 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef GOOGLE_PROTOBUF_STUBS_STATUS_H_
-#define GOOGLE_PROTOBUF_STUBS_STATUS_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_H_
 
 #include <iosfwd>
 #include <string>
 
-#include <google/protobuf/stubs/common.h>
-#include <google/protobuf/stubs/stringpiece.h>
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "absl/strings/string_view.h"
 
-namespace google {
-namespace protobuf {
+namespace firebase {
+namespace firestore {
 namespace util {
-namespace error {
-// These values must match error codes defined in google/rpc/code.proto.
-enum Code {
-  OK = 0,
-  CANCELLED = 1,
-  UNKNOWN = 2,
-  INVALID_ARGUMENT = 3,
-  DEADLINE_EXCEEDED = 4,
-  NOT_FOUND = 5,
-  ALREADY_EXISTS = 6,
-  PERMISSION_DENIED = 7,
-  UNAUTHENTICATED = 16,
-  RESOURCE_EXHAUSTED = 8,
-  FAILED_PRECONDITION = 9,
-  ABORTED = 10,
-  OUT_OF_RANGE = 11,
-  UNIMPLEMENTED = 12,
-  INTERNAL = 13,
-  UNAVAILABLE = 14,
-  DATA_LOSS = 15,
-};
-}  // namespace error
 
-class LIBPROTOBUF_EXPORT Status {
+class Status {
  public:
   // Creates a "successful" status.
   Status();
 
-  // Create a status in the canonical error space with the specified
-  // code, and error message.  If "code == 0", error_message is
-  // ignored and a Status object identical to Status::OK is
-  // constructed.
-  Status(error::Code error_code, StringPiece error_message);
+  // Create a status in the with the specified code, and error message.  If
+  // "code == 0", error_message is ignored and a Status object identical to
+  // Status::OK is constructed.
+  Status(FirestoreErrorCode error_code, absl::string_view error_message);
   Status(const Status&);
   Status& operator=(const Status& x);
   ~Status() {}
@@ -83,12 +61,12 @@ class LIBPROTOBUF_EXPORT Status {
 
   // Accessor
   bool ok() const {
-    return error_code_ == error::OK;
+    return error_code_ == FirestoreErrorCode::Ok;
   }
   int error_code() const {
     return error_code_;
   }
-  StringPiece error_message() const {
+  const std::string& error_message() const {
     return error_message_;
   }
 
@@ -98,19 +76,19 @@ class LIBPROTOBUF_EXPORT Status {
   }
 
   // Return a combination of the error code name and message.
-  string ToString() const;
+  std::string ToString() const;
 
  private:
-  error::Code error_code_;
-  string error_message_;
+  FirestoreErrorCode error_code_;
+  std::string error_message_;
 };
 
 // Prints a human-readable representation of 'x' to 'os'.
-LIBPROTOBUF_EXPORT ostream& operator<<(ostream& os, const Status& x);
+std::ostream& operator<<(std::ostream& os, const Status& x);
 
 #define EXPECT_OK(value) EXPECT_TRUE((value).ok())
 
 }  // namespace util
-}  // namespace protobuf
-}  // namespace google
-#endif  // GOOGLE_PROTOBUF_STUBS_STATUS_H_
+}  // namespace firestore
+}  // namespace firebase
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_H_

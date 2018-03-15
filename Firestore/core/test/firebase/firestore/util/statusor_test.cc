@@ -1,3 +1,4 @@
+// TODO(rsgowman): copyright
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -28,16 +29,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <google/protobuf/stubs/statusor.h>
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
-#include <errno.h>
-#include <memory>
+#include "gtest/gtest.h"
 
-#include <google/protobuf/testing/googletest.h>
-#include <gtest/gtest.h>
-
-namespace google {
-namespace protobuf {
+namespace firebase {
+namespace firestore {
 namespace util {
 namespace {
 
@@ -270,5 +267,5 @@ TEST(StatusOr, TestPointerValueConst) {
 
 }  // namespace
 }  // namespace util
-}  // namespace protobuf
-}  // namespace google
+}  // namespace firestore
+}  // namespace firebase
