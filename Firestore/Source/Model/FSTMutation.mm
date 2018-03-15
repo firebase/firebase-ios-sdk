@@ -275,6 +275,10 @@ NS_ASSUME_NONNULL_BEGIN
       [self applyTo:maybeDoc baseDocument:baseDoc localWriteTime:localWriteTime mutationResult:nil];
 }
 
+- (const DocumentKey &)key {
+  return _key;
+}
+
 @end
 
 #pragma mark - FSTSetMutation
@@ -291,8 +295,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSetMutation key=%@ value=%@ precondition=%@>", self.key,
-                                    self.value, self.precondition];
+  return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%@ precondition=%@>",
+                                    self.key.path().CanonicalString().c_str(), self.value,
+                                    self.precondition];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -387,8 +392,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTPatchMutation key=%@ mask=%@ value=%@ precondition=%@>",
-                                    self.key, self.fieldMask, self.value, self.precondition];
+  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%@ value=%@ precondition=%@>",
+                                    self.key.path().CanonicalString().c_str(), self.fieldMask,
+                                    self.value, self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -478,8 +484,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTTransformMutation key=%@ transforms=%@ precondition=%@>",
-                                    self.key, self.fieldTransforms, self.precondition];
+  return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%@ precondition=%@>",
+                                    self.key.path().CanonicalString().c_str(), self.fieldTransforms,
+                                    self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -590,8 +597,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString
-      stringWithFormat:@"<FSTDeleteMutation key=%@ precondition=%@>", self.key, self.precondition];
+  return [NSString stringWithFormat:@"<FSTDeleteMutation key=%s precondition=%@>",
+                                    self.key.path().CanonicalString().c_str(), self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc

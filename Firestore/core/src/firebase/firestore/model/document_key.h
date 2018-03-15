@@ -83,11 +83,6 @@ class DocumentKey {
     return path_ ? *path_ : Empty().path();
   }
 
-#if defined(__OBJC__)
-  // Helper function to convert to FSTDocumentKey during the C++ migration.
-  FSTDocumentKey* ToFSTDocumentKey() const;
-#endif  // defined(__OBJC__)
-
  private:
   // This is an optimization to make passing DocumentKey around cheaper (it's
   // copied often).

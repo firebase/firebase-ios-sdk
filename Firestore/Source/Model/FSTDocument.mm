@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
-include<utility>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -26,7 +26,7 @@ include<utility>
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
-    namespace util = firebase::firestore::util;
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 
@@ -56,6 +56,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)copyWithZone:(NSZone *_Nullable)zone {
   // All document types are immutable
   return self;
+}
+
+- (const DocumentKey &)key {
+  return _key;
 }
 
 @end
@@ -107,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<FSTDocument: key:%s version:%@ localMutations:%@ data:%@>",
-                                    self.key.path.CanonicalString().c_str(), self.version,
+                                    self.key.path().CanonicalString().c_str(), self.version,
                                     self.localMutations ? @"YES" : @"NO", self.data];
 }
 

@@ -124,11 +124,11 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (BOOL)containsKey:(const DocumentKey &)key {
-  return [self.index objectForKey:key.ToFSTDocumentKey()] != nil;
+  return [self.index objectForKey:(FSTDocumentKey *)key] != nil;
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  return [self.index objectForKey:key.ToFSTDocumentKey()];
+  return [self.index objectForKey:(FSTDocumentKey *)key];
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -140,7 +140,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (NSUInteger)indexOfKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self.index objectForKey:key.ToFSTDocumentKey()];
+  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
   return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
 }
 
@@ -176,7 +176,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (instancetype)documentSetByRemovingKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self.index objectForKey:key.ToFSTDocumentKey()];
+  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
   if (!doc) {
     return self;
   }
