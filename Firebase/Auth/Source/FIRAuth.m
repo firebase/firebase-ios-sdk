@@ -525,7 +525,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRCreateAuthURIRequest *request =
         [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
                                                 continueURI:@"http://www.google.com/"
-                                       requestConfiguration:_requestConfiguration];
+                                       requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend createAuthURI:request callback:^(FIRCreateAuthURIResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -1111,7 +1111,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRGetOOBConfirmationCodeRequest *request =
         [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
                                                   actionCodeSettings:actionCodeSettings
-                                                requestConfiguration:_requestConfiguration];
+                                                requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend getOOBConfirmationCode:request
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
