@@ -153,7 +153,9 @@ static NSString *const kNoIOSTag = @"no-ios";
     }
   }
   NSNumber *version = change[1];
-  FSTDocument *doc = FSTTestDoc(change[0], version.longLongValue, change[2], hasMutations);
+  XCTAssert([change[0] isKindOfClass:[NSString class]]);
+  FSTDocument *doc = FSTTestDoc(util::MakeStringView((NSString *)change[0]), version.longLongValue,
+                                change[2], hasMutations);
   return [FSTDocumentViewChange changeWithDocument:doc type:type];
 }
 

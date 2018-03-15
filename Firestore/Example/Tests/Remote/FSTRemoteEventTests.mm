@@ -60,8 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillAccumulateDocumentAddedAndRemovedEvents {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @2, @3 ]
                                                                     removedTargetIDs:@[ @4, @5, @6 ]
@@ -111,8 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillIgnoreEventsForPendingTargets {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -150,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillIgnoreEventsForRemovedTargets {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -177,9 +177,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillKeepResetMappingEvenWithUpdates {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"docs/3", 3, @{ @"value" : @3 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{ @"value" : @3 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -247,8 +247,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillHandleTargetAddAndRemovalInSameBatch {
-  FSTDocument *doc1a = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc1b = FSTTestDoc(@"docs/1", 1, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[ @2 ]
@@ -298,8 +298,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testTargetAddedChangeWillResetPreviousState {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @3 ]
                                                                     removedTargetIDs:@[ @2 ]
@@ -394,8 +394,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExistenceFilterMismatchResetsTarget {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -443,11 +443,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDocumentUpdate {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTDeletedDocument *deletedDoc1 =
       [FSTDeletedDocument documentWithKey:doc1.key version:FSTTestVersion(3)];
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"docs/3", 3, @{ @"value" : @3 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{ @"value" : @3 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]

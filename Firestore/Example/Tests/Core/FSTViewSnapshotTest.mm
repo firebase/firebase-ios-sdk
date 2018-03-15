@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTViewSnapshotTests
 
 - (void)testDocumentChangeConstructor {
-  FSTDocument *doc = FSTTestDoc(@"a/b", 0, @{}, NO);
+  FSTDocument *doc = FSTTestDoc("a/b", 0, @{}, NO);
   FSTDocumentViewChangeType type = FSTDocumentViewChangeTypeModified;
   FSTDocumentViewChange *change = [FSTDocumentViewChange changeWithDocument:doc type:type];
   XCTAssertEqual(change.document, doc);
@@ -42,15 +42,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testTrack {
   FSTDocumentViewChangeSet *set = [FSTDocumentViewChangeSet changeSet];
 
-  FSTDocument *docAdded = FSTTestDoc(@"a/1", 0, @{}, NO);
-  FSTDocument *docRemoved = FSTTestDoc(@"a/2", 0, @{}, NO);
-  FSTDocument *docModified = FSTTestDoc(@"a/3", 0, @{}, NO);
+  FSTDocument *docAdded = FSTTestDoc("a/1", 0, @{}, NO);
+  FSTDocument *docRemoved = FSTTestDoc("a/2", 0, @{}, NO);
+  FSTDocument *docModified = FSTTestDoc("a/3", 0, @{}, NO);
 
-  FSTDocument *docAddedThenModified = FSTTestDoc(@"b/1", 0, @{}, NO);
-  FSTDocument *docAddedThenRemoved = FSTTestDoc(@"b/2", 0, @{}, NO);
-  FSTDocument *docRemovedThenAdded = FSTTestDoc(@"b/3", 0, @{}, NO);
-  FSTDocument *docModifiedThenRemoved = FSTTestDoc(@"b/4", 0, @{}, NO);
-  FSTDocument *docModifiedThenModified = FSTTestDoc(@"b/5", 0, @{}, NO);
+  FSTDocument *docAddedThenModified = FSTTestDoc("b/1", 0, @{}, NO);
+  FSTDocument *docAddedThenRemoved = FSTTestDoc("b/2", 0, @{}, NO);
+  FSTDocument *docRemovedThenAdded = FSTTestDoc("b/3", 0, @{}, NO);
+  FSTDocument *docModifiedThenRemoved = FSTTestDoc("b/4", 0, @{}, NO);
+  FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, NO);
 
   [set addChange:[FSTDocumentViewChange changeWithDocument:docAdded
                                                       type:FSTDocumentViewChangeTypeAdded]];
@@ -109,9 +109,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("a");
   FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
   FSTDocumentSet *oldDocuments = documents;
-  documents = [documents documentSetByAddingDocument:FSTTestDoc(@"c/a", 1, @{}, NO)];
+  documents = [documents documentSetByAddingDocument:FSTTestDoc("c/a", 1, @{}, NO)];
   NSArray<FSTDocumentViewChange *> *documentChanges =
-      @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc(@"c/a", 1, @{}, NO)
+      @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc("c/a", 1, @{}, NO)
                                               type:FSTDocumentViewChangeTypeAdded] ];
 
   BOOL fromCache = YES;
