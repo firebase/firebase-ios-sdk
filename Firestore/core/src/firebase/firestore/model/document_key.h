@@ -48,7 +48,7 @@ class DocumentKey {
   explicit DocumentKey(ResourcePath&& path);
 
 #if defined(__OBJC__)
-  DocumentKey(FSTDocumentKey* key)
+  DocumentKey(FSTDocumentKey* key)  // NOLINT(runtime/explicit)
       : path_(std::make_shared<ResourcePath>(key.path)) {
   }
 
