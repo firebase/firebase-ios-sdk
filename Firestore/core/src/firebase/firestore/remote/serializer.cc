@@ -43,13 +43,28 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_ostream_t. Eventually, this might use static factory methods to create the
- * underlying pb_ostream_t rather than directly passing it in.
+ * pb_ostream_t.
  */
 // TODO(rsgowman): Encode* -> Write*
 class Writer {
  public:
-  explicit Writer(pb_ostream_t* stream) : stream_(stream) {
+  /**
+   * Creates an output stream that writes to the specified vector. Note that
+   * this vector pointer must remain valid for the lifetime of this Writer.
+   *
+   * (This is roughly equivalent to the nanopb function
+   * pb_ostream_from_buffer())
+   *
+   * @param out_bytes where the output should be serialized to.
+   */
+  static Writer Wrap(std::vector<uint8_t>* out_bytes);
+
+  /**
+   * Creates a non-writing output stream used to calculate the size of
+   * the serialized output.
+   */
+  static Writer SizingStream() {
+    return Writer(PB_OSTREAM_SIZING);
   }
 
   /**
@@ -89,10 +104,18 @@ class Writer {
       const std::function<void(Writer*)>& encode_message_fn);
 
   size_t bytes_written() const {
-    return stream_->bytes_written;
+    return stream_.bytes_written;
   }
 
  private:
+  /**
+   * Creates a new Writer, based on the given nanopb pb_ostream_t. Note that
+   * a shallow copy will be taken. (Non-null pointers within this struct must
+   * remain valid for the lifetime of this Writer.)
+   */
+  explicit Writer(const pb_ostream_t& stream) : stream_(stream) {
+  }
+
   /**
    * Encodes a "varint" to the output stream.
    *
@@ -108,8 +131,35 @@ class Writer {
    */
   void EncodeVarint(uint64_t value);
 
-  pb_ostream_t* stream_;
+  pb_ostream_t stream_;
 };
+
+Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
+  // TODO(rsgowman): find a better home for this constant.
+  // A document is defined to have a max size of 1MiB - 4 bytes.
+  static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
+
+  // Construct a nanopb output stream.
+  //
+  // Set the max_size to be the max document size (as an upper bound; one would
+  // expect individual FieldValue's to be smaller than this).
+  //
+  // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
+  // care about the underlying output vector, so where we are in the vector
+  // itself is irrelevant. i.e. don't use out_bytes->size())
+  pb_ostream_t raw_stream = {
+      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
+                      size_t count) -> bool {
+        auto* out_bytes = static_cast<std::vector<uint8_t>*>(stream->state);
+        out_bytes->insert(out_bytes->end(), buf, buf + count);
+        return true;
+      },
+      /*state=*/out_bytes,
+      /*max_size=*/kMaxDocumentSize,
+      /*bytes_written=*/0,
+      /*errmsg=*/nullptr};
+  return Writer(raw_stream);
+}
 
 // TODO(rsgowman): I've left the methods as near as possible to where they were
 // before, which implies that the Writer methods are interspersed with the
@@ -118,7 +168,7 @@ class Writer {
 // together (probably within their own file rather than here).
 
 void Writer::EncodeTag(pb_wire_type_t wiretype, uint32_t field_number) {
-  bool status = pb_encode_tag(stream_, wiretype, field_number);
+  bool status = pb_encode_tag(&stream_, wiretype, field_number);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -130,7 +180,7 @@ void Writer::EncodeSize(size_t size) {
 }
 
 void Writer::EncodeVarint(uint64_t value) {
-  bool status = pb_encode_varint(stream_, value);
+  bool status = pb_encode_varint(&stream_, value);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -195,7 +245,7 @@ int64_t DecodeInteger(pb_istream_t* stream) {
 
 void Writer::EncodeString(const std::string& string_value) {
   bool status = pb_encode_string(
-      stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
+      &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
       string_value.length());
   if (!status) {
     // TODO(rsgowman): figure out error handling
@@ -332,8 +382,7 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
 void Writer::EncodeNestedMessage(
     const std::function<void(Writer*)>& encode_message_fn) {
   // First calculate the message size using a non-writing substream.
-  pb_ostream_t raw_sizing_substream = PB_OSTREAM_SIZING;
-  Writer sizing_substream(&raw_sizing_substream);
+  Writer sizing_substream = Writer::SizingStream();
   encode_message_fn(&sizing_substream);
   size_t size = sizing_substream.bytes_written();
 
@@ -344,8 +393,8 @@ void Writer::EncodeNestedMessage(
   // parse field_value a second time; just update the bytes_written via a call
   // to pb_write. (If we try to write the contents into a sizing stream, it'll
   // fail since sizing streams don't actually have any buffer space.)
-  if (stream_->callback == nullptr) {
-    bool status = pb_write(stream_, nullptr, size);
+  if (stream_.callback == nullptr) {
+    bool status = pb_write(&stream_, nullptr, size);
     if (!status) {
       // TODO(rsgowman): figure out error handling
       abort();
@@ -354,7 +403,7 @@ void Writer::EncodeNestedMessage(
   }
 
   // Ensure the output stream has enough space
-  if (stream_->bytes_written + size > stream_->max_size) {
+  if (stream_.bytes_written + size > stream_.max_size) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -363,18 +412,16 @@ void Writer::EncodeNestedMessage(
   // did the first time. (Use an initializer rather than setting fields
   // individually like nanopb does. This gives us a *chance* of noticing if
   // nanopb adds new fields.)
-  pb_ostream_t raw_writing_substream = {stream_->callback, stream_->state,
-                                        /*max_size=*/size,
-                                        /*bytes_written=*/0,
-                                        /*errmsg=*/nullptr};
-  Writer writing_substream(&raw_writing_substream);
+  Writer writing_substream({stream_.callback, stream_.state,
+                            /*max_size=*/size, /*bytes_written=*/0,
+                            /*errmsg=*/nullptr});
   encode_message_fn(&writing_substream);
 
-  stream_->bytes_written += raw_writing_substream.bytes_written;
-  stream_->state = raw_writing_substream.state;
-  stream_->errmsg = raw_writing_substream.errmsg;
+  stream_.bytes_written += writing_substream.stream_.bytes_written;
+  stream_.state = writing_substream.stream_.state;
+  stream_.errmsg = writing_substream.stream_.errmsg;
 
-  if (raw_writing_substream.bytes_written != size) {
+  if (writing_substream.bytes_written() != size) {
     // submsg size changed
     // TODO(rsgowman): figure out error handling
     abort();
@@ -520,30 +567,7 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
 
 void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
-  // TODO(rsgowman): find a better home for this constant.
-  // A document is defined to have a max size of 1MiB - 4 bytes.
-  static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
-
-  // Construct a nanopb output stream.
-  //
-  // Set the max_size to be the max document size (as an upper bound; one would
-  // expect individual FieldValue's to be smaller than this).
-  //
-  // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
-  // care about the underlying output vector, so where we are in the vector
-  // itself is irrelevant. i.e. don't use out_bytes->size())
-  pb_ostream_t raw_stream = {
-      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
-                      size_t count) -> bool {
-        auto* out_bytes = static_cast<std::vector<uint8_t>*>(stream->state);
-        out_bytes->insert(out_bytes->end(), buf, buf + count);
-        return true;
-      },
-      /*state=*/out_bytes,
-      /*max_size=*/kMaxDocumentSize,
-      /*bytes_written=*/0,
-      /*errmsg=*/NULL};
-  Writer stream(&raw_stream);
+  Writer stream = Writer::Wrap(out_bytes);
   EncodeFieldValueImpl(&stream, field_value);
 }
 
