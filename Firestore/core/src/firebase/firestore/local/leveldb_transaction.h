@@ -194,7 +194,7 @@ class LevelDBTransaction {
   Deletions deletions_;
   leveldb::ReadOptions read_options_;
   leveldb::WriteOptions write_options_;
-  int32_t version_ = 0;
+  int32_t version_;
 };
 
 }  // namespace local

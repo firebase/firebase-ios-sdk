@@ -137,7 +137,8 @@ LevelDBTransaction::LevelDBTransaction(DB* db,
       mutations_(),
       deletions_(),
       read_options_(readOptions),
-      write_options_(writeOptions) {
+      write_options_(writeOptions),
+      version_(0) {
 }
 
 const ReadOptions& LevelDBTransaction::DefaultReadOptions() {
