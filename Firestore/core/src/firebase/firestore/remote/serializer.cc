@@ -36,16 +36,22 @@ namespace {
 
 class Writer;
 
-void EncodeObject(Writer* stream,
-                  const std::map<std::string, FieldValue>& object_value);
-
 std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
  * pb_ostream_t.
+ *
+ * Possible future change: Currently, this class has generic methods that would
+ * apply to any nanopb based protos, but also methods that only apply to
+ * firestore protos. It may be desireable to split these apart to keep these
+ * concepts separate.
  */
 // TODO(rsgowman): Encode* -> Write*
+// TODO(rsgowman): Define ObjectT alias (in field_value.h) and use it
+// throughout.
+// TODO(rsgowman): s/stream/writer/ (but only when it applies to Writer rather
+// than pb_ostream_t.)
 class Writer {
  public:
   /**
@@ -102,6 +108,10 @@ class Writer {
    */
   void EncodeNestedMessage(
       const std::function<void(Writer*)>& encode_message_fn);
+
+  void EncodeFieldValue(const FieldValue& field_value);
+  void EncodeObject(const std::map<std::string, FieldValue>& object_value);
+  void EncodeFieldsEntry(const std::pair<std::string, FieldValue>& kv);
 
   size_t bytes_written() const {
     return stream_.bytes_written;
@@ -284,42 +294,33 @@ std::string DecodeString(pb_istream_t* stream) {
   return result;
 }
 
-// Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
-// TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
-// This will help with error handling, and should eliminate the issue of two
-// 'EncodeFieldValue' methods.
-void EncodeFieldValueImpl(Writer* stream, const FieldValue& field_value) {
+void Writer::EncodeFieldValue(const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      stream->EncodeTag(PB_WT_VARINT,
-                        google_firestore_v1beta1_Value_null_value_tag);
-      stream->EncodeNull();
+      EncodeTag(PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag);
+      EncodeNull();
       break;
 
     case FieldValue::Type::Boolean:
-      stream->EncodeTag(PB_WT_VARINT,
-                        google_firestore_v1beta1_Value_boolean_value_tag);
-      stream->EncodeBool(field_value.boolean_value());
+      EncodeTag(PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag);
+      EncodeBool(field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
-      stream->EncodeTag(PB_WT_VARINT,
-                        google_firestore_v1beta1_Value_integer_value_tag);
-      stream->EncodeInteger(field_value.integer_value());
+      EncodeTag(PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag);
+      EncodeInteger(field_value.integer_value());
       break;
 
     case FieldValue::Type::String:
-      stream->EncodeTag(PB_WT_STRING,
-                        google_firestore_v1beta1_Value_string_value_tag);
-      stream->EncodeString(field_value.string_value());
+      EncodeTag(PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag);
+      EncodeString(field_value.string_value());
       break;
 
     case FieldValue::Type::Object:
-      stream->EncodeTag(PB_WT_STRING,
-                        google_firestore_v1beta1_Value_map_value_tag);
-      EncodeObject(stream, field_value.object_value());
+      EncodeTag(PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag);
+      EncodeObject(field_value.object_value());
       break;
 
     default:
@@ -474,18 +475,17 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  *
  * @param kv The individual key/value pair to encode.
  */
-void EncodeFieldsEntry(Writer* stream,
-                       const std::pair<std::string, FieldValue>& kv) {
+void Writer::EncodeFieldsEntry(const std::pair<std::string, FieldValue>& kv) {
   // Encode the key (string)
-  stream->EncodeTag(PB_WT_STRING,
-                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-  stream->EncodeString(kv.first);
+  EncodeTag(PB_WT_STRING,
+            google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  EncodeString(kv.first);
 
   // Encode the value (FieldValue)
-  stream->EncodeTag(PB_WT_STRING,
-                    google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  stream->EncodeNestedMessage(
-      [&kv](Writer* stream) { EncodeFieldValueImpl(stream, kv.second); });
+  EncodeTag(PB_WT_STRING,
+            google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  EncodeNestedMessage(
+      [&kv](Writer* stream) { stream->EncodeFieldValue(kv.second); });
 }
 
 std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
@@ -513,15 +513,15 @@ std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
   return {key, value};
 }
 
-void EncodeObject(Writer* stream,
-                  const std::map<std::string, FieldValue>& object_value) {
-  stream->EncodeNestedMessage([&object_value](Writer* stream) {
+void Writer::EncodeObject(
+    const std::map<std::string, FieldValue>& object_value) {
+  EncodeNestedMessage([&object_value](Writer* stream) {
     // Encode each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value) {
       stream->EncodeTag(PB_WT_STRING,
                         google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
       stream->EncodeNestedMessage(
-          [&kv](Writer* stream) { EncodeFieldsEntry(stream, kv); });
+          [&kv](Writer* stream) { stream->EncodeFieldsEntry(kv); });
     }
 
     return true;
@@ -568,7 +568,7 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
 void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
   Writer stream = Writer::Wrap(out_bytes);
-  EncodeFieldValueImpl(&stream, field_value);
+  stream.EncodeFieldValue(field_value);
 }
 
 FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
