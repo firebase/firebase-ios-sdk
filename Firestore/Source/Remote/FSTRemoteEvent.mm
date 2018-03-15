@@ -290,7 +290,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document {
-  //_documentUpdates[document.key.ToFSTDocumentKey()] = document;
+  _documentUpdates[(FSTDocumentKey *)document.key] = document;
 }
 
 /** Handles an existence filter mismatch */
