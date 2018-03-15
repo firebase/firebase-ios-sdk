@@ -67,6 +67,9 @@ class Serializer {
    * appended to this vector.
    */
   // TODO(rsgowman): error handling, incl return code.
+  // TODO(rsgowman): If we never support any output except to a vector, it may
+  // make sense to have Serializer own the vector and provide an accessor rather
+  // than asking the user to create it first.
   static void EncodeFieldValue(
       const firebase::firestore::model::FieldValue& field_value,
       std::vector<uint8_t>* out_bytes);
