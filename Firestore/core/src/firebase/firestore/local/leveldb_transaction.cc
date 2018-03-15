@@ -131,13 +131,13 @@ bool LevelDBTransaction::Iterator::Valid() {
 }
 
 LevelDBTransaction::LevelDBTransaction(DB* db,
-                                       const ReadOptions& readOptions,
-                                       const WriteOptions& writeOptions)
+                                       const ReadOptions& read_options,
+                                       const WriteOptions& write_options)
     : db_(db),
       mutations_(),
       deletions_(),
-      read_options_(readOptions),
-      write_options_(writeOptions),
+      read_options_(read_options),
+      write_options_(write_options),
       version_(0) {
 }
 
