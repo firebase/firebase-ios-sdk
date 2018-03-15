@@ -18,4 +18,5 @@ cc_test(
     leveldb_key_test.cc
   DEPENDS
     firebase_firestore_local
+    firebase_firestore_model
 )

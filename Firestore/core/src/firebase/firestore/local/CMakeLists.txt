@@ -20,5 +20,6 @@ cc_library(
   DEPENDS
     LevelDB::LevelDB
     absl_strings
+    firebase_firestore_model
     firebase_firestore_util
 )
