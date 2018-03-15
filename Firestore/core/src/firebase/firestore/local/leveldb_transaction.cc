@@ -17,9 +17,6 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 #include <leveldb/write_batch.h>
-#if __OBJC__
-#import <Protobuf/GPBProtocolBuffers.h>
-#endif
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
@@ -34,90 +31,68 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-LevelDBTransaction::LevelDBTransaction(std::shared_ptr<DB> db,
-                                       const ReadOptions& readOptions,
-                                       const WriteOptions& writeOptions)
-    : db_(db), readOptions_(readOptions), writeOptions_(writeOptions) {
-}
-
-void LevelDBTransaction::Put(const std::string& key, const std::string& value) {
-  mutations_[key] = value;
-  deletions_.erase(key);
-  version_++;
-}
-
 LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
-    : ldb_iter_(txn->db_->NewIterator(txn->readOptions_)),
-      txn_(txn),
+    : db_iter_(txn->db_->NewIterator(txn->read_options_)),
       last_version_(txn->version_),
-      is_valid_(false),  // Iterator doesn't really point to anything yet, so is
+      txn_(txn),
+      mutations_iter_(txn->mutations_.begin()),
+      current_(),
+      is_mutation_(false),
+      is_valid_(false)  // Iterator doesn't really point to anything yet, so is
                          // invalid
-      mutations_iter_(
-          std::make_unique<Mutations::iterator>(txn->mutations_.begin())) {
+       {
 }
 
 void LevelDBTransaction::Iterator::UpdateCurrent() {
-  bool mutation_is_valid = *mutations_iter_ != txn_->mutations_.end();
-  is_valid_ = mutation_is_valid || ldb_iter_->Valid();
+  bool mutation_is_valid = mutations_iter_ != txn_->mutations_.end();
+  is_valid_ = mutation_is_valid || db_iter_->Valid();
 
   if (is_valid_) {
     if (!mutation_is_valid) {
       is_mutation_ = false;
-    } else if (!ldb_iter_->Valid()) {
+    } else if (!db_iter_->Valid()) {
       is_mutation_ = true;
     } else {
-      // both are valid
-      const std::string mutation_key = (*mutations_iter_)->first;
-      const std::string ldb_key = ldb_iter_->key().ToString();
-      is_mutation_ = mutation_key <= ldb_key;
+      // Both iterators are valid. If the leveldb key is equal to or greater than the
+      // current mutation key, we are looking at a mutation next. It's either sooner
+      // in the iteration or directly shadowing the underlying committed value in leveldb.
+      is_mutation_ = db_iter_->key().compare(mutations_iter_->first) >= 0;
     }
     if (is_mutation_) {
-      current_.first = (*mutations_iter_)->first;
-      current_.second = (*mutations_iter_)->second;
+      current_ = *mutations_iter_;
     } else {
-      current_.first = ldb_iter_->key().ToString();
-      current_.second = ldb_iter_->value().ToString();
+      current_ = { db_iter_->key().ToString(), db_iter_->value().ToString() };
     }
   }
 }
 
 void LevelDBTransaction::Iterator::Seek(const std::string& key) {
-  ldb_iter_->Seek(key);
-  for (; ldb_iter_->Valid() &&
-         txn_->deletions_.find(ldb_iter_->key().ToString()) !=
-             txn_->deletions_.end();
-       ldb_iter_->Next()) {
-  }
-  mutations_iter_.reset();
-  mutations_iter_ =
-      std::make_unique<Mutations::iterator>(txn_->mutations_.begin());
-  for (; (*mutations_iter_) != txn_->mutations_.end() &&
-         (*mutations_iter_)->first < key;
-       ++(*mutations_iter_)) {
-  }
+  db_iter_->Seek(key);
+  for (; db_iter_->Valid() && IsDeleted(db_iter_->key()); db_iter_->Next()) {}
+  mutations_iter_ = txn_->mutations_.lower_bound(key);
   UpdateCurrent();
   last_version_ = txn_->version_;
 }
 
-std::string LevelDBTransaction::Iterator::key() {
+absl::string_view LevelDBTransaction::Iterator::key() {
   FIREBASE_ASSERT_MESSAGE(Valid(), "key() called on invalid iterator");
   return current_.first;
 }
 
-bool LevelDBTransaction::Iterator::key_starts_with(const std::string& prefix) {
-  std::string current_key = key();
-  return std::mismatch(prefix.begin(), prefix.end(), current_key.begin())
-             .first == prefix.end();
-}
-
-Slice LevelDBTransaction::Iterator::value() {
+absl::string_view LevelDBTransaction::Iterator::value() {
   FIREBASE_ASSERT_MESSAGE(Valid(), "value() called on invalid iterator");
   return current_.second;
 }
 
+bool LevelDBTransaction::Iterator::IsDeleted(leveldb::Slice slice) {
+  return txn_->deletions_.find(slice.ToString()) != txn_->deletions_.end();
+}
+
 bool LevelDBTransaction::Iterator::SyncToTransaction() {
   if (last_version_ < txn_->version_) {
-    std::string current_key = current_.first;
+    // Intentionally copying here since Seek() may update current_. We need the copy
+    // to do the comparison below.
+    const std::string current_key = current_.first;
     Seek(current_key);
     // If we advanced, we don't need to advance again.
     return is_valid_ && current_.first > current_key;
@@ -128,10 +103,8 @@ bool LevelDBTransaction::Iterator::SyncToTransaction() {
 
 void LevelDBTransaction::Iterator::AdvanceLDB() {
   do {
-    ldb_iter_->Next();
-  } while (ldb_iter_->Valid() &&
-           txn_->deletions_.find(ldb_iter_->key().ToString()) !=
-               txn_->deletions_.end());
+    db_iter_->Next();
+  } while (db_iter_->Valid() && IsDeleted(db_iter_->key()));
 }
 
 void LevelDBTransaction::Iterator::Next() {
@@ -140,10 +113,10 @@ void LevelDBTransaction::Iterator::Next() {
   if (!advanced) {
     if (is_mutation_) {
       // A mutation might be shadowing leveldb. If so, advance both.
-      if (ldb_iter_->Valid() && ldb_iter_->key() == (*mutations_iter_)->first) {
+      if (db_iter_->Valid() && db_iter_->key() == mutations_iter_->first) {
         AdvanceLDB();
       }
-      ++(*mutations_iter_);
+      ++mutations_iter_;
     } else {
       AdvanceLDB();
     }
@@ -155,38 +128,72 @@ bool LevelDBTransaction::Iterator::Valid() {
   return is_valid_;
 }
 
+LevelDBTransaction::LevelDBTransaction(DB *db,
+        const ReadOptions& readOptions,
+        const WriteOptions& writeOptions)
+        : db_(db), mutations_(), deletions_(), read_options_(readOptions), write_options_(writeOptions) {
+}
+
+const ReadOptions& LevelDBTransaction::DefaultReadOptions() {
+  static ReadOptions options = ([]() {
+    ReadOptions readOptions;
+    readOptions.verify_checksums = true;
+    return readOptions;
+  })();
+  return options;
+}
+
+const WriteOptions& LevelDBTransaction::DefaultWriteOptions() {
+  static WriteOptions options;
+  return options;
+}
+
+void LevelDBTransaction::Put(const absl::string_view& key, const absl::string_view& value) {
+  std::string key_string(key);
+  std::string value_string(value);
+  mutations_[key_string] = value_string;
+  deletions_.erase(key_string);
+  version_++;
+}
+
+
 LevelDBTransaction::Iterator* LevelDBTransaction::NewIterator() {
   return new LevelDBTransaction::Iterator(this);
 }
 
-Status LevelDBTransaction::Get(const std::string& key, std::string* value) {
-  Iterator iter(this);
-  iter.Seek(key);
-  if (iter.Valid() && iter.key() == key) {
-    *value = iter.value().ToString();
-    return Status::OK();
+Status LevelDBTransaction::Get(const absl::string_view& key, std::string* value) {
+  std::string key_string(key);
+  if (deletions_.find(key_string) != deletions_.end()) {
+    return Status::NotFound(key_string + " is not present in the transaction");
   } else {
-    return Status::NotFound(key + " is not present in the transaction");
+    Mutations::iterator iter(mutations_.find(key_string));
+    if (iter != mutations_.end()) {
+      *value = iter->second;
+      return Status::OK();
+    } else {
+      return db_->Get(read_options_, key_string, value);
+    }
   }
 }
 
-void LevelDBTransaction::Delete(const std::string& key) {
-  deletions_.insert(key);
-  mutations_.erase(key);
+void LevelDBTransaction::Delete(const absl::string_view& key) {
+  std::string to_delete(key);
+  deletions_.insert(to_delete);
+  mutations_.erase(to_delete);
   version_++;
 }
 
 void LevelDBTransaction::Commit() {
-  WriteBatch toWrite;
+  WriteBatch batch;
   for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
-    toWrite.Delete(*it);
+    batch.Delete(*it);
   }
 
   for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
-    toWrite.Put(it->first, it->second);
+    batch.Put(it->first, it->second);
   }
 
-  Status status = db_->Write(writeOptions_, &toWrite);
+  Status status = db_->Write(write_options_, &batch);
   FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction: %s",
                           status.ToString().c_str());
 }

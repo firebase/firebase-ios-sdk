@@ -17,31 +17,23 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 
-#include <leveldb/db.h>
 #include <map>
 #include <memory>
 #include <set>
+#include <stdint.h>
 #include <string>
 #include <utility>
 
-#if __OBJC__
-#if !defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS)
-#define GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS 0
-#endif
+#include <absl/strings/string_view.h>
+#include <leveldb/db.h>
 
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#if __OBJC__
 #import <Protobuf/GPBProtocolBuffers.h>
-#else
-#import "GPBProtocolBuffers.h"
-#endif
 #endif
 
 namespace firebase {
 namespace firestore {
 namespace local {
-
-typedef std::map<std::string, std::string> Mutations;
-typedef std::set<std::string> Deletions;
 
 /**
  * LevelDBTransaction tracks pending changes to entries in leveldb, including
@@ -49,29 +41,9 @@ typedef std::set<std::string> Deletions;
  * changes and committed values.
  */
 class LevelDBTransaction {
+  using Deletions = std::set<std::string>;
+  using Mutations = std::map<std::string, std::string>;
  public:
-  LevelDBTransaction(std::shared_ptr<leveldb::DB> db,
-                     const leveldb::ReadOptions& readOptions,
-                     const leveldb::WriteOptions& writeOptions);
-
-  LevelDBTransaction(const LevelDBTransaction& other) = delete;
-
-  LevelDBTransaction& operator=(const LevelDBTransaction& other) = delete;
-
-  void Delete(const std::string& key);
-
-#if __OBJC__
-  void Put(const std::string& key, GPBMessage* message) {
-    NSData* data = [message data];
-    mutations_[key] = std::string((const char*)data.bytes, data.length);
-    version_++;
-  }
-#endif
-
-  void Put(const std::string& key, const std::string& value);
-
-  leveldb::Status Get(const std::string& key, std::string* value);
-
   /**
    * Iterator iterates over a merged view of pending changes from the
    * transaction and any unchanged values in the underlying leveldb instance.
@@ -80,7 +52,10 @@ class LevelDBTransaction {
    public:
     explicit Iterator(LevelDBTransaction* txn);
 
-    Iterator& operator=(const Iterator& other) = delete;
+    /**
+     * Returns true if this iterator points to an entry
+     */
+    bool Valid();
 
     /**
      * Seeks this iterator to the first key equal to or greater than the given
@@ -88,10 +63,6 @@ class LevelDBTransaction {
      */
     void Seek(const std::string& key);
 
-    /**
-     * Returns true if this iterator points to an entry
-     */
-    bool Valid();
 
     /**
      * Advances the iterator to the next entry
@@ -101,41 +72,28 @@ class LevelDBTransaction {
     /**
      * Returns the key of the current entry
      */
-    std::string key();
-
-    bool key_starts_with(const std::string& prefix);
+    absl::string_view key();
 
     /**
      * Returns the value of the current entry
      */
-    leveldb::Slice value();
+    absl::string_view value();
 
    private:
-    std::unique_ptr<leveldb::Iterator> ldb_iter_;
-
-    // The last observed version of the underlying transaction
-    unsigned int last_version_;
-    // The underlying transaction.
-    LevelDBTransaction* txn_;
-    std::unique_ptr<Mutations::iterator> mutations_iter_;
-    // We save the current key and value so that once an iterator is Valid(), it
-    // remains so at least until the next call to Seek() or Next(), even if the
-    // underlying data is deleted.
-    std::pair<std::string, std::string> current_;
-    // True if current_ represents a mutation, rather than committed data.
-    bool is_mutation_;
-    // True if the iterator pointed to a valid entry the last time Next() or
-    // Seek() was called.
-    bool is_valid_;
-
     /**
      * Advances to the next non-deleted key in leveldb.
      */
     void AdvanceLDB();
 
     /**
+     * Returns true if the given slice matches a key present in the deletions_ set.
+     */
+    bool IsDeleted(leveldb::Slice slice);
+
+    /**
      * Syncs with the underlying transaction. If the transaction has been
-     * updated, the mutation iterator may need to be reset.
+     * updated, the mutation iterator may need to be reset. Returns true if this resulted
+     * in moving to a new underlying entry (i.e. the entry represented by current_ was deleted).
      */
     bool SyncToTransaction();
 
@@ -144,7 +102,72 @@ class LevelDBTransaction {
      * is_mutation_, and current_.
      */
     void UpdateCurrent();
+
+    std::unique_ptr<leveldb::Iterator> db_iter_;
+
+    // The last observed version of the underlying transaction
+    int32_t last_version_;
+    // The underlying transaction.
+    LevelDBTransaction* txn_;
+    Mutations::iterator mutations_iter_;
+    // We save the current key and value so that once an iterator is Valid(), it
+    // remains so at least until the next call to Seek() or Next(), even if the
+    // underlying data is deleted.
+    std::pair<std::string, std::string> current_;
+    // True if current_ represents an entry in the mutations_ map, rather than committed data.
+    bool is_mutation_;
+    // True if the iterator pointed to a valid entry the last time Next() or
+    // Seek() was called.
+    bool is_valid_;
+
   };
+
+  explicit LevelDBTransaction(
+          leveldb::DB *db,
+          const leveldb::ReadOptions& readOptions = DefaultReadOptions(),
+          const leveldb::WriteOptions& writeOptions = DefaultWriteOptions());
+
+  LevelDBTransaction(const LevelDBTransaction& other) = delete;
+
+  LevelDBTransaction& operator=(const LevelDBTransaction& other) = delete;
+
+  /**
+   * Returns a default set of ReadOptions
+   */
+  static const leveldb::ReadOptions& DefaultReadOptions();
+
+  static const leveldb::WriteOptions& DefaultWriteOptions();
+
+  /**
+   * Remove the database entry (if any) for "key".  It is not an error if "key"
+   * did not exist in the database.
+   */
+  void Delete(const absl::string_view& key);
+
+#if __OBJC__
+  /**
+   * Schedules the row identified by `key` to be set to the given protocol buffer message when this transaction commits.
+   */
+  void Put(const absl::string_view& key, GPBMessage* message) {
+    NSData* data = [message data];
+    std::string key_string(key);
+    mutations_[key_string] = std::string((const char*)data.bytes, data.length);
+    version_++;
+  }
+#endif
+
+  /**
+   * Schedules the row identified by `key` to be set to `value` when this transaction commits.
+   */
+  void Put(const absl::string_view& key, const absl::string_view& value);
+
+  /**
+   * Sets the contents of `value` to the latest known value for the given key, including
+   * any pending mutations and `Status::OK` is returned. If the key doesn't exist in
+   * leveldb, or it is scheduled for deletion in this transaction, `Status::NotFound` is
+   * returned.
+   */
+  leveldb::Status Get(const absl::string_view& key, std::string* value);
 
   /**
    * Returns a new Iterator over the pending changes in this transaction, merged
@@ -159,12 +182,12 @@ class LevelDBTransaction {
   void Commit();
 
  private:
-  std::shared_ptr<leveldb::DB> db_;
+  leveldb::DB *db_;
   Mutations mutations_;
   Deletions deletions_;
-  leveldb::WriteOptions writeOptions_;
-  leveldb::ReadOptions readOptions_;
-  unsigned int version_ = 0;
+  leveldb::ReadOptions read_options_;
+  leveldb::WriteOptions write_options_;
+  int32_t version_ = 0;
 };
 
 }  // namespace local
