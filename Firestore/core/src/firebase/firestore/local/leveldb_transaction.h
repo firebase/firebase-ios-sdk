@@ -40,7 +40,7 @@ namespace local {
  * deletions. It also provides an Iterator to traverse a merged view of pending
  * changes and committed values.
  */
-class LevelDBTransaction {
+class LevelDbTransaction {
   using Deletions = std::set<std::string>;
   using Mutations = std::map<std::string, std::string>;
 
@@ -51,7 +51,7 @@ class LevelDBTransaction {
    */
   class Iterator {
    public:
-    explicit Iterator(LevelDBTransaction* txn);
+    explicit Iterator(LevelDbTransaction* txn);
 
     /**
      * Returns true if this iterator points to an entry
@@ -110,7 +110,7 @@ class LevelDBTransaction {
     // The last observed version of the underlying transaction
     int32_t last_version_;
     // The underlying transaction.
-    LevelDBTransaction* txn_;
+    LevelDbTransaction* txn_;
     Mutations::iterator mutations_iter_;
     // We save the current key and value so that once an iterator is Valid(), it
     // remains so at least until the next call to Seek() or Next(), even if the
@@ -124,14 +124,14 @@ class LevelDBTransaction {
     bool is_valid_;
   };
 
-  explicit LevelDBTransaction(
+  explicit LevelDbTransaction(
       leveldb::DB* db,
       const leveldb::ReadOptions& read_options = DefaultReadOptions(),
       const leveldb::WriteOptions& write_options = DefaultWriteOptions());
 
-  LevelDBTransaction(const LevelDBTransaction& other) = delete;
+  LevelDbTransaction(const LevelDbTransaction& other) = delete;
 
-  LevelDBTransaction& operator=(const LevelDBTransaction& other) = delete;
+  LevelDbTransaction& operator=(const LevelDbTransaction& other) = delete;
 
   /**
    * Returns a default set of ReadOptions
