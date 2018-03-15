@@ -52,10 +52,11 @@ class Status {
   Status(FirestoreErrorCode error_code, absl::string_view error_message);
   Status(const Status&);
   Status& operator=(const Status& x);
-  ~Status() {}
+  ~Status() {
+  }
 
   // Some pre-defined Status objects
-  static const Status OK;             // Identical to 0-arg constructor
+  static const Status OK;  // Identical to 0-arg constructor
   static const Status CANCELLED;
   static const Status UNKNOWN;
 

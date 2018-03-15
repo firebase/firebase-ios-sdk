@@ -47,19 +47,20 @@ namespace util {
 //
 // Example:
 //   RETURN_IF_ERROR(DoThings(4));
-#define RETURN_IF_ERROR(expr) \
-  do { \
+#define RETURN_IF_ERROR(expr)                                                \
+  do {                                                                       \
     /* Using _status below to avoid capture problems if expr is "status". */ \
-    const ::firebase::firestore::util::Status _status = (expr); \
-    if (!_status.ok()) return _status; \
+    const ::firebase::firestore::util::Status _status = (expr);              \
+    if (!_status.ok()) return _status;                                       \
   } while (0)
 
 // Internal helper for concatenating macro values.
 #define STATUS_MACROS_CONCAT_NAME_INNER(x, y) x##y
 #define STATUS_MACROS_CONCAT_NAME(x, y) STATUS_MACROS_CONCAT_NAME_INNER(x, y)
 
-template<typename T>
-Status DoAssignOrReturn(T& lhs, StatusOr<T> result) {
+// NOLINT to avoid complaining about the non-const ref (lhs)
+template <typename T>
+Status DoAssignOrReturn(T& lhs, StatusOr<T> result) {  // NOLINT
   if (result.ok()) {
     lhs = result.ValueOrDie();
   }
@@ -80,7 +81,7 @@ Status DoAssignOrReturn(T& lhs, StatusOr<T> result) {
 // WARNING: ASSIGN_OR_RETURN expands into multiple statements; it cannot be used
 //  in a single statement (e.g. as the body of an if statement without {})!
 #define ASSIGN_OR_RETURN(lhs, rexpr) \
-  ASSIGN_OR_RETURN_IMPL( \
+  ASSIGN_OR_RETURN_IMPL(             \
       STATUS_MACROS_CONCAT_NAME(_status_or_value, __COUNTER__), lhs, rexpr);
 
 }  // namespace util

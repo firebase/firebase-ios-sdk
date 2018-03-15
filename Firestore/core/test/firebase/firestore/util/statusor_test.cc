@@ -40,27 +40,33 @@ namespace {
 
 class Base1 {
  public:
-  virtual ~Base1() {}
+  virtual ~Base1() {
+  }
   int pad;
 };
 
 class Base2 {
  public:
-  virtual ~Base2() {}
+  virtual ~Base2() {
+  }
   int yetotherpad;
 };
 
 class Derived : public Base1, public Base2 {
  public:
-  virtual ~Derived() {}
+  virtual ~Derived() {
+  }
   int evenmorepad;
 };
 
 class CopyNoAssign {
  public:
-  explicit CopyNoAssign(int value) : foo(value) {}
-  CopyNoAssign(const CopyNoAssign& other) : foo(other.foo) {}
+  explicit CopyNoAssign(int value) : foo(value) {
+  }
+  CopyNoAssign(const CopyNoAssign& other) : foo(other.foo) {
+  }
   int foo;
+
  private:
   const CopyNoAssign& operator=(const CopyNoAssign&);
 };
@@ -100,14 +106,14 @@ TEST(StatusOr, TestCopyCtorStatusNotOk) {
 
 TEST(StatusOr, TestCopyCtorStatusOKConverting) {
   const int kI = 4;
-  StatusOr<int>    original(kI);
+  StatusOr<int> original(kI);
   StatusOr<double> copy(original);
   EXPECT_EQ(original.status(), copy.status());
   EXPECT_EQ(original.ValueOrDie(), copy.ValueOrDie());
 }
 
 TEST(StatusOr, TestCopyCtorStatusNotOkConverting) {
-  StatusOr<int>    original(Status::CANCELLED);
+  StatusOr<int> original(Status::CANCELLED);
   StatusOr<double> copy(original);
   EXPECT_EQ(original.status(), copy.status());
 }
@@ -130,7 +136,7 @@ TEST(StatusOr, TestAssignmentStatusNotOk) {
 
 TEST(StatusOr, TestAssignmentStatusOKConverting) {
   const int kI = 4;
-  StatusOr<int>    source(kI);
+  StatusOr<int> source(kI);
   StatusOr<double> target;
   target = source;
   EXPECT_EQ(source.status(), target.status());
@@ -138,7 +144,7 @@ TEST(StatusOr, TestAssignmentStatusOKConverting) {
 }
 
 TEST(StatusOr, TestAssignmentStatusNotOkConverting) {
-  StatusOr<int>    source(Status::CANCELLED);
+  StatusOr<int> source(Status::CANCELLED);
   StatusOr<double> target;
   target = source;
   EXPECT_EQ(source.status(), target.status());
@@ -200,7 +206,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusNotOk) {
 TEST(StatusOr, TestPointerCopyCtorStatusOKConverting) {
   Derived derived;
   StatusOr<Derived*> original(&derived);
-  StatusOr<Base2*>   copy(original);
+  StatusOr<Base2*> copy(original);
   EXPECT_EQ(original.status(), copy.status());
   EXPECT_EQ(static_cast<const Base2*>(original.ValueOrDie()),
             copy.ValueOrDie());
@@ -208,7 +214,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusOKConverting) {
 
 TEST(StatusOr, TestPointerCopyCtorStatusNotOkConverting) {
   StatusOr<Derived*> original(Status::CANCELLED);
-  StatusOr<Base2*>   copy(original);
+  StatusOr<Base2*> copy(original);
   EXPECT_EQ(original.status(), copy.status());
 }
 
@@ -231,7 +237,7 @@ TEST(StatusOr, TestPointerAssignmentStatusNotOk) {
 TEST(StatusOr, TestPointerAssignmentStatusOKConverting) {
   Derived derived;
   StatusOr<Derived*> source(&derived);
-  StatusOr<Base2*>   target;
+  StatusOr<Base2*> target;
   target = source;
   EXPECT_EQ(source.status(), target.status());
   EXPECT_EQ(static_cast<const Base2*>(source.ValueOrDie()),
@@ -240,7 +246,7 @@ TEST(StatusOr, TestPointerAssignmentStatusOKConverting) {
 
 TEST(StatusOr, TestPointerAssignmentStatusNotOkConverting) {
   StatusOr<Derived*> source(Status::CANCELLED);
-  StatusOr<Base2*>   target;
+  StatusOr<Base2*> target;
   target = source;
   EXPECT_EQ(source.status(), target.status());
 }
