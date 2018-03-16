@@ -118,6 +118,11 @@ cc_library(
     ordered_code.cc
     ordered_code.h
     secure_random.h
+    status.cc
+    status.h
+    status_macros.h
+    statusor.cc
+    statusor.h
     string_util.cc
     string_util.h
   DEPENDS
