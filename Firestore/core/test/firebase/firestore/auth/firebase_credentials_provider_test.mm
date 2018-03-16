@@ -20,6 +20,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
 
@@ -42,14 +43,13 @@ TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
 
   FirebaseCredentialsProvider credentials_provider(app);
   credentials_provider.GetToken(
-      /*force_refresh=*/true, [](Token token, const int64_t error_code,
-                                 const absl::string_view error_msg) {
+      /*force_refresh=*/true, [](util::StatusOr<Token> result) {
+        EXPECT_TRUE(result.ok());
+        const Token& token = result.ValueOrDie();
         EXPECT_EQ("", token.token());
         const User& user = token.user();
         EXPECT_EQ("", user.uid());
         EXPECT_FALSE(user.is_authenticated());
-        EXPECT_EQ(FirestoreErrorCode::Ok, error_code) << error_code;
-        EXPECT_EQ("", error_msg) << error_msg;
       });
 }
 
@@ -58,14 +58,13 @@ TEST(FirebaseCredentialsProviderTest, GetToken) {
 
   FirebaseCredentialsProvider credentials_provider(app);
   credentials_provider.GetToken(
-      /*force_refresh=*/true, [](Token token, const int64_t error_code,
-                                 const absl::string_view error_msg) {
+      /*force_refresh=*/true, [](util::StatusOr<Token> result) {
+        EXPECT_TRUE(result.ok());
+        const Token& token = result.ValueOrDie();
         EXPECT_EQ("", token.token());
         const User& user = token.user();
         EXPECT_EQ("fake uid", user.uid());
         EXPECT_TRUE(user.is_authenticated());
-        EXPECT_EQ(FirestoreErrorCode::Ok, error_code) << error_code;
-        EXPECT_EQ("", error_msg) << error_msg;
       });
 }
 

@@ -23,6 +23,9 @@
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+// NB: This is also defined in Firestore/Source/Public/FIRFirestoreErrors.h
+NSString* const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
+
 namespace firebase {
 namespace firestore {
 namespace auth {
@@ -96,13 +99,20 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
       // Cancel the request since the user changed while the request was
       // outstanding so the response is likely for a previous user (which
       // user, we can't be sure).
-      completion(Token::Invalid(), FirestoreErrorCode::Aborted,
-                 "getToken aborted due to user change.");
+      completion(util::Status(FirestoreErrorCode::Aborted,
+                              "getToken aborted due to user change."));
     } else {
-      completion(
-          Token{util::MakeStringView(token), contents->current_user},
-          error == nil ? FirestoreErrorCode::Ok : error.code,
-          error == nil ? "" : util::MakeStringView(error.localizedDescription));
+      if (error == nil) {
+        completion(Token{util::MakeStringView(token), contents->current_user});
+      } else {
+        FirestoreErrorCode error_code = FirestoreErrorCode::Unknown;
+        if (error.domain == FIRFirestoreErrorDomain) {
+          error_code = static_cast<FirestoreErrorCode>(error.code);
+        }
+        completion(
+            util::Status(FirestoreErrorCode::Unknown,
+                         util::MakeStringView(error.localizedDescription)));
+      }
     }
   };
 

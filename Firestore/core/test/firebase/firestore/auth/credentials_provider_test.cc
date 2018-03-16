@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -25,11 +26,8 @@ namespace auth {
 #define UNUSED(x) (void)(x)
 
 TEST(CredentialsProvider, Typedef) {
-  TokenListener token_listener = [](Token token, const int64_t error_code,
-                                    const absl::string_view error_msg) {
+  TokenListener token_listener = [](util::StatusOr<Token> token) {
     UNUSED(token);
-    UNUSED(error_code);
-    UNUSED(error_msg);
   };
   EXPECT_NE(nullptr, token_listener);
   EXPECT_TRUE(token_listener);

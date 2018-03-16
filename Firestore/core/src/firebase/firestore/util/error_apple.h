@@ -24,6 +24,7 @@
 
 #include "Firestore/Source/Public/FIRFirestoreErrors.h"  // for FIRFirestoreErrorDomain
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/string_view.h"
 
@@ -41,6 +42,10 @@ inline NSError* WrapNSError(const int64_t error_code,
       errorWithDomain:FIRFirestoreErrorDomain
                  code:error_code
              userInfo:@{NSLocalizedDescriptionKey : WrapNSString(error_msg)}];
+}
+
+inline NSError* WrapNSError(const util::Status& status) {
+  return WrapNSError(status.code(), status.error_message());
 }
 
 }  // namespace util

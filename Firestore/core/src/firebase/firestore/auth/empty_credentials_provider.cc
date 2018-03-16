@@ -27,7 +27,7 @@ void EmptyCredentialsProvider::GetToken(bool force_refresh,
   UNUSED(force_refresh);
   if (completion) {
     // Invalid token will force the GRPC fallback to use default settings.
-    completion(Token::Invalid(), FirestoreErrorCode::Ok, "");
+    completion(Token::Invalid());
   }
 }
 

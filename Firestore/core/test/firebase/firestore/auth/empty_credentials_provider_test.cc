@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -25,14 +26,18 @@ namespace auth {
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
   credentials_provider.GetToken(
-      /*force_refresh=*/true, [](Token token, const int64_t error_code,
-                                 const absl::string_view error_msg) {
-        EXPECT_FALSE(token.is_valid());
-        const User& user = token.user();
+      /*force_refresh=*/true, [](util::StatusOr<Token> token) {
+        EXPECT_TRUE(token.ok());
+        EXPECT_FALSE(token.ValueOrDie().is_valid());
+        const User& user = token.ValueOrDie().user();
         EXPECT_EQ("", user.uid());
         EXPECT_FALSE(user.is_authenticated());
-        EXPECT_EQ(FirestoreErrorCode::Ok, error_code);
-        EXPECT_EQ("", error_msg);
+        // TODO(rsgowman): the next two statements just test the implementation
+        // of StatusOr, so aren't useful here anymore. However, I'm keeping them
+        // for one more commit, since it will shortly not be possible for a
+        // StatusOr<Token> to be ok() while the token itself is not is_valid()
+        EXPECT_EQ(FirestoreErrorCode::Ok, token.status().code());
+        EXPECT_EQ("", token.status().error_message());
       });
 }
 
