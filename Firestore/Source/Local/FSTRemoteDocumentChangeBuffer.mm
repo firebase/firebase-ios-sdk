@@ -21,6 +21,8 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTRemoteDocumentChangeBuffer ()
@@ -53,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addEntry:(FSTMaybeDocument *)maybeDocument {
   [self assertValid];
 
-  self.changes[maybeDocument.key] = maybeDocument;
+  self.changes[(FSTDocumentKey *)maybeDocument.key] = maybeDocument;
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey {

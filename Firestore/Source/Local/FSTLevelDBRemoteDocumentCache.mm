@@ -111,7 +111,7 @@ static ReadOptions StandardReadOptions() {
   for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
     FSTMaybeDocument *maybeDoc =
         [self decodedMaybeDocument:it->value() withKey:currentKey.documentKey];
-    if (!query.path.IsPrefixOf(maybeDoc.key.path)) {
+    if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
@@ -143,8 +143,8 @@ static ReadOptions StandardReadOptions() {
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
   FSTAssert([maybeDocument.key isEqualToKey:documentKey],
-            @"Read document has key (%@) instead of expected key (%@).", maybeDocument.key,
-            documentKey);
+            @"Read document has key (%s) instead of expected key (%@).",
+            maybeDocument.key.ToString().c_str(), documentKey);
   return maybeDocument;
 }
 

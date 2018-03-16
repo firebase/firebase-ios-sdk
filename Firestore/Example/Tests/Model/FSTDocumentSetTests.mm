@@ -38,9 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
   [super setUp];
 
   _comp = FSTTestDocComparator("sort");
-  _doc1 = FSTTestDoc(@"docs/1", 0, @{ @"sort" : @2 }, NO);
-  _doc2 = FSTTestDoc(@"docs/2", 0, @{ @"sort" : @3 }, NO);
-  _doc3 = FSTTestDoc(@"docs/3", 0, @{ @"sort" : @1 }, NO);
+  _doc1 = FSTTestDoc("docs/1", 0, @{ @"sort" : @2 }, NO);
+  _doc2 = FSTTestDoc("docs/2", 0, @{ @"sort" : @3 }, NO);
+  _doc3 = FSTTestDoc("docs/3", 0, @{ @"sort" : @1 }, NO);
 }
 
 - (void)testCount {
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testUpdates {
   FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
 
-  FSTDocument *doc2Prime = FSTTestDoc(@"docs/2", 0, @{ @"sort" : @9 }, NO);
+  FSTDocument *doc2Prime = FSTTestDoc("docs/2", 0, @{ @"sort" : @9 }, NO);
 
   set = [set documentSetByAddingDocument:doc2Prime];
   XCTAssertEqual([set count], 3);
@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testAddsDocsWithEqualComparisonValues {
-  FSTDocument *doc4 = FSTTestDoc(@"docs/4", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc4 = FSTTestDoc("docs/4", 0, @{ @"sort" : @2 }, NO);
 
   FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, doc4 ]);
   XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc1, doc4 ]));

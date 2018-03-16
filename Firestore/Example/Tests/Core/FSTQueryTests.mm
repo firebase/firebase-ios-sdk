@@ -88,9 +88,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testMatchesBasedOnDocumentKey {
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"rooms/other/messages/1", 0, @{@"text" : @"msg3"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
+  FSTDocument *doc3 = FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, NO);
 
   // document query
   FSTQuery *query = FSTTestQuery("rooms/eros/messages/1");
@@ -100,10 +100,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testMatchesCorrectlyForShallowAncestorQuery {
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
-  FSTDocument *doc1Meta = FSTTestDoc(@"rooms/eros/messages/1/meta/1", 0, @{@"meta" : @"mv"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"rooms/other/messages/1", 0, @{@"text" : @"msg3"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
+  FSTDocument *doc1Meta = FSTTestDoc("rooms/eros/messages/1/meta/1", 0, @{@"meta" : @"mv"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
+  FSTDocument *doc3 = FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, NO);
 
   // shallow ancestor query
   FSTQuery *query = FSTTestQuery("rooms/eros/messages");
@@ -114,8 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEmptyFieldsAreAllowedForQueries {
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/eros/messages/2", 0, @{}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, NO);
 
   FSTQuery *query = [FSTTestQuery("rooms/eros/messages")
       queryByAddingFilter:FSTTestFilter("text", @"==", @"msg1")];
@@ -129,12 +129,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query2 =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
 
-  FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"collection/3", 0, @{ @"sort" : @3 }, NO);
-  FSTDocument *doc4 = FSTTestDoc(@"collection/4", 0, @{ @"sort" : @NO }, NO);
-  FSTDocument *doc5 = FSTTestDoc(@"collection/5", 0, @{@"sort" : @"string"}, NO);
-  FSTDocument *doc6 = FSTTestDoc(@"collection/6", 0, @{}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{ @"sort" : @3 }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @NO }, NO);
+  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, NO);
+  FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, NO);
 
   XCTAssertFalse([query1 matchesDocument:doc1]);
   XCTAssertTrue([query1 matchesDocument:doc2]);
@@ -154,11 +154,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testNullFilter {
   FSTQuery *query =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", [NSNull null])];
-  FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{@"sort" : [NSNull null]}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @3.1 }, NO);
-  FSTDocument *doc4 = FSTTestDoc(@"collection/4", 0, @{ @"sort" : @NO }, NO);
-  FSTDocument *doc5 = FSTTestDoc(@"collection/5", 0, @{@"sort" : @"string"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : [NSNull null]}, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{ @"sort" : @3.1 }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @NO }, NO);
+  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, NO);
 
   XCTAssertTrue([query matchesDocument:doc1]);
   XCTAssertFalse([query matchesDocument:doc2]);
@@ -170,11 +170,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testNanFilter {
   FSTQuery *query =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", @(NAN))];
-  FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @(NAN) }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @2 }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @3.1 }, NO);
-  FSTDocument *doc4 = FSTTestDoc(@"collection/4", 0, @{ @"sort" : @NO }, NO);
-  FSTDocument *doc5 = FSTTestDoc(@"collection/5", 0, @{@"sort" : @"string"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @(NAN) }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{ @"sort" : @3.1 }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @NO }, NO);
+  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, NO);
 
   XCTAssertTrue([query matchesDocument:doc1]);
   XCTAssertFalse([query matchesDocument:doc2]);
@@ -189,13 +189,13 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query2 =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
 
-  FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @2 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @[] }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"collection/3", 0, @{ @"sort" : @[ @1 ] }, NO);
-  FSTDocument *doc4 = FSTTestDoc(@"collection/4", 0, @{ @"sort" : @{@"foo" : @2} }, NO);
-  FSTDocument *doc5 = FSTTestDoc(@"collection/5", 0, @{ @"sort" : @{@"foo" : @"bar"} }, NO);
-  FSTDocument *doc6 = FSTTestDoc(@"collection/6", 0, @{ @"sort" : @{} }, NO);  // no sort field
-  FSTDocument *doc7 = FSTTestDoc(@"collection/7", 0, @{ @"sort" : @[ @3, @1 ] }, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @[] }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{ @"sort" : @[ @1 ] }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @{@"foo" : @2} }, NO);
+  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{ @"sort" : @{@"foo" : @"bar"} }, NO);
+  FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{ @"sort" : @{} }, NO);  // no sort field
+  FSTDocument *doc7 = FSTTestDoc("collection/7", 0, @{ @"sort" : @[ @3, @1 ] }, NO);
 
   XCTAssertTrue([query1 matchesDocument:doc1]);
   XCTAssertFalse([query1 matchesDocument:doc2]);
@@ -219,12 +219,12 @@ NS_ASSUME_NONNULL_BEGIN
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort")
                                                         ascending:YES]];
 
-  FSTDocument *doc1 = FSTTestDoc(@"collection/1", 0, @{ @"sort" : @2 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"collection/2", 0, @{ @"sort" : @[] }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"collection/3", 0, @{ @"sort" : @[ @1 ] }, NO);
-  FSTDocument *doc4 = FSTTestDoc(@"collection/4", 0, @{ @"sort" : @{@"foo" : @2} }, NO);
-  FSTDocument *doc5 = FSTTestDoc(@"collection/5", 0, @{ @"sort" : @{@"foo" : @"bar"} }, NO);
-  FSTDocument *doc6 = FSTTestDoc(@"collection/6", 0, @{}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @[] }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{ @"sort" : @[ @1 ] }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @{@"foo" : @2} }, NO);
+  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{ @"sort" : @{@"foo" : @"bar"} }, NO);
+  FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, NO);
 
   XCTAssertTrue([query1 matchesDocument:doc1]);
   XCTAssertTrue([query1 matchesDocument:doc2]);
@@ -236,7 +236,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFiltersBasedOnArrayValue {
   FSTQuery *baseQuery = FSTTestQuery("collection");
-  FSTDocument *doc1 = FSTTestDoc(@"collection/doc", 0, @{ @"tags" : @[ @"foo", @1, @YES ] }, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/doc", 0, @{ @"tags" : @[ @"foo", @1, @YES ] }, NO);
 
   NSArray<id<FSTFilter>> *matchingFilters =
       @[ FSTTestFilter("tags", @"==", @[ @"foo", @1, @YES ]) ];
@@ -259,7 +259,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testFiltersBasedOnObjectValue {
   FSTQuery *baseQuery = FSTTestQuery("collection");
   FSTDocument *doc1 =
-      FSTTestDoc(@"collection/doc", 0,
+      FSTTestDoc("collection/doc", 0,
                  @{ @"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)} }, NO);
 
   NSArray<id<FSTFilter>> *matchingFilters = @[
@@ -315,20 +315,20 @@ NS_ASSUME_NONNULL_BEGIN
 
   // clang-format off
   NSArray<FSTDocument *> *docs = @[
-      FSTTestDoc(@"collection/1", 0, @{@"sort": [NSNull null]}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @NO}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @YES}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @1}, NO),
-      FSTTestDoc(@"collection/2", 0, @{@"sort": @1}, NO),  // by key
-      FSTTestDoc(@"collection/3", 0, @{@"sort": @1}, NO),  // by key
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @1.9}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @2}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @2.1}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @""}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @"a"}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @"ab"}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort": @"b"}, NO),
-      FSTTestDoc(@"collection/1", 0, @{@"sort":
+      FSTTestDoc("collection/1", 0, @{@"sort": [NSNull null]}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @NO}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @YES}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @1}, NO),
+      FSTTestDoc("collection/2", 0, @{@"sort": @1}, NO),  // by key
+      FSTTestDoc("collection/3", 0, @{@"sort": @1}, NO),  // by key
+      FSTTestDoc("collection/1", 0, @{@"sort": @1.9}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @2}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @2.1}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @""}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @"a"}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @"ab"}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort": @"b"}, NO),
+      FSTTestDoc("collection/1", 0, @{@"sort":
           FSTTestRef("project", DatabaseId::kDefault, @"collection/id1")}, NO),
   ];
   // clang-format on
@@ -347,16 +347,16 @@ NS_ASSUME_NONNULL_BEGIN
 
   // clang-format off
   NSArray<FSTDocument *> *docs =
-      @[FSTTestDoc(@"collection/1", 0, @{@"sort1": @1, @"sort2": @1}, NO),
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @1, @"sort2": @2}, NO),
-        FSTTestDoc(@"collection/2", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/3", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @1, @"sort2": @3}, NO),
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @2, @"sort2": @1}, NO),
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @2, @"sort2": @2}, NO),
-        FSTTestDoc(@"collection/2", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/3", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @2, @"sort2": @3}, NO),
+      @[FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @1}, NO),
+        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @2}, NO),
+        FSTTestDoc("collection/2", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/3", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @3}, NO),
+        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @1}, NO),
+        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @2}, NO),
+        FSTTestDoc("collection/2", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/3", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @3}, NO),
         ];
   // clang-format on
 
@@ -374,16 +374,16 @@ NS_ASSUME_NONNULL_BEGIN
 
   // clang-format off
   NSArray<FSTDocument *> *docs =
-      @[FSTTestDoc(@"collection/1", 0, @{@"sort1": @2, @"sort2": @3}, NO),
-        FSTTestDoc(@"collection/3", 0, @{@"sort1": @2, @"sort2": @2}, NO),
-        FSTTestDoc(@"collection/2", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @2, @"sort2": @1}, NO),
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @1, @"sort2": @3}, NO),
-        FSTTestDoc(@"collection/3", 0, @{@"sort1": @1, @"sort2": @2}, NO),
-        FSTTestDoc(@"collection/2", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
-        FSTTestDoc(@"collection/1", 0, @{@"sort1": @1, @"sort2": @1}, NO),
+      @[FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @3}, NO),
+        FSTTestDoc("collection/3", 0, @{@"sort1": @2, @"sort2": @2}, NO),
+        FSTTestDoc("collection/2", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @1}, NO),
+        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @3}, NO),
+        FSTTestDoc("collection/3", 0, @{@"sort1": @1, @"sort2": @2}, NO),
+        FSTTestDoc("collection/2", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @2}, NO),  // by key
+        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @1}, NO),
         ];
   // clang-format on
 

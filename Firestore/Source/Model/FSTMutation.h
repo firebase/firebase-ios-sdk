@@ -18,10 +18,10 @@
 
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 @class FSTDocument;
-@class FSTDocumentKey;
 @class FSTFieldValue;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
@@ -155,7 +155,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
 
 - (id)init NS_UNAVAILABLE;
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                precondition:(FSTPrecondition *)precondition NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -215,7 +215,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
                         localWriteTime:(nullable FIRTimestamp *)localWriteTime;
 
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
+- (const firebase::firestore::model::DocumentKey &)key;
 
 /** The precondition for this mutation. */
 @property(nonatomic, strong, readonly) FSTPrecondition *precondition;
@@ -230,7 +230,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  */
 @interface FSTSetMutation : FSTMutation
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                precondition:(FSTPrecondition *)precondition NS_UNAVAILABLE;
 
 /**
@@ -241,7 +241,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * key.
  * @param precondition The precondition for this mutation.
  */
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                       value:(FSTObjectValue *)value
                precondition:(FSTPrecondition *)precondition NS_DESIGNATED_INITIALIZER;
 
@@ -263,7 +263,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
 @interface FSTPatchMutation : FSTMutation
 
 /** Returns the precondition for the given FSTPrecondition. */
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                precondition:(FSTPrecondition *)precondition NS_UNAVAILABLE;
 
 /**
@@ -277,7 +277,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * to determine the locations at which it should be applied).
  * @param precondition The precondition for this mutation.
  */
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                   fieldMask:(FSTFieldMask *)fieldMask
                       value:(FSTObjectValue *)value
                precondition:(FSTPrecondition *)precondition NS_DESIGNATED_INITIALIZER;
@@ -306,7 +306,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  */
 @interface FSTTransformMutation : FSTMutation
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                precondition:(FSTPrecondition *)precondition NS_UNAVAILABLE;
 
 /**
@@ -315,7 +315,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * @param key Identifies the location of the document to mutate.
  * @param fieldTransforms A list of FSTFieldTransform objects to perform to the document.
  */
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
             fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms
     NS_DESIGNATED_INITIALIZER;
 

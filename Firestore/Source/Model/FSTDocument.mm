@@ -16,33 +16,38 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include <utility>
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMaybeDocument ()
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(DocumentKey)key
                     version:(FSTSnapshotVersion *)version NS_DESIGNATED_INITIALIZER;
 
 @end
 
-@implementation FSTMaybeDocument
+@implementation FSTMaybeDocument {
+  DocumentKey _key;
+}
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key version:(FSTSnapshotVersion *)version {
+- (instancetype)initWithKey:(DocumentKey)key version:(FSTSnapshotVersion *)version {
   FSTAssert(!!version, @"Version must not be nil.");
   self = [super init];
   if (self) {
-    _key = key;
+    _key = std::move(key);
     _version = version;
   }
   return self;
@@ -53,23 +58,29 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (const DocumentKey &)key {
+  return _key;
+}
+
 @end
 
 @implementation FSTDocument
 
 + (instancetype)documentWithData:(FSTObjectValue *)data
-                             key:(FSTDocumentKey *)key
+                             key:(DocumentKey)key
                          version:(FSTSnapshotVersion *)version
                hasLocalMutations:(BOOL)mutations {
-  return
-      [[FSTDocument alloc] initWithData:data key:key version:version hasLocalMutations:mutations];
+  return [[FSTDocument alloc] initWithData:data
+                                       key:std::move(key)
+                                   version:version
+                         hasLocalMutations:mutations];
 }
 
 - (instancetype)initWithData:(FSTObjectValue *)data
-                         key:(FSTDocumentKey *)key
+                         key:(DocumentKey)key
                      version:(FSTSnapshotVersion *)version
            hasLocalMutations:(BOOL)mutations {
-  self = [super initWithKey:key version:version];
+  self = [super initWithKey:std::move(key) version:version];
   if (self) {
     _data = data;
     _localMutations = mutations;
@@ -100,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<FSTDocument: key:%s version:%@ localMutations:%@ data:%@>",
-                                    self.key.path.CanonicalString().c_str(), self.version,
+                                    self.key.ToString().c_str(), self.version,
                                     self.localMutations ? @"YES" : @"NO", self.data];
 }
 
@@ -112,8 +123,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTDeletedDocument
 
-+ (instancetype)documentWithKey:(FSTDocumentKey *)key version:(FSTSnapshotVersion *)version {
-  return [[FSTDeletedDocument alloc] initWithKey:key version:version];
++ (instancetype)documentWithKey:(DocumentKey)key version:(FSTSnapshotVersion *)version {
+  return [[FSTDeletedDocument alloc] initWithKey:std::move(key) version:version];
 }
 
 - (BOOL)isEqual:(id)other {

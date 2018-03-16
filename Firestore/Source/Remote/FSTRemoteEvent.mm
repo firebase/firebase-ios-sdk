@@ -24,6 +24,8 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTTargetMapping
@@ -288,7 +290,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document {
-  _documentUpdates[document.key] = document;
+  _documentUpdates[(FSTDocumentKey *)document.key] = document;
 }
 
 /** Handles an existence filter mismatch */

@@ -16,17 +16,20 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#include <utility>
+
 #import "FIRTimestamp.h"
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -246,11 +249,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTMutation
 
-@implementation FSTMutation
+@implementation FSTMutation {
+  DocumentKey _key;
+}
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key precondition:(FSTPrecondition *)precondition {
+- (instancetype)initWithKey:(DocumentKey)key precondition:(FSTPrecondition *)precondition {
   if (self = [super init]) {
-    _key = key;
+    _key = std::move(key);
     _precondition = precondition;
   }
   return self;
@@ -270,24 +275,28 @@ NS_ASSUME_NONNULL_BEGIN
       [self applyTo:maybeDoc baseDocument:baseDoc localWriteTime:localWriteTime mutationResult:nil];
 }
 
+- (const DocumentKey &)key {
+  return _key;
+}
+
 @end
 
 #pragma mark - FSTSetMutation
 
 @implementation FSTSetMutation
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(DocumentKey)key
                       value:(FSTObjectValue *)value
                precondition:(FSTPrecondition *)precondition {
-  if (self = [super initWithKey:key precondition:precondition]) {
+  if (self = [super initWithKey:std::move(key) precondition:precondition]) {
     _value = value;
   }
   return self;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSetMutation key=%@ value=%@ precondition=%@>", self.key,
-                                    self.value, self.precondition];
+  return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%@ precondition=%@>",
+                                    self.key.ToString().c_str(), self.value, self.precondition];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -347,11 +356,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTPatchMutation
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(DocumentKey)key
                   fieldMask:(FSTFieldMask *)fieldMask
                       value:(FSTObjectValue *)value
                precondition:(FSTPrecondition *)precondition {
-  self = [super initWithKey:key precondition:precondition];
+  self = [super initWithKey:std::move(key) precondition:precondition];
   if (self) {
     _fieldMask = fieldMask;
     _value = value;
@@ -382,8 +391,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTPatchMutation key=%@ mask=%@ value=%@ precondition=%@>",
-                                    self.key, self.fieldMask, self.value, self.precondition];
+  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%@ value=%@ precondition=%@>",
+                                    self.key.ToString().c_str(), self.fieldMask, self.value,
+                                    self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -401,7 +411,7 @@ NS_ASSUME_NONNULL_BEGIN
   BOOL hasLocalMutations = (mutationResult == nil);
   if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
     // Precondition applied, so create the document if necessary
-    FSTDocumentKey *key = maybeDoc ? maybeDoc.key : self.key;
+    const DocumentKey &key = maybeDoc ? maybeDoc.key : self.key;
     FSTSnapshotVersion *version = maybeDoc ? maybeDoc.version : [FSTSnapshotVersion noVersion];
     maybeDoc = [FSTDocument documentWithData:[FSTObjectValue objectValue]
                                          key:key
@@ -439,12 +449,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTTransformMutation
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(DocumentKey)key
             fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
   // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
   // FSTTransformMutations with a FSTSetMutation or FSTPatchMutation which (if successful) should
   // end up with an existing document.
-  if (self = [super initWithKey:key precondition:[FSTPrecondition preconditionWithExists:YES]]) {
+  if (self = [super initWithKey:std::move(key)
+                   precondition:[FSTPrecondition preconditionWithExists:YES]]) {
     _fieldTransforms = fieldTransforms;
   }
   return self;
@@ -472,8 +483,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTTransformMutation key=%@ transforms=%@ precondition=%@>",
-                                    self.key, self.fieldTransforms, self.precondition];
+  return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%@ precondition=%@>",
+                                    self.key.ToString().c_str(), self.fieldTransforms,
+                                    self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -584,8 +596,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString
-      stringWithFormat:@"<FSTDeleteMutation key=%@ precondition=%@>", self.key, self.precondition];
+  return [NSString stringWithFormat:@"<FSTDeleteMutation key=%s precondition=%@>",
+                                    self.key.ToString().c_str(), self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc

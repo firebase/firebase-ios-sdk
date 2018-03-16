@@ -60,8 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillAccumulateDocumentAddedAndRemovedEvents {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @2, @3 ]
                                                                     removedTargetIDs:@[ @4, @5, @6 ]
@@ -80,8 +80,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event = [aggregator remoteEvent];
   XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
   XCTAssertEqual(event.documentUpdates.count, 2);
-  XCTAssertEqualObjects(event.documentUpdates[doc1.key], doc1);
-  XCTAssertEqualObjects(event.documentUpdates[doc2.key], doc2);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc1.key], doc1);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc2.key], doc2);
 
   XCTAssertEqual(event.targetChanges.count, 6);
 
@@ -111,8 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillIgnoreEventsForPendingTargets {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -144,13 +144,13 @@ NS_ASSUME_NONNULL_BEGIN
   // doc1 is ignored because it was part of an inactive target, but doc2 is in the changes
   // because it become active.
   XCTAssertEqual(event.documentUpdates.count, 1);
-  XCTAssertEqualObjects(event.documentUpdates[doc2.key], doc2);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc2.key], doc2);
 
   XCTAssertEqual(event.targetChanges.count, 1);
 }
 
 - (void)testWillIgnoreEventsForRemovedTargets {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -177,9 +177,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillKeepResetMappingEvenWithUpdates {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"docs/3", 3, @{ @"value" : @3 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{ @"value" : @3 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -214,9 +214,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event = [aggregator remoteEvent];
   XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
   XCTAssertEqual(event.documentUpdates.count, 3);
-  XCTAssertEqualObjects(event.documentUpdates[doc1.key], doc1);
-  XCTAssertEqualObjects(event.documentUpdates[doc2.key], doc2);
-  XCTAssertEqualObjects(event.documentUpdates[doc3.key], doc3);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc1.key], doc1);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc2.key], doc2);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc3.key], doc3);
 
   XCTAssertEqual(event.targetChanges.count, 1);
 
@@ -247,8 +247,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillHandleTargetAddAndRemovalInSameBatch {
-  FSTDocument *doc1a = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc1b = FSTTestDoc(@"docs/1", 1, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[ @2 ]
@@ -266,7 +266,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event = [aggregator remoteEvent];
   XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
   XCTAssertEqual(event.documentUpdates.count, 1);
-  XCTAssertEqualObjects(event.documentUpdates[doc1b.key], doc1b);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc1b.key], doc1b);
 
   XCTAssertEqual(event.targetChanges.count, 2);
 
@@ -298,8 +298,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testTargetAddedChangeWillResetPreviousState {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @3 ]
                                                                     removedTargetIDs:@[ @2 ]
@@ -332,8 +332,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event = [aggregator remoteEvent];
   XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
   XCTAssertEqual(event.documentUpdates.count, 2);
-  XCTAssertEqualObjects(event.documentUpdates[doc1.key], doc1);
-  XCTAssertEqualObjects(event.documentUpdates[doc2.key], doc2);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc1.key], doc1);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc2.key], doc2);
 
   // target 1 and 3 are affected (1 because of re-add), target 2 is not because of remove
   XCTAssertEqual(event.targetChanges.count, 2);
@@ -394,8 +394,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExistenceFilterMismatchResetsTarget {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -419,8 +419,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event = [aggregator remoteEvent];
   XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
   XCTAssertEqual(event.documentUpdates.count, 2);
-  XCTAssertEqualObjects(event.documentUpdates[doc1.key], doc1);
-  XCTAssertEqualObjects(event.documentUpdates[doc2.key], doc2);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc1.key], doc1);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc2.key], doc2);
 
   XCTAssertEqual(event.targetChanges.count, 1);
 
@@ -443,11 +443,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDocumentUpdate {
-  FSTDocument *doc1 = FSTTestDoc(@"docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTDeletedDocument *deletedDoc1 =
       [FSTDeletedDocument documentWithKey:doc1.key version:FSTTestVersion(3)];
-  FSTDocument *doc2 = FSTTestDoc(@"docs/2", 2, @{ @"value" : @2 }, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"docs/3", 3, @{ @"value" : @3 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{ @"value" : @3 }, NO);
 
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
@@ -466,8 +466,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event = [aggregator remoteEvent];
   XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
   XCTAssertEqual(event.documentUpdates.count, 2);
-  XCTAssertEqualObjects(event.documentUpdates[doc1.key], doc1);
-  XCTAssertEqualObjects(event.documentUpdates[doc2.key], doc2);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc1.key], doc1);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc2.key], doc2);
 
   // Update doc1
   [event addDocumentUpdate:deletedDoc1];
@@ -476,11 +476,11 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
   XCTAssertEqual(event.documentUpdates.count, 3);
   // doc1 is replaced
-  XCTAssertEqualObjects(event.documentUpdates[doc1.key], deletedDoc1);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc1.key], deletedDoc1);
   // doc2 is untouched
-  XCTAssertEqualObjects(event.documentUpdates[doc2.key], doc2);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc2.key], doc2);
   // doc3 is new
-  XCTAssertEqualObjects(event.documentUpdates[doc3.key], doc3);
+  XCTAssertEqualObjects(event.documentUpdates[(FSTDocumentKey *)doc3.key], doc3);
 
   // Target is unchanged
   XCTAssertEqual(event.targetChanges.count, 1);
