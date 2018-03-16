@@ -1,32 +1,35 @@
-/* Copyright 2017 The TensorFlow Authors. All Rights Reserved.
+/*
+ * Copyright 2017, 2018 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_INTERNALS_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_INTERNALS_H_
 
-    http://www.apache.org/licenses/LICENSE-2.0
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/base/attributes.h"
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
-#ifndef TENSORFLOW_COMPILER_XLA_STATUSOR_INTERNALS_H_
-#define TENSORFLOW_COMPILER_XLA_STATUSOR_INTERNALS_H_
-
-#include "tensorflow/compiler/xla/status.h"
-#include "tensorflow/core/platform/macros.h"
-
-namespace xla {
+namespace firebase {
+namespace firestore {
+namespace util {
 namespace internal_statusor {
 
 class Helper {
  public:
   // Move type-agnostic error handling to the .cc.
   static void HandleInvalidStatusCtorArg(Status*);
-  TF_ATTRIBUTE_NORETURN static void Crash(const Status& status);
+  ABSL_ATTRIBUTE_NORETURN static void Crash(const Status& status);
 };
 
 // Construct an instance of T in `p` through placement new, passing Args... to
@@ -240,6 +243,8 @@ struct TraitsBase<false, false> {
 };
 
 }  // namespace internal_statusor
-}  // namespace xla
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
 
-#endif  // TENSORFLOW_COMPILER_XLA_STATUSOR_INTERNALS_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_INTERNALS_H_

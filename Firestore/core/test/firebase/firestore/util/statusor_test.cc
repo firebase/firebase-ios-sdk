@@ -1,33 +1,30 @@
-/* Copyright 2017 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
+/*
+ * Copyright 2017, 2018 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 // Unit tests for StatusOr
 
-#include "tensorflow/compiler/xla/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "gtest/gtest.h"
 
-#include <memory>
-#include <type_traits>
-
-#include "tensorflow/compiler/xla/test.h"
-#include "tensorflow/compiler/xla/types.h"
-#include "tensorflow/core/lib/core/errors.h"
-#include "tensorflow/core/platform/macros.h"
-#include "tensorflow/core/platform/test_benchmark.h"
-
-namespace xla {
+namespace firebase {
+namespace firestore {
+namespace util {
 namespace {
+
+using std::string;
 
 class Base1 {
  public:
@@ -77,14 +74,15 @@ TEST(StatusOr, ElementType) {
 
 TEST(StatusOr, TestNoDefaultConstructorInitialization) {
   // Explicitly initialize it with an error code.
-  StatusOr<NoDefaultConstructor> statusor(tensorflow::errors::Cancelled(""));
+  StatusOr<NoDefaultConstructor> statusor(
+      Status(FirestoreErrorCode::Cancelled, ""));
   EXPECT_FALSE(statusor.ok());
-  EXPECT_EQ(statusor.status().code(), tensorflow::error::CANCELLED);
+  EXPECT_EQ(statusor.status().code(), FirestoreErrorCode::Cancelled);
 
   // Default construction of StatusOr initializes it with an UNKNOWN error code.
   StatusOr<NoDefaultConstructor> statusor2;
   EXPECT_FALSE(statusor2.ok());
-  EXPECT_EQ(statusor2.status().code(), tensorflow::error::UNKNOWN);
+  EXPECT_EQ(statusor2.status().code(), FirestoreErrorCode::Unknown);
 }
 
 TEST(StatusOr, TestMoveOnlyInitialization) {
@@ -100,7 +98,8 @@ TEST(StatusOr, TestMoveOnlyInitialization) {
 }
 
 TEST(StatusOr, TestMoveOnlyStatusCtr) {
-  StatusOr<std::unique_ptr<int>> thing(tensorflow::errors::Cancelled(""));
+  StatusOr<std::unique_ptr<int>> thing(
+      Status(FirestoreErrorCode::Cancelled, ""));
   ASSERT_FALSE(thing.ok());
 }
 
@@ -135,15 +134,15 @@ TEST(StatusOr, TestMoveOnlyVector) {
   vec.resize(2);
   auto another_vec = std::move(vec);
   EXPECT_EQ(0, *another_vec[0].ValueOrDie());
-  EXPECT_EQ(tensorflow::error::UNKNOWN, another_vec[1].status().code());
+  EXPECT_EQ(FirestoreErrorCode::Unknown, another_vec[1].status().code());
 }
 
 TEST(StatusOr, TestMoveWithValuesAndErrors) {
   StatusOr<string> status_or(string(1000, '0'));
   StatusOr<string> value1(string(1000, '1'));
   StatusOr<string> value2(string(1000, '2'));
-  StatusOr<string> error1(Status(tensorflow::error::UNKNOWN, "error1"));
-  StatusOr<string> error2(Status(tensorflow::error::UNKNOWN, "error2"));
+  StatusOr<string> error1(Status(FirestoreErrorCode::Unknown, "error1"));
+  StatusOr<string> error2(Status(FirestoreErrorCode::Unknown, "error2"));
 
   ASSERT_TRUE(status_or.ok());
   EXPECT_EQ(string(1000, '0'), status_or.ValueOrDie());
@@ -173,8 +172,8 @@ TEST(StatusOr, TestCopyWithValuesAndErrors) {
   StatusOr<string> status_or(string(1000, '0'));
   StatusOr<string> value1(string(1000, '1'));
   StatusOr<string> value2(string(1000, '2'));
-  StatusOr<string> error1(Status(tensorflow::error::UNKNOWN, "error1"));
-  StatusOr<string> error2(Status(tensorflow::error::UNKNOWN, "error2"));
+  StatusOr<string> error1(Status(FirestoreErrorCode::Unknown, "error1"));
+  StatusOr<string> error2(Status(FirestoreErrorCode::Unknown, "error2"));
 
   ASSERT_TRUE(status_or.ok());
   EXPECT_EQ(string(1000, '0'), status_or.ValueOrDie());
@@ -209,21 +208,21 @@ TEST(StatusOr, TestCopyWithValuesAndErrors) {
 TEST(StatusOr, TestDefaultCtor) {
   StatusOr<int> thing;
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), tensorflow::error::UNKNOWN);
+  EXPECT_EQ(thing.status().code(), FirestoreErrorCode::Unknown);
 }
 
 TEST(StatusOrDeathTest, TestDefaultCtorValue) {
   StatusOr<int> thing;
-  EXPECT_DEATH(thing.ValueOrDie(), "");
+  EXPECT_ANY_THROW(thing.ValueOrDie());
 
   const StatusOr<int> thing2;
-  EXPECT_DEATH(thing.ValueOrDie(), "");
+  EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOr, TestStatusCtor) {
-  StatusOr<int> thing(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int> thing(Status(FirestoreErrorCode::Cancelled, ""));
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), tensorflow::error::CANCELLED);
+  EXPECT_EQ(thing.status().code(), FirestoreErrorCode::Cancelled);
 }
 
 TEST(StatusOr, TestValueCtor) {
@@ -242,7 +241,7 @@ TEST(StatusOr, TestCopyCtorStatusOk) {
 }
 
 TEST(StatusOr, TestCopyCtorStatusNotOk) {
-  StatusOr<int> original(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int> original(Status(FirestoreErrorCode::Cancelled, ""));
   StatusOr<int> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -265,7 +264,7 @@ TEST(StatusOr, TestCopyCtorStatusOKConverting) {
 }
 
 TEST(StatusOr, TestCopyCtorStatusNotOkConverting) {
-  StatusOr<int> original(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int> original(Status(FirestoreErrorCode::Cancelled, ""));
   StatusOr<double> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -280,7 +279,7 @@ TEST(StatusOr, TestAssignmentStatusOk) {
 }
 
 TEST(StatusOr, TestAssignmentStatusNotOk) {
-  StatusOr<int> source(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int> source(Status(FirestoreErrorCode::Cancelled, ""));
   StatusOr<int> target;
   target = source;
   EXPECT_EQ(target.status(), source.status());
@@ -289,9 +288,9 @@ TEST(StatusOr, TestAssignmentStatusNotOk) {
 TEST(StatusOr, TestStatus) {
   StatusOr<int> good(4);
   EXPECT_TRUE(good.ok());
-  StatusOr<int> bad(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int> bad(Status(FirestoreErrorCode::Cancelled, ""));
   EXPECT_FALSE(bad.ok());
-  EXPECT_EQ(bad.status(), Status(tensorflow::error::CANCELLED, ""));
+  EXPECT_EQ(bad.status(), Status(FirestoreErrorCode::Cancelled, ""));
 }
 
 TEST(StatusOr, TestValue) {
@@ -307,30 +306,30 @@ TEST(StatusOr, TestValueConst) {
 }
 
 TEST(StatusOrDeathTest, TestValueNotOk) {
-  StatusOr<int> thing(Status(tensorflow::error::CANCELLED, "cancelled"));
-  EXPECT_DEATH(thing.ValueOrDie(), "cancelled");
+  StatusOr<int> thing(Status(FirestoreErrorCode::Cancelled, "cancelled"));
+  EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOrDeathTest, TestValueNotOkConst) {
-  const StatusOr<int> thing(Status(tensorflow::error::UNKNOWN, ""));
-  EXPECT_DEATH(thing.ValueOrDie(), "");
+  const StatusOr<int> thing(Status(FirestoreErrorCode::Unknown, ""));
+  EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOr, TestPointerDefaultCtor) {
   StatusOr<int*> thing;
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), tensorflow::error::UNKNOWN);
+  EXPECT_EQ(thing.status().code(), FirestoreErrorCode::Unknown);
 }
 
 TEST(StatusOrDeathTest, TestPointerDefaultCtorValue) {
   StatusOr<int*> thing;
-  EXPECT_DEATH(thing.ValueOrDie(), "");
+  EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOr, TestPointerStatusCtor) {
-  StatusOr<int*> thing(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int*> thing(Status(FirestoreErrorCode::Cancelled, ""));
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status(), Status(tensorflow::error::CANCELLED, ""));
+  EXPECT_EQ(thing.status(), Status(FirestoreErrorCode::Cancelled, ""));
 }
 
 TEST(StatusOr, TestPointerValueCtor) {
@@ -349,7 +348,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusOk) {
 }
 
 TEST(StatusOr, TestPointerCopyCtorStatusNotOk) {
-  StatusOr<int*> original(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int*> original(Status(FirestoreErrorCode::Cancelled, ""));
   StatusOr<int*> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -364,7 +363,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusOKConverting) {
 }
 
 TEST(StatusOr, TestPointerCopyCtorStatusNotOkConverting) {
-  StatusOr<Derived*> original(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<Derived*> original(Status(FirestoreErrorCode::Cancelled, ""));
   StatusOr<Base2*> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -379,7 +378,7 @@ TEST(StatusOr, TestPointerAssignmentStatusOk) {
 }
 
 TEST(StatusOr, TestPointerAssignmentStatusNotOk) {
-  StatusOr<int*> source(Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<int*> source(Status(FirestoreErrorCode::Cancelled, ""));
   StatusOr<int*> target;
   target = source;
   EXPECT_EQ(target.status(), source.status());
@@ -389,8 +388,8 @@ TEST(StatusOr, TestPointerStatus) {
   const int kI = 0;
   StatusOr<const int*> good(&kI);
   EXPECT_TRUE(good.ok());
-  StatusOr<const int*> bad(Status(tensorflow::error::CANCELLED, ""));
-  EXPECT_EQ(bad.status(), Status(tensorflow::error::CANCELLED, ""));
+  StatusOr<const int*> bad(Status(FirestoreErrorCode::Cancelled, ""));
+  EXPECT_EQ(bad.status(), Status(FirestoreErrorCode::Cancelled, ""));
 }
 
 TEST(StatusOr, TestPointerValue) {
@@ -407,6 +406,7 @@ TEST(StatusOr, TestPointerValueConst) {
 
 // NOTE(tucker): tensorflow::StatusOr does not support this kind
 // of resize op.
+// NOTE(rsgowman): We stole StatusOr from tensorflow, so this applies here too.
 // TEST(StatusOr, StatusOrVectorOfUniquePointerCanResize) {
 //   using EvilType = std::vector<std::unique_ptr<int>>;
 //   static_assert(std::is_copy_constructible<EvilType>::value, "");
@@ -415,253 +415,17 @@ TEST(StatusOr, TestPointerValueConst) {
 // }
 
 TEST(StatusOrDeathTest, TestPointerValueNotOk) {
-  StatusOr<int*> thing(Status(tensorflow::error::CANCELLED, "cancelled"));
-  EXPECT_DEATH(thing.ValueOrDie(), "cancelled");
+  StatusOr<int*> thing(Status(FirestoreErrorCode::Cancelled, "cancelled"));
+  EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOrDeathTest, TestPointerValueNotOkConst) {
-  const StatusOr<int*> thing(Status(tensorflow::error::CANCELLED, "cancelled"));
-  EXPECT_DEATH(thing.ValueOrDie(), "cancelled");
+  const StatusOr<int*> thing(
+      Status(FirestoreErrorCode::Cancelled, "cancelled"));
+  EXPECT_ANY_THROW(thing.ValueOrDie());
 }
-
-static StatusOr<int> MakeStatus() { return 100; }
-// A factory to help us benchmark the various factory styles. All of
-// the factory methods are marked as non-inlineable so as to more
-// accurately simulate calling a factory for which you do not have
-// visibility of implementation. Similarly, the value_ variable is
-// marked volatile to prevent the compiler from getting too clever
-// about detecting that the same value is used in all loop iterations.
-template <typename T>
-class BenchmarkFactory {
- public:
-  // Construct a new factory. Allocate an object which will always
-  // be the result of the factory methods.
-  BenchmarkFactory() : value_(new T) {}
-
-  // Destroy this factory, including the result value.
-  ~BenchmarkFactory() { delete value_; }
-
-  // A trivial factory that just returns the value. There is no status
-  // object that could be returned to encapsulate an error
-  T* TrivialFactory() TF_ATTRIBUTE_NOINLINE { return value_; }
-
-  // A more sophisticated factory, which returns a status to indicate
-  // the result of the operation. The factory result is populated into
-  // the user provided pointer result.
-  Status ArgumentFactory(T** result) TF_ATTRIBUTE_NOINLINE {
-    *result = value_;
-    return Status::OK();
-  }
-
-  Status ArgumentFactoryFail(T** result) TF_ATTRIBUTE_NOINLINE {
-    *result = nullptr;
-    return Status(tensorflow::error::CANCELLED, "");
-  }
-
-  Status ArgumentFactoryFailShortMsg(T** result) TF_ATTRIBUTE_NOINLINE {
-    *result = nullptr;
-    return Status(::tensorflow::error::INTERNAL, "");
-  }
-
-  Status ArgumentFactoryFailLongMsg(T** result) TF_ATTRIBUTE_NOINLINE {
-    *result = nullptr;
-    return Status(::tensorflow::error::INTERNAL,
-                  "a big string of message junk that will never be read");
-  }
-
-  // A factory that returns a StatusOr<T*>. If the factory operation
-  // is OK, then the StatusOr<T*> will hold a T*. Otherwise, it will
-  // hold a status explaining the error.
-  StatusOr<T*> StatusOrFactory() TF_ATTRIBUTE_NOINLINE {
-    return static_cast<T*>(value_);
-  }
-
-  StatusOr<T*> StatusOrFactoryFail() TF_ATTRIBUTE_NOINLINE {
-    return Status(tensorflow::error::CANCELLED, "");
-  }
-
-  StatusOr<T*> StatusOrFactoryFailShortMsg() TF_ATTRIBUTE_NOINLINE {
-    return Status(::tensorflow::error::INTERNAL, "");
-  }
-
-  StatusOr<T*> StatusOrFactoryFailLongMsg() TF_ATTRIBUTE_NOINLINE {
-    return Status(::tensorflow::error::INTERNAL,
-                  "a big string of message junk that will never be read");
-  }
-
- private:
-  T* volatile value_;
-  TF_DISALLOW_COPY_AND_ASSIGN(BenchmarkFactory);
-};
-
-// A simple type we use with the factory.
-class BenchmarkType {
- public:
-  BenchmarkType() {}
-  virtual ~BenchmarkType() {}
-  virtual void DoWork() TF_ATTRIBUTE_NOINLINE {}
-
- private:
-  TF_DISALLOW_COPY_AND_ASSIGN(BenchmarkType);
-};
-
-// Calibrate the amount of time spent just calling DoWork, since each of our
-// tests will do this, we can subtract this out of benchmark results.
-void BM_CalibrateWorkLoop(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  BenchmarkType* result = factory.TrivialFactory();
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    if (result != nullptr) {
-      result->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_CalibrateWorkLoop);
-
-// Measure the time taken to call into the factory, return the value,
-// determine that it is OK, and invoke a trivial function.
-void BM_TrivialFactory(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    BenchmarkType* result = factory.TrivialFactory();
-    if (result != nullptr) {
-      result->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_TrivialFactory);
-
-// Measure the time taken to call into the factory, providing an
-// out-param for the result, evaluating the status result and the
-// result pointer, and invoking the trivial function.
-void BM_ArgumentFactory(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    BenchmarkType* result = nullptr;
-    Status status = factory.ArgumentFactory(&result);
-    if (status.ok() && result != nullptr) {
-      result->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_ArgumentFactory);
-
-// Measure the time to use the StatusOr<T*> factory, evaluate the result,
-// and invoke the trivial function.
-void BM_StatusOrFactory(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    StatusOr<BenchmarkType*> result = factory.StatusOrFactory();
-    if (result.ok()) {
-      result.ValueOrDie()->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_StatusOrFactory);
-
-// Measure the time taken to call into the factory, providing an
-// out-param for the result, evaluating the status result and the
-// result pointer, and invoking the trivial function.
-void BM_ArgumentFactoryFail(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    BenchmarkType* result = nullptr;
-    Status status = factory.ArgumentFactoryFail(&result);
-    if (status.ok() && result != nullptr) {
-      result->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_ArgumentFactoryFail);
-
-// Measure the time to use the StatusOr<T*> factory, evaluate the result,
-// and invoke the trivial function.
-void BM_StatusOrFactoryFail(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    StatusOr<BenchmarkType*> result = factory.StatusOrFactoryFail();
-    if (result.ok()) {
-      result.ValueOrDie()->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_StatusOrFactoryFail);
-
-// Measure the time taken to call into the factory, providing an
-// out-param for the result, evaluating the status result and the
-// result pointer, and invoking the trivial function.
-void BM_ArgumentFactoryFailShortMsg(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    BenchmarkType* result = nullptr;
-    Status status = factory.ArgumentFactoryFailShortMsg(&result);
-    if (status.ok() && result != nullptr) {
-      result->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_ArgumentFactoryFailShortMsg);
-
-// Measure the time to use the StatusOr<T*> factory, evaluate the result,
-// and invoke the trivial function.
-void BM_StatusOrFactoryFailShortMsg(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    StatusOr<BenchmarkType*> result = factory.StatusOrFactoryFailShortMsg();
-    if (result.ok()) {
-      result.ValueOrDie()->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_StatusOrFactoryFailShortMsg);
-
-// Measure the time taken to call into the factory, providing an
-// out-param for the result, evaluating the status result and the
-// result pointer, and invoking the trivial function.
-void BM_ArgumentFactoryFailLongMsg(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    BenchmarkType* result = nullptr;
-    Status status = factory.ArgumentFactoryFailLongMsg(&result);
-    if (status.ok() && result != nullptr) {
-      result->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_ArgumentFactoryFailLongMsg);
-
-// Measure the time to use the StatusOr<T*> factory, evaluate the result,
-// and invoke the trivial function.
-void BM_StatusOrFactoryFailLongMsg(int iters) {
-  tensorflow::testing::StopTiming();
-  BenchmarkFactory<BenchmarkType> factory;
-  tensorflow::testing::StartTiming();
-  for (int i = 0; i != iters; ++i) {
-    StatusOr<BenchmarkType*> result = factory.StatusOrFactoryFailLongMsg();
-    if (result.ok()) {
-      result.ValueOrDie()->DoWork();
-    }
-  }
-}
-BENCHMARK(BM_StatusOrFactoryFailLongMsg);
 
 }  // namespace
-}  // namespace xla
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase

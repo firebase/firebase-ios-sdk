@@ -1,28 +1,30 @@
-/* Copyright 2015 The TensorFlow Authors. All Rights Reserved.
+/*
+ * Copyright 2015, 2018 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
-    http://www.apache.org/licenses/LICENSE-2.0
+namespace firebase {
+namespace firestore {
+namespace util {
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
-#include "tensorflow/core/lib/core/status.h"
-#include <stdio.h>
-
-namespace tensorflow {
-
-Status::Status(tensorflow::error::Code code, StringPiece msg) {
-  assert(code != tensorflow::error::OK);
+Status::Status(FirestoreErrorCode code, absl::string_view msg) {
+  FIREBASE_ASSERT(code != FirestoreErrorCode::Ok);
   state_ = std::unique_ptr<State>(new State);
   state_->code = code;
-  state_->msg = msg.ToString();
+  state_->msg = std::string(msg.data(), msg.data() + msg.size());
 }
 
 void Status::Update(const Status& new_status) {
@@ -39,64 +41,64 @@ void Status::SlowCopyFrom(const State* src) {
   }
 }
 
-const string& Status::empty_string() {
-  static string* empty = new string;
+const std::string& Status::empty_string() {
+  static std::string* empty = new std::string;
   return *empty;
 }
 
-string Status::ToString() const {
+std::string Status::ToString() const {
   if (state_ == nullptr) {
     return "OK";
   } else {
     char tmp[30];
     const char* type;
     switch (code()) {
-      case tensorflow::error::CANCELLED:
+      case FirestoreErrorCode::Cancelled:
         type = "Cancelled";
         break;
-      case tensorflow::error::UNKNOWN:
+      case FirestoreErrorCode::Unknown:
         type = "Unknown";
         break;
-      case tensorflow::error::INVALID_ARGUMENT:
+      case FirestoreErrorCode::InvalidArgument:
         type = "Invalid argument";
         break;
-      case tensorflow::error::DEADLINE_EXCEEDED:
+      case FirestoreErrorCode::DeadlineExceeded:
         type = "Deadline exceeded";
         break;
-      case tensorflow::error::NOT_FOUND:
+      case FirestoreErrorCode::NotFound:
         type = "Not found";
         break;
-      case tensorflow::error::ALREADY_EXISTS:
+      case FirestoreErrorCode::AlreadyExists:
         type = "Already exists";
         break;
-      case tensorflow::error::PERMISSION_DENIED:
+      case FirestoreErrorCode::PermissionDenied:
         type = "Permission denied";
         break;
-      case tensorflow::error::UNAUTHENTICATED:
+      case FirestoreErrorCode::Unauthenticated:
         type = "Unauthenticated";
         break;
-      case tensorflow::error::RESOURCE_EXHAUSTED:
+      case FirestoreErrorCode::ResourceExhausted:
         type = "Resource exhausted";
         break;
-      case tensorflow::error::FAILED_PRECONDITION:
+      case FirestoreErrorCode::FailedPrecondition:
         type = "Failed precondition";
         break;
-      case tensorflow::error::ABORTED:
+      case FirestoreErrorCode::Aborted:
         type = "Aborted";
         break;
-      case tensorflow::error::OUT_OF_RANGE:
+      case FirestoreErrorCode::OutOfRange:
         type = "Out of range";
         break;
-      case tensorflow::error::UNIMPLEMENTED:
+      case FirestoreErrorCode::Unimplemented:
         type = "Unimplemented";
         break;
-      case tensorflow::error::INTERNAL:
+      case FirestoreErrorCode::Internal:
         type = "Internal";
         break;
-      case tensorflow::error::UNAVAILABLE:
+      case FirestoreErrorCode::Unavailable:
         type = "Unavailable";
         break;
-      case tensorflow::error::DATA_LOSS:
+      case FirestoreErrorCode::DataLoss:
         type = "Data loss";
         break;
       default:
@@ -105,7 +107,7 @@ string Status::ToString() const {
         type = tmp;
         break;
     }
-    string result(type);
+    std::string result(type);
     result += ": ";
     result += state_->msg;
     return result;
@@ -121,14 +123,15 @@ std::ostream& operator<<(std::ostream& os, const Status& x) {
   return os;
 }
 
-string* TfCheckOpHelperOutOfLine(const ::tensorflow::Status& v,
-                                 const char* msg) {
-  string r("Non-OK-status: ");
+std::string StatusCheckOpHelperOutOfLine(const Status& v, const char* msg) {
+  FIREBASE_ASSERT(!v.ok());
+  std::string r("Non-OK-status: ");
   r += msg;
   r += " status: ";
   r += v.ToString();
-  // Leaks string but this is only to be used in a fatal error message
-  return new string(r);
+  return r;
 }
 
-}  // namespace tensorflow
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase

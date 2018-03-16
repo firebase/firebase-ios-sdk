@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "absl/base/attributes.h"
 
 #define FIREBASE_EXPAND_STRINGIFY_(X) #X
 #define FIREBASE_EXPAND_STRINGIFY(X) FIREBASE_EXPAND_STRINGIFY_(X)
@@ -107,11 +108,11 @@ namespace firestore {
 namespace util {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-void FailAssert(const char* file,
-                const char* func,
-                const int line,
-                const char* format,
-                ...);
+ABSL_ATTRIBUTE_NORETURN void FailAssert(const char* file,
+                                        const char* func,
+                                        const int line,
+                                        const char* format,
+                                        ...);
 
 }  // namespace util
 }  // namespace firestore

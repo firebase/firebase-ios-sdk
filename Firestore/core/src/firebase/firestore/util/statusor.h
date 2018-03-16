@@ -1,17 +1,18 @@
-/* Copyright 2017 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
+/*
+ * Copyright 2017, 2018 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 // StatusOr<T> is the union of a Status object and a T
 // object. StatusOr models the concept of an object that is either a
@@ -68,26 +69,26 @@ limitations under the License.
 // stored value cannot invalidate the argument; in other words, the argument
 // cannot be an alias for the current value, or anything owned by the current
 // value.
-#ifndef TENSORFLOW_COMPILER_XLA_STATUSOR_H_
-#define TENSORFLOW_COMPILER_XLA_STATUSOR_H_
 
-#include "tensorflow/compiler/xla/status.h"
-#include "tensorflow/compiler/xla/statusor_internals.h"
-#include "tensorflow/core/platform/macros.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_
 
-namespace xla {
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_internals.h"
+#include "absl/base/attributes.h"
+#include "absl/strings/string_view.h"
 
-#if defined(__clang__)
-// Only clang supports warn_unused_result as a type annotation.
+namespace firebase {
+namespace firestore {
+namespace util {
+
 template <typename T>
-class TF_MUST_USE_RESULT StatusOr;
-#endif
-
-template <typename T>
-class StatusOr : private internal_statusor::StatusOrData<T>,
-                 private internal_statusor::TraitsBase<
-                     std::is_copy_constructible<T>::value,
-                     std::is_move_constructible<T>::value> {
+class ABSL_MUST_USE_RESULT StatusOr
+    : private internal_statusor::StatusOrData<T>,
+      private internal_statusor::TraitsBase<
+          std::is_copy_constructible<T>::value,
+          std::is_move_constructible<T>::value> {
   template <typename U>
   friend class StatusOr;
 
@@ -96,10 +97,10 @@ class StatusOr : private internal_statusor::StatusOrData<T>,
  public:
   typedef T element_type;
 
-  // Constructs a new StatusOr with Status::UNKNOWN status.  This is marked
-  // 'explicit' to try to catch cases like 'return {};', where people think
-  // StatusOr<std::vector<int>> will be initialized with an empty vector,
-  // instead of a Status::UNKNOWN status.
+  // Constructs a new StatusOr with FirebaseErrorCode::Unknown status.  This is
+  // marked 'explicit' to try to catch cases like 'return {};', where people
+  // think StatusOr<std::vector<int>> will be initialized with an empty vector,
+  // instead of a FirebaseErrorCode::Unknown status.
   explicit StatusOr();
 
   // StatusOr<T> will be copy constructible/assignable if T is copy
@@ -206,7 +207,7 @@ class StatusOr : private internal_statusor::StatusOrData<T>,
 // Implementation details for StatusOr<T>
 
 template <typename T>
-StatusOr<T>::StatusOr() : Base(Status(tensorflow::error::UNKNOWN, "")) {}
+StatusOr<T>::StatusOr() : Base(Status(FirestoreErrorCode::Unknown, "")) {}
 
 template <typename T>
 StatusOr<T>::StatusOr(const T& value) : Base(value) {}
@@ -301,6 +302,8 @@ void StatusOr<T>::IgnoreError() const {
   // no-op
 }
 
-}  // namespace xla
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
 
-#endif  // TENSORFLOW_COMPILER_XLA_STATUSOR_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_
