@@ -16,8 +16,11 @@
 
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include <map>
+#include <set>
+#include <utility>
+
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -30,47 +33,47 @@ NS_ASSUME_NONNULL_BEGIN
  * The type of the index of the documents in an FSTDocumentSet.
  * @see FSTDocumentSet#index
  */
-typedef FSTImmutableSortedDictionary<FSTDocumentKey *, FSTDocument *> IndexType;
+typedef std::map<DocumentKey, FSTDocument *> IndexType;
 
 /**
  * The type of the main collection of documents in an FSTDocumentSet.
  * @see FSTDocumentSet#sortedSet
  */
-typedef FSTImmutableSortedSet<FSTDocument *> SetType;
+typedef std::set<DocumentKey> SetType;
 
 @interface FSTDocumentSet ()
 
-- (instancetype)initWithIndex:(IndexType *)index set:(SetType *)sortedSet NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithIndex:(IndexType)index set:(SetType)sortedSet NS_DESIGNATED_INITIALIZER;
 
-/**
- * An index of the documents in the FSTDocumentSet, indexed by document key. The index
- * exists to guarantee the uniqueness of document keys in the set and to allow lookup and removal
- * of documents by key.
- */
-@property(nonatomic, strong, readonly) IndexType *index;
-
-/**
- * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
- * comparator supplied from a query. The SetType collection exists in addition to the index to
- * allow ordered traversal of the FSTDocumentSet.
- */
-@property(nonatomic, strong, readonly) SetType *sortedSet;
 @end
 
-@implementation FSTDocumentSet
+@implementation FSTDocumentSet {
+  /**
+   * An index of the documents in the FSTDocumentSet, indexed by document key. The index
+   * exists to guarantee the uniqueness of document keys in the set and to allow lookup and removal
+   * of documents by key.
+   */
+  IndexType _index;
+
+  /**
+   * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
+   * comparator supplied from a query. The SetType collection exists in addition to the index to
+   * allow ordered traversal of the FSTDocumentSet.
+   */
+  SetType _sortedSet;
+}
 
 + (instancetype)documentSetWithComparator:(NSComparator)comparator {
-  IndexType *index =
-      [FSTImmutableSortedDictionary dictionaryWithComparator:FSTDocumentKeyComparator];
-  SetType *set = [FSTImmutableSortedSet setWithComparator:comparator];
+  IndexType index{};
+  SetType set{};
   return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }
 
-- (instancetype)initWithIndex:(IndexType *)index set:(SetType *)sortedSet {
+- (instancetype)initWithIndex:(IndexType)index set:(SetType)sortedSet {
   self = [super init];
   if (self) {
-    _index = index;
-    _sortedSet = sortedSet;
+    _index = std::move(index);
+    _sortedSet = std::move(sortedSet);
   }
   return self;
 }
@@ -124,11 +127,11 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (BOOL)containsKey:(const DocumentKey &)key {
-  return [self.index objectForKey:(FSTDocumentKey *)key] != nil;
+  return [self.index objectForKey:key] != nil;
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  return [self.index objectForKey:(FSTDocumentKey *)key];
+  return [self.index objectForKey:key];
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -140,7 +143,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (NSUInteger)indexOfKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
+  FSTDocument *doc = [self.index objectForKey:key];
   return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
 }
 
@@ -176,7 +179,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (instancetype)documentSetByRemovingKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
+  FSTDocument *doc = [self.index objectForKey:key];
   if (!doc) {
     return self;
   }

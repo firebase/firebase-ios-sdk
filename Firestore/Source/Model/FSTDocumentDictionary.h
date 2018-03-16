@@ -16,29 +16,32 @@
 
 #import <Foundation/Foundation.h>
 
+#include <map>
+
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTDocument;
-@class FSTDocumentKey;
 @class FSTMaybeDocument;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Convenience type for a map of keys to MaybeDocuments, since they are so common. */
-typedef FSTImmutableSortedDictionary<FSTDocumentKey *, FSTMaybeDocument *>
-    FSTMaybeDocumentDictionary;
+typedef std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>
+    MaybeDocumentDictionary;
 
 /** Convenience type for a map of keys to Documents, since they are so common. */
-typedef FSTImmutableSortedDictionary<FSTDocumentKey *, FSTDocument *> FSTDocumentDictionary;
+typedef std::map<firebase::firestore::model::DocumentKey, FSTDocument *> DocumentDictionary;
 
-@interface FSTImmutableSortedDictionary (FSTDocumentDictionary)
+class DocumentDictionaryBuilder {
+  /** Returns a new set of MaybeDocument using the DocumentKeyComparator. */
+  static MaybeDocumentDictionary CreateMaybeDocumentDictionary();
 
-/** Returns a new set using the DocumentKeyComparator. */
-+ (FSTMaybeDocumentDictionary *)maybeDocumentDictionary;
-
-/** Returns a new set using the DocumentKeyComparator. */
-+ (FSTDocumentDictionary *)documentDictionary;
+  /** Returns a set of Document using the DocumentKeyComparator. */
+  static DocumentDictionary *CreateDocumentDictionary();
+};
 
 @end
 
-NS_ASSUME_NONNULL_END
+    NS_ASSUME_NONNULL_END

@@ -17,21 +17,14 @@
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTImmutableSortedDictionary (FSTDocumentVersionDictionary)
-
-+ (instancetype)documentVersionDictionary {
-  static FSTDocumentVersionDictionary *singleton;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    singleton = [FSTDocumentVersionDictionary dictionaryWithComparator:FSTDocumentKeyComparator];
-  });
-  return singleton;
+DocumentVersionDictionary *DocumentVersionDictionaryBuilder::CreateDocumentVersionDictionary {
+  static DocumentVersionDictionary singleton{};
+  return &singleton;
 }
-
-@end
 
 NS_ASSUME_NONNULL_END

@@ -16,16 +16,12 @@
 
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTImmutableSortedSet (FSTDocumentKey)
-
-+ (instancetype)keySet {
-  return [FSTDocumentKeySet setWithComparator:FSTDocumentKeyComparator];
+DocumentKeySet DocumentKeySetBuilder::KeySet() {
+  return DocumentKeySet{};
 }
-
-@end
 
 NS_ASSUME_NONNULL_END

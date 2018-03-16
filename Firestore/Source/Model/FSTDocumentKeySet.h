@@ -16,20 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
+#include <set>
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Convenience type for a set of keys, since they are so common. */
-typedef FSTImmutableSortedSet<FSTDocumentKey *> FSTDocumentKeySet;
+typedef std::set<firebase::firestore::model::DocumentKey> DocumentKeySet;
 
-@interface FSTImmutableSortedSet (FSTDocumentKey)
-
-/** Returns a new set using the DocumentKeyComparator. */
-+ (FSTDocumentKeySet *)keySet;
-
-@end
+class DocumentKeySetBuilder {
+  /** Returns a new set using the DocumentKeyComparator. */
+  static DocumentKeySet KeySet();
+};
 
 NS_ASSUME_NONNULL_END

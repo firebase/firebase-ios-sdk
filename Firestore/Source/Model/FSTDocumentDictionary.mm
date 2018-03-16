@@ -16,27 +16,17 @@
 
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTImmutableSortedDictionary (FSTMaybeDocumentDictionary)
-
-+ (instancetype)maybeDocumentDictionary {
-  // Immutable dictionaries are contravariant in their value type, so just return a
-  // FSTDocumentDictionary here.
-  return [FSTDocumentDictionary documentDictionary];
+MaybeDocumentDictionary DocumentDictionaryBuilder::CreateMaybeDocumentDictionary() {
+  return MaybeDocumentDictionary{};
 }
 
-+ (instancetype)documentDictionary {
-  static FSTDocumentDictionary *singleton;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    singleton = [FSTDocumentDictionary dictionaryWithComparator:FSTDocumentKeyComparator];
-  });
-  return singleton;
+DocumentDictionary *DocumentDictionaryBuilder::CreateDocumentDictionary() {
+  static DocumentDictionary singleton;
+  return &singleton;
 }
-
-@end
 
 NS_ASSUME_NONNULL_END

@@ -16,25 +16,25 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
+#include <map>
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A map of key to version number. */
-typedef FSTImmutableSortedDictionary<FSTDocumentKey *, FSTSnapshotVersion *>
-    FSTDocumentVersionDictionary;
+typedef std::map<firebase::firestore::model::DocumentKey, FSTSnapshotVersion *>
+    DocumentVersionDictionary;
 
 /**
  * Extension to FSTImmutableSortedDictionary that allows natural construction of
  * FSTDocumentVersionDictionary.
  */
-@interface FSTImmutableSortedDictionary (FSTDocumentVersionDictionary)
-
-+ (instancetype)documentVersionDictionary;
-
-@end
+class DocumentVersionDictionaryBuilder {
+ public:
+  static DocumentVersionDictionary *CreateDocumentVersionDictionary();
+};
 
 NS_ASSUME_NONNULL_END
