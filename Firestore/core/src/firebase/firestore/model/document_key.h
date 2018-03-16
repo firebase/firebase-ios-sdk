@@ -21,6 +21,10 @@
 #include <memory>
 #include <string>
 
+#if defined(__OBJC__)
+#import "Firestore/Source/Model/FSTDocumentKey.h"
+#endif  // defined(__OBJC__)
+
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
 
@@ -42,6 +46,16 @@ class DocumentKey {
 
   /** Creates a new document key, taking ownership of the given path. */
   explicit DocumentKey(ResourcePath&& path);
+
+#if defined(__OBJC__)
+  DocumentKey(FSTDocumentKey* key)  // NOLINT(runtime/explicit)
+      : path_(std::make_shared<ResourcePath>(key.path)) {
+  }
+
+  operator FSTDocumentKey*() const {
+    return [FSTDocumentKey keyWithPath:path()];
+  }
+#endif
 
   /**
    * Creates and returns a new document key using '/' to split the string into
@@ -68,6 +82,11 @@ class DocumentKey {
   const ResourcePath& path() const {
     return path_ ? *path_ : Empty().path();
   }
+
+#if defined(__OBJC__)
+  // Helper function to convert to FSTDocumentKey during the C++ migration.
+  FSTDocumentKey* ToFSTDocumentKey() const;
+#endif  // defined(__OBJC__)
 
  private:
   // This is an optimization to make passing DocumentKey around cheaper (it's

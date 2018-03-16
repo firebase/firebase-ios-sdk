@@ -36,6 +36,7 @@ cc_library(
     snapshot_version.h
     timestamp.cc
     timestamp.h
+    types.h
   DEPENDS
     absl_strings
     firebase_firestore_util

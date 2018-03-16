@@ -19,9 +19,9 @@
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 @class FSTDocumentKey;
-@class FSTFieldPath;
 @class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
@@ -243,19 +243,20 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
-- (nullable FSTFieldValue *)valueForPath:(FSTFieldPath *)fieldPath;
+- (nullable FSTFieldValue *)valueForPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has its value set to the given value.
  * This object remains unmodified.
  */
-- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value forPath:(FSTFieldPath *)fieldPath;
+- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value
+                                 forPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has been removed. If any segment of the
  * path does not exist within this object's structure, no change is performed.
  */
-- (FSTObjectValue *)objectByDeletingPath:(FSTFieldPath *)fieldPath;
+- (FSTObjectValue *)objectByDeletingPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 @end
 
 /**

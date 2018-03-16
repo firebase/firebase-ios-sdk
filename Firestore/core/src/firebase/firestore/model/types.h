@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TYPES_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TYPES_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
 
 #include <stdint.h>
 
 namespace firebase {
 namespace firestore {
-namespace core {
+namespace model {
 
 typedef int32_t TargetId;
 
-}  // namespace core
+}  // namespace model
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TYPES_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_

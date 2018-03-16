@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
   return path.size() % 2 == 0;
 }
 
-- (const firebase::firestore::model::ResourcePath &)path {
+- (const ResourcePath &)path {
   return _path;
 }
 

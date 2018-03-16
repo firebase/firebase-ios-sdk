@@ -19,6 +19,7 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 
+#include <functional>
 #include <map>
 #include <string>
 #include <utility>
@@ -33,20 +34,37 @@ using firebase::firestore::model::FieldValue;
 
 namespace {
 
-void EncodeObject(pb_ostream_t* stream,
+class Writer;
+
+void EncodeObject(Writer* stream,
                   const std::map<std::string, FieldValue>& object_value);
 
 std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_ostream_t. Eventually, this might use static factory methods to create the
- * underlying pb_ostream_t rather than directly passing it in.
+ * pb_ostream_t.
  */
 // TODO(rsgowman): Encode* -> Write*
 class Writer {
  public:
-  explicit Writer(pb_ostream_t* stream) : stream_(stream) {
+  /**
+   * Creates an output stream that writes to the specified vector. Note that
+   * this vector pointer must remain valid for the lifetime of this Writer.
+   *
+   * (This is roughly equivalent to the nanopb function
+   * pb_ostream_from_buffer())
+   *
+   * @param out_bytes where the output should be serialized to.
+   */
+  static Writer Wrap(std::vector<uint8_t>* out_bytes);
+
+  /**
+   * Creates a non-writing output stream used to calculate the size of
+   * the serialized output.
+   */
+  static Writer SizingStream() {
+    return Writer(PB_OSTREAM_SIZING);
   }
 
   /**
@@ -68,7 +86,36 @@ class Writer {
 
   void EncodeString(const std::string& string_value);
 
+  /**
+   * Encodes a message and its length.
+   *
+   * When encoding a top level message, protobuf doesn't include the length
+   * (since you can get that already from the length of the binary output.) But
+   * when encoding a sub/nested message, you must include the length in the
+   * serialization.
+   *
+   * Call this method when encoding a nested message. Provide a function to
+   * encode the message itself. This method will calculate the size of the
+   * encoded message (using the provided function with a non-writing sizing
+   * stream), write out the size (and perform sanity checks), and then serialize
+   * the message by calling the provided function a second time.
+   */
+  void EncodeNestedMessage(
+      const std::function<void(Writer*)>& encode_message_fn);
+
+  size_t bytes_written() const {
+    return stream_.bytes_written;
+  }
+
  private:
+  /**
+   * Creates a new Writer, based on the given nanopb pb_ostream_t. Note that
+   * a shallow copy will be taken. (Non-null pointers within this struct must
+   * remain valid for the lifetime of this Writer.)
+   */
+  explicit Writer(const pb_ostream_t& stream) : stream_(stream) {
+  }
+
   /**
    * Encodes a "varint" to the output stream.
    *
@@ -84,8 +131,35 @@ class Writer {
    */
   void EncodeVarint(uint64_t value);
 
-  pb_ostream_t* stream_;
+  pb_ostream_t stream_;
 };
+
+Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
+  // TODO(rsgowman): find a better home for this constant.
+  // A document is defined to have a max size of 1MiB - 4 bytes.
+  static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
+
+  // Construct a nanopb output stream.
+  //
+  // Set the max_size to be the max document size (as an upper bound; one would
+  // expect individual FieldValue's to be smaller than this).
+  //
+  // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
+  // care about the underlying output vector, so where we are in the vector
+  // itself is irrelevant. i.e. don't use out_bytes->size())
+  pb_ostream_t raw_stream = {
+      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
+                      size_t count) -> bool {
+        auto* out_bytes = static_cast<std::vector<uint8_t>*>(stream->state);
+        out_bytes->insert(out_bytes->end(), buf, buf + count);
+        return true;
+      },
+      /*state=*/out_bytes,
+      /*max_size=*/kMaxDocumentSize,
+      /*bytes_written=*/0,
+      /*errmsg=*/nullptr};
+  return Writer(raw_stream);
+}
 
 // TODO(rsgowman): I've left the methods as near as possible to where they were
 // before, which implies that the Writer methods are interspersed with the
@@ -94,7 +168,7 @@ class Writer {
 // together (probably within their own file rather than here).
 
 void Writer::EncodeTag(pb_wire_type_t wiretype, uint32_t field_number) {
-  bool status = pb_encode_tag(stream_, wiretype, field_number);
+  bool status = pb_encode_tag(&stream_, wiretype, field_number);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -106,7 +180,7 @@ void Writer::EncodeSize(size_t size) {
 }
 
 void Writer::EncodeVarint(uint64_t value) {
-  bool status = pb_encode_varint(stream_, value);
+  bool status = pb_encode_varint(&stream_, value);
   if (!status) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -171,7 +245,7 @@ int64_t DecodeInteger(pb_istream_t* stream) {
 
 void Writer::EncodeString(const std::string& string_value) {
   bool status = pb_encode_string(
-      stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
+      &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
       string_value.length());
   if (!status) {
     // TODO(rsgowman): figure out error handling
@@ -214,45 +288,38 @@ std::string DecodeString(pb_istream_t* stream) {
 // TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
 // This will help with error handling, and should eliminate the issue of two
 // 'EncodeFieldValue' methods.
-void EncodeFieldValueImpl(pb_ostream_t* raw_stream,
-                          const FieldValue& field_value) {
+void EncodeFieldValueImpl(Writer* stream, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  Writer stream(raw_stream);
-  bool status = false;
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      stream.EncodeTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_null_value_tag);
-      stream.EncodeNull();
+      stream->EncodeTag(PB_WT_VARINT,
+                        google_firestore_v1beta1_Value_null_value_tag);
+      stream->EncodeNull();
       break;
 
     case FieldValue::Type::Boolean:
-      stream.EncodeTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_boolean_value_tag);
-      stream.EncodeBool(field_value.boolean_value());
+      stream->EncodeTag(PB_WT_VARINT,
+                        google_firestore_v1beta1_Value_boolean_value_tag);
+      stream->EncodeBool(field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
-      stream.EncodeTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_integer_value_tag);
-      stream.EncodeInteger(field_value.integer_value());
+      stream->EncodeTag(PB_WT_VARINT,
+                        google_firestore_v1beta1_Value_integer_value_tag);
+      stream->EncodeInteger(field_value.integer_value());
       break;
 
     case FieldValue::Type::String:
-      stream.EncodeTag(PB_WT_STRING,
-                       google_firestore_v1beta1_Value_string_value_tag);
-      stream.EncodeString(field_value.string_value());
+      stream->EncodeTag(PB_WT_STRING,
+                        google_firestore_v1beta1_Value_string_value_tag);
+      stream->EncodeString(field_value.string_value());
       break;
 
     case FieldValue::Type::Object:
-      status = pb_encode_tag(raw_stream, PB_WT_STRING,
-                             google_firestore_v1beta1_Value_map_value_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-      EncodeObject(raw_stream, field_value.object_value());
+      stream->EncodeTag(PB_WT_STRING,
+                        google_firestore_v1beta1_Value_map_value_tag);
+      EncodeObject(stream, field_value.object_value());
       break;
 
     default:
@@ -312,37 +379,22 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
   }
 }
 
-/**
- * Encodes a FieldValue *and* its length.
- *
- * When encoding a top level message, protobuf doesn't include the length (since
- * you can get that already from the length of the binary output.) But when
- * encoding a sub/nested message, you must include the length in the
- * serialization.
- *
- * Call this method when encoding a non top level FieldValue. Otherwise call
- * EncodeFieldValue[Impl].
- */
-void EncodeNestedFieldValue(pb_ostream_t* stream,
-                            const FieldValue& field_value) {
-  // Implementation note: This is roughly modeled on pb_encode_delimited (which
-  // is actually pb_encode_submessage), adjusted to account for the oneof in
-  // FieldValue.
-
+void Writer::EncodeNestedMessage(
+    const std::function<void(Writer*)>& encode_message_fn) {
   // First calculate the message size using a non-writing substream.
-  pb_ostream_t substream = PB_OSTREAM_SIZING;
-  EncodeFieldValueImpl(&substream, field_value);
-  size_t size = substream.bytes_written;
+  Writer sizing_substream = Writer::SizingStream();
+  encode_message_fn(&sizing_substream);
+  size_t size = sizing_substream.bytes_written();
 
   // Write out the size to the output stream.
-  Writer(stream).EncodeSize(size);
+  EncodeSize(size);
 
-  // If stream is itself a sizing stream, then we don't need to actually parse
-  // field_value a second time; just update the bytes_written via a call to
-  // pb_write. (If we try to write the contents into a sizing stream, it'll
+  // If this stream is itself a sizing stream, then we don't need to actually
+  // parse field_value a second time; just update the bytes_written via a call
+  // to pb_write. (If we try to write the contents into a sizing stream, it'll
   // fail since sizing streams don't actually have any buffer space.)
-  if (stream->callback == NULL) {
-    bool status = pb_write(stream, NULL, size);
+  if (stream_.callback == nullptr) {
+    bool status = pb_write(&stream_, nullptr, size);
     if (!status) {
       // TODO(rsgowman): figure out error handling
       abort();
@@ -351,7 +403,7 @@ void EncodeNestedFieldValue(pb_ostream_t* stream,
   }
 
   // Ensure the output stream has enough space
-  if (stream->bytes_written + size > stream->max_size) {
+  if (stream_.bytes_written + size > stream_.max_size) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -360,15 +412,16 @@ void EncodeNestedFieldValue(pb_ostream_t* stream,
   // did the first time. (Use an initializer rather than setting fields
   // individually like nanopb does. This gives us a *chance* of noticing if
   // nanopb adds new fields.)
-  substream = {stream->callback, stream->state, /*max_size=*/size,
-               /*bytes_written=*/0, /*errmsg=*/NULL};
+  Writer writing_substream({stream_.callback, stream_.state,
+                            /*max_size=*/size, /*bytes_written=*/0,
+                            /*errmsg=*/nullptr});
+  encode_message_fn(&writing_substream);
 
-  EncodeFieldValueImpl(&substream, field_value);
-  stream->bytes_written += substream.bytes_written;
-  stream->state = substream.state;
-  stream->errmsg = substream.errmsg;
+  stream_.bytes_written += writing_substream.stream_.bytes_written;
+  stream_.state = writing_substream.stream_.state;
+  stream_.errmsg = writing_substream.stream_.errmsg;
 
-  if (substream.bytes_written != size) {
+  if (writing_substream.bytes_written() != size) {
     // submsg size changed
     // TODO(rsgowman): figure out error handling
     abort();
@@ -421,24 +474,18 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  *
  * @param kv The individual key/value pair to encode.
  */
-void EncodeFieldsEntry(pb_ostream_t* raw_stream,
+void EncodeFieldsEntry(Writer* stream,
                        const std::pair<std::string, FieldValue>& kv) {
-  Writer stream(raw_stream);
-
   // Encode the key (string)
-  stream.EncodeTag(PB_WT_STRING,
-                   google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-  stream.EncodeString(kv.first);
+  stream->EncodeTag(PB_WT_STRING,
+                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  stream->EncodeString(kv.first);
 
   // Encode the value (FieldValue)
-  bool status =
-      pb_encode_tag(raw_stream, PB_WT_STRING,
+  stream->EncodeTag(PB_WT_STRING,
                     google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-  EncodeNestedFieldValue(raw_stream, kv.second);
+  stream->EncodeNestedMessage(
+      [&kv](Writer* stream) { EncodeFieldValueImpl(stream, kv.second); });
 }
 
 std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
@@ -466,49 +513,19 @@ std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
   return {key, value};
 }
 
-void EncodeObject(pb_ostream_t* stream,
+void EncodeObject(Writer* stream,
                   const std::map<std::string, FieldValue>& object_value) {
-  google_firestore_v1beta1_MapValue map_value =
-      google_firestore_v1beta1_MapValue_init_zero;
-  // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
-  // object_value via the arg field (and therefore need to do a bunch of
-  // casting).
-  map_value.fields.funcs.encode = [](pb_ostream_t* stream, const pb_field_t*,
-                                     void* const* arg) -> bool {
-    auto& object_value =
-        *static_cast<const std::map<std::string, FieldValue>*>(*arg);
-
+  stream->EncodeNestedMessage([&object_value](Writer* stream) {
     // Encode each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value) {
-      bool status =
-          pb_encode_tag(stream, PB_WT_STRING,
+      stream->EncodeTag(PB_WT_STRING,
                         google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-      if (!status) {
-        // TODO(rsgowman): figure out error handling
-        abort();
-      }
-
-      // Calculate the size of this FieldsEntry using a non-writing substream.
-      pb_ostream_t sizing_stream = PB_OSTREAM_SIZING;
-      EncodeFieldsEntry(&sizing_stream, kv);
-      size_t size = sizing_stream.bytes_written;
-      // Write out the size to the output stream.
-      Writer(stream).EncodeSize(size);
-
-      EncodeFieldsEntry(stream, kv);
+      stream->EncodeNestedMessage(
+          [&kv](Writer* stream) { EncodeFieldsEntry(stream, kv); });
     }
 
     return true;
-  };
-  map_value.fields.arg =
-      const_cast<std::map<std::string, FieldValue>*>(&object_value);
-
-  bool status = pb_encode_delimited(
-      stream, google_firestore_v1beta1_MapValue_fields, &map_value);
-  if (!status) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
+  });
 }
 
 std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
@@ -550,13 +567,8 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
 
 void Serializer::EncodeFieldValue(const FieldValue& field_value,
                                   std::vector<uint8_t>* out_bytes) {
-  // TODO(rsgowman): how large should the output buffer be? Do some
-  // investigation to see if we can get nanopb to tell us how much space it's
-  // going to need. (Hint: use a sizing stream, i.e. PB_OSTREAM_SIZING)
-  uint8_t buf[1024];
-  pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
+  Writer stream = Writer::Wrap(out_bytes);
   EncodeFieldValueImpl(&stream, field_value);
-  out_bytes->insert(out_bytes->end(), buf, buf + stream.bytes_written);
 }
 
 FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {

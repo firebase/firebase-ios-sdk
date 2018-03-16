@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentReferenceTests
 
 - (void)testEquals {
-  FIRDocumentReference *referenceFoo = FSTTestDocRef(@"rooms/foo");
-  FIRDocumentReference *referenceFooDup = FSTTestDocRef(@"rooms/foo");
-  FIRDocumentReference *referenceBar = FSTTestDocRef(@"rooms/bar");
+  FIRDocumentReference *referenceFoo = FSTTestDocRef("rooms/foo");
+  FIRDocumentReference *referenceFooDup = FSTTestDocRef("rooms/foo");
+  FIRDocumentReference *referenceBar = FSTTestDocRef("rooms/bar");
   XCTAssertEqualObjects(referenceFoo, referenceFooDup);
   XCTAssertNotEqualObjects(referenceFoo, referenceBar);
 

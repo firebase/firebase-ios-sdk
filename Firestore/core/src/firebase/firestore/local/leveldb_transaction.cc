@@ -31,7 +31,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
+LevelDbTransaction::Iterator::Iterator(LevelDbTransaction* txn)
     : db_iter_(txn->db_->NewIterator(txn->read_options_)),
       last_version_(txn->version_),
       txn_(txn),
@@ -40,10 +40,10 @@ LevelDBTransaction::Iterator::Iterator(LevelDBTransaction* txn)
       is_mutation_(false),
       // Iterator doesn't really point to anything yet, so is
       // invalid
-      is_valid_(false)  {
+      is_valid_(false) {
 }
 
-void LevelDBTransaction::Iterator::UpdateCurrent() {
+void LevelDbTransaction::Iterator::UpdateCurrent() {
   bool mutation_is_valid = mutations_iter_ != txn_->mutations_.end();
   is_valid_ = mutation_is_valid || db_iter_->Valid();
 
@@ -67,7 +67,7 @@ void LevelDBTransaction::Iterator::UpdateCurrent() {
   }
 }
 
-void LevelDBTransaction::Iterator::Seek(const std::string& key) {
+void LevelDbTransaction::Iterator::Seek(const std::string& key) {
   db_iter_->Seek(key);
   for (; db_iter_->Valid() && IsDeleted(db_iter_->key()); db_iter_->Next()) {
   }
@@ -76,21 +76,21 @@ void LevelDBTransaction::Iterator::Seek(const std::string& key) {
   last_version_ = txn_->version_;
 }
 
-absl::string_view LevelDBTransaction::Iterator::key() {
+absl::string_view LevelDbTransaction::Iterator::key() {
   FIREBASE_ASSERT_MESSAGE(Valid(), "key() called on invalid iterator");
   return current_.first;
 }
 
-absl::string_view LevelDBTransaction::Iterator::value() {
+absl::string_view LevelDbTransaction::Iterator::value() {
   FIREBASE_ASSERT_MESSAGE(Valid(), "value() called on invalid iterator");
   return current_.second;
 }
 
-bool LevelDBTransaction::Iterator::IsDeleted(leveldb::Slice slice) {
+bool LevelDbTransaction::Iterator::IsDeleted(leveldb::Slice slice) {
   return txn_->deletions_.find(slice.ToString()) != txn_->deletions_.end();
 }
 
-bool LevelDBTransaction::Iterator::SyncToTransaction() {
+bool LevelDbTransaction::Iterator::SyncToTransaction() {
   if (last_version_ < txn_->version_) {
     // Intentionally copying here since Seek() may update current_. We need the
     // copy to do the comparison below.
@@ -103,13 +103,13 @@ bool LevelDBTransaction::Iterator::SyncToTransaction() {
   }
 }
 
-void LevelDBTransaction::Iterator::AdvanceLDB() {
+void LevelDbTransaction::Iterator::AdvanceLDB() {
   do {
     db_iter_->Next();
   } while (db_iter_->Valid() && IsDeleted(db_iter_->key()));
 }
 
-void LevelDBTransaction::Iterator::Next() {
+void LevelDbTransaction::Iterator::Next() {
   FIREBASE_ASSERT_MESSAGE(Valid(), "Next() called on invalid iterator");
   bool advanced = SyncToTransaction();
   if (!advanced) {
@@ -126,36 +126,36 @@ void LevelDBTransaction::Iterator::Next() {
   }
 }
 
-bool LevelDBTransaction::Iterator::Valid() {
+bool LevelDbTransaction::Iterator::Valid() {
   return is_valid_;
 }
 
-LevelDBTransaction::LevelDBTransaction(DB* db,
-                                       const ReadOptions& readOptions,
-                                       const WriteOptions& writeOptions)
+LevelDbTransaction::LevelDbTransaction(DB* db,
+                                       const ReadOptions& read_options,
+                                       const WriteOptions& write_options)
     : db_(db),
       mutations_(),
       deletions_(),
-      read_options_(readOptions),
-      write_options_(writeOptions),
+      read_options_(read_options),
+      write_options_(write_options),
       version_(0) {
 }
 
-const ReadOptions& LevelDBTransaction::DefaultReadOptions() {
+const ReadOptions& LevelDbTransaction::DefaultReadOptions() {
   static ReadOptions options = ([]() {
-    ReadOptions readOptions;
-    readOptions.verify_checksums = true;
-    return readOptions;
+    ReadOptions read_options;
+    read_options.verify_checksums = true;
+    return read_options;
   })();
   return options;
 }
 
-const WriteOptions& LevelDBTransaction::DefaultWriteOptions() {
+const WriteOptions& LevelDbTransaction::DefaultWriteOptions() {
   static WriteOptions options;
   return options;
 }
 
-void LevelDBTransaction::Put(const absl::string_view& key,
+void LevelDbTransaction::Put(const absl::string_view& key,
                              const absl::string_view& value) {
   std::string key_string(key);
   std::string value_string(value);
@@ -164,11 +164,11 @@ void LevelDBTransaction::Put(const absl::string_view& key,
   version_++;
 }
 
-LevelDBTransaction::Iterator* LevelDBTransaction::NewIterator() {
-  return new LevelDBTransaction::Iterator(this);
+LevelDbTransaction::Iterator* LevelDbTransaction::NewIterator() {
+  return new LevelDbTransaction::Iterator(this);
 }
 
-Status LevelDBTransaction::Get(const absl::string_view& key,
+Status LevelDbTransaction::Get(const absl::string_view& key,
                                std::string* value) {
   std::string key_string(key);
   if (deletions_.find(key_string) != deletions_.end()) {
@@ -184,14 +184,14 @@ Status LevelDBTransaction::Get(const absl::string_view& key,
   }
 }
 
-void LevelDBTransaction::Delete(const absl::string_view& key) {
+void LevelDbTransaction::Delete(const absl::string_view& key) {
   std::string to_delete(key);
   deletions_.insert(to_delete);
   mutations_.erase(to_delete);
   version_++;
 }
 
-void LevelDBTransaction::Commit() {
+void LevelDbTransaction::Commit() {
   WriteBatch batch;
   for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
     batch.Delete(*it);

@@ -1,3 +1,9 @@
+# v4.5.0
+- Adds new API which provides a way to determine the sign-in methods associated with an
+  email address.
+- Adds new API which allows authentication using only an email link (Passwordless Authentication
+  with email link).
+
 # v4.4.4
 - Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of
   Xcode and CocoaPods.

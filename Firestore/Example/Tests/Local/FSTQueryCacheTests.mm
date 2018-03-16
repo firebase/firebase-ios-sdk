@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  _queryRooms = FSTTestQuery(@"rooms");
+  _queryRooms = FSTTestQuery("rooms");
   _previousSequenceNumber = 1000;
   _previousTargetID = 500;
   _previousSnapshotVersion = 100;
@@ -76,8 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Type information is currently lost in our canonicalID implementations so this currently an
   // easy way to force colliding canonicalIDs
-  FSTQuery *q1 = [FSTTestQuery(@"a") queryByAddingFilter:FSTTestFilter(@"foo", @"==", @(1))];
-  FSTQuery *q2 = [FSTTestQuery(@"a") queryByAddingFilter:FSTTestFilter(@"foo", @"==", @"1")];
+  FSTQuery *q1 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @(1))];
+  FSTQuery *q2 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @"1")];
   XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
 
   FSTQueryData *data1 = [self queryDataWithQuery:q1];
@@ -215,14 +215,14 @@ NS_ASSUME_NONNULL_BEGIN
   [garbageCollector addGarbageSource:self.queryCache];
   FSTAssertEqualSets([garbageCollector collectGarbage], @[]);
 
-  FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery(@"rooms")];
+  FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery("rooms")];
   FSTDocumentKey *room1 = FSTTestDocKey(@"rooms/bar");
   FSTDocumentKey *room2 = FSTTestDocKey(@"rooms/foo");
   [self addQueryData:rooms];
   [self addMatchingKey:room1 forTargetID:rooms.targetID];
   [self addMatchingKey:room2 forTargetID:rooms.targetID];
 
-  FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery(@"halls")];
+  FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery("halls")];
   FSTDocumentKey *hall1 = FSTTestDocKey(@"halls/bar");
   FSTDocumentKey *hall2 = FSTTestDocKey(@"halls/foo");
   [self addQueryData:halls];
@@ -263,12 +263,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestListenSequenceNumber {
   if ([self isTestBaseClass]) return;
 
-  FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"rooms")
+  FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
                                                     targetID:1
                                         listenSequenceNumber:10
                                                      purpose:FSTQueryPurposeListen];
   [self addQueryData:query1];
-  FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"halls")
+  FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
                                                     targetID:2
                                         listenSequenceNumber:20
                                                      purpose:FSTQueryPurposeListen];
@@ -280,7 +280,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
   // A query with an empty result set still counts.
-  FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"garages")
+  FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("garages")
                                                     targetID:42
                                         listenSequenceNumber:100
                                                      purpose:FSTQueryPurposeListen];
@@ -305,7 +305,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqual([self.queryCache highestTargetID], 0);
 
-  FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"rooms")
+  FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
                                                     targetID:1
                                         listenSequenceNumber:10
                                                      purpose:FSTQueryPurposeListen];
@@ -315,7 +315,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self addMatchingKey:key1 forTargetID:1];
   [self addMatchingKey:key2 forTargetID:1];
 
-  FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"halls")
+  FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
                                                     targetID:2
                                         listenSequenceNumber:20
                                                      purpose:FSTQueryPurposeListen];
@@ -329,7 +329,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual([self.queryCache highestTargetID], 2);
 
   // A query with an empty result set still counts.
-  FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery(@"garages")
+  FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("garages")
                                                     targetID:42
                                         listenSequenceNumber:100
                                                      purpose:FSTQueryPurposeListen];

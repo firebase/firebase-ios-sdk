@@ -34,7 +34,6 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
@@ -91,16 +90,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDocumentReference (Internal)
 
-+ (instancetype)referenceWithPath:(FSTResourcePath *)path firestore:(FIRFirestore *)firestore {
-  if (path.length % 2 != 0) {
++ (instancetype)referenceWithPath:(const ResourcePath &)path firestore:(FIRFirestore *)firestore {
+  if (path.size() % 2 != 0) {
     FSTThrowInvalidArgument(
         @"Invalid document reference. Document references must have an even "
-         "number of segments, but %@ has %d",
-        path.canonicalString, path.length);
+         "number of segments, but %s has %zu",
+        path.CanonicalString().c_str(), path.size());
   }
   return
-      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:[path toCPPResourcePath]]
-                                   firestore:firestore];
+      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:path] firestore:firestore];
 }
 
 + (instancetype)referenceWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore {
@@ -147,9 +145,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRCollectionReference *)parent {
-  return [FIRCollectionReference
-      referenceWithPath:[FSTResourcePath resourcePathWithCPPResourcePath:self.key.path.PopLast()]
-              firestore:self.firestore];
+  return
+      [FIRCollectionReference referenceWithPath:self.key.path.PopLast() firestore:self.firestore];
 }
 
 - (NSString *)path {
@@ -160,9 +157,8 @@ NS_ASSUME_NONNULL_BEGIN
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
-  FSTResourcePath *subPath = [FSTResourcePath pathWithString:collectionPath];
-  FSTResourcePath *path = [FSTResourcePath
-      resourcePathWithCPPResourcePath:self.key.path.Append([subPath toCPPResourcePath])];
+  const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(collectionPath));
+  const ResourcePath path = self.key.path.Append(subPath);
   return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
 }
 

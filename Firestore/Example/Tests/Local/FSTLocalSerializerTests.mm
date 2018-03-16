@@ -36,14 +36,15 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -77,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{ @"a" : @"b", @"num" : @1 });
   FSTMutation *patch = [[FSTPatchMutation alloc]
        initWithKey:FSTTestDocKey(@"bar/baz")
-         fieldMask:[[FSTFieldMask alloc] initWithFields:@[ FSTTestFieldPath(@"a") ]]
+         fieldMask:[[FSTFieldMask alloc] initWithFields:{testutil::Field("a")}]
              value:FSTTestObjectValue(
                        @{ @"a" : @"b",
                           @"num" : @1 })
@@ -156,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesQueryData {
-  FSTQuery *query = FSTTestQuery(@"room");
+  FSTQuery *query = FSTTestQuery("room");
   FSTTargetID targetID = 42;
   FSTSnapshotVersion *version = FSTTestVersion(1039);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1039);

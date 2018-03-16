@@ -31,7 +31,12 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Model/FSTPath.h"
+
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,12 +70,14 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                           fromCache:fromCache];
 }
 
-FIRCollectionReference *FSTTestCollectionRef(NSString *path) {
-  return [FIRCollectionReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
+FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
+  return [FIRCollectionReference referenceWithPath:testutil::Resource(path)
+                                         firestore:FSTTestFirestore()];
 }
 
-FIRDocumentReference *FSTTestDocRef(NSString *path) {
-  return [FIRDocumentReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
+FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
+  return [FIRDocumentReference referenceWithPath:testutil::Resource(path)
+                                       firestore:FSTTestFirestore()];
 }
 
 /** A convenience method for creating a query snapshots for tests. */
@@ -99,15 +106,16 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                                 changeWithDocument:docToAdd
                                               type:FSTDocumentViewChangeTypeAdded]];
   }
-  FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
-                                                               documents:newDocuments
-                                                            oldDocuments:oldDocuments
-                                                         documentChanges:documentChanges
-                                                               fromCache:fromCache
-                                                        hasPendingWrites:hasPendingWrites
-                                                        syncStateChanged:YES];
+  FSTViewSnapshot *viewSnapshot =
+      [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(util::MakeStringView(path))
+                                   documents:newDocuments
+                                oldDocuments:oldDocuments
+                             documentChanges:documentChanges
+                                   fromCache:fromCache
+                            hasPendingWrites:hasPendingWrites
+                            syncStateChanged:YES];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
-                                   originalQuery:FSTTestQuery(path)
+                                   originalQuery:FSTTestQuery(util::MakeStringView(path))
                                         snapshot:viewSnapshot
                                         metadata:metadata];
 }

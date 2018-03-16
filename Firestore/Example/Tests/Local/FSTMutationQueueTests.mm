@@ -259,8 +259,8 @@ NS_ASSUME_NONNULL_BEGIN
                        @{ @"a" : @1 }),
     FSTTestSetMutation(@"foo/bar",
                        @{ @"a" : @1 }),
-    FSTTestPatchMutation(@"foo/bar",
-                         @{ @"b" : @1 }, nil),
+    FSTTestPatchMutation("foo/bar",
+                         @{ @"b" : @1 }, {}),
     FSTTestSetMutation(@"foo/bar/suffix/key",
                        @{ @"a" : @1 }),
     FSTTestSetMutation(@"foo/baz",
@@ -296,8 +296,8 @@ NS_ASSUME_NONNULL_BEGIN
                        @{ @"a" : @1 }),
     FSTTestSetMutation(@"foo/bar",
                        @{ @"a" : @1 }),
-    FSTTestPatchMutation(@"foo/bar",
-                         @{ @"b" : @1 }, nil),
+    FSTTestPatchMutation("foo/bar",
+                         @{ @"b" : @1 }, {}),
     FSTTestSetMutation(@"foo/bar/suffix/key",
                        @{ @"a" : @1 }),
     FSTTestSetMutation(@"foo/baz",
@@ -319,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 
   NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2], batches[4] ];
-  FSTQuery *query = FSTTestQuery(@"foo");
+  FSTQuery *query = FSTTestQuery("foo");
   NSArray<FSTMutationBatch *> *matches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
 

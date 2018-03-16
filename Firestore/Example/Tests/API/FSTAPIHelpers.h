@@ -41,10 +41,10 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                         BOOL fromCache);
 
 /** A convenience method for creating a collection reference from a path string. */
-FIRCollectionReference *FSTTestCollectionRef(NSString *path);
+FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path);
 
 /** A convenience method for creating a document reference from a path string. */
-FIRDocumentReference *FSTTestDocRef(NSString *path);
+FIRDocumentReference *FSTTestDocRef(const absl::string_view path);
 
 /**
  * A convenience method for creating a particular query snapshot for tests.

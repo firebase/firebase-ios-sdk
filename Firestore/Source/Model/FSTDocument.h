@@ -16,8 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+
 @class FSTDocumentKey;
-@class FSTFieldPath;
 @class FSTFieldValue;
 @class FSTObjectValue;
 @class FSTSnapshotVersion;
@@ -41,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
                          version:(FSTSnapshotVersion *)version
                hasLocalMutations:(BOOL)mutations;
 
-- (nullable FSTFieldValue *)fieldForPath:(FSTFieldPath *)path;
+- (nullable FSTFieldValue *)fieldForPath:(const firebase::firestore::model::FieldPath &)path;
 
 @property(nonatomic, strong, readonly) FSTObjectValue *data;
 @property(nonatomic, readonly, getter=hasLocalMutations) BOOL localMutations;
