@@ -1,5 +1,5 @@
 # v4.5.1
-- Adds client side validation to prevent setting handleCodeInApp to false when performing
+- Adds client-side validation to prevent setting handleCodeInApp to false when performing
   email-link authentication. If handleCodeInApp is set to false an ivalid parameter exception
   is thrown.
 
