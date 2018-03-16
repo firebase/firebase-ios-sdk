@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#include <stdio.h>
+#include "Firestore/core/src/firebase/firestore/util/string_printf.h"
 
 namespace firebase {
 namespace firestore {
@@ -52,64 +52,60 @@ std::string Status::ToString() const {
   if (state_ == nullptr) {
     return "OK";
   } else {
-    char tmp[30];
-    const char* type;
+    std::string result;
     switch (code()) {
       case FirestoreErrorCode::Cancelled:
-        type = "Cancelled";
+        result = "Cancelled";
         break;
       case FirestoreErrorCode::Unknown:
-        type = "Unknown";
+        result = "Unknown";
         break;
       case FirestoreErrorCode::InvalidArgument:
-        type = "Invalid argument";
+        result = "Invalid argument";
         break;
       case FirestoreErrorCode::DeadlineExceeded:
-        type = "Deadline exceeded";
+        result = "Deadline exceeded";
         break;
       case FirestoreErrorCode::NotFound:
-        type = "Not found";
+        result = "Not found";
         break;
       case FirestoreErrorCode::AlreadyExists:
-        type = "Already exists";
+        result = "Already exists";
         break;
       case FirestoreErrorCode::PermissionDenied:
-        type = "Permission denied";
+        result = "Permission denied";
         break;
       case FirestoreErrorCode::Unauthenticated:
-        type = "Unauthenticated";
+        result = "Unauthenticated";
         break;
       case FirestoreErrorCode::ResourceExhausted:
-        type = "Resource exhausted";
+        result = "Resource exhausted";
         break;
       case FirestoreErrorCode::FailedPrecondition:
-        type = "Failed precondition";
+        result = "Failed precondition";
         break;
       case FirestoreErrorCode::Aborted:
-        type = "Aborted";
+        result = "Aborted";
         break;
       case FirestoreErrorCode::OutOfRange:
-        type = "Out of range";
+        result = "Out of range";
         break;
       case FirestoreErrorCode::Unimplemented:
-        type = "Unimplemented";
+        result = "Unimplemented";
         break;
       case FirestoreErrorCode::Internal:
-        type = "Internal";
+        result = "Internal";
         break;
       case FirestoreErrorCode::Unavailable:
-        type = "Unavailable";
+        result = "Unavailable";
         break;
       case FirestoreErrorCode::DataLoss:
-        type = "Data loss";
+        result = "Data loss";
         break;
       default:
-        snprintf(tmp, sizeof(tmp), "Unknown code(%d)",
-                 static_cast<int>(code()));
-        type = tmp;
+        result = StringPrintf("Unknown code(%d)", static_cast<int>(code()));
         break;
     }
-    std::string result(type);
     result += ": ";
     result += state_->msg;
     return result;
