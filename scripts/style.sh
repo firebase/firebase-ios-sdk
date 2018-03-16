@@ -97,6 +97,9 @@ files=$(
     find . -type f
   fi
 ) | sed -E -n '
+# find . includes a leading "./" that git does not include
+s%^./%%
+
 # Build outputs
 \%/Pods/% d
 \%^./build/% d
@@ -114,7 +117,7 @@ files=$(
 \%/vendor/bundle/% d
 
 # Sources within the tree that are not subject to formatting
-\%^./(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
+\%^(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
