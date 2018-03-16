@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+#include <stdio.h>
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -24,7 +26,7 @@ Status::Status(FirestoreErrorCode code, absl::string_view msg) {
   FIREBASE_ASSERT(code != FirestoreErrorCode::Ok);
   state_ = std::unique_ptr<State>(new State);
   state_->code = code;
-  state_->msg = std::string(msg.data(), msg.data() + msg.size());
+  state_->msg = static_cast<std::string>(msg);
 }
 
 void Status::Update(const Status& new_status) {
