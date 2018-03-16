@@ -48,6 +48,11 @@ std::string ImmediateSuccessor(absl::string_view s) {
   return out;
 }
 
+bool StartsWith(const std::string &value, const std::string &prefix) {
+  return prefix.size() <= value.size() &&
+         std::equal(prefix.begin(), prefix.end(), value.begin());
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
