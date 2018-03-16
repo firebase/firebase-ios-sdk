@@ -144,7 +144,7 @@ static ReadOptions StandardReadOptions() {
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
   FSTAssert([maybeDocument.key isEqualToKey:documentKey],
             @"Read document has key (%s) instead of expected key (%@).",
-            maybeDocument.key.path().CanonicalString().c_str(), documentKey);
+            maybeDocument.key.ToString().c_str(), documentKey);
   return maybeDocument;
 }
 

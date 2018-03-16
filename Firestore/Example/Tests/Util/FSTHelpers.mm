@@ -154,7 +154,7 @@ FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
                         BOOL hasMutations) {
-  DocumentKey key = testutil::DocKey(path);
+  DocumentKey key = testutil::Key(path);
   return [FSTDocument documentWithData:FSTTestObjectValue(data)
                                    key:key
                                version:FSTTestVersion(version)
@@ -163,7 +163,7 @@ FSTDocument *FSTTestDoc(const absl::string_view path,
 
 FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
                                       FSTTestSnapshotVersion version) {
-  DocumentKey key = testutil::DocKey(path);
+  DocumentKey key = testutil::Key(path);
   return [FSTDeletedDocument documentWithKey:key version:FSTTestVersion(version)];
 }
 

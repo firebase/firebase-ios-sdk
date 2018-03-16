@@ -65,7 +65,7 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
                                         BOOL fromCache) {
   FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;
   return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
-                                        documentKey:testutil::DocKey(path)
+                                        documentKey:testutil::Key(path)
                                            document:doc
                                           fromCache:fromCache];
 }

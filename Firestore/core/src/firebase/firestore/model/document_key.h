@@ -55,6 +55,10 @@ class DocumentKey {
   operator FSTDocumentKey*() const {
     return [FSTDocumentKey keyWithPath:path()];
   }
+
+  std::string ToString() const {
+    return path().CanonicalString();
+  }
 #endif
 
   /**

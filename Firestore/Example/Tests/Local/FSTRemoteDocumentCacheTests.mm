@@ -144,12 +144,12 @@ static const int kVersion = 42;
 }
 
 - (FSTMaybeDocument *_Nullable)readEntryAtPath:(const absl::string_view)path {
-  return [self.remoteDocumentCache entryForKey:testutil::DocKey(path)];
+  return [self.remoteDocumentCache entryForKey:testutil::Key(path)];
 }
 
 - (void)removeEntryAtPath:(const absl::string_view)path {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeEntryAtPath"];
-  [self.remoteDocumentCache removeEntryForKey:testutil::DocKey(path) group:group];
+  [self.remoteDocumentCache removeEntryForKey:testutil::Key(path) group:group];
   [self.persistence commitGroup:group];
 }
 

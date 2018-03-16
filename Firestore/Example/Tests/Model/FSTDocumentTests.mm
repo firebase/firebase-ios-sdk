@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDocumentTests
 
 - (void)testConstructor {
-  DocumentKey key = testutil::DocKey("messages/first");
+  DocumentKey key = testutil::Key("messages/first");
   FSTSnapshotVersion *version = FSTTestVersion(1);
   FSTObjectValue *data = FSTTestObjectValue(@{ @"a" : @1 });
   FSTDocument *doc =
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExtractsFields {
-  DocumentKey key = testutil::DocKey("rooms/eros");
+  DocumentKey key = testutil::Key("rooms/eros");
   FSTSnapshotVersion *version = FSTTestVersion(1);
   FSTObjectValue *data = FSTTestObjectValue(@{
     @"desc" : @"Discuss all the project related stuff",

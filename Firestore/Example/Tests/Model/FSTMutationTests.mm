@@ -68,7 +68,7 @@ using firebase::firestore::model::DocumentKey;
   NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value", @"baz" : @"baz-value"} };
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
-  DocumentKey key = testutil::DocKey("collection/key");
+  DocumentKey key = testutil::Key("collection/key");
   FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:{testutil::Field("foo.bar")}];
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:mask

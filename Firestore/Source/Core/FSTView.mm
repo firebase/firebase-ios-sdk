@@ -217,7 +217,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     }
     if (newDoc) {
       FSTAssert([key isEqual:newDoc.key], @"Mismatching key in document changes: %@ != %s", key,
-                newDoc.key.path().CanonicalString().c_str());
+                newDoc.key.ToString().c_str());
       if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;
       }

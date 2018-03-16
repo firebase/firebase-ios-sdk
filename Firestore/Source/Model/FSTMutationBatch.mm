@@ -75,9 +75,8 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
                            documentKey:(const DocumentKey &)documentKey
                    mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult {
   FSTAssert(!maybeDoc || [maybeDoc.key isEqualToKey:documentKey],
-            @"applyTo: key %s doesn't match maybeDoc key %s",
-            documentKey.path().CanonicalString().c_str(),
-            maybeDoc.key.path().CanonicalString().c_str());
+            @"applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString().c_str(),
+            maybeDoc.key.ToString().c_str());
   FSTMaybeDocument *baseDoc = maybeDoc;
   if (mutationBatchResult) {
     FSTAssert(mutationBatchResult.mutationResults.count == self.mutations.count,

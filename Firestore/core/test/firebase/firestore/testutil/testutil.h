@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
@@ -27,7 +28,7 @@ namespace testutil {
 
 // Below are convenience methods for creating instances for tests.
 
-inline model::DocumentKey DocKey(absl::string_view path) {
+inline model::DocumentKey Key(absl::string_view path) {
   return model::DocumentKey::FromPathString(path);
 }
 
