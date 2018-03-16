@@ -74,7 +74,9 @@ TEST(Status, Update) {
   ASSERT_FALSE(s.ok());
 }
 
-TEST(Status, EqualsOK) { ASSERT_EQ(Status::OK(), Status()); }
+TEST(Status, EqualsOK) {
+  ASSERT_EQ(Status::OK(), Status());
+}
 
 TEST(Status, EqualsSame) {
   Status a(FirestoreErrorCode::InvalidArgument, "Invalid");

@@ -21,6 +21,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/base/attributes.h"
@@ -34,7 +35,8 @@ namespace util {
 class ABSL_MUST_USE_RESULT Status {
  public:
   /// Create a success status.
-  Status() {}
+  Status() {
+  }
 
   /// \brief Create a status with the specified error code and msg as a
   /// human-readable string containing more detailed information.
@@ -44,10 +46,14 @@ class ABSL_MUST_USE_RESULT Status {
   Status(const Status& s);
   void operator=(const Status& s);
 
-  static Status OK() { return Status(); }
+  static Status OK() {
+    return Status();
+  }
 
   /// Returns true iff the status indicates success.
-  bool ok() const { return (state_ == nullptr); }
+  bool ok() const {
+    return (state_ == nullptr);
+  }
 
   FirestoreErrorCode code() const {
     return ok() ? FirestoreErrorCode::Ok : state_->code;
@@ -94,7 +100,8 @@ class ABSL_MUST_USE_RESULT Status {
 };
 
 inline Status::Status(const Status& s)
-    : state_((s.state_ == nullptr) ? nullptr : new State(*s.state_)) {}
+    : state_((s.state_ == nullptr) ? nullptr : new State(*s.state_)) {
+}
 
 inline void Status::operator=(const Status& s) {
   // The following condition catches both aliasing (when this == &s),

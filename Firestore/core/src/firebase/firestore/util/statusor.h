@@ -73,6 +73,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_H_
 
+#include <utility>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_internals.h"
@@ -101,7 +103,7 @@ class ABSL_MUST_USE_RESULT StatusOr
   // marked 'explicit' to try to catch cases like 'return {};', where people
   // think StatusOr<std::vector<int>> will be initialized with an empty vector,
   // instead of a FirebaseErrorCode::Unknown status.
-  explicit StatusOr();
+  explicit StatusOr();  // NOLINT: allow explicit zero-parameter ctor
 
   // StatusOr<T> will be copy constructible/assignable if T is copy
   // constructible.
@@ -136,7 +138,7 @@ class ABSL_MUST_USE_RESULT StatusOr
   // when the return type is StatusOr<T>.
   //
   // REQUIRES: T is copy constructible.
-  StatusOr(const T& value);
+  StatusOr(const T& value);  // NOLINT: allow non-explicit 1-param ctor
 
   // Constructs a new StatusOr with the given non-ok status. After calling
   // this constructor, calls to ValueOrDie() will CHECK-fail.
@@ -148,7 +150,7 @@ class ABSL_MUST_USE_RESULT StatusOr
   // REQUIRES: !status.ok(). This requirement is DCHECKed.
   // In optimized builds, passing Status::OK() here will have the effect
   // of passing tensorflow::error::INTERNAL as a fallback.
-  StatusOr(const Status& status);
+  StatusOr(const Status& status);  // NOLINT: allow non-explicit 1-param ctor
   StatusOr& operator=(const Status& status);
 
   // TODO(b/62186997): Add operator=(T) overloads.
@@ -156,18 +158,20 @@ class ABSL_MUST_USE_RESULT StatusOr
   // Similar to the `const T&` overload.
   //
   // REQUIRES: T is move constructible.
-  StatusOr(T&& value);
+  StatusOr(T&& value);  // NOLINT: allow non-explicit 1-param ctor
 
   // RValue versions of the operations declared above.
-  StatusOr(Status&& status);
+  StatusOr(Status&& status);  // NOLINT: allow non-explicit 1-param ctor
   StatusOr& operator=(Status&& status);
 
   // Returns this->status().ok()
-  bool ok() const { return this->status_.ok(); }
+  bool ok() const {
+    return this->status_.ok();
+  }
 
   // Returns a reference to our status. If this contains a T, then
   // returns Status::OK().
-  const Status& status() const &;
+  const Status& status() const&;
   Status status() &&;
 
   // Returns a reference to our current value, or CHECK-fails if !this->ok().
@@ -190,12 +194,14 @@ class ABSL_MUST_USE_RESULT StatusOr
   // warnings about possible uses of the statusor object after the move.
   // C++ style guide waiver for ref-qualified overloads granted in cl/143176389
   // See go/ref-qualifiers for more details on such overloads.
-  const T& ValueOrDie() const &;
+  const T& ValueOrDie() const&;
   T& ValueOrDie() &;
-  const T&& ValueOrDie() const &&;
+  const T&& ValueOrDie() const&&;
   T&& ValueOrDie() &&;
 
-  T ConsumeValueOrDie() { return std::move(ValueOrDie()); }
+  T ConsumeValueOrDie() {
+    return std::move(ValueOrDie());
+  }
 
   // Ignores any errors. This method does nothing except potentially suppress
   // complaints from any tools that are checking that errors are not dropped on
@@ -207,13 +213,16 @@ class ABSL_MUST_USE_RESULT StatusOr
 // Implementation details for StatusOr<T>
 
 template <typename T>
-StatusOr<T>::StatusOr() : Base(Status(FirestoreErrorCode::Unknown, "")) {}
+StatusOr<T>::StatusOr() : Base(Status(FirestoreErrorCode::Unknown, "")) {
+}
 
 template <typename T>
-StatusOr<T>::StatusOr(const T& value) : Base(value) {}
+StatusOr<T>::StatusOr(const T& value) : Base(value) {
+}
 
 template <typename T>
-StatusOr<T>::StatusOr(const Status& status) : Base(status) {}
+StatusOr<T>::StatusOr(const Status& status) : Base(status) {
+}
 
 template <typename T>
 StatusOr<T>& StatusOr<T>::operator=(const Status& status) {
@@ -222,10 +231,12 @@ StatusOr<T>& StatusOr<T>::operator=(const Status& status) {
 }
 
 template <typename T>
-StatusOr<T>::StatusOr(T&& value) : Base(std::move(value)) {}
+StatusOr<T>::StatusOr(T&& value) : Base(std::move(value)) {
+}
 
 template <typename T>
-StatusOr<T>::StatusOr(Status&& status) : Base(std::move(status)) {}
+StatusOr<T>::StatusOr(Status&& status) : Base(std::move(status)) {
+}
 
 template <typename T>
 StatusOr<T>& StatusOr<T>::operator=(Status&& status) {
@@ -236,7 +247,8 @@ StatusOr<T>& StatusOr<T>::operator=(Status&& status) {
 template <typename T>
 template <typename U>
 inline StatusOr<T>::StatusOr(const StatusOr<U>& other)
-    : Base(static_cast<const typename StatusOr<U>::Base&>(other)) {}
+    : Base(static_cast<const typename StatusOr<U>::Base&>(other)) {
+}
 
 template <typename T>
 template <typename U>
@@ -251,7 +263,8 @@ inline StatusOr<T>& StatusOr<T>::operator=(const StatusOr<U>& other) {
 template <typename T>
 template <typename U>
 inline StatusOr<T>::StatusOr(StatusOr<U>&& other)
-    : Base(static_cast<typename StatusOr<U>::Base&&>(other)) {}
+    : Base(static_cast<typename StatusOr<U>::Base&&>(other)) {
+}
 
 template <typename T>
 template <typename U>
@@ -265,7 +278,7 @@ inline StatusOr<T>& StatusOr<T>::operator=(StatusOr<U>&& other) {
 }
 
 template <typename T>
-const Status& StatusOr<T>::status() const & {
+const Status& StatusOr<T>::status() const& {
   return this->status_;
 }
 template <typename T>
@@ -274,7 +287,7 @@ Status StatusOr<T>::status() && {
 }
 
 template <typename T>
-const T& StatusOr<T>::ValueOrDie() const & {
+const T& StatusOr<T>::ValueOrDie() const& {
   this->EnsureOk();
   return this->data_;
 }
@@ -286,7 +299,7 @@ T& StatusOr<T>::ValueOrDie() & {
 }
 
 template <typename T>
-const T&& StatusOr<T>::ValueOrDie() const && {
+const T&& StatusOr<T>::ValueOrDie() const&& {
   this->EnsureOk();
   return std::move(this->data_);
 }

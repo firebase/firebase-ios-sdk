@@ -28,26 +28,31 @@ using std::string;
 
 class Base1 {
  public:
-  virtual ~Base1() {}
+  virtual ~Base1() {
+  }
   int pad_;
 };
 
 class Base2 {
  public:
-  virtual ~Base2() {}
+  virtual ~Base2() {
+  }
   int yetotherpad_;
 };
 
 class Derived : public Base1, public Base2 {
  public:
-  ~Derived() override {}
+  ~Derived() override {
+  }
   int evenmorepad_;
 };
 
 class CopyNoAssign {
  public:
-  explicit CopyNoAssign(int value) : foo_(value) {}
-  CopyNoAssign(const CopyNoAssign& other) : foo_(other.foo_) {}
+  explicit CopyNoAssign(int value) : foo_(value) {
+  }
+  CopyNoAssign(const CopyNoAssign& other) : foo_(other.foo_) {
+  }
   int foo_;
 
  private:

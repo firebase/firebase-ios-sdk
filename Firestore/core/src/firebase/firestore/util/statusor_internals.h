@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_INTERNALS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_INTERNALS_H_
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/base/attributes.h"
 
@@ -93,8 +95,12 @@ class StatusOrData {
     }
   }
 
-  explicit StatusOrData(const T& value) : data_(value) { MakeStatus(); }
-  explicit StatusOrData(T&& value) : data_(std::move(value)) { MakeStatus(); }
+  explicit StatusOrData(const T& value) : data_(value) {
+    MakeStatus();
+  }
+  explicit StatusOrData(T&& value) : data_(std::move(value)) {
+    MakeStatus();
+  }
 
   explicit StatusOrData(const Status& status) : status_(status) {
     EnsureNotOk();
@@ -162,7 +168,9 @@ class StatusOrData {
     EnsureNotOk();
   }
 
-  bool ok() const { return status_.ok(); }
+  bool ok() const {
+    return status_.ok();
+  }
 
  protected:
   // status_ will always be active after the constructor.
