@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
+#include "leveldb/slice.h"
 
 namespace firebase {
 namespace firestore {
@@ -76,7 +77,7 @@ namespace local {
  * Parses the given key and returns a human readable description of its
  * contents, suitable for error messages and logging.
  */
-std::string Describe(const absl::string_view key);
+std::string Describe(leveldb::Slice key);
 
 /** A key to a singleton row storing the version of the schema. */
 class LevelDbVersionKey {
@@ -113,7 +114,7 @@ class LevelDbMutationKey {
    * returned, the properties of the receiver are in an undefined state until
    * the next call to -decode_key:.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   /** The user that owns the mutation batches. */
   const std::string& user_id() const {
@@ -175,7 +176,7 @@ class LevelDbDocumentMutationKey {
    * returned, the properties of the receiver are in an undefined state until
    * the next call to -decode_key:.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   /** The user that owns the mutation batches. */
   const std::string& user_id() const {
@@ -225,7 +226,7 @@ class LevelDbMutationQueueKey {
    * returned, the properties of the receiver are in an undefined state until
    * the next call to -decode_key:.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   const std::string& user_id() const {
     return user_id_;
@@ -248,7 +249,7 @@ class LevelDbTargetGlobalKey {
    * Decodes the contents of a target global key, essentially just verifying
    * that the key has the correct table name.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 };
 
 /** A key in the targets table. */
@@ -269,7 +270,7 @@ class LevelDbTargetKey {
    * returned, the properties of the receiver are in an undefined state until
    * the next call to -decode_key:.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   /** The target_id identifying a target. */
   model::TargetId target_id() {
@@ -307,7 +308,7 @@ class LevelDbQueryTargetKey {
    * Decodes the contents of a query target key into properties on this
    * instance.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   /** The canonical_id derived from the query. */
   const std::string& canonical_id() const {
@@ -350,7 +351,7 @@ class LevelDbTargetDocumentKey {
    * Decodes the contents of a target document key into properties on this
    * instance.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   /** The target_id identifying a target. */
   model::TargetId target_id() {
@@ -393,7 +394,7 @@ class LevelDbDocumentTargetKey {
    * Decodes the contents of a document target key into properties on this
    * instance.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   /** The target_id identifying a target. */
   model::TargetId target_id() const {
@@ -443,7 +444,7 @@ class LevelDbRemoteDocumentKey {
    * returned, the properties of the receiver are in an undefined state until
    * the next call to -Decode:.
    */
-  bool Decode(const absl::string_view key);
+  bool Decode(leveldb::Slice key);
 
   /** The path to the document, as encoded in the key. */
   const model::DocumentKey& document_key() const {

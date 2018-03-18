@@ -19,6 +19,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
@@ -107,6 +108,26 @@ enum ComponentLabel {
   Unknown = 63,
 };
 
+/** OrderedCode::ReadSignedNumIncreasing adapted to leveldb::Slice. */
+bool ReadSignedNumIncreasing(leveldb::Slice *src, int64_t *result) {
+  absl::string_view tmp = MakeStringView(*src);
+  if (OrderedCode::ReadSignedNumIncreasing(&tmp, result)) {
+    *src = MakeSlice(tmp);
+    return true;
+  }
+  return false;
+}
+
+/** OrderedCode::ReadString adapted to leveldb::Slice. */
+bool ReadString(leveldb::Slice *src, std::string *result) {
+  absl::string_view tmp = MakeStringView(*src);
+  if (OrderedCode::ReadString(&tmp, result)) {
+    *src = MakeSlice(tmp);
+    return true;
+  }
+  return false;
+}
+
 /** Writes a component label to the given key destination. */
 void WriteComponentLabel(std::string *dest, ComponentLabel label) {
   OrderedCode::WriteSignedNumIncreasing(dest, label);
@@ -121,14 +142,14 @@ void WriteComponentLabel(std::string *dest, ComponentLabel label) {
  * If the read is successful, returns true, contents will be updated to the next
  * unread byte, and label will be set to the decoded label value.
  */
-bool ReadComponentLabel(absl::string_view *contents, ComponentLabel *label) {
+bool ReadComponentLabel(leveldb::Slice *contents, ComponentLabel *label) {
   int64_t raw_result = 0;
-  absl::string_view tmp(contents->data(), contents->size());
-  if (OrderedCode::ReadSignedNumIncreasing(&tmp, &raw_result)) {
+  leveldb::Slice tmp = *contents;
+  if (ReadSignedNumIncreasing(&tmp, &raw_result)) {
     if (raw_result >= ComponentLabel::Terminator &&
         raw_result <= ComponentLabel::Unknown) {
+      *contents = tmp;
       *label = static_cast<ComponentLabel>(raw_result);
-      *contents = absl::string_view(tmp.data(), tmp.size());
       return true;
     }
   }
@@ -145,11 +166,11 @@ bool ReadComponentLabel(absl::string_view *contents, ComponentLabel *label) {
  * If the read is successful, returns true and contents will be updated to the
  * next unread byte.
  */
-bool ReadComponentLabelMatching(absl::string_view *contents,
+bool ReadComponentLabelMatching(leveldb::Slice *contents,
                                 ComponentLabel expected_label) {
   int64_t raw_result = 0;
-  absl::string_view tmp = *contents;
-  if (OrderedCode::ReadSignedNumIncreasing(&tmp, &raw_result)) {
+  leveldb::Slice tmp = *contents;
+  if (ReadSignedNumIncreasing(&tmp, &raw_result)) {
     if (raw_result == expected_label) {
       *contents = tmp;
       return true;
@@ -168,12 +189,12 @@ bool ReadComponentLabelMatching(absl::string_view *contents,
  * If the read is successful, returns true, contents will be updated to the next
  * unread byte, and result will be set to the decoded integer value.
  */
-bool ReadInt32(absl::string_view *contents, int32_t *result) {
+bool ReadInt32(leveldb::Slice *contents, int32_t *result) {
   int64_t raw_result = 0;
-  absl::string_view tmp(contents->data(), contents->size());
-  if (OrderedCode::ReadSignedNumIncreasing(&tmp, &raw_result)) {
+  leveldb::Slice tmp = *contents;
+  if (ReadSignedNumIncreasing(&tmp, &raw_result)) {
     if (raw_result >= INT32_MIN && raw_result <= INT32_MAX) {
-      *contents = absl::string_view(tmp.data(), tmp.size());
+      *contents = tmp;
       *result = static_cast<int32_t>(raw_result);
       return true;
     }
@@ -201,12 +222,12 @@ void WriteLabeledInt32(std::string *dest, ComponentLabel label, int32_t value) {
  * If the read is successful, returns true, contents will be updated to the next
  * unread byte, and value will be set to the decoded integer value.
  */
-bool ReadLabeledInt32(absl::string_view *contents,
+bool ReadLabeledInt32(leveldb::Slice *contents,
                       ComponentLabel expected_label,
                       int32_t *value) {
-  absl::string_view tmp(contents->data(), contents->size());
+  leveldb::Slice tmp = *contents;
   if (ReadComponentLabelMatching(&tmp, expected_label)) {
-    absl::string_view tmp_slice = absl::string_view(tmp.data(), tmp.size());
+    leveldb::Slice tmp_slice = tmp;
     if (ReadInt32(&tmp_slice, value)) {
       *contents = tmp_slice;
       return true;
@@ -235,17 +256,16 @@ void WriteLabeledString(std::string *dest,
  * If the read is successful, returns true, contents will be updated to the next
  * unread byte, and value will be set to the decoded string value.
  */
-bool ReadLabeledString(absl::string_view *contents,
+bool ReadLabeledString(leveldb::Slice *contents,
                        ComponentLabel expected_label,
                        std::string *value) {
-  absl::string_view tmp(contents->data(), contents->size());
+  leveldb::Slice tmp = *contents;
   if (ReadComponentLabelMatching(&tmp, expected_label)) {
-    if (OrderedCode::ReadString(&tmp, value)) {
-      *contents = absl::string_view(tmp.data(), tmp.size());
+    if (ReadString(&tmp, value)) {
+      *contents = tmp;
       return true;
     }
   }
-
   return false;
 }
 
@@ -260,11 +280,11 @@ bool ReadLabeledString(absl::string_view *contents,
  * If the read is successful, returns true, contents will be updated to the next
  * unread byte.
  */
-bool ReadLabeledStringMatching(absl::string_view *contents,
+bool ReadLabeledStringMatching(leveldb::Slice *contents,
                                ComponentLabel expected_label,
                                const char *expected_value) {
   std::string value;
-  absl::string_view tmp = *contents;
+  leveldb::Slice tmp = *contents;
   if (ReadLabeledString(&tmp, expected_label, &value)) {
     if (value == expected_value) {
       *contents = tmp;
@@ -298,29 +318,27 @@ void WriteResourcePath(std::string *dest, const ResourcePath &path) {
  * If the read is successful, returns true, contents will be updated to the next
  * unread byte, and value will be set to the decoded document key.
  */
-bool ReadDocumentKey(absl::string_view *contents, DocumentKey *result) {
-  absl::string_view complete_segments = *contents;
+bool ReadDocumentKey(leveldb::Slice *contents, DocumentKey *result) {
+  leveldb::Slice complete_segments = *contents;
 
   std::string segment;
   std::vector<std::string> path_segments{};
   for (;;) {
     // Advance a temporary slice to avoid advancing contents into the next key
     // component which may not be a path segment.
-    absl::string_view read_position(complete_segments.data(),
-                                    complete_segments.size());
+    leveldb::Slice read_position = complete_segments;
     if (!ReadComponentLabelMatching(&read_position,
                                     ComponentLabel::PathSegment)) {
       break;
     }
-    if (!OrderedCode::ReadString(&read_position, &segment)) {
+    if (!ReadString(&read_position, &segment)) {
       return false;
     }
 
     path_segments.push_back(std::move(segment));
     segment.clear();
 
-    complete_segments =
-        absl::string_view(read_position.data(), read_position.size());
+    complete_segments = read_position;
   }
 
   ResourcePath path{std::move(path_segments)};
@@ -339,18 +357,15 @@ inline void WriteTerminator(std::string *dest) {
   OrderedCode::WriteSignedNumIncreasing(dest, ComponentLabel::Terminator);
 }
 
-inline bool ReadTerminator(absl::string_view *contents) {
-  absl::string_view tmp(contents->data(), contents->size());
-  bool result = ReadComponentLabelMatching(&tmp, ComponentLabel::Terminator);
-  *contents = absl::string_view(tmp.data(), tmp.size());
-  return result;
+inline bool ReadTerminator(leveldb::Slice *contents) {
+  return ReadComponentLabelMatching(contents, ComponentLabel::Terminator);
 }
 
 inline void WriteTableName(std::string *dest, const char *table_name) {
   WriteLabeledString(dest, ComponentLabel::TableName, table_name);
 }
 
-inline bool ReadTableNameMatching(absl::string_view *contents,
+inline bool ReadTableNameMatching(leveldb::Slice *contents,
                                   const char *expected_table_name) {
   return ReadLabeledStringMatching(contents, ComponentLabel::TableName,
                                    expected_table_name);
@@ -360,7 +375,7 @@ inline void WriteBatchID(std::string *dest, model::BatchId batch_id) {
   WriteLabeledInt32(dest, ComponentLabel::BatchId, batch_id);
 }
 
-inline bool ReadBatchID(absl::string_view *contents, model::BatchId *batch_id) {
+inline bool ReadBatchID(leveldb::Slice *contents, model::BatchId *batch_id) {
   return ReadLabeledInt32(contents, ComponentLabel::BatchId, batch_id);
 }
 
@@ -369,7 +384,7 @@ inline void WriteCanonicalID(std::string *dest,
   WriteLabeledString(dest, ComponentLabel::CanonicalId, canonical_id);
 }
 
-inline bool ReadCanonicalID(absl::string_view *contents,
+inline bool ReadCanonicalID(leveldb::Slice *contents,
                             std::string *canonical_id) {
   return ReadLabeledString(contents, ComponentLabel::CanonicalId, canonical_id);
 }
@@ -378,8 +393,7 @@ inline void WriteTargetID(std::string *dest, model::TargetId target_id) {
   WriteLabeledInt32(dest, ComponentLabel::TargetId, target_id);
 }
 
-inline bool ReadTargetID(absl::string_view *contents,
-                         model::TargetId *target_id) {
+inline bool ReadTargetID(leveldb::Slice *contents, model::TargetId *target_id) {
   return ReadLabeledInt32(contents, ComponentLabel::TargetId, target_id);
 }
 
@@ -387,7 +401,7 @@ inline void WriteUserID(std::string *dest, absl::string_view user_id) {
   WriteLabeledString(dest, ComponentLabel::UserId, user_id);
 }
 
-inline bool ReadUserID(absl::string_view *contents, std::string *user_id) {
+inline bool ReadUserID(leveldb::Slice *contents, std::string *user_id) {
   return ReadLabeledString(contents, ComponentLabel::UserId, user_id);
 }
 
@@ -395,23 +409,23 @@ inline bool ReadUserID(absl::string_view *contents, std::string *user_id) {
  * Returns a base64-encoded string for an invalid key, used for debug-friendly
  * description text.
  */
-std::string InvalidKey(const absl::string_view key) {
+std::string InvalidKey(leveldb::Slice key) {
   std::string result;
-  absl::Base64Escape(key, &result);
+  absl::Base64Escape(MakeStringView(key), &result);
   return result;
 }
 
 }  // namespace
 
-std::string Describe(const absl::string_view key) {
-  absl::string_view contents = key;
+std::string Describe(leveldb::Slice key) {
+  leveldb::Slice contents = key;
   bool is_terminated = false;
 
   std::string description;
   absl::StrAppend(&description, "[");
 
   while (contents.size() > 0) {
-    absl::string_view tmp = contents;
+    leveldb::Slice tmp = contents;
     ComponentLabel label = ComponentLabel::Unknown;
     if (!ReadComponentLabel(&tmp, &label)) {
       break;
@@ -519,13 +533,12 @@ std::string LevelDbMutationKey::Key(absl::string_view user_id,
   return result;
 }
 
-bool LevelDbMutationKey::Decode(absl::string_view key) {
+bool LevelDbMutationKey::Decode(leveldb::Slice key) {
   user_id_.clear();
 
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kMutationsTable) &&
-         ReadUserID(&contents, &user_id_) &&
-         ReadBatchID(&contents, &batch_id_) && ReadTerminator(&contents);
+  return ReadTableNameMatching(&key, kMutationsTable) &&
+         ReadUserID(&key, &user_id_) && ReadBatchID(&key, &batch_id_) &&
+         ReadTerminator(&key);
 }
 
 std::string LevelDbDocumentMutationKey::KeyPrefix() {
@@ -562,15 +575,13 @@ std::string LevelDbDocumentMutationKey::Key(absl::string_view user_id,
   return result;
 }
 
-bool LevelDbDocumentMutationKey::Decode(absl::string_view key) {
+bool LevelDbDocumentMutationKey::Decode(leveldb::Slice key) {
   user_id_.clear();
   document_key_ = DocumentKey{};
 
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kDocumentMutationsTable) &&
-         ReadUserID(&contents, &user_id_) &&
-         ReadDocumentKey(&contents, &document_key_) &&
-         ReadBatchID(&contents, &batch_id_) && ReadTerminator(&contents);
+  return ReadTableNameMatching(&key, kDocumentMutationsTable) &&
+         ReadUserID(&key, &user_id_) && ReadDocumentKey(&key, &document_key_) &&
+         ReadBatchID(&key, &batch_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbMutationQueueKey::KeyPrefix() {
@@ -587,12 +598,11 @@ std::string LevelDbMutationQueueKey::Key(absl::string_view user_id) {
   return result;
 }
 
-bool LevelDbMutationQueueKey::Decode(absl::string_view key) {
+bool LevelDbMutationQueueKey::Decode(leveldb::Slice key) {
   user_id_.clear();
 
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kMutationQueuesTable) &&
-         ReadUserID(&contents, &user_id_) && ReadTerminator(&contents);
+  return ReadTableNameMatching(&key, kMutationQueuesTable) &&
+         ReadUserID(&key, &user_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbTargetGlobalKey::Key() {
@@ -602,10 +612,9 @@ std::string LevelDbTargetGlobalKey::Key() {
   return result;
 }
 
-bool LevelDbTargetGlobalKey::Decode(absl::string_view key) {
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kTargetGlobalTable) &&
-         ReadTerminator(&contents);
+bool LevelDbTargetGlobalKey::Decode(leveldb::Slice key) {
+  return ReadTableNameMatching(&key, kTargetGlobalTable) &&
+         ReadTerminator(&key);
 }
 
 std::string LevelDbTargetKey::KeyPrefix() {
@@ -622,10 +631,9 @@ std::string LevelDbTargetKey::Key(model::TargetId target_id) {
   return result;
 }
 
-bool LevelDbTargetKey::Decode(absl::string_view key) {
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kTargetsTable) &&
-         ReadTargetID(&contents, &target_id_) && ReadTerminator(&contents);
+bool LevelDbTargetKey::Decode(leveldb::Slice key) {
+  return ReadTableNameMatching(&key, kTargetsTable) &&
+         ReadTargetID(&key, &target_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbQueryTargetKey::KeyPrefix() {
@@ -651,13 +659,12 @@ std::string LevelDbQueryTargetKey::Key(absl::string_view canonical_id,
   return result;
 }
 
-bool LevelDbQueryTargetKey::Decode(absl::string_view key) {
+bool LevelDbQueryTargetKey::Decode(leveldb::Slice key) {
   canonical_id_.clear();
 
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kQueryTargetsTable) &&
-         ReadCanonicalID(&contents, &canonical_id_) &&
-         ReadTargetID(&contents, &target_id_) && ReadTerminator(&contents);
+  return ReadTableNameMatching(&key, kQueryTargetsTable) &&
+         ReadCanonicalID(&key, &canonical_id_) &&
+         ReadTargetID(&key, &target_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbTargetDocumentKey::KeyPrefix() {
@@ -683,14 +690,12 @@ std::string LevelDbTargetDocumentKey::Key(model::TargetId target_id,
   return result;
 }
 
-bool LevelDbTargetDocumentKey::Decode(absl::string_view key) {
+bool LevelDbTargetDocumentKey::Decode(leveldb::Slice key) {
   document_key_ = DocumentKey{};
 
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kTargetDocumentsTable) &&
-         ReadTargetID(&contents, &target_id_) &&
-         ReadDocumentKey(&contents, &document_key_) &&
-         ReadTerminator(&contents);
+  return ReadTableNameMatching(&key, kTargetDocumentsTable) &&
+         ReadTargetID(&key, &target_id_) &&
+         ReadDocumentKey(&key, &document_key_) && ReadTerminator(&key);
 }
 
 std::string LevelDbDocumentTargetKey::KeyPrefix() {
@@ -717,13 +722,12 @@ std::string LevelDbDocumentTargetKey::Key(const DocumentKey &document_key,
   return result;
 }
 
-bool LevelDbDocumentTargetKey::Decode(absl::string_view key) {
+bool LevelDbDocumentTargetKey::Decode(leveldb::Slice key) {
   document_key_ = DocumentKey{};
 
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kDocumentTargetsTable) &&
-         ReadDocumentKey(&contents, &document_key_) &&
-         ReadTargetID(&contents, &target_id_) && ReadTerminator(&contents);
+  return ReadTableNameMatching(&key, kDocumentTargetsTable) &&
+         ReadDocumentKey(&key, &document_key_) &&
+         ReadTargetID(&key, &target_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbRemoteDocumentKey::KeyPrefix() {
@@ -748,13 +752,11 @@ std::string LevelDbRemoteDocumentKey::Key(const DocumentKey &key) {
   return result;
 }
 
-bool LevelDbRemoteDocumentKey::Decode(absl::string_view key) {
+bool LevelDbRemoteDocumentKey::Decode(leveldb::Slice key) {
   document_key_ = DocumentKey{};
 
-  absl::string_view contents = key;
-  return ReadTableNameMatching(&contents, kRemoteDocumentsTable) &&
-         ReadDocumentKey(&contents, &document_key_) &&
-         ReadTerminator(&contents);
+  return ReadTableNameMatching(&key, kRemoteDocumentsTable) &&
+         ReadDocumentKey(&key, &document_key_) && ReadTerminator(&key);
 }
 
 }  // namespace local
