@@ -190,10 +190,10 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertTrue([self.queryCache containsKey:key]);
 
   [self addMatchingKey:key forTargetID:2 group:group];
-   XCTAssertTrue([self.queryCache containsKey:key]);
+  XCTAssertTrue([self.queryCache containsKey:key]);
 
   [self removeMatchingKey:key forTargetID:1 group:group];
-   XCTAssertTrue([self.queryCache containsKey:key]);
+  XCTAssertTrue([self.queryCache containsKey:key]);
 
   [self removeMatchingKey:key forTargetID:2 group:group];
   XCTAssertFalse([self.queryCache containsKey:key]);
@@ -323,7 +323,6 @@ NS_ASSUME_NONNULL_BEGIN
   self.queryCache = [self.persistence queryCache];
   [self.queryCache start];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
-
 }
 
 - (void)testHighestTargetID {
