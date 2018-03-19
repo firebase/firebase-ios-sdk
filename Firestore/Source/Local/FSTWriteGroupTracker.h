@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action
                             transaction:
-                             (firebase::firestore::local::LevelDbTransaction *)transaction;
+                                (firebase::firestore::local::LevelDbTransaction *)transaction;
 
 /** Ends a group previously started with `startGroupWithAction`. */
 - (void)endGroup:(FSTWriteGroup *)group;
