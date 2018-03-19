@@ -14,37 +14,79 @@
  * limitations under the License.
  */
 
-
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include <time.h>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 
-Timestamp::Timestamp(int64_t seconds, int32_t nanos)
-    : seconds_(seconds), nanos_(nanos) {
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      nanos >= 0, nanos >= 0, "timestamp nanoseconds out of range: %d", nanos);
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      nanos < 1e9, nanos < 1e9, "timestamp nanoseconds out of range: %d",
-      nanos);
-  // Midnight at the beginning of 1/1/1 is the earliest timestamp Firestore
-  // supports.
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      seconds >= -62135596800L, seconds >= -62135596800L,
-      "timestamp seconds out of range: %lld", seconds);
-  // This will break in the year 10,000.
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      seconds < 253402300800L, seconds < 253402300800L,
-      "timestamp seconds out of range: %lld", seconds);
+Timestamp::Timestamp() {
 }
 
-Timestamp::Timestamp() : seconds_(0), nanos_(0) {
+Timestamp::Timestamp(const std::int64_t seconds, const std::int32_t nanoseconds)
+    : seconds_(seconds), nanoseconds_(nanoseconds) {
+  ValidateBounds();
 }
 
 Timestamp Timestamp::Now() {
-  return Timestamp(time(nullptr), 0);
+#if !defined(_STLPORT_VERSION)
+  // Use chrono from C++11 if possible, because it supports higher precision
+  // (depending on the system clock) than C-style std::time that only returns
+  // seconds.
+  return Timestamp(std::chrono::system_clock::now());
+#else
+  return Timestamp(std::time(nullptr), 0);
+#endif
+}
+
+Timestamp Timestamp::FromTimeT(const std::time_t seconds_since_unix_epoch) {
+  return Timestamp(seconds_since_unix_epoch, 0);
+}
+
+#if !defined(_STLPORT_VERSION)
+Timestamp::Timestamp(
+    const std::chrono::time_point<std::chrono::system_clock> time_point) {
+  namespace chr = std::chrono;
+  const auto epoch_time = time_point.time_since_epoch();
+  auto seconds = chr::duration_cast<chr::duration<std::int64_t>>(epoch_time);
+  auto nanoseconds = chr::duration_cast<chr::nanoseconds>(epoch_time - seconds);
+
+  if (nanoseconds.count() < 0) {
+    // Timestamp format always has a positive number of nanoseconds that is
+    // counting forward. For negative time, we need to transform chrono
+    // representation of (negative seconds s1 + negative nanoseconds ns1) to
+    // (negative seconds s2 + positive nanoseconds ns2). Since nanosecond part
+    // is always less than 1 second in our representation, instead of starting
+    // at s1 and going back ns1 nanoseconds, start at (s1 minus one second) and
+    // go *forward* ns2 = (1 second + ns1, ns1 < 0) nanoseconds.
+    //
+    // Note: if nanoseconds are negative, it must mean that seconds are
+    // non-positive, but the formula would still be valid, so no need to check.
+    seconds = seconds - chr::seconds(1);
+    nanoseconds = chr::seconds(1) + nanoseconds;
+  }
+
+  seconds_ = seconds.count();
+  nanoseconds_ = nanoseconds.count();
+  ValidateBounds();
+}
+
+#endif
+
+void Timestamp::ValidateBounds() {
+  FIREBASE_ASSERT_MESSAGE(nanoseconds_ >= 0,
+                          "Timestamp nanoseconds out of range: %d",
+                          nanoseconds_);
+  FIREBASE_ASSERT_MESSAGE(nanoseconds_ < 1e9,
+                          "Timestamp nanoseconds out of range: %d",
+                          nanoseconds_);
+  // Midnight at the beginning of 1/1/1 is the earliest timestamp Firestore
+  // supports.
+  FIREBASE_ASSERT_MESSAGE(seconds_ >= -62135596800L,
+                          "Timestamp seconds out of range: %lld", seconds_);
+  // This will break in the year 10,000.
+  FIREBASE_ASSERT_MESSAGE(seconds_ < 253402300800L,
+                          "Timestamp seconds out of range: %lld", seconds_);
 }
 
 }  // namespace firebase

@@ -17,52 +17,118 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
 
-#include <stdint.h>
+#if !defined(_STLPORT_VERSION)
+#include <chrono>
+#endif
+#include <cstdint>
+#include <ctime>
 
 namespace firebase {
 
 /**
- * A Timestamp represents an absolute time from the backend at up to nanosecond
- * precision. A Timestamp is always UTC.
+ * A Timestamp represents a point in time independent of any time zone or
+ * calendar, represented as seconds and fractions of seconds at nanosecond
+ * resolution in UTC Epoch time. It is encoded using the Proleptic Gregorian
+ * Calendar which extends the Gregorian calendar backwards to year one. It is
+ * encoded assuming all minutes are 60 seconds long, i.e. leap seconds are
+ * "smeared" so that no leap second table is needed for interpretation. Range is
+ * from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59.999999999Z.
+ *
+ * @see
+ * https://github.com/google/protobuf/blob/master/src/google/protobuf/timestamp.proto
  */
 class Timestamp {
  public:
   /**
-   * Creates a new timestamp with seconds and nanos set to 0.
-   *
-   * PORTING NOTE: This does NOT set to current timestamp by default. To get the
-   * current timestamp, call Timestamp::Now().
+   * Creates a new timestamp representing the epoch (with seconds and
+   * nanoseconds set to 0).
    */
   Timestamp();
 
   /**
    * Creates a new timestamp.
    *
-   * @param seconds the number of seconds since epoch.
-   * @param nanos the number of nanoseconds after the seconds.
+   * @param seconds The number of seconds of UTC time since Unix epoch
+   *     1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+   *     9999-12-31T23:59:59Z inclusive.
+   * @param nanoseconds The non-negative fractions of a second at nanosecond
+   *     resolution. Negative second values with fractions must still have
+   *     non-negative nanoseconds values that count forward in time. Must be
+   *     from 0 to 999,999,999 inclusive.
    */
-  Timestamp(int64_t seconds, int32_t nanos);
+  Timestamp(std::int64_t seconds, std::int32_t nanoseconds);
 
-  /** Returns a timestamp with the current date / time. */
+  /**
+   * Creates a new timestamp with the current date.
+   *
+   * If <chrono> is available, precision will correspond to the precision of
+   * `std::chrono::system_clock`. Otherwise, the timestamp will have second
+   * precision.
+   *
+   * @return a new timestamp representing the current date.
+   */
   static Timestamp Now();
 
-  int64_t seconds() const {
+  /**
+   * The number of seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+   */
+  std::int64_t seconds() const {
     return seconds_;
   }
 
-  int32_t nanos() const {
-    return nanos_;
+  /**
+   * The non-negative fractions of a second at nanosecond resolution. Negative
+   * second values with fractions still have non-negative nanoseconds values
+   * that count forward in time.
+   */
+  std::int32_t nanoseconds() const {
+    return nanoseconds_;
   }
 
+  /**
+   * Converts `std::time_t` to a Timestamp.
+   *
+   * @param seconds_since_unix_epoch The number of seconds of UTC time since
+   *     Unix epoch 1970-01-01T00:00:00Z. Can be negative to represent dates
+   *     before the epoch.
+   *
+   *     Note that while the epoch of `std::time_t` is unspecified, it's usually
+   *     Unix epoch. If this assumption is broken, this function will produce
+   *     incorrect results.
+   *
+   * @return a new timestamp with the given number of seconds and zero
+   *     nanoseconds.
+   */
+  static Timestamp FromTimeT(std::time_t seconds_since_unix_epoch);
+
+#if !defined(_STLPORT_VERSION)
+  /**
+   * Converts `std::chrono::time_point` to a Timestamp.
+   *
+   * @param time_point The time point with system clock's epoch, which is
+   *     presumed to be Unix epoch 1970-01-01T00:00:00Z. Can be negative to
+   *     represent dates before the epoch.
+   *
+   *     Note that while the epoch of `std::chrono::system_clock` is
+   *     unspecified, it's usually Unix epoch. If this assumption is broken,
+   *     this constructor will produce incorrect results.
+   */
+  Timestamp(std::chrono::time_point<std::chrono::system_clock> time_point);
+#endif
+
  private:
-  int64_t seconds_;
-  int32_t nanos_;
+  // Checks that the number of seconds is within the supported date range, and
+  // that nanoseconds satisfy 0 <= ns <= 1second.
+  void ValidateBounds();
+
+  std::int64_t seconds_ = 0;
+  std::int32_t nanoseconds_ = 0;
 };
 
-/** Compares against another Timestamp. */
 inline bool operator<(const Timestamp& lhs, const Timestamp& rhs) {
   return lhs.seconds() < rhs.seconds() ||
-         (lhs.seconds() == rhs.seconds() && lhs.nanos() < rhs.nanos());
+         (lhs.seconds() == rhs.seconds() &&
+          lhs.nanoseconds() < rhs.nanoseconds());
 }
 
 inline bool operator>(const Timestamp& lhs, const Timestamp& rhs) {
@@ -86,5 +152,22 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
 }
 
 }  // namespace firebase
+
+namespace std {
+template <>
+struct hash<firebase::Timestamp> {
+  size_t operator()(const firebase::Timestamp& timestamp) const {
+    std::int32_t result = 1;
+    const auto consume = [&result](const std::int32_t value) {
+      const int prime = 37;
+      result = prime * result + value;
+    };
+    consume(static_cast<std::int32_t>(timestamp.seconds()));
+    consume(static_cast<std::int32_t>(timestamp.seconds() >> 32));
+    consume(static_cast<std::int32_t>(timestamp.nanoseconds()));
+    return result;
+  }
+};
+}  // namespace std
 
 #endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
