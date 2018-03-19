@@ -74,6 +74,7 @@ DocumentVersionDictionary FSTVersionDictionary(FSTMutation *mutation,
 @end
 
 @implementation FSTLocalStoreTests {
+  // Could be empty, which means there is no last change.
   MaybeDocumentDictionary _lastChanges;
 }
 

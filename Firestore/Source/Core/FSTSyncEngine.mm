@@ -17,6 +17,7 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
 #include <unordered_map>
+#include <utility>
 
 #import <GRPCClient/GRPCCall.h>
 
@@ -192,9 +193,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   DocumentDictionary docs = [self.localStore executeQuery:query];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:remoteKeys];
-  FSTViewDocumentChanges *viewDocChanges =
-      [view computeChangesWithDocuments:ToMaybeDocumentDictionary(docs)];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:std::move(remoteKeys)];
+  FSTViewDocumentChanges *viewDocChanges = [view
+      computeChangesWithDocuments:firebase::firestore::model::ToMaybeDocumentDictionary(docs)];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   FSTAssert(viewChange.limboChanges.count == 0,
             @"View returned limbo docs before target ack from the server.");
@@ -444,32 +445,33 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   NSMutableArray<FSTViewSnapshot *> *newSnapshots = [NSMutableArray array];
   NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];
 
-  [self.queryViewsByQuery
-      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
-        FSTView *view = queryView.view;
-        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
-        if (viewDocChanges.needsRefill) {
-          // The query has a limit and some docs were removed/updated, so we need to re-run the
-          // query against the local store to make sure we didn't lose any good docs that had been
-          // past the limit.
-          DocumentDictionary docs = [self.localStore executeQuery:queryView.query];
-          viewDocChanges = [view computeChangesWithDocuments:ToMaybeDocumentDictionary(docs)
-                                             previousChanges:viewDocChanges];
-        }
-        FSTTargetChange *_Nullable targetChange = remoteEvent.targetChanges[@(queryView.targetID)];
-        FSTViewChange *viewChange =
-            [queryView.view applyChangesToDocuments:viewDocChanges targetChange:targetChange];
+  [self.queryViewsByQuery enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query,
+                                                              FSTQueryView *queryView, BOOL *stop) {
+    FSTView *view = queryView.view;
+    FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
+    if (viewDocChanges.needsRefill) {
+      // The query has a limit and some docs were removed/updated, so we need to re-run the
+      // query against the local store to make sure we didn't lose any good docs that had been
+      // past the limit.
+      DocumentDictionary docs = [self.localStore executeQuery:queryView.query];
+      viewDocChanges = [view
+          computeChangesWithDocuments:firebase::firestore::model::ToMaybeDocumentDictionary(docs)
+                      previousChanges:std::move(viewDocChanges)];
+    }
+    FSTTargetChange *_Nullable targetChange = remoteEvent.targetChanges[@(queryView.targetID)];
+    FSTViewChange *viewChange =
+        [queryView.view applyChangesToDocuments:viewDocChanges targetChange:targetChange];
 
-        [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
-                                            targetID:queryView.targetID];
+    [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
+                                        targetID:queryView.targetID];
 
-        if (viewChange.snapshot) {
-          [newSnapshots addObject:viewChange.snapshot];
-          FSTLocalViewChanges *docChanges =
-              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot];
-          [documentChangesInAllViews addObject:docChanges];
-        }
-      }];
+    if (viewChange.snapshot) {
+      [newSnapshots addObject:viewChange.snapshot];
+      FSTLocalViewChanges *docChanges =
+          [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot];
+      [documentChangesInAllViews addObject:docChanges];
+    }
+  }];
 
   [self.delegate handleViewSnapshots:newSnapshots];
   [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
