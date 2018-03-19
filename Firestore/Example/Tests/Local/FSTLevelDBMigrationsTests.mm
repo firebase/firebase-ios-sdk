@@ -62,7 +62,7 @@ using leveldb::Status;
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
   LevelDbTransaction transaction(_db.get());
-  [FSTLevelDBMigrations runMigrations:&transaction];
+  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   transaction.Commit();
   metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
@@ -70,12 +70,12 @@ using leveldb::Status;
 
 - (void)testSetsVersionNumber {
   LevelDbTransaction transaction(_db.get());
-  FSTLevelDBSchemaVersion initial = [FSTLevelDBMigrations schemaVersion:&transaction];
+  FSTLevelDBSchemaVersion initial = [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
   XCTAssertEqual(0, initial, "No version should be equivalent to 0");
 
   // Pick an arbitrary high migration number and migrate to it.
-  [FSTLevelDBMigrations runMigrations:&transaction];
-  FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersion:&transaction];
+  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
+  FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
   XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
 }
 
@@ -101,7 +101,7 @@ using leveldb::Status;
 
   {
     LevelDbTransaction transaction(_db.get());
-    [FSTLevelDBMigrations runMigrations:&transaction];
+    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
     transaction.Commit();
     FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
     XCTAssertEqual(expected, metadata.targetCount, @"Failed to count all of the targets we added");

@@ -142,7 +142,7 @@ using leveldb::WriteOptions;
   }
   _ptr.reset(database);
   LevelDbTransaction transaction(_ptr.get());
-  [FSTLevelDBMigrations runMigrations:&transaction];
+  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   transaction.Commit();
   return YES;
 }
