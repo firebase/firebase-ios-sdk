@@ -217,8 +217,9 @@ using leveldb::Status;
  * query data.
  */
 - (FSTQueryData *)decodeTarget:(absl::string_view)encoded {
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data() length:encoded.size() freeWhenDone:NO];
+  NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
+                                              length:encoded.size()
+                                        freeWhenDone:NO];
 
   NSError *error;
   FSTPBTarget *proto = [FSTPBTarget parseFromData:data error:&error];
