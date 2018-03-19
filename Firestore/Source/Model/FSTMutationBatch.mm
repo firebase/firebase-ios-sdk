@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include <utility>
+
 #import "FIRTimestamp.h"
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -113,10 +115,10 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 }
 
 // TODO(klimt): This could use NSMutableDictionary instead.
-- (FSTDocumentKeySet *)keys {
-  FSTDocumentKeySet *set = [FSTDocumentKeySet keySet];
+- (DocumentKeySet)keys {
+  DocumentKeySet set{};
   for (FSTMutation *mutation in self.mutations) {
-    set = [set setByAddingObject:mutation.key];
+    set.insert(mutation.key);
   }
   return set;
 }
@@ -130,22 +132,24 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
                 commitVersion:(FSTSnapshotVersion *)commitVersion
               mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                   streamToken:(nullable NSData *)streamToken
-                  docVersions:(FSTDocumentVersionDictionary *)docVersions NS_DESIGNATED_INITIALIZER;
+                  docVersions:(DocumentVersionDictionary)docVersions NS_DESIGNATED_INITIALIZER;
 @end
 
-@implementation FSTMutationBatchResult
+@implementation FSTMutationBatchResult {
+  DocumentVersionDictionary _docVersions;
+}
 
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(FSTSnapshotVersion *)commitVersion
               mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                   streamToken:(nullable NSData *)streamToken
-                  docVersions:(FSTDocumentVersionDictionary *)docVersions {
+                  docVersions:(DocumentVersionDictionary)docVersions {
   if (self = [super init]) {
     _batch = batch;
     _commitVersion = commitVersion;
     _mutationResults = mutationResults;
     _streamToken = streamToken;
-    _docVersions = docVersions;
+    _docVersions = std::move(docVersions);
   }
   return self;
 }
@@ -158,8 +162,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
             @"Mutations sent %lu must equal results received %lu",
             (unsigned long)batch.mutations.count, (unsigned long)mutationResults.count);
 
-  FSTDocumentVersionDictionary *docVersions =
-      [FSTDocumentVersionDictionary documentVersionDictionary];
+  DocumentVersionDictionary docVersions{};
   NSArray<FSTMutation *> *mutations = batch.mutations;
   for (NSUInteger i = 0; i < mutations.count; i++) {
     FSTSnapshotVersion *_Nullable version = mutationResults[i].version;
@@ -169,14 +172,18 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
       version = commitVersion;
     }
 
-    docVersions = [docVersions dictionaryBySettingObject:version forKey:mutations[i].key];
+    docVersions[mutations[i].key] = version;
   }
 
   return [[FSTMutationBatchResult alloc] initWithBatch:batch
                                          commitVersion:commitVersion
                                        mutationResults:mutationResults
                                            streamToken:streamToken
-                                           docVersions:docVersions];
+                                           docVersions:std::move(docVersions)];
+}
+
+- (const DocumentVersionDictionary &)docVersions {
+  return _docVersions;
 }
 
 @end

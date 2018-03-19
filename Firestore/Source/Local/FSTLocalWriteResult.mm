@@ -16,26 +16,34 @@
 
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 
+#include <utility>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalWriteResult ()
 - (instancetype)initWithBatchID:(FSTBatchID)batchID
-                        changes:(FSTMaybeDocumentDictionary *)changes NS_DESIGNATED_INITIALIZER;
+                        changes:(MaybeDocumentDictionary)changes NS_DESIGNATED_INITIALIZER;
 @end
 
-@implementation FSTLocalWriteResult
-
-+ (instancetype)resultForBatchID:(FSTBatchID)batchID changes:(FSTMaybeDocumentDictionary *)changes {
-  return [[FSTLocalWriteResult alloc] initWithBatchID:batchID changes:changes];
+@implementation FSTLocalWriteResult {
+  MaybeDocumentDictionary _changes;
 }
 
-- (instancetype)initWithBatchID:(FSTBatchID)batchID changes:(FSTMaybeDocumentDictionary *)changes {
++ (instancetype)resultForBatchID:(FSTBatchID)batchID changes:(MaybeDocumentDictionary)changes {
+  return [[FSTLocalWriteResult alloc] initWithBatchID:batchID changes:std::move(changes)];
+}
+
+- (instancetype)initWithBatchID:(FSTBatchID)batchID changes:(MaybeDocumentDictionary)changes {
   self = [super init];
   if (self) {
     _batchID = batchID;
-    _changes = changes;
+    _changes = std::move(changes);
   }
   return self;
+}
+
+- (const MaybeDocumentDictionary &)changes {
+  return _changes;
 }
 
 @end

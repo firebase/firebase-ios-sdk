@@ -393,12 +393,12 @@ static const int kMaxPendingWrites = 10;
 
     } else {
       // Not a document query.
-      FSTDocumentKeySet *trackedRemote = [self.localStore remoteDocumentKeysForTarget:targetID];
+      DocumentKeySet trackedRemote = [self.localStore remoteDocumentKeysForTarget:targetID];
       FSTTargetMapping *mapping = remoteEvent.targetChanges[target].mapping;
       if (mapping) {
         if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
           FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-          trackedRemote = [update applyTo:trackedRemote];
+          [update applyTo:&trackedRemote];
         } else {
           FSTAssert([mapping isKindOfClass:[FSTResetMapping class]],
                     @"Expected either reset or update mapping but got something else %@", mapping);
@@ -406,7 +406,7 @@ static const int kMaxPendingWrites = 10;
         }
       }
 
-      if (trackedRemote.count != (NSUInteger)filter.count) {
+      if (trackedRemote.size() != (NSUInteger)filter.count) {
         FSTLog(@"Existence filter mismatch, resetting mapping");
 
         // Make sure the mismatch is exposed in the remote event

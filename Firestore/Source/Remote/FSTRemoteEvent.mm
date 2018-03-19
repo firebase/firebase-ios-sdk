@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
+#include <string>
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -54,16 +56,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTResetMapping
 
-@interface FSTResetMapping ()
-@property(nonatomic, strong) FSTDocumentKeySet *documents;
-@end
-
-@implementation FSTResetMapping
+@implementation FSTResetMapping {
+  DocumentKeySet _documents;
+}
 
 + (instancetype)mappingWithDocuments:(NSArray<FSTDocument *> *)documents {
   FSTResetMapping *mapping = [[FSTResetMapping alloc] init];
   for (FSTDocument *doc in documents) {
-    mapping.documents = [mapping.documents setByAddingObject:doc.key];
+    mapping->_documents.insert(doc.key);
   }
   return mapping;
 }
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _documents = [FSTDocumentKeySet keySet];
+    _documents = DocumentKeySet{};
   }
   return self;
 }
@@ -85,40 +85,46 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTResetMapping *otherMapping = (FSTResetMapping *)other;
-  return [self.documents isEqual:otherMapping.documents];
+  return _documents == otherMapping->_documents;
 }
 
 - (NSUInteger)hash {
-  return self.documents.hash;
+  NSUInteger result = 0;
+  for (const auto &doc : _documents) {
+    result = result * 31u + std::hash<std::string>{}(doc.ToString());
+  }
+  return result;
 }
 
 - (void)addDocumentKey:(FSTDocumentKey *)documentKey {
-  self.documents = [self.documents setByAddingObject:documentKey];
+  _documents.insert(documentKey);
 }
 
 - (void)removeDocumentKey:(FSTDocumentKey *)documentKey {
-  self.documents = [self.documents setByRemovingObject:documentKey];
+  _documents.erase(documentKey);
+}
+
+- (const DocumentKeySet &)documents {
+  return _documents;
 }
 
 @end
 
 #pragma mark - FSTUpdateMapping
 
-@interface FSTUpdateMapping ()
-@property(nonatomic, strong) FSTDocumentKeySet *addedDocuments;
-@property(nonatomic, strong) FSTDocumentKeySet *removedDocuments;
-@end
-
-@implementation FSTUpdateMapping
+@implementation FSTUpdateMapping {
+  DocumentKeySet _addedDocuments;
+  DocumentKeySet _removedDocuments;
+}
 
 + (FSTUpdateMapping *)mappingWithAddedDocuments:(NSArray<FSTDocument *> *)added
                                removedDocuments:(NSArray<FSTDocument *> *)removed {
   FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
   for (FSTDocument *doc in added) {
-    mapping.addedDocuments = [mapping.addedDocuments setByAddingObject:doc.key];
+    mapping->_addedDocuments.insert(doc.key);
   }
   for (FSTDocument *doc in removed) {
-    mapping.removedDocuments = [mapping.removedDocuments setByAddingObject:doc.key];
+    mapping->_removedDocuments.insert(doc.key);
   }
   return mapping;
 }
@@ -126,8 +132,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _addedDocuments = [FSTDocumentKeySet keySet];
-    _removedDocuments = [FSTDocumentKeySet keySet];
+    _addedDocuments = DocumentKeySet{};
+    _removedDocuments = DocumentKeySet{};
   }
   return self;
 }
@@ -141,33 +147,39 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTUpdateMapping *otherMapping = (FSTUpdateMapping *)other;
-  return [self.addedDocuments isEqual:otherMapping.addedDocuments] &&
-         [self.removedDocuments isEqual:otherMapping.removedDocuments];
+  return _addedDocuments == otherMapping->_addedDocuments &&
+         _removedDocuments == otherMapping->_removedDocuments;
 }
 
 - (NSUInteger)hash {
-  return self.addedDocuments.hash * 31 + self.removedDocuments.hash;
+  return DocumentKeySetHash(*self.addedDocuments) * 31 + DocumentKeySetHash(*self.removedDocuments);
 }
 
-- (FSTDocumentKeySet *)applyTo:(FSTDocumentKeySet *)keys {
-  __block FSTDocumentKeySet *result = keys;
-  [self.addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    result = [result setByAddingObject:key];
-  }];
-  [self.removedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    result = [result setByRemovingObject:key];
-  }];
-  return result;
+- (void)applyTo:(DocumentKeySet *)keys {
+  for (const auto &key : _addedDocuments) {
+    keys->insert(key);
+  };
+  for (const auto &key : _removedDocuments) {
+    keys->erase(key);
+  };
 }
 
 - (void)addDocumentKey:(FSTDocumentKey *)documentKey {
-  self.addedDocuments = [self.addedDocuments setByAddingObject:documentKey];
-  self.removedDocuments = [self.removedDocuments setByRemovingObject:documentKey];
+  _addedDocuments.insert(documentKey);
+  _removedDocuments.erase(documentKey);
 }
 
 - (void)removeDocumentKey:(FSTDocumentKey *)documentKey {
-  self.addedDocuments = [self.addedDocuments setByRemovingObject:documentKey];
-  self.removedDocuments = [self.removedDocuments setByAddingObject:documentKey];
+  _addedDocuments.erase(documentKey);
+  _removedDocuments.insert(documentKey);
+}
+
+- (DocumentKeySet *)addedDocuments {
+  return &_addedDocuments;
+}
+
+- (DocumentKeySet *)removedDocuments {
+  return &_removedDocuments;
 }
 
 @end
@@ -196,9 +208,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
   for (FSTMaybeDocument *doc in docs) {
     if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
-      mapping.removedDocuments = [mapping.removedDocuments setByAddingObject:doc.key];
+      mapping.removedDocuments->insert(doc.key);
     } else {
-      mapping.addedDocuments = [mapping.addedDocuments setByAddingObject:doc.key];
+      mapping.addedDocuments->insert(doc.key);
     }
   }
   FSTTargetChange *change = [[FSTTargetChange alloc] init];

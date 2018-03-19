@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testAddsDocumentsBasedOnQuery {
   FSTQuery *query = [self queryForMessages];
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testRemovesDocuments {
   FSTQuery *query = [self queryForMessages];
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testReturnsNilIfThereAreNoChanges {
   FSTQuery *query = [self queryForMessages];
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDoesNotReturnNilForFirstChanges {
   FSTQuery *query = [self queryForMessages];
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[], nil);
   XCTAssertNotNil(snapshot);
@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{ @"sort" : @1 }, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{ @"sort" : @2 }, NO);
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/3", 0, @{ @"sort" : @3 }, NO);
@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{ @"sort" : @1 }, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{ @"sort" : @3 }, NO);
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/3", 0, @{ @"sort" : @2 }, NO);
@@ -205,7 +205,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemovesDocumentsForQueryWithLimit {
   FSTQuery *query = [self queryForMessages];
   query = [query queryBySettingLimit:2];
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
@@ -239,7 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
   query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("num")
                                                                    ascending:YES]];
   query = [query queryBySettingLimit:2];
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{ @"num" : @1 }, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{ @"num" : @2 }, NO);
@@ -283,7 +283,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testKeepsTrackOfLimboDocuments {
   FSTQuery *query = [self queryForMessages];
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
@@ -339,13 +339,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Unlike other cases, here the view is initialized with a set of previously synced documents
   // which happens when listening to a previously listened-to query.
-  FSTView *view = [[FSTView alloc] initWithQuery:query
-                                 remoteDocuments:FSTTestDocKeySet(@[ doc1.key, doc2.key ])];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{doc1.key, doc2.key}];
 
   FSTTargetChange *markCurrent =
       [FSTTargetChange changeWithDocuments:@[]
                        currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent];
-  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[])];
+  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:{}];
   FSTViewChange *change = [view applyChangesToDocuments:changes targetChange:markCurrent];
   XCTAssertEqualObjects(change.limboChanges, @[]);
 }
@@ -361,7 +360,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [[self queryForMessages] queryBySettingLimit:2];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
@@ -394,7 +393,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{ @"order" : @1 }, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{ @"order" : @2 }, NO);
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{ @"order" : @3 }, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
@@ -430,7 +429,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{ @"order" : @3 }, NO);
   FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/3", 0, @{ @"order" : @4 }, NO);
   FSTDocument *doc5 = FSTTestDoc("rooms/eros/messages/4", 0, @{ @"order" : @5 }, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
@@ -460,7 +459,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{ @"order" : @3 }, NO);
   FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/3", 0, @{ @"order" : @4 }, NO);
   FSTDocument *doc5 = FSTTestDoc("rooms/eros/messages/4", 0, @{ @"order" : @5 }, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
@@ -483,7 +482,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [[self queryForMessages] queryBySettingLimit:2];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
@@ -506,7 +505,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [[self queryForMessages] queryBySettingLimit:20];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
@@ -528,7 +527,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [[self queryForMessages] queryBySettingLimit:2];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
@@ -551,69 +550,69 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [self queryForMessages];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({}));
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, YES);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc3.key ]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({doc3.key}));
 }
 
 - (void)testRemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges {
   FSTQuery *query = [self queryForMessages];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, YES);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({doc2.key}));
 
   FSTDocument *doc2Prime = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2Prime ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({}));
 }
 
 - (void)testRemembersLocalMutationsFromPreviousSnapshot {
   FSTQuery *query = [self queryForMessages];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, YES);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({doc2.key}));
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, NO);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({doc2.key}));
 }
 
 - (void)testRemembersLocalMutationsFromPreviousCallToComputeChangesWithDocuments {
   FSTQuery *query = [self queryForMessages];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, NO);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, YES);
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:[FSTDocumentKeySet keySet]];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:{}];
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({doc2.key}));
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, NO);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ]) previousChanges:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(*changes.mutatedKeys, DocumentKeySet({doc2.key}));
 }
 
 @end

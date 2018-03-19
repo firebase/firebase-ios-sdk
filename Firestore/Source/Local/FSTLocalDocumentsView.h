@@ -52,10 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
  * If we don't have cached state for a document in `keys`, a FSTDeletedDocument will be stored
  * for that key in the resulting set.
  */
-- (FSTMaybeDocumentDictionary *)documentsForKeys:(FSTDocumentKeySet *)keys;
+- (MaybeDocumentDictionary)documentsForKeys:(const DocumentKeySet &)keys;
 
 /** Performs a query against the local view of all documents. */
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query;
+- (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query;
 
 @end
 

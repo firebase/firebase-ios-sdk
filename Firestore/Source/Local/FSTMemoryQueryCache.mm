@@ -115,13 +115,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Reference tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)addMatchingKeys:(const DocumentKeySet &)keys
             forTargetID:(FSTTargetID)targetID
                   group:(__unused FSTWriteGroup *)group {
   [self.references addReferencesToKeys:keys forID:targetID];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys
                forTargetID:(FSTTargetID)targetID
                      group:(__unused FSTWriteGroup *)group {
   [self.references removeReferencesToKeys:keys forID:targetID];
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.references removeReferencesForID:targetID];
 }
 
-- (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
+- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
   return [self.references referencedKeysForID:targetID];
 }
 

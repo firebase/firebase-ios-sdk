@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param query The query to match documents against.
  * @return The set of matching documents.
  */
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query;
+- (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query;
 
 @end
 

@@ -264,7 +264,7 @@ using leveldb::WriteOptions;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)addMatchingKeys:(const DocumentKeySet &)keys
             forTargetID:(FSTTargetID)targetID
                   group:(FSTWriteGroup *)group {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
@@ -272,24 +272,24 @@ using leveldb::WriteOptions;
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
 
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
+  for (const auto &key : keys) {
     [group setData:emptyBuffer
-            forKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey]];
+            forKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]];
     [group setData:emptyBuffer
-            forKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]];
-  }];
+            forKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]];
+  }
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys
                forTargetID:(FSTTargetID)targetID
                      group:(FSTWriteGroup *)group {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  for (const auto &key : keys) {
     [group
         removeMessageForKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]];
     [group
         removeMessageForKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]];
     [self.garbageCollector addPotentialGarbageKey:key];
-  }];
+  }
 }
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
@@ -315,12 +315,12 @@ using leveldb::WriteOptions;
   }
 }
 
-- (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
+- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
-  FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
+  DocumentKeySet result{};
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
     Slice indexKey = indexIterator->key();
@@ -330,7 +330,7 @@ using leveldb::WriteOptions;
       break;
     }
 
-    result = [result setByAddingObject:rowKey.documentKey];
+    result.insert(rowKey.documentKey);
   }
 
   return result;

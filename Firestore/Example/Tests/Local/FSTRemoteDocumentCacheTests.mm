@@ -120,12 +120,12 @@ static const int kVersion = 42;
   [self setTestDocumentAtPath:"c/1"];
 
   FSTQuery *query = FSTTestQuery("b");
-  FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  DocumentDictionary results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray *expected =
       @[ FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO) ];
-  XCTAssertEqual([results count], [expected count]);
+  XCTAssertEqual(results.size(), [expected count]);
   for (FSTDocument *doc in expected) {
-    XCTAssertEqualObjects([results objectForKey:doc.key], doc);
+    XCTAssertEqualObjects(results.at(doc.key), doc);
   }
 }
 

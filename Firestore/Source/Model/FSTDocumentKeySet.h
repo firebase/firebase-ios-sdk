@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include <functional>
 #include <set>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -25,9 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** Convenience type for a set of keys, since they are so common. */
 typedef std::set<firebase::firestore::model::DocumentKey> DocumentKeySet;
 
-class DocumentKeySetBuilder {
-  /** Returns a new set using the DocumentKeyComparator. */
-  static DocumentKeySet KeySet();
-};
+inline NSUInteger DocumentKeySetHash(const DocumentKeySet& keys) {
+  NSUInteger hash = 0;
+  std::hash<std::string> hasher{};
+  for (const auto& key : keys) {
+    hash = 31 * hash + hasher(key.ToString());
+  }
+  return hash;
+}
 
 NS_ASSUME_NONNULL_END

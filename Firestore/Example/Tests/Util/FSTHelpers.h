@@ -182,9 +182,6 @@ FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 /** A convenience method for creating document keys for tests. */
 FSTDocumentKey *FSTTestDocKey(NSString *path);
 
-/** A convenience method for creating a document key set for tests. */
-FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys);
-
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
 
@@ -251,8 +248,16 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path,
 /** Creates a delete mutation for the document key at the given path. */
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 
+#if __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
+
 /** Converts a list of documents to a sorted map. */
-FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
+MaybeDocumentDictionary FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
+
+#if __cplusplus
+extern "C" {
+#endif  // __cplusplus
 
 /** Creates a remote event with changes to a document. */
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,

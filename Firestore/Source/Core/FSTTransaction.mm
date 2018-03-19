@@ -209,16 +209,17 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Make a list of read documents that haven't been written.
-  __block FSTDocumentKeySet *unwritten = [FSTDocumentKeySet keySet];
+  DocumentKeySet unwritten{};
+  __block DocumentKeySet *unwrittenP = &unwritten;
   [self.readVersions enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key,
                                                          FSTSnapshotVersion *version, BOOL *stop) {
-    unwritten = [unwritten setByAddingObject:key];
+    unwrittenP->insert(key);
   }];
   // For each mutation, note that the doc was written.
   for (FSTMutation *mutation in self.mutations) {
-    unwritten = [unwritten setByRemovingObject:mutation.key];
+    unwritten.erase(mutation.key);
   }
-  if (unwritten.count) {
+  if (unwritten.size()) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported on the backend.
     completion([NSError
         errorWithDomain:FIRFirestoreErrorDomain

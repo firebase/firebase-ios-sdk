@@ -54,7 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTResetMapping *)mappingWithDocuments:(NSArray<FSTDocument *> *)documents;
 
 /** The new set of documents for the target. */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *documents;
+- (const DocumentKeySet &)documents;
+
 @end
 
 #pragma mark - FSTUpdateMapping
@@ -71,12 +72,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTUpdateMapping *)mappingWithAddedDocuments:(NSArray<FSTDocument *> *)added
                                removedDocuments:(NSArray<FSTDocument *> *)removed;
 
-- (FSTDocumentKeySet *)applyTo:(FSTDocumentKeySet *)keys;
+- (void)applyTo:(DocumentKeySet *)keys;
 
 /** The documents added to the target. */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *addedDocuments;
+- (DocumentKeySet *)addedDocuments;
 /** The documents removed from the target. */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *removedDocuments;
+- (DocumentKeySet *)removedDocuments;
 @end
 
 #pragma mark - FSTTargetChange

@@ -24,12 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** The result of a write to the local store. */
 @interface FSTLocalWriteResult : NSObject
 
-+ (instancetype)resultForBatchID:(FSTBatchID)batchID changes:(FSTMaybeDocumentDictionary *)changes;
++ (instancetype)resultForBatchID:(FSTBatchID)batchID changes:(MaybeDocumentDictionary)changes;
 
 - (id)init __attribute__((unavailable("Use resultForBatchID:changes:")));
 
+- (const MaybeDocumentDictionary &)changes;
+
 @property(nonatomic, assign, readonly) FSTBatchID batchID;
-@property(nonatomic, strong, readonly) FSTMaybeDocumentDictionary *changes;
 
 @end
 

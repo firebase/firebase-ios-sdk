@@ -63,21 +63,21 @@ NS_ASSUME_NONNULL_BEGIN
   return [self localDocument:remoteDoc key:key];
 }
 
-- (FSTMaybeDocumentDictionary *)documentsForKeys:(FSTDocumentKeySet *)keys {
-  FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
-  for (FSTDocumentKey *key in keys.objectEnumerator) {
+- (MaybeDocumentDictionary)documentsForKeys:(const DocumentKeySet &)keys {
+  MaybeDocumentDictionary results{};
+  for (const auto &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
     FSTMaybeDocument *maybeDoc = [self documentForKey:key];
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     if (!maybeDoc) {
       maybeDoc = [FSTDeletedDocument documentWithKey:key version:[FSTSnapshotVersion noVersion]];
     }
-    results = [results dictionaryBySettingObject:maybeDoc forKey:key];
+    results[key] = maybeDoc;
   }
   return results;
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
+- (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query {
   if ([FSTDocumentKey isDocumentKey:query.path]) {
     return [self documentsMatchingDocumentQuery:query.path];
   } else {
@@ -85,26 +85,26 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
-  FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
+- (DocumentDictionary)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
+  DocumentDictionary result{};
   // Just do a simple document lookup.
   FSTMaybeDocument *doc = [self documentForKey:[FSTDocumentKey keyWithPath:docPath]];
   if ([doc isKindOfClass:[FSTDocument class]]) {
-    result = [result dictionaryBySettingObject:(FSTDocument *)doc forKey:doc.key];
+    result[doc.key] = (FSTDocument *)doc;
   }
   return result;
 }
 
-- (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
+- (DocumentDictionary)documentsMatchingCollectionQuery:(FSTQuery *)query {
   // Query the remote documents and overlay mutations.
   // TODO(mikelehen): There may be significant overlap between the mutations affecting these
   // remote documents and the allMutationBatchesAffectingQuery mutations. Consider optimizing.
-  __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  DocumentDictionary results = [self.remoteDocumentCache documentsMatchingQuery:query];
   results = [self localDocuments:results];
 
   // Now use the mutation queue to discover any other documents that may match the query after
   // applying mutations.
-  FSTDocumentKeySet *matchingKeys = [FSTDocumentKeySet keySet];
+  DocumentKeySet matchingKeys{};
   NSArray<FSTMutationBatch *> *matchingMutationBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
   for (FSTMutationBatch *batch in matchingMutationBatches) {
@@ -112,30 +112,30 @@ NS_ASSUME_NONNULL_BEGIN
       // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
 
       // If the key is already in the results, we can skip it.
-      if (![results containsKey:mutation.key]) {
-        matchingKeys = [matchingKeys setByAddingObject:mutation.key];
+      if (results.find(mutation.key) != results.end()) {
+        matchingKeys.insert(mutation.key);
       }
     }
   }
 
   // Now add in results for the matchingKeys.
-  for (FSTDocumentKey *key in matchingKeys.objectEnumerator) {
+  for (const auto &key : matchingKeys) {
     FSTMaybeDocument *doc = [self documentForKey:key];
     if ([doc isKindOfClass:[FSTDocument class]]) {
-      results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
+      results[key] = (FSTDocument *)doc;
     }
   }
 
   // Finally, filter out any documents that don't actually match the query. Note that the extra
   // reference here prevents ARC from deallocating the initial unfiltered results while we're
   // enumerating them.
-  FSTDocumentDictionary *unfiltered = results;
-  [unfiltered
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
-        if (![query matchesDocument:doc]) {
-          results = [results dictionaryByRemovingObjectForKey:key];
-        }
-      }];
+  for (auto iter = results.begin(); iter != results.end();) {
+    if (![query matchesDocument:iter->second]) {
+      iter = results.erase(iter);
+    } else {
+      ++iter;
+    }
+  };
 
   return results;
 }
@@ -165,19 +165,19 @@ NS_ASSUME_NONNULL_BEGIN
  * @param documents The base remote documents to apply mutations to.
  * @return The local view of the documents.
  */
-- (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents {
-  __block FSTDocumentDictionary *result = documents;
-  [documents enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *remoteDocument,
-                                                 BOOL *stop) {
-    FSTMaybeDocument *mutatedDoc = [self localDocument:remoteDocument key:key];
+- (DocumentDictionary)localDocuments:(const DocumentDictionary &)documents {
+  DocumentDictionary result = documents;
+  for (auto iter = result.begin(); iter != result.end();) {
+    FSTMaybeDocument *mutatedDoc = [self localDocument:iter->second key:iter->first];
     if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      result = [result dictionaryByRemovingObjectForKey:key];
+      iter = result.erase(iter);
     } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-      result = [result dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
+      result[iter->first] = (FSTDocument *)iter->second;
+      ++iter;
     } else {
       FSTFail(@"Unknown document: %@", mutatedDoc);
     }
-  }];
+  };
   return result;
 }
 

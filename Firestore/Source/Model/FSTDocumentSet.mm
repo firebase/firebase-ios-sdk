@@ -39,11 +39,18 @@ typedef std::map<DocumentKey, FSTDocument *> IndexType;
  * The type of the main collection of documents in an FSTDocumentSet.
  * @see FSTDocumentSet#sortedSet
  */
-typedef std::set<DocumentKey> SetType;
+typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 
 @interface FSTDocumentSet ()
 
-- (instancetype)initWithIndex:(IndexType)index set:(SetType)sortedSet NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithIndex:(IndexType)index set:(SetType *)sortedSet NS_DESIGNATED_INITIALIZER;
+
+/**
+ * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
+ * comparator supplied from a query. The SetType collection exists in addition to the index to
+ * allow ordered traversal of the FSTDocumentSet.
+ */
+@property(nonatomic, strong, readonly) SetType *sortedSet;
 
 @end
 
@@ -54,26 +61,19 @@ typedef std::set<DocumentKey> SetType;
    * of documents by key.
    */
   IndexType _index;
-
-  /**
-   * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
-   * comparator supplied from a query. The SetType collection exists in addition to the index to
-   * allow ordered traversal of the FSTDocumentSet.
-   */
-  SetType _sortedSet;
 }
 
 + (instancetype)documentSetWithComparator:(NSComparator)comparator {
   IndexType index{};
-  SetType set{};
+  SetType *set = [FSTImmutableSortedSet setWithComparator:comparator];
   return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }
 
-- (instancetype)initWithIndex:(IndexType)index set:(SetType)sortedSet {
+- (instancetype)initWithIndex:(IndexType)index set:(SetType *)sortedSet {
   self = [super init];
   if (self) {
     _index = std::move(index);
-    _sortedSet = std::move(sortedSet);
+    _sortedSet = sortedSet;
   }
   return self;
 }
@@ -119,19 +119,19 @@ typedef std::set<DocumentKey> SetType;
 }
 
 - (NSUInteger)count {
-  return [self.index count];
+  return _index.size();
 }
 
 - (BOOL)isEmpty {
-  return [self.index isEmpty];
+  return _index.empty();
 }
 
 - (BOOL)containsKey:(const DocumentKey &)key {
-  return [self.index objectForKey:key] != nil;
+  return _index.find(key) != _index.end();
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  return [self.index objectForKey:key];
+  return _index[key];
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -143,7 +143,7 @@ typedef std::set<DocumentKey> SetType;
 }
 
 - (NSUInteger)indexOfKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self.index objectForKey:key];
+  FSTDocument *doc = _index[key];
   return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
 }
 
@@ -159,10 +159,6 @@ typedef std::set<DocumentKey> SetType;
   return result;
 }
 
-- (FSTMaybeDocumentDictionary *)dictionaryValue {
-  return self.index;
-}
-
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document {
   // TODO(mcg): look into making document nonnull.
   if (!document) {
@@ -173,18 +169,21 @@ typedef std::set<DocumentKey> SetType;
   // accumulating values that aren't in the index.
   FSTDocumentSet *removed = [self documentSetByRemovingKey:document.key];
 
-  IndexType *index = [removed.index dictionaryBySettingObject:document forKey:document.key];
+  IndexType index = removed->_index;
+  index[document.key] = document;
   SetType *set = [removed.sortedSet setByAddingObject:document];
   return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }
 
 - (instancetype)documentSetByRemovingKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self.index objectForKey:key];
-  if (!doc) {
+  const auto iter = _index.find(key);
+  if (iter == _index.end()) {
     return self;
   }
 
-  IndexType *index = [self.index dictionaryByRemovingObjectForKey:key];
+  FSTDocument *doc = iter->second;
+  IndexType index = _index;
+  index.erase(key);
   SetType *set = [self.sortedSet setByRemovingObject:doc];
   return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }

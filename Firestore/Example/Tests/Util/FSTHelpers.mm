@@ -134,14 +134,6 @@ FSTDocumentKey *FSTTestDocKey(NSString *path) {
   return [FSTDocumentKey keyWithPathString:path];
 }
 
-FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys) {
-  FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
-  for (FSTDocumentKey *key in keys) {
-    result = [result setByAddingObject:key];
-  }
-  return result;
-}
-
 FSTSnapshotVersion *FSTTestVersion(FSTTestSnapshotVersion versionMicroseconds) {
   int64_t seconds = versionMicroseconds / kMicrosPerSec;
   int32_t nanos = (int32_t)(versionMicroseconds % kMicrosPerSec) * kMillisPerSec;
@@ -288,10 +280,10 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
                                    precondition:[FSTPrecondition none]];
 }
 
-FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
-  FSTMaybeDocumentDictionary *updates = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+MaybeDocumentDictionary FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
+  MaybeDocumentDictionary updates{};
   for (FSTMaybeDocument *doc in docs) {
-    updates = [updates dictionaryBySettingObject:doc forKey:doc.key];
+    updates[doc.key] = doc;
   }
   return updates;
 }
@@ -342,15 +334,15 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
 FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys) {
-  FSTDocumentKeySet *added = [FSTDocumentKeySet keySet];
+  DocumentKeySet added{};
   for (NSString *keyPath in addedKeys) {
     FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    added = [added setByAddingObject:key];
+    added.insert(key);
   }
-  FSTDocumentKeySet *removed = [FSTDocumentKeySet keySet];
+  DocumentKeySet removed{};
   for (NSString *keyPath in removedKeys) {
     FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    removed = [removed setByAddingObject:key];
+    removed.insert(key);
   }
   return [FSTLocalViewChanges changesForQuery:query addedKeys:added removedKeys:removed];
 }

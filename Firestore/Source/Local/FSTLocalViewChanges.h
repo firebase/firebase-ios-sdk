@@ -35,16 +35,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLocalViewChanges : NSObject
 
 + (instancetype)changesForQuery:(FSTQuery *)query
-                      addedKeys:(FSTDocumentKeySet *)addedKeys
-                    removedKeys:(FSTDocumentKeySet *)removedKeys;
+                      addedKeys:(DocumentKeySet)addedKeys
+                    removedKeys:(DocumentKeySet)removedKeys;
 
 + (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot;
 
 - (id)init NS_UNAVAILABLE;
 
+- (DocumentKeySet *)addedKeys;
+- (DocumentKeySet *)removedKeys;
+
 @property(nonatomic, strong, readonly) FSTQuery *query;
-@property(nonatomic, strong) FSTDocumentKeySet *addedKeys;
-@property(nonatomic, strong) FSTDocumentKeySet *removedKeys;
 
 @end
 

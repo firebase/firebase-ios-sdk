@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
+#include <set>
+
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
@@ -47,10 +49,10 @@ using firebase::firestore::auth::User;
 NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a document version dictionary mapping the document in @a mutation to @a version. */
-FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
-                                                   FSTTestSnapshotVersion version) {
-  FSTDocumentVersionDictionary *result = [FSTDocumentVersionDictionary documentVersionDictionary];
-  result = [result dictionaryBySettingObject:FSTTestVersion(version) forKey:mutation.key];
+DocumentVersionDictionary FSTVersionDictionary(FSTMutation *mutation,
+                                               FSTTestSnapshotVersion version) {
+  DocumentVersionDictionary result{};
+  result[mutation.key] = FSTTestVersion(version);
   return result;
 }
 
@@ -60,12 +62,13 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 @property(nonatomic, strong, readwrite) FSTLocalStore *localStore;
 
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *batches;
-@property(nonatomic, strong, readwrite, nullable) FSTMaybeDocumentDictionary *lastChanges;
 @property(nonatomic, assign, readwrite) FSTTargetID lastTargetID;
 
 @end
 
-@implementation FSTLocalStoreTests
+@implementation FSTLocalStoreTests {
+  MaybeDocumentDictionary _lastChanges;
+}
 
 - (void)setUp {
   [super setUp];
@@ -83,7 +86,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self.localStore start];
 
   _batches = [NSMutableArray array];
-  _lastChanges = nil;
+  _lastChanges.clear();
   _lastTargetID = 0;
 }
 
@@ -128,11 +131,11 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batchID
                                                      localWriteTime:[FIRTimestamp timestamp]
                                                           mutations:mutations]];
-  self.lastChanges = result.changes;
+  _lastChanges = result.changes;
 }
 
 - (void)applyRemoteEvent:(FSTRemoteEvent *)event {
-  self.lastChanges = [self.localStore applyRemoteEvent:event];
+  _lastChanges = [self.localStore applyRemoteEvent:event];
 }
 
 - (void)notifyLocalViewChanges:(FSTLocalViewChanges *)changes {
@@ -150,13 +153,13 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
                                                              commitVersion:version
                                                            mutationResults:@[ mutationResult ]
                                                                streamToken:nil];
-  self.lastChanges = [self.localStore acknowledgeBatchWithResult:result];
+  _lastChanges = [self.localStore acknowledgeBatchWithResult:result];
 }
 
 - (void)rejectMutation {
   FSTMutationBatch *batch = [self.batches firstObject];
   [self.batches removeObjectAtIndex:0];
-  self.lastChanges = [self.localStore rejectBatchID:batch.batchID];
+  _lastChanges = [self.localStore rejectBatchID:batch.batchID];
 }
 
 - (void)allocateQuery:(FSTQuery *)query {
@@ -175,34 +178,32 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   } while (0)
 
 /** Asserts that a the lastChanges contain the docs in the given array. */
-#define FSTAssertChanged(documents)                                                             \
-  XCTAssertNotNil(self.lastChanges);                                                            \
-  do {                                                                                          \
-    FSTMaybeDocumentDictionary *actual = self.lastChanges;                                      \
-    NSArray<FSTMaybeDocument *> *expected = (documents);                                        \
-    XCTAssertEqual(actual.count, expected.count);                                               \
-    NSEnumerator<FSTMaybeDocument *> *enumerator = expected.objectEnumerator;                   \
-    [actual enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey * key, FSTMaybeDocument * value, \
-                                                BOOL * stop) {                                  \
-      XCTAssertEqualObjects(value, [enumerator nextObject]);                                    \
-    }];                                                                                         \
-    self.lastChanges = nil;                                                                     \
+#define FSTAssertChanged(documents)                                           \
+  XCTAssert(!_lastChanges.empty());                                           \
+  do {                                                                        \
+    const MaybeDocumentDictionary &actual = _lastChanges;                     \
+    NSArray<FSTMaybeDocument *> *expected = (documents);                      \
+    XCTAssertEqual(actual.size(), expected.count);                            \
+    NSEnumerator<FSTMaybeDocument *> *enumerator = expected.objectEnumerator; \
+    for (const auto &iter : actual) {                                         \
+      XCTAssertEqualObjects(iter.second, [enumerator nextObject]);            \
+    };                                                                        \
+    _lastChanges.clear();                                                     \
   } while (0)
 
 /** Asserts that the given keys were removed. */
-#define FSTAssertRemoved(keyPaths)                                                       \
-  XCTAssertNotNil(self.lastChanges);                                                     \
-  do {                                                                                   \
-    FSTMaybeDocumentDictionary *actual = self.lastChanges;                               \
-    XCTAssertEqual(actual.count, keyPaths.count);                                        \
-    NSEnumerator<NSString *> *keyPathEnumerator = keyPaths.objectEnumerator;             \
-    [actual enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey * actualKey,              \
-                                                FSTMaybeDocument * value, BOOL * stop) { \
-      FSTDocumentKey *expectedKey = FSTTestDocKey([keyPathEnumerator nextObject]);       \
-      XCTAssertEqualObjects(actualKey, expectedKey);                                     \
-      XCTAssertTrue([value isKindOfClass:[FSTDeletedDocument class]]);                   \
-    }];                                                                                  \
-    self.lastChanges = nil;                                                              \
+#define FSTAssertRemoved(keyPaths)                                                 \
+  XCTAssert(!_lastChanges.empty());                                                \
+  do {                                                                             \
+    const MaybeDocumentDictionary &actual = _lastChanges;                          \
+    XCTAssertEqual(actual.size(), keyPaths.count);                                 \
+    NSEnumerator<NSString *> *keyPathEnumerator = keyPaths.objectEnumerator;       \
+    for (const auto &iter : actual) {                                              \
+      FSTDocumentKey *expectedKey = FSTTestDocKey([keyPathEnumerator nextObject]); \
+      XCTAssertEqualObjects(iter.first, expectedKey);                              \
+      XCTAssertTrue([iter.second isKindOfClass:[FSTDeletedDocument class]]);       \
+    };                                                                             \
+    _lastChanges.clear();                                                          \
   } while (0)
 
 /** Asserts that the given local store contains the given document. */
@@ -229,8 +230,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
                                                        localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:@[ set1, set2 ]];
-  FSTDocumentKeySet *keys = [batch keys];
-  XCTAssertEqual(keys.count, 2);
+  DocumentKeySet keys = [batch keys];
+  XCTAssertEqual(keys.size(), 2);
 }
 
 - (void)testHandlesSetMutation {
@@ -687,8 +688,9 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
     FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"})
   ]];
   FSTQuery *query = FSTTestQuery("foo/bar");
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects([docs values], @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  DocumentDictionary docs = [self.localStore executeQuery:query];
+  XCTAssertEqual(docs.size(), 1);
+  XCTAssertEqualObjects(docs.begin()->second, FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 }
 
 - (void)testCanExecuteCollectionQueries {
@@ -702,11 +704,13 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
     FSTTestSetMutation(@"fooo/blah", @{@"fooo" : @"blah"})
   ]];
   FSTQuery *query = FSTTestQuery("foo");
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects([docs values], (@[
-                          FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES),
-                          FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES)
-                        ]));
+  DocumentDictionary docs = [self.localStore executeQuery:query];
+  XCTAssertEqual(docs.size(), 2);
+  XCTAssertEqual(std::set<FSTDocument *>({docs.begin()->second, docs.rbegin()->second}),
+                 std::set<FSTDocument *>({
+                   FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES),
+                       FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES)
+                 }));
 }
 
 - (void)testCanExecuteMixedCollectionQueries {
@@ -723,12 +727,15 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects([docs values], (@[
-                          FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
-                          FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
-                          FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, YES)
-                        ]));
+  DocumentDictionary docs = [self.localStore executeQuery:query];
+  XCTAssertEqual(docs.size(), 3);
+  XCTAssertEqual(std::set<FSTDocument *>(
+                     {docs.begin()->second, docs.begin()++->second, docs.rbegin()->second}),
+                 std::set<FSTDocument *>({
+                   FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
+                       FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
+                       FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, YES)
+                 }));
 }
 
 - (void)testPersistsResumeTokens {
@@ -782,13 +789,13 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 
-  FSTDocumentKeySet *keys = [self.localStore remoteDocumentKeysForTarget:2];
-  FSTAssertEqualSets(keys, (@[ FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/baz") ]));
+  DocumentKeySet keys = [self.localStore remoteDocumentKeysForTarget:2];
+  XCTAssertEqual(keys, DocumentKeySet({FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/baz")}));
 
   [self restartWithNoopGarbageCollector];
 
   keys = [self.localStore remoteDocumentKeysForTarget:2];
-  FSTAssertEqualSets(keys, (@[ FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/baz") ]));
+  XCTAssertEqual(keys, DocumentKeySet({FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/baz")}));
 }
 
 @end

@@ -167,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queryCache shutdown];
 }
 
-- (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
+- (MaybeDocumentDictionary)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
 
@@ -186,11 +186,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                              mutationQueue:self.mutationQueue];
 
   // Union the old/new changed keys.
-  FSTDocumentKeySet *changedKeys = [FSTDocumentKeySet keySet];
+  DocumentKeySet changedKeys{};
   for (NSArray<FSTMutationBatch *> *batches in @[ oldBatches, newBatches ]) {
     for (FSTMutationBatch *batch in batches) {
       for (FSTMutation *mutation in batch.mutations) {
-        changedKeys = [changedKeys setByAddingObject:mutation.key];
+        changedKeys.insert(mutation.key);
       }
     }
   }
@@ -207,12 +207,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                                         group:group];
   [self.persistence commitGroup:group];
 
-  FSTDocumentKeySet *keys = [batch keys];
-  FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
+  DocumentKeySet keys = [batch keys];
+  MaybeDocumentDictionary changedDocuments = [self.localDocuments documentsForKeys:keys];
   return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:changedDocuments];
 }
 
-- (FSTMaybeDocumentDictionary *)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
+- (MaybeDocumentDictionary)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Acknowledge batch"];
   id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
@@ -220,10 +220,10 @@ NS_ASSUME_NONNULL_BEGIN
                       streamToken:batchResult.streamToken
                             group:group];
 
-  FSTDocumentKeySet *affected;
+  DocumentKeySet affected;
   if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {
     [self.heldBatchResults addObject:batchResult];
-    affected = [FSTDocumentKeySet keySet];
+    affected = DocumentKeySet{};
   } else {
     FSTRemoteDocumentChangeBuffer *remoteDocuments =
         [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
@@ -240,7 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.localDocuments documentsForKeys:affected];
 }
 
-- (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID {
+- (MaybeDocumentDictionary)rejectBatchID:(FSTBatchID)batchID {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Reject batch"];
 
   FSTMutationBatch *toReject = [self.mutationQueue lookupMutationBatch:batchID];
@@ -249,7 +249,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTBatchID lastAcked = [self.mutationQueue highestAcknowledgedBatchID];
   FSTAssert(batchID > lastAcked, @"Acknowledged batches can't be rejected.");
 
-  FSTDocumentKeySet *affected = [self removeMutationBatch:toReject group:group];
+  DocumentKeySet affected = [self removeMutationBatch:toReject group:group];
 
   [self.persistence commitGroup:group];
   [self.mutationQueue performConsistencyCheck];
@@ -272,7 +272,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.queryCache lastRemoteSnapshotVersion];
 }
 
-- (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
+- (MaybeDocumentDictionary)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   id<FSTQueryCache> queryCache = self.queryCache;
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Apply remote event"];
@@ -299,8 +299,8 @@ NS_ASSUME_NONNULL_BEGIN
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-        [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID group:group];
-        [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID group:group];
+        [queryCache removeMatchingKeys:*update.removedDocuments forTargetID:targetID group:group];
+        [queryCache addMatchingKeys:*update.addedDocuments forTargetID:targetID group:group];
 
       } else {
         FSTFail(@"Unknown mapping type: %@", mapping);
@@ -318,10 +318,11 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 
   // TODO(klimt): This could probably be an NSMutableDictionary.
-  __block FSTDocumentKeySet *changedDocKeys = [FSTDocumentKeySet keySet];
+  DocumentKeySet changedDocKeys{};
+  __block DocumentKeySet *changedDocKeysP = &changedDocKeys;
   [remoteEvent.documentUpdates
       enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
-        changedDocKeys = [changedDocKeys setByAddingObject:key];
+        changedDocKeysP->insert(key);
         FSTMaybeDocument *existingDoc = [remoteDocuments entryForKey:key];
         // Make sure we don't apply an old document version to the remote cache, though we
         // make an exception for [SnapshotVersion noVersion] which can happen for manufactured
@@ -353,7 +354,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache setLastRemoteSnapshotVersion:remoteVersion group:group];
   }
 
-  FSTDocumentKeySet *releasedWriteKeys =
+  DocumentKeySet releasedWriteKeys =
       [self releaseHeldBatchResultsWithGroup:group remoteDocuments:remoteDocuments];
 
   [remoteDocuments applyToWriteGroup:group];
@@ -361,10 +362,10 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 
   // Union the two key sets.
-  __block FSTDocumentKeySet *keysToRecalc = changedDocKeys;
-  [releasedWriteKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    keysToRecalc = [keysToRecalc setByAddingObject:key];
-  }];
+  DocumentKeySet &keysToRecalc = changedDocKeys;
+  for (const auto &key : releasedWriteKeys) {
+    keysToRecalc.insert(key);
+  };
 
   return [self.localDocuments documentsForKeys:keysToRecalc];
 }
@@ -375,8 +376,8 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
     FSTAssert(queryData, @"Local view changes contain unallocated query.");
     FSTTargetID targetID = queryData.targetID;
-    [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
-    [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
+    [localViewReferences addReferencesToKeys:*view.addedKeys forID:targetID];
+    [localViewReferences removeReferencesToKeys:*view.removedKeys forID:targetID];
   }
 }
 
@@ -443,11 +444,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 }
 
-- (FSTDocumentDictionary *)executeQuery:(FSTQuery *)query {
+- (DocumentDictionary)executeQuery:(FSTQuery *)query {
   return [self.localDocuments documentsMatchingQuery:query];
 }
 
-- (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
+- (DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
   return [self.queryCache matchingKeysForTargetID:targetID];
 }
 
@@ -470,9 +471,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the set of keys of docs that were modified by those writes.
  */
-- (FSTDocumentKeySet *)releaseHeldBatchResultsWithGroup:(FSTWriteGroup *)group
-                                        remoteDocuments:
-                                            (FSTRemoteDocumentChangeBuffer *)remoteDocuments {
+- (DocumentKeySet)releaseHeldBatchResultsWithGroup:(FSTWriteGroup *)group
+                                   remoteDocuments:
+                                       (FSTRemoteDocumentChangeBuffer *)remoteDocuments {
   NSMutableArray<FSTMutationBatchResult *> *toRelease = [NSMutableArray array];
   for (FSTMutationBatchResult *batchResult in self.heldBatchResults) {
     if (![self isRemoteUpToVersion:batchResult.commitVersion]) {
@@ -482,7 +483,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   if (toRelease.count == 0) {
-    return [FSTDocumentKeySet keySet];
+    return DocumentKeySet{};
   } else {
     [self.heldBatchResults removeObjectsInRange:NSMakeRange(0, toRelease.count)];
     return [self releaseBatchResults:toRelease group:group remoteDocuments:remoteDocuments];
@@ -500,9 +501,9 @@ NS_ASSUME_NONNULL_BEGIN
   return ![self isRemoteUpToVersion:version] || self.heldBatchResults.count > 0;
 }
 
-- (FSTDocumentKeySet *)releaseBatchResults:(NSArray<FSTMutationBatchResult *> *)batchResults
-                                     group:(FSTWriteGroup *)group
-                           remoteDocuments:(FSTRemoteDocumentChangeBuffer *)remoteDocuments {
+- (DocumentKeySet)releaseBatchResults:(NSArray<FSTMutationBatchResult *> *)batchResults
+                                group:(FSTWriteGroup *)group
+                      remoteDocuments:(FSTRemoteDocumentChangeBuffer *)remoteDocuments {
   NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
   for (FSTMutationBatchResult *batchResult in batchResults) {
     [self applyBatchResult:batchResult toRemoteDocuments:remoteDocuments];
@@ -512,20 +513,20 @@ NS_ASSUME_NONNULL_BEGIN
   return [self removeMutationBatches:batches group:group];
 }
 
-- (FSTDocumentKeySet *)removeMutationBatch:(FSTMutationBatch *)batch group:(FSTWriteGroup *)group {
+- (DocumentKeySet)removeMutationBatch:(FSTMutationBatch *)batch group:(FSTWriteGroup *)group {
   return [self removeMutationBatches:@[ batch ] group:group];
 }
 
 /** Removes all the mutation batches named in the given array. */
-- (FSTDocumentKeySet *)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
-                                       group:(FSTWriteGroup *)group {
+- (DocumentKeySet)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
+                                  group:(FSTWriteGroup *)group {
   // TODO(klimt): Could this be an NSMutableDictionary?
-  __block FSTDocumentKeySet *affectedDocs = [FSTDocumentKeySet keySet];
+  DocumentKeySet affectedDocs{};
 
   for (FSTMutationBatch *batch in batches) {
     for (FSTMutation *mutation in batch.mutations) {
       FSTDocumentKey *key = mutation.key;
-      affectedDocs = [affectedDocs setByAddingObject:key];
+      affectedDocs.insert(key);
     }
   }
 
@@ -537,11 +538,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)applyBatchResult:(FSTMutationBatchResult *)batchResult
        toRemoteDocuments:(FSTRemoteDocumentChangeBuffer *)remoteDocuments {
   FSTMutationBatch *batch = batchResult.batch;
-  FSTDocumentKeySet *docKeys = batch.keys;
-  [docKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
+  DocumentKeySet docKeys = batch.keys;
+  for (const auto &docKey : docKeys) {
     FSTMaybeDocument *_Nullable remoteDoc = [remoteDocuments entryForKey:docKey];
     FSTMaybeDocument *_Nullable doc = remoteDoc;
-    FSTSnapshotVersion *ackVersion = batchResult.docVersions[docKey];
+    FSTSnapshotVersion *ackVersion = batchResult.docVersions.at(docKey);
     FSTAssert(ackVersion, @"docVersions should contain every doc in the write.");
     if (!doc || [doc.version compare:ackVersion] == NSOrderedAscending) {
       doc = [batch applyTo:doc documentKey:docKey mutationBatchResult:batchResult];
@@ -552,7 +553,7 @@ NS_ASSUME_NONNULL_BEGIN
         [remoteDocuments addEntry:doc];
       }
     }
-  }];
+  };
 }
 
 @end

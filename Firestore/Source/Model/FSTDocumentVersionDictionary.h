@@ -28,13 +28,4 @@ NS_ASSUME_NONNULL_BEGIN
 typedef std::map<firebase::firestore::model::DocumentKey, FSTSnapshotVersion *>
     DocumentVersionDictionary;
 
-/**
- * Extension to FSTImmutableSortedDictionary that allows natural construction of
- * FSTDocumentVersionDictionary.
- */
-class DocumentVersionDictionaryBuilder {
- public:
-  static DocumentVersionDictionary *CreateDocumentVersionDictionary();
-};
-
 NS_ASSUME_NONNULL_END

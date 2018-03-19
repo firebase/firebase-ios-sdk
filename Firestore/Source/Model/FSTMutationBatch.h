@@ -85,7 +85,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 - (FSTMutationBatch *)toTombstone;
 
 /** Returns the set of unique keys referenced by all mutations in the batch. */
-- (FSTDocumentKeySet *)keys;
+- (DocumentKeySet)keys;
 
 @property(nonatomic, assign, readonly) FSTBatchID batchID;
 @property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
@@ -110,11 +110,12 @@ extern const FSTBatchID kFSTBatchIDUnknown;
                 mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
+- (const DocumentVersionDictionary &)docVersions;
+
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
 @property(nonatomic, strong, readonly) FSTSnapshotVersion *commitVersion;
 @property(nonatomic, strong, readonly) NSArray<FSTMutationResult *> *mutationResults;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;
-@property(nonatomic, strong, readonly) FSTDocumentVersionDictionary *docVersions;
 
 @end
 

@@ -18,6 +18,7 @@
 
 #import "Firestore/Source/Local/FSTDocumentReference.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,20 +66,20 @@ NS_ASSUME_NONNULL_BEGIN
   self.referencesByID = [self.referencesByID setByAddingObject:reference];
 }
 
-- (void)addReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+- (void)addReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID {
+  for (const auto &key : keys) {
     [self addReferenceToKey:key forID:ID];
-  }];
+  };
 }
 
 - (void)removeReferenceToKey:(FSTDocumentKey *)key forID:(int)ID {
   [self removeReference:[[FSTDocumentReference alloc] initWithKey:key ID:ID]];
 }
 
-- (void)removeReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+- (void)removeReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID {
+  for (const auto &key : keys) {
     [self removeReferenceToKey:key forID:ID];
-  }];
+  };
 }
 
 - (void)removeReferencesForID:(int)ID {
@@ -105,16 +106,17 @@ NS_ASSUME_NONNULL_BEGIN
   [self.garbageCollector addPotentialGarbageKey:reference.key];
 }
 
-- (FSTDocumentKeySet *)referencedKeysForID:(int)ID {
+- (DocumentKeySet)referencedKeysForID:(int)ID {
   FSTDocumentKey *emptyKey = [FSTDocumentKey keyWithSegments:{}];
   FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:ID];
   FSTDocumentReference *end = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:(ID + 1)];
 
-  __block FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
+  DocumentKeySet keys{};
+  __block DocumentKeySet *keysP = &keys;
   [self.referencesByID enumerateObjectsFrom:start
                                          to:end
                                  usingBlock:^(FSTDocumentReference *reference, BOOL *stop) {
-                                   keys = [keys setByAddingObject:reference.key];
+                                   keysP->insert(reference.key);
                                  }];
   return keys;
 }

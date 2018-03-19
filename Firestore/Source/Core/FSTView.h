@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
+- (DocumentKeySet *)mutatedKeys;
+
 /** The new set of docs that should be in the view. */
 @property(nonatomic, strong, readonly) FSTDocumentSet *documentSet;
 
@@ -48,8 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
  * and there needs to be another pass based on the local cache.
  */
 @property(nonatomic, assign, readonly) BOOL needsRefill;
-
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *mutatedKeys;
 
 @end
 
@@ -94,7 +94,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-              remoteDocuments:(FSTDocumentKeySet *)remoteDocuments NS_DESIGNATED_INITIALIZER;
+              remoteDocuments:(DocumentKeySet)remoteDocuments NS_DESIGNATED_INITIALIZER;
 
 /**
  * Iterates over a set of doc changes, applies the query limit, and computes what the new results
@@ -104,7 +104,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @param docChanges The doc changes to apply to this view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges;
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentDictionary &)docChanges;
 
 /**
  * Iterates over a set of doc changes, applies the query limit, and computes what the new results
@@ -116,7 +116,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  *     and changes instead of the current view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentDictionary &)docChanges
                                         previousChanges:
                                             (nullable FSTViewDocumentChanges *)previousChanges;
 

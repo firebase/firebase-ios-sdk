@@ -183,11 +183,12 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   FSTAssert(self.queryViewsByQuery[query] == nil, @"We already listen to query: %@", query);
 
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  FSTDocumentKeySet *remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
+  DocumentDictionary docs = [self.localStore executeQuery:query];
+  DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:remoteKeys];
-  FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
+  FSTViewDocumentChanges *viewDocChanges =
+      [view computeChangesWithDocuments:ToMaybeDocumentDictionary(docs)];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   FSTAssert(viewChange.limboChanges.count == 0,
             @"View returned limbo docs before target ack from the server.");
@@ -323,7 +324,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     }
   }];
 
-  FSTMaybeDocumentDictionary *changes = [self.localStore applyRemoteEvent:remoteEvent];
+  MaybeDocumentDictionary changes = [self.localStore applyRemoteEvent:remoteEvent];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:remoteEvent];
 }
 
@@ -384,7 +385,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   // consistently happen before listen events.
   [self processUserCallbacksForBatchID:batchResult.batch.batchID error:nil];
 
-  FSTMaybeDocumentDictionary *changes = [self.localStore acknowledgeBatchWithResult:batchResult];
+  MaybeDocumentDictionary changes = [self.localStore acknowledgeBatchWithResult:batchResult];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
 }
 
@@ -396,7 +397,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   // consistently happen before listen events.
   [self processUserCallbacksForBatchID:batchID error:error];
 
-  FSTMaybeDocumentDictionary *changes = [self.localStore rejectBatchID:batchID];
+  MaybeDocumentDictionary changes = [self.localStore rejectBatchID:batchID];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
 }
 
@@ -432,7 +433,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 /**
  * Computes a new snapshot from the changes and calls the registered callback with the new snapshot.
  */
-- (void)emitNewSnapshotsWithChanges:(FSTMaybeDocumentDictionary *)changes
+- (void)emitNewSnapshotsWithChanges:(const MaybeDocumentDictionary &)changes
                         remoteEvent:(FSTRemoteEvent *_Nullable)remoteEvent {
   NSMutableArray<FSTViewSnapshot *> *newSnapshots = [NSMutableArray array];
   NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];
@@ -445,8 +446,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
           // The query has a limit and some docs were removed/updated, so we need to re-run the
           // query against the local store to make sure we didn't lose any good docs that had been
           // past the limit.
-          FSTDocumentDictionary *docs = [self.localStore executeQuery:queryView.query];
-          viewDocChanges = [view computeChangesWithDocuments:docs previousChanges:viewDocChanges];
+          DocumentDictionary docs = [self.localStore executeQuery:queryView.query];
+          viewDocChanges = [view computeChangesWithDocuments:ToMaybeDocumentDictionary(docs)
+                                             previousChanges:viewDocChanges];
         }
         FSTTargetChange *_Nullable targetChange = remoteEvent.targetChanges[@(queryView.targetID)];
         FSTViewChange *viewChange =
@@ -533,7 +535,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   _currentUser = user;
 
   // Notify local store and emit any resulting events from swapping out the mutation queue.
-  FSTMaybeDocumentDictionary *changes = [self.localStore userDidChange:user];
+  MaybeDocumentDictionary changes = [self.localStore userDidChange:user];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
 
   // Notify remote store so it can restart its streams.

@@ -98,8 +98,8 @@ static ReadOptions StandardReadOptions() {
   }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  FSTDocumentDictionary *results = [FSTDocumentDictionary documentDictionary];
+- (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query {
+  DocumentDictionary results{};
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
@@ -114,7 +114,7 @@ static ReadOptions StandardReadOptions() {
     if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
+      results[maybeDoc.key] = (FSTDocument *)maybeDoc;
     }
   }
 

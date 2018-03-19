@@ -252,12 +252,12 @@ NS_ASSUME_NONNULL_BEGIN
   [self addMatchingKey:key2 forTargetID:1];
   [self addMatchingKey:key3 forTargetID:2];
 
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
+  XCTAssertEqual([self.queryCache matchingKeysForTargetID:1], DocumentKeySet({key1, key2}));
+  XCTAssertEqual([self.queryCache matchingKeysForTargetID:2], DocumentKeySet({key3}));
 
   [self addMatchingKey:key1 forTargetID:2];
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
+  XCTAssertEqual([self.queryCache matchingKeysForTargetID:1], DocumentKeySet({key1, key2}));
+  XCTAssertEqual([self.queryCache matchingKeysForTargetID:2], DocumentKeySet({key1, key3}));
 }
 
 - (void)testHighestListenSequenceNumber {
@@ -408,8 +408,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addMatchingKey:(FSTDocumentKey *)key forTargetID:(FSTTargetID)targetID {
-  FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
-  keys = [keys setByAddingObject:key];
+  DocumentKeySet keys = {key};
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"addMatchingKeys"];
   [self.queryCache addMatchingKeys:keys forTargetID:targetID group:group];
@@ -417,8 +416,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeMatchingKey:(FSTDocumentKey *)key forTargetID:(FSTTargetID)targetID {
-  FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
-  keys = [keys setByAddingObject:key];
+  DocumentKeySet keys = {key};
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeMatchingKeys"];
   [self.queryCache removeMatchingKeys:keys forTargetID:targetID group:group];

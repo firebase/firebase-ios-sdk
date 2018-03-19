@@ -49,13 +49,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addReferenceToKey:(FSTDocumentKey *)key forID:(int)ID;
 
 /** Add references to the given document keys for the given ID. */
-- (void)addReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID;
+- (void)addReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID;
 
 /** Removes a reference to the given document key for the given ID. */
 - (void)removeReferenceToKey:(FSTDocumentKey *)key forID:(int)ID;
 
 /** Removes references to the given document keys for the given ID. */
-- (void)removeReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID;
+- (void)removeReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID;
 
 /** Clears all references with a given ID. Calls -removeReferenceToKey: for each key removed. */
 - (void)removeReferencesForID:(int)ID;
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAllReferences;
 
 /** Returns all of the document keys that have had references added for the given ID. */
-- (FSTDocumentKeySet *)referencedKeysForID:(int)ID;
+- (DocumentKeySet)referencedKeysForID:(int)ID;
 
 @end
 

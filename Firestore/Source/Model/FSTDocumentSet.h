@@ -70,12 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns a copy of the documents in this set as an array. This is O(n) on the size of the set. */
 - (NSArray<FSTDocument *> *)arrayValue;
 
-/**
- * Returns the documents as a FSTMaybeDocumentDictionary. This is O(1) as this leverages our
- * internal representation.
- */
-- (FSTMaybeDocumentDictionary *)dictionaryValue;
-
 /** Returns a new FSTDocumentSet that contains the given document. */
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document;
 

@@ -253,9 +253,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     [request.documentsArray addObject:[self.serializer encodedDocumentKey:key]];
   }
 
-  __block FSTMaybeDocumentDictionary *results =
-      [FSTMaybeDocumentDictionary maybeDocumentDictionary];
-
+  __block MaybeDocumentDictionary results{};
   RPCFactory rpcFactory = ^GRPCProtoCall * {
     __block GRPCProtoCall *rpc = [self.service
         RPCToBatchGetDocumentsWithRequest:request
@@ -275,7 +273,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    // Streaming response, accumulate result
                                    FSTMaybeDocument *doc =
                                        [self.serializer decodedMaybeDocumentFromBatch:response];
-                                   results = [results dictionaryBySettingObject:doc forKey:doc.key];
+                                   results[doc.key] = doc;
                                  } else {
                                    // Streaming response is done, call completion
                                    FSTLog(@"RPC BatchGetDocuments completed successfully.");

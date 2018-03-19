@@ -23,18 +23,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTMemoryRemoteDocumentCache ()
-
-/** Underlying cache of documents. */
-@property(nonatomic, strong) FSTMaybeDocumentDictionary *docs;
-
-@end
-
-@implementation FSTMemoryRemoteDocumentCache
+@implementation FSTMemoryRemoteDocumentCache {
+  /** Underlying cache of documents. */
+  MaybeDocumentDictionary _docs;
+}
 
 - (instancetype)init {
   if (self = [super init]) {
-    _docs = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+    _docs = MaybeDocumentDictionary{};
   }
   return self;
 }
@@ -43,35 +39,40 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
-  self.docs = [self.docs dictionaryBySettingObject:document forKey:document.key];
+  _docs[document.key] = document;
 }
 
 - (void)removeEntryForKey:(FSTDocumentKey *)key group:(FSTWriteGroup *)group {
-  self.docs = [self.docs dictionaryByRemovingObjectForKey:key];
+  _docs.erase(key);
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)key {
-  return self.docs[key];
+  const auto iter = _docs.find(key);
+  if (iter == _docs.end()) {
+    return nil;
+  } else {
+    return iter->second;
+  }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
+- (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query {
+  DocumentDictionary result{};
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
   FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:query.path.Append("")];
-  NSEnumerator<FSTDocumentKey *> *enumerator = [self.docs keyEnumeratorFrom:prefix];
-  for (FSTDocumentKey *key in enumerator) {
-    if (!query.path.IsPrefixOf(key.path)) {
+  const auto iter = _docs.find(prefix);
+  while (iter != _docs.end()) {
+    if (!query.path.IsPrefixOf(iter->first.path())) {
       break;
     }
-    FSTMaybeDocument *maybeDoc = self.docs[key];
+    FSTMaybeDocument *maybeDoc = _docs[iter->first];
     if (![maybeDoc isKindOfClass:[FSTDocument class]]) {
       continue;
     }
     FSTDocument *doc = (FSTDocument *)maybeDoc;
     if ([query matchesDocument:doc]) {
-      result = [result dictionaryBySettingObject:doc forKey:doc.key];
+      result[doc.key] = doc;
     }
   }
 
