@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
+#include <absl/strings/match.h>
+
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -214,9 +216,9 @@ using leveldb::Status;
  * Parses the given bytes as an FSTPBTarget protocol buffer and then converts to the equivalent
  * query data.
  */
-- (FSTQueryData *)decodedTargetWithSlice:(Slice)slice {
+- (FSTQueryData *)decodeTarget:(absl::string_view)encoded {
   NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)slice.data() length:slice.size() freeWhenDone:NO];
+      [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data() length:encoded.size() freeWhenDone:NO];
 
   NSError *error;
   FSTPBTarget *proto = [FSTPBTarget parseFromData:data error:&error];
@@ -232,7 +234,7 @@ using leveldb::Status;
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
   Slice canonicalID = StringView(query.canonicalID);
-  std::unique_ptr<LevelDBTransaction::Iterator> indexItererator(
+  std::unique_ptr<LevelDbTransaction::Iterator> indexItererator(
       _db.current_transaction->NewIterator());
   std::string indexPrefix = [FSTLevelDBQueryTargetKey keyPrefixWithCanonicalID:canonicalID];
   indexItererator->Seek(indexPrefix);
@@ -241,13 +243,13 @@ using leveldb::Status;
   // unique and ordered, so when scanning a table prefixed by exactly one canonicalID, all the
   // targetIDs will be unique and in order.
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
-  std::unique_ptr<LevelDBTransaction::Iterator> targetIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> targetIterator(
       _db.current_transaction->NewIterator());
 
   FSTLevelDBQueryTargetKey *rowKey = [[FSTLevelDBQueryTargetKey alloc] init];
   for (; indexItererator->Valid(); indexItererator->Next()) {
     // Only consider rows matching exactly the specific canonicalID of interest.
-    if (!indexItererator->key_starts_with(indexPrefix) ||
+    if (!absl::StartsWith(indexItererator->key(), indexPrefix) ||
         ![rowKey decodeKey:indexItererator->key()] || canonicalID != rowKey.canonicalID) {
       // End of this canonicalID's possible targets.
       break;
@@ -271,7 +273,7 @@ using leveldb::Status;
 
     // Finally after finding a potential match, check that the query is actually equal to the
     // requested query.
-    FSTQueryData *target = [self decodedTargetWithSlice:targetIterator->value()];
+    FSTQueryData *target = [self decodeTarget:targetIterator->value()];
     if ([target.query isEqual:query]) {
       return target;
     }
@@ -312,13 +314,13 @@ using leveldb::Status;
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
       _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    std::string indexKey = indexIterator->key();
+    absl::string_view indexKey = indexIterator->key();
 
     // Only consider rows matching this specific targetID.
     if (![rowKey decodeKey:indexKey] || rowKey.targetID != targetID) {
@@ -336,14 +338,14 @@ using leveldb::Status;
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
       _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
   FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    std::string indexKey = indexIterator->key();
+    absl::string_view indexKey = indexIterator->key();
 
     // Only consider rows matching this specific targetID.
     if (![rowKey decodeKey:indexKey] || rowKey.targetID != targetID) {
@@ -359,9 +361,8 @@ using leveldb::Status;
 #pragma mark - FSTGarbageSource implementation
 
 - (BOOL)containsKey:(FSTDocumentKey *)key {
-  std::string indexPrefix = [FSTLevelDBDocumentTargetKey
-      keyPrefixWithResourcePath:[FSTResourcePath resourcePathWithCPPResourcePath:key.path]];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+  std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path];
+  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
       _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 

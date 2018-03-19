@@ -203,15 +203,14 @@ using leveldb::WriteOptions;
   return database;
 }
 
-- (LevelDBTransaction *)current_transaction {
+- (LevelDbTransaction *)current_transaction {
   FSTAssert(_transaction != nullptr, @"Attempting to access transaction before one has started");
   return _transaction.get();
 }
 
 - (void)runTransaction:(void (^)())block {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = std::make_unique<LevelDBTransaction>(_ptr, [FSTLevelDB standardReadOptions],
-                                                      [FSTLevelDB standardWriteOptions]);
+  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
   block();
   _transaction->Commit();
   _transaction.reset();

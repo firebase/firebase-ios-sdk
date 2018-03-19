@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) std::shared_ptr<leveldb::DB> ptr;
 
-@property(nonatomic, readonly) firebase::firestore::local::LevelDBTransaction *current_transaction;
+@property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *current_transaction;
 
 @end
 
