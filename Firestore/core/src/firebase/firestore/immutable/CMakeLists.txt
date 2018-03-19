@@ -18,4 +18,6 @@ cc_library(
     array_sorted_map.cc
     array_sorted_map.h
     map_entry.h
+  DEPENDS
+    firebase_firestore_util
 )

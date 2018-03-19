@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {
-  FSTDocument *doc = FSTTestDoc(@"some/path", 42, @{@"foo" : @"bar"}, NO);
+  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, NO);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.document = [GCFSDocument message];
@@ -143,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesDeletedDocumentAsMaybeDocument {
-  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(@"some/path", 42);
+  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("some/path", 42);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.noDocument = [FSTPBNoDocument message];

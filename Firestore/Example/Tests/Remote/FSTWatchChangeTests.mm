@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTWatchChangeTests
 
 - (void)testDocumentChange {
-  FSTMaybeDocument *doc = FSTTestDoc(@"a/b", 1, @{}, NO);
+  FSTMaybeDocument *doc = FSTTestDoc("a/b", 1, @{}, NO);
   FSTDocumentWatchChange *change =
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @2, @3 ]
                                               removedTargetIDs:@[ @4, @5 ]

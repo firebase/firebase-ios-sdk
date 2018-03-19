@@ -25,10 +25,17 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/strings/string_view.h"
+
+namespace testutil = firebase::firestore::testutil;
+namespace util = firebase::firestore::util;
+
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kDocPath = @"a/b";
-static NSString *const kLongDocPath = @"a/b/c/d/e/f";
+static const char *kDocPath = "a/b";
+static const char *kLongDocPath = "a/b/c/d/e/f";
 static const int kVersion = 42;
 
 @implementation FSTRemoteDocumentCacheTests {
@@ -49,7 +56,7 @@ static const int kVersion = 42;
 }
 
 // Helper for next two tests.
-- (void)setAndReadADocumentAtPath:(NSString *)path {
+- (void)setAndReadADocumentAtPath:(const absl::string_view)path {
   FSTDocument *written = [self setTestDocumentAtPath:path];
   FSTMaybeDocument *read = [self readEntryAtPath:path];
   XCTAssertEqualObjects(read, written);
@@ -107,15 +114,15 @@ static const int kVersion = 42;
 
   // TODO(rsgowman): This just verifies that we do a prefix scan against the
   // query path. We'll need more tests once we add index support.
-  [self setTestDocumentAtPath:@"a/1"];
-  [self setTestDocumentAtPath:@"b/1"];
-  [self setTestDocumentAtPath:@"b/2"];
-  [self setTestDocumentAtPath:@"c/1"];
+  [self setTestDocumentAtPath:"a/1"];
+  [self setTestDocumentAtPath:"b/1"];
+  [self setTestDocumentAtPath:"b/2"];
+  [self setTestDocumentAtPath:"c/1"];
 
   FSTQuery *query = FSTTestQuery("b");
   FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray *expected =
-      @[ FSTTestDoc(@"b/1", kVersion, _kDocData, NO), FSTTestDoc(@"b/2", kVersion, _kDocData, NO) ];
+      @[ FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO) ];
   XCTAssertEqual([results count], [expected count]);
   for (FSTDocument *doc in expected) {
     XCTAssertEqualObjects([results objectForKey:doc.key], doc);
@@ -124,7 +131,7 @@ static const int kVersion = 42;
 
 #pragma mark - Helpers
 
-- (FSTDocument *)setTestDocumentAtPath:(NSString *)path {
+- (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
   FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, NO);
   [self addEntry:doc];
   return doc;
@@ -136,13 +143,13 @@ static const int kVersion = 42;
   [self.persistence commitGroup:group];
 }
 
-- (FSTMaybeDocument *_Nullable)readEntryAtPath:(NSString *)path {
-  return [self.remoteDocumentCache entryForKey:FSTTestDocKey(path)];
+- (FSTMaybeDocument *_Nullable)readEntryAtPath:(const absl::string_view)path {
+  return [self.remoteDocumentCache entryForKey:testutil::Key(path)];
 }
 
-- (void)removeEntryAtPath:(NSString *)path {
+- (void)removeEntryAtPath:(const absl::string_view)path {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeEntryAtPath"];
-  [self.remoteDocumentCache removeEntryForKey:FSTTestDocKey(path) group:group];
+  [self.remoteDocumentCache removeEntryForKey:testutil::Key(path) group:group];
   [self.persistence commitGroup:group];
 }
 

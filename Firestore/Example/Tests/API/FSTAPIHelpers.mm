@@ -58,14 +58,14 @@ FIRFirestore *FSTTestFirestore() {
   return sharedInstance;
 }
 
-FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
+FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
                                         FSTTestSnapshotVersion version,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
   FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;
   return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
-                                        documentKey:FSTTestDocKey(path)
+                                        documentKey:testutil::Key(path)
                                            document:doc
                                           fromCache:fromCache];
 }
@@ -82,7 +82,7 @@ FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
 
 /** A convenience method for creating a query snapshots for tests. */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
-    NSString *path,
+    const absl::string_view path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
@@ -92,30 +92,31 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   for (NSString *key in oldDocs) {
     oldDocuments = [oldDocuments
-        documentSetByAddingDocument:FSTTestDoc([NSString stringWithFormat:@"%@/%@", path, key], 1,
-                                               oldDocs[key], hasPendingWrites)];
+        documentSetByAddingDocument:FSTTestDoc(util::MakeStringView([NSString
+                                                   stringWithFormat:@"%s/%@", path.data(), key]),
+                                               1, oldDocs[key], hasPendingWrites)];
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
   for (NSString *key in docsToAdd) {
-    FSTDocument *docToAdd = FSTTestDoc([NSString stringWithFormat:@"%@/%@", path, key], 1,
-                                       docsToAdd[key], hasPendingWrites);
+    FSTDocument *docToAdd =
+        FSTTestDoc(util::MakeStringView([NSString stringWithFormat:@"%s/%@", path.data(), key]), 1,
+                   docsToAdd[key], hasPendingWrites);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
     documentChanges = [documentChanges
         arrayByAddingObject:[FSTDocumentViewChange
                                 changeWithDocument:docToAdd
                                               type:FSTDocumentViewChangeTypeAdded]];
   }
-  FSTViewSnapshot *viewSnapshot =
-      [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(util::MakeStringView(path))
-                                   documents:newDocuments
-                                oldDocuments:oldDocuments
-                             documentChanges:documentChanges
-                                   fromCache:fromCache
-                            hasPendingWrites:hasPendingWrites
-                            syncStateChanged:YES];
+  FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
+                                                               documents:newDocuments
+                                                            oldDocuments:oldDocuments
+                                                         documentChanges:documentChanges
+                                                               fromCache:fromCache
+                                                        hasPendingWrites:hasPendingWrites
+                                                        syncStateChanged:YES];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
-                                   originalQuery:FSTTestQuery(util::MakeStringView(path))
+                                   originalQuery:FSTTestQuery(path)
                                         snapshot:viewSnapshot
                                         metadata:metadata];
 }

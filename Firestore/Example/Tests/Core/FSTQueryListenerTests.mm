@@ -46,10 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *otherAccum = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTDocument *doc2prime =
-      FSTTestDoc(@"rooms/Hades", 3, @{@"name" : @"Hades", @"owner" : @"Jonny"}, NO);
+      FSTTestDoc("rooms/Hades", 3, @{@"name" : @"Hades", @"owner" : @"Jonny"}, NO);
 
   FSTQueryListener *listener = [self listenToQuery:query accumulatingSnapshots:accum];
   FSTQueryListener *otherListener = [self listenToQuery:query accumulatingSnapshots:otherAccum];
@@ -127,8 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms/Eros");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 3, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Eros", 4, @{@"name" : @"Eros2"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 3, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Eros", 4, @{@"name" : @"Eros2"}, NO);
 
   __block FSTAsyncQueryListener *listener = [[FSTAsyncQueryListener alloc]
       initWithDispatchQueue:self.asyncQueue
@@ -167,8 +167,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
 
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:NO
@@ -205,10 +205,10 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
-  FSTDocument *doc1Prime = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"rooms/Other", 3, @{@"name" : @"Other"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
+  FSTDocument *doc1Prime = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, NO);
 
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
                                                              includeDocumentMetadataChanges:YES
@@ -254,11 +254,11 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, YES);
-  FSTDocument *doc1Prime = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc2Prime = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"rooms/Other", 3, @{@"name" : @"Other"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, YES);
+  FSTDocument *doc1Prime = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc2Prime = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
+  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, NO);
 
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:NO
@@ -291,10 +291,10 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *filteredAccum = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
-  FSTDocument *doc1Prime = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc3 = FSTTestDoc(@"rooms/Other", 3, @{@"name" : @"Other"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, YES);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
+  FSTDocument *doc1Prime = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, NO);
 
   FSTQueryListener *filteredListener =
       [self listenToQuery:query accumulatingSnapshots:filteredAccum];
@@ -323,8 +323,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTQueryListener *listener =
       [self listenToQuery:query
                         options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
@@ -366,8 +366,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc(@"rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
-  FSTDocument *doc2 = FSTTestDoc(@"rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, NO);
   FSTQueryListener *listener =
       [self listenToQuery:query
                         options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO

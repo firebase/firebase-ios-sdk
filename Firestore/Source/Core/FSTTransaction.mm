@@ -30,6 +30,8 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTTransaction
@@ -79,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     // when writing.
     docVersion = [FSTSnapshotVersion noVersion];
   }
-  FSTSnapshotVersion *existingVersion = self.readVersions[doc.key];
+  FSTSnapshotVersion *existingVersion = self.readVersions[(FSTDocumentKey *)doc.key];
   if (existingVersion) {
     if (error) {
       *error =
@@ -92,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return NO;
   } else {
-    self.readVersions[doc.key] = docVersion;
+    self.readVersions[(FSTDocumentKey *)doc.key] = docVersion;
     return YES;
   }
 }

@@ -237,25 +237,25 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self acknowledgeMutationWithVersion:0];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO));
 }
 
 - (void)testHandlesSetMutationThenDocument {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc(@"foo/bar", 2, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, YES));
+                             FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES));
 }
 
 - (void)testHandlesAckThenRejectThenRemoteEvent {
@@ -266,76 +266,76 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   // The last seen version is zero, so this ack must be held.
   [self acknowledgeMutationWithVersion:1];
   FSTAssertChanged(@[]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self writeMutation:FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"bar/baz", 0, @{@"bar" : @"baz"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"bar/baz", 0, @{@"bar" : @"baz"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES));
 
   [self rejectMutation];
   FSTAssertRemoved(@[ @"bar/baz" ]);
   FSTAssertNotContains(@"bar/baz");
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc(@"foo/bar", 2, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 2, @{@"it" : @"changed"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 2, @{@"it" : @"changed"}, NO));
+                             FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO));
   FSTAssertNotContains(@"bar/baz");
 }
 
 - (void)testHandlesDeletedDocumentThenSetMutationThenAck {
   if ([self isTestBaseClass]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc(@"foo/bar", 2), @[ @1 ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 2));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self acknowledgeMutationWithVersion:3];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO));
 }
 
 - (void)testHandlesSetMutationThenDeletedDocument {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc(@"foo/bar", 2), @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 }
 
 - (void)testHandlesDocumentThenSetMutationThenAckThenDocument {
   if ([self isTestBaseClass]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 2, @{@"it" : @"base"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO),
                                                   @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 2, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 2, @{@"it" : @"base"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO));
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES));
 
   [self acknowledgeMutationWithVersion:3];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc(@"foo/bar", 3, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 3, @{@"it" : @"changed"}, NO));
+                             FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO));
 }
 
 - (void)testHandlesPatchWithoutPriorDocument {
@@ -357,14 +357,14 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertNotContains(@"foo/bar");
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
 
   [self acknowledgeMutationWithVersion:2];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO));
 }
 
 - (void)testHandlesPatchMutationThenAckThenDocument {
@@ -378,10 +378,10 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertNotContains(@"foo/bar");
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO));
 }
 
 - (void)testHandlesDeleteMutationThenAck {
@@ -389,28 +389,28 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
   [self acknowledgeMutationWithVersion:1];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 }
 
 - (void)testHandlesDocumentThenDeleteMutationThenAck {
   if ([self isTestBaseClass]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO));
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
   [self acknowledgeMutationWithVersion:2];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 }
 
 - (void)testHandlesDeleteMutationThenDocumentThenAck {
@@ -418,59 +418,59 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @1 ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
   [self acknowledgeMutationWithVersion:2];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 }
 
 - (void)testHandlesDocumentThenDeletedDocumentThenDocument {
   if ([self isTestBaseClass]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc(@"foo/bar", 2), @[ @1 ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 2));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc(@"foo/bar", 3, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 3, @{@"it" : @"changed"}, NO));
+                             FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO), @[ @1 ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO));
 }
 
 - (void)testHandlesSetMutationThenPatchMutationThenDocumentThenAckThenAck {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, YES));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"it" : @"base"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @1 ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES));
 
   [self acknowledgeMutationWithVersion:2];  // delete mutation
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
 }
 
 - (void)testHandlesSetMutationAndPatchMutationTogether {
@@ -481,8 +481,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
     FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
   ]];
 
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 }
 
 - (void)testHandlesSetMutationThenPatchMutationThenReject {
@@ -490,14 +490,14 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"})];
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self rejectMutation];
-  FSTAssertChanged(@[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO) ]);
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO));
 }
 
 - (void)testHandlesSetMutationsAndPatchMutationOfJustOneTogether {
@@ -510,11 +510,11 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   ]];
 
   FSTAssertChanged((@[
-    FSTTestDoc(@"bar/baz", 0, @{@"bar" : @"baz"}, YES),
-    FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES)
+    FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES),
+    FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES)
   ]));
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
-  FSTAssertContains(FSTTestDoc(@"bar/baz", 0, @{@"bar" : @"baz"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES));
 }
 
 - (void)testHandlesDeleteMutationThenPatchMutationThenAckThenAck {
@@ -522,31 +522,31 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
   [self acknowledgeMutationWithVersion:2];  // delete mutation
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 }
 
 - (void)testCollectsGarbageAfterChangeBatchWithNoTargetIDs {
   if ([self isTestBaseClass]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc(@"foo/bar", 2), @[ @1 ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
 
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
                                                   @[ @1 ], @[])];
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
@@ -559,12 +559,12 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
                                                   @[ @2 ], @[])];
   [self collectGarbage];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"bar"}, NO));
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 2, @{@"foo" : @"baz"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"baz"}, NO),
                                                   @[], @[ @2 ])];
   [self collectGarbage];
 
@@ -574,27 +574,27 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testCollectsGarbageAfterAcknowledgedMutation {
   if ([self isTestBaseClass]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO),
                                                   @[ @1 ], @[])];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
   [self collectGarbage];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
-  FSTAssertContains(FSTTestDoc(@"foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self acknowledgeMutationWithVersion:3];
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
-  FSTAssertContains(FSTTestDoc(@"foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self acknowledgeMutationWithVersion:4];
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/baz", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self acknowledgeMutationWithVersion:5];
   [self collectGarbage];
@@ -606,27 +606,27 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 - (void)testCollectsGarbageAfterRejectedMutation {
   if ([self isTestBaseClass]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"old"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO),
                                                   @[ @1 ], @[])];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
   [self collectGarbage];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES));
-  FSTAssertContains(FSTTestDoc(@"foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self rejectMutation];  // patch mutation
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
-  FSTAssertContains(FSTTestDoc(@"foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self rejectMutation];  // set mutation
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
-  FSTAssertContains(FSTTestDeletedDoc(@"foo/baz", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self rejectMutation];  // delete mutation
   [self collectGarbage];
@@ -642,22 +642,22 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
                                                   @[ @2 ], @[])];
   [self writeMutation:FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"})];
   [self collectGarbage];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, NO));
-  FSTAssertContains(FSTTestDoc(@"foo/baz", 0, @{@"foo" : @"baz"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
+  FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES));
 
   [self notifyLocalViewChanges:FSTTestViewChanges(query, @[ @"foo/bar", @"foo/baz" ], @[])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
                                                   @[], @[ @2 ])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/baz", 2, @{@"foo" : @"baz"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO),
                                                   @[ @1 ], @[])];
   [self acknowledgeMutationWithVersion:2];
   [self collectGarbage];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{@"foo" : @"bar"}, NO));
-  FSTAssertContains(FSTTestDoc(@"foo/baz", 2, @{@"foo" : @"baz"}, NO));
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
+  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
 
   [self notifyLocalViewChanges:FSTTestViewChanges(query, @[], @[ @"foo/bar", @"foo/baz" ])];
   [self collectGarbage];
@@ -670,9 +670,9 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   if ([self isTestBaseClass]) return;
 
   FSTTargetID targetID = 321;
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 1, @{}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{}, NO),
                                                   @[ @(targetID) ], @[])];
-  FSTAssertContains(FSTTestDoc(@"foo/bar", 1, @{}, NO));
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{}, NO));
 
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
@@ -688,7 +688,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   ]];
   FSTQuery *query = FSTTestQuery("foo/bar");
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects([docs values], @[ FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  XCTAssertEqualObjects([docs values], @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
 }
 
 - (void)testCanExecuteCollectionQueries {
@@ -704,8 +704,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTQuery *query = FSTTestQuery("foo");
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects([docs values], (@[
-                          FSTTestDoc(@"foo/bar", 0, @{@"foo" : @"bar"}, YES),
-                          FSTTestDoc(@"foo/baz", 0, @{@"foo" : @"baz"}, YES)
+                          FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES),
+                          FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES)
                         ]));
 }
 
@@ -716,18 +716,18 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/baz", 10, @{@"a" : @"b"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
                                                   @[ @2 ], @[])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 20, @{@"a" : @"b"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
                                                   @[ @2 ], @[])];
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects([docs values], (@[
-                          FSTTestDoc(@"foo/bar", 20, @{@"a" : @"b"}, NO),
-                          FSTTestDoc(@"foo/baz", 10, @{@"a" : @"b"}, NO),
-                          FSTTestDoc(@"foo/bonk", 0, @{@"a" : @"b"}, YES)
+                          FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
+                          FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
+                          FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, YES)
                         ]));
 }
 
@@ -775,9 +775,9 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/baz", 10, @{@"a" : @"b"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
                                                   @[ @2 ], @[])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc(@"foo/bar", 20, @{@"a" : @"b"}, NO),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
                                                   @[ @2 ], @[])];
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];

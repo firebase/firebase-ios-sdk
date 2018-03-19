@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add a couple initial items to the cache.
   FSTWriteGroup *group = [_db startGroupWithAction:@"Add initial docs."];
-  _kInitialADoc = FSTTestDoc(@"coll/a", 42, @{@"test" : @"data"}, NO);
+  _kInitialADoc = FSTTestDoc("coll/a", 42, @{@"test" : @"data"}, NO);
   [_remoteDocumentCache addEntry:_kInitialADoc group:group];
 
   _kInitialBDoc =
@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testAddEntryAndReadItBack {
-  FSTMaybeDocument *newADoc = FSTTestDoc(@"coll/a", 43, @{@"new" : @"data"}, NO);
+  FSTMaybeDocument *newADoc = FSTTestDoc("coll/a", 43, @{@"new" : @"data"}, NO);
   [_remoteDocumentBuffer addEntry:newADoc];
   XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
 
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testApplyChanges {
-  FSTMaybeDocument *newADoc = FSTTestDoc(@"coll/a", 43, @{@"new" : @"data"}, NO);
+  FSTMaybeDocument *newADoc = FSTTestDoc("coll/a", 43, @{@"new" : @"data"}, NO);
   [_remoteDocumentBuffer addEntry:newADoc];
   XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
 
