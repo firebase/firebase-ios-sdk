@@ -70,11 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (const leveldb::ReadOptions)standardReadOptions;
 
 /**
- * @return A standard set of write options
- */
-+ (const leveldb::WriteOptions)standardWriteOptions;
-
-/**
  * Creates an NSError based on the given status if the status is not ok.
  *
  * @param status The status of the preceding LevelDB operation.

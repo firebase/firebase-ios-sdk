@@ -73,11 +73,6 @@ using leveldb::WriteOptions;
   return options;
 }
 
-+ (const WriteOptions)standardWriteOptions {
-  WriteOptions options;
-  return options;
-}
-
 - (instancetype)initWithDirectory:(NSString *)directory
                        serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
