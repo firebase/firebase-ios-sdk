@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
 
 namespace firebase {
-namespace firestore {
-namespace model {
 
 TEST(Timestamp, Getter) {
   const Timestamp timestamp_zero;
@@ -44,6 +42,4 @@ TEST(Timestamp, Comparison) {
   EXPECT_TRUE(Timestamp(2, 1) < Timestamp(2, 2));
 }
 
-}  // namespace model
-}  // namespace firestore
 }  // namespace firebase

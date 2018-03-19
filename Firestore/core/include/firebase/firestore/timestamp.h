@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TIMESTAMP_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TIMESTAMP_H_
+#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
+#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
 
 #include <stdint.h>
 
 namespace firebase {
-namespace firestore {
-namespace model {
 
 /**
  * A Timestamp represents an absolute time from the backend at up to nanosecond
@@ -87,8 +85,6 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
   return !(lhs != rhs);
 }
 
-}  // namespace model
-}  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TIMESTAMP_H_
+#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_

@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include <time.h>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
-namespace firestore {
-namespace model {
 
 Timestamp::Timestamp(int64_t seconds, int32_t nanos)
     : seconds_(seconds), nanos_(nanos) {
@@ -49,6 +47,4 @@ Timestamp Timestamp::Now() {
   return Timestamp(time(nullptr), 0);
 }
 
-}  // namespace model
-}  // namespace firestore
 }  // namespace firebase
