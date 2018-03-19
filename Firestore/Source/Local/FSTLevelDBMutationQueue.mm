@@ -16,10 +16,12 @@
 
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
 #include <set>
 #include <string>
+
+#include <absl/strings/match.h>
+#include <leveldb/db.h>
+#include <leveldb/write_batch.h>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -197,11 +199,11 @@ using leveldb::WriteOptions;
 - (BOOL)isEmpty {
   std::string userKey = [FSTLevelDBMutationKey keyPrefixWithUserID:self.userID];
 
-  std::unique_ptr<LevelDBTransaction::Iterator> it(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDbTransaction::Iterator> it(_db.current_transaction->NewIterator());
   it->Seek(userKey);
 
   BOOL empty = YES;
-  if (it->Valid() && it->key_starts_with(userKey)) {
+  if (it->Valid() && absl::StartsWith(it->key(), userKey)) {
     empty = NO;
   }
 
@@ -296,7 +298,7 @@ using leveldb::WriteOptions;
             status.ToString().c_str());
   }
 
-  return [self decodedMutationBatch:value];
+  return [self decodeMutationBatch:value];
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
@@ -306,7 +308,7 @@ using leveldb::WriteOptions;
   FSTBatchID nextBatchID = MAX(batchID, self.metadata.lastAcknowledgedBatchId) + 1;
 
   std::string key = [self mutationKeyForBatchID:nextBatchID];
-  std::unique_ptr<LevelDBTransaction::Iterator> it(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDbTransaction::Iterator> it(_db.current_transaction->NewIterator());
   it->Seek(key);
 
   FSTLevelDBMutationKey *rowKey = [[FSTLevelDBMutationKey alloc] init];
@@ -321,14 +323,14 @@ using leveldb::WriteOptions;
   }
 
   FSTAssert(rowKey.batchID >= nextBatchID, @"Should have found mutation after %d", nextBatchID);
-  return [self decodedMutationBatch:it->value()];
+  return [self decodeMutationBatch:it->value()];
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(FSTBatchID)batchID {
   std::string userKey = [FSTLevelDBMutationKey keyPrefixWithUserID:self.userID];
   const char *userID = [self.userID UTF8String];
 
-  std::unique_ptr<LevelDBTransaction::Iterator> it(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDbTransaction::Iterator> it(_db.current_transaction->NewIterator());
   it->Seek(userKey);
 
   NSMutableArray *result = [NSMutableArray array];
@@ -342,7 +344,7 @@ using leveldb::WriteOptions;
       break;
     }
 
-    [result addObject:[self decodedMutationBatch:it->value()]];
+    [result addObject:[self decodeMutationBatch:it->value()]];
   }
 
   return result;
@@ -363,20 +365,18 @@ using leveldb::WriteOptions;
   // and ordered, so when scanning a table prefixed by exactly key, all the batchIDs encountered
   // will be unique and in order.
   std::string mutationsPrefix = [FSTLevelDBMutationKey keyPrefixWithUserID:userID];
-  std::unique_ptr<LevelDvTransaction::Iterator> mutationIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> mutationIterator(
       _db.current_transaction->NewIterator());
 
   NSMutableArray *result = [NSMutableArray array];
   FSTLevelDBDocumentMutationKey *rowKey = [[FSTLevelDBDocumentMutationKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    // Slice indexKey = indexIterator->key();
-
     // Only consider rows matching exactly the specific key of interest. Note that because we order
     // by path first, and we order terminators before path separators, we'll encounter all the
     // index rows for documentKey contiguously. In particular, all the rows for documentKey will
     // occur before any rows for documents nested in a subcollection beneath documentKey so we can
     // stop as soon as we hit any such row.
-    if (!indexIterator->key_starts_with(indexPrefix) || ![rowKey decodeKey:indexIterator->key()] ||
+    if (!absl::StartsWith(indexIterator->key(), indexPrefix) || ![rowKey decodeKey:indexIterator->key()] ||
         ![rowKey.documentKey isEqualToKey:documentKey]) {
       break;
     }
@@ -397,7 +397,7 @@ using leveldb::WriteOptions;
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
-    [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
+    [result addObject:[self decodeMutationBatch:mutationIterator->value()]];
   }
   return result;
 }
@@ -424,7 +424,7 @@ using leveldb::WriteOptions;
   // unique nor in order. This means an efficient simultaneous scan isn't possible.
   std::string indexPrefix =
       [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:queryPath];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
       _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
@@ -439,7 +439,7 @@ using leveldb::WriteOptions;
   // numbers of keys but > 30% faster for larger numbers of keys.
   std::set<FSTBatchID> uniqueBatchIds;
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    if (!indexIterator->key_starts_with(indexPrefix) || ![rowKey decodeKey:indexIterator->key()]) {
+    if (!absl::StartsWith(indexIterator->key(), indexPrefix) || ![rowKey decodeKey:indexIterator->key()]) {
       break;
     }
 
@@ -455,7 +455,7 @@ using leveldb::WriteOptions;
 
   // Given an ordered set of unique batchIDs perform a skipping scan over the main table to find
   // the mutation batches.
-  std::unique_ptr<LevelDBTransaction::Iterator> mutationIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> mutationIterator(
       _db.current_transaction->NewIterator());
 
   for (FSTBatchID batchID : uniqueBatchIds) {
@@ -472,7 +472,7 @@ using leveldb::WriteOptions;
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
-    [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
+    [result addObject:[self decodeMutationBatch:mutationIterator->value()]];
   }
   return result;
 }
@@ -480,12 +480,12 @@ using leveldb::WriteOptions;
 - (NSArray<FSTMutationBatch *> *)allMutationBatches {
   std::string userKey = [FSTLevelDBMutationKey keyPrefixWithUserID:self.userID];
 
-  std::unique_ptr<LevelDBTransaction::Iterator> it(_db.current_transaction->NewIterator());
+  std::unique_ptr<LevelDbTransaction::Iterator> it(_db.current_transaction->NewIterator());
   it->Seek(userKey);
 
   NSMutableArray *result = [NSMutableArray array];
-  for (; it->Valid() && it->key_starts_with(userKey); it->Next()) {
-    [result addObject:[self decodedMutationBatch:it->value()]];
+  for (; it->Valid() && absl::StartsWith(it->key(), userKey); it->Next()) {
+    [result addObject:[self decodeMutationBatch:it->value()]];
   }
 
   return result;
@@ -495,7 +495,7 @@ using leveldb::WriteOptions;
   NSString *userID = self.userID;
   id<FSTGarbageCollector> garbageCollector = self.garbageCollector;
 
-  std::unique_ptr<LevelDBTransaction::Iterator> checkIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> checkIterator(
       _db.current_transaction->NewIterator());
 
   for (FSTMutationBatch *batch in batches) {
@@ -530,7 +530,7 @@ using leveldb::WriteOptions;
 
   // Verify that there are no entries in the document-mutation index if the queue is empty.
   std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID];
-  std::unique_ptr<LevelDBTransaction::Iterator> indexIterator(
+  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
       _db.current_transaction->NewIterator());
   indexIterator->Seek(indexPrefix);
 
@@ -538,7 +538,7 @@ using leveldb::WriteOptions;
 
   for (; indexIterator->Valid(); indexIterator->Next()) {
     // Only consider rows matching this index prefix for the current user.
-    if (!indexIterator->key_starts_with(indexPrefix)) {
+    if (!absl::StartsWith(indexIterator->key(), indexPrefix)) {
       break;
     }
 
@@ -573,9 +573,9 @@ using leveldb::WriteOptions;
   return proto;
 }
 
-- (FSTMutationBatch *)decodedMutationBatch:(Slice)slice {
+- (FSTMutationBatch *)decodeMutationBatch:(absl::string_view)encoded {
   NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)slice.data() length:slice.size() freeWhenDone:NO];
+      [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data() length:encoded.size() freeWhenDone:NO];
 
   NSError *error;
   FSTPBWriteBatch *proto = [FSTPBWriteBatch parseFromData:data error:&error];
@@ -600,7 +600,7 @@ using leveldb::WriteOptions;
 
     // Check both that the key prefix matches and that the decoded document key is exactly the key
     // we're looking for.
-    if (indexIterator->key_starts_with(indexPrefix) && [rowKey decodeKey:indexIterator->key()] &&
+    if (absl::StartsWith(indexIterator->key(), indexPrefix) && [rowKey decodeKey:indexIterator->key()] &&
         [rowKey.documentKey isEqualToKey:documentKey]) {
       return YES;
     }

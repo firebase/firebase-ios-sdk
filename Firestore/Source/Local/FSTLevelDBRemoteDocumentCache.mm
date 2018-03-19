@@ -37,28 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::local::LevelDbTransaction;
 using leveldb::DB;
-using leveldb::Iterator;
-using leveldb::ReadOptions;
-using leveldb::Slice;
 using leveldb::Status;
-using leveldb::WriteOptions;
 
 @interface FSTLevelDBRemoteDocumentCache ()
 
 @property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
 
 @end
-
-/**
- * Returns a standard set of read options.
- *
- * For now this is paranoid, but perhaps disable that in production builds.
- */
-static ReadOptions StandardReadOptions() {
-  ReadOptions options;
-  options.verify_checksums = true;
-  return options;
-}
 
 @implementation FSTLevelDBRemoteDocumentCache {
   FSTLevelDB *_db;
@@ -92,7 +77,7 @@ static ReadOptions StandardReadOptions() {
   if (status.IsNotFound()) {
     return nil;
   } else if (status.ok()) {
-    return [self decodedMaybeDocument:value withKey:documentKey];
+    return [self decodeMaybeDocument:value withKey:documentKey];
   } else {
     FSTFail(@"Fetch document for key (%@) failed with status: %s", documentKey,
             status.ToString().c_str());
@@ -111,7 +96,7 @@ static ReadOptions StandardReadOptions() {
   FSTLevelDBRemoteDocumentKey *currentKey = [[FSTLevelDBRemoteDocumentKey alloc] init];
   for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
     FSTMaybeDocument *maybeDoc =
-        [self decodedMaybeDocument:it->value() withKey:currentKey.documentKey];
+            [self decodeMaybeDocument:it->value() withKey:currentKey.documentKey];
     if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
@@ -126,9 +111,9 @@ static ReadOptions StandardReadOptions() {
   return [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:key];
 }
 
-- (FSTMaybeDocument *)decodedMaybeDocument:(Slice)slice withKey:(FSTDocumentKey *)documentKey {
+- (FSTMaybeDocument *)decodeMaybeDocument:(absl::string_view)encoded withKey:(FSTDocumentKey *)documentKey {
   NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)slice.data() length:slice.size() freeWhenDone:NO];
+      [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data() length:encoded.size() freeWhenDone:NO];
 
   NSError *error;
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument parseFromData:data error:&error];

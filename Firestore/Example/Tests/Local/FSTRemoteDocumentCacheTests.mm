@@ -147,7 +147,7 @@ static const int kVersion = 42;
 
 - (FSTMaybeDocument *_Nullable)readEntryAtPath:(const absl::string_view)path {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ReadEntryAtPath"];
-  FSTMaybeDocument *result = [self.remoteDocumentCache entryForKey:FSTTestDocKey(path)];
+  FSTMaybeDocument *result = [self.remoteDocumentCache entryForKey:testutil::Key(path)];
   [self.persistence commitGroup:group];
   return result;
 }
