@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
 
 @class FSTDocumentKey;
 @class FSTMaybeDocument;
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param query The query to match documents against.
  * @return The set of matching documents.
  */
-- (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query;
+- (firebase::firestore::model::DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query;
 
 @end
 

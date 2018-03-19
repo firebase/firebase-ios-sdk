@@ -20,9 +20,8 @@
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -253,7 +252,8 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 #endif  // __cplusplus
 
 /** Converts a list of documents to a sorted map. */
-MaybeDocumentDictionary FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
+firebase::firestore::model::MaybeDocumentDictionary FSTTestDocUpdates(
+    NSArray<FSTMaybeDocument *> *docs);
 
 #if __cplusplus
 extern "C" {

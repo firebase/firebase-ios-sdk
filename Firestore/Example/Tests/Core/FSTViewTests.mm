@@ -29,10 +29,12 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN

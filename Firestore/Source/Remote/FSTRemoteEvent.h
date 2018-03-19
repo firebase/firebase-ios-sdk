@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 @class FSTDocument;
 @class FSTDocumentKey;
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTResetMapping *)mappingWithDocuments:(NSArray<FSTDocument *> *)documents;
 
 /** The new set of documents for the target. */
-- (const DocumentKeySet &)documents;
+- (const firebase::firestore::model::DocumentKeySet &)documents;
 
 @end
 
@@ -72,12 +72,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTUpdateMapping *)mappingWithAddedDocuments:(NSArray<FSTDocument *> *)added
                                removedDocuments:(NSArray<FSTDocument *> *)removed;
 
-- (void)applyTo:(DocumentKeySet *)keys;
+- (void)applyTo:(firebase::firestore::model::DocumentKeySet *)keys;
 
 /** The documents added to the target. */
-- (DocumentKeySet *)addedDocuments;
+- (firebase::firestore::model::DocumentKeySet *)addedDocuments;
 /** The documents removed from the target. */
-- (DocumentKeySet *)removedDocuments;
+- (firebase::firestore::model::DocumentKeySet *)removedDocuments;
 @end
 
 #pragma mark - FSTTargetChange

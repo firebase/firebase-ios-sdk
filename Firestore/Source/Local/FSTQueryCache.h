@@ -18,7 +18,8 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 @class FSTDocumentKey;
 @class FSTDocumentSet;
@@ -110,19 +111,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable FSTQueryData *)queryDataForQuery:(FSTQuery *)query;
 
 /** Adds the given document keys to cached query results of the given target ID. */
-- (void)addMatchingKeys:(const DocumentKeySet &)keys
+- (void)addMatchingKeys:(const firebase::firestore::model::DocumentKeySet &)keys
             forTargetID:(FSTTargetID)targetID
                   group:(FSTWriteGroup *)group;
 
 /** Removes the given document keys from the cached query results of the given target ID. */
-- (void)removeMatchingKeys:(const DocumentKeySet &)keys
+- (void)removeMatchingKeys:(const firebase::firestore::model::DocumentKeySet &)keys
                forTargetID:(FSTTargetID)targetID
                      group:(FSTWriteGroup *)group;
 
 /** Removes all the keys in the query results of the given target ID. */
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group;
 
-- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID;
+- (firebase::firestore::model::DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID;
 
 @end
 

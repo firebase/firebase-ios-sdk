@@ -16,6 +16,10 @@
 
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
+
+using firebase::firestore::model::MaybeDocumentDictionary;
+
 #include <utility>
 
 NS_ASSUME_NONNULL_BEGIN

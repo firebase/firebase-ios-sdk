@@ -17,8 +17,9 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 @class FSTDocumentKey;
 @class FSTDocumentSet;
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (DocumentKeySet *)mutatedKeys;
+- (firebase::firestore::model::DocumentKeySet *)mutatedKeys;
 
 /** The new set of docs that should be in the view. */
 @property(nonatomic, strong, readonly) FSTDocumentSet *documentSet;
@@ -94,7 +95,8 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-              remoteDocuments:(DocumentKeySet)remoteDocuments NS_DESIGNATED_INITIALIZER;
+              remoteDocuments:(firebase::firestore::model::DocumentKeySet)remoteDocuments
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * Iterates over a set of doc changes, applies the query limit, and computes what the new results
@@ -104,7 +106,8 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @param docChanges The doc changes to apply to this view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentDictionary &)docChanges;
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:
+    (const firebase::firestore::model::MaybeDocumentDictionary &)docChanges;
 
 /**
  * Iterates over a set of doc changes, applies the query limit, and computes what the new results
@@ -116,9 +119,9 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  *     and changes instead of the current view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentDictionary &)docChanges
-                                        previousChanges:
-                                            (nullable FSTViewDocumentChanges *)previousChanges;
+- (FSTViewDocumentChanges *)
+computeChangesWithDocuments:(const firebase::firestore::model::MaybeDocumentDictionary &)docChanges
+            previousChanges:(nullable FSTViewDocumentChanges *)previousChanges;
 
 /**
  * Updates the view with the given ViewDocumentChanges.

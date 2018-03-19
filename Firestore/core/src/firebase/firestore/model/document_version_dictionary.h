@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_VERSION_DICTIONARY_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_VERSION_DICTIONARY_H_
 
 #include <map>
 
@@ -22,10 +23,16 @@
 
 @class FSTSnapshotVersion;
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace model {
 
 /** A map of key to version number. */
 typedef std::map<firebase::firestore::model::DocumentKey, FSTSnapshotVersion *>
     DocumentVersionDictionary;
 
-NS_ASSUME_NONNULL_END
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_VERSION_DICTIONARY_H_

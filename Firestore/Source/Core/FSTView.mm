@@ -27,6 +27,12 @@
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::MaybeDocumentDictionary;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTViewDocumentChanges

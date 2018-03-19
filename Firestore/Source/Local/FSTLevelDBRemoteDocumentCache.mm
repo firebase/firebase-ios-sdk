@@ -26,13 +26,15 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::model::DocumentDictionary;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::ReadOptions;

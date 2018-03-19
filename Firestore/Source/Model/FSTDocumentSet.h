@@ -16,8 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FSTDocument;

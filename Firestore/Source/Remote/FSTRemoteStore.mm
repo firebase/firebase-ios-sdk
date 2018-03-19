@@ -37,9 +37,11 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::auth::User;
 
 NS_ASSUME_NONNULL_BEGIN

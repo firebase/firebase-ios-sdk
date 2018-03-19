@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_DICTIONARY_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_DICTIONARY_H_
 
 #include <map>
 
@@ -23,16 +24,22 @@
 @class FSTDocument;
 @class FSTMaybeDocument;
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace model {
 
-/** Convenience type for a map of keys to MaybeDocuments, since they are so common. */
+/** Convenience type for a map of keys to MaybeDocuments, since they are so
+ * common. */
 typedef std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument*>
     MaybeDocumentDictionary;
 
-/** Convenience type for a map of keys to Documents, since they are so common. */
-typedef std::map<firebase::firestore::model::DocumentKey, FSTDocument*> DocumentDictionary;
+/** Convenience type for a map of keys to Documents, since they are so common.
+ */
+typedef std::map<firebase::firestore::model::DocumentKey, FSTDocument*>
+    DocumentDictionary;
 
-inline MaybeDocumentDictionary ToMaybeDocumentDictionary(const DocumentDictionary& docs) {
+inline MaybeDocumentDictionary ToMaybeDocumentDictionary(
+    const DocumentDictionary& docs) {
   MaybeDocumentDictionary result{};
   for (const auto& iter : docs) {
     result[iter.first] = (FSTMaybeDocument*)iter.second;
@@ -40,4 +47,8 @@ inline MaybeDocumentDictionary ToMaybeDocumentDictionary(const DocumentDictionar
   return result;
 }
 
-NS_ASSUME_NONNULL_END
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_DICTIONARY_H_

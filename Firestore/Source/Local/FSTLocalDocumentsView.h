@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 @class FSTDocumentKey;
 @class FSTMaybeDocument;
@@ -52,10 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
  * If we don't have cached state for a document in `keys`, a FSTDeletedDocument will be stored
  * for that key in the resulting set.
  */
-- (MaybeDocumentDictionary)documentsForKeys:(const DocumentKeySet &)keys;
+- (firebase::firestore::model::MaybeDocumentDictionary)documentsForKeys:
+    (const firebase::firestore::model::DocumentKeySet &)keys;
 
 /** Performs a query against the local view of all documents. */
-- (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query;
+- (firebase::firestore::model::DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query;
 
 @end
 

@@ -18,8 +18,12 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
+
+using firebase::firestore::model::DocumentDictionary;
+using firebase::firestore::model::MaybeDocumentDictionary;
 
 NS_ASSUME_NONNULL_BEGIN
 

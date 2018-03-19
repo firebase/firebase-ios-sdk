@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 @class FSTDocumentKey;
 @class FSTDocumentSet;
@@ -35,15 +35,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLocalViewChanges : NSObject
 
 + (instancetype)changesForQuery:(FSTQuery *)query
-                      addedKeys:(DocumentKeySet)addedKeys
-                    removedKeys:(DocumentKeySet)removedKeys;
+                      addedKeys:(firebase::firestore::model::DocumentKeySet)addedKeys
+                    removedKeys:(firebase::firestore::model::DocumentKeySet)removedKeys;
 
 + (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot;
 
 - (id)init NS_UNAVAILABLE;
 
-- (DocumentKeySet *)addedKeys;
-- (DocumentKeySet *)removedKeys;
+- (firebase::firestore::model::DocumentKeySet *)addedKeys;
+- (firebase::firestore::model::DocumentKeySet *)removedKeys;
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
 

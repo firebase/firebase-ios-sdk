@@ -43,8 +43,15 @@
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_version_dictionary.h"
 
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentDictionary;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentVersionDictionary;
+using firebase::firestore::model::MaybeDocumentDictionary;
 
 NS_ASSUME_NONNULL_BEGIN
 

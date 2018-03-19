@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,36 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_SET_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_SET_H_
 
 #include <functional>
 #include <set>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace model {
 
 /** Convenience type for a set of keys, since they are so common. */
 typedef std::set<firebase::firestore::model::DocumentKey> DocumentKeySet;
 
-inline NSUInteger DocumentKeySetHash(const DocumentKeySet& keys) {
-  NSUInteger hash = 0;
-  std::hash<std::string> hasher{};
+#if defined(__OBJC__)
+// For Objective-C++ hash; to be removed after migration.
+// Do NOT use in C++ code.
+inline uint64_t DocumentKeySetHash(const DocumentKeySet& keys) {
+  uint64_t hash = 0;
+  std::hash<std::string> hash_fn{};
   for (const auto& key : keys) {
-    hash = 31 * hash + hasher(key.ToString());
+    hash = 31 * hash + hash_fn(key.ToString());
   }
   return hash;
 }
+#endif  // defined(__OBJC__)
 
-NS_ASSUME_NONNULL_END
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_SET_H_

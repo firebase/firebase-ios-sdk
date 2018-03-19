@@ -20,8 +20,11 @@ cc_library(
     database_id.h
     document.cc
     document.h
+    document_dictionary.h
     document_key.cc
     document_key.h
+    document_key_set.h
+    document_version_dictionary.h
     field_path.cc
     field_path.h
     field_value.cc

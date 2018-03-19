@@ -17,10 +17,10 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
-#import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_version_dictionary.h"
 
 @class FSTMutation;
 @class FIRTimestamp;
@@ -85,7 +85,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 - (FSTMutationBatch *)toTombstone;
 
 /** Returns the set of unique keys referenced by all mutations in the batch. */
-- (DocumentKeySet)keys;
+- (firebase::firestore::model::DocumentKeySet)keys;
 
 @property(nonatomic, assign, readonly) FSTBatchID batchID;
 @property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
@@ -110,7 +110,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
                 mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
-- (const DocumentVersionDictionary &)docVersions;
+- (const firebase::firestore::model::DocumentVersionDictionary &)docVersions;
 
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
 @property(nonatomic, strong, readonly) FSTSnapshotVersion *commitVersion;

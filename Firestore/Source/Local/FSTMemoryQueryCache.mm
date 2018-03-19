@@ -21,6 +21,10 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+
+using firebase::firestore::model::DocumentKeySet;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryQueryCache ()

@@ -17,18 +17,20 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** The result of a write to the local store. */
 @interface FSTLocalWriteResult : NSObject
 
-+ (instancetype)resultForBatchID:(FSTBatchID)batchID changes:(MaybeDocumentDictionary)changes;
++ (instancetype)resultForBatchID:(FSTBatchID)batchID
+                         changes:(firebase::firestore::model::MaybeDocumentDictionary)changes;
 
 - (id)init __attribute__((unavailable("Use resultForBatchID:changes:")));
 
-- (const MaybeDocumentDictionary &)changes;
+- (const firebase::firestore::model::MaybeDocumentDictionary &)changes;
 
 @property(nonatomic, assign, readonly) FSTBatchID batchID;
 
