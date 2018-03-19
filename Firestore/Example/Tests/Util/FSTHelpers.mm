@@ -57,9 +57,9 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentDictionary;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::MaybeDocumentDictionary;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocumentDictionary;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN

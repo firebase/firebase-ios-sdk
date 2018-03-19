@@ -131,7 +131,12 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  return _index[key];
+  const auto iter = _index.find(key);
+  if (iter == _index.end()) {
+    return nil;
+  } else {
+    return iter->second;
+  }
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -143,8 +148,12 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (NSUInteger)indexOfKey:(const DocumentKey &)key {
-  FSTDocument *doc = _index[key];
-  return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
+  const auto iter = _index.find(key);
+  if (iter == _index.end()) {
+    return NSNotFound;
+  } else {
+    return [self.sortedSet indexOfObject:iter->second];
+  }
 }
 
 - (NSEnumerator<FSTDocument *> *)documentEnumerator {

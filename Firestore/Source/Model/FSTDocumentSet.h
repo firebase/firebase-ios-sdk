@@ -19,6 +19,8 @@
 #include "Firestore/core/src/firebase/firestore/model/document_dictionary.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTDocument;
 
 NS_ASSUME_NONNULL_BEGIN

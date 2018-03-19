@@ -22,6 +22,8 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_version_dictionary.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTMutation;
 @class FIRTimestamp;
 @class FSTMutationResult;

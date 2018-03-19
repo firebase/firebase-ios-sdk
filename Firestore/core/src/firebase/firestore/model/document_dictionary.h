@@ -42,7 +42,7 @@ inline MaybeDocumentDictionary ToMaybeDocumentDictionary(
     const DocumentDictionary& docs) {
   MaybeDocumentDictionary result{};
   for (const auto& iter : docs) {
-    result[iter.first] = (FSTMaybeDocument*)iter.second;
+    result[iter.first] = reinterpret_cast<FSTMaybeDocument*>(iter.second);
   }
   return result;
 }

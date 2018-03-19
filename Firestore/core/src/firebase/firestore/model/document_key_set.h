@@ -19,6 +19,7 @@
 
 #include <functional>
 #include <set>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
