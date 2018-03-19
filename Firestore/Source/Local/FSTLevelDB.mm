@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kReservedPathComponent = @"firestore";
 
-using firebase::firestore::local::LevelDBTransaction;
+using firebase::firestore::local::LevelDbTransaction;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::ReadOptions;
@@ -61,7 +61,7 @@ using leveldb::WriteOptions;
 @end
 
 @implementation FSTLevelDB {
-  std::unique_ptr<LevelDBTransaction> _transaction;
+  std::unique_ptr<LevelDbTransaction> _transaction;
 }
 
 /**
@@ -146,7 +146,7 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  LevelDBTransaction transaction(_ptr.get());
+  LevelDbTransaction transaction(_ptr.get());
   [FSTLevelDBMigrations runMigrations:&transaction];
   transaction.Commit();
   return YES;
@@ -224,8 +224,8 @@ using leveldb::WriteOptions;
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = std::make_unique<LevelDBTransaction>(_ptr.get());
-  return [self.writeGroupTracker startGroupWithAction:action andTransaction:_transaction.get()];
+  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
+  return [self.writeGroupTracker startGroupWithAction:action transaction:_transaction.get()];
 }
 
 - (void)commitGroup:(FSTWriteGroup *)group {

@@ -21,7 +21,7 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-using firebase::firestore::local::LevelDBTransaction;
+using firebase::firestore::local::LevelDbTransaction;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Slice;
@@ -85,7 +85,7 @@ void BatchDescription::Delete(const Slice &key) {
 
 @interface FSTWriteGroup ()
 - (instancetype)initWithAction:(NSString *)action NS_DESIGNATED_INITIALIZER;
-- (instancetype)initWithAction:(NSString *)action andTransaction:(LevelDBTransaction *)transaction;
+- (instancetype)initWithAction:(NSString *)action transaction:(LevelDbTransaction *)transaction;
 @end
 
 @implementation FSTWriteGroup {
@@ -97,8 +97,8 @@ void BatchDescription::Delete(const Slice &key) {
 }
 
 + (instancetype)groupWithAction:(NSString *)action
-                    transaction:(firebase::firestore::local::LevelDBTransaction *)transaction {
-  return [[FSTWriteGroup alloc] initWithAction:action andTransaction:transaction];
+                    transaction:(firebase::firestore::local::LevelDbTransaction *)transaction {
+  return [[FSTWriteGroup alloc] initWithAction:action transaction:transaction];
 }
 
 - (instancetype)initWithAction:(NSString *)action {
@@ -109,7 +109,7 @@ void BatchDescription::Delete(const Slice &key) {
   return self;
 }
 
-- (instancetype)initWithAction:(NSString *)action andTransaction:(LevelDBTransaction *)transaction {
+- (instancetype)initWithAction:(NSString *)action transaction:(LevelDbTransaction *)transaction {
   if (self = [self initWithAction:action]) {
     _transaction = transaction;
   }

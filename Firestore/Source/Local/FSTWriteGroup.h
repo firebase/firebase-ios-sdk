@@ -48,14 +48,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)groupWithAction:(NSString *)action;
 
 + (instancetype)groupWithAction:(NSString *)action
-                    transaction:(firebase::firestore::local::LevelDBTransaction *)transaction;
+                    transaction:(firebase::firestore::local::LevelDbTransaction *)transaction;
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor instead")));
 
 /** The action description assigned to this write group. */
 @property(nonatomic, copy, readonly) NSString *action;
 
-@property(nonatomic, readonly) firebase::firestore::local::LevelDBTransaction *transaction;
+@property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *transaction;
 
 /**
  * Marks the given key for deletion.

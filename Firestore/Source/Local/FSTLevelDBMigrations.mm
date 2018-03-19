@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Current version of the schema defined in this file.
 static FSTLevelDBSchemaVersion kSchemaVersion = 2;
 
-using firebase::firestore::local::LevelDBTransaction;
+using firebase::firestore::local::LevelDbTransaction;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::Status;
@@ -39,7 +39,7 @@ using leveldb::WriteOptions;
 /**
  * Ensures that the global singleton target metadata row exists in LevelDB.
  */
-static void EnsureTargetGlobal(LevelDBTransaction *transaction) {
+static void EnsureTargetGlobal(LevelDbTransaction *transaction) {
   FSTPBTargetGlobal *targetGlobal =
       [FSTLevelDBQueryCache readTargetMetadataFromTransaction:transaction];
   if (!targetGlobal) {
@@ -52,7 +52,7 @@ static void EnsureTargetGlobal(LevelDBTransaction *transaction) {
  * @param version The version to save
  * @param transaction The transaction in which to save the new version number
  */
-static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDBTransaction *transaction) {
+static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDbTransaction *transaction) {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string = std::to_string(version);
   transaction->Put(key, version_string);
@@ -65,8 +65,8 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDBTransaction *tra
  *
  * It assumes the metadata has already been written and is able to be read in this transaction.
  */
-static void AddTargetCount(LevelDBTransaction *transaction) {
-  std::unique_ptr<LevelDBTransaction::Iterator> it(transaction->NewIterator());
+static void AddTargetCount(LevelDbTransaction *transaction) {
+  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction->NewIterator());
   std::string start_key = [FSTLevelDBTargetKey keyPrefix];
   it->Seek(start_key);
 
@@ -86,7 +86,7 @@ static void AddTargetCount(LevelDBTransaction *transaction) {
 
 @implementation FSTLevelDBMigrations
 
-+ (FSTLevelDBSchemaVersion)schemaVersion:(LevelDBTransaction *)transaction {
++ (FSTLevelDBSchemaVersion)schemaVersion:(LevelDbTransaction *)transaction {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string;
   Status status = transaction->Get(key, &version_string);
@@ -97,7 +97,7 @@ static void AddTargetCount(LevelDBTransaction *transaction) {
   }
 }
 
-+ (void)runMigrations:(LevelDBTransaction *)transaction {
++ (void)runMigrations:(LevelDbTransaction *)transaction {
   FSTLevelDBSchemaVersion currentVersion = [self schemaVersion:transaction];
   // Each case in this switch statement intentionally falls through. This lets us
   // start at the current schema version and apply any migrations that have not yet

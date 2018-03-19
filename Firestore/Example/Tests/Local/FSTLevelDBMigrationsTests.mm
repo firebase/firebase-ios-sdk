@@ -29,7 +29,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::local::LevelDBTransaction;
+using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Options;
@@ -61,7 +61,7 @@ using leveldb::Status;
 - (void)testAddsTargetGlobal {
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
-  LevelDBTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get());
   [FSTLevelDBMigrations runMigrations:&transaction];
   transaction.Commit();
   metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
@@ -69,7 +69,7 @@ using leveldb::Status;
 }
 
 - (void)testSetsVersionNumber {
-  LevelDBTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get());
   FSTLevelDBSchemaVersion initial = [FSTLevelDBMigrations schemaVersion:&transaction];
   XCTAssertEqual(0, initial, "No version should be equivalent to 0");
 
@@ -83,7 +83,7 @@ using leveldb::Status;
   NSUInteger expected = 50;
   {
     // Setup some targets to be counted in the migration.
-    LevelDBTransaction transaction(_db.get());
+    LevelDbTransaction transaction(_db.get());
     for (int i = 0; i < expected; i++) {
       std::string key = [FSTLevelDBTargetKey keyWithTargetID:i];
       transaction.Put(key, "dummy");
@@ -100,12 +100,7 @@ using leveldb::Status;
   }
 
   {
-<<<<<<< HEAD
-    LevelDBTransaction transaction(_db.get());
-=======
-    LevelDBTransaction transaction(_db, [FSTLevelDB standardReadOptions],
-                                   [FSTLevelDB standardWriteOptions]);
->>>>>>> 022c47785364888d9508fd0d12d82832574c7c16
+    LevelDbTransaction transaction(_db.get());
     [FSTLevelDBMigrations runMigrations:&transaction];
     transaction.Commit();
     FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];

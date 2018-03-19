@@ -31,12 +31,12 @@ typedef int32_t FSTLevelDBSchemaVersion;
  * Returns the current version of the schema for the given database
  */
 + (FSTLevelDBSchemaVersion)schemaVersion:
-    (firebase::firestore::local::LevelDBTransaction *)transaction;
+    (firebase::firestore::local::LevelDbTransaction *)transaction;
 
 /**
  * Runs any migrations needed to bring the given database up to the current schema version
  */
-+ (void)runMigrations:(firebase::firestore::local::LevelDBTransaction *)transaction;
++ (void)runMigrations:(firebase::firestore::local::LevelDbTransaction *)transaction;
 
 @end
 

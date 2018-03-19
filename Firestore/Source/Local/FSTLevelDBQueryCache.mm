@@ -31,7 +31,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::local::LevelDBTransaction;
+using firebase::firestore::local::LevelDbTransaction;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Iterator;
@@ -61,7 +61,7 @@ using leveldb::WriteOptions;
 }
 
 + (nullable FSTPBTargetGlobal *)readTargetMetadataFromTransaction:
-    (LevelDBTransaction *)transaction {
+    (LevelDbTransaction *)transaction {
   std::string key = [FSTLevelDBTargetGlobalKey key];
   std::string value;
   Status status = transaction->Get(key, &value);
