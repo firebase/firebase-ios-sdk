@@ -41,7 +41,7 @@ using leveldb::WriteOptions;
  */
 static void EnsureTargetGlobal(LevelDbTransaction *transaction) {
   FSTPBTargetGlobal *targetGlobal =
-          [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
+      [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
   if (!targetGlobal) {
     transaction->Put([FSTLevelDBTargetGlobalKey key], [FSTPBTargetGlobal message]);
   }
@@ -77,7 +77,7 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
   }
 
   FSTPBTargetGlobal *targetGlobal =
-          [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
+      [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
   FSTCAssert(targetGlobal != nil,
              @"We should have a metadata row as it was added in an earlier migration");
   targetGlobal.targetCount = count;
@@ -86,7 +86,8 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
 
 @implementation FSTLevelDBMigrations
 
-+ (FSTLevelDBSchemaVersion)schemaVersionWithTransaction:(firebase::firestore::local::LevelDbTransaction *)transaction {
++ (FSTLevelDBSchemaVersion)schemaVersionWithTransaction:
+    (firebase::firestore::local::LevelDbTransaction *)transaction {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string;
   Status status = transaction->Get(key, &version_string);

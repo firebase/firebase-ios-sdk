@@ -70,7 +70,8 @@ using leveldb::Status;
 
 - (void)testSetsVersionNumber {
   LevelDbTransaction transaction(_db.get());
-  FSTLevelDBSchemaVersion initial = [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
+  FSTLevelDBSchemaVersion initial =
+      [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
   XCTAssertEqual(0, initial, "No version should be equivalent to 0");
 
   // Pick an arbitrary high migration number and migrate to it.
