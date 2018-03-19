@@ -26,18 +26,13 @@ namespace auth {
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
   credentials_provider.GetToken(
-      /*force_refresh=*/true, [](util::StatusOr<Token> token) {
-        EXPECT_TRUE(token.ok());
-        EXPECT_FALSE(token.ValueOrDie().is_valid());
-        const User& user = token.ValueOrDie().user();
+      /*force_refresh=*/true, [](util::StatusOr<Token> result) {
+        EXPECT_TRUE(result.ok());
+        const Token& token = result.ValueOrDie();
+        EXPECT_ANY_THROW(token.token());
+        const User& user = result.ValueOrDie().user();
         EXPECT_EQ("", user.uid());
         EXPECT_FALSE(user.is_authenticated());
-        // TODO(rsgowman): the next two statements just test the implementation
-        // of StatusOr, so aren't useful here anymore. However, I'm keeping them
-        // for one more commit, since it will shortly not be possible for a
-        // StatusOr<Token> to be ok() while the token itself is not is_valid()
-        EXPECT_EQ(FirestoreErrorCode::Ok, token.status().code());
-        EXPECT_EQ("", token.status().error_message());
       });
 }
 

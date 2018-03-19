@@ -46,7 +46,7 @@ TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
       /*force_refresh=*/true, [](util::StatusOr<Token> result) {
         EXPECT_TRUE(result.ok());
         const Token& token = result.ValueOrDie();
-        EXPECT_EQ("", token.token());
+        EXPECT_ANY_THROW(token.token());
         const User& user = token.user();
         EXPECT_EQ("", user.uid());
         EXPECT_FALSE(user.is_authenticated());
