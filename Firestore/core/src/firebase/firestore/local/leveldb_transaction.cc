@@ -209,15 +209,15 @@ void LevelDbTransaction::Commit() {
 
 std::string LevelDbTransaction::ToString() {
   std::string dest("<LevelDbTransaction: ");
-  unsigned long changes = deletions_.size() + mutations_.size();
-  unsigned long bytes = 0;
+  int64_t changes = deletions_.size() + mutations_.size();
+  int64_t bytes = 0;  // accumulator for size of individual mutations.
   dest += std::to_string(changes) + " changes ";
-  std::string items;
+  std::string items;  // accumulator for individual changes.
   for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
     items += "\n  - Delete " + Describe(*it);
   }
   for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
-    unsigned long change_bytes = it->second.length();
+    int64_t change_bytes = it->second.length();
     bytes += change_bytes;
     items += "\n  - Put " + Describe(it->first) + " (" +
              std::to_string(change_bytes) + " bytes)";
