@@ -203,7 +203,7 @@ using leveldb::WriteOptions;
   return database;
 }
 
-- (LevelDbTransaction *)current_transaction {
+- (LevelDbTransaction *)currentTransaction {
   FSTAssert(_transaction != nullptr, @"Attempting to access transaction before one has started");
   return _transaction.get();
 }
