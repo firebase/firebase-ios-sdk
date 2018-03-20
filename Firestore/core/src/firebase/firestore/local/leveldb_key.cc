@@ -227,9 +227,8 @@ bool ReadLabeledInt32(leveldb::Slice *contents,
                       int32_t *value) {
   leveldb::Slice tmp = *contents;
   if (ReadComponentLabelMatching(&tmp, expected_label)) {
-    leveldb::Slice tmp_slice = tmp;
-    if (ReadInt32(&tmp_slice, value)) {
-      *contents = tmp_slice;
+    if (ReadInt32(&tmp, value)) {
+      *contents = tmp;
       return true;
     }
   }
