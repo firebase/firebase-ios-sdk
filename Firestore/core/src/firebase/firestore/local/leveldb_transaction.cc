@@ -18,6 +18,7 @@
 
 #include <leveldb/write_batch.h>
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 using leveldb::DB;
@@ -204,6 +205,18 @@ void LevelDbTransaction::Commit() {
   Status status = db_->Write(write_options_, &batch);
   FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction: %s",
                           status.ToString().c_str());
+}
+
+std::string LevelDbTransaction::ToString() {
+  std::string dest("<LevelDbTransaction: ");
+  for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
+    dest += "\n  - Delete " + Describe(*it);
+  }
+  for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
+    dest += "\n  - Put " + Describe(it->first) + " (" + it->second.length() + " bytes)";
+  }
+  dest += ">";
+  return dest;
 }
 
 }  // namespace local
