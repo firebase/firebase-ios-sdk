@@ -56,7 +56,7 @@ NS_SWIFT_NAME(Functions)
 // clang-format on
 
 /**
- * Creates a reference to the Callable HTTPS trigger with the given name. 
+ * Creates a reference to the Callable HTTPS trigger with the given name.
  * @param name The name of the Callable HTTPS trigger.
  */
 - (FIRHTTPSCallable *)HTTPSCallableWithName:(NSString *)name NS_SWIFT_NAME(httpsCallable(_:));
