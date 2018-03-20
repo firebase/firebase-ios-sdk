@@ -30,7 +30,7 @@ TEST(EmptyCredentialsProvider, GetToken) {
         EXPECT_TRUE(result.ok());
         const Token& token = result.ValueOrDie();
         EXPECT_ANY_THROW(token.token());
-        const User& user = result.ValueOrDie().user();
+        const User& user = token.user();
         EXPECT_EQ("", user.uid());
         EXPECT_FALSE(user.is_authenticated());
       });

@@ -287,7 +287,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   // but I'm not sure how to detect that right now. http://b/32762461
   if (!result.ok()) {
     // RPC has not been started yet, so just invoke higher-level close handler.
-    [self handleStreamClose:util::WrapNSError(result.status())];
+    [self handleStreamClose:util::MakeNSError(result.status())];
     return;
   }
 

@@ -33,7 +33,7 @@ namespace firestore {
 namespace util {
 
 // Translates a set of error_code and error_msg to an NSError.
-inline NSError* WrapNSError(const int64_t error_code,
+inline NSError* MakeNSError(const int64_t error_code,
                             const absl::string_view error_msg) {
   if (error_code == FirestoreErrorCode::Ok) {
     return nil;
@@ -44,8 +44,8 @@ inline NSError* WrapNSError(const int64_t error_code,
              userInfo:@{NSLocalizedDescriptionKey : WrapNSString(error_msg)}];
 }
 
-inline NSError* WrapNSError(const util::Status& status) {
-  return WrapNSError(status.code(), status.error_message());
+inline NSError* MakeNSError(const util::Status& status) {
+  return MakeNSError(status.code(), status.error_message());
 }
 
 }  // namespace util

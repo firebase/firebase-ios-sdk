@@ -103,14 +103,18 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
                               "getToken aborted due to user change."));
     } else {
       if (error == nil) {
-        completion(Token{util::MakeStringView(token), contents->current_user});
+        if (token != nil) {
+          completion(Token{util::MakeStringView(token), contents->current_user});
+        } else {
+          completion(Token::Unauthenticated());
+        }
       } else {
         FirestoreErrorCode error_code = FirestoreErrorCode::Unknown;
         if (error.domain == FIRFirestoreErrorDomain) {
           error_code = static_cast<FirestoreErrorCode>(error.code);
         }
         completion(
-            util::Status(FirestoreErrorCode::Unknown,
+            util::Status(error_code,
                          util::MakeStringView(error.localizedDescription)));
       }
     }

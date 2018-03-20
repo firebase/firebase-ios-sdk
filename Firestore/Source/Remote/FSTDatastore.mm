@@ -306,10 +306,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // but I'm not sure how to detect that right now. http://b/32762461
   _credentials->GetToken(
       /*force_refresh=*/false, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
-        NSError *error = util::WrapNSError(result.status());
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          if (error) {
-            errorHandler(error);
+          if (!result.ok()) {
+            errorHandler(util::MakeNSError(result.status()));
           } else {
             GRPCProtoCall *rpc = rpcFactory();
             const Token &token = result.ValueOrDie();

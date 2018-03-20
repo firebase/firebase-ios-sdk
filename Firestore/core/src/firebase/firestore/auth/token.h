@@ -58,12 +58,16 @@ class Token {
     return user_;
   }
 
-  /** Returns a token for an unauthenticated user. */
+  /**
+   * Returns a token for an unauthenticated user.
+   *
+   * ## Portability notes: An unauthenticated token is the equivalent of
+   * nil/null in the iOS/TypeScript token implementation. We use a reference
+   * instead of a pointer for Token instances in the C++ migration.
+   */
   static const Token& Unauthenticated();
 
  private:
-  Token();
-
   const std::string token_;
   const User user_;
 };

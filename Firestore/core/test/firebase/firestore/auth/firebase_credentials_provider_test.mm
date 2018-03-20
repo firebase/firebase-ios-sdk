@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 
 #import <FirebaseCore/FIRApp.h>
+
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
@@ -30,13 +31,21 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-FIRApp* AppWithFakeUid(NSString* _Nullable uid) {
+FIRApp* AppWithFakeUidAndToken(NSString* _Nullable uid, NSString* _Nullable token) {
   FIRApp* app = testutil::AppForUnitTesting();
   app.getUIDImplementation = ^NSString* {
     return uid;
   };
+  app.getTokenImplementation = ^(BOOL, FIRTokenCallback callback) {
+    callback(token, nil);
+  };
   return app;
 }
+
+FIRApp* AppWithFakeUid(NSString* _Nullable uid) {
+  return AppWithFakeUidAndToken(uid, uid == nil ? nil : @"default token");
+}
+
 
 TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = AppWithFakeUid(nil);
@@ -54,14 +63,14 @@ TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
 }
 
 TEST(FirebaseCredentialsProviderTest, GetToken) {
-  FIRApp* app = AppWithFakeUid(@"fake uid");
+  FIRApp* app = AppWithFakeUidAndToken(@"fake uid", @"token for fake uid");
 
   FirebaseCredentialsProvider credentials_provider(app);
   credentials_provider.GetToken(
       /*force_refresh=*/true, [](util::StatusOr<Token> result) {
         EXPECT_TRUE(result.ok());
         const Token& token = result.ValueOrDie();
-        EXPECT_EQ("", token.token());
+        EXPECT_EQ("token for fake uid", token.token());
         const User& user = token.user();
         EXPECT_EQ("fake uid", user.uid());
         EXPECT_TRUE(user.is_authenticated());
