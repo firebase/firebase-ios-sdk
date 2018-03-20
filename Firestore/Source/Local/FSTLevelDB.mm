@@ -208,14 +208,6 @@ using leveldb::WriteOptions;
   return _transaction.get();
 }
 
-- (void)runTransaction:(void (^)())block {
-  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
-  block();
-  _transaction->Commit();
-  _transaction.reset();
-}
-
 #pragma mark - Persistence Factory methods
 
 - (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
