@@ -209,13 +209,19 @@ void LevelDbTransaction::Commit() {
 
 std::string LevelDbTransaction::ToString() {
   std::string dest("<LevelDbTransaction: ");
+  unsigned long changes = deletions_.size() + mutations_.size();
+  unsigned long bytes = 0;
+  dest += std::to_string(changes) + " changes ";
+  std::string items;
   for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
-    dest += "\n  - Delete " + Describe(*it);
+    items += "\n  - Delete " + Describe(*it);
   }
   for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
-    dest += "\n  - Put " + Describe(it->first) + " (" + it->second.length() + " bytes)";
+    unsigned long change_bytes = it->second.length();
+    bytes += change_bytes;
+    items += "\n  - Put " + Describe(it->first) + " (" + std::to_string(change_bytes) + " bytes)";
   }
-  dest += ">";
+  dest += "(" + std::to_string(bytes) + " bytes):" + items + ">";
   return dest;
 }
 
