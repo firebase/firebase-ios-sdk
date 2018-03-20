@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (firebase::firestore::model::DocumentKeySet *)mutatedKeys;
+- (const firebase::firestore::model::DocumentKeySet &)mutatedKeys;
 
 /** The new set of docs that should be in the view. */
 @property(nonatomic, strong, readonly) FSTDocumentSet *documentSet;

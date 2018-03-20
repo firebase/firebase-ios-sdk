@@ -65,8 +65,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (DocumentKeySet *)mutatedKeys {
-  return &_mutatedKeys;
+- (const DocumentKeySet &)mutatedKeys {
+  return _mutatedKeys;
 }
 
 @end
@@ -205,7 +205,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       previousChanges ? previousChanges.changeSet : [FSTDocumentViewChangeSet changeSet];
   FSTDocumentSet *oldDocumentSet = previousChanges ? previousChanges.documentSet : self.documentSet;
 
-  DocumentKeySet newMutatedKeys = previousChanges ? *previousChanges.mutatedKeys : _mutatedKeys;
+  DocumentKeySet newMutatedKeys = previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
   __block FSTDocumentSet *newDocumentSet = oldDocumentSet;
   __block BOOL needsRefill = NO;
 
@@ -312,7 +312,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
   FSTDocumentSet *oldDocuments = self.documentSet;
   self.documentSet = docChanges.documentSet;
-  _mutatedKeys = *docChanges.mutatedKeys;
+  _mutatedKeys = docChanges.mutatedKeys;
 
   // Sort changes based on type and query comparator.
   NSArray<FSTDocumentViewChange *> *changes = [docChanges.changeSet changes];
@@ -341,7 +341,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
                                   oldDocuments:oldDocuments
                                documentChanges:changes
                                      fromCache:newSyncState == FSTSyncStateLocal
-                              hasPendingWrites:!docChanges.mutatedKeys->empty()
+                              hasPendingWrites:!docChanges.mutatedKeys.empty()
                               syncStateChanged:syncStateChanged];
 
     return [FSTViewChange changeWithSnapshot:snapshot limboChanges:limboChanges];
@@ -398,10 +398,10 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     if ([targetMapping isKindOfClass:[FSTResetMapping class]]) {
       _syncedDocuments = ((FSTResetMapping *)targetMapping).documents;
     } else if ([targetMapping isKindOfClass:[FSTUpdateMapping class]]) {
-      for (const auto &key : *((FSTUpdateMapping *)targetMapping).addedDocuments) {
+      for (const auto &key : ((FSTUpdateMapping *)targetMapping).addedDocuments) {
         _syncedDocuments.insert(key);
       };
-      for (const auto &key : *((FSTUpdateMapping *)targetMapping).removedDocuments) {
+      for (const auto &key : ((FSTUpdateMapping *)targetMapping).removedDocuments) {
         _syncedDocuments.erase(key);
       };
     }

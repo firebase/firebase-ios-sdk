@@ -303,8 +303,8 @@ NS_ASSUME_NONNULL_BEGIN
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-        [queryCache removeMatchingKeys:*update.removedDocuments forTargetID:targetID group:group];
-        [queryCache addMatchingKeys:*update.addedDocuments forTargetID:targetID group:group];
+        [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID group:group];
+        [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID group:group];
 
       } else {
         FSTFail(@"Unknown mapping type: %@", mapping);
@@ -366,7 +366,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 
   // Union the two key sets.
-  DocumentKeySet &keysToRecalc = changedDocKeys;
+  DocumentKeySet keysToRecalc = changedDocKeys;
   for (const auto &key : releasedWriteKeys) {
     keysToRecalc.insert(key);
   };
@@ -380,8 +380,8 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
     FSTAssert(queryData, @"Local view changes contain unallocated query.");
     FSTTargetID targetID = queryData.targetID;
-    [localViewReferences addReferencesToKeys:*view.addedKeys forID:targetID];
-    [localViewReferences removeReferencesToKeys:*view.removedKeys forID:targetID];
+    [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
+    [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
   }
 }
 
@@ -546,8 +546,10 @@ NS_ASSUME_NONNULL_BEGIN
   for (const auto &docKey : docKeys) {
     FSTMaybeDocument *_Nullable remoteDoc = [remoteDocuments entryForKey:docKey];
     FSTMaybeDocument *_Nullable doc = remoteDoc;
-    FSTSnapshotVersion *ackVersion = batchResult.docVersions.at(docKey);
-    FSTAssert(ackVersion, @"docVersions should contain every doc in the write.");
+    const auto iter = batchResult.docVersions.find(docKey);
+    FSTAssert(iter != batchResult.docVersions.end(),
+              @"docVersions should contain every doc in the write.");
+    FSTSnapshotVersion *ackVersion = iter->second;
     if (!doc || [doc.version compare:ackVersion] == NSOrderedAscending) {
       doc = [batch applyTo:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {

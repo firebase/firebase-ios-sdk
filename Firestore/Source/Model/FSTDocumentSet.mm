@@ -51,7 +51,6 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
  * allow ordered traversal of the FSTDocumentSet.
  */
 @property(nonatomic, strong, readonly) SetType *sortedSet;
-
 @end
 
 @implementation FSTDocumentSet {
@@ -189,8 +188,8 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   if (iter == _index.end()) {
     return self;
   }
-
   FSTDocument *doc = iter->second;
+
   IndexType index = _index;
   index.erase(key);
   SetType *set = [self.sortedSet setByRemovingObject:doc];

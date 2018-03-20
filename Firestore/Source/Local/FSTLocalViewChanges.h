@@ -42,8 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)init NS_UNAVAILABLE;
 
-- (firebase::firestore::model::DocumentKeySet *)addedKeys;
-- (firebase::firestore::model::DocumentKeySet *)removedKeys;
+- (const firebase::firestore::model::DocumentKeySet &)addedKeys;
+- (const firebase::firestore::model::DocumentKeySet &)removedKeys;
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
 

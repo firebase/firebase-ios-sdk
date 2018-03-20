@@ -255,8 +255,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     [request.documentsArray addObject:[self.serializer encodedDocumentKey:key]];
   }
 
-  __block MaybeDocumentDictionary results{};
+  __block MaybeDocumentDictionary *results = nullptr;
   RPCFactory rpcFactory = ^GRPCProtoCall * {
+    results = new MaybeDocumentDictionary();
     __block GRPCProtoCall *rpc = [self.service
         RPCToBatchGetDocumentsWithRequest:request
                              eventHandler:^(BOOL done,
@@ -268,6 +269,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    FSTLog(@"RPC BatchGetDocuments completed. Error: %@", error);
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    completion(nil, error);
+                                   delete results;
+                                   results = nullptr;
                                    return;
                                  }
 
@@ -275,7 +278,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    // Streaming response, accumulate result
                                    FSTMaybeDocument *doc =
                                        [self.serializer decodedMaybeDocumentFromBatch:response];
-                                   results[doc.key] = doc;
+                                   (*results)[doc.key] = doc;
                                  } else {
                                    // Streaming response is done, call completion
                                    FSTLog(@"RPC BatchGetDocuments completed successfully.");
@@ -284,9 +287,11 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    NSMutableArray<FSTMaybeDocument *> *docs =
                                        [NSMutableArray arrayWithCapacity:keys.count];
                                    for (FSTDocumentKey *key in keys) {
-                                     [docs addObject:results[key]];
+                                     [docs addObject:(*results)[key]];
                                    }
                                    completion(docs, nil);
+                                   delete results;
+                                   results = nullptr;
                                  }
                                }];
                              }];

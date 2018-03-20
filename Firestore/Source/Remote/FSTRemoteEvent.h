@@ -75,9 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)applyTo:(firebase::firestore::model::DocumentKeySet *)keys;
 
 /** The documents added to the target. */
-- (firebase::firestore::model::DocumentKeySet *)addedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)addedDocuments;
 /** The documents removed from the target. */
-- (firebase::firestore::model::DocumentKeySet *)removedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)removedDocuments;
 @end
 
 #pragma mark - FSTTargetChange

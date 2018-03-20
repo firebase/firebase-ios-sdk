@@ -65,12 +65,12 @@ NS_ASSUME_NONNULL_BEGIN
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
   FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:query.path.Append("")];
-  const auto iter = _docs.find(prefix);
+  const auto iter = _docs.lower_bound(prefix);
   while (iter != _docs.end()) {
     if (!query.path.IsPrefixOf(iter->first.path())) {
       break;
     }
-    FSTMaybeDocument *maybeDoc = _docs[iter->first];
+    FSTMaybeDocument *maybeDoc = iter->second;
     if (![maybeDoc isKindOfClass:[FSTDocument class]]) {
       continue;
     }

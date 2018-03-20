@@ -81,12 +81,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (DocumentKeySet *)addedKeys {
-  return &_addedKeys;
+- (const DocumentKeySet &)addedKeys {
+  return _addedKeys;
 }
 
-- (DocumentKeySet *)removedKeys {
-  return &_removedKeys;
+- (const DocumentKeySet &)removedKeys {
+  return _removedKeys;
 }
 
 @end

@@ -92,11 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = 0;
-  for (const auto &doc : _documents) {
-    result = result * 31u + std::hash<std::string>{}(doc.ToString());
-  }
-  return result;
+  return firebase::firestore::model::DocumentKeySetHash(_documents);
 }
 
 - (void)addDocumentKey:(FSTDocumentKey *)documentKey {
@@ -114,6 +110,11 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark - FSTUpdateMapping
+
+@interface FSTUpdateMapping ()
+- (DocumentKeySet *)mutableAddedDocuments;
+- (DocumentKeySet *)mutableRemovedDocuments;
+@end
 
 @implementation FSTUpdateMapping {
   DocumentKeySet _addedDocuments;
@@ -155,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  return DocumentKeySetHash(*self.addedDocuments) * 31 + DocumentKeySetHash(*self.removedDocuments);
+  return DocumentKeySetHash(_addedDocuments) * 31 + DocumentKeySetHash(_removedDocuments);
 }
 
 - (void)applyTo:(DocumentKeySet *)keys {
@@ -177,11 +178,19 @@ NS_ASSUME_NONNULL_BEGIN
   _removedDocuments.insert(documentKey);
 }
 
-- (DocumentKeySet *)addedDocuments {
+- (const DocumentKeySet &)addedDocuments {
+  return _addedDocuments;
+}
+
+- (const DocumentKeySet &)removedDocuments {
+  return _removedDocuments;
+}
+
+- (DocumentKeySet *)mutableAddedDocuments {
   return &_addedDocuments;
 }
 
-- (DocumentKeySet *)removedDocuments {
+- (DocumentKeySet *)mutableRemovedDocuments {
   return &_removedDocuments;
 }
 
@@ -211,9 +220,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
   for (FSTMaybeDocument *doc in docs) {
     if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
-      mapping.removedDocuments->insert(doc.key);
+      mapping.mutableRemovedDocuments->insert(doc.key);
     } else {
-      mapping.addedDocuments->insert(doc.key);
+      mapping.mutableAddedDocuments->insert(doc.key);
     }
   }
   FSTTargetChange *change = [[FSTTargetChange alloc] init];

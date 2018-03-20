@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
       // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
 
       // If the key is already in the results, we can skip it.
-      if (results.find(mutation.key) != results.end()) {
+      if (results.find(mutation.key) == results.end()) {
         matchingKeys.insert(mutation.key);
       }
     }
@@ -176,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
       iter = result.erase(iter);
     } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-      result[iter->first] = (FSTDocument *)iter->second;
+      result[iter->first] = (FSTDocument *)mutatedDoc;
       ++iter;
     } else {
       FSTFail(@"Unknown document: %@", mutatedDoc);
