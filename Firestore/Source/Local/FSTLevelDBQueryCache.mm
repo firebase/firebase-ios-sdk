@@ -16,7 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
-#include "absl/strings/match.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -26,6 +25,7 @@
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+#include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

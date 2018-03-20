@@ -164,7 +164,8 @@ void LevelDbTransaction::Put(const absl::string_view& key,
   version_++;
 }
 
-std::unique_ptr<LevelDbTransaction::Iterator> LevelDbTransaction::NewIterator() {
+std::unique_ptr<LevelDbTransaction::Iterator>
+LevelDbTransaction::NewIterator() {
   return std::make_unique<LevelDbTransaction::Iterator>(this);
 }
 
