@@ -14,10 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# USAGE: build.sh product [platform] [method]
-#
-# Builds the given product for the given platform using the given build method
-#
 # Sets up a project with the functions CLI and starts a backend to run
 # integration tests against.
 
