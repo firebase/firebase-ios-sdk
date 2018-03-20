@@ -19,10 +19,10 @@
 #import <XCTest/XCTest.h>
 #include <absl/strings/string_view.h>
 #include <leveldb/db.h>
-#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -284,16 +284,16 @@ using firebase::firestore::local::LevelDbTransaction;
   transaction.Put(key, message);
   description = transaction.ToString();
   XCTAssertEqual(description,
-          "<LevelDbTransaction: 1 changes (2 bytes):\n"
-                  "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
+                 "<LevelDbTransaction: 1 changes (2 bytes):\n"
+                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 
   std::string key2 = LevelDbMutationKey::Key("user1", 43);
   transaction.Delete(key2);
   description = transaction.ToString();
   XCTAssertEqual(description,
-          "<LevelDbTransaction: 2 changes (2 bytes):\n"
-                  "  - Delete [mutation: user_id=user1 batch_id=43]\n"
-                  "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
+                 "<LevelDbTransaction: 2 changes (2 bytes):\n"
+                 "  - Delete [mutation: user_id=user1 batch_id=43]\n"
+                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 }
 
 @end

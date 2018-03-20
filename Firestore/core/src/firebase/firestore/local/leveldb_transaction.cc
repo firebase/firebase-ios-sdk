@@ -219,7 +219,8 @@ std::string LevelDbTransaction::ToString() {
   for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
     unsigned long change_bytes = it->second.length();
     bytes += change_bytes;
-    items += "\n  - Put " + Describe(it->first) + " (" + std::to_string(change_bytes) + " bytes)";
+    items += "\n  - Put " + Describe(it->first) + " (" +
+             std::to_string(change_bytes) + " bytes)";
   }
   dest += "(" + std::to_string(bytes) + " bytes):" + items + ">";
   return dest;
