@@ -31,7 +31,8 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-FIRApp* AppWithFakeUidAndToken(NSString* _Nullable uid, NSString* _Nullable token) {
+FIRApp* AppWithFakeUidAndToken(NSString* _Nullable uid,
+                               NSString* _Nullable token) {
   FIRApp* app = testutil::AppForUnitTesting();
   app.getUIDImplementation = ^NSString* {
     return uid;
@@ -45,7 +46,6 @@ FIRApp* AppWithFakeUidAndToken(NSString* _Nullable uid, NSString* _Nullable toke
 FIRApp* AppWithFakeUid(NSString* _Nullable uid) {
   return AppWithFakeUidAndToken(uid, uid == nil ? nil : @"default token");
 }
-
 
 TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = AppWithFakeUid(nil);

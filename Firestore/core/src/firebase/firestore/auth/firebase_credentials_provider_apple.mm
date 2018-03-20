@@ -87,38 +87,38 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
   int initial_user_counter = contents_->user_counter;
 
   std::weak_ptr<Contents> weak_contents = contents_;
-  void (^get_token_callback)(NSString*, NSError*) = ^(
-      NSString* _Nullable token, NSError* _Nullable error) {
-    std::shared_ptr<Contents> contents = weak_contents.lock();
-    if (!contents) {
-      return;
-    }
+  void (^get_token_callback)(NSString*, NSError*) =
+      ^(NSString* _Nullable token, NSError* _Nullable error) {
+        std::shared_ptr<Contents> contents = weak_contents.lock();
+        if (!contents) {
+          return;
+        }
 
-    std::unique_lock<std::mutex> lock(contents->mutex);
-    if (initial_user_counter != contents->user_counter) {
-      // Cancel the request since the user changed while the request was
-      // outstanding so the response is likely for a previous user (which
-      // user, we can't be sure).
-      completion(util::Status(FirestoreErrorCode::Aborted,
-                              "getToken aborted due to user change."));
-    } else {
-      if (error == nil) {
-        if (token != nil) {
-          completion(Token{util::MakeStringView(token), contents->current_user});
+        std::unique_lock<std::mutex> lock(contents->mutex);
+        if (initial_user_counter != contents->user_counter) {
+          // Cancel the request since the user changed while the request was
+          // outstanding so the response is likely for a previous user (which
+          // user, we can't be sure).
+          completion(util::Status(FirestoreErrorCode::Aborted,
+                                  "getToken aborted due to user change."));
         } else {
-          completion(Token::Unauthenticated());
+          if (error == nil) {
+            if (token != nil) {
+              completion(
+                  Token{util::MakeStringView(token), contents->current_user});
+            } else {
+              completion(Token::Unauthenticated());
+            }
+          } else {
+            FirestoreErrorCode error_code = FirestoreErrorCode::Unknown;
+            if (error.domain == FIRFirestoreErrorDomain) {
+              error_code = static_cast<FirestoreErrorCode>(error.code);
+            }
+            completion(util::Status(
+                error_code, util::MakeStringView(error.localizedDescription)));
+          }
         }
-      } else {
-        FirestoreErrorCode error_code = FirestoreErrorCode::Unknown;
-        if (error.domain == FIRFirestoreErrorDomain) {
-          error_code = static_cast<FirestoreErrorCode>(error.code);
-        }
-        completion(
-            util::Status(error_code,
-                         util::MakeStringView(error.localizedDescription)));
-      }
-    }
-  };
+      };
 
   [contents_->app getTokenForcingRefresh:force_refresh
                             withCallback:get_token_callback];

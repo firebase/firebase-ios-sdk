@@ -25,7 +25,8 @@ Token::Token(const absl::string_view token, const User& user)
 }
 
 const Token& Token::Unauthenticated() {
-  static const Token kUnauthenticatedToken(absl::string_view(), User::Unauthenticated());
+  static const Token kUnauthenticatedToken(absl::string_view(),
+                                           User::Unauthenticated());
   return kUnauthenticatedToken;
 }
 
