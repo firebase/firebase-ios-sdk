@@ -59,7 +59,7 @@ using firebase::firestore::local::LevelDbTransaction;
   std::string key = "key1";
 
   transaction.Put(key, "value");
-  std::unique_ptr<LevelDbTransaction::Iterator> iter(transaction.NewIterator());
+  auto iter = transaction.NewIterator();
   iter->Seek(key);
   XCTAssertEqual(key, iter->key());
   iter->Next();
@@ -209,7 +209,7 @@ using firebase::firestore::local::LevelDbTransaction;
     transaction.Put("key_" + std::to_string(i), "value_" + std::to_string(i));
   }
 
-  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction.NewIterator());
+  auto it = transaction.NewIterator();
   it->Seek("key_0");
   for (int i = 0; i < 4; ++i) {
     XCTAssertTrue(it->Valid());
@@ -231,7 +231,7 @@ using firebase::firestore::local::LevelDbTransaction;
 
   // Create a transaction, iterate, deleting key_0. Verify we still iterate key_1.
   LevelDbTransaction transaction(_db.get());
-  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction.NewIterator());
+  auto it = transaction.NewIterator();
   it->Seek("key_0");
   XCTAssertTrue(it->Valid());
   XCTAssertEqual("key_0", it->key());
@@ -253,7 +253,7 @@ using firebase::firestore::local::LevelDbTransaction;
 
   // Create a transaction, iterate to key_1, delete key_2. Verify we still iterate key_3.
   LevelDbTransaction transaction(_db.get());
-  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction.NewIterator());
+  auto it = transaction.NewIterator();
   it->Seek("key_0");
   XCTAssertTrue(it->Valid());
   XCTAssertEqual("key_0", it->key());

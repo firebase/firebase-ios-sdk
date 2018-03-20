@@ -234,8 +234,7 @@ using leveldb::Status;
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
   Slice canonicalID = StringView(query.canonicalID);
-  std::unique_ptr<LevelDbTransaction::Iterator> indexItererator(
-      _db.currentTransaction->NewIterator());
+  auto indexItererator = _db.currentTransaction->NewIterator();
   std::string indexPrefix = [FSTLevelDBQueryTargetKey keyPrefixWithCanonicalID:canonicalID];
   indexItererator->Seek(indexPrefix);
 
@@ -243,8 +242,7 @@ using leveldb::Status;
   // unique and ordered, so when scanning a table prefixed by exactly one canonicalID, all the
   // targetIDs will be unique and in order.
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
-  std::unique_ptr<LevelDbTransaction::Iterator> targetIterator(
-      _db.currentTransaction->NewIterator());
+  auto targetIterator = _db.currentTransaction->NewIterator();
 
   FSTLevelDBQueryTargetKey *rowKey = [[FSTLevelDBQueryTargetKey alloc] init];
   for (; indexItererator->Valid(); indexItererator->Next()) {
@@ -314,8 +312,7 @@ using leveldb::Status;
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
-      _db.currentTransaction->NewIterator());
+  auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
@@ -338,8 +335,7 @@ using leveldb::Status;
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
-      _db.currentTransaction->NewIterator());
+  auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
@@ -362,8 +358,7 @@ using leveldb::Status;
 
 - (BOOL)containsKey:(FSTDocumentKey *)key {
   std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path];
-  std::unique_ptr<LevelDbTransaction::Iterator> indexIterator(
-      _db.currentTransaction->NewIterator());
+  auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   if (indexIterator->Valid()) {
