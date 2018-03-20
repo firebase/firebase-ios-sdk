@@ -2,7 +2,7 @@
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
-FirebaseMessaging and FirebaseStorage.
+FirebaseFunctions, FirebaseMessaging and FirebaseStorage.
 
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
@@ -15,9 +15,10 @@ the Firebase iOS SDK. If you're interested in using the Firebase iOS SDK, start 
 ## Context
 
 This repo contains a fully functional development environment for FirebaseCore,
-FirebaseAuth, FirebaseDatabase, FirebaseFirestore, FirebaseMessaging, and
-FirebaseStorage. By following the usage instructions below, they can be
-developed and debugged with unit tests, integration tests, and reference samples.
+FirebaseAuth, FirebaseDatabase, FirebaseFirestore, FirebaseFunctions,
+FirebaseMessaging, and FirebaseStorage. By following the usage instructions
+below, they can be developed and debugged with unit tests, integration tests,
+and reference samples.
 
 ## Source pod integration
 
@@ -70,8 +71,9 @@ $ pod update
 $ open Firebase.xcworkspace
 ```
 
-Firestore has a self contained Xcode project. See
-[Firestore/README.md](Firestore/README.md).
+Firestore and Functions have self contained Xcode projects. See
+[Firestore/README.md](Firestore/README.md) and
+[Functions/README.md](Functions/README.md).
 
 ### Running Unit Tests
 
