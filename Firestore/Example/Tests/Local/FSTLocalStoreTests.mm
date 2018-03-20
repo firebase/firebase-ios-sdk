@@ -187,7 +187,7 @@ DocumentVersionDictionary FSTVersionDictionary(FSTMutation *mutation,
 
 /** Asserts that a the lastChanges contain the docs in the given array. */
 #define FSTAssertChanged(documents)                                           \
-  XCTAssert(!_lastChanges.empty());                                           \
+  XCTAssert(!_lastChanges.empty() || documents.count == 0);                   \
   do {                                                                        \
     const MaybeDocumentDictionary &actual = _lastChanges;                     \
     NSArray<FSTMaybeDocument *> *expected = (documents);                      \
@@ -714,11 +714,10 @@ DocumentVersionDictionary FSTVersionDictionary(FSTMutation *mutation,
   FSTQuery *query = FSTTestQuery("foo");
   DocumentDictionary docs = [self.localStore executeQuery:query];
   XCTAssertEqual(docs.size(), 2);
-  XCTAssertEqual(std::set<FSTDocument *>({docs.begin()->second, docs.rbegin()->second}),
-                 std::set<FSTDocument *>({
-                   FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES),
-                       FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES)
-                 }));
+  XCTAssertEqualObjects((@[ docs.begin()->second, docs.rbegin()->second ]), (@[
+                          FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES),
+                          FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES)
+                        ]));
 }
 
 - (void)testCanExecuteMixedCollectionQueries {
@@ -737,13 +736,12 @@ DocumentVersionDictionary FSTVersionDictionary(FSTMutation *mutation,
 
   DocumentDictionary docs = [self.localStore executeQuery:query];
   XCTAssertEqual(docs.size(), 3);
-  XCTAssertEqual(std::set<FSTDocument *>(
-                     {docs.begin()->second, docs.begin()++->second, docs.rbegin()->second}),
-                 std::set<FSTDocument *>({
-                   FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
-                       FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
-                       FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, YES)
-                 }));
+  XCTAssertEqualObjects(
+      (@[ docs.begin()->second, (++docs.begin())->second, docs.rbegin()->second ]), (@[
+        FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
+        FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
+        FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, YES)
+      ]));
 }
 
 - (void)testPersistsResumeTokens {
