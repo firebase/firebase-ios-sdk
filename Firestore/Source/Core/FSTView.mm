@@ -206,7 +206,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   FSTDocumentSet *oldDocumentSet = previousChanges ? previousChanges.documentSet : self.documentSet;
 
   DocumentKeySet newMutatedKeys = previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
-  __block FSTDocumentSet *newDocumentSet = oldDocumentSet;
+  FSTDocumentSet *newDocumentSet = oldDocumentSet;
   __block BOOL needsRefill = NO;
 
   // Track the last doc in a (full) limit. This is necessary, because some update (a delete, or an

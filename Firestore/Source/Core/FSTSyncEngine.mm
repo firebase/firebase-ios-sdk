@@ -456,7 +456,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
       DocumentDictionary docs = [self.localStore executeQuery:queryView.query];
       viewDocChanges = [view
           computeChangesWithDocuments:firebase::firestore::model::ToMaybeDocumentDictionary(docs)
-                      previousChanges:std::move(viewDocChanges)];
+                      previousChanges:viewDocChanges];
     }
     FSTTargetChange *_Nullable targetChange = remoteEvent.targetChanges[@(queryView.targetID)];
     FSTViewChange *viewChange =
