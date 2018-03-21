@@ -156,7 +156,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)applyTo:(DocumentKeySet *)keys {
   keys->insert(_addedDocuments.begin(), _addedDocuments.end());
-  keys->erase(_removedDocuments.begin(), _removedDocuments.end());
+  for (const auto &key : _removedDocuments) {
+    keys->erase(key);
+  }
 }
 
 - (void)addDocumentKey:(FSTDocumentKey *)documentKey {

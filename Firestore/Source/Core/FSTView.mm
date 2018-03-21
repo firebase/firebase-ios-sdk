@@ -397,9 +397,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     if ([targetMapping isKindOfClass:[FSTResetMapping class]]) {
       _syncedDocuments = ((FSTResetMapping *)targetMapping).documents;
     } else if ([targetMapping isKindOfClass:[FSTUpdateMapping class]]) {
-      for (const auto &key : ((FSTUpdateMapping *)targetMapping).addedDocuments) {
-        _syncedDocuments.insert(key);
-      };
+      const DocumentKeySet &added = ((FSTUpdateMapping *)targetMapping).addedDocuments;
+      _syncedDocuments.insert(added.begin(), added.end());
       for (const auto &key : ((FSTUpdateMapping *)targetMapping).removedDocuments) {
         _syncedDocuments.erase(key);
       };
