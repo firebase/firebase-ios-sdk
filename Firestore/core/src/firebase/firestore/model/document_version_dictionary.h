@@ -28,8 +28,8 @@ namespace firestore {
 namespace model {
 
 /** A map of key to version number. */
-typedef std::map<firebase::firestore::model::DocumentKey, FSTSnapshotVersion *>
-    DocumentVersionDictionary;
+using DocumentVersionDictionary =
+    std::map<firebase::firestore::model::DocumentKey, FSTSnapshotVersion *>;
 
 }  // namespace model
 }  // namespace firestore

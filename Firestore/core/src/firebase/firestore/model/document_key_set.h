@@ -28,14 +28,14 @@ namespace firestore {
 namespace model {
 
 /** Convenience type for a set of keys, since they are so common. */
-typedef std::set<firebase::firestore::model::DocumentKey> DocumentKeySet;
+using DocumentKeySet = std::set<firebase::firestore::model::DocumentKey>;
 
 #if defined(__OBJC__)
 // For Objective-C++ hash; to be removed after migration.
 // Do NOT use in C++ code.
 inline uint64_t DocumentKeySetHash(const DocumentKeySet& keys) {
   uint64_t hash = 0;
-  std::hash<std::string> hash_fn{};
+  std::hash<std::string> hash_fn;
   for (const auto& key : keys) {
     hash = 31 * hash + hash_fn(key.ToString());
   }

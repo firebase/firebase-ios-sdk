@@ -33,12 +33,11 @@ namespace auth {
 // token: An auth token as a string, or nullptr if error occurred.
 // error_code: The error code if one occurred, or else FirestoreErrorCode::Ok.
 // error_msg: The error if one occurred, or else nullptr.
-typedef std::function<void(
-    Token token, const int64_t error_code, const absl::string_view error_msg)>
-    TokenListener;
+using TokenListener = std::function<void(
+    Token token, const int64_t error_code, const absl::string_view error_msg)>;
 
 // Listener notified with a User change.
-typedef std::function<void(User user)> UserChangeListener;
+using UserChangeListener = std::function<void(User user)>;
 
 /**
  * Provides methods for getting the uid and token for the current user and

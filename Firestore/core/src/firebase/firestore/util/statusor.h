@@ -94,10 +94,10 @@ class ABSL_MUST_USE_RESULT StatusOr
   template <typename U>
   friend class StatusOr;
 
-  typedef internal_statusor::StatusOrData<T> Base;
+  using Base = internal_statusor::StatusOrData<T>;
 
  public:
-  typedef T element_type;
+  using element_type = T;
 
   // Constructs a new StatusOr with FirebaseErrorCode::Unknown status.  This is
   // marked 'explicit' to try to catch cases like 'return {};', where people

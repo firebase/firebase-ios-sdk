@@ -26,7 +26,7 @@ namespace firebase {
 namespace firestore {
 namespace immutable {
 
-typedef ArraySortedMap<int, int> IntMap;
+using IntMap = ArraySortedMap<int, int>;
 constexpr IntMap::size_type kFixedSize = IntMap::kFixedSize;
 
 template <typename K, typename V>

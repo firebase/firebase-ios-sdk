@@ -332,8 +332,8 @@ iterator_second<It> make_iterator_second(It it) {
 //   MyClass(const string& s);
 //   string DebugString() const;
 // };
-// typedef hash_map<string, linked_ptr<MyClass> > MyMap;
-// typedef iterator_second_ptr<MyMap::iterator> MyMapValuesIterator;
+// using MyMap = hash_map<string, linked_ptr<MyClass> >;
+// using MyMapValuesIterator = iterator_second_ptr<MyMap::iterator>;
 // MyMap values;
 // values["foo"].reset(new MyClass("foo"));
 // values["bar"].reset(new MyClass("bar"));
@@ -376,8 +376,8 @@ iterator_second_ptr<It> make_iterator_second_ptr(It it) {
 //   MyClass(const string& s);
 //   string DebugString() const;
 // };
-// typedef vector<linked_ptr<MyClass> > MyVector;
-// typedef iterator_ptr<MyVector::iterator> DereferencingIterator;
+// using MyVector = vector<linked_ptr<MyClass> >;
+// using DereferencingIterator = iterator_ptr<MyVector::iterator>;
 // MyVector values;
 // values.push_back(make_linked_ptr(new MyClass("foo")));
 // values.push_back(make_linked_ptr(new MyClass("bar")));

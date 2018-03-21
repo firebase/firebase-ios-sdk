@@ -28,19 +28,21 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/** Convenience type for a map of keys to MaybeDocuments, since they are so
+/**
+ * Convenience type for a map of keys to MaybeDocuments, since they are so
  * common. */
-typedef std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument*>
-    MaybeDocumentDictionary;
+using MaybeDocumentDictionary =
+    std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument*>;
 
-/** Convenience type for a map of keys to Documents, since they are so common.
+/**
+ * Convenience type for a map of keys to Documents, since they are so common.
  */
-typedef std::map<firebase::firestore::model::DocumentKey, FSTDocument*>
-    DocumentDictionary;
+using DocumentDictionary =
+    std::map<firebase::firestore::model::DocumentKey, FSTDocument*>;
 
 inline MaybeDocumentDictionary ToMaybeDocumentDictionary(
     const DocumentDictionary& docs) {
-  MaybeDocumentDictionary result{};
+  MaybeDocumentDictionary result;
   for (const auto& iter : docs) {
     result[iter.first] = reinterpret_cast<FSTMaybeDocument*>(iter.second);
   }

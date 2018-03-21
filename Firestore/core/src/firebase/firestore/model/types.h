@@ -23,7 +23,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-typedef int32_t TargetId;
+using TargetId = int32_t;
 
 }  // namespace model
 }  // namespace firestore
