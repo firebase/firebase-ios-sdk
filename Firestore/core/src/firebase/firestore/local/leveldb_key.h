@@ -131,6 +131,7 @@ class LevelDbMutationKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
   model::BatchId batch_id_;
 };
@@ -198,6 +199,7 @@ class LevelDbDocumentMutationKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
   model::DocumentKey document_key_;
   model::BatchId batch_id_;
@@ -237,6 +239,7 @@ class LevelDbMutationQueueKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
 };
 
@@ -282,7 +285,7 @@ class LevelDbTargetKey {
   }
 
  private:
-  model::TargetId target_id_;
+  model::TargetId target_id_ = 0;
 };
 
 /**
@@ -329,6 +332,7 @@ class LevelDbQueryTargetKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string canonical_id_;
   model::TargetId target_id_;
 };
@@ -376,6 +380,7 @@ class LevelDbTargetDocumentKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   model::TargetId target_id_;
   model::DocumentKey document_key_;
 };
@@ -423,6 +428,7 @@ class LevelDbDocumentTargetKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   model::TargetId target_id_;
   model::DocumentKey document_key_;
 };
@@ -468,6 +474,7 @@ class LevelDbRemoteDocumentKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   model::DocumentKey document_key_;
 };
 
