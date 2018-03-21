@@ -76,6 +76,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)backoffAndRunBlock:(void (^)(void))block;
 
+/** Cancels any pending backoff block scheduled via backoffAndRunBlock:. */
+- (void)cancel;
+
 @end
 
 NS_ASSUME_NONNULL_END
