@@ -164,6 +164,18 @@ class Reader {
 
   std::string ReadString();
 
+  /**
+   * Reads a message and its length.
+   *
+   * Analog to Writer::WriteNestedMessage(). See that methods docs for further
+   * details.
+   *
+   * Call this method when reading a nested message. Provide a function to read
+   * the message itself.
+   */
+  template <typename T>
+  T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn);
+
   size_t bytes_left() const {
     return stream_->bytes_left;
   }
@@ -513,19 +525,18 @@ void Writer::WriteNestedMessage(
   }
 }
 
-FieldValue DecodeNestedFieldValue(Reader* reader) {
-  // TODO(rsgowman): refactor in to Reader::ReadNestedMessage (similar to
-  // Writer).
+template <typename T>
+T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
   pb_istream_t raw_substream;
-  if (!pb_make_string_substream(reader->stream_, &raw_substream)) {
+  if (!pb_make_string_substream(stream_, &raw_substream)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
   Reader substream(&raw_substream);
 
-  FieldValue fv = DecodeFieldValueImpl(&substream);
+  T message = read_message_fn(&substream);
 
   // NB: future versions of nanopb read the remaining characters out of the
   // substream (and return false if that fails) as an additional safety
@@ -536,9 +547,9 @@ FieldValue DecodeNestedFieldValue(Reader* reader) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
-  pb_close_string_substream(reader->stream_, &raw_substream);
+  pb_close_string_substream(stream_, &raw_substream);
 
-  return fv;
+  return message;
 }
 
 /**
@@ -596,7 +607,8 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   FIREBASE_ASSERT(wire_type == PB_WT_STRING);
   FIREBASE_ASSERT(!eof);
 
-  FieldValue value = DecodeNestedFieldValue(reader);
+  FieldValue value =
+      reader->ReadNestedMessage<FieldValue>(DecodeFieldValueImpl);
 
   return {key, value};
 }
@@ -615,41 +627,37 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value) {
 }
 
 ObjectValue DecodeObject(Reader* reader) {
-  google_firestore_v1beta1_MapValue map_value =
-      google_firestore_v1beta1_MapValue_init_zero;
-  ObjectValue::Map result;
-  // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
-  // object_value via the arg field (and therefore need to do a bunch of
-  // casting).
-  // TODO(rsgowman): refactor via Reader::ReadNestedMessage() once that exists.
-  // Similar to WriteObject.
-  map_value.fields.funcs.decode = [](pb_istream_t* stream, const pb_field_t*,
-                                     void** arg) -> bool {
-    auto& result = *static_cast<ObjectValue::Map*>(*arg);
+  ObjectValue::Map internal_value = reader->ReadNestedMessage<ObjectValue::Map>(
+      [](Reader* reader) -> ObjectValue::Map {
+        ObjectValue::Map result;
+        while (reader->bytes_left()) {
+          pb_wire_type_t wire_type;
+          uint32_t tag;
+          bool eof;
+          if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
+            // TODO(rsgowman): figure out error handling
+            abort();
+          }
+          FIREBASE_ASSERT(tag == google_firestore_v1beta1_MapValue_fields_tag);
+          // TODO(rsgowman): check ok status, wire_type, tag, eof. But don't
+          // bother just yet since this will be immediately refactored.
 
-    Reader subreader(stream);
-    ObjectValue::Map::value_type fv = DecodeFieldsEntry(&subreader);
+          ObjectValue::Map::value_type fv =
+              reader->ReadNestedMessage<ObjectValue::Map::value_type>(
+                  DecodeFieldsEntry);
 
-    // Sanity check: ensure that this key doesn't already exist in the map.
-    // TODO(rsgowman): figure out error handling: We can do better than a failed
-    // assertion.
-    FIREBASE_ASSERT(result.find(fv.first) == result.end());
+          // Sanity check: ensure that this key doesn't already exist in the
+          // map.
+          // TODO(rsgowman): figure out error handling: We can do better than a
+          // failed assertion.
+          FIREBASE_ASSERT(result.find(fv.first) == result.end());
 
-    // Add this key,fieldvalue to the results map.
-    result.emplace(std::move(fv));
-
-    return true;
-  };
-  map_value.fields.arg = &result;
-
-  if (!pb_decode_delimited(reader->stream_,
-                           google_firestore_v1beta1_MapValue_fields,
-                           &map_value)) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
-
-  return ObjectValue{result};
+          // Add this key,fieldvalue to the results map.
+          result.emplace(std::move(fv));
+        }
+        return result;
+      });
+  return ObjectValue{internal_value};
 }
 
 }  // namespace
