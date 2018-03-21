@@ -45,6 +45,19 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value);
 ObjectValue DecodeObject(Reader* reader);
 
 /**
+ * Represents a nanopb tag.
+ *
+ * field_number is one of the field tags that nanopb generates based off of
+ * the proto messages. They're typically named in the format:
+ * <parentNameSpace>_<childNameSpace>_<message>_<field>_tag, e.g.
+ * google_firestore_v1beta1_Document_name_tag.
+ */
+struct Tag {
+  pb_wire_type_t wire_type;
+  uint32_t field_number;
+};
+
+/**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
  * pb_ostream_t. Also doc how to check status.
  */
@@ -73,13 +86,8 @@ class Writer {
    * Writes a message type to the output stream.
    *
    * This essentially wraps calls to nanopb's pb_encode_tag() method.
-   *
-   * @param field_number is one of the field tags that nanopb generates based
-   * off of the proto messages. They're typically named in the format:
-   * <parentNameSpace>_<childNameSpace>_<message>_<field>_tag, e.g.
-   * google_firestore_v1beta1_Document_name_tag.
    */
-  void WriteTag(pb_wire_type_t wiretype, uint32_t field_number);
+  void WriteTag(Tag tag);
 
   void WriteSize(size_t size);
   void WriteNull();
@@ -157,6 +165,13 @@ class Reader {
    * @param bytes where the input should be deserialized from.
    */
   static Reader Wrap(const uint8_t* bytes, size_t length);
+
+  /**
+   * Reads a message type from the input stream.
+   *
+   * This essentially wraps calls to nanopb's pb_decode_tag() method.
+   */
+  Tag ReadTag();
 
   void ReadNull();
   bool ReadBool();
@@ -247,14 +262,25 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
 // group the related methods together (probably within their own file rather
 // than here).
 
-void Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
+void Writer::WriteTag(Tag tag) {
   if (!status_.ok()) return;
 
-  if (!pb_encode_tag(&stream_, wiretype, field_number)) {
+  if (!pb_encode_tag(&stream_, tag.wire_type, tag.field_number)) {
     const char* errmsg = PB_GET_ERROR(&stream_);
     FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
     status_ = Status(FirestoreErrorCode::Internal, errmsg);
   }
+}
+
+Tag Reader::ReadTag() {
+  Tag tag;
+  bool eof;
+  bool ok = pb_decode_tag(stream_, &tag.wire_type, &tag.field_number, &eof);
+  if (!ok || eof) {
+    // TODO(rsgowman): figure out error handling
+    abort();
+  }
+  return tag;
 }
 
 void Writer::WriteSize(size_t size) {
@@ -376,32 +402,32 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      writer->WriteTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_null_value_tag);
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag});
       writer->WriteNull();
       break;
 
     case FieldValue::Type::Boolean:
-      writer->WriteTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_boolean_value_tag);
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag});
       writer->WriteBool(field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
-      writer->WriteTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_integer_value_tag);
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag});
       writer->WriteInteger(field_value.integer_value());
       break;
 
     case FieldValue::Type::String:
-      writer->WriteTag(PB_WT_STRING,
-                       google_firestore_v1beta1_Value_string_value_tag);
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag});
       writer->WriteString(field_value.string_value());
       break;
 
     case FieldValue::Type::Object:
-      writer->WriteTag(PB_WT_STRING,
-                       google_firestore_v1beta1_Value_map_value_tag);
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
       EncodeObject(writer, field_value.object_value());
       break;
 
@@ -412,30 +438,22 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
 }
 
 FieldValue DecodeFieldValueImpl(Reader* reader) {
-  // TODO(rsgowman): Add a Reader::ReadTag() method and refactor all instances
-  // of pb_decode_tag to use that method instead.
-  pb_wire_type_t wire_type;
-  uint32_t tag;
-  bool eof;
-  if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
+  Tag tag = reader->ReadTag();
 
   // Ensure the tag matches the wire type
   // TODO(rsgowman): figure out error handling
-  switch (tag) {
+  switch (tag.field_number) {
     case google_firestore_v1beta1_Value_null_value_tag:
     case google_firestore_v1beta1_Value_boolean_value_tag:
     case google_firestore_v1beta1_Value_integer_value_tag:
-      if (wire_type != PB_WT_VARINT) {
+      if (tag.wire_type != PB_WT_VARINT) {
         abort();
       }
       break;
 
     case google_firestore_v1beta1_Value_string_value_tag:
     case google_firestore_v1beta1_Value_map_value_tag:
-      if (wire_type != PB_WT_STRING) {
+      if (tag.wire_type != PB_WT_STRING) {
         abort();
       }
       break;
@@ -444,7 +462,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
       abort();
   }
 
-  switch (tag) {
+  switch (tag.field_number) {
     case google_firestore_v1beta1_Value_null_value_tag:
       reader->ReadNull();
       return FieldValue::NullValue();
@@ -574,38 +592,31 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
  */
 void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
   // Write the key (string)
-  writer->WriteTag(PB_WT_STRING,
-                   google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  writer->WriteTag(
+      {PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag});
   writer->WriteString(kv.first);
 
   // Write the value (FieldValue)
-  writer->WriteTag(PB_WT_STRING,
-                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  writer->WriteTag(
+      {PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_value_tag});
   writer->WriteNestedMessage(
       [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
 }
 
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
-  pb_wire_type_t wire_type;
-  uint32_t tag;
-  bool eof;
-  if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
-    abort();
-  }
+  Tag tag = reader->ReadTag();
+
   // TODO(rsgowman): figure out error handling: We can do better than a failed
   // assertion.
-  FIREBASE_ASSERT(tag == google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-  FIREBASE_ASSERT(wire_type == PB_WT_STRING);
-  FIREBASE_ASSERT(!eof);
+  FIREBASE_ASSERT(tag.field_number ==
+                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
   std::string key = reader->ReadString();
 
-  if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
-    abort();
-  }
-  FIREBASE_ASSERT(tag ==
+  tag = reader->ReadTag();
+  FIREBASE_ASSERT(tag.field_number ==
                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  FIREBASE_ASSERT(wire_type == PB_WT_STRING);
-  FIREBASE_ASSERT(!eof);
+  FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
 
   FieldValue value =
       reader->ReadNestedMessage<FieldValue>(DecodeFieldValueImpl);
@@ -617,9 +628,8 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value) {
   return writer->WriteNestedMessage([&object_value](Writer* writer) {
     // Write each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value.internal_value) {
-      writer->WriteTag(PB_WT_STRING,
-                       google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-
+      writer->WriteTag({PB_WT_STRING,
+                        google_firestore_v1beta1_MapValue_FieldsEntry_key_tag});
       writer->WriteNestedMessage(
           [&kv](Writer* writer) { return EncodeFieldsEntry(writer, kv); });
     }
@@ -631,16 +641,10 @@ ObjectValue DecodeObject(Reader* reader) {
       [](Reader* reader) -> ObjectValue::Map {
         ObjectValue::Map result;
         while (reader->bytes_left()) {
-          pb_wire_type_t wire_type;
-          uint32_t tag;
-          bool eof;
-          if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
-            // TODO(rsgowman): figure out error handling
-            abort();
-          }
-          FIREBASE_ASSERT(tag == google_firestore_v1beta1_MapValue_fields_tag);
-          // TODO(rsgowman): check ok status, wire_type, tag, eof. But don't
-          // bother just yet since this will be immediately refactored.
+          Tag tag = reader->ReadTag();
+          FIREBASE_ASSERT(tag.field_number ==
+                          google_firestore_v1beta1_MapValue_fields_tag);
+          FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
 
           ObjectValue::Map::value_type fv =
               reader->ReadNestedMessage<ObjectValue::Map::value_type>(
