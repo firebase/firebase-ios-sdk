@@ -190,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              mutationQueue:self.mutationQueue];
 
   // Union the old/new changed keys.
-  DocumentKeySet changedKeys{};
+  DocumentKeySet changedKeys;
   for (NSArray<FSTMutationBatch *> *batches in @[ oldBatches, newBatches ]) {
     for (FSTMutationBatch *batch in batches) {
       for (FSTMutation *mutation in batch.mutations) {
@@ -227,7 +227,6 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet affected;
   if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {
     [self.heldBatchResults addObject:batchResult];
-    affected = DocumentKeySet{};
   } else {
     FSTRemoteDocumentChangeBuffer *remoteDocuments =
         [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
@@ -322,7 +321,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 
   // TODO(klimt): This could probably be an NSMutableDictionary.
-  DocumentKeySet changedDocKeys{};
+  DocumentKeySet changedDocKeys;
   __block DocumentKeySet *changedDocKeysP = &changedDocKeys;
   [remoteEvent.documentUpdates
       enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
@@ -367,9 +366,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Union the two key sets.
   DocumentKeySet keysToRecalc = changedDocKeys;
-  for (const auto &key : releasedWriteKeys) {
-    keysToRecalc.insert(key);
-  };
+  keysToRecalc.insert(releasedWriteKeys.begin(), releasedWriteKeys.end());
 
   return [self.localDocuments documentsForKeys:keysToRecalc];
 }
@@ -525,7 +522,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (DocumentKeySet)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
                                   group:(FSTWriteGroup *)group {
   // TODO(klimt): Could this be an NSMutableDictionary?
-  DocumentKeySet affectedDocs{};
+  DocumentKeySet affectedDocs;
 
   for (FSTMutationBatch *batch in batches) {
     for (FSTMutation *mutation in batch.mutations) {

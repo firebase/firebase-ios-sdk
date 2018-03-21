@@ -73,9 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init {
   self = [super init];
-  if (self) {
-    _documents = DocumentKeySet{};
-  }
+  // _documents is default initialized.
   return self;
 }
 
@@ -135,10 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init {
   self = [super init];
-  if (self) {
-    _addedDocuments = DocumentKeySet{};
-    _removedDocuments = DocumentKeySet{};
-  }
+  // _addedDocuments and _removedDocuments are default initialized.
   return self;
 }
 
@@ -160,12 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)applyTo:(DocumentKeySet *)keys {
-  for (const auto &key : _addedDocuments) {
-    keys->insert(key);
-  };
-  for (const auto &key : _removedDocuments) {
-    keys->erase(key);
-  };
+  keys->insert(_addedDocuments.begin(), _addedDocuments.end());
+  keys->erase(_removedDocuments.begin(), _removedDocuments.end());
 }
 
 - (void)addDocumentKey:(FSTDocumentKey *)documentKey {
