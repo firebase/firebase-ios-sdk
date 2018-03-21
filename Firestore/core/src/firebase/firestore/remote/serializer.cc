@@ -32,12 +32,13 @@ namespace remote {
 
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::util::Status;
 
 namespace {
 
 class Writer;
 
-void EncodeObject(Writer* writer, const ObjectValue& object_value);
+Status EncodeObject(Writer* writer, const ObjectValue& object_value);
 
 ObjectValue DecodeObject(pb_istream_t* stream);
 
@@ -76,14 +77,14 @@ class Writer {
    * <parentNameSpace>_<childNameSpace>_<message>_<field>_tag, e.g.
    * google_firestore_v1beta1_Document_name_tag.
    */
-  void WriteTag(pb_wire_type_t wiretype, uint32_t field_number);
+  Status WriteTag(pb_wire_type_t wiretype, uint32_t field_number);
 
-  void WriteSize(size_t size);
-  void WriteNull();
-  void WriteBool(bool bool_value);
-  void WriteInteger(int64_t integer_value);
+  Status WriteSize(size_t size);
+  Status WriteNull();
+  Status WriteBool(bool bool_value);
+  Status WriteInteger(int64_t integer_value);
 
-  void WriteString(const std::string& string_value);
+  Status WriteString(const std::string& string_value);
 
   /**
    * Writes a message and its length.
@@ -99,7 +100,8 @@ class Writer {
    * stream), write out the size (and perform sanity checks), and then serialize
    * the message by calling the provided function a second time.
    */
-  void WriteNestedMessage(const std::function<void(Writer*)>& write_message_fn);
+  Status WriteNestedMessage(
+      const std::function<Status(Writer*)>& write_message_fn);
 
   size_t bytes_written() const {
     return stream_.bytes_written;
@@ -127,7 +129,7 @@ class Writer {
    *
    * @param value The value to write, represented as a uint64_t.
    */
-  void WriteVarint(uint64_t value);
+  Status WriteVarint(uint64_t value);
 
   pb_ostream_t stream_;
 };
@@ -165,24 +167,26 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
 // make it a bit easier to review. Refactor these to group the related methods
 // together (probably within their own file rather than here).
 
-void Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
+Status Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
   bool ok = pb_encode_tag(&stream_, wiretype, field_number);
   if (!ok) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
+  return Status::OK();
 }
 
-void Writer::WriteSize(size_t size) {
+Status Writer::WriteSize(size_t size) {
   return WriteVarint(size);
 }
 
-void Writer::WriteVarint(uint64_t value) {
+Status Writer::WriteVarint(uint64_t value) {
   bool ok = pb_encode_varint(&stream_, value);
   if (!ok) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
+  return Status::OK();
 }
 
 /**
@@ -204,7 +208,7 @@ uint64_t DecodeVarint(pb_istream_t* stream) {
   return varint_value;
 }
 
-void Writer::WriteNull() {
+Status Writer::WriteNull() {
   return WriteVarint(google_protobuf_NullValue_NULL_VALUE);
 }
 
@@ -216,7 +220,7 @@ void DecodeNull(pb_istream_t* stream) {
   }
 }
 
-void Writer::WriteBool(bool bool_value) {
+Status Writer::WriteBool(bool bool_value) {
   return WriteVarint(bool_value);
 }
 
@@ -233,7 +237,7 @@ bool DecodeBool(pb_istream_t* stream) {
   }
 }
 
-void Writer::WriteInteger(int64_t integer_value) {
+Status Writer::WriteInteger(int64_t integer_value) {
   return WriteVarint(integer_value);
 }
 
@@ -241,7 +245,7 @@ int64_t DecodeInteger(pb_istream_t* stream) {
   return DecodeVarint(stream);
 }
 
-void Writer::WriteString(const std::string& string_value) {
+Status Writer::WriteString(const std::string& string_value) {
   bool ok = pb_encode_string(
       &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
       string_value.length());
@@ -249,6 +253,8 @@ void Writer::WriteString(const std::string& string_value) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
+
+  return Status::OK();
 }
 
 std::string DecodeString(pb_istream_t* stream) {
@@ -286,44 +292,46 @@ std::string DecodeString(pb_istream_t* stream) {
 // TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
 // This will help with error handling, and should eliminate the issue of two
 // 'EncodeFieldValue' methods.
-void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
+Status EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      writer->WriteTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_null_value_tag);
-      writer->WriteNull();
+      RETURN_IF_ERROR(writer->WriteTag(
+          PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag));
+      RETURN_IF_ERROR(writer->WriteNull());
       break;
 
     case FieldValue::Type::Boolean:
-      writer->WriteTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_boolean_value_tag);
-      writer->WriteBool(field_value.boolean_value());
+      RETURN_IF_ERROR(writer->WriteTag(
+          PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag));
+      RETURN_IF_ERROR(writer->WriteBool(field_value.boolean_value()));
       break;
 
     case FieldValue::Type::Integer:
-      writer->WriteTag(PB_WT_VARINT,
-                       google_firestore_v1beta1_Value_integer_value_tag);
-      writer->WriteInteger(field_value.integer_value());
+      RETURN_IF_ERROR(writer->WriteTag(
+          PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag));
+      RETURN_IF_ERROR(writer->WriteInteger(field_value.integer_value()));
       break;
 
     case FieldValue::Type::String:
-      writer->WriteTag(PB_WT_STRING,
-                       google_firestore_v1beta1_Value_string_value_tag);
-      writer->WriteString(field_value.string_value());
+      RETURN_IF_ERROR(writer->WriteTag(
+          PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag));
+      RETURN_IF_ERROR(writer->WriteString(field_value.string_value()));
       break;
 
     case FieldValue::Type::Object:
-      writer->WriteTag(PB_WT_STRING,
-                       google_firestore_v1beta1_Value_map_value_tag);
-      EncodeObject(writer, field_value.object_value());
+      RETURN_IF_ERROR(writer->WriteTag(
+          PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag));
+      RETURN_IF_ERROR(EncodeObject(writer, field_value.object_value()));
       break;
 
     default:
       // TODO(rsgowman): implement the other types
       abort();
   }
+
+  return Status::OK();
 }
 
 FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
@@ -378,15 +386,15 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
   }
 }
 
-void Writer::WriteNestedMessage(
-    const std::function<void(Writer*)>& write_message_fn) {
+Status Writer::WriteNestedMessage(
+    const std::function<Status(Writer*)>& write_message_fn) {
   // First calculate the message size using a non-writing substream.
   Writer sizer = Writer::Sizing();
-  write_message_fn(&sizer);
+  RETURN_IF_ERROR(write_message_fn(&sizer));
   size_t size = sizer.bytes_written();
 
   // Write out the size to the output writer.
-  WriteSize(size);
+  RETURN_IF_ERROR(WriteSize(size));
 
   // If this stream is itself a sizing stream, then we don't need to actually
   // parse field_value a second time; just update the bytes_written via a call
@@ -398,7 +406,7 @@ void Writer::WriteNestedMessage(
       // TODO(rsgowman): figure out error handling
       abort();
     }
-    return;
+    return Status::OK();
   }
 
   // Ensure the output stream has enough space
@@ -414,7 +422,7 @@ void Writer::WriteNestedMessage(
   Writer writer({stream_.callback, stream_.state,
                  /*max_size=*/size, /*bytes_written=*/0,
                  /*errmsg=*/nullptr});
-  write_message_fn(&writer);
+  RETURN_IF_ERROR(write_message_fn(&writer));
 
   stream_.bytes_written += writer.stream_.bytes_written;
   stream_.state = writer.stream_.state;
@@ -425,6 +433,8 @@ void Writer::WriteNestedMessage(
     // TODO(rsgowman): figure out error handling
     abort();
   }
+
+  return Status::OK();
 }
 
 FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
@@ -473,17 +483,21 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  *
  * @param kv The individual key/value pair to write.
  */
-void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
+Status EncodeFieldsEntry(Writer* writer,
+                         const ObjectValue::Map::value_type& kv) {
   // Write the key (string)
-  writer->WriteTag(PB_WT_STRING,
-                   google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-  writer->WriteString(kv.first);
+  RETURN_IF_ERROR(writer->WriteTag(
+      PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag));
+  RETURN_IF_ERROR(writer->WriteString(kv.first));
 
   // Write the value (FieldValue)
-  writer->WriteTag(PB_WT_STRING,
-                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-  writer->WriteNestedMessage(
-      [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
+  RETURN_IF_ERROR(writer->WriteTag(
+      PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_value_tag));
+  RETURN_IF_ERROR(writer->WriteNestedMessage([&kv](Writer* writer) -> Status {
+    return EncodeFieldValueImpl(writer, kv.second);
+  }));
+
+  return Status::OK();
 }
 
 ObjectValue::Map::value_type DecodeFieldsEntry(pb_istream_t* stream) {
@@ -511,17 +525,19 @@ ObjectValue::Map::value_type DecodeFieldsEntry(pb_istream_t* stream) {
   return {key, value};
 }
 
-void EncodeObject(Writer* writer, const ObjectValue& object_value) {
-  writer->WriteNestedMessage([&object_value](Writer* writer) {
+Status EncodeObject(Writer* writer, const ObjectValue& object_value) {
+  return writer->WriteNestedMessage([&object_value](Writer* writer) {
     // Write each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value.internal_value) {
-      writer->WriteTag(PB_WT_STRING,
-                       google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
-      writer->WriteNestedMessage(
-          [&kv](Writer* writer) { EncodeFieldsEntry(writer, kv); });
+      RETURN_IF_ERROR(writer->WriteTag(
+          PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag));
+      RETURN_IF_ERROR(
+          writer->WriteNestedMessage([&kv](Writer* writer) -> Status {
+            return EncodeFieldsEntry(writer, kv);
+          }));
     }
 
-    return true;
+    return Status::OK();
   });
 }
 
@@ -562,10 +578,10 @@ ObjectValue DecodeObject(pb_istream_t* stream) {
 
 }  // namespace
 
-void Serializer::EncodeFieldValue(const FieldValue& field_value,
-                                  std::vector<uint8_t>* out_bytes) {
+Status Serializer::EncodeFieldValue(const FieldValue& field_value,
+                                    std::vector<uint8_t>* out_bytes) {
   Writer writer = Writer::Wrap(out_bytes);
-  EncodeFieldValueImpl(&writer, field_value);
+  return EncodeFieldValueImpl(&writer, field_value);
 }
 
 FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {

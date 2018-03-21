@@ -24,6 +24,8 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -70,7 +72,7 @@ class Serializer {
   // TODO(rsgowman): If we never support any output except to a vector, it may
   // make sense to have Serializer own the vector and provide an accessor rather
   // than asking the user to create it first.
-  static void EncodeFieldValue(
+  static util::Status EncodeFieldValue(
       const firebase::firestore::model::FieldValue& field_value,
       std::vector<uint8_t>* out_bytes);
 

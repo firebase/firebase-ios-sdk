@@ -42,10 +42,12 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "gtest/gtest.h"
 
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::remote::Serializer;
+using firebase::firestore::util::Status;
 
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
@@ -67,7 +69,8 @@ class SerializerTest : public ::testing::Test {
                        FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> actual_bytes;
-    serializer.EncodeFieldValue(model, &actual_bytes);
+    Status status = serializer.EncodeFieldValue(model, &actual_bytes);
+    EXPECT_TRUE(status.ok());
     EXPECT_EQ(bytes, actual_bytes);
     FieldValue actual_model = serializer.DecodeFieldValue(bytes);
     EXPECT_EQ(type, actual_model.type());
