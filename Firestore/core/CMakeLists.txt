@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+add_subdirectory(include/firebase/firestore)
+
 add_subdirectory(src/firebase/firestore)
 add_subdirectory(src/firebase/firestore/auth)
 add_subdirectory(src/firebase/firestore/core)

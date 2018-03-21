@@ -23,23 +23,31 @@ namespace firebase {
 Timestamp::Timestamp() {
 }
 
-Timestamp::Timestamp(const std::int64_t seconds, const std::int32_t nanoseconds)
+Timestamp::Timestamp(const int64_t seconds, const int32_t nanoseconds)
     : seconds_(seconds), nanoseconds_(nanoseconds) {
   ValidateBounds();
 }
 
 Timestamp Timestamp::Now() {
 #if !defined(_STLPORT_VERSION)
-  // Use chrono from C++11 if possible, because it supports higher precision
-  // (depending on the system clock) than C-style std::time that only returns
-  // seconds.
+  // Use the standard <chrono> library from C++11 if possible.
   return Timestamp(std::chrono::system_clock::now());
 #else
-  return Timestamp(std::time(nullptr), 0);
-#endif
+  // If <chrono> is unavailable, use clock_gettime from POSIX, which supports up
+  // to nanosecond resolution. Note that it's a non-standard function contained
+  // in <time.h>.
+  //
+  // Note: it's possible to check for availability of POSIX clock_gettime using
+  // macros (see "Availability" at https://linux.die.net/man/3/clock_gettime).
+  // However, the only platform where <chrono> isn't available is Android with
+  // STLPort standard library, where clock_gettime is known to be available.
+  timespec now;
+  clock_gettime(CLOCK_REALTIME, &now);
+  return Timestamp(now.tv_sec, now.tv_nsec);
+#endif // !defined(_STLPORT_VERSION)
 }
 
-Timestamp Timestamp::FromTimeT(const std::time_t seconds_since_unix_epoch) {
+Timestamp Timestamp::FromTime(const time_t seconds_since_unix_epoch) {
   return Timestamp(seconds_since_unix_epoch, 0);
 }
 
@@ -48,7 +56,7 @@ Timestamp::Timestamp(
     const std::chrono::time_point<std::chrono::system_clock> time_point) {
   namespace chr = std::chrono;
   const auto epoch_time = time_point.time_since_epoch();
-  auto seconds = chr::duration_cast<chr::duration<std::int64_t>>(epoch_time);
+  auto seconds = chr::duration_cast<chr::duration<int64_t>>(epoch_time);
   auto nanoseconds = chr::duration_cast<chr::nanoseconds>(epoch_time - seconds);
 
   if (nanoseconds.count() < 0) {
@@ -71,7 +79,7 @@ Timestamp::Timestamp(
   ValidateBounds();
 }
 
-#endif
+#endif // !defined(_STLPORT_VERSION)
 
 void Timestamp::ValidateBounds() {
   FIREBASE_ASSERT_MESSAGE(nanoseconds_ >= 0,

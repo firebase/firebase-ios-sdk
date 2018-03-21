@@ -16,7 +16,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
-#include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -69,16 +69,16 @@ TEST(Timestamp, Bounds) {
   EXPECT_EQ(0, min_timestamp.nanoseconds());
 }
 
-TEST(Timestamp, FromTimeT) {
-  const Timestamp zero = Timestamp::FromTimeT(std::time_t{});
+TEST(Timestamp, FromTime) {
+  const Timestamp zero = Timestamp::FromTime(std::time_t{});
   EXPECT_EQ(0, zero.seconds());
   EXPECT_EQ(0, zero.nanoseconds());
 
-  const Timestamp positive = Timestamp::FromTimeT(std::time_t{123456});
+  const Timestamp positive = Timestamp::FromTime(std::time_t{123456});
   EXPECT_EQ(123456, positive.seconds());
   EXPECT_EQ(0, positive.nanoseconds());
 
-  const Timestamp negative = Timestamp::FromTimeT(std::time_t{-123456});
+  const Timestamp negative = Timestamp::FromTime(std::time_t{-123456});
   EXPECT_EQ(-123456, negative.seconds());
   EXPECT_EQ(0, negative.nanoseconds());
 }
@@ -88,7 +88,7 @@ TEST(Timestamp, Chrono) {
   EXPECT_EQ(0, zero.seconds());
   EXPECT_EQ(0, zero.nanoseconds());
 
-  const Timestamp sec = TimePoint{Sec(123)};
+  const Timestamp sec{TimePoint{Sec(123)}};
   EXPECT_EQ(123, sec.seconds());
   EXPECT_EQ(0, sec.nanoseconds());
 
@@ -160,14 +160,14 @@ TEST(Timestamp, Comparison) {
 }
 
 TEST(Timestamp, Hash) {
-  const Timestamp foo;
-  const Timestamp bar{123, 456789};
-  const Timestamp baz{123456, 789};
+  const Timestamp foo1{123, 456000000};
+  const Timestamp foo2 = foo1;
+  const Timestamp foo3 = Timestamp{TimePoint{Sec(123) + Ms(456)}};
+  EXPECT_EQ(std::hash<Timestamp>()(foo1), std::hash<Timestamp>()(foo2));
+  EXPECT_EQ(std::hash<Timestamp>()(foo2), std::hash<Timestamp>()(foo3));
 
-  std::unordered_set<Timestamp> set = {foo, bar, baz};
-  // Check that all timestamps were hashed to different buckets.
-  EXPECT_NE(set.bucket(foo), set.bucket(bar));
-  EXPECT_NE(set.bucket(bar), set.bucket(baz));
+  const Timestamp bar{123, 456};
+  EXPECT_NE(std::hash<Timestamp>()(foo1), std::hash<Timestamp>()(bar));
 }
 
 TEST(Timestamp, InvalidArguments) {
