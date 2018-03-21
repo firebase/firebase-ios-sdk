@@ -101,7 +101,7 @@ static ReadOptions StandardReadOptions() {
 }
 
 - (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query {
-  DocumentDictionary results{};
+  DocumentDictionary results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.

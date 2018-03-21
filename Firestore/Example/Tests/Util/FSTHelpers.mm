@@ -247,7 +247,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   BOOL merge = !updateMask.empty();
 
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  __block std::vector<FieldPath> fieldMaskPaths{};
+  __block std::vector<FieldPath> fieldMaskPaths;
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     const FieldPath path = testutil::Field(util::MakeStringView(key));
     fieldMaskPaths.push_back(path);
@@ -286,7 +286,7 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
 }
 
 MaybeDocumentDictionary FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
-  MaybeDocumentDictionary updates{};
+  MaybeDocumentDictionary updates;
   for (FSTMaybeDocument *doc in docs) {
     updates[doc.key] = doc;
   }
@@ -339,12 +339,12 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
 FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys) {
-  DocumentKeySet added{};
+  DocumentKeySet added;
   for (NSString *keyPath in addedKeys) {
     FSTDocumentKey *key = FSTTestDocKey(keyPath);
     added.insert(key);
   }
-  DocumentKeySet removed{};
+  DocumentKeySet removed;
   for (NSString *keyPath in removedKeys) {
     FSTDocumentKey *key = FSTTestDocKey(keyPath);
     removed.insert(key);

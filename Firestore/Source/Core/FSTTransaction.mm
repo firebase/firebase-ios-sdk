@@ -211,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Make a list of read documents that haven't been written.
-  DocumentKeySet unwritten{};
+  DocumentKeySet unwritten;
   __block DocumentKeySet *unwrittenP = &unwritten;
   [self.readVersions enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key,
                                                          FSTSnapshotVersion *version, BOOL *stop) {

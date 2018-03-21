@@ -39,8 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot {
-  DocumentKeySet addedKeys{};
-  DocumentKeySet removedKeys{};
+  DocumentKeySet addedKeys;
+  DocumentKeySet removedKeys;
 
   for (FSTDocumentViewChange *docChange in viewSnapshot.documentChanges) {
     switch (docChange.type) {

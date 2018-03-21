@@ -120,7 +120,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 
 // TODO(klimt): This could use NSMutableDictionary instead.
 - (DocumentKeySet)keys {
-  DocumentKeySet set{};
+  DocumentKeySet set;
   for (FSTMutation *mutation in self.mutations) {
     set.insert(mutation.key);
   }
@@ -166,7 +166,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
             @"Mutations sent %lu must equal results received %lu",
             (unsigned long)batch.mutations.count, (unsigned long)mutationResults.count);
 
-  DocumentVersionDictionary docVersions{};
+  DocumentVersionDictionary docVersions;
   NSArray<FSTMutation *> *mutations = batch.mutations;
   for (NSUInteger i = 0; i < mutations.count; i++) {
     FSTSnapshotVersion *_Nullable version = mutationResults[i].version;

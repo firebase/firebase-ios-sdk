@@ -548,7 +548,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields{};
+  std::vector<FieldPath> fields;
   fields.reserve(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
     fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));

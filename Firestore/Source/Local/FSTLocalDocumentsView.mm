@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (MaybeDocumentDictionary)documentsForKeys:(const DocumentKeySet &)keys {
-  MaybeDocumentDictionary results{};
+  MaybeDocumentDictionary results;
   for (const auto &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
     FSTMaybeDocument *maybeDoc = [self documentForKey:key];
@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentDictionary)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
-  DocumentDictionary result{};
+  DocumentDictionary result;
   // Just do a simple document lookup.
   FSTMaybeDocument *doc = [self documentForKey:[FSTDocumentKey keyWithPath:docPath]];
   if ([doc isKindOfClass:[FSTDocument class]]) {
@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Now use the mutation queue to discover any other documents that may match the query after
   // applying mutations.
-  DocumentKeySet matchingKeys{};
+  DocumentKeySet matchingKeys;
   NSArray<FSTMutationBatch *> *matchingMutationBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
   for (FSTMutationBatch *batch in matchingMutationBatches) {

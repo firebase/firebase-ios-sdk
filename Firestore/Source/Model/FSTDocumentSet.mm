@@ -63,7 +63,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 + (instancetype)documentSetWithComparator:(NSComparator)comparator {
-  IndexType index{};
+  IndexType index;
   SetType *set = [FSTImmutableSortedSet setWithComparator:comparator];
   return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }

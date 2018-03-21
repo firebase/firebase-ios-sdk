@@ -323,7 +323,7 @@ using leveldb::WriteOptions;
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
-  DocumentKeySet result{};
+  DocumentKeySet result;
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
     Slice indexKey = indexIterator->key();

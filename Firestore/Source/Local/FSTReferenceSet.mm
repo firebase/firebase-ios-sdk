@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:ID];
   FSTDocumentReference *end = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:(ID + 1)];
 
-  DocumentKeySet keys{};
+  DocumentKeySet keys;
   __block DocumentKeySet *keysP = &keys;
   [self.referencesByID enumerateObjectsFrom:start
                                          to:end
