@@ -134,6 +134,18 @@ class Writer {
   pb_ostream_t stream_;
 };
 
+/**
+ * Returns an internal error status, or unconditionally dies in DEV mode via a
+ * failed assertion. This method should only be used for errors that strongly
+ * violate our underlying assumptions about the state of the system. (All nanopb
+ * serializing (but not deserializing) errors fall into this category, as our
+ * code should only be presenting valid objects for serialization.)
+ */
+Status getInternalError(const char* errmsg) {
+  FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
+  return Status(FirestoreErrorCode::Internal, errmsg);
+}
+
 Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   // TODO(rsgowman): find a better home for this constant.
   // A document is defined to have a max size of 1MiB - 4 bytes.
@@ -170,8 +182,7 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
 Status Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
   bool ok = pb_encode_tag(&stream_, wiretype, field_number);
   if (!ok) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    return getInternalError(PB_GET_ERROR(&stream_));
   }
   return Status::OK();
 }
@@ -183,8 +194,7 @@ Status Writer::WriteSize(size_t size) {
 Status Writer::WriteVarint(uint64_t value) {
   bool ok = pb_encode_varint(&stream_, value);
   if (!ok) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    return getInternalError(PB_GET_ERROR(&stream_));
   }
   return Status::OK();
 }
@@ -250,8 +260,7 @@ Status Writer::WriteString(const std::string& string_value) {
       &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
       string_value.length());
   if (!ok) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    return getInternalError(PB_GET_ERROR(&stream_));
   }
 
   return Status::OK();
@@ -403,16 +412,15 @@ Status Writer::WriteNestedMessage(
   if (stream_.callback == nullptr) {
     bool ok = pb_write(&stream_, nullptr, size);
     if (!ok) {
-      // TODO(rsgowman): figure out error handling
-      abort();
+      return getInternalError(PB_GET_ERROR(&stream_));
     }
     return Status::OK();
   }
 
   // Ensure the output stream has enough space
   if (stream_.bytes_written + size > stream_.max_size) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    return getInternalError(
+        "Insufficient space in the output stream to write the given message");
   }
 
   // Use a substream to verify that a callback doesn't write more than what it
@@ -430,8 +438,8 @@ Status Writer::WriteNestedMessage(
 
   if (writer.bytes_written() != size) {
     // submsg size changed
-    // TODO(rsgowman): figure out error handling
-    abort();
+    return getInternalError(
+        "Parsing the nested message twice yielded different sizes");
   }
 
   return Status::OK();
