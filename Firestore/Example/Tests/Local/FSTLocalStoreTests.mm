@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Creates a document version dictionary mapping the document in @a mutation to @a version. */
 DocumentVersionDictionary FSTVersionDictionary(FSTMutation *mutation,
                                                FSTTestSnapshotVersion version) {
-  DocumentVersionDictionary result{};
+  DocumentVersionDictionary result;
   result[mutation.key] = FSTTestVersion(version);
   return result;
 }
@@ -94,7 +94,6 @@ DocumentVersionDictionary FSTVersionDictionary(FSTMutation *mutation,
   [self.localStore start];
 
   _batches = [NSMutableArray array];
-  _lastChanges.clear();
   _lastTargetID = 0;
 }
 

@@ -187,8 +187,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     _query = query;
     _documentSet = [FSTDocumentSet documentSetWithComparator:query.comparator];
     _syncedDocuments = std::move(remoteDocuments);
-    _limboDocuments = DocumentKeySet{};
-    _mutatedKeys = DocumentKeySet{};
+    // _limboDocuments and _mutatedKeys are default initialized.
   }
   return self;
 }
@@ -428,7 +427,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
   // TODO(klimt): Do this incrementally so that it's not quadratic when updating many documents.
   DocumentKeySet oldLimboDocuments = _limboDocuments;
-  _limboDocuments = DocumentKeySet{};
+  _limboDocuments.clear();
   for (FSTDocument *doc in self.documentSet.documentEnumerator) {
     if ([self shouldBeLimboDocumentKey:doc.key]) {
       _limboDocuments.insert(doc.key);

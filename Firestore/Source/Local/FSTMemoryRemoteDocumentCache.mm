@@ -33,9 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)init {
-  if (self = [super init]) {
-    _docs = MaybeDocumentDictionary{};
-  }
+  self = [super init];
+  // _docs is default initialized.
   return self;
 }
 
@@ -60,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentDictionary)documentsMatchingQuery:(FSTQuery *)query {
-  DocumentDictionary result{};
+  DocumentDictionary result;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
