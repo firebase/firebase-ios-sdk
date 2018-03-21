@@ -335,11 +335,11 @@ static NSString *const kNoIOSTag = @"no-ios";
     timerID = FSTTimerIDAll;
   } else if ([timer isEqualToString:@"listen_stream_idle"]) {
     timerID = FSTTimerIDListenStreamIdle;
-  } else if ([timer isEqualToString:@"listen_stream_connection"]) {
+  } else if ([timer isEqualToString:@"listen_stream_connection_backoff"]) {
     timerID = FSTTimerIDListenStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"write_stream_idle"]) {
     timerID = FSTTimerIDWriteStreamIdle;
-  } else if ([timer isEqualToString:@"write_stream_connection"]) {
+  } else if ([timer isEqualToString:@"write_stream_connection_backoff"]) {
     timerID = FSTTimerIDWriteStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"online_state_timeout"]) {
     timerID = FSTTimerIDOnlineStateTimeout;
