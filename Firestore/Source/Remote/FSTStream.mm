@@ -265,17 +265,15 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _delegate = delegate;
 
   _credentials->GetToken(
-      /*force_refresh=*/false,
-      [self](Token result, const int64_t error_code, const absl::string_view error_msg) {
-        NSError *error = util::WrapNSError(error_code, error_msg);
+      /*force_refresh=*/false, [self](util::StatusOr<Token> result) {
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          [self resumeStartWithToken:result error:error];
+          [self resumeStartWithToken:result];
         }];
       });
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
-- (void)resumeStartWithToken:(const Token &)token error:(NSError *)error {
+- (void)resumeStartWithToken:(const util::StatusOr<Token> &)result {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   if (self.state == FSTStreamStateStopped) {
@@ -287,9 +285,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
-  if (error) {
+  if (!result.ok()) {
     // RPC has not been started yet, so just invoke higher-level close handler.
-    [self handleStreamClose:error];
+    [self handleStreamClose:util::MakeNSError(result.status())];
     return;
   }
 
@@ -297,6 +295,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [_rpc setResponseDispatchQueue:self.workerDispatchQueue.queue];
 
+  const Token &token = result.ValueOrDie();
   [FSTDatastore
       prepareHeadersForRPC:_rpc
                 databaseID:&self.databaseInfo->database_id()
