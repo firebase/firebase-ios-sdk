@@ -469,7 +469,7 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  *     ...
  *   }
  *
- * This method writese an individual entry from that list. It is expected that
+ * This method writes an individual entry from that list. It is expected that
  * this method will be called once for each entry in the map.
  *
  * @param kv The individual key/value pair to write.
