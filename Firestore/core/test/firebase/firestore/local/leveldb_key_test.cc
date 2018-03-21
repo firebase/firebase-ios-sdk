@@ -19,6 +19,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/strings/match.h"
 #include "gtest/gtest.h"
 
 using firebase::firestore::model::BatchId;
@@ -73,16 +74,16 @@ TEST(LevelDbMutationKeyTest, Prefixing) {
 
   auto foo2Key = LevelDbMutationKey::Key("foo", 2);
 
-  ASSERT_TRUE(util::StartsWith(emptyUserKey, tableKey));
+  ASSERT_TRUE(absl::StartsWith(emptyUserKey, tableKey));
 
   // This is critical: prefixes of the a value don't convert into prefixes of
   // the key.
-  ASSERT_TRUE(util::StartsWith(fooUserKey, tableKey));
-  ASSERT_FALSE(util::StartsWith(fooUserKey, emptyUserKey));
+  ASSERT_TRUE(absl::StartsWith(fooUserKey, tableKey));
+  ASSERT_FALSE(absl::StartsWith(fooUserKey, emptyUserKey));
 
   // However whole segments in common are prefixes.
-  ASSERT_TRUE(util::StartsWith(foo2Key, tableKey));
-  ASSERT_TRUE(util::StartsWith(foo2Key, fooUserKey));
+  ASSERT_TRUE(absl::StartsWith(foo2Key, tableKey));
+  ASSERT_TRUE(absl::StartsWith(foo2Key, fooUserKey));
 }
 
 TEST(LevelDbMutationKeyTest, EncodeDecodeCycle) {
@@ -129,20 +130,20 @@ TEST(LevelDbDocumentMutationKeyTest, Prefixing) {
   DocumentKey document_key = testutil::Key("foo/bar");
   auto foo2_key = LevelDbDocumentMutationKey::Key("foo", document_key, 2);
 
-  ASSERT_TRUE(util::StartsWith(empty_user_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(empty_user_key, table_key));
 
   // While we want a key with whole segments in common be considered a prefix
   // it's vital that partial segments in common not be prefixes.
-  ASSERT_TRUE(util::StartsWith(foo_user_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(foo_user_key, table_key));
 
-  // Here even though "" is a prefix of "foo" that prefix is within a segment so
-  // keys derived from those segments cannot be prefixes of each other.
-  ASSERT_FALSE(util::StartsWith(foo_user_key, empty_user_key));
-  ASSERT_FALSE(util::StartsWith(empty_user_key, foo_user_key));
+  // Here even though "" is a prefix of "foo", that prefix is within a segment,
+  // so keys derived from those segments cannot be prefixes of each other.
+  ASSERT_FALSE(absl::StartsWith(foo_user_key, empty_user_key));
+  ASSERT_FALSE(absl::StartsWith(empty_user_key, foo_user_key));
 
   // However whole segments in common are prefixes.
-  ASSERT_TRUE(util::StartsWith(foo2_key, table_key));
-  ASSERT_TRUE(util::StartsWith(foo2_key, foo_user_key));
+  ASSERT_TRUE(absl::StartsWith(foo2_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(foo2_key, foo_user_key));
 }
 
 TEST(LevelDbDocumentMutationKeyTest, EncodeDecodeCycle) {
@@ -314,22 +315,22 @@ TEST(DocumentTargetKeyTest, Ordering) {
 TEST(RemoteDocumentKeyTest, Prefixing) {
   auto tableKey = LevelDbRemoteDocumentKey::KeyPrefix();
 
-  ASSERT_TRUE(util::StartsWith(RemoteDocKey("foo/bar"), tableKey));
+  ASSERT_TRUE(absl::StartsWith(RemoteDocKey("foo/bar"), tableKey));
 
   // This is critical: foo/bar2 should not contain foo/bar.
   ASSERT_FALSE(
-      util::StartsWith(RemoteDocKey("foo/bar2"), RemoteDocKey("foo/bar")));
+      absl::StartsWith(RemoteDocKey("foo/bar2"), RemoteDocKey("foo/bar")));
 
   // Prefixes must be encoded specially
-  ASSERT_FALSE(util::StartsWith(RemoteDocKey("foo/bar/baz/quu"),
+  ASSERT_FALSE(absl::StartsWith(RemoteDocKey("foo/bar/baz/quu"),
                                 RemoteDocKey("foo/bar")));
-  ASSERT_TRUE(util::StartsWith(RemoteDocKey("foo/bar/baz/quu"),
+  ASSERT_TRUE(absl::StartsWith(RemoteDocKey("foo/bar/baz/quu"),
                                RemoteDocKeyPrefix("foo/bar")));
-  ASSERT_TRUE(util::StartsWith(RemoteDocKeyPrefix("foo/bar/baz/quu"),
+  ASSERT_TRUE(absl::StartsWith(RemoteDocKeyPrefix("foo/bar/baz/quu"),
                                RemoteDocKeyPrefix("foo/bar")));
-  ASSERT_TRUE(util::StartsWith(RemoteDocKeyPrefix("foo/bar/baz"),
+  ASSERT_TRUE(absl::StartsWith(RemoteDocKeyPrefix("foo/bar/baz"),
                                RemoteDocKeyPrefix("foo/bar")));
-  ASSERT_TRUE(util::StartsWith(RemoteDocKeyPrefix("foo/bar"),
+  ASSERT_TRUE(absl::StartsWith(RemoteDocKeyPrefix("foo/bar"),
                                RemoteDocKeyPrefix("foo")));
 }
 
