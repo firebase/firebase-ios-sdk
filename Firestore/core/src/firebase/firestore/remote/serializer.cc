@@ -38,9 +38,11 @@ namespace {
 
 class Writer;
 
+class Reader;
+
 void EncodeObject(Writer* writer, const ObjectValue& object_value);
 
-ObjectValue DecodeObject(pb_istream_t* stream);
+ObjectValue DecodeObject(Reader* reader);
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
@@ -139,6 +141,67 @@ class Writer {
   pb_ostream_t stream_;
 };
 
+/**
+ * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
+ * pb_istream_t.
+ */
+class Reader {
+ public:
+  /**
+   * Creates an input stream that reads from the specified bytes. Note that
+   * this reference must remain valid for the lifetime of this Reader.
+   *
+   * (This is roughly equivalent to the nanopb function
+   * pb_istream_from_buffer())
+   *
+   * @param bytes where the input should be deserialized from.
+   */
+  static Reader Wrap(const uint8_t* bytes, size_t length);
+
+  void ReadNull();
+  bool ReadBool();
+  int64_t ReadInteger();
+
+  std::string ReadString();
+
+  size_t bytes_left() const {
+    return stream_->bytes_left;
+  }
+
+  // TODO(rsgowman): Methods below here should be private. They're public for
+  // now to ease refactoring.
+  // private:
+
+  /**
+   * TODO(rsgowman): Convert param to non-pointer. Until then, the docs are
+   * wrong:
+   *
+   * Creates a new Reader, based on the given nanopb pb_istream_t. Note that
+   * a shallow copy will be taken. (Non-null pointers within this struct must
+   * remain valid for the lifetime of this Reader.)
+   */
+  explicit Reader(pb_istream_t* stream) : stream_(stream) {
+  }
+
+  /**
+   * Reads a "varint" from the input stream.
+   *
+   * This essentially wraps calls to nanopb's pb_decode_varint() method.
+   *
+   * Note that (despite the return type) this works for bool, enum, int32,
+   * int64, uint32 and uint64 proto field types.
+   *
+   * Note: This is not expected to be called direclty, but rather only via the
+   * other Decode* methods (i.e. DecodeBool, DecodeLong, etc)
+   *
+   * @return The decoded varint as a uint64_t.
+   */
+  uint64_t ReadVarint();
+
+  // TODO(rsgowman): convert to a pb_istream_t (i.e. not a pointer)
+  pb_istream_t* stream_;
+};
+
 Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   // TODO(rsgowman): find a better home for this constant.
   // A document is defined to have a max size of 1MiB - 4 bytes.
@@ -168,9 +231,9 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
 
 // TODO(rsgowman): I've left the methods as near as possible to where they were
 // before, which implies that the Writer methods are interspersed with the
-// PbIstream methods (or what will become the PbIstream methods). This should
-// make it a bit easier to review. Refactor these to group the related methods
-// together (probably within their own file rather than here).
+// Reader methods. This should make it a bit easier to review. Refactor these to
+// group the related methods together (probably within their own file rather
+// than here).
 
 void Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
   if (!status_.ok()) return;
@@ -205,9 +268,9 @@ void Writer::WriteVarint(uint64_t value) {
  *
  * @return The decoded varint as a uint64_t.
  */
-uint64_t DecodeVarint(pb_istream_t* stream) {
+uint64_t Reader::ReadVarint() {
   uint64_t varint_value;
-  if (!pb_decode_varint(stream, &varint_value)) {
+  if (!pb_decode_varint(stream_, &varint_value)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -218,8 +281,8 @@ void Writer::WriteNull() {
   return WriteVarint(google_protobuf_NullValue_NULL_VALUE);
 }
 
-void DecodeNull(pb_istream_t* stream) {
-  uint64_t varint = DecodeVarint(stream);
+void Reader::ReadNull() {
+  uint64_t varint = ReadVarint();
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -230,8 +293,8 @@ void Writer::WriteBool(bool bool_value) {
   return WriteVarint(bool_value);
 }
 
-bool DecodeBool(pb_istream_t* stream) {
-  uint64_t varint = DecodeVarint(stream);
+bool Reader::ReadBool() {
+  uint64_t varint = ReadVarint();
   switch (varint) {
     case 0:
       return false;
@@ -247,8 +310,8 @@ void Writer::WriteInteger(int64_t integer_value) {
   return WriteVarint(integer_value);
 }
 
-int64_t DecodeInteger(pb_istream_t* stream) {
-  return DecodeVarint(stream);
+int64_t Reader::ReadInteger() {
+  return ReadVarint();
 }
 
 void Writer::WriteString(const std::string& string_value) {
@@ -263,9 +326,9 @@ void Writer::WriteString(const std::string& string_value) {
   }
 }
 
-std::string DecodeString(pb_istream_t* stream) {
+std::string Reader::ReadString() {
   pb_istream_t substream;
-  if (!pb_make_string_substream(stream, &substream)) {
+  if (!pb_make_string_substream(stream_, &substream)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -287,7 +350,7 @@ std::string DecodeString(pb_istream_t* stream) {
     abort();
   }
 
-  pb_close_string_substream(stream, &substream);
+  pb_close_string_substream(stream_, &substream);
 
   return result;
 }
@@ -336,11 +399,13 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
   }
 }
 
-FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
+FieldValue DecodeFieldValueImpl(Reader* reader) {
+  // TODO(rsgowman): Add a Reader::ReadTag() method and refactor all instances
+  // of pb_decode_tag to use that method instead.
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
-  if (!pb_decode_tag(stream, &wire_type, &tag, &eof)) {
+  if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -369,17 +434,17 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
 
   switch (tag) {
     case google_firestore_v1beta1_Value_null_value_tag:
-      DecodeNull(stream);
+      reader->ReadNull();
       return FieldValue::NullValue();
     case google_firestore_v1beta1_Value_boolean_value_tag:
-      return FieldValue::BooleanValue(DecodeBool(stream));
+      return FieldValue::BooleanValue(reader->ReadBool());
     case google_firestore_v1beta1_Value_integer_value_tag:
-      return FieldValue::IntegerValue(DecodeInteger(stream));
+      return FieldValue::IntegerValue(reader->ReadInteger());
     case google_firestore_v1beta1_Value_string_value_tag:
-      return FieldValue::StringValue(DecodeString(stream));
+      return FieldValue::StringValue(reader->ReadString());
     case google_firestore_v1beta1_Value_map_value_tag:
       return FieldValue::ObjectValueFromMap(
-          DecodeObject(stream).internal_value);
+          DecodeObject(reader).internal_value);
 
     default:
       // TODO(rsgowman): figure out error handling
@@ -448,14 +513,17 @@ void Writer::WriteNestedMessage(
   }
 }
 
-FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
+FieldValue DecodeNestedFieldValue(Reader* reader) {
+  // TODO(rsgowman): refactor in to Reader::ReadNestedMessage (similar to
+  // Writer).
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
-  pb_istream_t substream;
-  if (!pb_make_string_substream(stream, &substream)) {
+  pb_istream_t raw_substream;
+  if (!pb_make_string_substream(reader->stream_, &raw_substream)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
+  Reader substream(&raw_substream);
 
   FieldValue fv = DecodeFieldValueImpl(&substream);
 
@@ -464,11 +532,11 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
   // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
-  if (substream.bytes_left != 0) {
+  if (substream.bytes_left() != 0) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
-  pb_close_string_substream(stream, &substream);
+  pb_close_string_substream(reader->stream_, &raw_substream);
 
   return fv;
 }
@@ -506,11 +574,11 @@ void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
       [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
 }
 
-ObjectValue::Map::value_type DecodeFieldsEntry(pb_istream_t* stream) {
+ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
-  if (!pb_decode_tag(stream, &wire_type, &tag, &eof)) {
+  if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
     abort();
   }
   // TODO(rsgowman): figure out error handling: We can do better than a failed
@@ -518,9 +586,9 @@ ObjectValue::Map::value_type DecodeFieldsEntry(pb_istream_t* stream) {
   FIREBASE_ASSERT(tag == google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
   FIREBASE_ASSERT(wire_type == PB_WT_STRING);
   FIREBASE_ASSERT(!eof);
-  std::string key = DecodeString(stream);
+  std::string key = reader->ReadString();
 
-  if (!pb_decode_tag(stream, &wire_type, &tag, &eof)) {
+  if (!pb_decode_tag(reader->stream_, &wire_type, &tag, &eof)) {
     abort();
   }
   FIREBASE_ASSERT(tag ==
@@ -528,7 +596,7 @@ ObjectValue::Map::value_type DecodeFieldsEntry(pb_istream_t* stream) {
   FIREBASE_ASSERT(wire_type == PB_WT_STRING);
   FIREBASE_ASSERT(!eof);
 
-  FieldValue value = DecodeNestedFieldValue(stream);
+  FieldValue value = DecodeNestedFieldValue(reader);
 
   return {key, value};
 }
@@ -546,18 +614,21 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value) {
   });
 }
 
-ObjectValue DecodeObject(pb_istream_t* stream) {
+ObjectValue DecodeObject(Reader* reader) {
   google_firestore_v1beta1_MapValue map_value =
       google_firestore_v1beta1_MapValue_init_zero;
   ObjectValue::Map result;
   // NB: c-style callbacks can't use *capturing* lambdas, so we'll pass in the
   // object_value via the arg field (and therefore need to do a bunch of
   // casting).
+  // TODO(rsgowman): refactor via Reader::ReadNestedMessage() once that exists.
+  // Similar to WriteObject.
   map_value.fields.funcs.decode = [](pb_istream_t* stream, const pb_field_t*,
                                      void** arg) -> bool {
     auto& result = *static_cast<ObjectValue::Map*>(*arg);
 
-    ObjectValue::Map::value_type fv = DecodeFieldsEntry(stream);
+    Reader subreader(stream);
+    ObjectValue::Map::value_type fv = DecodeFieldsEntry(&subreader);
 
     // Sanity check: ensure that this key doesn't already exist in the map.
     // TODO(rsgowman): figure out error handling: We can do better than a failed
@@ -571,7 +642,8 @@ ObjectValue DecodeObject(pb_istream_t* stream) {
   };
   map_value.fields.arg = &result;
 
-  if (!pb_decode_delimited(stream, google_firestore_v1beta1_MapValue_fields,
+  if (!pb_decode_delimited(reader->stream_,
+                           google_firestore_v1beta1_MapValue_fields,
                            &map_value)) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -590,8 +662,9 @@ Status Serializer::EncodeFieldValue(const FieldValue& field_value,
 }
 
 FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
-  pb_istream_t stream = pb_istream_from_buffer(bytes, length);
-  return DecodeFieldValueImpl(&stream);
+  pb_istream_t raw_stream = pb_istream_from_buffer(bytes, length);
+  Reader reader = Reader(&raw_stream);
+  return DecodeFieldValueImpl(&reader);
 }
 
 }  // namespace remote
