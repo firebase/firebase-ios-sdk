@@ -25,8 +25,8 @@ NS_SWIFT_NAME(FirebaseOptions)
 @interface FIROptions : NSObject <NSCopying>
 
 /**
- * Returns the default options. This call contains synchronous file I/O (reading
- * GoogleService-Info.plist from disk).
+ * Returns the default options. The first time this is called it contains synchronously reads
+ * GoogleService-Info.plist from disk.
  */
 + (nullable FIROptions *)defaultOptions NS_SWIFT_NAME(defaultOptions());
 
