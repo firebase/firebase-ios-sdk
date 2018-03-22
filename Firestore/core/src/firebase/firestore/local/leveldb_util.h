@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_UTIL_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_UTIL_H_
 
-#include <stdint.h>
+#include <string>
+
+#include "absl/strings/string_view.h"
+#include "leveldb/slice.h"
 
 namespace firebase {
 namespace firestore {
-namespace model {
+namespace local {
 
-/**
- * BatchId is a locally assigned identifier for a batch of mutations that have
- * been applied by the user but have not yet been fully committed at the server.
- */
-using BatchId = int32_t;
+/** Creates a Slice from a string_view. */
+inline leveldb::Slice MakeSlice(absl::string_view view) {
+  return leveldb::Slice{view.data(), view.size()};
+}
 
-/**
- * TargetId is a stable numeric identifier assigned for a specific query
- * applied.
- */
-using TargetId = int32_t;
+/** Creates a string_view from a Slice. */
+inline absl::string_view MakeStringView(leveldb::Slice slice) {
+  return absl::string_view{slice.data(), slice.size()};
+}
 
-}  // namespace model
+}  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_UTIL_H_
