@@ -31,6 +31,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbTransaction;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Iterator;
@@ -57,6 +58,30 @@ using leveldb::WriteOptions;
    * avoid extra conversion to/from GPBTimestamp.
    */
   FSTSnapshotVersion *_lastRemoteSnapshotVersion;
+}
+
++ (nullable FSTPBTargetGlobal *)readTargetMetadataWithTransaction:
+    (firebase::firestore::local::LevelDbTransaction *)transaction {
+  std::string key = [FSTLevelDBTargetGlobalKey key];
+  std::string value;
+  Status status = transaction->Get(key, &value);
+  if (status.IsNotFound()) {
+    return nil;
+  } else if (!status.ok()) {
+    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
+            status.ToString().c_str());
+  }
+
+  NSData *data =
+      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+
+  NSError *error;
+  FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
+  if (!proto) {
+    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+  }
+
+  return proto;
 }
 
 + (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<DB>)db {

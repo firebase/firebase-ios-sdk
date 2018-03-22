@@ -31,6 +31,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -43,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kReservedPathComponent = @"firestore";
 
+using firebase::firestore::local::LevelDbTransaction;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::ReadOptions;
@@ -58,7 +60,9 @@ using leveldb::WriteOptions;
 
 @end
 
-@implementation FSTLevelDB
+@implementation FSTLevelDB {
+  std::unique_ptr<LevelDbTransaction> _transaction;
+}
 
 /**
  * For now this is paranoid, but perhaps disable that in production builds.
@@ -137,7 +141,9 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  [FSTLevelDBMigrations runMigrationsOnDB:_ptr];
+  LevelDbTransaction transaction(_ptr.get());
+  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
+  transaction.Commit();
   return YES;
 }
 
@@ -212,20 +218,16 @@ using leveldb::WriteOptions;
 }
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
-  return [self.writeGroupTracker startGroupWithAction:action];
+  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
+  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
+  return [self.writeGroupTracker startGroupWithAction:action transaction:_transaction.get()];
 }
 
 - (void)commitGroup:(FSTWriteGroup *)group {
+  FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
   [self.writeGroupTracker endGroup:group];
-
-  NSString *description = [group description];
-  FSTLog(@"Committing %@", description);
-
-  Status status = [group writeToDB:_ptr];
-  if (!status.ok()) {
-    FSTFail(@"%@ failed with status: %s, description: %@", group.action, status.ToString().c_str(),
-            description);
-  }
+  _transaction->Commit();
+  _transaction.reset();
 }
 
 - (void)shutdown {

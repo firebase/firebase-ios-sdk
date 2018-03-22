@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using leveldb::DB;
 using leveldb::ReadOptions;
@@ -202,9 +203,14 @@ void LevelDbTransaction::Commit() {
     batch.Put(it->first, it->second);
   }
 
+  if (util::LogGetLevel() <= util::kLogLevelDebug) {
+    util::LogDebug("Committing transaction: %s", ToString().c_str());
+  }
+
   Status status = db_->Write(write_options_, &batch);
-  FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction: %s",
-                          status.ToString().c_str());
+  FIREBASE_ASSERT_MESSAGE(status.ok(),
+                          "Failed to commit transaction:\n%s\n Failed: %s",
+                          ToString().c_str(), status.ToString().c_str());
 }
 
 std::string LevelDbTransaction::ToString() {
