@@ -75,8 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Sorts document references by key then ID. */
 const NSComparator FSTDocumentReferenceComparatorByKey =
     ^NSComparisonResult(FSTDocumentReference *left, FSTDocumentReference *right) {
-      if (left.key != right.key) {
-        return left.key < right.key ? NSOrderedAscending : NSOrderedDescending;
+      NSComparisonResult result = FSTDocumentKeyComparator(left.key, right.key);
+      if (result != NSOrderedSame) {
+        return result;
       }
       return WrapCompare<int32_t>(left.ID, right.ID);
     };
@@ -88,13 +89,7 @@ const NSComparator FSTDocumentReferenceComparatorByID =
       if (result != NSOrderedSame) {
         return result;
       }
-      if (left.key < right.key) {
-        return NSOrderedAscending;
-      } else if (left.key > right.key) {
-        return NSOrderedDescending;
-      } else {
-        return NSOrderedSame;
-      }
+      return FSTDocumentKeyComparator(left.key, right.key);
     };
 
 NS_ASSUME_NONNULL_END

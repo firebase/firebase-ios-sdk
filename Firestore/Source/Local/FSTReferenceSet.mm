@@ -132,11 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSEnumerator<FSTDocumentReference *> *enumerator =
       [self.referencesByKey objectEnumeratorFrom:reference];
   FSTDocumentReference *_Nullable firstReference = [enumerator nextObject];
-  if (firstReference) {
-    return firstReference.key == reference.key;
-  } else {
-    return false;
-  }
+  return firstReference && firstReference.key == reference.key;
 }
 
 @end

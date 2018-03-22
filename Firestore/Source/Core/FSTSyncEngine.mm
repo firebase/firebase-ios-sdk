@@ -513,7 +513,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)garbageCollectLimboDocuments {
   const std::set<DocumentKey> garbage = [self.limboCollector collectGarbage];
   for (const DocumentKey &key : garbage) {
-    FSTBoxedTargetID *limboTarget = self.limboTargetsByKey[(FSTDocumentKey *)key];
+    FSTBoxedTargetID *limboTarget = self.limboTargetsByKey[static_cast<FSTDocumentKey *>(key)];
     if (!limboTarget) {
       // This target already got removed, because the query failed.
       return;

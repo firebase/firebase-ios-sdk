@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addEntry:(FSTMaybeDocument *)maybeDocument {
   [self assertValid];
 
-  _changes->emplace(maybeDocument.key, maybeDocument);
+  (*_changes)[maybeDocument.key] = maybeDocument;
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // We should not be used to buffer any more changes.
-  _changes.reset(nullptr);
+  _changes.reset();
 }
 
 - (void)assertValid {
