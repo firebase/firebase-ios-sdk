@@ -23,7 +23,17 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-typedef int32_t TargetId;
+/**
+ * BatchId is a locally assigned identifier for a batch of mutations that have
+ * been applied by the user but have not yet been fully committed at the server.
+ */
+using BatchId = int32_t;
+
+/**
+ * TargetId is a stable numeric identifier assigned for a specific query
+ * applied.
+ */
+using TargetId = int32_t;
 
 }  // namespace model
 }  // namespace firestore

@@ -16,15 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/types.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTMaybeDocument;
 @class FSTTransaction;
 
 /** FSTBatchID is a locally assigned ID for a batch of mutations that have been applied. */
-typedef int32_t FSTBatchID;
+typedef firebase::firestore::model::BatchId FSTBatchID;
 
-typedef int32_t FSTTargetID;
+typedef firebase::firestore::model::TargetId FSTTargetID;
 
 typedef int64_t FSTListenSequenceNumber;
 

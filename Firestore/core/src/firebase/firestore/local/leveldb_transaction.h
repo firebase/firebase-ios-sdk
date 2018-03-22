@@ -188,6 +188,8 @@ class LevelDbTransaction {
    */
   void Commit();
 
+  std::string ToString();
+
  private:
   leveldb::DB* db_;
   Mutations mutations_;

@@ -296,6 +296,11 @@ static NSString *const kNoIOSTag = @"no-ios";
 - (void)doWatchStreamClose:(NSDictionary *)closeSpec {
   NSDictionary *errorSpec = closeSpec[@"error"];
   int code = ((NSNumber *)(errorSpec[@"code"])).intValue;
+
+  NSNumber *runBackoffTimer = closeSpec[@"runBackoffTimer"];
+  // TODO(b/72313632): Incorporate backoff in iOS Spec Tests.
+  FSTAssert(runBackoffTimer.boolValue, @"iOS Spec Tests don't support backoff.");
+
   [self.driver receiveWatchStreamError:code userInfo:errorSpec];
 }
 
@@ -335,11 +340,11 @@ static NSString *const kNoIOSTag = @"no-ios";
     timerID = FSTTimerIDAll;
   } else if ([timer isEqualToString:@"listen_stream_idle"]) {
     timerID = FSTTimerIDListenStreamIdle;
-  } else if ([timer isEqualToString:@"listen_stream_connection"]) {
+  } else if ([timer isEqualToString:@"listen_stream_connection_backoff"]) {
     timerID = FSTTimerIDListenStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"write_stream_idle"]) {
     timerID = FSTTimerIDWriteStreamIdle;
-  } else if ([timer isEqualToString:@"write_stream_connection"]) {
+  } else if ([timer isEqualToString:@"write_stream_connection_backoff"]) {
     timerID = FSTTimerIDWriteStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"online_state_timeout"]) {
     timerID = FSTTimerIDOnlineStateTimeout;

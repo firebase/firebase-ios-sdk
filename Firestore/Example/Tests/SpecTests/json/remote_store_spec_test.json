@@ -488,7 +488,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -541,6 +542,77 @@
             "hasPendingWrites": false
           }
         ]
+      }
+    ]
+  },
+  "Handles user changes while offline (b/74749605).": {
+    "describeName": "Remote store:",
+    "itName": "Handles user changes while offline (b/74749605).",
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": false
+        },
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "changeUser": "abc",
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
       }
     ]
   }
