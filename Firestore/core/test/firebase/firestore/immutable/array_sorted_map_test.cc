@@ -20,104 +20,17 @@
 #include <random>
 
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
+
+#include "Firestore/core/test/firebase/firestore/immutable/testing.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace immutable {
+namespace impl {
 
 typedef ArraySortedMap<int, int> IntMap;
 constexpr IntMap::size_type kFixedSize = IntMap::kFixedSize;
-
-template <typename K, typename V>
-testing::AssertionResult NotFound(const ArraySortedMap<K, V>& set,
-                                  const K& key) {
-  auto found = set.find(key);
-  if (found == set.end()) {
-    return testing::AssertionSuccess();
-  } else {
-    return testing::AssertionFailure()
-           << "Should not have found (" << found->first << ", " << found->second
-           << ") @ " << found;
-  }
-}
-
-template <typename K, typename V>
-testing::AssertionResult Found(const ArraySortedMap<K, V>& map,
-                               const K& key,
-                               const V& expected) {
-  auto found = map.find(key);
-  if (found == map.end()) {
-    return testing::AssertionFailure() << "Did not find key " << key;
-  }
-  if (found->second == expected) {
-    return testing::AssertionSuccess();
-  } else {
-    return testing::AssertionFailure() << "Found entry was (" << found->first
-                                       << ", " << found->second << ")";
-  }
-}
-
-/**
- * Creates a vector containing a sequence of integers from the given starting
- * element up to, but not including, the given end element, with values
- * incremented by the given step.
- *
- * If step is negative the sequence is in descending order (but still starting
- * at start and ending before end).
- */
-std::vector<int> Sequence(int start, int end, int step = 1) {
-  std::vector<int> result;
-  if (step > 0) {
-    for (int i = start; i < end; i += step) {
-      result.push_back(i);
-    }
-  } else {
-    for (int i = start; i > end; i += step) {
-      result.push_back(i);
-    }
-  }
-  return result;
-}
-
-/**
- * Creates a vector containing a sequence of integers with the given number of
- * elements, from zero up to, but not including the given value.
- */
-std::vector<int> Sequence(int num_elements) {
-  return Sequence(0, num_elements);
-}
-
-/**
- * Creates a copy of the given vector with contents shuffled randomly.
- */
-std::vector<int> Shuffled(const std::vector<int>& values) {
-  std::vector<int> result(values);
-  util::SecureRandom rng;
-  std::shuffle(result.begin(), result.end(), rng);
-  return result;
-}
-
-/**
- * Creates a copy of the given vector with contents sorted.
- */
-std::vector<int> Sorted(const std::vector<int>& values) {
-  std::vector<int> result(values);
-  std::sort(result.begin(), result.end());
-  return result;
-}
-
-/**
- * Creates a vector of pairs where each pair has the same first and second
- * corresponding to an element in the given vector.
- */
-std::vector<std::pair<int, int>> Pairs(const std::vector<int>& values) {
-  std::vector<std::pair<int, int>> result;
-  for (auto&& value : values) {
-    result.emplace_back(value, value);
-  }
-  return result;
-}
 
 /**
  * Creates an ArraySortedMap by inserting a pair for each value in the vector.
@@ -128,16 +41,6 @@ IntMap ToMap(const std::vector<int>& values) {
   for (auto&& value : values) {
     result = result.insert(value, value);
   }
-  return result;
-}
-
-/**
- * Appends the contents of the given container to a new vector.
- */
-template <typename Container>
-std::vector<typename Container::value_type> Append(const Container& container) {
-  std::vector<typename Container::value_type> result;
-  result.insert(result.begin(), container.begin(), container.end());
   return result;
 }
 
@@ -321,6 +224,7 @@ TEST(ArraySortedMap, AvoidsCopying) {
   EXPECT_EQ(found, duped_found);
 }
 
+}  // namespace impl
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 
 namespace firebase {
 namespace firestore {
@@ -22,7 +22,7 @@ namespace immutable {
 namespace impl {
 
 // Define external storage for constants:
-constexpr ArraySortedMapBase::size_type ArraySortedMapBase::kFixedSize;
+constexpr SortedMapBase::size_type SortedMapBase::kFixedSize;
 
 }  // namespace impl
 }  // namespace immutable

@@ -15,9 +15,10 @@
 cc_library(
   firebase_firestore_immutable
   SOURCES
-    array_sorted_map.cc
     array_sorted_map.h
     map_entry.h
+    sorted_map_base.h
+    sorted_map_base.cc
   DEPENDS
     firebase_firestore_util
 )
