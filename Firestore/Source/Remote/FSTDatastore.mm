@@ -287,7 +287,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    NSMutableArray<FSTMaybeDocument *> *docs =
                                        [NSMutableArray arrayWithCapacity:keys.size()];
                                    for (const DocumentKey &key : keys) {
-                                     [docs addObject:results[(FSTDocumentKey *)key]];
+                                     [docs addObject:results[static_cast<FSTDocumentKey *>(key)]];
                                    }
                                    completion(docs, nil);
                                  }
