@@ -27,12 +27,12 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 namespace util = firebase::firestore::util;
 using Firestore::StringView;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 using leveldb::DB;
 using leveldb::Iterator;
@@ -377,12 +378,12 @@ static ReadOptions StandardReadOptions() {
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
-    (FSTDocumentKey *)documentKey {
+    (const DocumentKey &)documentKey {
   NSString *userID = self.userID;
 
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID
+                                                                  resourcePath:documentKey.path()];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator(StandardReadOptions()));
   indexIterator->Seek(indexPrefix);
 
@@ -403,7 +404,7 @@ static ReadOptions StandardReadOptions() {
     // occur before any rows for documents nested in a subcollection beneath documentKey so we can
     // stop as soon as we hit any such row.
     if (!indexKey.starts_with(indexPrefix) || ![rowKey decodeKey:indexKey] ||
-        ![rowKey.documentKey isEqualToKey:documentKey]) {
+        DocumentKey{rowKey.documentKey} != documentKey) {
       break;
     }
 
@@ -619,9 +620,9 @@ static ReadOptions StandardReadOptions() {
 
 #pragma mark - FSTGarbageSource implementation
 
-- (BOOL)containsKey:(FSTDocumentKey *)documentKey {
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+- (BOOL)containsKey:(const DocumentKey &)documentKey {
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID
+                                                                  resourcePath:documentKey.path()];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator(StandardReadOptions()));
   indexIterator->Seek(indexPrefix);
 
@@ -632,7 +633,7 @@ static ReadOptions StandardReadOptions() {
     // Check both that the key prefix matches and that the decoded document key is exactly the key
     // we're looking for.
     if (iteratorKey.starts_with(indexPrefix) && [rowKey decodeKey:iteratorKey] &&
-        [rowKey.documentKey isEqualToKey:documentKey]) {
+        DocumentKey{rowKey.documentKey} == documentKey) {
       return YES;
     }
   }

@@ -26,12 +26,14 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using Firestore::StringView;
+using firebase::firestore::model::DocumentKey;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::ReadOptions;
@@ -305,7 +307,7 @@ using leveldb::WriteOptions;
     if (![rowKey decodeKey:indexKey] || rowKey.targetID != targetID) {
       break;
     }
-    FSTDocumentKey *documentKey = rowKey.documentKey;
+    const DocumentKey &documentKey = rowKey.documentKey;
 
     // Delete both index rows
     [group removeMessageForKey:indexKey];
@@ -338,14 +340,14 @@ using leveldb::WriteOptions;
 
 #pragma mark - FSTGarbageSource implementation
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
-  std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path];
+- (BOOL)containsKey:(const DocumentKey &)key {
+  std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path()];
   std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
   indexIterator->Seek(indexPrefix);
 
   if (indexIterator->Valid()) {
     FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
-    if ([rowKey decodeKey:indexIterator->key()] && [rowKey.documentKey isEqualToKey:key]) {
+    if ([rowKey decodeKey:indexIterator->key()] && DocumentKey{rowKey.documentKey} == key) {
       return YES;
     }
   }

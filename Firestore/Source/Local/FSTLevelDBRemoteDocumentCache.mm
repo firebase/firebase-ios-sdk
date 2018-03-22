@@ -27,12 +27,14 @@
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::model::DocumentKey;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::ReadOptions;
@@ -79,12 +81,12 @@ static ReadOptions StandardReadOptions() {
   [group setMessage:[self.serializer encodedMaybeDocument:document] forKey:key];
 }
 
-- (void)removeEntryForKey:(FSTDocumentKey *)documentKey group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)documentKey group:(FSTWriteGroup *)group {
   std::string key = [self remoteDocumentKey:documentKey];
   [group removeMessageForKey:key];
 }
 
-- (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey {
+- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
   std::string key = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:documentKey];
   std::string value;
   Status status = _db->Get(StandardReadOptions(), key, &value);
@@ -93,7 +95,7 @@ static ReadOptions StandardReadOptions() {
   } else if (status.ok()) {
     return [self decodedMaybeDocument:value withKey:documentKey];
   } else {
-    FSTFail(@"Fetch document for key (%@) failed with status: %s", documentKey,
+    FSTFail(@"Fetch document for key (%s) failed with status: %s", documentKey.ToString().c_str(),
             status.ToString().c_str());
   }
 }
@@ -127,11 +129,11 @@ static ReadOptions StandardReadOptions() {
   return results;
 }
 
-- (std::string)remoteDocumentKey:(FSTDocumentKey *)key {
+- (std::string)remoteDocumentKey:(const DocumentKey &)key {
   return [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:key];
 }
 
-- (FSTMaybeDocument *)decodedMaybeDocument:(Slice)slice withKey:(FSTDocumentKey *)documentKey {
+- (FSTMaybeDocument *)decodedMaybeDocument:(Slice)slice withKey:(const DocumentKey &)documentKey {
   NSData *data =
       [[NSData alloc] initWithBytesNoCopy:(void *)slice.data() length:slice.size() freeWhenDone:NO];
 
@@ -143,8 +145,8 @@ static ReadOptions StandardReadOptions() {
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
   FSTAssert([maybeDocument.key isEqualToKey:documentKey],
-            @"Read document has key (%s) instead of expected key (%@).",
-            maybeDocument.key.ToString().c_str(), documentKey);
+            @"Read document has key (%s) instead of expected key (%s).",
+            maybeDocument.key.ToString().c_str(), documentKey.ToString().c_str());
   return maybeDocument;
 }
 

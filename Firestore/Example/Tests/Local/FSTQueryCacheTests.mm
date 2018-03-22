@@ -22,10 +22,15 @@
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -150,8 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
   [self addQueryData:rooms];
 
-  FSTDocumentKey *key1 = FSTTestDocKey(@"rooms/foo");
-  FSTDocumentKey *key2 = FSTTestDocKey(@"rooms/bar");
+  DocumentKey key1 = testutil::Key("rooms/foo");
+  DocumentKey key2 = testutil::Key("rooms/bar");
   [self addMatchingKey:key1 forTargetID:rooms.targetID];
   [self addMatchingKey:key2 forTargetID:rooms.targetID];
 
@@ -166,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAddOrRemoveMatchingKeys {
   if ([self isTestBaseClass]) return;
 
-  FSTDocumentKey *key = FSTTestDocKey(@"foo/bar");
+  DocumentKey key = testutil::Key("foo/bar");
 
   XCTAssertFalse([self.queryCache containsKey:key]);
 
@@ -186,9 +191,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
-  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
-  FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
+  DocumentKey key1 = testutil::Key("foo/bar");
+  DocumentKey key2 = testutil::Key("foo/baz");
+  DocumentKey key3 = testutil::Key("foo/blah");
 
   [self addMatchingKey:key1 forTargetID:1];
   [self addMatchingKey:key2 forTargetID:1];
@@ -213,40 +218,40 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTEagerGarbageCollector *garbageCollector = [[FSTEagerGarbageCollector alloc] init];
   [garbageCollector addGarbageSource:self.queryCache];
-  FSTAssertEqualSets([garbageCollector collectGarbage], @[]);
+  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
 
   FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery("rooms")];
-  FSTDocumentKey *room1 = FSTTestDocKey(@"rooms/bar");
-  FSTDocumentKey *room2 = FSTTestDocKey(@"rooms/foo");
+  DocumentKey room1 = testutil::Key("rooms/bar");
+  DocumentKey room2 = testutil::Key("rooms/foo");
   [self addQueryData:rooms];
   [self addMatchingKey:room1 forTargetID:rooms.targetID];
   [self addMatchingKey:room2 forTargetID:rooms.targetID];
 
   FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery("halls")];
-  FSTDocumentKey *hall1 = FSTTestDocKey(@"halls/bar");
-  FSTDocumentKey *hall2 = FSTTestDocKey(@"halls/foo");
+  DocumentKey hall1 = testutil::Key("halls/bar");
+  DocumentKey hall2 = testutil::Key("halls/foo");
   [self addQueryData:halls];
   [self addMatchingKey:hall1 forTargetID:halls.targetID];
   [self addMatchingKey:hall2 forTargetID:halls.targetID];
 
-  FSTAssertEqualSets([garbageCollector collectGarbage], @[]);
+  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
 
   [self removeMatchingKey:room1 forTargetID:rooms.targetID];
-  FSTAssertEqualSets([garbageCollector collectGarbage], @[ room1 ]);
+  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room1}));
 
   [self removeQueryData:rooms];
-  FSTAssertEqualSets([garbageCollector collectGarbage], @[ room2 ]);
+  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room2}));
 
   [self removeMatchingKeysForTargetID:halls.targetID];
-  FSTAssertEqualSets([garbageCollector collectGarbage], (@[ hall1, hall2 ]));
+  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({hall1, hall2}));
 }
 
 - (void)testMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
-  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
-  FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
+  DocumentKey key1 = testutil::Key("foo/bar");
+  DocumentKey key2 = testutil::Key("foo/baz");
+  DocumentKey key3 = testutil::Key("foo/blah");
 
   [self addMatchingKey:key1 forTargetID:1];
   [self addMatchingKey:key2 forTargetID:1];
@@ -309,8 +314,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                     targetID:1
                                         listenSequenceNumber:10
                                                      purpose:FSTQueryPurposeListen];
-  FSTDocumentKey *key1 = FSTTestDocKey(@"rooms/bar");
-  FSTDocumentKey *key2 = FSTTestDocKey(@"rooms/foo");
+  DocumentKey key1 = testutil::Key("rooms/bar");
+  DocumentKey key2 = testutil::Key("rooms/foo");
   [self addQueryData:query1];
   [self addMatchingKey:key1 forTargetID:1];
   [self addMatchingKey:key2 forTargetID:1];
@@ -319,7 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                     targetID:2
                                         listenSequenceNumber:20
                                                      purpose:FSTQueryPurposeListen];
-  FSTDocumentKey *key3 = FSTTestDocKey(@"halls/foo");
+  DocumentKey key3 = testutil::Key("halls/foo");
   [self addQueryData:query2];
   [self addMatchingKey:key3 forTargetID:2];
   XCTAssertEqual([self.queryCache highestTargetID], 2);
@@ -407,7 +412,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 }
 
-- (void)addMatchingKey:(FSTDocumentKey *)key forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
 
@@ -416,7 +421,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 }
 
-- (void)removeMatchingKey:(FSTDocumentKey *)key forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
 

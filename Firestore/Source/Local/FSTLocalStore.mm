@@ -33,7 +33,6 @@
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
@@ -42,8 +41,10 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::core::TargetIdGenerator;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -384,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
 }
 
-- (nullable FSTMaybeDocument *)readDocument:(FSTDocumentKey *)key {
+- (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
   return [self.localDocuments documentForKey:key];
 }
 
@@ -454,10 +455,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)collectGarbage {
   // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
   // accumulate the garbage keys.
-  NSSet<FSTDocumentKey *> *garbage = [self.garbageCollector collectGarbage];
-  if (garbage.count > 0) {
+  std::set<DocumentKey> garbage = [self.garbageCollector collectGarbage];
+  if (garbage.size() > 0) {
     FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Garbage Collection"];
-    for (FSTDocumentKey *key in garbage) {
+    for (const DocumentKey &key : garbage) {
       [self.remoteDocumentCache removeEntryForKey:key group:group];
     }
     [self.persistence commitGroup:group];
@@ -524,7 +525,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   for (FSTMutationBatch *batch in batches) {
     for (FSTMutation *mutation in batch.mutations) {
-      FSTDocumentKey *key = mutation.key;
+      const DocumentKey &key = mutation.key;
       affectedDocs = [affectedDocs setByAddingObject:key];
     }
   }

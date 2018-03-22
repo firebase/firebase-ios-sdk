@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,12 +32,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTDocumentReference : NSObject <NSCopying>
 
 /** Initializes the document reference with the given key and ID. */
-- (instancetype)initWithKey:(FSTDocumentKey *)key ID:(int32_t)ID NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
+                         ID:(int32_t)ID NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /** The document key that's the target of this reference. */
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
+- (const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * The targetID of a referring target or the batchID of a referring mutation batch. (Which this
