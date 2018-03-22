@@ -54,8 +54,8 @@ using leveldb::Status;
   FSTSnapshotVersion *_lastRemoteSnapshotVersion;
 }
 
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataFromTransaction:
-    (LevelDbTransaction *)transaction {
++ (nullable FSTPBTargetGlobal *)readTargetMetadataWithTransaction:
+    (firebase::firestore::local::LevelDbTransaction *)transaction {
   std::string key = [FSTLevelDBTargetGlobalKey key];
   std::string value;
   Status status = transaction->Get(key, &value);
