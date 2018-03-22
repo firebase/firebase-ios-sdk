@@ -337,7 +337,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         },
         "stateExpect": {
           "activeTargets": {

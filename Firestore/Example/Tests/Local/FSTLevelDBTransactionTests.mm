@@ -20,7 +20,9 @@
 #include <absl/strings/string_view.h>
 #include <leveldb/db.h>
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,6 +31,7 @@ using leveldb::Options;
 using leveldb::ReadOptions;
 using leveldb::WriteOptions;
 using leveldb::Status;
+using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 
 @interface FSTLevelDBTransactionTests : XCTestCase
@@ -267,6 +270,30 @@ using firebase::firestore::local::LevelDbTransaction;
   XCTAssertTrue(it->Valid());
   it->Next();
   XCTAssertFalse(it->Valid());
+}
+
+- (void)testToString {
+  std::string key = LevelDbMutationKey::Key("user1", 42);
+  FSTPBWriteBatch *message = [FSTPBWriteBatch message];
+  message.batchId = 42;
+
+  LevelDbTransaction transaction(_db.get());
+  std::string description = transaction.ToString();
+  XCTAssertEqual(description, "<LevelDbTransaction: 0 changes (0 bytes):>");
+
+  transaction.Put(key, message);
+  description = transaction.ToString();
+  XCTAssertEqual(description,
+                 "<LevelDbTransaction: 1 changes (2 bytes):\n"
+                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
+
+  std::string key2 = LevelDbMutationKey::Key("user1", 43);
+  transaction.Delete(key2);
+  description = transaction.ToString();
+  XCTAssertEqual(description,
+                 "<LevelDbTransaction: 2 changes (2 bytes):\n"
+                 "  - Delete [mutation: user_id=user1 batch_id=43]\n"
+                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 }
 
 @end

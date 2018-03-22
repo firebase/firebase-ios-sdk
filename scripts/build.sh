@@ -111,6 +111,15 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
+
+    if [[ $platform == 'iOS' ]]; then
+      RunXcodebuild \
+          -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
+          -scheme "FirebaseFunctions_Tests" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+    fi
     ;;
 
   Firestore-xcodebuild-iOS)

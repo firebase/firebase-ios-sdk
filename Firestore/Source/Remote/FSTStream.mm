@@ -265,17 +265,15 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _delegate = delegate;
 
   _credentials->GetToken(
-      /*force_refresh=*/false,
-      [self](Token result, const int64_t error_code, const absl::string_view error_msg) {
-        NSError *error = util::WrapNSError(error_code, error_msg);
+      /*force_refresh=*/false, [self](util::StatusOr<Token> result) {
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          [self resumeStartWithToken:result error:error];
+          [self resumeStartWithToken:result];
         }];
       });
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
-- (void)resumeStartWithToken:(const Token &)token error:(NSError *)error {
+- (void)resumeStartWithToken:(const util::StatusOr<Token> &)result {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   if (self.state == FSTStreamStateStopped) {
@@ -287,9 +285,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
-  if (error) {
+  if (!result.ok()) {
     // RPC has not been started yet, so just invoke higher-level close handler.
-    [self handleStreamClose:error];
+    [self handleStreamClose:util::MakeNSError(result.status())];
     return;
   }
 
@@ -297,6 +295,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _rpc = [self createRPCWithRequestsWriter:self.requestsWriter];
   [_rpc setResponseDispatchQueue:self.workerDispatchQueue.queue];
 
+  const Token &token = result.ValueOrDie();
   [FSTDatastore
       prepareHeadersForRPC:_rpc
                 databaseID:&self.databaseInfo->database_id()
@@ -327,7 +326,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /** Resumes stream start after backing off. */
 - (void)resumeStartFromBackoffWithDelegate:(id)delegate {
   if (self.state == FSTStreamStateStopped) {
-    // Streams can be stopped while waiting for backoff to complete.
+    // We should have canceled the backoff timer when the stream was closed, but just in case we
+    // make this a no-op.
     return;
   }
 
@@ -368,7 +368,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
             @"Can't provide an error when not in an error state.");
 
   [self.workerDispatchQueue verifyIsCurrentQueue];
+
+  // The stream will be closed so we don't need our idle close timer anymore.
   [self cancelIdleCheck];
+
+  // Ensure we don't leave a pending backoff operation queued (in case close()
+  // was called while we were waiting to reconnect).
+  [self.backoff cancel];
 
   if (finalState != FSTStreamStateError) {
     // If this is an intentional close ensure we don't delay our next connection attempt.

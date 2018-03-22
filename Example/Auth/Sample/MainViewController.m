@@ -96,6 +96,11 @@ static NSString *const kSignInGoogleButtonText = @"Sign in with Google";
  */
 static NSString *const kSignInWithEmailLink = @"Sign in with Email Link";
 
+/** @var kVerifyEmailLinkAccount
+    @brief The text of the "Verify Email-link Account" button.
+ */
+static NSString *const kVerifyEmailLinkAccount = @"Verify Email-link Account";
+
 /** @var kSendEmailSignInLink
     @brief The text of the "Send Email SignIn link" button
 */
@@ -739,6 +744,8 @@ typedef enum {
                                            action:^{ [weakSelf signInGoogle]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInWithEmailLink
                                            action:^{ [weakSelf signInWithEmailLink]; }],
+        [StaticContentTableViewCell cellWithTitle:kVerifyEmailLinkAccount
+                                           action:^{ [weakSelf verifyEmailLinkAccount]; }],
         [StaticContentTableViewCell cellWithTitle:kSendEmailSignInLink
                                            action:^{ [weakSelf sendEmailSignInLink]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleAndRetrieveDataButtonText
@@ -1781,6 +1788,29 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         [self log:@"The sign-in link is invalid"];
       }
     }];
+  }];
+}
+
+/** @fn verifyEmailLinkAccount
+    @brief Invoked to verify that the current user is an email-link user.
+ */
+- (void)verifyEmailLinkAccount {
+  if (![FIRAuth auth].currentUser.email) {
+    [self showMessagePrompt:@"There is no signed-in user available."];
+    return;
+  }
+  [[FIRAuth auth] fetchSignInMethodsForEmail:[FIRAuth auth].currentUser.email
+                                  completion:^(NSArray<NSString *> *_Nullable signInMethods,
+                                               NSError *_Nullable error) {
+    if (error) {
+      [self showMessagePrompt:@"There was an error fetching sign-in methods."];
+      return;
+    }
+    if (![signInMethods containsObject:FIREmailLinkAuthSignInMethod]) {
+      [self showMessagePrompt:@"Error: The current user is NOT an email-link user."];
+      return;
+    }
+    [self showMessagePrompt:@"The current user is an email-link user."];
   }];
 }
 

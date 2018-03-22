@@ -26,6 +26,17 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const FIREmailAuthProviderID NS_SWIFT_NAME(EmailAuthProviderID);
 
 /**
+    @brief A string constant identifying the email-link sign-in method.
+ */
+extern NSString *const FIREmailLinkAuthSignInMethod NS_SWIFT_NAME(EmailLinkAuthSignInMethod);
+
+/**
+    @brief A string constant identifying the email & password sign-in method.
+ */
+extern NSString *const FIREmailPasswordAuthSignInMethod
+    NS_SWIFT_NAME(EmailPasswordAuthSignInMethod);
+
+/**
     @brief Please use `FIREmailAuthProviderID` for Objective-C or `EmailAuthProviderID` for Swift instead.
  */
 extern NSString *const FIREmailPasswordAuthProviderID __attribute__((deprecated));
