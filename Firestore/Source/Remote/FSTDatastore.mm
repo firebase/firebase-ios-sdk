@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
+#include <vector>
+
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
 
@@ -24,7 +26,6 @@
 #import "Firestore/Source/API/FIRFirestoreVersion.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -38,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -46,6 +48,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -245,11 +248,11 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   [self invokeRPCWithFactory:rpcFactory errorHandler:completion];
 }
 
-- (void)lookupDocuments:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocuments:(const std::vector<DocumentKey>)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion {
   GCFSBatchGetDocumentsRequest *request = [GCFSBatchGetDocumentsRequest message];
   request.database = [self.serializer encodedDatabaseID];
-  for (FSTDocumentKey *key in keys) {
+  for (const DocumentKey &key : keys) {
     [request.documentsArray addObject:[self.serializer encodedDocumentKey:key]];
   }
 
@@ -282,9 +285,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    FSTAssert(!response, @"Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =
-                                       [NSMutableArray arrayWithCapacity:keys.count];
-                                   for (FSTDocumentKey *key in keys) {
-                                     [docs addObject:results[key]];
+                                       [NSMutableArray arrayWithCapacity:keys.size()];
+                                   for (const DocumentKey &key : keys) {
+                                     [docs addObject:results[(FSTDocumentKey *)key]];
                                    }
                                    completion(docs, nil);
                                  }
