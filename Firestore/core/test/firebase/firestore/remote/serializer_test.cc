@@ -67,7 +67,7 @@ class SerializerTest : public ::testing::Test {
                        FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> actual_bytes;
-    serializer.WriteFieldValue(model, &actual_bytes);
+    serializer.EncodeFieldValue(model, &actual_bytes);
     EXPECT_EQ(bytes, actual_bytes);
     FieldValue actual_model = serializer.DecodeFieldValue(bytes);
     EXPECT_EQ(type, actual_model.type());

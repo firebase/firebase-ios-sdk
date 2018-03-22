@@ -36,8 +36,8 @@ namespace {
 
 class Writer;
 
-void WriteObject(Writer* writer,
-                 const std::map<std::string, FieldValue>& object_value);
+void EncodeObject(Writer* writer,
+                  const std::map<std::string, FieldValue>& object_value);
 
 std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream);
 
@@ -284,11 +284,11 @@ std::string DecodeString(pb_istream_t* stream) {
   return result;
 }
 
-// Named '..Impl' so as to not conflict with Serializer::WriteFieldValue.
+// Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
 // TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
 // This will help with error handling, and should eliminate the issue of two
-// 'WriteFieldValue' methods.
-void WriteFieldValueImpl(Writer* writer, const FieldValue& field_value) {
+// 'EncodeFieldValue' methods.
+void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   switch (field_value.type()) {
@@ -319,7 +319,7 @@ void WriteFieldValueImpl(Writer* writer, const FieldValue& field_value) {
     case FieldValue::Type::Object:
       writer->WriteTag(PB_WT_STRING,
                        google_firestore_v1beta1_Value_map_value_tag);
-      WriteObject(writer, field_value.object_value());
+      EncodeObject(writer, field_value.object_value());
       break;
 
     default:
@@ -455,7 +455,7 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
 }
 
 /**
- * Writes a 'FieldsEntry' object, within a FieldValue's map_value type.
+ * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
  *
  * In protobuf, maps are implemented as a repeated set of key/values. For
  * instance, this:
@@ -474,8 +474,8 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  *
  * @param kv The individual key/value pair to write.
  */
-void WriteFieldsEntry(Writer* writer,
-                      const std::pair<std::string, FieldValue>& kv) {
+void EncodeFieldsEntry(Writer* writer,
+                       const std::pair<std::string, FieldValue>& kv) {
   // Write the key (string)
   writer->WriteTag(PB_WT_STRING,
                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
@@ -485,7 +485,7 @@ void WriteFieldsEntry(Writer* writer,
   writer->WriteTag(PB_WT_STRING,
                    google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
   writer->WriteNestedMessage(
-      [&kv](Writer* writer) { WriteFieldValueImpl(writer, kv.second); });
+      [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
 }
 
 std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
@@ -513,15 +513,15 @@ std::pair<std::string, FieldValue> DecodeFieldsEntry(pb_istream_t* stream) {
   return {key, value};
 }
 
-void WriteObject(Writer* writer,
-                 const std::map<std::string, FieldValue>& object_value) {
+void EncodeObject(Writer* writer,
+                  const std::map<std::string, FieldValue>& object_value) {
   writer->WriteNestedMessage([&object_value](Writer* writer) {
     // Write each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value) {
       writer->WriteTag(PB_WT_STRING,
                        google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
       writer->WriteNestedMessage(
-          [&kv](Writer* writer) { WriteFieldsEntry(writer, kv); });
+          [&kv](Writer* writer) { EncodeFieldsEntry(writer, kv); });
     }
 
     return true;
@@ -565,10 +565,10 @@ std::map<std::string, FieldValue> DecodeObject(pb_istream_t* stream) {
 
 }  // namespace
 
-void Serializer::WriteFieldValue(const FieldValue& field_value,
-                                 std::vector<uint8_t>* out_bytes) {
+void Serializer::EncodeFieldValue(const FieldValue& field_value,
+                                  std::vector<uint8_t>* out_bytes) {
   Writer writer = Writer::Wrap(out_bytes);
-  WriteFieldValueImpl(&writer, field_value);
+  EncodeFieldValueImpl(&writer, field_value);
 }
 
 FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
