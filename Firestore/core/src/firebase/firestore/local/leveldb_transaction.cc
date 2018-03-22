@@ -204,8 +204,8 @@ void LevelDbTransaction::Commit() {
   }
 
   Status status = db_->Write(write_options_, &batch);
-  FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction: %s",
-                          status.ToString().c_str());
+  FIREBASE_ASSERT_MESSAGE(status.ok(), "Failed to commit transaction:\n%s\n Failed: %s",
+                          ToString().c_str(), status.ToString().c_str());
 }
 
 std::string LevelDbTransaction::ToString() {
