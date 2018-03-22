@@ -226,7 +226,6 @@ using leveldb::WriteOptions;
 - (void)commitGroup:(FSTWriteGroup *)group {
   FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
   [self.writeGroupTracker endGroup:group];
-  // TODO(gsoltis): log transaction contents?
   _transaction->Commit();
   _transaction.reset();
 }
