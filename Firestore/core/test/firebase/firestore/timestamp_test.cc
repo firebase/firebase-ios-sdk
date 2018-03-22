@@ -167,17 +167,51 @@ TEST(Timestamp, ToChrono) {
               chr::duration_cast<chr::milliseconds>(millis - seconds).count());
   }
 
+  // Bounds
+  {
+    const Timestamp max{kUpperBound, 999999999};
+    const auto max_micros = max.ToTimePoint().time_since_epoch();
+    EXPECT_EQ(kUpperBound * 1000 * 1000 + 999999,
+              chr::duration_cast<chr::microseconds>(max_micros).count());
+
+    const Timestamp min{kLowerBound, 0};
+    const auto min_micros = min.ToTimePoint().time_since_epoch();
+    EXPECT_EQ(kLowerBound * 1000 * 1000,
+              chr::duration_cast<chr::microseconds>(min_micros).count());
+  }
+
+  // Overflow
   {
     const Timestamp max{kUpperBound, 999999999};
 
-    const auto micros = max.ToTimePoint().time_since_epoch();
-    EXPECT_EQ(kUpperBound * 1000 * 1000 + 999999,
-              chr::duration_cast<chr::microseconds>(micros).count());
+    const auto max_nanos =
+        max.ToTimePoint<chr::system_clock, chr::nanoseconds>()
+            .time_since_epoch();
+    EXPECT_EQ(std::numeric_limits<chr::nanoseconds::rep>::max(),
+              chr::duration_cast<chr::nanoseconds>(max_nanos).count());
 
-    const auto nanos = max.ToTimePoint<chr::system_clock, chr::nanoseconds>()
-                           .time_since_epoch();
-    EXPECT_EQ(std::numeric_limits<long long>::max(),
-              chr::duration_cast<chr::nanoseconds>(nanos).count());
+    const Timestamp min{kLowerBound, 0};
+    const auto min_nanos =
+        min.ToTimePoint<chr::system_clock, chr::nanoseconds>()
+            .time_since_epoch();
+    EXPECT_EQ(std::numeric_limits<chr::nanoseconds::rep>::min(),
+              chr::duration_cast<chr::nanoseconds>(min_nanos).count());
+  }
+
+  // Unsigned duration
+  {
+    // using UnsignedNanos = chr::duration<unsigned long long, std::nano>;
+
+    // const Timestamp max{kUpperBound, 999999999};
+    // const auto max_nanos =
+    //     max.ToTimePoint<chr::system_clock, UnsignedNanos>().time_since_epoch();
+    // EXPECT_EQ(kUpperBound * 1000 * 1000 * 1000 + 999999999, max_nanos.count());
+
+    // const Timestamp small_negative{-123, 0};
+    // const auto negative_nanos =
+    //     small_negative.ToTimePoint<chr::system_clock, UnsignedNanos>()
+    //         .time_since_epoch();
+    // EXPECT_EQ(0, negative_nanos.count());
   }
 }
 
@@ -215,7 +249,8 @@ TEST(Timestamp, Comparison) {
 TEST(Timestamp, Hash) {
   const Timestamp foo1{123, 456000000};
   const Timestamp foo2 = foo1;
-  const Timestamp foo3 = Timestamp::FromTimePoint(TimePoint{Sec(123) + Ms(456)});
+  const Timestamp foo3 =
+      Timestamp::FromTimePoint(TimePoint{Sec(123) + Ms(456)});
   EXPECT_EQ(std::hash<Timestamp>()(foo1), std::hash<Timestamp>()(foo2));
   EXPECT_EQ(std::hash<Timestamp>()(foo2), std::hash<Timestamp>()(foo3));
 

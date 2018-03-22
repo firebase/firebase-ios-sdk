@@ -127,6 +127,14 @@ class Timestamp {
       std::chrono::time_point<std::chrono::system_clock> time_point);
 #endif  // !defined(_STLPORT_VERSION)
 
+  /**
+   * Converts this `Timestamp` to a `time_point`.
+   *
+   * Important: if overflow would occur, the returned value will be the maximum
+   * or minimum value that `Duration` can hold. Note in particular that `long
+   * long` is insufficient to hold the full range of `Timestamp` values with
+   * nanosecond precision (which is why `Duration` defaults to `microseconds`).
+   */
   template <typename Clock = std::chrono::system_clock,
             typename Duration = std::chrono::microseconds>
   std::chrono::time_point<Clock, Duration> ToTimePoint() const;
@@ -169,17 +177,22 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
 template <typename Clock, typename Duration>
 std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
   namespace chr = std::chrono;
+  using TimePoint = chr::time_point<Clock, Duration>;
 
   // Check for overflow
   const auto max_value = std::numeric_limits<typename Duration::rep>::max();
-  if (max_value / Duration::period::den <= seconds_) {
-    return chr::time_point<Clock, Duration>{Duration(max_value)};
+  if (seconds_ > 0 && max_value / Duration::period::den <= seconds_) {
+    return TimePoint{Duration(max_value)};
+  }
+  const auto min_value = std::numeric_limits<typename Duration::rep>::min();
+  if (seconds_ < 0 && min_value / Duration::period::den >= seconds_) {
+    return TimePoint{Duration(min_value)};
   }
 
   const auto seconds = chr::duration_cast<Duration>(chr::seconds(seconds_));
   const auto nanoseconds =
       chr::duration_cast<Duration>(chr::nanoseconds(nanoseconds_));
-  return chr::time_point<Clock, Duration>{seconds + nanoseconds};
+  return TimePoint{seconds + nanoseconds};
 }
 
 }  // namespace firebase
