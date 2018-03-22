@@ -197,22 +197,6 @@ TEST(Timestamp, ToChrono) {
     EXPECT_EQ(std::numeric_limits<chr::nanoseconds::rep>::min(),
               chr::duration_cast<chr::nanoseconds>(min_nanos).count());
   }
-
-  // Unsigned duration
-  {
-    // using UnsignedNanos = chr::duration<unsigned long long, std::nano>;
-
-    // const Timestamp max{kUpperBound, 999999999};
-    // const auto max_nanos =
-    //     max.ToTimePoint<chr::system_clock, UnsignedNanos>().time_since_epoch();
-    // EXPECT_EQ(kUpperBound * 1000 * 1000 * 1000 + 999999999, max_nanos.count());
-
-    // const Timestamp small_negative{-123, 0};
-    // const auto negative_nanos =
-    //     small_negative.ToTimePoint<chr::system_clock, UnsignedNanos>()
-    //         .time_since_epoch();
-    // EXPECT_EQ(0, negative_nanos.count());
-  }
 }
 
 TEST(Timestamp, Comparison) {
@@ -274,6 +258,14 @@ TEST(Timestamp, InvalidArguments) {
   // Using chrono.
   ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}));
   ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}));
+}
+
+TEST(Timestamp, ToString) {
+  EXPECT_EQ(Timestamp().ToString(), "Timestamp(seconds=0, nanoseconds=0)");
+  EXPECT_EQ(Timestamp(123, 123456789).ToString(),
+            "Timestamp(seconds=123, nanoseconds=123456789)");
+  EXPECT_EQ(Timestamp(-123, 123456789).ToString(),
+            "Timestamp(seconds=-123, nanoseconds=123456789)");
 }
 
 }  // namespace firebase

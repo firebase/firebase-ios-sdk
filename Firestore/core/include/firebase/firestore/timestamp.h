@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <limits>
+#include <string>
 
 namespace firebase {
 
@@ -139,6 +140,15 @@ class Timestamp {
             typename Duration = std::chrono::microseconds>
   std::chrono::time_point<Clock, Duration> ToTimePoint() const;
 
+  /**
+   * Returns a string representation of this `Timestamp` for logging/debugging
+   * purposes.
+   *
+   * Note: the exact string representation is unspecified and subject to change;
+   * don't rely on the format of the string.
+   */
+  std::string ToString() const;
+
  private:
   // Checks that the number of seconds is within the supported date range, and
   // that nanoseconds satisfy 0 <= ns <= 1second.
@@ -174,6 +184,7 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
   return !(lhs != rhs);
 }
 
+#if !defined(_STLPORT_VERSION)
 template <typename Clock, typename Duration>
 std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
   namespace chr = std::chrono;
@@ -194,6 +205,8 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
       chr::duration_cast<Duration>(chr::nanoseconds(nanoseconds_));
   return TimePoint{seconds + nanoseconds};
 }
+
+#endif  // !defined(_STLPORT_VERSION)
 
 }  // namespace firebase
 
