@@ -214,15 +214,8 @@ namespace std {
 template <>
 struct hash<firebase::Timestamp> {
   size_t operator()(const firebase::Timestamp& timestamp) const {
-    int32_t result = 1;
-    const auto consume = [&result](const int32_t value) {
-      const int prime = 37;
-      result = prime * result + value;
-    };
-    consume(static_cast<int32_t>(timestamp.seconds()));
-    consume(static_cast<int32_t>(timestamp.seconds() >> 32));
-    consume(static_cast<int32_t>(timestamp.nanoseconds()));
-    return result;
+    return 37 * static_cast<size_t>(timestamp.seconds()) +
+           static_cast<size_t>(timestamp.nanoseconds());
   }
 };
 }  // namespace std
