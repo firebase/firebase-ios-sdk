@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
                        token:(const absl::string_view)token;
 
 /** Looks up a list of documents in datastore. */
-- (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey>)keys
+- (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;
 
 /** Commits data to datastore. */

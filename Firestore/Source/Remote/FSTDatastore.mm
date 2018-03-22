@@ -248,7 +248,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   [self invokeRPCWithFactory:rpcFactory errorHandler:completion];
 }
 
-- (void)lookupDocuments:(const std::vector<DocumentKey>)keys
+- (void)lookupDocuments:(const std::vector<DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion {
   GCFSBatchGetDocumentsRequest *request = [GCFSBatchGetDocumentsRequest message];
   request.database = [self.serializer encodedDatabaseID];
@@ -258,6 +258,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
   __block FSTMaybeDocumentDictionary *results =
       [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+  const std::vector<DocumentKey> inputKeys = keys;
 
   RPCFactory rpcFactory = ^GRPCProtoCall * {
     __block GRPCProtoCall *rpc = [self.service
@@ -285,8 +286,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    FSTAssert(!response, @"Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =
-                                       [NSMutableArray arrayWithCapacity:keys.size()];
-                                   for (const DocumentKey &key : keys) {
+                                       [NSMutableArray arrayWithCapacity:inputKeys.size()];
+                                   for (const DocumentKey &key : inputKeys) {
                                      [docs addObject:results[static_cast<FSTDocumentKey *>(key)]];
                                    }
                                    completion(docs, nil);
