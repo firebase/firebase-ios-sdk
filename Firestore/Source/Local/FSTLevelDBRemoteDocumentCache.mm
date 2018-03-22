@@ -96,7 +96,7 @@ using leveldb::Status;
   FSTLevelDBRemoteDocumentKey *currentKey = [[FSTLevelDBRemoteDocumentKey alloc] init];
   for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
     FSTMaybeDocument *maybeDoc =
-            [self decodeMaybeDocument:it->value() withKey:currentKey.documentKey];
+        [self decodeMaybeDocument:it->value() withKey:currentKey.documentKey];
     if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
@@ -111,9 +111,11 @@ using leveldb::Status;
   return [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:key];
 }
 
-- (FSTMaybeDocument *)decodeMaybeDocument:(absl::string_view)encoded withKey:(FSTDocumentKey *)documentKey {
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data() length:encoded.size() freeWhenDone:NO];
+- (FSTMaybeDocument *)decodeMaybeDocument:(absl::string_view)encoded
+                                  withKey:(FSTDocumentKey *)documentKey {
+  NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
+                                              length:encoded.size()
+                                        freeWhenDone:NO];
 
   NSError *error;
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument parseFromData:data error:&error];

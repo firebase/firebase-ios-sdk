@@ -374,7 +374,8 @@ using leveldb::WriteOptions;
     // index rows for documentKey contiguously. In particular, all the rows for documentKey will
     // occur before any rows for documents nested in a subcollection beneath documentKey so we can
     // stop as soon as we hit any such row.
-    if (!absl::StartsWith(indexIterator->key(), indexPrefix) || ![rowKey decodeKey:indexIterator->key()] ||
+    if (!absl::StartsWith(indexIterator->key(), indexPrefix) ||
+        ![rowKey decodeKey:indexIterator->key()] ||
         ![rowKey.documentKey isEqualToKey:documentKey]) {
       break;
     }
@@ -436,7 +437,8 @@ using leveldb::WriteOptions;
   // numbers of keys but > 30% faster for larger numbers of keys.
   std::set<FSTBatchID> uniqueBatchIds;
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    if (!absl::StartsWith(indexIterator->key(), indexPrefix) || ![rowKey decodeKey:indexIterator->key()]) {
+    if (!absl::StartsWith(indexIterator->key(), indexPrefix) ||
+        ![rowKey decodeKey:indexIterator->key()]) {
       break;
     }
 
@@ -568,8 +570,9 @@ using leveldb::WriteOptions;
 }
 
 - (FSTMutationBatch *)decodeMutationBatch:(absl::string_view)encoded {
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data() length:encoded.size() freeWhenDone:NO];
+  NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
+                                              length:encoded.size()
+                                        freeWhenDone:NO];
 
   NSError *error;
   FSTPBWriteBatch *proto = [FSTPBWriteBatch parseFromData:data error:&error];
@@ -593,8 +596,8 @@ using leveldb::WriteOptions;
 
     // Check both that the key prefix matches and that the decoded document key is exactly the key
     // we're looking for.
-    if (absl::StartsWith(indexIterator->key(), indexPrefix) && [rowKey decodeKey:indexIterator->key()] &&
-        [rowKey.documentKey isEqualToKey:documentKey]) {
+    if (absl::StartsWith(indexIterator->key(), indexPrefix) &&
+        [rowKey decodeKey:indexIterator->key()] && [rowKey.documentKey isEqualToKey:documentKey]) {
       return YES;
     }
   }
