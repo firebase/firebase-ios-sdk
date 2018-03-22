@@ -192,22 +192,16 @@ class Reader {
   T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn);
 
   size_t bytes_left() const {
-    return stream_->bytes_left;
+    return stream_.bytes_left;
   }
 
-  // TODO(rsgowman): Methods below here should be private. They're public for
-  // now to ease refactoring.
-  // private:
-
+ private:
   /**
-   * TODO(rsgowman): Convert param to non-pointer. Until then, the docs are
-   * wrong:
-   *
    * Creates a new Reader, based on the given nanopb pb_istream_t. Note that
    * a shallow copy will be taken. (Non-null pointers within this struct must
    * remain valid for the lifetime of this Reader.)
    */
-  explicit Reader(pb_istream_t* stream) : stream_(stream) {
+  explicit Reader(pb_istream_t stream) : stream_(stream) {
   }
 
   /**
@@ -226,7 +220,7 @@ class Reader {
   uint64_t ReadVarint();
 
   // TODO(rsgowman): convert to a pb_istream_t (i.e. not a pointer)
-  pb_istream_t* stream_;
+  pb_istream_t stream_;
 };
 
 Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
@@ -256,6 +250,11 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   return Writer(raw_stream);
 }
 
+Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
+  pb_istream_t raw_stream = pb_istream_from_buffer(bytes, length);
+  return Reader(raw_stream);
+}
+
 // TODO(rsgowman): I've left the methods as near as possible to where they were
 // before, which implies that the Writer methods are interspersed with the
 // Reader methods. This should make it a bit easier to review. Refactor these to
@@ -275,7 +274,7 @@ void Writer::WriteTag(Tag tag) {
 Tag Reader::ReadTag() {
   Tag tag;
   bool eof;
-  bool ok = pb_decode_tag(stream_, &tag.wire_type, &tag.field_number, &eof);
+  bool ok = pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof);
   if (!ok || eof) {
     // TODO(rsgowman): figure out error handling
     abort();
@@ -308,7 +307,7 @@ void Writer::WriteVarint(uint64_t value) {
  */
 uint64_t Reader::ReadVarint() {
   uint64_t varint_value;
-  if (!pb_decode_varint(stream_, &varint_value)) {
+  if (!pb_decode_varint(&stream_, &varint_value)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -366,7 +365,7 @@ void Writer::WriteString(const std::string& string_value) {
 
 std::string Reader::ReadString() {
   pb_istream_t substream;
-  if (!pb_make_string_substream(stream_, &substream)) {
+  if (!pb_make_string_substream(&stream_, &substream)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -388,7 +387,7 @@ std::string Reader::ReadString() {
     abort();
   }
 
-  pb_close_string_substream(stream_, &substream);
+  pb_close_string_substream(&stream_, &substream);
 
   return result;
 }
@@ -548,11 +547,11 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
   pb_istream_t raw_substream;
-  if (!pb_make_string_substream(stream_, &raw_substream)) {
+  if (!pb_make_string_substream(&stream_, &raw_substream)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
-  Reader substream(&raw_substream);
+  Reader substream(raw_substream);
 
   T message = read_message_fn(&substream);
 
@@ -565,7 +564,7 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
-  pb_close_string_substream(stream_, &raw_substream);
+  pb_close_string_substream(&stream_, &substream.stream_);
 
   return message;
 }
@@ -674,8 +673,7 @@ Status Serializer::EncodeFieldValue(const FieldValue& field_value,
 }
 
 FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
-  pb_istream_t raw_stream = pb_istream_from_buffer(bytes, length);
-  Reader reader = Reader(&raw_stream);
+  Reader reader = Reader::Wrap(bytes, length);
   return DecodeFieldValueImpl(&reader);
 }
 
