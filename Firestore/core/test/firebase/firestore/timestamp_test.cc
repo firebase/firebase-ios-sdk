@@ -16,6 +16,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -69,63 +70,115 @@ TEST(Timestamp, Bounds) {
   EXPECT_EQ(0, min_timestamp.nanoseconds());
 }
 
-TEST(Timestamp, FromTime) {
-  const Timestamp zero = Timestamp::FromTime(std::time_t{});
+TEST(Timestamp, FromTimeT) {
+  const Timestamp zero = Timestamp::FromTimeT(std::time_t{});
   EXPECT_EQ(0, zero.seconds());
   EXPECT_EQ(0, zero.nanoseconds());
 
-  const Timestamp positive = Timestamp::FromTime(std::time_t{123456});
+  const Timestamp positive = Timestamp::FromTimeT(std::time_t{123456});
   EXPECT_EQ(123456, positive.seconds());
   EXPECT_EQ(0, positive.nanoseconds());
 
-  const Timestamp negative = Timestamp::FromTime(std::time_t{-123456});
+  const Timestamp negative = Timestamp::FromTimeT(std::time_t{-123456});
   EXPECT_EQ(-123456, negative.seconds());
   EXPECT_EQ(0, negative.nanoseconds());
 }
 
-TEST(Timestamp, Chrono) {
-  const Timestamp zero{TimePoint{}};
+TEST(Timestamp, FromChrono) {
+  const auto zero = Timestamp::FromTimePoint(TimePoint{});
   EXPECT_EQ(0, zero.seconds());
   EXPECT_EQ(0, zero.nanoseconds());
 
-  const Timestamp sec{TimePoint{Sec(123)}};
+  const auto sec = Timestamp::FromTimePoint(TimePoint{Sec(123)});
   EXPECT_EQ(123, sec.seconds());
   EXPECT_EQ(0, sec.nanoseconds());
 
-  const Timestamp ms{TimePoint{Sec(123) + Ms(456)}};
+  const auto ms = Timestamp::FromTimePoint(TimePoint{Sec(123) + Ms(456)});
   EXPECT_EQ(123, ms.seconds());
   EXPECT_EQ(456000000, ms.nanoseconds());
 }
 
-TEST(Timestamp, ChronoNegativeTime) {
-  const Timestamp no_fraction{TimePoint{Sec(-123)}};
+TEST(Timestamp, FromChronoNegativeTime) {
+  const auto no_fraction = Timestamp::FromTimePoint(TimePoint{Sec(-123)});
   EXPECT_EQ(-123, no_fraction.seconds());
   EXPECT_EQ(0, no_fraction.nanoseconds());
 
-  const Timestamp with_positive_fraction{TimePoint{Sec(-123) + Ms(456)}};
+  const auto with_positive_fraction =
+      Timestamp::FromTimePoint(TimePoint{Sec(-123) + Ms(456)});
   EXPECT_EQ(-123, with_positive_fraction.seconds());
   EXPECT_EQ(456000000, with_positive_fraction.nanoseconds());
 
-  const Timestamp with_negative_fraction{TimePoint{Sec(-122) + Ms(-544)}};
+  const auto with_negative_fraction =
+      Timestamp::FromTimePoint(TimePoint{Sec(-122) + Ms(-544)});
   EXPECT_EQ(-123, with_negative_fraction.seconds());
   EXPECT_EQ(456000000, with_negative_fraction.nanoseconds());
 
-  const Timestamp with_large_negative_fraction{
-      TimePoint{Sec(-122) + Ms(-100544)}};
+  const auto with_large_negative_fraction =
+      Timestamp::FromTimePoint(TimePoint{Sec(-122) + Ms(-100544)});
   EXPECT_EQ(-223, with_large_negative_fraction.seconds());
   EXPECT_EQ(456000000, with_large_negative_fraction.nanoseconds());
 
-  const Timestamp only_negative_fraction{TimePoint{Ms(-544)}};
+  const auto only_negative_fraction =
+      Timestamp::FromTimePoint(TimePoint{Ms(-544)});
   EXPECT_EQ(-1, only_negative_fraction.seconds());
   EXPECT_EQ(456000000, only_negative_fraction.nanoseconds());
 
-  const Timestamp positive_time_negative_fraction{TimePoint{Sec(1) + Ms(-544)}};
+  const auto positive_time_negative_fraction =
+      Timestamp::FromTimePoint(TimePoint{Sec(1) + Ms(-544)});
   EXPECT_EQ(0, positive_time_negative_fraction.seconds());
   EXPECT_EQ(456000000, positive_time_negative_fraction.nanoseconds());
 
-  const Timestamp near_bounds{TimePoint{Sec(kUpperBound + 1) + Ms(-544)}};
+  const auto near_bounds =
+      Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1) + Ms(-544)});
   EXPECT_EQ(kUpperBound, near_bounds.seconds());
   EXPECT_EQ(456000000, near_bounds.nanoseconds());
+}
+
+TEST(Timestamp, ToChrono) {
+  namespace chr = std::chrono;
+
+  {
+    const Timestamp positive{123, 456789000};
+
+    const auto micros = positive.ToTimePoint().time_since_epoch();
+    EXPECT_EQ(123456789, chr::duration_cast<chr::microseconds>(micros).count());
+
+    const auto millis =
+        positive.ToTimePoint<chr::system_clock, chr::milliseconds>()
+            .time_since_epoch();
+    EXPECT_EQ(123456000, chr::duration_cast<chr::microseconds>(millis).count());
+
+    const auto nanos =
+        positive.ToTimePoint<chr::system_clock, chr::nanoseconds>()
+            .time_since_epoch();
+    EXPECT_EQ(123456789000,
+              chr::duration_cast<chr::nanoseconds>(nanos).count());
+  }  // namespace chr=std::chrono;
+
+  {
+    const Timestamp negative{-123, 456000000};
+
+    const auto millis =
+        negative.ToTimePoint<chr::system_clock, chr::milliseconds>()
+            .time_since_epoch();
+    const auto seconds = chr::duration_cast<chr::seconds>(millis);
+    EXPECT_EQ(-122, seconds.count());
+    EXPECT_EQ(-544,
+              chr::duration_cast<chr::milliseconds>(millis - seconds).count());
+  }
+
+  {
+    const Timestamp max{kUpperBound, 999999999};
+
+    const auto micros = max.ToTimePoint().time_since_epoch();
+    EXPECT_EQ(kUpperBound * 1000 * 1000 + 999999,
+              chr::duration_cast<chr::microseconds>(micros).count());
+
+    const auto nanos = max.ToTimePoint<chr::system_clock, chr::nanoseconds>()
+                           .time_since_epoch();
+    EXPECT_EQ(std::numeric_limits<long long>::max(),
+              chr::duration_cast<chr::nanoseconds>(nanos).count());
+  }
 }
 
 TEST(Timestamp, Comparison) {
@@ -162,7 +215,7 @@ TEST(Timestamp, Comparison) {
 TEST(Timestamp, Hash) {
   const Timestamp foo1{123, 456000000};
   const Timestamp foo2 = foo1;
-  const Timestamp foo3 = Timestamp{TimePoint{Sec(123) + Ms(456)}};
+  const Timestamp foo3 = Timestamp::FromTimePoint(TimePoint{Sec(123) + Ms(456)});
   EXPECT_EQ(std::hash<Timestamp>()(foo1), std::hash<Timestamp>()(foo2));
   EXPECT_EQ(std::hash<Timestamp>()(foo2), std::hash<Timestamp>()(foo3));
 
@@ -184,8 +237,8 @@ TEST(Timestamp, InvalidArguments) {
   ASSERT_ANY_THROW(Timestamp(kUpperBound + 1, 0));
 
   // Using chrono.
-  ASSERT_ANY_THROW(Timestamp{TimePoint{Sec(kLowerBound - 1)}});
-  ASSERT_ANY_THROW(Timestamp{TimePoint{Sec(kUpperBound + 1)}});
+  ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}));
+  ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}));
 }
 
 }  // namespace firebase

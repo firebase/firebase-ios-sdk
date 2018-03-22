@@ -22,6 +22,7 @@
 #endif  // !defined(_STLPORT_VERSION)
 #include <stdint.h>
 #include <time.h>
+#include <limits>
 
 namespace firebase {
 
@@ -103,7 +104,7 @@ class Timestamp {
    * @return a new timestamp with the given number of seconds and zero
    *     nanoseconds.
    */
-  static Timestamp FromTime(time_t seconds_since_unix_epoch);
+  static Timestamp FromTimeT(time_t seconds_since_unix_epoch);
 
 #if !defined(_STLPORT_VERSION)
   /**
@@ -122,14 +123,18 @@ class Timestamp {
    *     this constructor will produce incorrect results.
    *     @endparblock
    */
-  explicit Timestamp(
+  static Timestamp FromTimePoint(
       std::chrono::time_point<std::chrono::system_clock> time_point);
 #endif  // !defined(_STLPORT_VERSION)
+
+  template <typename Clock = std::chrono::system_clock,
+            typename Duration = std::chrono::microseconds>
+  std::chrono::time_point<Clock, Duration> ToTimePoint() const;
 
  private:
   // Checks that the number of seconds is within the supported date range, and
   // that nanoseconds satisfy 0 <= ns <= 1second.
-  void ValidateBounds();
+  void ValidateBounds() const;
 
   int64_t seconds_ = 0;
   int32_t nanoseconds_ = 0;
@@ -159,6 +164,22 @@ inline bool operator!=(const Timestamp& lhs, const Timestamp& rhs) {
 
 inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
   return !(lhs != rhs);
+}
+
+template <typename Clock, typename Duration>
+std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
+  namespace chr = std::chrono;
+
+  // Check for overflow
+  const auto max_value = std::numeric_limits<typename Duration::rep>::max();
+  if (max_value / Duration::period::den <= seconds_) {
+    return chr::time_point<Clock, Duration>{Duration(max_value)};
+  }
+
+  const auto seconds = chr::duration_cast<Duration>(chr::seconds(seconds_));
+  const auto nanoseconds =
+      chr::duration_cast<Duration>(chr::nanoseconds(nanoseconds_));
+  return chr::time_point<Clock, Duration>{seconds + nanoseconds};
 }
 
 }  // namespace firebase

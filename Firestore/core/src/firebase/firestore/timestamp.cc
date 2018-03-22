@@ -31,7 +31,7 @@ Timestamp::Timestamp(const int64_t seconds, const int32_t nanoseconds)
 Timestamp Timestamp::Now() {
 #if !defined(_STLPORT_VERSION)
   // Use the standard <chrono> library from C++11 if possible.
-  return Timestamp(std::chrono::system_clock::now());
+  return FromTimePoint(std::chrono::system_clock::now());
 #else
   // If <chrono> is unavailable, use clock_gettime from POSIX, which supports up
   // to nanosecond resolution. Note that it's a non-standard function contained
@@ -44,20 +44,21 @@ Timestamp Timestamp::Now() {
   timespec now;
   clock_gettime(CLOCK_REALTIME, &now);
   return Timestamp(now.tv_sec, now.tv_nsec);
-#endif // !defined(_STLPORT_VERSION)
+#endif  // !defined(_STLPORT_VERSION)
 }
 
-Timestamp Timestamp::FromTime(const time_t seconds_since_unix_epoch) {
+Timestamp Timestamp::FromTimeT(const time_t seconds_since_unix_epoch) {
   return Timestamp(seconds_since_unix_epoch, 0);
 }
 
 #if !defined(_STLPORT_VERSION)
-Timestamp::Timestamp(
+Timestamp Timestamp::FromTimePoint(
     const std::chrono::time_point<std::chrono::system_clock> time_point) {
   namespace chr = std::chrono;
   const auto epoch_time = time_point.time_since_epoch();
   auto seconds = chr::duration_cast<chr::duration<int64_t>>(epoch_time);
   auto nanoseconds = chr::duration_cast<chr::nanoseconds>(epoch_time - seconds);
+  FIREBASE_DEV_ASSERT(nanoseconds.count() < 1 * 1000 * 1000 * 1000);
 
   if (nanoseconds.count() < 0) {
     // Timestamp format always has a positive number of nanoseconds that is
@@ -74,14 +75,15 @@ Timestamp::Timestamp(
     nanoseconds = chr::seconds(1) + nanoseconds;
   }
 
-  seconds_ = seconds.count();
-  nanoseconds_ = nanoseconds.count();
-  ValidateBounds();
+  const Timestamp result{seconds.count(),
+                         static_cast<int32_t>(nanoseconds.count())};
+  result.ValidateBounds();
+  return result;
 }
 
-#endif // !defined(_STLPORT_VERSION)
+#endif  // !defined(_STLPORT_VERSION)
 
-void Timestamp::ValidateBounds() {
+void Timestamp::ValidateBounds() const {
   FIREBASE_ASSERT_MESSAGE(nanoseconds_ >= 0,
                           "Timestamp nanoseconds out of range: %d",
                           nanoseconds_);
