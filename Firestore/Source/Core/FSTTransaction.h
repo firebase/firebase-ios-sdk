@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #import "Firestore/Source/Core/FSTTypes.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FIRSetOptions;
 @class FSTDatastore;
@@ -42,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Takes a set of keys and asynchronously attempts to fetch all the documents from the backend,
  * ignoring any local changes.
  */
-- (void)lookupDocumentsForKeys:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocumentsForKeys:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
                     completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;
 
 /**
