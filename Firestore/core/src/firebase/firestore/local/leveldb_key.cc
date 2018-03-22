@@ -227,9 +227,8 @@ bool ReadLabeledInt32(leveldb::Slice *contents,
                       int32_t *value) {
   leveldb::Slice tmp = *contents;
   if (ReadComponentLabelMatching(&tmp, expected_label)) {
-    leveldb::Slice tmp_slice = tmp;
-    if (ReadInt32(&tmp_slice, value)) {
-      *contents = tmp_slice;
+    if (ReadInt32(&tmp, value)) {
+      *contents = tmp;
       return true;
     }
   }
@@ -322,7 +321,7 @@ bool ReadDocumentKey(leveldb::Slice *contents, DocumentKey *result) {
   leveldb::Slice complete_segments = *contents;
 
   std::string segment;
-  std::vector<std::string> path_segments{};
+  std::vector<std::string> path_segments;
   for (;;) {
     // Advance a temporary slice to avoid advancing contents into the next key
     // component which may not be a path segment.
@@ -344,7 +343,7 @@ bool ReadDocumentKey(leveldb::Slice *contents, DocumentKey *result) {
   ResourcePath path{std::move(path_segments)};
   if (path.size() > 0 && DocumentKey::IsDocumentKey(path)) {
     *contents = complete_segments;
-    *result = DocumentKey(std::move(path));
+    *result = DocumentKey{std::move(path)};
     return true;
   }
 
@@ -371,37 +370,37 @@ inline bool ReadTableNameMatching(leveldb::Slice *contents,
                                    expected_table_name);
 }
 
-inline void WriteBatchID(std::string *dest, model::BatchId batch_id) {
+inline void WriteBatchId(std::string *dest, model::BatchId batch_id) {
   WriteLabeledInt32(dest, ComponentLabel::BatchId, batch_id);
 }
 
-inline bool ReadBatchID(leveldb::Slice *contents, model::BatchId *batch_id) {
+inline bool ReadBatchId(leveldb::Slice *contents, model::BatchId *batch_id) {
   return ReadLabeledInt32(contents, ComponentLabel::BatchId, batch_id);
 }
 
-inline void WriteCanonicalID(std::string *dest,
+inline void WriteCanonicalId(std::string *dest,
                              absl::string_view canonical_id) {
   WriteLabeledString(dest, ComponentLabel::CanonicalId, canonical_id);
 }
 
-inline bool ReadCanonicalID(leveldb::Slice *contents,
+inline bool ReadCanonicalId(leveldb::Slice *contents,
                             std::string *canonical_id) {
   return ReadLabeledString(contents, ComponentLabel::CanonicalId, canonical_id);
 }
 
-inline void WriteTargetID(std::string *dest, model::TargetId target_id) {
+inline void WriteTargetId(std::string *dest, model::TargetId target_id) {
   WriteLabeledInt32(dest, ComponentLabel::TargetId, target_id);
 }
 
-inline bool ReadTargetID(leveldb::Slice *contents, model::TargetId *target_id) {
+inline bool ReadTargetId(leveldb::Slice *contents, model::TargetId *target_id) {
   return ReadLabeledInt32(contents, ComponentLabel::TargetId, target_id);
 }
 
-inline void WriteUserID(std::string *dest, absl::string_view user_id) {
+inline void WriteUserId(std::string *dest, absl::string_view user_id) {
   WriteLabeledString(dest, ComponentLabel::UserId, user_id);
 }
 
-inline bool ReadUserID(leveldb::Slice *contents, std::string *user_id) {
+inline bool ReadUserId(leveldb::Slice *contents, std::string *user_id) {
   return ReadLabeledString(contents, ComponentLabel::UserId, user_id);
 }
 
@@ -458,28 +457,28 @@ std::string Describe(leveldb::Slice key) {
 
     } else if (label == ComponentLabel::BatchId) {
       model::BatchId batch_id;
-      if (!ReadBatchID(&tmp, &batch_id)) {
+      if (!ReadBatchId(&tmp, &batch_id)) {
         break;
       }
       absl::StrAppend(&description, " batch_id=", batch_id);
 
     } else if (label == ComponentLabel::CanonicalId) {
       std::string canonical_id;
-      if (!ReadCanonicalID(&tmp, &canonical_id)) {
+      if (!ReadCanonicalId(&tmp, &canonical_id)) {
         break;
       }
       absl::StrAppend(&description, " canonical_id=", canonical_id);
 
     } else if (label == ComponentLabel::TargetId) {
       model::TargetId target_id;
-      if (!ReadTargetID(&tmp, &target_id)) {
+      if (!ReadTargetId(&tmp, &target_id)) {
         break;
       }
       absl::StrAppend(&description, " target_id=", target_id);
 
     } else if (label == ComponentLabel::UserId) {
       std::string user_id;
-      if (!ReadUserID(&tmp, &user_id)) {
+      if (!ReadUserId(&tmp, &user_id)) {
         break;
       }
       absl::StrAppend(&description, " user_id=", user_id);
@@ -519,7 +518,7 @@ std::string LevelDbMutationKey::KeyPrefix() {
 std::string LevelDbMutationKey::KeyPrefix(absl::string_view user_id) {
   std::string result;
   WriteTableName(&result, kMutationsTable);
-  WriteUserID(&result, user_id);
+  WriteUserId(&result, user_id);
   return result;
 }
 
@@ -527,17 +526,18 @@ std::string LevelDbMutationKey::Key(absl::string_view user_id,
                                     model::BatchId batch_id) {
   std::string result;
   WriteTableName(&result, kMutationsTable);
-  WriteUserID(&result, user_id);
-  WriteBatchID(&result, batch_id);
+  WriteUserId(&result, user_id);
+  WriteBatchId(&result, batch_id);
   WriteTerminator(&result);
   return result;
 }
 
 bool LevelDbMutationKey::Decode(leveldb::Slice key) {
   user_id_.clear();
+  batch_id_ = 0;
 
   return ReadTableNameMatching(&key, kMutationsTable) &&
-         ReadUserID(&key, &user_id_) && ReadBatchID(&key, &batch_id_) &&
+         ReadUserId(&key, &user_id_) && ReadBatchId(&key, &batch_id_) &&
          ReadTerminator(&key);
 }
 
@@ -550,7 +550,7 @@ std::string LevelDbDocumentMutationKey::KeyPrefix() {
 std::string LevelDbDocumentMutationKey::KeyPrefix(absl::string_view user_id) {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
-  WriteUserID(&result, user_id);
+  WriteUserId(&result, user_id);
   return result;
 }
 
@@ -558,7 +558,7 @@ std::string LevelDbDocumentMutationKey::KeyPrefix(
     absl::string_view user_id, const ResourcePath &resource_path) {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
-  WriteUserID(&result, user_id);
+  WriteUserId(&result, user_id);
   WriteResourcePath(&result, resource_path);
   return result;
 }
@@ -568,9 +568,9 @@ std::string LevelDbDocumentMutationKey::Key(absl::string_view user_id,
                                             model::BatchId batch_id) {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
-  WriteUserID(&result, user_id);
+  WriteUserId(&result, user_id);
   WriteResourcePath(&result, document_key.path());
-  WriteBatchID(&result, batch_id);
+  WriteBatchId(&result, batch_id);
   WriteTerminator(&result);
   return result;
 }
@@ -578,10 +578,11 @@ std::string LevelDbDocumentMutationKey::Key(absl::string_view user_id,
 bool LevelDbDocumentMutationKey::Decode(leveldb::Slice key) {
   user_id_.clear();
   document_key_ = DocumentKey{};
+  batch_id_ = 0;
 
   return ReadTableNameMatching(&key, kDocumentMutationsTable) &&
-         ReadUserID(&key, &user_id_) && ReadDocumentKey(&key, &document_key_) &&
-         ReadBatchID(&key, &batch_id_) && ReadTerminator(&key);
+         ReadUserId(&key, &user_id_) && ReadDocumentKey(&key, &document_key_) &&
+         ReadBatchId(&key, &batch_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbMutationQueueKey::KeyPrefix() {
@@ -593,7 +594,7 @@ std::string LevelDbMutationQueueKey::KeyPrefix() {
 std::string LevelDbMutationQueueKey::Key(absl::string_view user_id) {
   std::string result;
   WriteTableName(&result, kMutationQueuesTable);
-  WriteUserID(&result, user_id);
+  WriteUserId(&result, user_id);
   WriteTerminator(&result);
   return result;
 }
@@ -602,7 +603,7 @@ bool LevelDbMutationQueueKey::Decode(leveldb::Slice key) {
   user_id_.clear();
 
   return ReadTableNameMatching(&key, kMutationQueuesTable) &&
-         ReadUserID(&key, &user_id_) && ReadTerminator(&key);
+         ReadUserId(&key, &user_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbTargetGlobalKey::Key() {
@@ -626,14 +627,15 @@ std::string LevelDbTargetKey::KeyPrefix() {
 std::string LevelDbTargetKey::Key(model::TargetId target_id) {
   std::string result;
   WriteTableName(&result, kTargetsTable);
-  WriteTargetID(&result, target_id);
+  WriteTargetId(&result, target_id);
   WriteTerminator(&result);
   return result;
 }
 
 bool LevelDbTargetKey::Decode(leveldb::Slice key) {
+  target_id_ = 0;
   return ReadTableNameMatching(&key, kTargetsTable) &&
-         ReadTargetID(&key, &target_id_) && ReadTerminator(&key);
+         ReadTargetId(&key, &target_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbQueryTargetKey::KeyPrefix() {
@@ -645,7 +647,7 @@ std::string LevelDbQueryTargetKey::KeyPrefix() {
 std::string LevelDbQueryTargetKey::KeyPrefix(absl::string_view canonical_id) {
   std::string result;
   WriteTableName(&result, kQueryTargetsTable);
-  WriteCanonicalID(&result, canonical_id);
+  WriteCanonicalId(&result, canonical_id);
   return result;
 }
 
@@ -653,18 +655,19 @@ std::string LevelDbQueryTargetKey::Key(absl::string_view canonical_id,
                                        model::TargetId target_id) {
   std::string result;
   WriteTableName(&result, kQueryTargetsTable);
-  WriteCanonicalID(&result, canonical_id);
-  WriteTargetID(&result, target_id);
+  WriteCanonicalId(&result, canonical_id);
+  WriteTargetId(&result, target_id);
   WriteTerminator(&result);
   return result;
 }
 
 bool LevelDbQueryTargetKey::Decode(leveldb::Slice key) {
   canonical_id_.clear();
+  target_id_ = 0;
 
   return ReadTableNameMatching(&key, kQueryTargetsTable) &&
-         ReadCanonicalID(&key, &canonical_id_) &&
-         ReadTargetID(&key, &target_id_) && ReadTerminator(&key);
+         ReadCanonicalId(&key, &canonical_id_) &&
+         ReadTargetId(&key, &target_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbTargetDocumentKey::KeyPrefix() {
@@ -676,7 +679,7 @@ std::string LevelDbTargetDocumentKey::KeyPrefix() {
 std::string LevelDbTargetDocumentKey::KeyPrefix(model::TargetId target_id) {
   std::string result;
   WriteTableName(&result, kTargetDocumentsTable);
-  WriteTargetID(&result, target_id);
+  WriteTargetId(&result, target_id);
   return result;
 }
 
@@ -684,17 +687,18 @@ std::string LevelDbTargetDocumentKey::Key(model::TargetId target_id,
                                           const DocumentKey &document_key) {
   std::string result;
   WriteTableName(&result, kTargetDocumentsTable);
-  WriteTargetID(&result, target_id);
+  WriteTargetId(&result, target_id);
   WriteResourcePath(&result, document_key.path());
   WriteTerminator(&result);
   return result;
 }
 
 bool LevelDbTargetDocumentKey::Decode(leveldb::Slice key) {
+  target_id_ = 0;
   document_key_ = DocumentKey{};
 
   return ReadTableNameMatching(&key, kTargetDocumentsTable) &&
-         ReadTargetID(&key, &target_id_) &&
+         ReadTargetId(&key, &target_id_) &&
          ReadDocumentKey(&key, &document_key_) && ReadTerminator(&key);
 }
 
@@ -717,17 +721,18 @@ std::string LevelDbDocumentTargetKey::Key(const DocumentKey &document_key,
   std::string result;
   WriteTableName(&result, kDocumentTargetsTable);
   WriteResourcePath(&result, document_key.path());
-  WriteTargetID(&result, target_id);
+  WriteTargetId(&result, target_id);
   WriteTerminator(&result);
   return result;
 }
 
 bool LevelDbDocumentTargetKey::Decode(leveldb::Slice key) {
   document_key_ = DocumentKey{};
+  target_id_ = 0;
 
   return ReadTableNameMatching(&key, kDocumentTargetsTable) &&
          ReadDocumentKey(&key, &document_key_) &&
-         ReadTargetID(&key, &target_id_) && ReadTerminator(&key);
+         ReadTargetId(&key, &target_id_) && ReadTerminator(&key);
 }
 
 std::string LevelDbRemoteDocumentKey::KeyPrefix() {

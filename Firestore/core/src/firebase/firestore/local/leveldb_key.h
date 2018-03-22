@@ -29,6 +29,11 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+// Utilities for encoding and decoding LevelDB row keys and key prefixes.
+//
+// LevelDB keys are strings, so all the routines in here operate on strings to
+// be able to produce and consume leveldb APIs directly.
+//
 // All leveldb logical tables should have their keys structures described in
 // this file.
 //
@@ -100,19 +105,18 @@ class LevelDbMutationKey {
    * Creates a key prefix that points just before the first key for the given
    * user_id.
    */
-  static std::string KeyPrefix(const absl::string_view user_id);
+  static std::string KeyPrefix(absl::string_view user_id);
 
   /** Creates a complete key that points to a specific user_id and batch_id. */
-  static std::string Key(const absl::string_view user_id,
-                         model::BatchId batch_id);
+  static std::string Key(absl::string_view user_id, model::BatchId batch_id);
 
   /**
-   * Decodes the given complete key, storing the decoded values as properties of
-   * the receiver.
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
    *
-   * @return true if the key successfully decoded, NO otherwise. If NO is
-   * returned, the properties of the receiver are in an undefined state until
-   * the next call to -decode_key:.
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
@@ -127,6 +131,7 @@ class LevelDbMutationKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
   model::BatchId batch_id_;
 };
@@ -146,7 +151,7 @@ class LevelDbDocumentMutationKey {
    * Creates a key prefix that points just before the first key for the given
    * user_id.
    */
-  static std::string KeyPrefix(const absl::string_view user_id);
+  static std::string KeyPrefix(absl::string_view user_id);
 
   /**
    * Creates a key prefix that points just before the first key for the user_id
@@ -157,24 +162,24 @@ class LevelDbDocumentMutationKey {
    * results isn't useful since it would match both immediate children of the
    * collection and any subcollections.
    */
-  static std::string KeyPrefix(const absl::string_view user_id,
+  static std::string KeyPrefix(absl::string_view user_id,
                                const model::ResourcePath& resource_path);
 
   /**
    * Creates a complete key that points to a specific user_id, document key,
    * and batch_id.
    */
-  static std::string Key(const absl::string_view user_id,
+  static std::string Key(absl::string_view user_id,
                          const model::DocumentKey& document_key,
                          model::BatchId batch_id);
 
   /**
-   * Decodes the given complete key, storing the decoded values as properties of
-   * the receiver.
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
    *
-   * @return true if the key successfully decoded, NO otherwise. If NO is
-   * returned, the properties of the receiver are in an undefined state until
-   * the next call to -decode_key:.
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
@@ -194,6 +199,7 @@ class LevelDbDocumentMutationKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
   model::DocumentKey document_key_;
   model::BatchId batch_id_;
@@ -202,8 +208,8 @@ class LevelDbDocumentMutationKey {
 /**
  * A key in the mutation_queues table.
  *
- * Note that where mutation_queues contains one row about each queue, mutations
- * contains the actual mutation batches themselves.
+ * Note that where `mutation_queues` table contains one row about each queue,
+ * the `mutations` table contains the actual mutation batches themselves.
  */
 class LevelDbMutationQueueKey {
  public:
@@ -216,15 +222,15 @@ class LevelDbMutationQueueKey {
    * Creates a complete key that points to a specific mutation queue entry for
    * the given user_id.
    */
-  static std::string Key(const absl::string_view user_id);
+  static std::string Key(absl::string_view user_id);
 
   /**
-   * Decodes the given complete key, storing the decoded values as properties of
-   * the receiver.
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
    *
-   * @return true if the key successfully decoded, NO otherwise. If NO is
-   * returned, the properties of the receiver are in an undefined state until
-   * the next call to -decode_key:.
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
@@ -233,11 +239,12 @@ class LevelDbMutationQueueKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
 };
 
 /**
- * key in the target globals table, a record of global values across all
+ * A key in the target globals table, a record of global values across all
  * targets.
  */
 class LevelDbTargetGlobalKey {
@@ -264,21 +271,21 @@ class LevelDbTargetKey {
   static std::string Key(model::TargetId target_id);
 
   /**
-   * Decodes the contents of a target key into properties on this instance.
+   * Decodes the contents of a target key, storing the decoded values in this
+   * instance.
    *
-   * @return true if the key successfully decoded, NO otherwise. If NO is
-   * returned, the properties of the receiver are in an undefined state until
-   * the next call to -decode_key:.
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
-  /** The target_id identifying a target. */
   model::TargetId target_id() {
     return target_id_;
   }
 
  private:
-  model::TargetId target_id_;
+  model::TargetId target_id_ = 0;
 };
 
 /**
@@ -298,15 +305,19 @@ class LevelDbQueryTargetKey {
    * Creates a key that points to the first query-target association for a
    * canonical_id.
    */
-  static std::string KeyPrefix(const absl::string_view canonical_id);
+  static std::string KeyPrefix(absl::string_view canonical_id);
 
   /** Creates a key that points to a specific query-target entry. */
-  static std::string Key(const absl::string_view canonical_id,
+  static std::string Key(absl::string_view canonical_id,
                          model::TargetId target_id);
 
   /**
-   * Decodes the contents of a query target key into properties on this
-   * instance.
+   * Decodes the contents of a query target key, storing the decoded values in
+   * this instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
@@ -321,6 +332,7 @@ class LevelDbQueryTargetKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   std::string canonical_id_;
   model::TargetId target_id_;
 };
@@ -348,8 +360,12 @@ class LevelDbTargetDocumentKey {
                          const model::DocumentKey& document_key);
 
   /**
-   * Decodes the contents of a target document key into properties on this
-   * instance.
+   * Decodes the contents of a target document key, storing the decoded values
+   * in this instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
@@ -364,6 +380,7 @@ class LevelDbTargetDocumentKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   model::TargetId target_id_;
   model::DocumentKey document_key_;
 };
@@ -391,8 +408,12 @@ class LevelDbDocumentTargetKey {
                          model::TargetId target_id);
 
   /**
-   * Decodes the contents of a document target key into properties on this
-   * instance.
+   * Decodes the contents of a document target key, storing the decoded values
+   * in this instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
@@ -407,6 +428,7 @@ class LevelDbDocumentTargetKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   model::TargetId target_id_;
   model::DocumentKey document_key_;
 };
@@ -424,7 +446,7 @@ class LevelDbRemoteDocumentKey {
    * Creates a complete key that points to a specific document. The document_key
    * must have an even number of path segments.
    */
-  static std::string Key(const model::DocumentKey& key);
+  static std::string Key(const model::DocumentKey& document_key);
 
   /**
    * Creates a key prefix that contains a part of a document path. Odd numbers
@@ -436,13 +458,13 @@ class LevelDbRemoteDocumentKey {
   static std::string KeyPrefix(const model::ResourcePath& resource_path);
 
   /**
-   * Decodes the contents of a remote document key into properties on this
-   * instance. This can only decode complete document paths (i.e. the result of
-   * Key()).
+   * Decodes the contents of a remote document key, storing the decoded values
+   * in this instance. This can only decode complete document paths (i.e. the
+   * result of Key()).
    *
    * @return true if the key successfully decoded, false otherwise. If false is
-   * returned, the properties of the receiver are in an undefined state until
-   * the next call to -Decode:.
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
    */
   bool Decode(leveldb::Slice key);
 
@@ -452,6 +474,7 @@ class LevelDbRemoteDocumentKey {
   }
 
  private:
+  // Deliberately uninitialized: will be assigned in Decode
   model::DocumentKey document_key_;
 };
 

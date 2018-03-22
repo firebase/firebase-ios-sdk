@@ -45,6 +45,9 @@ cc_test(
     comparison_test.cc
     iterator_adaptors_test.cc
     ordered_code_test.cc
+    status_test.cc
+    status_test_util.h
+    statusor_test.cc
     string_printf_test.cc
     string_util_test.cc
   DEPENDS
