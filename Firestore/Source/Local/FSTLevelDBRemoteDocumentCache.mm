@@ -73,7 +73,7 @@ using leveldb::Status;
 - (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey {
   std::string key = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:documentKey];
   std::string value;
-  Status status = _db.current_transaction->Get(key, &value);
+  Status status = _db.currentTransaction->Get(key, &value);
   if (status.IsNotFound()) {
     return nil;
   } else if (status.ok()) {
@@ -90,7 +90,7 @@ using leveldb::Status;
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
   std::string startKey = [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:query.path];
-  std::unique_ptr<LevelDbTransaction::Iterator> it(_db.current_transaction->NewIterator());
+  auto it = _db.currentTransaction->NewIterator();
   it->Seek(startKey);
 
   FSTLevelDBRemoteDocumentKey *currentKey = [[FSTLevelDBRemoteDocumentKey alloc] init];
