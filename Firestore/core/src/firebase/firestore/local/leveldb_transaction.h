@@ -180,13 +180,15 @@ class LevelDbTransaction {
    * Returns a new Iterator over the pending changes in this transaction, merged
    * with the existing values already in leveldb.
    */
-  Iterator* NewIterator();
+  std::unique_ptr<Iterator> NewIterator();
 
   /**
    * Commits the transaction. All pending changes are written. The transaction
    * should not be used after calling this method.
    */
   void Commit();
+
+  std::string ToString();
 
  private:
   leveldb::DB* db_;

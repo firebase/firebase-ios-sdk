@@ -296,6 +296,11 @@ static NSString *const kNoIOSTag = @"no-ios";
 - (void)doWatchStreamClose:(NSDictionary *)closeSpec {
   NSDictionary *errorSpec = closeSpec[@"error"];
   int code = ((NSNumber *)(errorSpec[@"code"])).intValue;
+
+  NSNumber *runBackoffTimer = closeSpec[@"runBackoffTimer"];
+  // TODO(b/72313632): Incorporate backoff in iOS Spec Tests.
+  FSTAssert(runBackoffTimer.boolValue, @"iOS Spec Tests don't support backoff.");
+
   [self.driver receiveWatchStreamError:code userInfo:errorSpec];
 }
 

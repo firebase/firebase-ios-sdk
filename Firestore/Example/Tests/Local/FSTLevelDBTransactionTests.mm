@@ -20,7 +20,9 @@
 #include <absl/strings/string_view.h>
 #include <leveldb/db.h>
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,6 +31,7 @@ using leveldb::Options;
 using leveldb::ReadOptions;
 using leveldb::WriteOptions;
 using leveldb::Status;
+using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 
 @interface FSTLevelDBTransactionTests : XCTestCase
@@ -59,7 +62,7 @@ using firebase::firestore::local::LevelDbTransaction;
   std::string key = "key1";
 
   transaction.Put(key, "value");
-  std::unique_ptr<LevelDbTransaction::Iterator> iter(transaction.NewIterator());
+  auto iter = transaction.NewIterator();
   iter->Seek(key);
   XCTAssertEqual(key, iter->key());
   iter->Next();
@@ -209,7 +212,7 @@ using firebase::firestore::local::LevelDbTransaction;
     transaction.Put("key_" + std::to_string(i), "value_" + std::to_string(i));
   }
 
-  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction.NewIterator());
+  auto it = transaction.NewIterator();
   it->Seek("key_0");
   for (int i = 0; i < 4; ++i) {
     XCTAssertTrue(it->Valid());
@@ -231,7 +234,7 @@ using firebase::firestore::local::LevelDbTransaction;
 
   // Create a transaction, iterate, deleting key_0. Verify we still iterate key_1.
   LevelDbTransaction transaction(_db.get());
-  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction.NewIterator());
+  auto it = transaction.NewIterator();
   it->Seek("key_0");
   XCTAssertTrue(it->Valid());
   XCTAssertEqual("key_0", it->key());
@@ -253,7 +256,7 @@ using firebase::firestore::local::LevelDbTransaction;
 
   // Create a transaction, iterate to key_1, delete key_2. Verify we still iterate key_3.
   LevelDbTransaction transaction(_db.get());
-  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction.NewIterator());
+  auto it = transaction.NewIterator();
   it->Seek("key_0");
   XCTAssertTrue(it->Valid());
   XCTAssertEqual("key_0", it->key());
@@ -267,6 +270,30 @@ using firebase::firestore::local::LevelDbTransaction;
   XCTAssertTrue(it->Valid());
   it->Next();
   XCTAssertFalse(it->Valid());
+}
+
+- (void)testToString {
+  std::string key = LevelDbMutationKey::Key("user1", 42);
+  FSTPBWriteBatch *message = [FSTPBWriteBatch message];
+  message.batchId = 42;
+
+  LevelDbTransaction transaction(_db.get());
+  std::string description = transaction.ToString();
+  XCTAssertEqual(description, "<LevelDbTransaction: 0 changes (0 bytes):>");
+
+  transaction.Put(key, message);
+  description = transaction.ToString();
+  XCTAssertEqual(description,
+                 "<LevelDbTransaction: 1 changes (2 bytes):\n"
+                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
+
+  std::string key2 = LevelDbMutationKey::Key("user1", 43);
+  transaction.Delete(key2);
+  description = transaction.ToString();
+  XCTAssertEqual(description,
+                 "<LevelDbTransaction: 2 changes (2 bytes):\n"
+                 "  - Delete [mutation: user_id=user1 batch_id=43]\n"
+                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 }
 
 @end

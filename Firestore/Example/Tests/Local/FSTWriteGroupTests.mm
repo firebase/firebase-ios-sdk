@@ -80,26 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertTrue(status.IsNotFound());
 }
 
-- (void)testDescription {
-  std::string key = [FSTLevelDBMutationKey keyWithUserID:"user1" batchID:42];
-  FSTPBWriteBatch *message = [FSTPBWriteBatch message];
-  message.batchId = 42;
-
-  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Action"];
-  XCTAssertEqualObjects([group description], @"<FSTWriteGroup for Action: 0 changes (0 bytes):>");
-
-  [group setMessage:message forKey:key];
-  XCTAssertEqualObjects([group description],
-                        @"<FSTWriteGroup for Action: 1 changes (2 bytes):\n"
-                         "  - Put [mutation: userID=user1 batchID=42] (2 bytes)>");
-
-  [group removeMessageForKey:key];
-  XCTAssertEqualObjects([group description],
-                        @"<FSTWriteGroup for Action: 2 changes (2 bytes):\n"
-                         "  - Put [mutation: userID=user1 batchID=42] (2 bytes)\n"
-                         "  - Delete [mutation: userID=user1 batchID=42]>");
-}
-
 - (void)testCommittingWrongGroupThrows {
   // If you don't create the group through persistence, it should throw.
   FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"group"];

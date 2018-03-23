@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 @class FSTWriteGroup;
 
@@ -36,6 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
  * validation with `endGroup`.
  */
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action;
+
+- (FSTWriteGroup *)startGroupWithAction:(NSString *)action
+                            transaction:
+                                (firebase::firestore::local::LevelDbTransaction *)transaction;
 
 /** Ends a group previously started with `startGroupWithAction`. */
 - (void)endGroup:(FSTWriteGroup *)group;

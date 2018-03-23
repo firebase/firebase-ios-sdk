@@ -18,6 +18,7 @@
 
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,12 +30,13 @@ typedef int32_t FSTLevelDBSchemaVersion;
 /**
  * Returns the current version of the schema for the given database
  */
-+ (FSTLevelDBSchemaVersion)schemaVersionForDB:(std::shared_ptr<leveldb::DB>)db;
++ (FSTLevelDBSchemaVersion)schemaVersionWithTransaction:
+    (firebase::firestore::local::LevelDbTransaction *)transaction;
 
 /**
  * Runs any migrations needed to bring the given database up to the current schema version
  */
-+ (void)runMigrationsOnDB:(std::shared_ptr<leveldb::DB>)db;
++ (void)runMigrationsWithTransaction:(firebase::firestore::local::LevelDbTransaction *)transaction;
 
 @end
 

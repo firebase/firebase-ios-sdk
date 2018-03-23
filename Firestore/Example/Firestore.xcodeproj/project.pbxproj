@@ -108,6 +108,7 @@
 		5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */; };
 		5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C52021557E00B64F25 /* FSTWatchChangeTests.mm */; };
 		5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */; };
+		54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */; };
 		54C2294F1FECABAE007D065B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
 		54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129C1F315EE100DD57A1 /* collection_spec_test.json */; };
 		54DA12A71F315EE100DD57A1 /* existence_filter_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */; };
@@ -324,6 +325,7 @@
 		5492E0C42021557E00B64F25 /* FSTWatchChange+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FSTWatchChange+Testing.h"; sourceTree = "<group>"; };
 		5492E0C52021557E00B64F25 /* FSTWatchChangeTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTWatchChangeTests.mm; sourceTree = "<group>"; };
 		5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableGeoPointTests.swift; sourceTree = "<group>"; };
+		54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = leveldb_key_test.cc; path = ../../core/test/firebase/firestore/local/leveldb_key_test.cc; sourceTree = "<group>"; };
 		54C2294E1FECABAE007D065B /* log_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = log_test.cc; path = ../../core/test/firebase/firestore/util/log_test.cc; sourceTree = "<group>"; };
 		54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_SwiftTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54C9EDF52040E16300A969CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -496,6 +498,7 @@
 				AB38D9312023962A000A432D /* auth */,
 				AB380CF7201937B800D97691 /* core */,
 				54EB764B202277970088B8F3 /* immutable */,
+				54995F70205B6E1A004EFFA0 /* local */,
 				AB356EF5200E9D1A0089B766 /* model */,
 				5467FB05203E652F009C9584 /* testutil */,
 				54740A561FC913EB00713A1A /* util */,
@@ -511,6 +514,14 @@
 				5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */,
 			);
 			path = Codable;
+			sourceTree = "<group>";
+		};
+		54995F70205B6E1A004EFFA0 /* local */ = {
+			isa = PBXGroup;
+			children = (
+				54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */,
+			);
+			name = local;
 			sourceTree = "<group>";
 		};
 		54C9EDF22040E16300A969CD /* SwiftTests */ = {
@@ -1514,6 +1525,7 @@
 				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
 				5492E0C82021557E00B64F25 /* FSTDatastoreTests.mm in Sources */,
+				54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */,
 				5492E065202154B900B64F25 /* FSTViewTests.mm in Sources */,
 				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
 				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
