@@ -94,10 +94,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSString *)descriptionOfStatus:(leveldb::Status)status;
 
-- (void)startTransaction;
-
-- (void)commitTransaction;
-
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) std::shared_ptr<leveldb::DB> ptr;
 
