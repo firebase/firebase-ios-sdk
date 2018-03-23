@@ -136,7 +136,8 @@ using leveldb::WriteOptions;
 }
 
 + (FSTBatchID)loadNextBatchIDFromDB:(std::shared_ptr<DB>)db {
-  // TODO(gsoltis): implement Prev() and SeekToLast() on LevelDbTransaction::Iterator, then port this to a transaction.
+  // TODO(gsoltis): implement Prev() and SeekToLast() on LevelDbTransaction::Iterator, then port
+  // this to a transaction.
   std::unique_ptr<Iterator> it(db->NewIterator(LevelDbTransaction::DefaultReadOptions()));
 
   auto tableKey = [FSTLevelDBMutationKey keyPrefix];
