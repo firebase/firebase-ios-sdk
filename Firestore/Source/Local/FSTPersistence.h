@@ -115,10 +115,11 @@ struct FSTTransactionRunner;
 struct FSTTransactionRunner {
   template <typename F>
   auto operator() (F block) const -> decltype(block()) {
+    using ReturnT = decltype(block());
     if (_db) {
       [_db startTransaction];
     }
-    auto result = block();
+    ReturnT result = block();
     if (_db) {
       [_db commitTransaction];
     }
