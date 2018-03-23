@@ -113,6 +113,12 @@ struct FSTTransactionRunner;
 @end
 
 struct FSTTransactionRunner {
+
+// Intentionally disable nullability checking for this function. We cannot properly annotate
+// the function because this function can handle both pointer and non-pointer types. It is an error
+// to annotate non-pointer types with a nullability annotation.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
   template <typename F>
   auto operator() (F block) const -> decltype(block()) {
     using ReturnT = decltype(block());
@@ -125,7 +131,8 @@ struct FSTTransactionRunner {
     }
     return result;
   }
-  __weak id<FSTTransactional> _Nullable _db;
+#pragma clang diagnostic pop
+  __weak id<FSTTransactional> _db;
 };
 
 NS_ASSUME_NONNULL_END
