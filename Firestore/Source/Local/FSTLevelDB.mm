@@ -62,6 +62,7 @@ using leveldb::WriteOptions;
 
 @implementation FSTLevelDB {
   std::unique_ptr<LevelDbTransaction> _transaction;
+  FSTTransactionRunner _transactionRunner;
 }
 
 /**
@@ -79,8 +80,13 @@ using leveldb::WriteOptions;
     _directory = [directory copy];
     _writeGroupTracker = [FSTWriteGroupTracker tracker];
     _serializer = serializer;
+    _transactionRunner._db = self;
   }
   return self;
+}
+
+- (const FSTTransactionRunner&)run {
+  return _transactionRunner;
 }
 
 + (NSString *)documentsDirectory {
@@ -220,6 +226,17 @@ using leveldb::WriteOptions;
 
 - (id<FSTRemoteDocumentCache>)remoteDocumentCache {
   return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
+}
+
+- (void)startTransaction {
+  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
+  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
+}
+
+- (void)commitTransaction {
+  FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
+  _transaction->Commit();
+  _transaction.reset();
 }
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {

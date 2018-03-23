@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A LevelDB-backed instance of FSTPersistence. */
 // TODO(mikelehen): Rename to FSTLevelDBPersistence.
-@interface FSTLevelDB : NSObject <FSTPersistence>
+@interface FSTLevelDB : NSObject <FSTPersistence, FSTTransactional>
 
 /**
  * Initializes the LevelDB in the given directory. Note that all expensive startup work including
@@ -93,6 +93,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @return An NSString describing the status (even if the status was ok).
  */
 + (NSString *)descriptionOfStatus:(leveldb::Status)status;
+
+- (void)startTransaction;
+
+- (void)commitTransaction;
 
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) std::shared_ptr<leveldb::DB> ptr;
