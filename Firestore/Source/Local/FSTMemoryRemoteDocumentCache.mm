@@ -19,7 +19,10 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,12 +49,12 @@ NS_ASSUME_NONNULL_BEGIN
   self.docs = [self.docs dictionaryBySettingObject:document forKey:document.key];
 }
 
-- (void)removeEntryForKey:(FSTDocumentKey *)key group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)key group:(FSTWriteGroup *)group {
   self.docs = [self.docs dictionaryByRemovingObjectForKey:key];
 }
 
-- (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)key {
-  return self.docs[key];
+- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)key {
+  return self.docs[static_cast<FSTDocumentKey *>(key)];
 }
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {

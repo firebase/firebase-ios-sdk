@@ -43,10 +43,12 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -509,9 +511,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 /** Garbage collect the limbo documents that we no longer need to track. */
 - (void)garbageCollectLimboDocuments {
-  NSSet<FSTDocumentKey *> *garbage = [self.limboCollector collectGarbage];
-  for (FSTDocumentKey *key in garbage) {
-    FSTBoxedTargetID *limboTarget = self.limboTargetsByKey[key];
+  const std::set<DocumentKey> garbage = [self.limboCollector collectGarbage];
+  for (const DocumentKey &key : garbage) {
+    FSTBoxedTargetID *limboTarget = self.limboTargetsByKey[static_cast<FSTDocumentKey *>(key)];
     if (!limboTarget) {
       // This target already got removed, because the query failed.
       return;

@@ -28,8 +28,12 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -283,7 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2] ];
   NSArray<FSTMutationBatch *> *matches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKey:FSTTestDocKey(@"foo/bar")];
+      [self.mutationQueue allMutationBatchesAffectingDocumentKey:testutil::Key("foo/bar")];
 
   XCTAssertEqualObjects(matches, expected);
 }
@@ -395,28 +399,29 @@ NS_ASSUME_NONNULL_BEGIN
   ]];
 
   [self removeMutationBatches:@[ batches[0] ]];
-  NSSet<FSTDocumentKey *> *garbage = [garbageCollector collectGarbage];
-  FSTAssertEqualSets(garbage, @[]);
+  std::set<DocumentKey> garbage = [garbageCollector collectGarbage];
+  XCTAssertEqual(garbage, std::set<DocumentKey>({}));
 
   [self removeMutationBatches:@[ batches[1] ]];
   garbage = [garbageCollector collectGarbage];
-  FSTAssertEqualSets(garbage, @[ FSTTestDocKey(@"foo/ba") ]);
+  XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/ba")}));
 
   [self removeMutationBatches:@[ batches[5] ]];
   garbage = [garbageCollector collectGarbage];
-  FSTAssertEqualSets(garbage, @[ FSTTestDocKey(@"bar/baz") ]);
+  XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("bar/baz")}));
 
   [self removeMutationBatches:@[ batches[2], batches[3] ]];
   garbage = [garbageCollector collectGarbage];
-  FSTAssertEqualSets(garbage, (@[ FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/bar2") ]));
+  XCTAssertEqual(garbage,
+                 std::set<DocumentKey>({testutil::Key("foo/bar"), testutil::Key("foo/bar2")}));
 
   [batches addObject:[self addMutationBatchWithKey:@"foo/bar/suffix/baz"]];
   garbage = [garbageCollector collectGarbage];
-  FSTAssertEqualSets(garbage, @[]);
+  XCTAssertEqual(garbage, std::set<DocumentKey>({}));
 
   [self removeMutationBatches:@[ batches[4], batches[6] ]];
   garbage = [garbageCollector collectGarbage];
-  FSTAssertEqualSets(garbage, @[ FSTTestDocKey(@"foo/bar/suffix/baz") ]);
+  XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/bar/suffix/baz")}));
 }
 
 - (void)testStreamToken {

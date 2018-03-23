@@ -18,8 +18,6 @@
 
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 
-@class FSTDocumentKey;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**

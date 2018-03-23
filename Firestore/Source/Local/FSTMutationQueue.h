@@ -19,7 +19,8 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTQuery;
@@ -123,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO(mcg): This should really return an NSEnumerator
 // also for b/32992024, all backing stores should really index by document key
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
-    (FSTDocumentKey *)documentKey;
+    (const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
  * Finds all mutation batches that could affect the results for the given query. Not all
