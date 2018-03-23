@@ -33,16 +33,20 @@
 #include <vector>
 
 #include "Firestore/Protos/cpp/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 using google::protobuf::util::MessageDifferencer;
 
 TEST(Serializer, CanLinkToNanopb) {
@@ -72,6 +76,18 @@ class SerializerTest : public ::testing::Test {
     // bytes with our (nanopb based) deserializer and ensure the result is the
     // same as the expected model.
     ExpectDeserializationRoundTrip(model, proto, type);
+  }
+
+  /**
+   * Ensures that decoding fails with the given status.
+   *
+   * @param status the expected (failed) status. Only the code() is verified.
+   */
+  void ExpectFailedStatusDuringDecode(Status status,
+                                      const std::vector<uint8_t>& bytes) {
+    StatusOr<FieldValue> bad_status = serializer.DecodeFieldValue(bytes);
+    EXPECT_FALSE(bad_status.ok());
+    EXPECT_EQ(status.code(), bad_status.status().code());
   }
 
   google::firestore::v1beta1::Value ValueProto(nullptr_t) {
@@ -145,7 +161,10 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes(size);
     bool status = proto.SerializeToArray(bytes.data(), size);
     EXPECT_TRUE(status);
-    FieldValue actual_model = serializer.DecodeFieldValue(bytes);
+    StatusOr<FieldValue> actual_model_status =
+        serializer.DecodeFieldValue(bytes);
+    EXPECT_TRUE(actual_model_status.ok());
+    FieldValue actual_model = actual_model_status.ValueOrDie();
     EXPECT_EQ(type, actual_model.type());
     EXPECT_EQ(model, actual_model);
   }
@@ -258,7 +277,113 @@ TEST_F(SerializerTest, WritesNestedObjects) {
   ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
+TEST_F(SerializerTest, BadNullValue) {
+  std::vector<uint8_t> bytes{
+      0x58,  // encoded null tag
+      0x01,  // invalid null value. (0 is only valid null value)
+  };
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadBoolValue) {
+  std::vector<uint8_t> bytes{
+      0x08,  // encoded bool tag
+      0x02,  // invalid value for a bool. (Valid values are 0,1)
+  };
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadIntegerValue) {
+  // clang-format off
+  std::vector<uint8_t> bytes{
+      0x10,  // encoded int tag
+      // These bytes represent a number too large to represent in a 64 bit
+      // value.  This should cause an overflow.
+      0xff, 0xff, 0xff, 0xff,
+      0xff, 0xff, 0xff, 0xff,
+      0xff, 0xff, 0x7f,
+  };
+  // clang-format on
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadStringValue) {
+  // clang-format off
+  std::vector<uint8_t> bytes{
+      0x8a, 0x01,  // encoded string tag
+      0x05,        // length 5
+      'a',
+  };
+  // clang-format on
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadTag) {
+  // The google::firestore::v1beta1::Value value_type oneof currently has tags
+  // up to 18. For this test, we'll pick a tag that's unlikely to be added in
+  // the near term but still fits within a uint8_t even when encoded.
+  // Specifically 31.
+  // clang-format off
+  std::vector<uint8_t> bytes{
+      0xF8, 0x01,  // represents field number 31 encoded as a varint
+                   // There's no payload here, which is also invalid, but we
+                   // won't get that far.
+  };
+  // clang-format on
+#if defined(NDEBUG)
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+#else
+  // The behaviour is *temporarily* slightly different during debug mode; this
+  // will cause a failed assertion rather than a failed status.
+  // TODO(rsgowman): Remove this path once it's removed from serializer.cc.
+  // (Hint: search for FIREBASE_DEV_ASSERT_MESSAGE)
+  EXPECT_ANY_THROW(ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes));
+#endif
+}
+
+TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
+  // specifically, the tag is boolean_value, but any tag that would be
+  // represented by a varint would do.
+  std::vector<uint8_t> bytes{
+      0x0a,  // represents a bool value encoded as a string
+      0x01,  // true
+  };
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
+  // clang-format off
+  std::vector<uint8_t> bytes{
+      0x88, 0x01,  // represents a string value field encoded as a varint.
+      0x01,        // string length 1
+      'a',
+  };
+  // clang-format on
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, IncompleteFieldValue) {
+  std::vector<uint8_t> bytes{
+      0x58,  // encoded null tag
+             // Note: Missing '0' for the value
+  };
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, IncompleteTag) {
+  std::vector<uint8_t> bytes{};
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
-
-// TODO(rsgowman): Death test for decoding invalid bytes.

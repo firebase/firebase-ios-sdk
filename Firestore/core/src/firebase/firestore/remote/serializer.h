@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/base/attributes.h"
 
 namespace firebase {
@@ -66,8 +67,9 @@ class Serializer {
    * @param field_value the model to convert.
    * @param[out] out_bytes A buffer to place the output. The bytes will be
    * appended to this vector.
+   * @return A Status, which if not ok(), indicates what went wrong. Note that
+   * errors during encoding generally indicate a serious/fatal error.
    */
-  // TODO(rsgowman): error handling, incl return code.
   // TODO(rsgowman): If we never support any output except to a vector, it may
   // make sense to have Serializer own the vector and provide an accessor rather
   // than asking the user to create it first.
@@ -80,20 +82,22 @@ class Serializer {
    *
    * @param bytes The bytes to convert. It's assumed that exactly all of the
    * bytes will be used by this conversion.
-   * @return The model equivalent of the bytes.
+   * @return The model equivalent of the bytes or a Status indicating
+   * what went wrong.
    */
-  // TODO(rsgowman): error handling.
-  model::FieldValue DecodeFieldValue(const uint8_t* bytes, size_t length);
+  util::StatusOr<model::FieldValue> DecodeFieldValue(const uint8_t* bytes,
+                                                     size_t length);
 
   /**
    * @brief Converts from bytes to the model FieldValue format.
    *
    * @param bytes The bytes to convert. It's assumed that exactly all of the
    * bytes will be used by this conversion.
-   * @return The model equivalent of the bytes.
+   * @return The model equivalent of the bytes or a Status indicating
+   * what went wrong.
    */
-  // TODO(rsgowman): error handling.
-  model::FieldValue DecodeFieldValue(const std::vector<uint8_t>& bytes) {
+  util::StatusOr<model::FieldValue> DecodeFieldValue(
+      const std::vector<uint8_t>& bytes) {
     return DecodeFieldValue(bytes.data(), bytes.size());
   }
 
