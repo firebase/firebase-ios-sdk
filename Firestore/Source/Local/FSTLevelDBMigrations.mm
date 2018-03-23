@@ -66,7 +66,7 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDbTransaction *tra
  * It assumes the metadata has already been written and is able to be read in this transaction.
  */
 static void AddTargetCount(LevelDbTransaction *transaction) {
-  std::unique_ptr<LevelDbTransaction::Iterator> it(transaction->NewIterator());
+  auto it = transaction->NewIterator();
   std::string start_key = [FSTLevelDBTargetKey keyPrefix];
   it->Seek(start_key);
 

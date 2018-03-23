@@ -203,6 +203,11 @@ using leveldb::WriteOptions;
   return database;
 }
 
+- (LevelDbTransaction *)currentTransaction {
+  FSTAssert(_transaction != nullptr, @"Attempting to access transaction before one has started");
+  return _transaction.get();
+}
+
 #pragma mark - Persistence Factory methods
 
 - (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
@@ -210,7 +215,7 @@ using leveldb::WriteOptions;
 }
 
 - (id<FSTQueryCache>)queryCache {
-  return [[FSTLevelDBQueryCache alloc] initWithDB:_ptr serializer:self.serializer];
+  return [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
 }
 
 - (id<FSTRemoteDocumentCache>)remoteDocumentCache {

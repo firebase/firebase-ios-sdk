@@ -31,6 +31,7 @@
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -371,6 +372,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   FSTReferenceSet *localViewReferences = self.localViewReferences;
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"NotifyLocalViewChanges"];
   for (FSTLocalViewChanges *view in viewChanges) {
     FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
     FSTAssert(queryData, @"Local view changes contain unallocated query.");
@@ -378,6 +380,7 @@ NS_ASSUME_NONNULL_BEGIN
     [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
     [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
   }
+  [self.persistence commitGroup:group];
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
@@ -389,6 +392,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Allocate query"];
   FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
   FSTTargetID targetID;
   FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
@@ -397,18 +401,14 @@ NS_ASSUME_NONNULL_BEGIN
     // TODO(mcg): freshen last accessed date?
     targetID = cached.targetID;
   } else {
-    FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Allocate query"];
-
     targetID = _targetIDGenerator.NextId();
     cached = [[FSTQueryData alloc] initWithQuery:query
                                         targetID:targetID
                             listenSequenceNumber:sequenceNumber
                                          purpose:FSTQueryPurposeListen];
     [self.queryCache addQueryData:cached group:group];
-
-    [self.persistence commitGroup:group];
   }
-
+  [self.persistence commitGroup:group];
   // Sanity check to ensure that even when resuming a query it's not currently active.
   FSTBoxedTargetID *boxedTargetID = @(targetID);
   FSTAssert(!self.targetIDs[boxedTargetID], @"Tried to allocate an already allocated query: %@",
@@ -448,20 +448,23 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
-  return [self.queryCache matchingKeysForTargetID:targetID];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoteDocumentKeysForTarget"];
+  FSTDocumentKeySet *keySet = [self.queryCache matchingKeysForTargetID:targetID];
+  [self.persistence commitGroup:group];
+  return keySet;
 }
 
 - (void)collectGarbage {
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Garbage Collection"];
   // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
   // accumulate the garbage keys.
   NSSet<FSTDocumentKey *> *garbage = [self.garbageCollector collectGarbage];
   if (garbage.count > 0) {
-    FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Garbage Collection"];
     for (FSTDocumentKey *key in garbage) {
       [self.remoteDocumentCache removeEntryForKey:key group:group];
     }
-    [self.persistence commitGroup:group];
   }
+  [self.persistence commitGroup:group];
 }
 
 /**
