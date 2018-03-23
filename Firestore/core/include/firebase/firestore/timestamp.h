@@ -126,7 +126,6 @@ class Timestamp {
    */
   static Timestamp FromTimePoint(
       std::chrono::time_point<std::chrono::system_clock> time_point);
-#endif  // !defined(_STLPORT_VERSION)
 
   /**
    * Converts this `Timestamp` to a `time_point`.
@@ -139,6 +138,7 @@ class Timestamp {
   template <typename Clock = std::chrono::system_clock,
             typename Duration = std::chrono::microseconds>
   std::chrono::time_point<Clock, Duration> ToTimePoint() const;
+#endif  // !defined(_STLPORT_VERSION)
 
   /**
    * Returns a string representation of this `Timestamp` for logging/debugging
@@ -190,7 +190,7 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
   namespace chr = std::chrono;
   using TimePoint = chr::time_point<Clock, Duration>;
 
-  // Check for overflow
+  // Saturate on overflow
   const auto max_value = std::numeric_limits<typename Duration::rep>::max();
   if (seconds_ > 0 && max_value / Duration::period::den <= seconds_) {
     return TimePoint{Duration(max_value)};
@@ -205,7 +205,6 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
       chr::duration_cast<Duration>(chr::nanoseconds(nanoseconds_));
   return TimePoint{seconds + nanoseconds};
 }
-
 #endif  // !defined(_STLPORT_VERSION)
 
 }  // namespace firebase
@@ -213,10 +212,7 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
 namespace std {
 template <>
 struct hash<firebase::Timestamp> {
-  size_t operator()(const firebase::Timestamp& timestamp) const {
-    return 37 * static_cast<size_t>(timestamp.seconds()) +
-           static_cast<size_t>(timestamp.nanoseconds());
-  }
+  size_t operator()(const firebase::Timestamp& timestamp) const;
 };
 }  // namespace std
 

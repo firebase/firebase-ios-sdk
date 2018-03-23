@@ -105,3 +105,12 @@ void Timestamp::ValidateBounds() const {
 }
 
 }  // namespace firebase
+
+namespace std {
+size_t hash<firebase::Timestamp>::operator()(
+    const firebase::Timestamp& timestamp) const {
+  return 37 * static_cast<size_t>(timestamp.seconds()) +
+         static_cast<size_t>(timestamp.nanoseconds());
+}
+
+}  // namespace std
