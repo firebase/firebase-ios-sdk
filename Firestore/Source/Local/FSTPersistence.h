@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  * because memory-only storage leaves no state so it cannot be inconsistent.
  *
  * This simplifies the implementations of the mutators and allows memory-only implementations to
- * supplement the persistent ones without requirin‰g any special dual-store implementation of
+ * supplement the persistent ones without requiring any special dual-store implementation of
  * FSTPersistence. The cost is that the FSTLocalStore needs to be slightly careful about the order
  * of its reads and writes in order to avoid relying on being able to read back uncommitted writes.
  */
