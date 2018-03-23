@@ -136,7 +136,8 @@ using leveldb::WriteOptions;
 }
 
 + (FSTBatchID)loadNextBatchIDFromDB:(std::shared_ptr<DB>)db {
-  std::unique_ptr<Iterator> it(db->NewIterator([FSTLevelDB standardReadOptions]));
+  // TODO(gsoltis): implement Prev() and SeekToLast() on LevelDbTransaction::Iterator, then port this to a transaction.
+  std::unique_ptr<Iterator> it(db->NewIterator(LevelDbTransaction::DefaultReadOptions()));
 
   auto tableKey = [FSTLevelDBMutationKey keyPrefix];
 
@@ -298,7 +299,7 @@ using leveldb::WriteOptions;
             status.ToString().c_str());
   }
 
-  return [self decodeMutationBatch:value];
+  return [self decodedMutationBatch:value];
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
@@ -323,7 +324,7 @@ using leveldb::WriteOptions;
   }
 
   FSTAssert(rowKey.batchID >= nextBatchID, @"Should have found mutation after %d", nextBatchID);
-  return [self decodeMutationBatch:it->value()];
+  return [self decodedMutationBatch:it->value()];
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(FSTBatchID)batchID {
@@ -344,7 +345,7 @@ using leveldb::WriteOptions;
       break;
     }
 
-    [result addObject:[self decodeMutationBatch:it->value()]];
+    [result addObject:[self decodedMutationBatch:it->value()]];
   }
 
   return result;
@@ -396,7 +397,7 @@ using leveldb::WriteOptions;
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
-    [result addObject:[self decodeMutationBatch:mutationIterator->value()]];
+    [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
   }
   return result;
 }
@@ -470,7 +471,7 @@ using leveldb::WriteOptions;
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
-    [result addObject:[self decodeMutationBatch:mutationIterator->value()]];
+    [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
   }
   return result;
 }
@@ -483,7 +484,7 @@ using leveldb::WriteOptions;
 
   NSMutableArray *result = [NSMutableArray array];
   for (; it->Valid() && absl::StartsWith(it->key(), userKey); it->Next()) {
-    [result addObject:[self decodeMutationBatch:it->value()]];
+    [result addObject:[self decodedMutationBatch:it->value()]];
   }
 
   return result;
@@ -569,7 +570,7 @@ using leveldb::WriteOptions;
   return proto;
 }
 
-- (FSTMutationBatch *)decodeMutationBatch:(absl::string_view)encoded {
+- (FSTMutationBatch *)decodedMutationBatch:(absl::string_view)encoded {
   NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
                                               length:encoded.size()
                                         freeWhenDone:NO];
