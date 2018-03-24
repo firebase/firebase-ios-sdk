@@ -158,9 +158,9 @@ class Reader {
 
   /**
    * Reads component labels and strings from the key until it finds a component
-   * label other that ComponentLabel::PathSegment (or the key is exhausted).
+   * label other than ComponentLabel::PathSegment (or the key is exhausted).
    * All matched path segments are assembled into a ResourcePath and wrapped in
-   * an DocumentKey.
+   * a DocumentKey.
    *
    * If the read is unsuccessful or the document key is invalid, returns a
    * default DocumentKey and fails the Reader.
@@ -244,7 +244,7 @@ class Reader {
    * If the read is unsuccessful, returns false, and fails the Reader.
    *
    * Otherwise returns whether or not the component label is equal to the
-   * `expected_label` and advances the Rader to the next unread byte.
+   * `expected_label` and advances the Reader to the next unread byte.
    */
   ABSL_MUST_USE_RESULT
   bool ReadComponentLabelMatching(ComponentLabel expected_label) {
@@ -500,7 +500,7 @@ class Writer {
   }
 
   /**
-   * For each segment in the given resource path writes an
+   * For each segment in the given resource path writes a
    * ComponentLabel::PathSegment component label and a string containing the
    * path segment.
    */
