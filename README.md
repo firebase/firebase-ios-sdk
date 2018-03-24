@@ -26,6 +26,9 @@ While the official Firebase release remains a binary framework distribution,
 in the future, we plan to switch to a source CocoaPod distribution for the
 Firebase open source components.
 
+**Note: Source pod integration is currently the only way to access community
+supported [macOS and tvOS](README.md#macos-and-tvos).**
+
 It is now possible to override the default pod locations with source pod
 locations described via the Podfile syntax documented
 [here](https://guides.cocoapods.org/syntax/podfile.html#pod).
@@ -151,6 +154,8 @@ Keep in mind that macOS and tvOS are not officially supported by Firebase, and t
 actively developed primarily for iOS. While we can catch basic unit test issues with Travis, there
 may be some changes where the SDK no longer works as expected on macOS or tvOS. If you encounter
 this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
+
+For installation instructions, see [above](README.md#source-pod-integration).
 
 ## Carthage
 
