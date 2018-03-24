@@ -212,6 +212,8 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
 namespace std {
 template <>
 struct hash<firebase::Timestamp> {
+  // Note: specialization of `std::hash` is provided for convenience only. The
+  // implementation is not cryptographically secure and is subject to change.
   size_t operator()(const firebase::Timestamp& timestamp) const;
 };
 }  // namespace std
