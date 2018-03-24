@@ -17,6 +17,7 @@ cc_test(
   SOURCES
     array_sorted_map_test.cc
     testing.h
+    tree_sorted_map_test.cc
   DEPENDS
     firebase_firestore_immutable
     firebase_firestore_util
