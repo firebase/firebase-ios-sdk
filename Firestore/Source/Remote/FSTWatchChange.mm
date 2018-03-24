@@ -16,29 +16,40 @@
 
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
+#include <utility>
+
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTWatchChange
 @end
 
-@implementation FSTDocumentWatchChange
+@implementation FSTDocumentWatchChange {
+  DocumentKey _documentKey;
+}
 
 - (instancetype)initWithUpdatedTargetIDs:(NSArray<NSNumber *> *)updatedTargetIDs
                         removedTargetIDs:(NSArray<NSNumber *> *)removedTargetIDs
-                             documentKey:(FSTDocumentKey *)documentKey
+                             documentKey:(DocumentKey)documentKey
                                 document:(nullable FSTMaybeDocument *)document {
   self = [super init];
   if (self) {
     _updatedTargetIDs = updatedTargetIDs;
     _removedTargetIDs = removedTargetIDs;
-    _documentKey = documentKey;
+    _documentKey = std::move(documentKey);
     _document = document;
   }
   return self;
+}
+
+- (const firebase::firestore::model::DocumentKey &)documentKey {
+  return _documentKey;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -59,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)hash {
   NSUInteger hash = self.updatedTargetIDs.hash;
   hash = hash * 31 + self.removedTargetIDs.hash;
-  hash = hash * 31 + self.documentKey.hash;
+  hash = hash * 31 + std::hash<std::string>{}(self.documentKey.ToString());
   hash = hash * 31 + self.document.hash;
   return hash;
 }

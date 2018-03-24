@@ -300,7 +300,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
                                  FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
     FSTDocumentKey *limboKey = self.limboKeysByTarget[targetID];
     if (limboKey && targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
-        remoteEvent.documentUpdates[limboKey] == nil) {
+        remoteEvent.documentUpdates.find(limboKey) == remoteEvent.documentUpdates.end()) {
       // When listening to a query the server responds with a snapshot containing documents
       // matching the query and a current marker telling us we're now in sync. It's possible for
       // these to arrive as separate remote events or as a single remote event. For a document
@@ -363,11 +363,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         [NSMutableDictionary dictionary];
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:[FSTSnapshotVersion noVersion]];
-    NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *docUpdate =
-        [NSMutableDictionary dictionaryWithObject:doc forKey:limboKey];
     FSTRemoteEvent *event = [FSTRemoteEvent eventWithSnapshotVersion:[FSTSnapshotVersion noVersion]
                                                        targetChanges:targetChanges
-                                                     documentUpdates:docUpdate];
+                                                     documentUpdates:{{limboKey, doc}}];
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[targetID];
