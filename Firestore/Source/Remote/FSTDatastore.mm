@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
+#include <memory>
 #include <vector>
 
 #import <GRPCClient/GRPCCall+OAuth2.h>
@@ -256,10 +257,13 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     [request.documentsArray addObject:[self.serializer encodedDocumentKey:key]];
   }
 
-  __block FSTMaybeDocumentDictionary *results =
-      [FSTMaybeDocumentDictionary maybeDocumentDictionary];
-  const std::vector<DocumentKey> inputKeys = keys;
+  struct Closure {
+    std::vector<DocumentKey> keys;
+    FSTMaybeDocumentDictionary *results;
+  };
 
+  __block std::shared_ptr<Closure> closure = std::make_shared<Closure>(
+      Closure{keys, [FSTMaybeDocumentDictionary maybeDocumentDictionary]});
   RPCFactory rpcFactory = ^GRPCProtoCall * {
     __block GRPCProtoCall *rpc = [self.service
         RPCToBatchGetDocumentsWithRequest:request
@@ -279,16 +283,19 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    // Streaming response, accumulate result
                                    FSTMaybeDocument *doc =
                                        [self.serializer decodedMaybeDocumentFromBatch:response];
-                                   results = [results dictionaryBySettingObject:doc forKey:doc.key];
+                                   closure->results =
+                                       [closure->results dictionaryBySettingObject:doc
+                                                                            forKey:doc.key];
                                  } else {
                                    // Streaming response is done, call completion
                                    FSTLog(@"RPC BatchGetDocuments completed successfully.");
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    FSTAssert(!response, @"Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =
-                                       [NSMutableArray arrayWithCapacity:inputKeys.size()];
-                                   for (const DocumentKey &key : inputKeys) {
-                                     [docs addObject:results[static_cast<FSTDocumentKey *>(key)]];
+                                       [NSMutableArray arrayWithCapacity:closure->keys.size()];
+                                   for (const DocumentKey &key : closure->keys) {
+                                     [docs addObject:closure->results[static_cast<FSTDocumentKey *>(
+                                                         key)]];
                                    }
                                    completion(docs, nil);
                                  }
