@@ -16,12 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
+#include <map>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTDocument;
-@class FSTDocumentKey;
 @class FSTExistenceFilter;
 @class FSTMaybeDocument;
 @class FSTSnapshotVersion;
@@ -148,7 +151,7 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
 eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
            targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
          documentUpdates:
-             (NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *)documentUpdates;
+             (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates;
 
 /** The snapshot version this event brings us up to. */
 @property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;
@@ -161,8 +164,7 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
  * A set of which documents have changed or been deleted, along with the doc's new values
  * (if not deleted).
  */
-@property(nonatomic, strong, readonly)
-    NSDictionary<FSTDocumentKey *, FSTMaybeDocument *> *documentUpdates;
+- (const std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *> &)documentUpdates;
 
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document;

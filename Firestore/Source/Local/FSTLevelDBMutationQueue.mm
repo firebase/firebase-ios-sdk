@@ -29,13 +29,13 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
@@ -46,6 +46,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::local::LevelDbTransaction;
 using Firestore::StringView;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 using leveldb::DB;
 using leveldb::Iterator;
@@ -353,12 +354,12 @@ using leveldb::WriteOptions;
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
-    (FSTDocumentKey *)documentKey {
+    (const DocumentKey &)documentKey {
   NSString *userID = self.userID;
 
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID
+                                                                  resourcePath:documentKey.path()];
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
@@ -378,7 +379,7 @@ using leveldb::WriteOptions;
     // stop as soon as we hit any such row.
     if (!absl::StartsWith(indexIterator->key(), indexPrefix) ||
         ![rowKey decodeKey:indexIterator->key()] ||
-        ![rowKey.documentKey isEqualToKey:documentKey]) {
+        DocumentKey{rowKey.documentKey} != documentKey) {
       break;
     }
 
@@ -587,9 +588,9 @@ using leveldb::WriteOptions;
 
 #pragma mark - FSTGarbageSource implementation
 
-- (BOOL)containsKey:(FSTDocumentKey *)documentKey {
-  std::string indexPrefix =
-      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID resourcePath:documentKey.path];
+- (BOOL)containsKey:(const DocumentKey &)documentKey {
+  std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID
+                                                                  resourcePath:documentKey.path()];
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
@@ -599,7 +600,7 @@ using leveldb::WriteOptions;
     // Check both that the key prefix matches and that the decoded document key is exactly the key
     // we're looking for.
     if (absl::StartsWith(indexIterator->key(), indexPrefix) &&
-        [rowKey decodeKey:indexIterator->key()] && [rowKey.documentKey isEqualToKey:documentKey]) {
+        [rowKey decodeKey:indexIterator->key()] && DocumentKey{rowKey.documentKey} == documentKey) {
       return YES;
     }
   }

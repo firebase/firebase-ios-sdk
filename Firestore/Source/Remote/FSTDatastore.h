@@ -16,14 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "absl/strings/string_view.h"
 
-@class FSTDocumentKey;
 @class FSTDispatchQueue;
 @class FSTMutation;
 @class FSTMutationResult;
@@ -88,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
                        token:(const absl::string_view)token;
 
 /** Looks up a list of documents in datastore. */
-- (void)lookupDocuments:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;
 
 /** Commits data to datastore. */

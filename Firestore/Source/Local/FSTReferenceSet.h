@@ -20,8 +20,6 @@
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-@class FSTDocumentKey;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -46,13 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEmpty;
 
 /** Adds a reference to the given document key for the given ID. */
-- (void)addReferenceToKey:(FSTDocumentKey *)key forID:(int)ID;
+- (void)addReferenceToKey:(const firebase::firestore::model::DocumentKey &)key forID:(int)ID;
 
 /** Add references to the given document keys for the given ID. */
 - (void)addReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID;
 
 /** Removes a reference to the given document key for the given ID. */
-- (void)removeReferenceToKey:(FSTDocumentKey *)key forID:(int)ID;
+- (void)removeReferenceToKey:(const firebase::firestore::model::DocumentKey &)key forID:(int)ID;
 
 /** Removes references to the given document keys for the given ID. */
 - (void)removeReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID;

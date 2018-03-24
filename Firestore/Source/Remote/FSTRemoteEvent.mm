@@ -16,15 +16,19 @@
 
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
+#include <map>
+#include <utility>
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,20 +37,20 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTTargetMapping ()
 
 /** Private mutator method to add a document key to the mapping */
-- (void)addDocumentKey:(FSTDocumentKey *)documentKey;
+- (void)addDocumentKey:(const DocumentKey &)documentKey;
 
 /** Private mutator method to remove a document key from the mapping */
-- (void)removeDocumentKey:(FSTDocumentKey *)documentKey;
+- (void)removeDocumentKey:(const DocumentKey &)documentKey;
 
 @end
 
 @implementation FSTTargetMapping
 
-- (void)addDocumentKey:(FSTDocumentKey *)documentKey {
+- (void)addDocumentKey:(const DocumentKey &)documentKey {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (void)removeDocumentKey:(FSTDocumentKey *)documentKey {
+- (void)removeDocumentKey:(const DocumentKey &)documentKey {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -92,11 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
   return self.documents.hash;
 }
 
-- (void)addDocumentKey:(FSTDocumentKey *)documentKey {
+- (void)addDocumentKey:(const DocumentKey &)documentKey {
   self.documents = [self.documents setByAddingObject:documentKey];
 }
 
-- (void)removeDocumentKey:(FSTDocumentKey *)documentKey {
+- (void)removeDocumentKey:(const DocumentKey &)documentKey {
   self.documents = [self.documents setByRemovingObject:documentKey];
 }
 
@@ -160,12 +164,12 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (void)addDocumentKey:(FSTDocumentKey *)documentKey {
+- (void)addDocumentKey:(const DocumentKey &)documentKey {
   self.addedDocuments = [self.addedDocuments setByAddingObject:documentKey];
   self.removedDocuments = [self.removedDocuments setByRemovingObject:documentKey];
 }
 
-- (void)removeDocumentKey:(FSTDocumentKey *)documentKey {
+- (void)removeDocumentKey:(const DocumentKey &)documentKey {
   self.addedDocuments = [self.addedDocuments setByRemovingObject:documentKey];
   self.removedDocuments = [self.removedDocuments setByAddingObject:documentKey];
 }
@@ -240,42 +244,39 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTRemoteEvent
 
 @interface FSTRemoteEvent () {
-  NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *_documentUpdates;
   NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *_targetChanges;
 }
 
 - (instancetype)
 initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
           targetChanges:(NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges
-        documentUpdates:
-            (NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *)documentUpdates;
+        documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates;
 
 @property(nonatomic, strong) FSTSnapshotVersion *snapshotVersion;
 
 @end
 
-@implementation FSTRemoteEvent
-
+@implementation FSTRemoteEvent {
+  std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
+}
 + (instancetype)
 eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
            targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
-         documentUpdates:
-             (NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *)documentUpdates {
+         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates {
   return [[FSTRemoteEvent alloc] initWithSnapshotVersion:snapshotVersion
                                            targetChanges:targetChanges
-                                         documentUpdates:documentUpdates];
+                                         documentUpdates:std::move(documentUpdates)];
 }
 
-- (instancetype)
-initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-          targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
-        documentUpdates:
-            (NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *)documentUpdates {
+- (instancetype)initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+                          targetChanges:
+                              (NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
+                        documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates {
   self = [super init];
   if (self) {
     _snapshotVersion = snapshotVersion;
     _targetChanges = targetChanges;
-    _documentUpdates = documentUpdates;
+    _documentUpdates = std::move(documentUpdates);
   }
   return self;
 }
@@ -284,13 +285,13 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   return static_cast<NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *>(_targetChanges);
 }
 
-- (NSDictionary<FSTDocumentKey *, FSTMaybeDocument *> *)documentUpdates {
-  return static_cast<NSDictionary<FSTDocumentKey *, FSTMaybeDocument *> *>(_documentUpdates);
+- (const std::map<DocumentKey, FSTMaybeDocument *> &)documentUpdates {
+  return _documentUpdates;
 }
 
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document {
-  _documentUpdates[(FSTDocumentKey *)document.key] = document;
+  _documentUpdates[document.key] = document;
 }
 
 /** Handles an existence filter mismatch */
@@ -326,10 +327,6 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *targetChanges;
 
-/** Keeps track of document to update */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *documentUpdates;
-
 /** The set of open listens on the client */
 @property(nonatomic, strong, readonly)
     NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *listenTargets;
@@ -341,6 +338,8 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 
 @implementation FSTWatchChangeAggregator {
   NSMutableDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *_existenceFilters;
+  /** Keeps track of document to update */
+  std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
 }
 
 - (instancetype)
@@ -357,7 +356,6 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
     _pendingTargetResponses = [NSMutableDictionary dictionaryWithDictionary:pendingTargetResponses];
 
     _existenceFilters = [NSMutableDictionary dictionary];
-    _documentUpdates = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -418,7 +416,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   // Only update the document if there is a new document to replace, this might be just a target
   // update instead.
   if (docChange.document && relevant) {
-    self.documentUpdates[docChange.documentKey] = docChange.document;
+    _documentUpdates[docChange.documentKey] = docChange.document;
   }
 }
 
@@ -522,7 +520,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   self.frozen = YES;
   return [FSTRemoteEvent eventWithSnapshotVersion:self.snapshotVersion
                                     targetChanges:targetChanges
-                                  documentUpdates:self.documentUpdates];
+                                  documentUpdates:_documentUpdates];
 }
 
 @end

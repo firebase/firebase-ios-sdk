@@ -16,7 +16,11 @@
 
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+#include <set>
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,18 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
 /** The garbage collectible sources to double-check during garbage collection. */
 @property(nonatomic, strong, readonly) NSMutableArray<id<FSTGarbageSource>> *sources;
 
-/** A set of potentially garbage keys. */
-@property(nonatomic, strong, readonly) NSMutableSet<FSTDocumentKey *> *potentialGarbage;
-
 @end
 
-@implementation FSTEagerGarbageCollector
+@implementation FSTEagerGarbageCollector {
+  /** A set of potentially garbage keys. */
+  std::set<DocumentKey> _potentialGarbage;
+}
 
 - (instancetype)init {
   self = [super init];
   if (self) {
     _sources = [NSMutableArray array];
-    _potentialGarbage = [[NSMutableSet alloc] init];
   }
   return self;
 }
@@ -57,15 +60,15 @@ NS_ASSUME_NONNULL_BEGIN
   garbageSource.garbageCollector = nil;
 }
 
-- (void)addPotentialGarbageKey:(FSTDocumentKey *)key {
-  [self.potentialGarbage addObject:key];
+- (void)addPotentialGarbageKey:(const DocumentKey &)key {
+  _potentialGarbage.insert(key);
 }
 
-- (NSMutableSet<FSTDocumentKey *> *)collectGarbage {
+- (std::set<DocumentKey>)collectGarbage {
   NSMutableArray<id<FSTGarbageSource>> *sources = self.sources;
 
-  NSMutableSet<FSTDocumentKey *> *actualGarbage = [NSMutableSet set];
-  for (FSTDocumentKey *key in self.potentialGarbage) {
+  std::set<DocumentKey> actualGarbage;
+  for (const DocumentKey &key : _potentialGarbage) {
     BOOL isGarbage = YES;
     for (id<FSTGarbageSource> source in sources) {
       if ([source containsKey:key]) {
@@ -75,12 +78,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (isGarbage) {
-      [actualGarbage addObject:key];
+      actualGarbage.insert(key);
     }
   }
 
   // Clear locally retained potential keys and returned confirmed garbage.
-  [self.potentialGarbage removeAllObjects];
+  _potentialGarbage.clear();
   return actualGarbage;
 }
 

@@ -18,7 +18,8 @@
 
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTMaybeDocument;
 @class FSTQuery;
 @class FSTWriteGroup;
@@ -48,7 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addEntry:(FSTMaybeDocument *)maybeDocument group:(FSTWriteGroup *)group;
 
 /** Removes the cached entry for the given key (no-op if no entry exists). */
-- (void)removeEntryForKey:(FSTDocumentKey *)documentKey group:(FSTWriteGroup *)group;
+- (void)removeEntryForKey:(const firebase::firestore::model::DocumentKey &)documentKey
+                    group:(FSTWriteGroup *)group;
 
 /**
  * Looks up an entry in the cache.
@@ -56,7 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param documentKey The key of the entry to look up.
  * @return The cached FSTDocument or FSTDeletedDocument entry, or nil if we have nothing cached.
  */
-- (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey;
+- (nullable FSTMaybeDocument *)entryForKey:
+    (const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
  * Executes a query against the cached FSTDocument entries

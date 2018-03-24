@@ -20,7 +20,6 @@
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-@class FSTDocumentKey;
 @class FSTDocumentSet;
 @class FSTMaybeDocument;
 @class FSTQuery;

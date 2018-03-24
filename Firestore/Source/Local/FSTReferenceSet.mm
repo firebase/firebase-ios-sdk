@@ -17,7 +17,10 @@
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
 #import "Firestore/Source/Local/FSTDocumentReference.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -59,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Public methods
 
-- (void)addReferenceToKey:(FSTDocumentKey *)key forID:(int)ID {
+- (void)addReferenceToKey:(const DocumentKey &)key forID:(int)ID {
   FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:ID];
   self.referencesByKey = [self.referencesByKey setByAddingObject:reference];
   self.referencesByID = [self.referencesByID setByAddingObject:reference];
@@ -71,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (void)removeReferenceToKey:(FSTDocumentKey *)key forID:(int)ID {
+- (void)removeReferenceToKey:(const DocumentKey &)key forID:(int)ID {
   [self removeReference:[[FSTDocumentReference alloc] initWithKey:key ID:ID]];
 }
 
@@ -82,9 +85,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeReferencesForID:(int)ID {
-  FSTDocumentKey *emptyKey = [FSTDocumentKey keyWithSegments:{}];
-  FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:ID];
-  FSTDocumentReference *end = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:(ID + 1)];
+  FSTDocumentReference *start =
+      [[FSTDocumentReference alloc] initWithKey:DocumentKey::Empty() ID:ID];
+  FSTDocumentReference *end =
+      [[FSTDocumentReference alloc] initWithKey:DocumentKey::Empty() ID:(ID + 1)];
 
   [self.referencesByID enumerateObjectsFrom:start
                                          to:end
@@ -106,9 +110,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKeySet *)referencedKeysForID:(int)ID {
-  FSTDocumentKey *emptyKey = [FSTDocumentKey keyWithSegments:{}];
-  FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:ID];
-  FSTDocumentReference *end = [[FSTDocumentReference alloc] initWithKey:emptyKey ID:(ID + 1)];
+  FSTDocumentReference *start =
+      [[FSTDocumentReference alloc] initWithKey:DocumentKey::Empty() ID:ID];
+  FSTDocumentReference *end =
+      [[FSTDocumentReference alloc] initWithKey:DocumentKey::Empty() ID:(ID + 1)];
 
   __block FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   [self.referencesByID enumerateObjectsFrom:start
@@ -119,15 +124,15 @@ NS_ASSUME_NONNULL_BEGIN
   return keys;
 }
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
+- (BOOL)containsKey:(const DocumentKey &)key {
   // Create a reference with a zero ID as the start position to find any document reference with
   // this key.
   FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:0];
 
   NSEnumerator<FSTDocumentReference *> *enumerator =
       [self.referencesByKey objectEnumeratorFrom:reference];
-  FSTDocumentKey *_Nullable firstKey = [enumerator nextObject].key;
-  return [firstKey isEqual:reference.key];
+  FSTDocumentReference *_Nullable firstReference = [enumerator nextObject];
+  return firstReference && firstReference.key == reference.key;
 }
 
 @end

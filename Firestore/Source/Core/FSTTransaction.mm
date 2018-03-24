@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Core/FSTTransaction.h"
 
+#include <vector>
+
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
@@ -31,6 +33,8 @@
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -99,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)lookupDocumentsForKeys:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocumentsForKeys:(const std::vector<DocumentKey> &)keys
                     completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion {
   [self ensureCommitNotCalled];
   if (self.mutations.count) {

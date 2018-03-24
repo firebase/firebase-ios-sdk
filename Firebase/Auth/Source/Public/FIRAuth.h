@@ -718,7 +718,7 @@ NS_SWIFT_NAME(Auth)
     @brief Sends a sign in with email link to provided email address.
 
     @param email The email address of the user.
-    @param actionCodeSettings An @c FIRActionCodeSettings object containing settings related to
+    @param actionCodeSettings An `FIRActionCodeSettings` object containing settings related to
         handling action codes.
     @param completion Optionally; a block which is invoked when the request finishes. Invoked
         asynchronously on the main thread in the future.

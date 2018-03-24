@@ -24,7 +24,6 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
@@ -37,10 +36,12 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -382,7 +383,7 @@ static const int kMaxPendingWrites = 10;
         // updates. Without applying a deleted document there might be another query that will
         // raise this document as part of a snapshot until it is resolved, essentially exposing
         // inconsistency between queries
-        FSTDocumentKey *key = [FSTDocumentKey keyWithPath:query.path];
+        const DocumentKey key{query.path};
         FSTDeletedDocument *deletedDoc =
             [FSTDeletedDocument documentWithKey:key version:snapshotVersion];
         [remoteEvent addDocumentUpdate:deletedDoc];

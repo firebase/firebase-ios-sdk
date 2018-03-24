@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
                               NSError *_Nullable error))completion {
   [self validateReference:document];
   [self.internalTransaction
-      lookupDocumentsForKeys:@[ document.key ]
+      lookupDocumentsForKeys:{document.key}
                   completion:^(NSArray<FSTMaybeDocument *> *_Nullable documents,
                                NSError *_Nullable error) {
                     if (error) {
