@@ -424,7 +424,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  resumeToken:resumeToken];
 }
 
-- (void)addMatchingKey:(cons DocumentKey &)key
+- (void)addMatchingKey:(const DocumentKey &)key
            forTargetID:(FSTTargetID)targetID
                  group:(FSTWriteGroup *)group {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
