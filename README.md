@@ -10,7 +10,12 @@ monetize your app. More information about Firebase can be found at
 
 ## Installation
 
-### Binary pods (iOS only - official support)
+See the three subsections for details about three different installation methods.
+1. [Officially supported binary pods](README.md#binary-pods-ios-only)
+1. [Community supported source pods](README.md#source-pods-ios-macos-tvos)
+1. [Experimental Carthage](README.md#carthage)
+
+### Binary pods (iOS only)
 
 Go to
 [https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
@@ -23,19 +28,18 @@ Firebase open source components.
 
 #### Background
 
-It is now possible to override the default pod locations with source pod
-locations described via the Podfile syntax documented
-[here](https://guides.cocoapods.org/syntax/podfile.html#pod).
+See
+[here](https://guides.cocoapods.org/syntax/podfile.html#pod) for instructions
+and options about overriding pod source locations
 
 **CocoaPods 1.4.0** or later is required.
 
-If source pods are included, **FirebaseCore** must also be included.
-
 #### Step-by-step Source Pod Installation Instructions
 
-1. For iOS, copy a subset of the following lines to your Podfile:
+For iOS, copy a subset of the following lines to your Podfile:
 
 ```
+pod 'Firebase' # To enable Firebase module, with `@import Firebase` support
 pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
 pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
 pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
@@ -54,6 +58,7 @@ pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.gi
 pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
 ```
 
+1. Make sure you have at least CocoaPods version 1.4.0 - `pod --version`.
 1. Delete pods for any components you don't need, except `FirebaseCore` must always be included.
 1. Update the tags to the latest Firebase release. See the
 [release notes](https://firebase.google.com/support/release-notes/ios).
@@ -91,8 +96,8 @@ An experimental Carthage distribution is now available. See
 
 ## Development
 
-Follow the subsequent instructions to develop and debug, unit tests, run integration
-tests, and try out reference samples.
+Follow the subsequent instructions to develop, debug, unit test, run integration
+tests, and try out reference samples:
 
 ```
 $ git clone git@github.com:firebase/firebase-ios-sdk.git
@@ -182,7 +187,7 @@ actively developed primarily for iOS. While we can catch basic unit test issues 
 may be some changes where the SDK no longer works as expected on macOS or tvOS. If you encounter
 this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
-For installation instructions, see [above](README.md#source-pod-integration).
+For installation instructions, see [above](README.md#step-by-step-source-pod-installation-instructions).
 
 ## Roadmap
 
