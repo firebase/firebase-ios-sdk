@@ -20,7 +20,7 @@ See the three subsections for details about three different installation methods
 Go to
 [https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
 
-### Source pods (iOS, macOS, tvOS - Community supported)
+### Source pods (iOS, macOS, tvOS)
 
 While the official Firebase release remains a binary framework distribution,
 in the future, we plan to switch to a source CocoaPod distribution for the
@@ -29,8 +29,8 @@ Firebase open source components.
 #### Background
 
 See
-[here](https://guides.cocoapods.org/syntax/podfile.html#pod) for instructions
-and options about overriding pod source locations
+[the Podfile Syntax Reference](https://guides.cocoapods.org/syntax/podfile.html#pod)
+for instructions and options about overriding pod source locations.
 
 **CocoaPods 1.4.0** or later is required.
 
