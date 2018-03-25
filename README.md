@@ -32,8 +32,6 @@ See
 [the Podfile Syntax Reference](https://guides.cocoapods.org/syntax/podfile.html#pod)
 for instructions and options about overriding pod source locations.
 
-**CocoaPods 1.4.0** or later is required.
-
 #### Step-by-step Source Pod Installation Instructions
 
 For iOS, copy a subset of the following lines to your Podfile:
