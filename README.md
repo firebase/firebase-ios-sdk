@@ -8,26 +8,20 @@ Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
 [https://firebase.google.com](https://firebase.google.com).
 
-**Note: This page and repo is for those interested in exploring the internals of
-the Firebase iOS SDK. If you're interested in using the Firebase iOS SDK, start at
-[https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).**
+## Installation
 
-## Context
+### Binary pods (iOS only - official support)
 
-This repo contains a fully functional development environment for FirebaseCore,
-FirebaseAuth, FirebaseDatabase, FirebaseFirestore, FirebaseFunctions,
-FirebaseMessaging, and FirebaseStorage. By following the usage instructions
-below, they can be developed and debugged with unit tests, integration tests,
-and reference samples.
+Go to
+[https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
 
-## Source pod integration
+### Source pods (iOS, macOS, tvOS - Community supported)
 
 While the official Firebase release remains a binary framework distribution,
 in the future, we plan to switch to a source CocoaPod distribution for the
 Firebase open source components.
 
-**Note: Source pod integration is currently the only way to access community
-supported [macOS and tvOS](README.md#macos-and-tvos).**
+#### Background
 
 It is now possible to override the default pod locations with source pod
 locations described via the Podfile syntax documented
@@ -37,8 +31,48 @@ locations described via the Podfile syntax documented
 
 If source pods are included, **FirebaseCore** must also be included.
 
-For example, to access FirebaseMessaging via a checked out version of the
-firebase-ios-sdk repo do:
+#### Step-by-step Source Pod Installation Instructions
+
+1. For iOS, copy a subset of the following lines to your Podfile:
+
+```
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseFunctions', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseMessaging', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+```
+
+For macOS and tvOS, copy a subset of the following:
+
+```
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+```
+
+1. Delete pods for any components you don't need, except `FirebaseCore` must always be included.
+1. Update the tags to the latest Firebase release. See the
+[release notes](https://firebase.google.com/support/release-notes/ios).
+1. Run `pod update`.
+
+#### Static library usage
+
+If your Podfile does not include *use_frameworks!*, you need to workaround
+a build issue with the FirebaseAnalytics umbrella header. Delete the first four lines
+of `Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h`
+or copy [patch/FirebaseAnalytics.h](patch/FirebaseAnalytics.h) to
+`Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h`.
+See the `post_install` phase of [Example/Podfile](Example/Podfile) for an example
+of applying the workaround automatically - make sure you correct the path of
+`patch/FirebaseAnalytics.h`.
+
+#### Examples
+
+To access FirebaseMessaging via a checked out version of the firebase-ios-sdk repo do:
 
 ```
 pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
@@ -50,22 +84,15 @@ pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.g
 pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 ```
 
-To access via a tag (Release tags will be available starting with Firebase 4.7.0:
-```
-pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.7.0'
-```
+### Carthage
 
-If your Podfile does not include *use_frameworks!*, you need to workaround
-a build issue with the FirebaseAnalytics umbrella header. Delete the first four lines
-of `Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h`
-or copy [patch/FirebaseAnalytics.h](patch/FirebaseAnalytics.h) to
-`Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h`.
-See the `post_install` phase of [Example/Podfile](Example/Podfile) for an example
-of applying the workaround automatically - make sure you correct the path of
-`patch/FirebaseAnalytics.h`.
+An experimental Carthage distribution is now available. See
+[Carthage](Carthage.md).
 
-## Usage
+## Development
+
+Follow the subsequent instructions to develop and debug, unit tests, run integration
+tests, and try out reference samples.
 
 ```
 $ git clone git@github.com:firebase/firebase-ios-sdk.git
@@ -156,11 +183,6 @@ may be some changes where the SDK no longer works as expected on macOS or tvOS. 
 this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
 For installation instructions, see [above](README.md#source-pod-integration).
-
-## Carthage
-
-An experimental Carthage distribution is now available. See
-[Carthage](Carthage.md).
 
 ## Roadmap
 
