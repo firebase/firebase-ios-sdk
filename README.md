@@ -13,7 +13,7 @@ monetize your app. More information about Firebase can be found at
 See the three subsections for details about three different installation methods.
 1. [Officially supported binary pods](README.md#binary-pods-ios-only)
 1. [Community supported source pods](README.md#source-pods-ios-macos-tvos)
-1. [Experimental Carthage](README.md#carthage)
+1. [Experimental Carthage](README.md#carthage-ios-only)
 
 ### Binary pods (iOS only)
 
@@ -87,7 +87,7 @@ pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.g
 pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 ```
 
-### Carthage
+### Carthage (iOS only)
 
 An experimental Carthage distribution is now available. See
 [Carthage](Carthage.md).
