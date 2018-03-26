@@ -888,5 +888,198 @@
         ]
       }
     ]
+  },
+  "New queries return immediately with fromCache=true when offline due to stream failures.": {
+    "describeName": "Offline:",
+    "itName": "New queries return immediately with fromCache=true when offline due to stream failures.",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection2",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "collection2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection2",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "New queries return immediately with fromCache=true when offline due to OnlineState timeout.": {
+    "describeName": "Offline:",
+    "itName": "New queries return immediately with fromCache=true when offline due to OnlineState timeout.",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "runTimer": "online_state_timeout",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection2",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "collection2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection2",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
   }
 }

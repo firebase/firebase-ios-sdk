@@ -43,9 +43,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) id<FSTOnlineStateDelegate> onlineStateDelegate;
 
 /**
- * Called by FSTRemoteStore when a watch stream is started.
+ * Called by FSTRemoteStore when a watch stream is started (including on each backoff attempt).
  *
- * It sets the FSTOnlineState to Unknown and starts the onlineStateTimer if necessary.
+ * If this is the first attempt, it sets the FSTOnlineState to Unknown and starts the
+ * onlineStateTimer.
  */
 - (void)handleWatchStreamStart;
 
