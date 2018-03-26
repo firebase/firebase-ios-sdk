@@ -137,9 +137,10 @@ TEST(Timestamp, FromChronoNegativeTime) {
 TEST(Timestamp, ToChrono) {
   namespace chr = std::chrono;
 
+  // Note: this line is outside the inner block because otherwise clang-format
+  // gets confused about namespace alias on the line above.
+  const Timestamp positive{123, 456789000};
   {
-    const Timestamp positive{123, 456789000};
-
     const auto micros = positive.ToTimePoint().time_since_epoch();
     EXPECT_EQ(123456789, chr::duration_cast<chr::microseconds>(micros).count());
 
@@ -153,7 +154,7 @@ TEST(Timestamp, ToChrono) {
             .time_since_epoch();
     EXPECT_EQ(123456789000,
               chr::duration_cast<chr::nanoseconds>(nanos).count());
-  }  // namespace chr=std::chrono;
+  }
 
   {
     const Timestamp negative{-123, 456000000};
