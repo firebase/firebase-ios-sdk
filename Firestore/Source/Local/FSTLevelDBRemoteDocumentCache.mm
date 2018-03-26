@@ -28,14 +28,15 @@
 #import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::model::DocumentKey;
 using leveldb::DB;
 using leveldb::Status;
 
@@ -65,12 +66,12 @@ using leveldb::Status;
   [group setMessage:[self.serializer encodedMaybeDocument:document] forKey:key];
 }
 
-- (void)removeEntryForKey:(FSTDocumentKey *)documentKey group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)documentKey group:(FSTWriteGroup *)group {
   std::string key = [self remoteDocumentKey:documentKey];
   [group removeMessageForKey:key];
 }
 
-- (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey {
+- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
   std::string key = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:documentKey];
   std::string value;
   Status status = _db.currentTransaction->Get(key, &value);
@@ -79,7 +80,7 @@ using leveldb::Status;
   } else if (status.ok()) {
     return [self decodeMaybeDocument:value withKey:documentKey];
   } else {
-    FSTFail(@"Fetch document for key (%@) failed with status: %s", documentKey,
+    FSTFail(@"Fetch document for key (%s) failed with status: %s", documentKey.ToString().c_str(),
             status.ToString().c_str());
   }
 }
@@ -107,12 +108,12 @@ using leveldb::Status;
   return results;
 }
 
-- (std::string)remoteDocumentKey:(FSTDocumentKey *)key {
+- (std::string)remoteDocumentKey:(const DocumentKey &)key {
   return [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:key];
 }
 
 - (FSTMaybeDocument *)decodeMaybeDocument:(absl::string_view)encoded
-                                  withKey:(FSTDocumentKey *)documentKey {
+                                  withKey:(const DocumentKey &)documentKey {
   NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
                                               length:encoded.size()
                                         freeWhenDone:NO];
@@ -125,8 +126,8 @@ using leveldb::Status;
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
   FSTAssert([maybeDocument.key isEqualToKey:documentKey],
-            @"Read document has key (%s) instead of expected key (%@).",
-            maybeDocument.key.ToString().c_str(), documentKey);
+            @"Read document has key (%s) instead of expected key (%s).",
+            maybeDocument.key.ToString().c_str(), documentKey.ToString().c_str());
   return maybeDocument;
 }
 

@@ -21,6 +21,8 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryQueryCache ()
@@ -145,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.references.garbageCollector = garbageCollector;
 }
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
+- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key {
   return [self.references containsKey:key];
 }
 

@@ -16,6 +16,10 @@
 
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTNoOpGarbageCollector
@@ -32,12 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
   // Not tracking garbage so don't track sources.
 }
 
-- (void)addPotentialGarbageKey:(FSTDocumentKey *)key {
+- (void)addPotentialGarbageKey:(const DocumentKey&)key {
   // Not tracking garbage so ignore.
 }
 
-- (NSSet<FSTDocumentKey *> *)collectGarbage {
-  return [NSSet set];
+- (std::set<DocumentKey>)collectGarbage {
+  return {};
 }
 
 @end

@@ -16,20 +16,24 @@
 
 #import "Firestore/Source/Local/FSTDocumentReference.h"
 
+#include <utility>
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
-#import "Firestore/Source/Model/FSTDocumentKey.h"
-
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTDocumentReference
+@implementation FSTDocumentReference {
+  DocumentKey _key;
+}
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key ID:(int32_t)ID {
+- (instancetype)initWithKey:(DocumentKey)key ID:(int32_t)ID {
   self = [super init];
   if (self) {
-    _key = key;
+    _key = std::move(key);
     _ID = ID;
   }
   return self;
@@ -51,12 +55,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocumentReference: key=%@, ID=%d>", self.key, self.ID];
+  return [NSString stringWithFormat:@"<FSTDocumentReference: key=%s, ID=%d>",
+                                    self.key.ToString().c_str(), self.ID];
 }
 
 - (id)copyWithZone:(nullable NSZone *)zone {
   // FSTDocumentReference is immutable
   return self;
+}
+
+- (const firebase::firestore::model::DocumentKey &)key {
+  return _key;
 }
 
 @end

@@ -30,6 +30,10 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
+
 @interface FSTLocalSerializer ()
 
 @property(nonatomic, strong, readonly) FSTSerializerBeta *remoteSerializer;
@@ -95,7 +99,7 @@
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   FSTObjectValue *data = [remoteSerializer decodedFields:document.fields];
-  FSTDocumentKey *key = [remoteSerializer decodedDocumentKey:document.name];
+  const DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
   FSTSnapshotVersion *version = [remoteSerializer decodedVersion:document.updateTime];
   return [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
 }
@@ -114,7 +118,7 @@
 - (FSTDeletedDocument *)decodedDeletedDocument:(FSTPBNoDocument *)proto {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
-  FSTDocumentKey *key = [remoteSerializer decodedDocumentKey:proto.name];
+  const DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
   FSTSnapshotVersion *version = [remoteSerializer decodedVersion:proto.readTime];
   return [FSTDeletedDocument documentWithKey:key version:version];
 }

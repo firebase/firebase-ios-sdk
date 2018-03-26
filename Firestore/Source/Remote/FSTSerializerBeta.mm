@@ -35,7 +35,6 @@
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -44,12 +43,14 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
 
@@ -104,19 +105,19 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FIRGeoPoint alloc] initWithLatitude:latLng.latitude longitude:latLng.longitude];
 }
 
-#pragma mark - FSTDocumentKey <=> Key proto
+#pragma mark - DocumentKey <=> Key proto
 
-- (NSString *)encodedDocumentKey:(FSTDocumentKey *)key {
-  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path];
+- (NSString *)encodedDocumentKey:(const DocumentKey &)key {
+  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path()];
 }
 
-- (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
+- (DocumentKey)decodedDocumentKey:(NSString *)name {
   const ResourcePath path = [self decodedResourcePathWithDatabaseID:name];
   FSTAssert(path[1] == self.databaseID->project_id(),
             @"Tried to deserialize key from different project.");
   FSTAssert(path[3] == self.databaseID->database_id(),
             @"Tried to deserialize key from different datbase.");
-  return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  return DocumentKey{[self localResourcePathForQualifiedResourcePath:path]};
 }
 
 - (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
@@ -306,12 +307,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (GCFSValue *)encodedReferenceValueForDatabaseID:(const DatabaseId *)databaseID
-                                              key:(FSTDocumentKey *)key {
+                                              key:(const DocumentKey &)key {
   FSTAssert(*databaseID == *self.databaseID, @"Database %s:%s cannot encode reference from %s:%s",
             self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
             databaseID->project_id().c_str(), databaseID->database_id().c_str());
   GCFSValue *result = [GCFSValue message];
-  result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];
+  result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path()];
   return result;
 }
 
@@ -319,8 +320,7 @@ NS_ASSUME_NONNULL_BEGIN
   const ResourcePath path = [self decodedResourcePathWithDatabaseID:resourceName];
   const std::string &project = path[1];
   const std::string &database = path[3];
-  FSTDocumentKey *key =
-      [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  const DocumentKey key{[self localResourcePathForQualifiedResourcePath:path]};
 
   const DatabaseId database_id(project, database);
   FSTAssert(database_id == *self.databaseID, @"Database %s:%s cannot encode reference from %s:%s",
@@ -390,7 +390,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTObjectValue <=> Document proto
 
 - (GCFSDocument *)encodedDocumentWithFields:(FSTObjectValue *)objectValue
-                                        key:(FSTDocumentKey *)key {
+                                        key:(const DocumentKey &)key {
   GCFSDocument *proto = [GCFSDocument message];
   proto.name = [self encodedDocumentKey:key];
   proto.fields = [self encodedFields:objectValue];
@@ -412,7 +412,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocument *)decodedFoundDocument:(GCFSBatchGetDocumentsResponse *)response {
   FSTAssert(!!response.found, @"Tried to deserialize a found document from a deleted document.");
-  FSTDocumentKey *key = [self decodedDocumentKey:response.found.name];
+  const DocumentKey key = [self decodedDocumentKey:response.found.name];
   FSTObjectValue *value = [self decodedFields:response.found.fields];
   FSTSnapshotVersion *version = [self decodedVersion:response.found.updateTime];
   FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
@@ -423,7 +423,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
   FSTAssert(!!response.missing, @"Tried to deserialize a deleted document from a found document.");
-  FSTDocumentKey *key = [self decodedDocumentKey:response.missing];
+  const DocumentKey key = [self decodedDocumentKey:response.missing];
   FSTSnapshotVersion *version = [self decodedVersion:response.readTime];
   FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
             @"Got a no document response with no snapshot version");
@@ -1052,7 +1052,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentWatchChange *)decodedDocumentChange:(GCFSDocumentChange *)change {
   FSTObjectValue *value = [self decodedFields:change.document.fields];
-  FSTDocumentKey *key = [self decodedDocumentKey:change.document.name];
+  const DocumentKey key = [self decodedDocumentKey:change.document.name];
   FSTSnapshotVersion *version = [self decodedVersion:change.document.updateTime];
   FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
             @"Got a document change with no snapshot version");
@@ -1069,7 +1069,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentWatchChange *)decodedDocumentDelete:(GCFSDocumentDelete *)change {
-  FSTDocumentKey *key = [self decodedDocumentKey:change.document];
+  const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use [FSTSnapshotVersion noVersion]
   FSTSnapshotVersion *version = [self decodedVersion:change.readTime];
   FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key version:version];
@@ -1083,7 +1083,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentWatchChange *)decodedDocumentRemove:(GCFSDocumentRemove *)change {
-  FSTDocumentKey *key = [self decodedDocumentKey:change.document];
+  const DocumentKey key = [self decodedDocumentKey:change.document];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 
   return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]

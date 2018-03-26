@@ -16,12 +16,17 @@
 
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
 
+#include <map>
+#include <memory>
+
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/memory/memory.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,13 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** The underlying cache we're buffering changes for. */
 @property(nonatomic, strong, nonnull) id<FSTRemoteDocumentCache> remoteDocumentCache;
 
-/** The buffered changes, stored as a dictionary for easy lookups. */
-@property(nonatomic, strong, nullable)
-    NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *changes;
-
 @end
 
-@implementation FSTRemoteDocumentChangeBuffer
+@implementation FSTRemoteDocumentChangeBuffer {
+  /** The buffered changes, stored as a dictionary for easy lookups. */
+  std::unique_ptr<std::map<DocumentKey, FSTMaybeDocument *>> _changes;
+}
 
 + (instancetype)changeBufferWithCache:(id<FSTRemoteDocumentCache>)cache {
   return [[FSTRemoteDocumentChangeBuffer alloc] initWithCache:cache];
@@ -47,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCache:(id<FSTRemoteDocumentCache>)cache {
   if (self = [super init]) {
     _remoteDocumentCache = cache;
-    _changes = [NSMutableDictionary dictionary];
+    _changes = absl::make_unique<std::map<DocumentKey, FSTMaybeDocument *>>();
   }
   return self;
 }
@@ -55,34 +59,33 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addEntry:(FSTMaybeDocument *)maybeDocument {
   [self assertValid];
 
-  self.changes[(FSTDocumentKey *)maybeDocument.key] = maybeDocument;
+  (*_changes)[maybeDocument.key] = maybeDocument;
 }
 
-- (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey {
+- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
   [self assertValid];
 
-  FSTMaybeDocument *bufferedEntry = self.changes[documentKey];
-  if (bufferedEntry) {
-    return bufferedEntry;
-  } else {
+  const auto iter = _changes->find(documentKey);
+  if (iter == _changes->end()) {
     return [self.remoteDocumentCache entryForKey:documentKey];
+  } else {
+    return iter->second;
   }
 }
 
 - (void)applyToWriteGroup:(FSTWriteGroup *)group {
   [self assertValid];
 
-  [self.changes enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *value,
-                                                    BOOL *stop) {
-    [self.remoteDocumentCache addEntry:value group:group];
-  }];
+  for (const auto &kv : *_changes) {
+    [self.remoteDocumentCache addEntry:kv.second group:group];
+  }
 
   // We should not be used to buffer any more changes.
-  self.changes = nil;
+  _changes.reset();
 }
 
 - (void)assertValid {
-  FSTAssert(self.changes, @"Changes have already been applied.");
+  FSTAssert(_changes, @"Changes have already been applied.");
 }
 
 @end
