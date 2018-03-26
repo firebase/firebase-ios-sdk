@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
-  cause getDocument() requests made while offline to be delayed by up to 10
+  cause `getDocument()` requests made while offline to be delayed by up to 10
   seconds (rather than returning from cache immediately).
 
 # v0.10.4
