@@ -477,7 +477,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::set<DocumentKey> garbage = [self.garbageCollector collectGarbage];
   if (garbage.size() > 0) {
     for (const DocumentKey &key : garbage) {
-      [self.remoteDocumentCache removeEntryForKey:key group:group];
+      [self.remoteDocumentCache removeEntryForKey:key];
     }
   }
   [self.persistence commitGroup:group];

@@ -22,7 +22,6 @@
 
 @class FSTMaybeDocument;
 @class FSTQuery;
-@class FSTWriteGroup;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,11 +45,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param maybeDocument A FSTDocument or FSTDeletedDocument to put in the cache.
  */
-- (void)addEntry:(FSTMaybeDocument *)maybeDocument group:(FSTWriteGroup *)group;
+- (void)addEntry:(FSTMaybeDocument *)maybeDocument;
 
 /** Removes the cached entry for the given key (no-op if no entry exists). */
-- (void)removeEntryForKey:(const firebase::firestore::model::DocumentKey &)documentKey
-                    group:(FSTWriteGroup *)group;
+- (void)removeEntryForKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
  * Looks up an entry in the cache.
