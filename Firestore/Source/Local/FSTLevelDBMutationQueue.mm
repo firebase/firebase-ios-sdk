@@ -104,7 +104,7 @@ using leveldb::WriteOptions;
   return self;
 }
 
-- (void)startWithGroup:(FSTWriteGroup *)group {
+- (void)startWithGroup:(__unused FSTWriteGroup *)group {
   FSTBatchID nextBatchID = [FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr];
 
   // On restart, nextBatchId may end up lower than lastAcknowledgedBatchId since it's computed from
@@ -125,7 +125,7 @@ using leveldb::WriteOptions;
       lastAcked = kFSTBatchIDUnknown;
 
       metadata.lastAcknowledgedBatchId = lastAcked;
-      [group setMessage:metadata forKey:[self keyForCurrentMutationQueue]];
+      _db.currentTransaction->Put([self keyForCurrentMutationQueue], metadata);
     }
   }
 
@@ -219,7 +219,7 @@ using leveldb::WriteOptions;
 
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch
              streamToken:(nullable NSData *)streamToken
-                   group:(FSTWriteGroup *)group {
+                   group:(__unused FSTWriteGroup *)group {
   FSTBatchID batchID = batch.batchID;
   FSTAssert(batchID > self.highestAcknowledgedBatchID,
             @"Mutation batchIDs must be acknowledged in order");
@@ -228,18 +228,18 @@ using leveldb::WriteOptions;
   metadata.lastAcknowledgedBatchId = batchID;
   metadata.lastStreamToken = streamToken;
 
-  [group setMessage:metadata forKey:[self keyForCurrentMutationQueue]];
+  _db.currentTransaction->Put([self keyForCurrentMutationQueue], metadata);
 }
 
 - (nullable NSData *)lastStreamToken {
   return self.metadata.lastStreamToken;
 }
 
-- (void)setLastStreamToken:(nullable NSData *)streamToken group:(FSTWriteGroup *)group {
+- (void)setLastStreamToken:(nullable NSData *)streamToken group:(__unused FSTWriteGroup *)group {
   FSTPBMutationQueue *metadata = self.metadata;
   metadata.lastStreamToken = streamToken;
 
-  [group setMessage:metadata forKey:[self keyForCurrentMutationQueue]];
+  _db.currentTransaction->Put([self keyForCurrentMutationQueue], metadata);
 }
 
 - (std::string)keyForCurrentMutationQueue {
@@ -261,7 +261,7 @@ using leveldb::WriteOptions;
 
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
                                           mutations:(NSArray<FSTMutation *> *)mutations
-                                              group:(FSTWriteGroup *)group {
+                                              group:(__unused FSTWriteGroup *)group {
   FSTBatchID batchID = self.nextBatchID;
   self.nextBatchID += 1;
 
@@ -269,7 +269,7 @@ using leveldb::WriteOptions;
                                                        localWriteTime:localWriteTime
                                                             mutations:mutations];
   std::string key = [self mutationKeyForBatch:batch];
-  [group setMessage:[self.serializer encodedMutationBatch:batch] forKey:key];
+  _db.currentTransaction->Put(key, [self.serializer encodedMutationBatch:batch]);
 
   NSString *userID = self.userID;
 
@@ -282,7 +282,7 @@ using leveldb::WriteOptions;
     key = [FSTLevelDBDocumentMutationKey keyWithUserID:userID
                                            documentKey:mutation.key
                                                batchID:batchID];
-    [group setData:emptyBuffer forKey:key];
+    _db.currentTransaction->Put(key, emptyBuffer);
   }
 
   return batch;
@@ -492,7 +492,7 @@ using leveldb::WriteOptions;
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches group:(FSTWriteGroup *)group {
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches group:(__unused FSTWriteGroup *)group {
   NSString *userID = self.userID;
   id<FSTGarbageCollector> garbageCollector = self.garbageCollector;
 
@@ -511,13 +511,13 @@ using leveldb::WriteOptions;
               [FSTLevelDBKey descriptionForKey:key],
               [FSTLevelDBKey descriptionForKey:checkIterator->key()]);
 
-    [group removeMessageForKey:key];
+    _db.currentTransaction->Delete(key);
 
     for (FSTMutation *mutation in batch.mutations) {
       key = [FSTLevelDBDocumentMutationKey keyWithUserID:userID
                                              documentKey:mutation.key
                                                  batchID:batchID];
-      [group removeMessageForKey:key];
+      _db.currentTransaction->Delete(key);
       [garbageCollector addPotentialGarbageKey:mutation.key];
     }
   }
