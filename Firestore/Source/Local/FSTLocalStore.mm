@@ -393,9 +393,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"nextMutationBatchAfterBatchID"];
-  FSTMutationBatch *result = [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
-  [self.persistence commitGroup:group];
+  FSTMutationBatch *result = self.persistence.run([&]() -> FSTMutationBatch * {
+    return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+  });
   return result;
 }
 

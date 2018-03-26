@@ -52,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMemoryRemoteDocumentCache *_remoteDocumentCache;
 
   std::unordered_map<User, id<FSTMutationQueue>, HashUser> _mutationQueues;
+
+  FSTTransactionRunner _transactionRunner;
 }
 
 + (instancetype)persistence {
@@ -78,6 +80,10 @@ NS_ASSUME_NONNULL_BEGIN
   // No durable state to ensure is closed on shutdown.
   FSTAssert(self.isStarted, @"FSTMemoryPersistence shutdown without start!");
   self.started = NO;
+}
+
+- (const FSTTransactionRunner &)run {
+  return _transactionRunner;
 }
 
 - (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {

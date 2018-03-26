@@ -28,6 +28,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+#include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -62,6 +63,7 @@ using leveldb::WriteOptions;
 
 @implementation FSTLevelDB {
   std::unique_ptr<LevelDbTransaction> _transaction;
+  FSTTransactionRunner _transactionRunner;
 }
 
 /**
@@ -79,8 +81,13 @@ using leveldb::WriteOptions;
     _directory = [directory copy];
     _writeGroupTracker = [FSTWriteGroupTracker tracker];
     _serializer = serializer;
+    _transactionRunner.SetBackingPersistence(self);
   }
   return self;
+}
+
+- (const FSTTransactionRunner &)run {
+  return _transactionRunner;
 }
 
 + (NSString *)documentsDirectory {
@@ -222,9 +229,20 @@ using leveldb::WriteOptions;
   return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
 }
 
+- (void)startTransaction {
+  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
+  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get());
+}
+
+- (void)commitTransaction {
+  FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
+  _transaction->Commit();
+  _transaction.reset();
+}
+
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
+  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get());
   return [self.writeGroupTracker startGroupWithAction:action transaction:_transaction.get()];
 }
 

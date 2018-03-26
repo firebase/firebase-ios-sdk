@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A LevelDB-backed instance of FSTPersistence. */
 // TODO(mikelehen): Rename to FSTLevelDBPersistence.
-@interface FSTLevelDB : NSObject <FSTPersistence>
+@interface FSTLevelDB : NSObject <FSTPersistence, FSTTransactional>
 
 /**
  * Initializes the LevelDB in the given directory. Note that all expensive startup work including

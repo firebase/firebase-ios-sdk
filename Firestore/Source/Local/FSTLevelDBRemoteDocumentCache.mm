@@ -31,7 +31,6 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
