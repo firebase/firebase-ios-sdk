@@ -22,7 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol FSTRemoteDocumentCache;
 @class FSTMaybeDocument;
-@class FSTWriteGroup;
 
 /**
  * An in-memory buffer of entries to be written to an FSTRemoteDocumentCache. It can be used to
@@ -58,10 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
     (const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
- * Applies buffered changes to the underlying FSTRemoteDocumentCache, using the provided
- * FSTWriteGroup.
+ * Applies buffered changes to the underlying FSTRemoteDocumentCache
  */
-- (void)applyToWriteGroup:(FSTWriteGroup *)group;
+- (void)apply;
 
 @end
 

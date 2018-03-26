@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
   [_db commitGroup:group];
 
   group = [_db startGroupWithAction:@"Apply changes"];
-  [_remoteDocumentBuffer applyToWriteGroup:group];
+  [_remoteDocumentBuffer apply];
 
   // Reading against the cache should now yield the new result.
   XCTAssertEqualObjects([_remoteDocumentCache entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
@@ -106,12 +106,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testMethodsThrowAfterApply {
   FSTWriteGroup *group = [_db startGroupWithAction:@"Apply changes"];
-  [_remoteDocumentBuffer applyToWriteGroup:group];
+  [_remoteDocumentBuffer apply];
   [_db commitGroup:group];
 
   XCTAssertThrows([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")]);
   XCTAssertThrows([_remoteDocumentBuffer addEntry:_kInitialADoc]);
-  XCTAssertThrows([_remoteDocumentBuffer applyToWriteGroup:group]);
+  XCTAssertThrows([_remoteDocumentBuffer apply]);
 }
 
 @end

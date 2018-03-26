@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)applyToWriteGroup:(FSTWriteGroup *)group {
+- (void)apply {
   [self assertValid];
 
   for (const auto &kv : *_changes) {

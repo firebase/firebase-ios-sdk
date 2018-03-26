@@ -235,7 +235,7 @@ NS_ASSUME_NONNULL_BEGIN
     affected =
         [self releaseBatchResults:@[ batchResult ] group:group remoteDocuments:remoteDocuments];
 
-    [remoteDocuments applyToWriteGroup:group];
+    [remoteDocuments apply];
   }
 
   [self.mutationQueue performConsistencyCheck];
@@ -363,7 +363,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentKeySet *releasedWriteKeys =
       [self releaseHeldBatchResultsWithGroup:group remoteDocuments:remoteDocuments];
 
-  [remoteDocuments applyToWriteGroup:group];
+  [remoteDocuments apply];
 
   // Union the two key sets.
   __block FSTDocumentKeySet *keysToRecalc = changedDocKeys;
@@ -449,7 +449,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     [self releaseHeldBatchResultsWithGroup:group remoteDocuments:remoteDocuments];
 
-    [remoteDocuments applyToWriteGroup:group];
+    [remoteDocuments apply];
   }
 
   [self.persistence commitGroup:group];
