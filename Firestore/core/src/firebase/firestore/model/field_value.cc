@@ -113,8 +113,8 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     }
     case Type::Object: {
       // copy-and-swap
-      ObjectT tmp = value.object_value_;
-      std::swap(object_value_, tmp);
+      ObjectValue::Map tmp = value.object_value_.internal_value;
+      std::swap(object_value_.internal_value, tmp);
       break;
     }
     default:
@@ -280,15 +280,15 @@ FieldValue FieldValue::ArrayValue(std::vector<FieldValue>&& value) {
   return result;
 }
 
-FieldValue FieldValue::ObjectValue(const ObjectT& value) {
-  ObjectT copy(value);
-  return ObjectValue(std::move(copy));
+FieldValue FieldValue::ObjectValueFromMap(const ObjectValue::Map& value) {
+  ObjectValue::Map copy(value);
+  return ObjectValueFromMap(std::move(copy));
 }
 
-FieldValue FieldValue::ObjectValue(ObjectT&& value) {
+FieldValue FieldValue::ObjectValueFromMap(ObjectValue::Map&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
-  std::swap(result.object_value_, value);
+  std::swap(result.object_value_.internal_value, value);
   return result;
 }
 
@@ -385,7 +385,7 @@ void FieldValue::SwitchTo(const Type type) {
       array_value_.~vector();
       break;
     case Type::Object:
-      object_value_.~map();
+      object_value_.internal_value.~map();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
@@ -416,7 +416,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&array_value_) std::vector<FieldValue>();
       break;
     case Type::Object:
-      new (&object_value_) ObjectT();
+      new (&object_value_) ObjectValue{};
       break;
     default: {}  // The other types where there is nothing to worry about.
   }

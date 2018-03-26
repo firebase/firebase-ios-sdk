@@ -189,16 +189,17 @@ TEST(FieldValue, ArrayType) {
 }
 
 TEST(FieldValue, ObjectType) {
-  const FieldValue empty = FieldValue::ObjectValue({});
-  FieldValue::ObjectT object{{"null", FieldValue::NullValue()},
-                             {"true", FieldValue::TrueValue()},
-                             {"false", FieldValue::FalseValue()}};
+  const FieldValue empty = FieldValue::ObjectValueFromMap({});
+  ObjectValue::Map object{{"null", FieldValue::NullValue()},
+                          {"true", FieldValue::TrueValue()},
+                          {"false", FieldValue::FalseValue()}};
   // copy the map
-  const FieldValue small = FieldValue::ObjectValue(object);
-  FieldValue::ObjectT another_object{{"null", FieldValue::NullValue()},
-                                     {"true", FieldValue::FalseValue()}};
+  const FieldValue small = FieldValue::ObjectValueFromMap(object);
+  ObjectValue::Map another_object{{"null", FieldValue::NullValue()},
+                                  {"true", FieldValue::FalseValue()}};
   // move the array
-  const FieldValue large = FieldValue::ObjectValue(std::move(another_object));
+  const FieldValue large =
+      FieldValue::ObjectValueFromMap(std::move(another_object));
   EXPECT_EQ(Type::Object, empty.type());
   EXPECT_EQ(Type::Object, small.type());
   EXPECT_EQ(Type::Object, large.type());
@@ -334,21 +335,22 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue object_value = FieldValue::ObjectValue(FieldValue::ObjectT{
-      {"true", FieldValue::TrueValue()}, {"false", FieldValue::FalseValue()}});
+  const FieldValue object_value = FieldValue::ObjectValueFromMap(
+      ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                       {"false", FieldValue::FalseValue()}});
   clone = object_value;
-  EXPECT_EQ(FieldValue::ObjectValue(
-                FieldValue::ObjectT{{"true", FieldValue::TrueValue()},
-                                    {"false", FieldValue::FalseValue()}}),
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
             clone);
-  EXPECT_EQ(FieldValue::ObjectValue(
-                FieldValue::ObjectT{{"true", FieldValue::TrueValue()},
-                                    {"false", FieldValue::FalseValue()}}),
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
             object_value);
   clone = clone;
-  EXPECT_EQ(FieldValue::ObjectValue(
-                FieldValue::ObjectT{{"true", FieldValue::TrueValue()},
-                                    {"false", FieldValue::FalseValue()}}),
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -428,12 +430,12 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  FieldValue object_value = FieldValue::ObjectValue(FieldValue::ObjectT{
+  FieldValue object_value = FieldValue::ObjectValueFromMap(ObjectValue::Map{
       {"true", FieldValue::TrueValue()}, {"false", FieldValue::FalseValue()}});
   clone = std::move(object_value);
-  EXPECT_EQ(FieldValue::ObjectValue(
-                FieldValue::ObjectT{{"true", FieldValue::TrueValue()},
-                                    {"false", FieldValue::FalseValue()}}),
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
             clone);
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -452,7 +454,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<FieldValue>());
-  const FieldValue object_value = FieldValue::ObjectValue({});
+  const FieldValue object_value = FieldValue::ObjectValueFromMap({});
   EXPECT_TRUE(null_value < true_value);
   EXPECT_TRUE(true_value < number_value);
   EXPECT_TRUE(number_value < timestamp_value);

@@ -194,7 +194,7 @@ TEST_F(SerializerTest, WritesStringModelToBytes) {
 }
 
 TEST_F(SerializerTest, WritesEmptyMapToBytes) {
-  FieldValue model = FieldValue::ObjectValue({});
+  FieldValue model = FieldValue::ObjectValueFromMap({});
   // TEXT_FORMAT_PROTO: 'map_value: {}'
   std::vector<uint8_t> bytes{0x32, 0x00};
   ExpectRoundTrip(model, bytes, FieldValue::Type::Object);
@@ -206,7 +206,7 @@ TEST_F(SerializerTest, WritesNestedObjectsToBytes) {
   // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
   // above.
 
-  FieldValue model = FieldValue::ObjectValue(
+  FieldValue model = FieldValue::ObjectValueFromMap(
       {{"b", FieldValue::TrueValue()},
        // TODO(rsgowman): add doubles (once they're supported)
        // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
@@ -215,10 +215,10 @@ TEST_F(SerializerTest, WritesNestedObjectsToBytes) {
        {"s", FieldValue::StringValue("foo")},
        // TODO(rsgowman): add arrays (once they're supported)
        // {"a", [2, "bar", {"b", false}]},
-       {"o", FieldValue::ObjectValue(
+       {"o", FieldValue::ObjectValueFromMap(
                  {{"d", FieldValue::IntegerValue(100)},
                   {"nested",
-                   FieldValue::ObjectValue(
+                   FieldValue::ObjectValueFromMap(
                        {{"e", FieldValue::IntegerValue(
                                   std::numeric_limits<int64_t>::max())}})}})}});
 
