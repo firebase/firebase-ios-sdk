@@ -71,8 +71,14 @@ void LevelDbTransaction::Iterator::UpdateCurrent() {
 
 void LevelDbTransaction::Iterator::Seek(const std::string& key) {
   db_iter_->Seek(key);
+  FIREBASE_ASSERT_MESSAGE(db_iter_->status().ok(),
+                          "leveldb iterator reported an error: %s",
+                          db_iter_->status().ToString().c_str());
   for (; db_iter_->Valid() && IsDeleted(db_iter_->key()); db_iter_->Next()) {
   }
+  FIREBASE_ASSERT_MESSAGE(db_iter_->status().ok(),
+                          "leveldb iterator reported an error: %s",
+                          db_iter_->status().ToString().c_str());
   mutations_iter_ = txn_->mutations_.lower_bound(key);
   UpdateCurrent();
   last_version_ = txn_->version_;
@@ -109,6 +115,9 @@ void LevelDbTransaction::Iterator::AdvanceLDB() {
   do {
     db_iter_->Next();
   } while (db_iter_->Valid() && IsDeleted(db_iter_->key()));
+  FIREBASE_ASSERT_MESSAGE(db_iter_->status().ok(),
+                          "leveldb iterator reported an error: %s",
+                          db_iter_->status().ToString().c_str());
 }
 
 void LevelDbTransaction::Iterator::Next() {

@@ -21,9 +21,8 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#include "leveldb/db.h"
-
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "leveldb/db.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 

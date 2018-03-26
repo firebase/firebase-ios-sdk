@@ -120,6 +120,7 @@ static const int kVersion = 42;
   [self setTestDocumentAtPath:"c/1"];
 
   FSTQuery *query = FSTTestQuery("b");
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"DocumentsMatchingQuery"];
   FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray *expected =
       @[ FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO) ];
@@ -127,6 +128,7 @@ static const int kVersion = 42;
   for (FSTDocument *doc in expected) {
     XCTAssertEqualObjects([results objectForKey:doc.key], doc);
   }
+  [self.persistence commitGroup:group];
 }
 
 #pragma mark - Helpers
@@ -144,7 +146,10 @@ static const int kVersion = 42;
 }
 
 - (FSTMaybeDocument *_Nullable)readEntryAtPath:(const absl::string_view)path {
-  return [self.remoteDocumentCache entryForKey:testutil::Key(path)];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ReadEntryAtPath"];
+  FSTMaybeDocument *result = [self.remoteDocumentCache entryForKey:testutil::Key(path)];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (void)removeEntryAtPath:(const absl::string_view)path {

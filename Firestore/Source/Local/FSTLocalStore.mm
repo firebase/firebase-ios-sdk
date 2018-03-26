@@ -172,7 +172,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"OldBatches"];
   NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
+  [self.persistence commitGroup:group];
 
   [self.mutationQueue shutdown];
   [self.garbageCollector removeGarbageSource:self.mutationQueue];
@@ -182,6 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self startMutationQueue];
 
+  group = [self.persistence startGroupWithAction:@"NewBatches"];
   NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
 
   // Recreate our LocalDocumentsView using the new MutationQueue.
@@ -199,7 +202,9 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Return the set of all (potentially) changed documents as the result of the user change.
-  return [self.localDocuments documentsForKeys:changedKeys];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:changedKeys];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
@@ -208,10 +213,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
                                                                     mutations:mutations
                                                                         group:group];
-  [self.persistence commitGroup:group];
-
   FSTDocumentKeySet *keys = [batch keys];
   FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
+  [self.persistence commitGroup:group];
   return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:changedDocuments];
 }
 
@@ -237,10 +241,11 @@ NS_ASSUME_NONNULL_BEGIN
     [remoteDocuments applyToWriteGroup:group];
   }
 
-  [self.persistence commitGroup:group];
   [self.mutationQueue performConsistencyCheck];
 
-  return [self.localDocuments documentsForKeys:affected];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:affected];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID {
@@ -254,10 +259,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTDocumentKeySet *affected = [self removeMutationBatch:toReject group:group];
 
-  [self.persistence commitGroup:group];
   [self.mutationQueue performConsistencyCheck];
 
-  return [self.localDocuments documentsForKeys:affected];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:affected];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (nullable NSData *)lastStreamToken {
@@ -362,15 +368,15 @@ NS_ASSUME_NONNULL_BEGIN
 
   [remoteDocuments applyToWriteGroup:group];
 
-  [self.persistence commitGroup:group];
-
   // Union the two key sets.
   __block FSTDocumentKeySet *keysToRecalc = changedDocKeys;
   [releasedWriteKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
     keysToRecalc = [keysToRecalc setByAddingObject:key];
   }];
 
-  return [self.localDocuments documentsForKeys:keysToRecalc];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:keysToRecalc];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
@@ -387,11 +393,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
-  return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"nextMutationBatchAfterBatchID"];
+  FSTMutationBatch *result = [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return [self.localDocuments documentForKey:key];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ReadDocument"];
+  FSTMaybeDocument *result = [self.localDocuments documentForKey:key];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
@@ -447,7 +459,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)executeQuery:(FSTQuery *)query {
-  return [self.localDocuments documentsMatchingQuery:query];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ExecuteQuery"];
+  FSTDocumentDictionary *result = [self.localDocuments documentsMatchingQuery:query];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {

@@ -211,7 +211,7 @@ using leveldb::WriteOptions;
 #pragma mark - Persistence Factory methods
 
 - (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
-  return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:_ptr serializer:self.serializer];
+  return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:self serializer:self.serializer];
 }
 
 - (id<FSTQueryCache>)queryCache {
@@ -219,7 +219,7 @@ using leveldb::WriteOptions;
 }
 
 - (id<FSTRemoteDocumentCache>)remoteDocumentCache {
-  return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:_ptr serializer:self.serializer];
+  return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
 }
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
