@@ -17,9 +17,9 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FIRSetOptions;
-@class FSTDocumentKey;
 @class FSTObjectValue;
 @class FSTFieldMask;
 @class FSTFieldValue;
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Converts the parsed document data into 1 or 2 mutations (depending on whether there are any
  * field transforms) using the specified document key and precondition.
  */
-- (NSArray<FSTMutation *> *)mutationsWithKey:(FSTDocumentKey *)key
+- (NSArray<FSTMutation *> *)mutationsWithKey:(const firebase::firestore::model::DocumentKey &)key
                                 precondition:(FSTPrecondition *)precondition;
 
 @end
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Converts the parsed update data into 1 or 2 mutations (depending on whether there are any
  * field transforms) using the specified document key and precondition.
  */
-- (NSArray<FSTMutation *> *)mutationsWithKey:(FSTDocumentKey *)key
+- (NSArray<FSTMutation *> *)mutationsWithKey:(const firebase::firestore::model::DocumentKey &)key
                                 precondition:(FSTPrecondition *)precondition;
 
 @end
@@ -81,17 +81,18 @@ NS_ASSUME_NONNULL_BEGIN
  * This is necessary because keys assume a database from context (usually the current one).
  * FSTDocumentKeyReference binds a key to a specific databaseID.
  *
- * TODO(b/64160088): Make FSTDocumentKey aware of the specific databaseID it is tied to.
+ * TODO(b/64160088): Make DocumentKey aware of the specific databaseID it is tied to.
  */
 @interface FSTDocumentKeyReference : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                  databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
     NS_DESIGNATED_INITIALIZER;
 
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
+- (const firebase::firestore::model::DocumentKey &)key;
+
 // Does not own the DatabaseId instance.
 @property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
 

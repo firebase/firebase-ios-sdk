@@ -18,10 +18,13 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -98,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addChange:(FSTDocumentViewChange *)change {
-  FSTDocumentKey *key = change.document.key;
+  const DocumentKey &key = change.document.key;
   FSTDocumentViewChange *oldChange = [self.changeMap objectForKey:key];
   if (!oldChange) {
     self.changeMap = [self.changeMap dictionaryBySettingObject:change forKey:key];

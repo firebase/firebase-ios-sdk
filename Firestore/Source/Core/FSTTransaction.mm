@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Core/FSTTransaction.h"
 
+#include <map>
 #include <vector>
 
 #import <GRPCClient/GRPCCall.h>
@@ -25,7 +26,6 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
@@ -42,8 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTTransaction ()
 @property(nonatomic, strong, readonly) FSTDatastore *datastore;
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTDocumentKey *, FSTSnapshotVersion *> *readVersions;
 @property(nonatomic, strong, readonly) NSMutableArray *mutations;
 @property(nonatomic, assign) BOOL commitCalled;
 /**
@@ -53,7 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) NSError *lastWriteError;
 @end
 
-@implementation FSTTransaction
+@implementation FSTTransaction {
+  std::map<DocumentKey, FSTSnapshotVersion *> _readVersions;
+}
 
 + (instancetype)transactionWithDatastore:(FSTDatastore *)datastore {
   return [[FSTTransaction alloc] initWithDatastore:datastore];
@@ -63,7 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _datastore = datastore;
-    _readVersions = [NSMutableDictionary dictionary];
     _mutations = [NSMutableArray array];
     _commitCalled = NO;
   }
@@ -85,8 +84,10 @@ NS_ASSUME_NONNULL_BEGIN
     // when writing.
     docVersion = [FSTSnapshotVersion noVersion];
   }
-  FSTSnapshotVersion *existingVersion = self.readVersions[(FSTDocumentKey *)doc.key];
-  if (existingVersion) {
+  if (_readVersions.find(doc.key) == _readVersions.end()) {
+    _readVersions[doc.key] = docVersion;
+    return YES;
+  } else {
     if (error) {
       *error =
           [NSError errorWithDomain:FIRFirestoreErrorDomain
@@ -97,9 +98,6 @@ NS_ASSUME_NONNULL_BEGIN
                           }];
     }
     return NO;
-  } else {
-    self.readVersions[(FSTDocumentKey *)doc.key] = docVersion;
-    return YES;
   }
 }
 
@@ -138,12 +136,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns version of this doc when it was read in this transaction as a precondition, or no
  * precondition if it was not read.
  */
-- (FSTPrecondition *)preconditionForDocumentKey:(FSTDocumentKey *)key {
-  FSTSnapshotVersion *_Nullable snapshotVersion = self.readVersions[key];
-  if (snapshotVersion) {
-    return [FSTPrecondition preconditionWithUpdateTime:snapshotVersion];
-  } else {
+- (FSTPrecondition *)preconditionForDocumentKey:(const DocumentKey &)key {
+  const auto iter = _readVersions.find(key);
+  if (iter == _readVersions.end()) {
     return [FSTPrecondition none];
+  } else {
+    return [FSTPrecondition preconditionWithUpdateTime:iter->second];
   }
 }
 
@@ -151,10 +149,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the precondition for a document if the operation is an update, based on the provided
  * UpdateOptions. Will return nil if an error occurred, in which case it sets the error parameter.
  */
-- (nullable FSTPrecondition *)preconditionForUpdateWithDocumentKey:(FSTDocumentKey *)key
+- (nullable FSTPrecondition *)preconditionForUpdateWithDocumentKey:(const DocumentKey &)key
                                                              error:(NSError **)error {
-  FSTSnapshotVersion *_Nullable version = self.readVersions[key];
-  if (version && [version isEqual:[FSTSnapshotVersion noVersion]]) {
+  const auto iter = _readVersions.find(key);
+  if (iter == _readVersions.end()) {
+    // Document was not read, so we just use the preconditions for an update.
+    return [FSTPrecondition preconditionWithExists:YES];
+  }
+
+  FSTSnapshotVersion *version = iter->second;
+  if ([version isEqual:[FSTSnapshotVersion noVersion]]) {
     // The document was read, but doesn't exist.
     // Return an error because the precondition is impossible
     if (error) {
@@ -166,21 +170,18 @@ NS_ASSUME_NONNULL_BEGIN
                  }];
     }
     return nil;
-  } else if (version) {
+  } else {
     // Document exists, just base precondition on document update time.
     return [FSTPrecondition preconditionWithUpdateTime:version];
-  } else {
-    // Document was not read, so we just use the preconditions for an update.
-    return [FSTPrecondition preconditionWithExists:YES];
   }
 }
 
-- (void)setData:(FSTParsedSetData *)data forDocument:(FSTDocumentKey *)key {
+- (void)setData:(FSTParsedSetData *)data forDocument:(const DocumentKey &)key {
   [self writeMutations:[data mutationsWithKey:key
                                  precondition:[self preconditionForDocumentKey:key]]];
 }
 
-- (void)updateData:(FSTParsedUpdateData *)data forDocument:(FSTDocumentKey *)key {
+- (void)updateData:(FSTParsedUpdateData *)data forDocument:(const DocumentKey &)key {
   NSError *error = nil;
   FSTPrecondition *_Nullable precondition =
       [self preconditionForUpdateWithDocumentKey:key error:&error];
@@ -192,13 +193,13 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)deleteDocument:(FSTDocumentKey *)key {
+- (void)deleteDocument:(const DocumentKey &)key {
   [self writeMutations:@[ [[FSTDeleteMutation alloc]
                             initWithKey:key
                            precondition:[self preconditionForDocumentKey:key]] ]];
   // Since the delete will be applied before all following writes, we need to ensure that the
   // precondition for the next write will be exists: false.
-  self.readVersions[key] = [FSTSnapshotVersion noVersion];
+  _readVersions[key] = [FSTSnapshotVersion noVersion];
 }
 
 - (void)commitWithCompletion:(FSTVoidErrorBlock)completion {
@@ -213,11 +214,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Make a list of read documents that haven't been written.
-  __block FSTDocumentKeySet *unwritten = [FSTDocumentKeySet keySet];
-  [self.readVersions enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key,
-                                                         FSTSnapshotVersion *version, BOOL *stop) {
-    unwritten = [unwritten setByAddingObject:key];
-  }];
+  FSTDocumentKeySet *unwritten = [FSTDocumentKeySet keySet];
+  for (const auto &kv : _readVersions) {
+    unwritten = [unwritten setByAddingObject:kv.first];
+  };
   // For each mutation, note that the doc was written.
   for (FSTMutation *mutation in self.mutations) {
     unwritten = [unwritten setByRemovingObject:mutation.key];

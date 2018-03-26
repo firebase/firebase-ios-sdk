@@ -20,7 +20,6 @@
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 

@@ -31,17 +31,18 @@
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
 
@@ -468,8 +469,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
              "a valid document ID, but it was an empty string.");
       }
       ResourcePath path = self.query.path.Append([documentKey UTF8String]);
-      fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithPath:path]
-                                          databaseID:self.firestore.databaseID];
+      fieldValue =
+          [FSTReferenceValue referenceValue:DocumentKey{path} databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {
       FIRDocumentReference *ref = (FIRDocumentReference *)value;
       fieldValue = [FSTReferenceValue referenceValue:ref.key databaseID:self.firestore.databaseID];
@@ -615,8 +616,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. Document ID '%@' contains a slash.", documentID);
       }
-      FSTDocumentKey *key =
-          [FSTDocumentKey keyWithPath:self.query.path.Append([documentID UTF8String])];
+      const DocumentKey key{self.query.path.Append([documentID UTF8String])};
       [components
           addObject:[FSTReferenceValue referenceValue:key databaseID:self.firestore.databaseID]];
     } else {

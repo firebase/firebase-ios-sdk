@@ -21,15 +21,16 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
 
@@ -613,7 +614,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingFilter:(id<FSTFilter>)filter {
-  FSTAssert(![FSTDocumentKey isDocumentKey:_path], @"No filtering allowed for document query");
+  FSTAssert(!DocumentKey::IsDocumentKey(_path), @"No filtering allowed for document query");
 
   const FieldPath *newInequalityField = nullptr;
   if ([filter isKindOfClass:[FSTRelationFilter class]] &&
@@ -634,7 +635,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
-  FSTAssert(![FSTDocumentKey isDocumentKey:_path], @"No ordering is allowed for a document query.");
+  FSTAssert(!DocumentKey::IsDocumentKey(_path), @"No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
   return [[FSTQuery alloc] initWithPath:self.path
@@ -673,7 +674,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (BOOL)isDocumentQuery {
-  return [FSTDocumentKey isDocumentKey:_path] && self.filters.count == 0;
+  return DocumentKey::IsDocumentKey(_path) && self.filters.count == 0;
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
@@ -768,7 +769,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 /* Returns YES if the document matches the path for the receiver. */
 - (BOOL)pathMatchesDocument:(FSTDocument *)document {
   const ResourcePath &documentPath = document.key.path();
-  if ([FSTDocumentKey isDocumentKey:_path]) {
+  if (DocumentKey::IsDocumentKey(_path)) {
     // Exact match for document queries.
     return self.path == documentPath;
   } else {

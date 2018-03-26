@@ -24,7 +24,6 @@
 
 @class FIRSetOptions;
 @class FSTDatastore;
-@class FSTDocumentKey;
 @class FSTFieldMask;
 @class FSTFieldTransform;
 @class FSTMaybeDocument;
@@ -53,18 +52,20 @@ NS_ASSUME_NONNULL_BEGIN
  * Stores mutation for the given key and set data, to be committed when commitWithCompletion is
  * called.
  */
-- (void)setData:(FSTParsedSetData *)data forDocument:(FSTDocumentKey *)key;
+- (void)setData:(FSTParsedSetData *)data
+    forDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Stores mutations for the given key and update data, to be committed when commitWithCompletion
  * is called.
  */
-- (void)updateData:(FSTParsedUpdateData *)data forDocument:(FSTDocumentKey *)key;
+- (void)updateData:(FSTParsedUpdateData *)data
+       forDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Stores a delete mutation for the given key, to be committed when commitWithCompletion is called.
  */
-- (void)deleteDocument:(FSTDocumentKey *)key;
+- (void)deleteDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Attempts to commit the mutations set on this transaction. Calls the given completion block when

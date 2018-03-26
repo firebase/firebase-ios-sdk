@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 
-@class FSTDocumentKey;
 @class FSTDispatchQueue;
 @class FSTMutation;
 @class FSTMutationResult;
