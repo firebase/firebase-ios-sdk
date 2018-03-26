@@ -123,7 +123,12 @@ struct FSTTransactionRunner {
   /**
    * The following two functions handle accepting callables and optionally running them within a
    * transaction. Persistence layers that conform to the FSTTransactional protocol can set
-   * themselves as the backing persistence for a transaction runner.
+   * themselves as the backing persistence for a transaction runner, in which case a transaction
+   * will be started before a block is run, and committed after the block has executed. If there is
+   * no backing instance of FSTTransactional, the block will be run directly.
+   *
+   * There are two instances of operator() to handle the case where the block returns void, rather
+   * than a type.
    *
    * The transaction runner keeps a weak reference to the backing persistence so as not to cause a
    * retain cycle. The reference is upgraded to strong (with a fatal error if it has disappeared)
