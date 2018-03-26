@@ -17,6 +17,7 @@ cc_library(
   SOURCES
     array_sorted_map.h
     llrb_node.h
+    llrb_node_iterator.h
     map_entry.h
     sorted_map.h
     sorted_map_base.h

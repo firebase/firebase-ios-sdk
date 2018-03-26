@@ -221,6 +221,31 @@ TEST(TreeSortedMap, InsertIsImmutable) {
   EXPECT_TRUE(original.root().right().empty());
 }
 
+TEST(TreeSortedMap, BeginEndOne) {
+  IntMap map = ToMap<IntMap>(Sequence(1));
+  auto begin = map.begin();
+  auto end = map.end();
+
+  ASSERT_NE(begin, end);
+  ASSERT_EQ(0, begin->first);
+
+  ++begin;
+  ASSERT_EQ(begin, end);
+}
+
+TEST(TreeSortedMap, Iterates) {
+  std::vector<int> to_insert = Sequence(50);
+  IntMap map = ToMap<IntMap>(to_insert);
+  auto iter = map.begin();
+  auto end = map.end();
+
+  std::vector<int> actual;
+  for (; iter != end; ++iter) {
+    actual.push_back(iter->first);
+  }
+  ASSERT_EQ(to_insert, actual);
+}
+
 }  // namespace impl
 }  // namespace immutable
 }  // namespace firestore
