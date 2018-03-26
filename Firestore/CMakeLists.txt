@@ -64,8 +64,5 @@ include_directories(${FIREBASE_INSTALL_DIR})
 # Fully qualified imports, project wide
 include_directories(${FIREBASE_SOURCE_DIR})
 
-# Include nanopb generated sources
-include_directories(${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb)
-
 add_subdirectory(core)
 add_subdirectory(Protos)
