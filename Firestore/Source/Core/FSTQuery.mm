@@ -767,7 +767,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 /* Returns YES if the document matches the path for the receiver. */
 - (BOOL)pathMatchesDocument:(FSTDocument *)document {
-  const ResourcePath &documentPath = document.key.path;
+  const ResourcePath &documentPath = document.key.path();
   if ([FSTDocumentKey isDocumentKey:_path]) {
     // Exact match for document queries.
     return self.path == documentPath;

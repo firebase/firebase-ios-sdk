@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2017 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TYPES_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TYPES_H_
+// Note: This file is forked from FIRMessagingInstanceIDProxy.h
 
-#include <stdint.h>
+#import <Foundation/Foundation.h>
 
-namespace firebase {
-namespace firestore {
-namespace core {
-
-typedef int32_t TargetId;
-
-}  // namespace core
-}  // namespace firestore
-}  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TYPES_H_
+/**
+ *  FirebaseFunctions cannot always depend on FIRInstanceID directly, due to how it is
+ *  packaged. To make it easier to make calls to FIRInstanceID, this proxy class, will provide
+ *  method names duplicated from FIRInstanceID, while using reflection-based called to proxy
+ *  the requests.
+ */
+@interface FUNInstanceIDProxy : NSObject
+- (nullable NSString *)token;
+@end

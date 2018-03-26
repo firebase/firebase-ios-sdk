@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param db The LevelDB in which to create the queue.
  */
 + (instancetype)mutationQueueWithUser:(const firebase::firestore::auth::User &)user
-                                   db:(std::shared_ptr<leveldb::DB>)db
+                                   db:(FSTLevelDB *)db
                            serializer:(FSTLocalSerializer *)serializer;
 
 /**

@@ -30,6 +30,7 @@ jobs:
         - bundle install
         - gem install xcpretty
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Functions/Example
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 

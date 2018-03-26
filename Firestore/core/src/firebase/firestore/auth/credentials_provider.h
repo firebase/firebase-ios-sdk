@@ -23,6 +23,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -30,12 +31,7 @@ namespace firestore {
 namespace auth {
 
 // `TokenErrorListener` is a listener that gets a token or an error.
-// token: An auth token as a string, or nullptr if error occurred.
-// error_code: The error code if one occurred, or else FirestoreErrorCode::Ok.
-// error_msg: The error if one occurred, or else nullptr.
-typedef std::function<void(
-    Token token, const int64_t error_code, const absl::string_view error_msg)>
-    TokenListener;
+typedef std::function<void(util::StatusOr<Token>)> TokenListener;
 
 // Listener notified with a User change.
 typedef std::function<void(User user)> UserChangeListener;

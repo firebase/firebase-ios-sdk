@@ -31,9 +31,9 @@
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentChangeBuffer.h"
+#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
@@ -42,9 +42,12 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -169,7 +172,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"OldBatches"];
   NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
+  [self.persistence commitGroup:group];
 
   [self.mutationQueue shutdown];
   [self.garbageCollector removeGarbageSource:self.mutationQueue];
@@ -179,6 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self startMutationQueue];
 
+  group = [self.persistence startGroupWithAction:@"NewBatches"];
   NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
 
   // Recreate our LocalDocumentsView using the new MutationQueue.
@@ -196,7 +202,9 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Return the set of all (potentially) changed documents as the result of the user change.
-  return [self.localDocuments documentsForKeys:changedKeys];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:changedKeys];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
@@ -205,10 +213,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
                                                                     mutations:mutations
                                                                         group:group];
-  [self.persistence commitGroup:group];
-
   FSTDocumentKeySet *keys = [batch keys];
   FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
+  [self.persistence commitGroup:group];
   return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:changedDocuments];
 }
 
@@ -234,10 +241,11 @@ NS_ASSUME_NONNULL_BEGIN
     [remoteDocuments applyToWriteGroup:group];
   }
 
-  [self.persistence commitGroup:group];
   [self.mutationQueue performConsistencyCheck];
 
-  return [self.localDocuments documentsForKeys:affected];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:affected];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID {
@@ -251,10 +259,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTDocumentKeySet *affected = [self removeMutationBatch:toReject group:group];
 
-  [self.persistence commitGroup:group];
   [self.mutationQueue performConsistencyCheck];
 
-  return [self.localDocuments documentsForKeys:affected];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:affected];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (nullable NSData *)lastStreamToken {
@@ -318,28 +327,29 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 
   // TODO(klimt): This could probably be an NSMutableDictionary.
-  __block FSTDocumentKeySet *changedDocKeys = [FSTDocumentKeySet keySet];
-  [remoteEvent.documentUpdates
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
-        changedDocKeys = [changedDocKeys setByAddingObject:key];
-        FSTMaybeDocument *existingDoc = [remoteDocuments entryForKey:key];
-        // Make sure we don't apply an old document version to the remote cache, though we
-        // make an exception for [SnapshotVersion noVersion] which can happen for manufactured
-        // events (e.g. in the case of a limbo document resolution failing).
-        if (!existingDoc || [doc.version isEqual:[FSTSnapshotVersion noVersion]] ||
-            [doc.version compare:existingDoc.version] != NSOrderedAscending) {
-          [remoteDocuments addEntry:doc];
-        } else {
-          FSTLog(
-              @"FSTLocalStore Ignoring outdated watch update for %@. "
-               "Current version: %@  Watch version: %@",
-              key, existingDoc.version, doc.version);
-        }
+  FSTDocumentKeySet *changedDocKeys = [FSTDocumentKeySet keySet];
+  for (const auto &kv : remoteEvent.documentUpdates) {
+    const DocumentKey &key = kv.first;
+    FSTMaybeDocument *doc = kv.second;
+    changedDocKeys = [changedDocKeys setByAddingObject:key];
+    FSTMaybeDocument *existingDoc = [remoteDocuments entryForKey:key];
+    // Make sure we don't apply an old document version to the remote cache, though we
+    // make an exception for [SnapshotVersion noVersion] which can happen for manufactured
+    // events (e.g. in the case of a limbo document resolution failing).
+    if (!existingDoc || [doc.version isEqual:[FSTSnapshotVersion noVersion]] ||
+        [doc.version compare:existingDoc.version] != NSOrderedAscending) {
+      [remoteDocuments addEntry:doc];
+    } else {
+      FSTLog(
+          @"FSTLocalStore Ignoring outdated watch update for %s. "
+           "Current version: %@  Watch version: %@",
+          key.ToString().c_str(), existingDoc.version, doc.version);
+    }
 
-        // The document might be garbage because it was unreferenced by everything.
-        // Make sure to mark it as garbage if it is...
-        [self.garbageCollector addPotentialGarbageKey:key];
-      }];
+    // The document might be garbage because it was unreferenced by everything.
+    // Make sure to mark it as garbage if it is...
+    [self.garbageCollector addPotentialGarbageKey:key];
+  }
 
   // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote events
   // when we get permission denied errors while trying to resolve the state of a locally cached
@@ -358,19 +368,20 @@ NS_ASSUME_NONNULL_BEGIN
 
   [remoteDocuments applyToWriteGroup:group];
 
-  [self.persistence commitGroup:group];
-
   // Union the two key sets.
   __block FSTDocumentKeySet *keysToRecalc = changedDocKeys;
   [releasedWriteKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
     keysToRecalc = [keysToRecalc setByAddingObject:key];
   }];
 
-  return [self.localDocuments documentsForKeys:keysToRecalc];
+  FSTMaybeDocumentDictionary *result = [self.localDocuments documentsForKeys:keysToRecalc];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   FSTReferenceSet *localViewReferences = self.localViewReferences;
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"NotifyLocalViewChanges"];
   for (FSTLocalViewChanges *view in viewChanges) {
     FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
     FSTAssert(queryData, @"Local view changes contain unallocated query.");
@@ -378,17 +389,25 @@ NS_ASSUME_NONNULL_BEGIN
     [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
     [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
   }
+  [self.persistence commitGroup:group];
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
-  return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"nextMutationBatchAfterBatchID"];
+  FSTMutationBatch *result = [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
-- (nullable FSTMaybeDocument *)readDocument:(FSTDocumentKey *)key {
-  return [self.localDocuments documentForKey:key];
+- (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ReadDocument"];
+  FSTMaybeDocument *result = [self.localDocuments documentForKey:key];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Allocate query"];
   FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
   FSTTargetID targetID;
   FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
@@ -397,18 +416,14 @@ NS_ASSUME_NONNULL_BEGIN
     // TODO(mcg): freshen last accessed date?
     targetID = cached.targetID;
   } else {
-    FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Allocate query"];
-
     targetID = _targetIDGenerator.NextId();
     cached = [[FSTQueryData alloc] initWithQuery:query
                                         targetID:targetID
                             listenSequenceNumber:sequenceNumber
                                          purpose:FSTQueryPurposeListen];
     [self.queryCache addQueryData:cached group:group];
-
-    [self.persistence commitGroup:group];
   }
-
+  [self.persistence commitGroup:group];
   // Sanity check to ensure that even when resuming a query it's not currently active.
   FSTBoxedTargetID *boxedTargetID = @(targetID);
   FSTAssert(!self.targetIDs[boxedTargetID], @"Tried to allocate an already allocated query: %@",
@@ -444,24 +459,30 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)executeQuery:(FSTQuery *)query {
-  return [self.localDocuments documentsMatchingQuery:query];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ExecuteQuery"];
+  FSTDocumentDictionary *result = [self.localDocuments documentsMatchingQuery:query];
+  [self.persistence commitGroup:group];
+  return result;
 }
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
-  return [self.queryCache matchingKeysForTargetID:targetID];
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoteDocumentKeysForTarget"];
+  FSTDocumentKeySet *keySet = [self.queryCache matchingKeysForTargetID:targetID];
+  [self.persistence commitGroup:group];
+  return keySet;
 }
 
 - (void)collectGarbage {
+  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Garbage Collection"];
   // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
   // accumulate the garbage keys.
-  NSSet<FSTDocumentKey *> *garbage = [self.garbageCollector collectGarbage];
-  if (garbage.count > 0) {
-    FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Garbage Collection"];
-    for (FSTDocumentKey *key in garbage) {
+  std::set<DocumentKey> garbage = [self.garbageCollector collectGarbage];
+  if (garbage.size() > 0) {
+    for (const DocumentKey &key : garbage) {
       [self.remoteDocumentCache removeEntryForKey:key group:group];
     }
-    [self.persistence commitGroup:group];
   }
+  [self.persistence commitGroup:group];
 }
 
 /**
@@ -524,7 +545,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   for (FSTMutationBatch *batch in batches) {
     for (FSTMutation *mutation in batch.mutations) {
-      FSTDocumentKey *key = mutation.key;
+      const DocumentKey &key = mutation.key;
       affectedDocs = [affectedDocs setByAddingObject:key];
     }
   }

@@ -46,7 +46,7 @@ class Token {
 
   /** The actual raw token. */
   const std::string& token() const {
-    FIREBASE_ASSERT(is_valid_);
+    FIREBASE_ASSERT(user_.is_authenticated());
     return token_;
   }
 
@@ -59,25 +59,17 @@ class Token {
   }
 
   /**
-   * Whether the token is a valid one.
+   * Returns a token for an unauthenticated user.
    *
-   * ## Portability notes: Invalid token is the equivalent of nil in the iOS
-   * token implementation. We use value instead of pointer for Token instance in
-   * the C++ migration.
+   * ## Portability notes: An unauthenticated token is the equivalent of
+   * nil/null in the iOS/TypeScript token implementation. We use a reference
+   * instead of a pointer for Token instances in the C++ migration.
    */
-  bool is_valid() const {
-    return is_valid_;
-  }
-
-  /** Returns an invalid token. */
-  static const Token& Invalid();
+  static const Token& Unauthenticated();
 
  private:
-  Token();
-
   const std::string token_;
   const User user_;
-  const bool is_valid_;
 };
 
 }  // namespace auth

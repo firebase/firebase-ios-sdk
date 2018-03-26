@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -25,14 +26,13 @@ namespace auth {
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
   credentials_provider.GetToken(
-      /*force_refresh=*/true, [](Token token, const int64_t error_code,
-                                 const absl::string_view error_msg) {
-        EXPECT_FALSE(token.is_valid());
+      /*force_refresh=*/true, [](util::StatusOr<Token> result) {
+        EXPECT_TRUE(result.ok());
+        const Token& token = result.ValueOrDie();
+        EXPECT_ANY_THROW(token.token());
         const User& user = token.user();
         EXPECT_EQ("", user.uid());
         EXPECT_FALSE(user.is_authenticated());
-        EXPECT_EQ(FirestoreErrorCode::Ok, error_code);
-        EXPECT_EQ("", error_msg);
       });
 }
 

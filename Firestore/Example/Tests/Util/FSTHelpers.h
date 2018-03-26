@@ -192,13 +192,13 @@ typedef int64_t FSTTestSnapshotVersion;
 FSTSnapshotVersion *FSTTestVersion(FSTTestSnapshotVersion version);
 
 /** A convenience method for creating docs for tests. */
-FSTDocument *FSTTestDoc(NSString *path,
+FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
                         BOOL hasMutations);
 
 /** A convenience method for creating deleted docs for tests. */
-FSTDeletedDocument *FSTTestDeletedDoc(NSString *path, FSTTestSnapshotVersion version);
+FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path, FSTTestSnapshotVersion version);
 
 /**
  * A convenience method for creating a document reference from a path string.

@@ -25,7 +25,8 @@ NS_SWIFT_NAME(FirebaseOptions)
 @interface FIROptions : NSObject <NSCopying>
 
 /**
- * Returns the default options.
+ * Returns the default options. The first time this is called it synchronously reads
+ * GoogleService-Info.plist from disk.
  */
 + (nullable FIROptions *)defaultOptions NS_SWIFT_NAME(defaultOptions());
 
@@ -109,7 +110,8 @@ NS_SWIFT_NAME(FirebaseOptions)
         "setters instead.");
 
 /**
- * Initializes a customized instance of FIROptions from the file at the given plist file path.
+ * Initializes a customized instance of FIROptions from the file at the given plist file path. This
+ * will read the file synchronously from disk.
  * For example,
  * NSString *filePath =
  *     [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];

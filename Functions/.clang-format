@@ -1,0 +1,7 @@
+BasedOnStyle: Google
+ColumnLimit: 100
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: true
+ObjCSpaceBeforeProtocolList: false
+SpacesInContainerLiterals: true
+PointerAlignment: Right

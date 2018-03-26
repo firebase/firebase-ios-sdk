@@ -43,10 +43,12 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -298,7 +300,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
                                  FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
     FSTDocumentKey *limboKey = self.limboKeysByTarget[targetID];
     if (limboKey && targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
-        remoteEvent.documentUpdates[limboKey] == nil) {
+        remoteEvent.documentUpdates.find(limboKey) == remoteEvent.documentUpdates.end()) {
       // When listening to a query the server responds with a snapshot containing documents
       // matching the query and a current marker telling us we're now in sync. It's possible for
       // these to arrive as separate remote events or as a single remote event. For a document
@@ -361,11 +363,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         [NSMutableDictionary dictionary];
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:[FSTSnapshotVersion noVersion]];
-    NSMutableDictionary<FSTDocumentKey *, FSTMaybeDocument *> *docUpdate =
-        [NSMutableDictionary dictionaryWithObject:doc forKey:limboKey];
     FSTRemoteEvent *event = [FSTRemoteEvent eventWithSnapshotVersion:[FSTSnapshotVersion noVersion]
                                                        targetChanges:targetChanges
-                                                     documentUpdates:docUpdate];
+                                                     documentUpdates:{{limboKey, doc}}];
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[targetID];
@@ -509,9 +509,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 /** Garbage collect the limbo documents that we no longer need to track. */
 - (void)garbageCollectLimboDocuments {
-  NSSet<FSTDocumentKey *> *garbage = [self.limboCollector collectGarbage];
-  for (FSTDocumentKey *key in garbage) {
-    FSTBoxedTargetID *limboTarget = self.limboTargetsByKey[key];
+  const std::set<DocumentKey> garbage = [self.limboCollector collectGarbage];
+  for (const DocumentKey &key : garbage) {
+    FSTBoxedTargetID *limboTarget = self.limboTargetsByKey[static_cast<FSTDocumentKey *>(key)];
     if (!limboTarget) {
       // This target already got removed, because the query failed.
       return;

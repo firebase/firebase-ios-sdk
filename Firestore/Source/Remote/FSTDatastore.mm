@@ -16,6 +16,9 @@
 
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
+#include <memory>
+#include <vector>
+
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
 
@@ -24,7 +27,6 @@
 #import "Firestore/Source/API/FIRFirestoreVersion.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -38,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -46,6 +49,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -245,17 +249,21 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   [self invokeRPCWithFactory:rpcFactory errorHandler:completion];
 }
 
-- (void)lookupDocuments:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocuments:(const std::vector<DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion {
   GCFSBatchGetDocumentsRequest *request = [GCFSBatchGetDocumentsRequest message];
   request.database = [self.serializer encodedDatabaseID];
-  for (FSTDocumentKey *key in keys) {
+  for (const DocumentKey &key : keys) {
     [request.documentsArray addObject:[self.serializer encodedDocumentKey:key]];
   }
 
-  __block FSTMaybeDocumentDictionary *results =
-      [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+  struct Closure {
+    std::vector<DocumentKey> keys;
+    FSTMaybeDocumentDictionary *results;
+  };
 
+  __block std::shared_ptr<Closure> closure = std::make_shared<Closure>(
+      Closure{keys, [FSTMaybeDocumentDictionary maybeDocumentDictionary]});
   RPCFactory rpcFactory = ^GRPCProtoCall * {
     __block GRPCProtoCall *rpc = [self.service
         RPCToBatchGetDocumentsWithRequest:request
@@ -275,16 +283,19 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    // Streaming response, accumulate result
                                    FSTMaybeDocument *doc =
                                        [self.serializer decodedMaybeDocumentFromBatch:response];
-                                   results = [results dictionaryBySettingObject:doc forKey:doc.key];
+                                   closure->results =
+                                       [closure->results dictionaryBySettingObject:doc
+                                                                            forKey:doc.key];
                                  } else {
                                    // Streaming response is done, call completion
                                    FSTLog(@"RPC BatchGetDocuments completed successfully.");
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    FSTAssert(!response, @"Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =
-                                       [NSMutableArray arrayWithCapacity:keys.count];
-                                   for (FSTDocumentKey *key in keys) {
-                                     [docs addObject:results[key]];
+                                       [NSMutableArray arrayWithCapacity:closure->keys.size()];
+                                   for (const DocumentKey &key : closure->keys) {
+                                     [docs addObject:closure->results[static_cast<FSTDocumentKey *>(
+                                                         key)]];
                                    }
                                    completion(docs, nil);
                                  }
@@ -305,20 +316,18 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
   _credentials->GetToken(
-      /*force_refresh=*/false,
-      [self, rpcFactory, errorHandler](Token result, const int64_t error_code,
-                                       const absl::string_view error_msg) {
-        NSError *error = util::WrapNSError(error_code, error_msg);
+      /*force_refresh=*/false, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          if (error) {
-            errorHandler(error);
+          if (!result.ok()) {
+            errorHandler(util::MakeNSError(result.status()));
           } else {
             GRPCProtoCall *rpc = rpcFactory();
+            const Token &token = result.ValueOrDie();
             [FSTDatastore
                 prepareHeadersForRPC:rpc
                           databaseID:&self.databaseInfo->database_id()
-                               token:(result.user().is_authenticated() ? result.token()
-                                                                       : absl::string_view())];
+                               token:(token.user().is_authenticated() ? token.token()
+                                                                      : absl::string_view())];
             [rpc start];
           }
         }];
