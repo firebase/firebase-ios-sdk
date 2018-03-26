@@ -17,11 +17,11 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
 
+#include <stdint.h>
+#include <time.h>
 #if !defined(_STLPORT_VERSION)
 #include <chrono>
 #endif  // !defined(_STLPORT_VERSION)
-#include <stdint.h>
-#include <time.h>
 #include <limits>
 #include <string>
 
