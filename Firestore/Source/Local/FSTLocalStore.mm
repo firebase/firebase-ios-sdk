@@ -301,13 +301,13 @@ NS_ASSUME_NONNULL_BEGIN
       // First make sure that all references are deleted.
       if ([mapping isKindOfClass:[FSTResetMapping class]]) {
         FSTResetMapping *reset = (FSTResetMapping *)mapping;
-        [queryCache removeMatchingKeysForTargetID:targetID group:group];
-        [queryCache addMatchingKeys:reset.documents forTargetID:targetID group:group];
+        [queryCache removeMatchingKeysForTargetID:targetID];
+        [queryCache addMatchingKeys:reset.documents forTargetID:targetID];
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-        [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID group:group];
-        [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID group:group];
+        [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID];
+        [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID];
 
       } else {
         FSTFail(@"Unknown mapping type: %@", mapping);
@@ -320,7 +320,7 @@ NS_ASSUME_NONNULL_BEGIN
       queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
                                                      resumeToken:resumeToken];
       self.targetIDs[targetIDNumber] = queryData;
-      [self.queryCache updateQueryData:queryData group:group];
+      [self.queryCache updateQueryData:queryData];
     }
   }];
 
@@ -358,7 +358,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTAssert([remoteVersion compare:lastRemoteVersion] != NSOrderedAscending,
               @"Watch stream reverted to previous snapshot?? (%@ < %@)", remoteVersion,
               lastRemoteVersion);
-    [self.queryCache setLastRemoteSnapshotVersion:remoteVersion group:group];
+    [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
   }
 
   FSTDocumentKeySet *releasedWriteKeys =
@@ -419,7 +419,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         targetID:targetID
                             listenSequenceNumber:sequenceNumber
                                          purpose:FSTQueryPurposeListen];
-    [self.queryCache addQueryData:cached group:group];
+    [self.queryCache addQueryData:cached];
   }
   [self.persistence commitGroup:group];
   // Sanity check to ensure that even when resuming a query it's not currently active.
@@ -438,7 +438,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self.localViewReferences removeReferencesForID:queryData.targetID];
   if (self.garbageCollector.isEager) {
-    [self.queryCache removeQueryData:queryData group:group];
+    [self.queryCache removeQueryData:queryData];
   }
   [self.targetIDs removeObjectForKey:@(queryData.targetID)];
 
