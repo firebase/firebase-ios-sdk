@@ -18,6 +18,7 @@
 
 #include <leveldb/db.h>
 
+#include "absl/memory/memory.h"
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
@@ -81,6 +82,7 @@ using leveldb::WriteOptions;
     _writeGroupTracker = [FSTWriteGroupTracker tracker];
     _serializer = serializer;
     _transactionRunner._db = self;
+    _transactionRunner._expect_db = true;
   }
   return self;
 }
@@ -230,7 +232,7 @@ using leveldb::WriteOptions;
 
 - (void)startTransaction {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
+  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get());
 }
 
 - (void)commitTransaction {
@@ -241,7 +243,7 @@ using leveldb::WriteOptions;
 
 - (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = std::make_unique<LevelDbTransaction>(_ptr.get());
+  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get());
   return [self.writeGroupTracker startGroupWithAction:action transaction:_transaction.get()];
 }
 

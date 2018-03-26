@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#import "Firestore/Source/Util/FSTAssert.h"
 
 @class FSTWriteGroup;
 @protocol FSTMutationQueue;
@@ -120,19 +121,40 @@ struct FSTTransactionRunner {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
   template <typename F>
-  auto operator() (F block) const -> decltype(block()) {
+  auto operator() (F block) -> typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
+    __strong id<FSTTransactional> strongDb = _db;
+    if (!strongDb && _expect_db) {
+      FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
+    }
+    if (strongDb) {
+      [strongDb startTransaction];
+    }
+    block();
+    if (strongDb) {
+      [strongDb commitTransaction];
+    }
+  }
+
+
+  template <typename F>
+  auto operator() (F block) const -> typename std::enable_if<!std::is_void<decltype(block())>::value, decltype(block())>::type {
     using ReturnT = decltype(block());
-    if (_db) {
-      [_db startTransaction];
+    __strong id<FSTTransactional> strongDb = _db;
+    if (!strongDb && _expect_db) {
+      FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
+    }
+    if (strongDb) {
+      [strongDb startTransaction];
     }
     ReturnT result = block();
-    if (_db) {
-      [_db commitTransaction];
+    if (strongDb) {
+      [strongDb commitTransaction];
     }
     return result;
   }
 #pragma clang diagnostic pop
   __weak id<FSTTransactional> _db;
+  bool _expect_db = false;
 };
 
 NS_ASSUME_NONNULL_END
