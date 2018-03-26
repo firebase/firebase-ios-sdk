@@ -647,8 +647,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)internalSignInWithEmail:(nonnull NSString *)email
                            link:(nonnull NSString *)link
                        callback:(nullable FIRAuthResultCallback)callback {
-  NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
-  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(urlComponents.query);
+  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
   NSString *actionCode = queryItems[@"oobCode"];
 
   FIREmailLinkSignInRequest *request =
@@ -1147,11 +1146,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (link.length == 0) {
     return NO;
   }
-  NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
-  if (!urlComponents.query) {
-    return NO;
-  }
-  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(urlComponents.query);
+  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
 
   NSString *actionCode = queryItems[@"oobCode"];
   NSString *mode = queryItems[@"mode"];
@@ -1169,6 +1164,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString) {
   NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  if (!linkURL) {
+    return @{};
+  }
   NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
   NSMutableDictionary<NSString *, NSString *> *queryItems =
       [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
