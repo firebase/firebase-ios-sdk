@@ -150,23 +150,9 @@ TEST(ArraySortedMap, ChecksSize) {
   ASSERT_ANY_THROW(map.insert(next, next));
 }
 
-TEST(ArraySortedMap, Empty) {
-  IntMap map = IntMap().insert(10, 10).erase(10);
-  EXPECT_TRUE(map.empty());
-  EXPECT_EQ(0u, map.size());
-  EXPECT_TRUE(NotFound(map, 1));
-  EXPECT_TRUE(NotFound(map, 10));
-}
-
 TEST(ArraySortedMap, EmptyGet) {
   IntMap map;
   EXPECT_TRUE(NotFound(map, 10));
-}
-
-TEST(ArraySortedMap, EmptySize) {
-  IntMap map;
-  EXPECT_TRUE(map.empty());
-  EXPECT_EQ(0u, map.size());
 }
 
 TEST(ArraySortedMap, EmptyRemoval) {
