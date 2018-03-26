@@ -119,6 +119,17 @@ struct FSTTransactionRunner {
 // to annotate non-pointer types with a nullability annotation.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
+
+  /**
+   * The following two functions handle accepting callables and optionally running them within a
+   * transaction. Persistence layers that conform to the FSTTransactional protocol can set
+   * themselves as the backing persistence for a transaction runner.
+   *
+   * The transaction runner keeps a weak reference to the backing persistence so as not to cause a
+   * retain cycle. The reference is upgraded to strong (with a fatal error if it has disappeared)
+   * for the duration of running a transaction.
+   */
+
   template <typename F>
   auto operator()(F block) ->
       typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
@@ -153,6 +164,12 @@ struct FSTTransactionRunner {
     return result;
   }
 #pragma clang diagnostic pop
+  void SetBackingPersistence(id<FSTTransactional> db) {
+    _db = db;
+    _expect_db = true;
+  }
+
+ private:
   __weak id<FSTTransactional> _db;
   bool _expect_db = false;
 };

@@ -81,8 +81,7 @@ using leveldb::WriteOptions;
     _directory = [directory copy];
     _writeGroupTracker = [FSTWriteGroupTracker tracker];
     _serializer = serializer;
-    _transactionRunner._db = self;
-    _transactionRunner._expect_db = true;
+    _transactionRunner.SetBackingPersistence(self);
   }
   return self;
 }
