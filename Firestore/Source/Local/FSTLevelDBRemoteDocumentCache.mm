@@ -61,14 +61,14 @@ using leveldb::Status;
 - (void)shutdown {
 }
 
-- (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
+- (void)addEntry:(FSTMaybeDocument *)document group:(__unused FSTWriteGroup *)group {
   std::string key = [self remoteDocumentKey:document.key];
-  [group setMessage:[self.serializer encodedMaybeDocument:document] forKey:key];
+  _db.currentTransaction->Put(key, [self.serializer encodedMaybeDocument:document]);
 }
 
-- (void)removeEntryForKey:(const DocumentKey &)documentKey group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)documentKey group:(__unused FSTWriteGroup *)group {
   std::string key = [self remoteDocumentKey:documentKey];
-  [group removeMessageForKey:key];
+  _db.currentTransaction->Delete(key);
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
