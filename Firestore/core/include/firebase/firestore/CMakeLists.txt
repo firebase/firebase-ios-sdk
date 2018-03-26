@@ -12,18 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Public headers
-add_library(firebase_firestore_public_types INTERFACE)
-target_include_directories(
-  firebase_firestore_public_types
-  INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:include>
-)
 # Hack to make the headers show up in IDEs
 # (see https://stackoverflow.com/questions/27039019/ and open issue on CMake
 # issue tracker: https://gitlab.kitware.com/cmake/cmake/issues/15234)
-add_custom_target(firebase_firestore_public_types_ide SOURCES
+add_custom_target(firebase_firestore_types_ide SOURCES
     document_reference.h
     event_listener.h
     firestore.h
