@@ -84,7 +84,7 @@ Timestamp Timestamp::FromTimePoint(
 #endif  // !defined(_STLPORT_VERSION)
 
 std::string Timestamp::ToString() const {
-  return std::string{"Timestamp(seconds="} + std::to_string(seconds_) +
+  return std::string("Timestamp(seconds=") + std::to_string(seconds_) +
          ", nanoseconds=" + std::to_string(nanoseconds_) + ")";
 }
 
