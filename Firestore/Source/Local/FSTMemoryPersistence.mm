@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.started = NO;
 }
 
-- (const FSTTransactionRunner&)run {
+- (const FSTTransactionRunner &)run {
   return _transactionRunner;
 }
 

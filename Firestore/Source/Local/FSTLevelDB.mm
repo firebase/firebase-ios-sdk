@@ -18,7 +18,6 @@
 
 #include <leveldb/db.h>
 
-#include "absl/memory/memory.h"
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
@@ -29,6 +28,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+#include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -87,7 +87,7 @@ using leveldb::WriteOptions;
   return self;
 }
 
-- (const FSTTransactionRunner&)run {
+- (const FSTTransactionRunner &)run {
   return _transactionRunner;
 }
 

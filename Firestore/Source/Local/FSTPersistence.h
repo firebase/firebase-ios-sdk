@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
 
 @class FSTWriteGroup;
 @protocol FSTMutationQueue;
@@ -101,7 +101,7 @@ struct FSTTransactionRunner;
  */
 - (void)commitGroup:(FSTWriteGroup *)group;
 
-@property (nonatomic, readonly, assign) const FSTTransactionRunner& run;
+@property(nonatomic, readonly, assign) const FSTTransactionRunner &run;
 
 @end
 
@@ -114,14 +114,14 @@ struct FSTTransactionRunner;
 @end
 
 struct FSTTransactionRunner {
-
 // Intentionally disable nullability checking for this function. We cannot properly annotate
 // the function because this function can handle both pointer and non-pointer types. It is an error
 // to annotate non-pointer types with a nullability annotation.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
   template <typename F>
-  auto operator() (F block) -> typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
+  auto operator()(F block) ->
+      typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
       FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
@@ -135,9 +135,9 @@ struct FSTTransactionRunner {
     }
   }
 
-
   template <typename F>
-  auto operator() (F block) const -> typename std::enable_if<!std::is_void<decltype(block())>::value, decltype(block())>::type {
+  auto operator()(F block) const ->
+      typename std::enable_if<!std::is_void<decltype(block())>::value, decltype(block())>::type {
     using ReturnT = decltype(block());
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
