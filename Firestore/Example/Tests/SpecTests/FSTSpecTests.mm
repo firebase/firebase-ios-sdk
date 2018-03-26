@@ -578,7 +578,7 @@ static NSString *const kNoIOSTag = @"no-ios";
               @"Expected doc to be in limbo, but was not: %@", expectedLimboDoc);
     actualLimboDocs.erase(expectedLimboDoc);
   }
-  XCTAssertTrue(actualLimboDocs.size() == 0,
+  XCTAssertTrue(actualLimboDocs.empty(),
                 "%lu Unexpected docs in limbo, the first one is <%s, %d>", actualLimboDocs.size(),
                 actualLimboDocs.begin()->first.ToString().c_str(), actualLimboDocs.begin()->second);
 }
