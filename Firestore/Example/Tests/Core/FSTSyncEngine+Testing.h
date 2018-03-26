@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTSyncEngine (Testing)
 
 /** Returns the current set of limbo document keys and their associated target IDs. */
-- (const std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId> &)
+- (std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId>)
     currentLimboDocuments;
 
 @end

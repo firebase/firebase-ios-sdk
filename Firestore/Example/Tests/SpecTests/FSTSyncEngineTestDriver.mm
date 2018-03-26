@@ -353,7 +353,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (const std::map<DocumentKey, TargetId> &)currentLimboDocuments {
+- (std::map<DocumentKey, TargetId>)currentLimboDocuments {
   return [self.syncEngine currentLimboDocuments];
 }
 

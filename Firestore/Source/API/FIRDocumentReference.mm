@@ -115,27 +115,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToReference:(nullable FIRDocumentReference *)reference {
   if (self == reference) return YES;
   if (reference == nil) return NO;
-  return [self.firestore isEqual:reference.firestore] && _key == reference->_key;
+  return [self.firestore isEqual:reference.firestore] && self.key == reference.key;
 }
 
 - (NSUInteger)hash {
   NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + std::hash<std::string>{}(_key.ToString());
+  hash = hash * 31u + self.key.Hash();
   return hash;
 }
 
 #pragma mark - Public Methods
 
 - (NSString *)documentID {
-  return util::WrapNSString(_key.path().last_segment());
+  return util::WrapNSString(self.key.path().last_segment());
 }
 
 - (FIRCollectionReference *)parent {
-  return [FIRCollectionReference referenceWithPath:_key.path().PopLast() firestore:self.firestore];
+  return
+      [FIRCollectionReference referenceWithPath:self.key.path().PopLast() firestore:self.firestore];
 }
 
 - (NSString *)path {
-  return util::WrapNSString(_key.path().CanonicalString());
+  return util::WrapNSString(self.key.path().CanonicalString());
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
@@ -143,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
   const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(collectionPath));
-  const ResourcePath path = _key.path().Append(subPath);
+  const ResourcePath path = self.key.path().Append(subPath);
   return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
 }
 
@@ -167,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  ? [self.firestore.dataConverter parsedMergeData:documentData]
                                  : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:_key precondition:[FSTPrecondition none]]
+      writeMutations:[parsed mutationsWithKey:self.key precondition:[FSTPrecondition none]]
           completion:completion];
 }
 
@@ -179,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
         completion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:_key
+      writeMutations:[parsed mutationsWithKey:self.key
                                  precondition:[FSTPrecondition preconditionWithExists:YES]]
           completion:completion];
 }
@@ -190,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTDeleteMutation *mutation =
-      [[FSTDeleteMutation alloc] initWithKey:_key precondition:[FSTPrecondition none]];
+      [[FSTDeleteMutation alloc] initWithKey:self.key precondition:[FSTPrecondition none]];
   return [self.firestore.client writeMutations:@[ mutation ] completion:completion];
 }
 
@@ -256,8 +257,8 @@ NS_ASSUME_NONNULL_BEGIN
 addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                               listener:(FIRDocumentSnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
-  FSTQuery *query = [FSTQuery queryWithPath:_key.path()];
-  const DocumentKey key = _key;
+  FSTQuery *query = [FSTQuery queryWithPath:self.key.path()];
+  const DocumentKey key = self.key;
 
   FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {
     if (error) {

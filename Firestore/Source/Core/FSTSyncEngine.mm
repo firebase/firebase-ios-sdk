@@ -296,9 +296,12 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
                                  FSTBoxedTargetID *_Nonnull targetID,
                                  FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
     const auto iter = _limboKeysByTarget.find([targetID intValue]);
-    if (iter != _limboKeysByTarget.end() &&
-        targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
-        remoteEvent.documentUpdates.find(iter->second) == remoteEvent.documentUpdates.end()) {
+    if (iter == _limboKeysByTarget.end()) {
+      return;
+    }
+    const DocumentKey &limboKey = iter->second;
+    if (targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
+        remoteEvent.documentUpdates.find(limboKey) == remoteEvent.documentUpdates.end()) {
       // When listening to a query the server responds with a snapshot containing documents
       // matching the query and a current marker telling us we're now in sync. It's possible for
       // these to arrive as separate remote events or as a single remote event. For a document
@@ -318,7 +321,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
       // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
       // explicit delete message and we could remove this special logic.
       [remoteEvent
-          addDocumentUpdate:[FSTDeletedDocument documentWithKey:iter->second
+          addDocumentUpdate:[FSTDeletedDocument documentWithKey:limboKey
                                                         version:remoteEvent.snapshotVersion]];
     }
   }];
@@ -523,7 +526,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 }
 
 // Used for testing
-- (const std::map<DocumentKey, TargetId> &)currentLimboDocuments {
+- (std::map<DocumentKey, TargetId>)currentLimboDocuments {
+  // Return defensive copy
   return _limboTargetsByKey;
 }
 

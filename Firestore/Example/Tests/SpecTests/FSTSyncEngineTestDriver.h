@@ -245,7 +245,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (NSArray<FSTQueryEvent *> *)capturedEventsSinceLastCall;
 
 /** The current set of documents in limbo. */
-- (const std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId> &)
+- (std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId>)
     currentLimboDocuments;
 
 /**

@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
                          document:(nullable FSTDocument *)document
                         fromCache:(BOOL)fromCache NS_DESIGNATED_INITIALIZER;
 
+- (const DocumentKey &)internalKey;
+
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
 @property(nonatomic, strong, readonly, nullable) FSTDocument *internalDocument;
 @property(nonatomic, assign, readonly) BOOL fromCache;
@@ -85,6 +87,10 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (const DocumentKey &)internalKey {
+  return _internalKey;
+}
+
 // NSObject Methods
 - (BOOL)isEqual:(nullable id)other {
   if (other == self) return YES;
@@ -98,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self == snapshot) return YES;
   if (snapshot == nil) return NO;
 
-  return [self.firestore isEqual:snapshot.firestore] && _internalKey == snapshot->_internalKey &&
+  return [self.firestore isEqual:snapshot.firestore] && self.internalKey == snapshot.internalKey &&
          (self.internalDocument == snapshot.internalDocument ||
           [self.internalDocument isEqual:snapshot.internalDocument]) &&
          self.fromCache == snapshot.fromCache;
@@ -106,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)hash {
   NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + std::hash<std::string>{}(_internalKey.ToString());
+  hash = hash * 31u + self.internalKey.Hash();
   hash = hash * 31u + [self.internalDocument hash];
   hash = hash * 31u + (self.fromCache ? 1 : 0);
   return hash;
@@ -119,11 +125,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *)reference {
-  return [FIRDocumentReference referenceWithKey:_internalKey firestore:self.firestore];
+  return [FIRDocumentReference referenceWithKey:self.internalKey firestore:self.firestore];
 }
 
 - (NSString *)documentID {
-  return util::WrapNSString(_internalKey.path().last_segment());
+  return util::WrapNSString(self.internalKey.path().last_segment());
 }
 
 - (FIRSnapshotMetadata *)metadata {

@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (parentPath.empty()) {
     return nil;
   } else {
-    const DocumentKey key{parentPath};
+    DocumentKey key{parentPath};
     return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
   }
 }

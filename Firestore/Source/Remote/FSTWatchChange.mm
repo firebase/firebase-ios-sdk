@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)hash {
   NSUInteger hash = self.updatedTargetIDs.hash;
   hash = hash * 31 + self.removedTargetIDs.hash;
-  hash = hash * 31 + std::hash<std::string>{}(self.documentKey.ToString());
+  hash = hash * 31 + self.documentKey.Hash();
   hash = hash * 31 + self.document.hash;
   return hash;
 }
