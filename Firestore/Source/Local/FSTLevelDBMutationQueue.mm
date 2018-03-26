@@ -28,7 +28,6 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -104,7 +103,7 @@ using leveldb::WriteOptions;
   return self;
 }
 
-- (void)startWithGroup:(__unused FSTWriteGroup *)group {
+- (void)start {
   FSTBatchID nextBatchID = [FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr];
 
   // On restart, nextBatchId may end up lower than lastAcknowledgedBatchId since it's computed from
@@ -218,8 +217,7 @@ using leveldb::WriteOptions;
 }
 
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch
-             streamToken:(nullable NSData *)streamToken
-                   group:(__unused FSTWriteGroup *)group {
+             streamToken:(nullable NSData *)streamToken {
   FSTBatchID batchID = batch.batchID;
   FSTAssert(batchID > self.highestAcknowledgedBatchID,
             @"Mutation batchIDs must be acknowledged in order");
@@ -235,7 +233,7 @@ using leveldb::WriteOptions;
   return self.metadata.lastStreamToken;
 }
 
-- (void)setLastStreamToken:(nullable NSData *)streamToken group:(__unused FSTWriteGroup *)group {
+- (void)setLastStreamToken:(nullable NSData *)streamToken {
   FSTPBMutationQueue *metadata = self.metadata;
   metadata.lastStreamToken = streamToken;
 
@@ -260,8 +258,7 @@ using leveldb::WriteOptions;
 }
 
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
-                                          mutations:(NSArray<FSTMutation *> *)mutations
-                                              group:(__unused FSTWriteGroup *)group {
+                                          mutations:(NSArray<FSTMutation *> *)mutations {
   FSTBatchID batchID = self.nextBatchID;
   self.nextBatchID += 1;
 
@@ -492,7 +489,7 @@ using leveldb::WriteOptions;
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches group:(__unused FSTWriteGroup *)group {
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   NSString *userID = self.userID;
   id<FSTGarbageCollector> garbageCollector = self.garbageCollector;
 

@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startMutationQueue {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
-  [self.mutationQueue startWithGroup:group];
+  [self.mutationQueue start];
 
   // If we have any leftover mutation batch results from a prior run, just drop them.
   // TODO(http://b/33446471): We probably need to repopulate heldBatchResults or similar instead,
@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (batches.count > 0) {
       // NOTE: This could be more efficient if we had a removeBatchesThroughBatchID, but this set
       // should be very small and this code should go away eventually.
-      [self.mutationQueue removeMutationBatches:batches group:group];
+      [self.mutationQueue removeMutationBatches:batches];
     }
   }
   [self.persistence commitGroup:group];
@@ -211,8 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Locally write mutations"];
   FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
   FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
-                                                                    mutations:mutations
-                                                                        group:group];
+                                                                    mutations:mutations];
   FSTDocumentKeySet *keys = [batch keys];
   FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
   [self.persistence commitGroup:group];
@@ -224,8 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
   id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
   [mutationQueue acknowledgeBatch:batchResult.batch
-                      streamToken:batchResult.streamToken
-                            group:group];
+                      streamToken:batchResult.streamToken];
 
   FSTDocumentKeySet *affected;
   if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {
@@ -273,7 +271,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setLastStreamToken:(nullable NSData *)streamToken {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Set stream token"];
 
-  [self.mutationQueue setLastStreamToken:streamToken group:group];
+  [self.mutationQueue setLastStreamToken:streamToken];
   [self.persistence commitGroup:group];
 }
 
@@ -550,7 +548,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  [self.mutationQueue removeMutationBatches:batches group:group];
+  [self.mutationQueue removeMutationBatches:batches];
 
   return affectedDocs;
 }
