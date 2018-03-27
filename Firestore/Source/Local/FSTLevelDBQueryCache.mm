@@ -283,24 +283,28 @@ using leveldb::Status;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
-            forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
 
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
-    self->_db.currentTransaction->Put([FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey], emptyBuffer);
-    self->_db.currentTransaction->Put([FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID], emptyBuffer);
+    self->_db.currentTransaction->Put(
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey],
+        emptyBuffer);
+    self->_db.currentTransaction->Put(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
+        emptyBuffer);
   }];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
-               forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    self->_db.currentTransaction->Delete([FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
-    self->_db.currentTransaction->Delete([FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
+    self->_db.currentTransaction->Delete(
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
+    self->_db.currentTransaction->Delete(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
     [self.garbageCollector addPotentialGarbageKey:key];
   }];
 }
@@ -322,8 +326,8 @@ using leveldb::Status;
 
     // Delete both index rows
     _db.currentTransaction->Delete(indexKey);
-    _db.currentTransaction->Delete([FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey
-                                                                          targetID:targetID]);
+    _db.currentTransaction->Delete(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]);
     [self.garbageCollector addPotentialGarbageKey:documentKey];
   }
 }

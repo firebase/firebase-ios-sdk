@@ -216,8 +216,7 @@ using leveldb::WriteOptions;
   return self.metadata.lastAcknowledgedBatchId;
 }
 
-- (void)acknowledgeBatch:(FSTMutationBatch *)batch
-             streamToken:(nullable NSData *)streamToken {
+- (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   FSTBatchID batchID = batch.batchID;
   FSTAssert(batchID > self.highestAcknowledgedBatchID,
             @"Mutation batchIDs must be acknowledged in order");

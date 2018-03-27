@@ -118,8 +118,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return _highestAcknowledgedBatchID;
 }
 
-- (void)acknowledgeBatch:(FSTMutationBatch *)batch
-             streamToken:(nullable NSData *)streamToken {
+- (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
   FSTBatchID batchID = batch.batchID;

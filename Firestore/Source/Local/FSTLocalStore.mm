@@ -210,8 +210,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Locally write mutations"];
   FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-  FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
-                                                                    mutations:mutations];
+  FSTMutationBatch *batch =
+      [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime mutations:mutations];
   FSTDocumentKeySet *keys = [batch keys];
   FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
   [self.persistence commitGroup:group];
@@ -222,8 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Acknowledge batch"];
   id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
-  [mutationQueue acknowledgeBatch:batchResult.batch
-                      streamToken:batchResult.streamToken];
+  [mutationQueue acknowledgeBatch:batchResult.batch streamToken:batchResult.streamToken];
 
   FSTDocumentKeySet *affected;
   if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {

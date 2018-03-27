@@ -162,9 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(newBatch.batchID, batch1.batchID);
 
   // Restart the queue with one unacknowledged batch in it.
-  self.persistence.run([&]() {
-    [self.mutationQueue start];
-  });
+  self.persistence.run([&]() { [self.mutationQueue start]; });
 
   XCTAssertEqual([self.mutationQueue nextBatchID], newBatch.batchID + 1);
 
@@ -486,18 +484,15 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *streamToken1 = [@"token1" dataUsingEncoding:NSUTF8StringEncoding];
   NSData *streamToken2 = [@"token2" dataUsingEncoding:NSUTF8StringEncoding];
 
-  self.persistence.run([&]() {
-    [self.mutationQueue setLastStreamToken:streamToken1];
-  });
+  self.persistence.run([&]() { [self.mutationQueue setLastStreamToken:streamToken1]; });
 
   FSTMutationBatch *batch1 = [self addMutationBatch];
   [self addMutationBatch];
 
   XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken1);
 
-  self.persistence.run([&]() {
-    [self.mutationQueue acknowledgeBatch:batch1 streamToken:streamToken2];
-  });
+  self.persistence.run(
+      [&]() { [self.mutationQueue acknowledgeBatch:batch1 streamToken:streamToken2]; });
 
   XCTAssertEqual(self.mutationQueue.highestAcknowledgedBatchID, batch1.batchID);
   XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken2);
@@ -544,9 +539,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 // TODO(gsoltis): delete this helper, just run it in a transaction directly
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch {
-  self.persistence.run([&]() {
-    [self.mutationQueue acknowledgeBatch:batch streamToken:nil];
-  });
+  self.persistence.run([&]() { [self.mutationQueue acknowledgeBatch:batch streamToken:nil]; });
 }
 
 /**
@@ -554,9 +547,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 // TODO(gsoltis): delete this helper, just run it in a transaction directly
 - (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
-  self.persistence.run([&]() {
-    [self.mutationQueue removeMutationBatches:batches];
-  });
+  self.persistence.run([&]() { [self.mutationQueue removeMutationBatches:batches]; });
 }
 
 /** Returns the number of mutation batches in the mutation queue. */

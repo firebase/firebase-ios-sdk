@@ -424,15 +424,13 @@ NS_ASSUME_NONNULL_BEGIN
                                  resumeToken:resumeToken];
 }
 
-- (void)addMatchingKey:(const DocumentKey &)key
-           forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
   [self.queryCache addMatchingKeys:keys forTargetID:targetID];
 }
 
-- (void)removeMatchingKey:(const DocumentKey &)key
-              forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
   [self.queryCache removeMatchingKeys:keys forTargetID:targetID];

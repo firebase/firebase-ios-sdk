@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryQueryCache {
   /** The last received snapshot version. */
-  //FSTSnapshotVersion *_lastRemoteSnapshotVersion;
+  // FSTSnapshotVersion *_lastRemoteSnapshotVersion;
 }
 
 - (instancetype)init {
@@ -119,13 +119,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Reference tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
-            forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
-               forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
 }
 

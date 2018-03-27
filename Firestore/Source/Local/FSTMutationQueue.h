@@ -64,8 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTBatchID)highestAcknowledgedBatchID;
 
 /** Acknowledges the given batch. */
-- (void)acknowledgeBatch:(FSTMutationBatch *)batch
-             streamToken:(nullable NSData *)streamToken;
+- (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken;
 
 /** Returns the current stream token for this mutation queue. */
 - (nullable NSData *)lastStreamToken;
