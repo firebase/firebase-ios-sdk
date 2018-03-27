@@ -148,13 +148,8 @@ using leveldb::Status;
 - (void)saveQueryData:(FSTQueryData *)queryData {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
-  //[group setMessage:[self.serializer encodedQueryData:queryData] forKey:key];
   _db.currentTransaction->Put(key, [self.serializer encodedQueryData:queryData]);
 }
-
-/*- (void)saveMetadataInGroup:(FSTWriteGroup *)group {
-  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
-}*/
 
 - (BOOL)updateMetadataForQueryData:(FSTQueryData *)queryData {
   BOOL updatedMetadata = NO;
