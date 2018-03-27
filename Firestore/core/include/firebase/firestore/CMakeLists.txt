@@ -12,18 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_test(
-  firebase_firestore_model_test
-  SOURCES
-    database_id_test.cc
-    document_key_test.cc
-    document_test.cc
-    field_path_test.cc
-    field_value_test.cc
-    maybe_document_test.cc
-    no_document_test.cc
-    resource_path_test.cc
-    snapshot_version_test.cc
-  DEPENDS
-    firebase_firestore_model
+# Hack to make the headers show up in IDEs
+# (see https://stackoverflow.com/questions/27039019/ and open issue on CMake
+# issue tracker: https://gitlab.kitware.com/cmake/cmake/issues/15234)
+add_custom_target(firebase_firestore_types_ide SOURCES
+    document_reference.h
+    event_listener.h
+    firestore.h
+    firestore_errors.h
+    geo_point.h
+    timestamp.h
 )

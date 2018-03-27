@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_types_test
   SOURCES
     geo_point_test.cc
+    timestamp_test.cc
   DEPENDS
     firebase_firestore_types
 )

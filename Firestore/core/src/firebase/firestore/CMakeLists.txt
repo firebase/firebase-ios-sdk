@@ -17,6 +17,14 @@ cc_library(
   firebase_firestore_types
   SOURCES
     geo_point.cc
+    timestamp.cc
   DEPENDS
     firebase_firestore_util
+)
+
+# Include the folder with public headers.
+target_include_directories(
+  firebase_firestore_types
+  PUBLIC
+  ${PROJECT_SOURCE_DIR}/core/include
 )
