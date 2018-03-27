@@ -47,6 +47,19 @@ struct ReferenceValue {
   const DatabaseId* database_id;
 };
 
+// TODO(rsgowman): Expand this to roughly match the java class
+// c.g.f.f.model.value.ObjectValue. Probably move it to a similar namespace as
+// well. (FieldValue itself is also in the value package in java.) Also do the
+// same with the other FooValue values that FieldValue can return.
+class FieldValue;
+struct ObjectValue {
+  // TODO(rsgowman): These will eventually be private. We do want the serializer
+  // to be able to directly access these (possibly implying 'friend' usage, or a
+  // getInternalValue() like java has.)
+  using Map = std::map<std::string, FieldValue>;
+  Map internal_value;
+};
+
 /**
  * tagged-union class representing an immutable data value as stored in
  * Firestore. FieldValue represents all the different kinds of values
@@ -111,9 +124,9 @@ class FieldValue {
     return string_value_;
   }
 
-  const std::map<std::string, FieldValue>& object_value() const {
+  const ObjectValue object_value() const {
     FIREBASE_ASSERT(tag_ == Type::Object);
-    return object_value_;
+    return ObjectValue{object_value_};
   }
 
   /** factory methods. */
@@ -139,8 +152,8 @@ class FieldValue {
   static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<FieldValue>& value);
   static FieldValue ArrayValue(std::vector<FieldValue>&& value);
-  static FieldValue ObjectValue(const std::map<std::string, FieldValue>& value);
-  static FieldValue ObjectValue(std::map<std::string, FieldValue>&& value);
+  static FieldValue ObjectValueFromMap(const ObjectValue::Map& value);
+  static FieldValue ObjectValueFromMap(ObjectValue::Map&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -167,7 +180,7 @@ class FieldValue {
     firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
     std::vector<FieldValue> array_value_;
-    std::map<std::string, FieldValue> object_value_;
+    ObjectValue object_value_;
   };
 };
 
@@ -191,6 +204,31 @@ inline bool operator!=(const FieldValue& lhs, const FieldValue& rhs) {
 }
 
 inline bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(lhs != rhs);
+}
+
+/** Compares against another ObjectValue. */
+inline bool operator<(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return lhs.internal_value < rhs.internal_value;
+}
+
+inline bool operator>(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return rhs < lhs;
+}
+
+inline bool operator>=(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return !(lhs < rhs);
+}
+
+inline bool operator<=(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return !(lhs > rhs);
+}
+
+inline bool operator!=(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return lhs < rhs || lhs > rhs;
+}
+
+inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
   return !(lhs != rhs);
 }
 
