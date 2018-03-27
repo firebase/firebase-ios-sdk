@@ -14,7 +14,7 @@
 
 #import "Private/FIRNetworkConstants.h"
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 NSString *const kFIRNetworkBackgroundSessionConfigIDPrefix =
     @"com.firebase.network.background-upload";
