@@ -47,11 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add a couple initial items to the cache.
   _db.run([&]() {
-    _kInitialADoc = FSTTestDoc("coll/a", 42, @{@"test": @"data"}, NO);
+    _kInitialADoc = FSTTestDoc("coll/a", 42, @{@"test" : @"data"}, NO);
     [_remoteDocumentCache addEntry:_kInitialADoc];
 
     _kInitialBDoc =
-            [FSTDeletedDocument documentWithKey:FSTTestDocKey(@"coll/b") version:FSTTestVersion(314)];
+        [FSTDeletedDocument documentWithKey:FSTTestDocKey(@"coll/b") version:FSTTestVersion(314)];
     [_remoteDocumentCache addEntry:_kInitialBDoc];
   });
 
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReadUnchangedEntry {
   _db.run([&]() {
     XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")],
-            _kInitialADoc);
+                          _kInitialADoc);
   });
 }
 
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
   // B should still be unchanged.
   _db.run([&]() {
     XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/b")],
-            _kInitialBDoc);
+                          _kInitialBDoc);
   });
 }
 
@@ -93,7 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
 
     // Reading directly against the cache should still yield the old result.
-    XCTAssertEqualObjects([_remoteDocumentCache entryForKey:FSTTestDocKey(@"coll/a")], _kInitialADoc);
+    XCTAssertEqualObjects([_remoteDocumentCache entryForKey:FSTTestDocKey(@"coll/a")],
+                          _kInitialADoc);
   });
 
   _db.run([&]() {
@@ -105,9 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testMethodsThrowAfterApply {
-  _db.run([&]() {
-    [_remoteDocumentBuffer apply];
-  });
+  _db.run([&]() { [_remoteDocumentBuffer apply]; });
 
   XCTAssertThrows([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")]);
   XCTAssertThrows([_remoteDocumentBuffer addEntry:_kInitialADoc]);

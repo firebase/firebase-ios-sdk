@@ -72,9 +72,7 @@ std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batc
   self.mutationQueue = [_db mutationQueueForUser:User("user")];
   self.persistence = _db;
 
-  self.persistence.run([&]() {
-    [self.mutationQueue start];
-  });
+  self.persistence.run([&]() { [self.mutationQueue start]; });
 }
 
 - (void)testLoadNextBatchID_zeroWhenTotallyEmpty {

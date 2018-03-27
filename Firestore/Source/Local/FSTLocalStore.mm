@@ -144,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTBatchID highestAck = [self.mutationQueue highestAcknowledgedBatchID];
     if (highestAck != kFSTBatchIDUnknown) {
       NSArray<FSTMutationBatch *> *batches =
-              [self.mutationQueue allMutationBatchesThroughBatchID:highestAck];
+          [self.mutationQueue allMutationBatchesThroughBatchID:highestAck];
       if (batches.count > 0) {
         // NOTE: This could be more efficient if we had a removeBatchesThroughBatchID, but this set
         // should be very small and this code should go away eventually.
@@ -171,9 +171,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
-  NSArray<FSTMutationBatch *> *oldBatches = self.persistence.run([&]() -> NSArray<FSTMutationBatch *> * {
-    return [self.mutationQueue allMutationBatches];
-  });
+  NSArray<FSTMutationBatch *> *oldBatches = self.persistence.run(
+      [&]() -> NSArray<FSTMutationBatch *> * { return [self.mutationQueue allMutationBatches]; });
 
   [self.mutationQueue shutdown];
   [self.garbageCollector removeGarbageSource:self.mutationQueue];
@@ -187,8 +186,9 @@ NS_ASSUME_NONNULL_BEGIN
     NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
-    self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:self.remoteDocumentCache
-                                                               mutationQueue:self.mutationQueue];
+    self.localDocuments =
+        [FSTLocalDocumentsView viewWithRemoteDocumentCache:self.remoteDocumentCache
+                                             mutationQueue:self.mutationQueue];
 
     // Union the old/new changed keys.
     FSTDocumentKeySet *changedKeys = [FSTDocumentKeySet keySet];
@@ -208,8 +208,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
   return self.persistence.run([&]() -> FSTLocalWriteResult * {
     FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-    FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
-                                                                      mutations:mutations];
+    FSTMutationBatch *batch =
+        [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime mutations:mutations];
     FSTDocumentKeySet *keys = [batch keys];
     FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
     return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:changedDocuments];
@@ -220,8 +220,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self.persistence.run([&]() -> FSTMaybeDocumentDictionary * {
     id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
-    [mutationQueue acknowledgeBatch:batchResult.batch
-                        streamToken:batchResult.streamToken];
+    [mutationQueue acknowledgeBatch:batchResult.batch streamToken:batchResult.streamToken];
 
     FSTDocumentKeySet *affected;
     if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {
@@ -229,10 +228,9 @@ NS_ASSUME_NONNULL_BEGIN
       affected = [FSTDocumentKeySet keySet];
     } else {
       FSTRemoteDocumentChangeBuffer *remoteDocuments =
-              [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+          [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
 
-      affected =
-              [self releaseBatchResults:@[ batchResult ] remoteDocuments:remoteDocuments];
+      affected = [self releaseBatchResults:@[ batchResult ] remoteDocuments:remoteDocuments];
 
       [remoteDocuments apply];
     }
@@ -264,9 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setLastStreamToken:(nullable NSData *)streamToken {
-  self.persistence.run([&]() {
-    [self.mutationQueue setLastStreamToken:streamToken];
-  });
+  self.persistence.run([&]() { [self.mutationQueue setLastStreamToken:streamToken]; });
 }
 
 - (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
@@ -278,10 +274,10 @@ NS_ASSUME_NONNULL_BEGIN
     id<FSTQueryCache> queryCache = self.queryCache;
 
     FSTRemoteDocumentChangeBuffer *remoteDocuments =
-            [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+        [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
 
     [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
-            NSNumber *targetIDNumber, FSTTargetChange *change, BOOL *stop) {
+                                   NSNumber *targetIDNumber, FSTTargetChange *change, BOOL *stop) {
       FSTTargetID targetID = targetIDNumber.intValue;
 
       // Do not ref/unref unassigned targetIDs - it may lead to leaks.
@@ -329,13 +325,13 @@ NS_ASSUME_NONNULL_BEGIN
       // make an exception for [SnapshotVersion noVersion] which can happen for manufactured
       // events (e.g. in the case of a limbo document resolution failing).
       if (!existingDoc || [doc.version isEqual:[FSTSnapshotVersion noVersion]] ||
-              [doc.version compare:existingDoc.version] != NSOrderedAscending) {
+          [doc.version compare:existingDoc.version] != NSOrderedAscending) {
         [remoteDocuments addEntry:doc];
       } else {
         FSTLog(
-                @"FSTLocalStore Ignoring outdated watch update for %s. "
-                        "Current version: %@  Watch version: %@",
-                key.ToString().c_str(), existingDoc.version, doc.version);
+            @"FSTLocalStore Ignoring outdated watch update for %s. "
+             "Current version: %@  Watch version: %@",
+            key.ToString().c_str(), existingDoc.version, doc.version);
       }
 
       // The document might be garbage because it was unreferenced by everything.
@@ -343,20 +339,20 @@ NS_ASSUME_NONNULL_BEGIN
       [self.garbageCollector addPotentialGarbageKey:key];
     }
 
-    // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote events
-    // when we get permission denied errors while trying to resolve the state of a locally cached
-    // document that is in limbo.
+    // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote
+    // events when we get permission denied errors while trying to resolve the state of a locally
+    // cached document that is in limbo.
     FSTSnapshotVersion *lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
     FSTSnapshotVersion *remoteVersion = remoteEvent.snapshotVersion;
     if (![remoteVersion isEqual:[FSTSnapshotVersion noVersion]]) {
       FSTAssert([remoteVersion compare:lastRemoteVersion] != NSOrderedAscending,
-              @"Watch stream reverted to previous snapshot?? (%@ < %@)", remoteVersion,
-              lastRemoteVersion);
+                @"Watch stream reverted to previous snapshot?? (%@ < %@)", remoteVersion,
+                lastRemoteVersion);
       [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
     }
 
     FSTDocumentKeySet *releasedWriteKeys =
-            [self releaseHeldBatchResultsWithRemoteDocuments:remoteDocuments];
+        [self releaseHeldBatchResultsWithRemoteDocuments:remoteDocuments];
 
     [remoteDocuments apply];
 
@@ -391,7 +387,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run([&]() -> FSTMaybeDocument * _Nullable {
+  return self.persistence.run([&]() -> FSTMaybeDocument *_Nullable {
     return [self.localDocuments documentForKey:key];
   });
 }
@@ -438,7 +434,7 @@ NS_ASSUME_NONNULL_BEGIN
     // release any held batch results.
     if ([self.targetIDs count] == 0) {
       FSTRemoteDocumentChangeBuffer *remoteDocuments =
-              [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
+          [FSTRemoteDocumentChangeBuffer changeBufferWithCache:self.remoteDocumentCache];
 
       [self releaseHeldBatchResultsWithRemoteDocuments:remoteDocuments];
 
@@ -454,9 +450,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
-  return self.persistence.run([&]() -> FSTDocumentKeySet * {
-    return [self.queryCache matchingKeysForTargetID:targetID];
-  });
+  return self.persistence.run(
+      [&]() -> FSTDocumentKeySet * { return [self.queryCache matchingKeysForTargetID:targetID]; });
 }
 
 - (void)collectGarbage {
@@ -479,7 +474,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return the set of keys of docs that were modified by those writes.
  */
 - (FSTDocumentKeySet *)releaseHeldBatchResultsWithRemoteDocuments:
-                                            (FSTRemoteDocumentChangeBuffer *)remoteDocuments {
+    (FSTRemoteDocumentChangeBuffer *)remoteDocuments {
   NSMutableArray<FSTMutationBatchResult *> *toRelease = [NSMutableArray array];
   for (FSTMutationBatchResult *batchResult in self.heldBatchResults) {
     if (![self isRemoteUpToVersion:batchResult.commitVersion]) {

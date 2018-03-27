@@ -126,12 +126,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestAcknowledgedBatchIDNeverExceedsNextBatchID {
   if ([self isTestBaseClass]) return;
 
-  FSTMutationBatch *batch1 = self.persistence.run([&]() -> FSTMutationBatch *{
-    return [self addMutationBatch];
-  });
-  FSTMutationBatch *batch2 = self.persistence.run([&]() -> FSTMutationBatch *{
-    return [self addMutationBatch];
-  });
+  FSTMutationBatch *batch1 =
+      self.persistence.run([&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
+  FSTMutationBatch *batch2 =
+      self.persistence.run([&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
 
   self.persistence.run([&]() {
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
@@ -149,7 +147,6 @@ NS_ASSUME_NONNULL_BEGIN
     self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 
     [self.mutationQueue start];
-
 
     // Verify that on restart with an empty queue, nextBatchID falls to a lower value.
     XCTAssertLessThan(self.mutationQueue.nextBatchID, batch2.batchID);
@@ -240,21 +237,22 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testNextMutationBatchAfterBatchIDSkipsAcknowledgedBatches {
   if ([self isTestBaseClass]) return;
 
-  NSMutableArray<FSTMutationBatch *> *batches = self.persistence.run([&]() -> NSMutableArray<FSTMutationBatch *> * {
-    NSMutableArray<FSTMutationBatch *> *newBatches = [self createBatches:3];
-    XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
-            newBatches[0]);
-    return newBatches;
-  });
+  NSMutableArray<FSTMutationBatch *> *batches =
+      self.persistence.run([&]() -> NSMutableArray<FSTMutationBatch *> * {
+        NSMutableArray<FSTMutationBatch *> *newBatches = [self createBatches:3];
+        XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
+                              newBatches[0]);
+        return newBatches;
+      });
   self.persistence.run([&]() {
 
     [self.mutationQueue acknowledgeBatch:batches[0] streamToken:nil];
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
-            batches[1]);
+                          batches[1]);
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:batches[0].batchID],
-            batches[1]);
+                          batches[1]);
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:batches[1].batchID],
-            batches[2]);
+                          batches[2]);
   });
 }
 
@@ -283,32 +281,32 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run([&]() {
     NSArray<FSTMutation *> *mutations = @[
-            FSTTestSetMutation(@"fob/bar",
-                    @{ @"a" : @1 }),
-            FSTTestSetMutation(@"foo/bar",
-                    @{ @"a" : @1 }),
-            FSTTestPatchMutation("foo/bar",
-                    @{ @"b" : @1 }, {}),
-            FSTTestSetMutation(@"foo/bar/suffix/key",
-                    @{ @"a" : @1 }),
-            FSTTestSetMutation(@"foo/baz",
-                    @{ @"a" : @1 }),
-            FSTTestSetMutation(@"food/bar",
-                    @{ @"a" : @1 })
+      FSTTestSetMutation(@"fob/bar",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"a" : @1 }),
+      FSTTestPatchMutation("foo/bar",
+                           @{ @"b" : @1 }, {}),
+      FSTTestSetMutation(@"foo/bar/suffix/key",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/baz",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"food/bar",
+                         @{ @"a" : @1 })
     ];
 
     // Store all the mutations.
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-              [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
-                                                      mutations:@[ mutation ]];
+          [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                  mutations:@[ mutation ]];
       [batches addObject:batch];
     }
 
     NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2] ];
     NSArray<FSTMutationBatch *> *matches =
-            [self.mutationQueue allMutationBatchesAffectingDocumentKey:testutil::Key("foo/bar")];
+        [self.mutationQueue allMutationBatchesAffectingDocumentKey:testutil::Key("foo/bar")];
 
     XCTAssertEqualObjects(matches, expected);
   });
@@ -319,33 +317,33 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run([&]() {
     NSArray<FSTMutation *> *mutations = @[
-            FSTTestSetMutation(@"fob/bar",
-                    @{@"a": @1}),
-            FSTTestSetMutation(@"foo/bar",
-                    @{@"a": @1}),
-            FSTTestPatchMutation("foo/bar",
-                    @{@"b": @1}, {}),
-            FSTTestSetMutation(@"foo/bar/suffix/key",
-                    @{@"a": @1}),
-            FSTTestSetMutation(@"foo/baz",
-                    @{@"a": @1}),
-            FSTTestSetMutation(@"food/bar",
-                    @{@"a": @1})
+      FSTTestSetMutation(@"fob/bar",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"a" : @1 }),
+      FSTTestPatchMutation("foo/bar",
+                           @{ @"b" : @1 }, {}),
+      FSTTestSetMutation(@"foo/bar/suffix/key",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/baz",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"food/bar",
+                         @{ @"a" : @1 })
     ];
 
     // Store all the mutations.
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-              [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
-                                                      mutations:@[mutation]];
+          [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                  mutations:@[ mutation ]];
       [batches addObject:batch];
     }
 
-    NSArray<FSTMutationBatch *> *expected = @[batches[1], batches[2], batches[4]];
+    NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2], batches[4] ];
     FSTQuery *query = FSTTestQuery("foo");
     NSArray<FSTMutationBatch *> *matches =
-            [self.mutationQueue allMutationBatchesAffectingQuery:query];
+        [self.mutationQueue allMutationBatchesAffectingQuery:query];
 
     XCTAssertEqualObjects(matches, expected);
   });
@@ -415,12 +413,12 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
   self.persistence.run([&]() {
     [batches addObjectsFromArray:@[
-            [self addMutationBatchWithKey:@"foo/bar"],
-            [self addMutationBatchWithKey:@"foo/ba"],
-            [self addMutationBatchWithKey:@"foo/bar2"],
-            [self addMutationBatchWithKey:@"foo/bar"],
-            [self addMutationBatchWithKey:@"foo/bar/suffix/baz"],
-            [self addMutationBatchWithKey:@"bar/baz"],
+      [self addMutationBatchWithKey:@"foo/bar"],
+      [self addMutationBatchWithKey:@"foo/ba"],
+      [self addMutationBatchWithKey:@"foo/bar2"],
+      [self addMutationBatchWithKey:@"foo/bar"],
+      [self addMutationBatchWithKey:@"foo/bar/suffix/baz"],
+      [self addMutationBatchWithKey:@"bar/baz"],
     ]];
 
     [self.mutationQueue removeMutationBatches:@[ batches[0] ]];
@@ -438,7 +436,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue removeMutationBatches:@[ batches[2], batches[3] ]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage,
-            std::set<DocumentKey>({testutil::Key("foo/bar"), testutil::Key("foo/bar2")}));
+                   std::set<DocumentKey>({testutil::Key("foo/bar"), testutil::Key("foo/bar2")}));
 
     [batches addObject:[self addMutationBatchWithKey:@"foo/bar/suffix/baz"]];
     garbage = [garbageCollector collectGarbage];

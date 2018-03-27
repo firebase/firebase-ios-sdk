@@ -51,9 +51,8 @@ static const int kVersion = 42;
 - (void)testReadDocumentNotInCache {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run([&]() {
-    XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]);
-  });
+  self.persistence.run(
+      [&]() { XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]); });
 }
 
 // Helper for next two tests.
@@ -84,7 +83,8 @@ static const int kVersion = 42;
     FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion);
     [self.remoteDocumentCache addEntry:deletedDoc];
 
-    XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)], deletedDoc);
+    XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)],
+                          deletedDoc);
   });
 }
 
@@ -93,7 +93,7 @@ static const int kVersion = 42;
 
   self.persistence.run([&]() {
     [self setTestDocumentAtPath:kDocPath];
-    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data": @2}, NO);
+    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{ @"data" : @2 }, NO);
     [self.remoteDocumentCache addEntry:newDoc];
     XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)], newDoc);
   });
@@ -134,7 +134,7 @@ static const int kVersion = 42;
     FSTQuery *query = FSTTestQuery("b");
     FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
     NSArray *expected =
-            @[FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO)];
+        @[ FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO) ];
     XCTAssertEqual([results count], [expected count]);
     for (FSTDocument *doc in expected) {
       XCTAssertEqualObjects([results objectForKey:doc.key], doc);

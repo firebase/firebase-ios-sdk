@@ -60,9 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReadQueryNotInCache {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
-    XCTAssertNil([self.queryCache queryDataForQuery:_queryRooms]);
-  });
+  self.persistence.run([&]() { XCTAssertNil([self.queryCache queryDataForQuery:_queryRooms]); });
 }
 
 - (void)testSetAndReadAQuery {
@@ -120,11 +118,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run([&]() {
     FSTQueryData *queryData1 =
-            [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
+        [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
     [self.queryCache addQueryData:queryData1];
 
     FSTQueryData *queryData2 =
-            [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:2];
+        [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:2];
     [self.queryCache addQueryData:queryData2];
 
     FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
@@ -277,12 +275,12 @@ NS_ASSUME_NONNULL_BEGIN
     [self addMatchingKey:key2 forTargetID:1];
     [self addMatchingKey:key3 forTargetID:2];
 
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[key1, key2]));
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[key3]);
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
 
     [self addMatchingKey:key1 forTargetID:2];
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[key1, key2]));
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[key1, key3]));
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
   });
 }
 
@@ -388,7 +386,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run([&]() {
     XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion],
-            [FSTSnapshotVersion noVersion]);
+                          [FSTSnapshotVersion noVersion]);
 
     // Can set the snapshot version.
     [self.queryCache setLastRemoteSnapshotVersion:FSTTestVersion(42)];
