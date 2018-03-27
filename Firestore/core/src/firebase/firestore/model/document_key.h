@@ -60,7 +60,7 @@ class DocumentKey {
     return path().CanonicalString();
   }
 
-  uint64_t Hash() const {
+  NSUInteger Hash() const {
     return std::hash<std::string>{}(ToString());
   }
 #endif
