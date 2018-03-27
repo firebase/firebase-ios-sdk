@@ -48,6 +48,7 @@ add_library(
 find_package(LevelDB REQUIRED)
 find_package(GRPC REQUIRED)
 find_package(Nanopb REQUIRED)
+find_package(Protobuf REQUIRED)
 
 if(APPLE)
   find_package(FirebaseCore REQUIRED)
