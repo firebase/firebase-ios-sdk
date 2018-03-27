@@ -38,14 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign) FSTListenSequenceNumber highestListenSequenceNumber;
 
+/** The last received snapshot version. */
 @property(nonatomic, strong) FSTSnapshotVersion *lastRemoteSnapshotVersion;
 
 @end
 
-@implementation FSTMemoryQueryCache {
-  /** The last received snapshot version. */
-  // FSTSnapshotVersion *_lastRemoteSnapshotVersion;
-}
+@implementation FSTMemoryQueryCache
 
 - (instancetype)init {
   if (self = [super init]) {
