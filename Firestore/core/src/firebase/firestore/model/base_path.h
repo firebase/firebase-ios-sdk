@@ -162,9 +162,9 @@ class BasePath {
 #if defined(__OBJC__)
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
-  uint64_t Hash() const {
+  NSUInteger Hash() const {
     std::hash<std::string> hash_fn;
-    uint64_t hash_result = 0;
+    NSUInteger hash_result = 0;
     for (const std::string& segment : segments_) {
       hash_result = hash_result * 31u + hash_fn(segment);
     }

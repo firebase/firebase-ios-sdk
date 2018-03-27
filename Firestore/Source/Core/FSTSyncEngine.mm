@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
+#include <map>
 #include <unordered_map>
 
 #import <GRPCClient/GRPCCall.h>
@@ -33,7 +34,6 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
@@ -49,6 +49,7 @@ using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -128,17 +129,6 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<NSNumber *, FSTQueryView *> *queryViewsByTarget;
 
-/**
- * When a document is in limbo, we create a special listen to resolve it. This maps the
- * FSTDocumentKey of each limbo document to the FSTTargetID of the listen resolving it.
- */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *limboTargetsByKey;
-
-/** The inverse of limboTargetsByKey, a map of FSTTargetID to the key of the limbo doc. */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTBoxedTargetID *, FSTDocumentKey *> *limboKeysByTarget;
-
 /** Used to track any documents that are currently in limbo. */
 @property(nonatomic, strong, readonly) FSTReferenceSet *limboDocumentRefs;
 
@@ -155,6 +145,15 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
 
+  /**
+   * When a document is in limbo, we create a special listen to resolve it. This maps the
+   * DocumentKey of each limbo document to the TargetId of the listen resolving it.
+   */
+  std::map<DocumentKey, TargetId> _limboTargetsByKey;
+
+  /** The inverse of _limboTargetsByKey, a map of TargetId to the key of the limbo doc. */
+  std::map<TargetId, DocumentKey> _limboKeysByTarget;
+
   User _currentUser;
 }
 
@@ -168,8 +167,6 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     _queryViewsByQuery = [NSMutableDictionary dictionary];
     _queryViewsByTarget = [NSMutableDictionary dictionary];
 
-    _limboTargetsByKey = [NSMutableDictionary dictionary];
-    _limboKeysByTarget = [NSMutableDictionary dictionary];
     _limboCollector = [[FSTEagerGarbageCollector alloc] init];
     _limboDocumentRefs = [[FSTReferenceSet alloc] init];
     [_limboCollector addGarbageSource:_limboDocumentRefs];
@@ -298,8 +295,12 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
                                  FSTBoxedTargetID *_Nonnull targetID,
                                  FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
-    FSTDocumentKey *limboKey = self.limboKeysByTarget[targetID];
-    if (limboKey && targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
+    const auto iter = _limboKeysByTarget.find([targetID intValue]);
+    if (iter == _limboKeysByTarget.end()) {
+      return;
+    }
+    const DocumentKey &limboKey = iter->second;
+    if (targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
         remoteEvent.documentUpdates.find(limboKey) == remoteEvent.documentUpdates.end()) {
       // When listening to a query the server responds with a snapshot containing documents
       // matching the query and a current marker telling us we're now in sync. It's possible for
@@ -344,15 +345,16 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [self.delegate handleViewSnapshots:newViewSnapshots];
 }
 
-- (void)rejectListenWithTargetID:(FSTBoxedTargetID *)targetID error:(NSError *)error {
+- (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
   [self assertDelegateExistsForSelector:_cmd];
 
-  FSTDocumentKey *limboKey = self.limboKeysByTarget[targetID];
-  if (limboKey) {
+  const auto iter = _limboKeysByTarget.find(targetID);
+  if (iter != _limboKeysByTarget.end()) {
+    const DocumentKey limboKey = iter->second;
     // Since this query failed, we won't want to manually unlisten to it.
     // So go ahead and remove it from bookkeeping.
-    [self.limboTargetsByKey removeObjectForKey:limboKey];
-    [self.limboKeysByTarget removeObjectForKey:targetID];
+    _limboTargetsByKey.erase(limboKey);
+    _limboKeysByTarget.erase(targetID);
 
     // TODO(dimond): Retry on transient errors?
 
@@ -368,8 +370,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
                                                      documentUpdates:{{limboKey, doc}}];
     [self applyRemoteEvent:event];
   } else {
-    FSTQueryView *queryView = self.queryViewsByTarget[targetID];
-    FSTAssert(queryView, @"Unknown targetId: %@", targetID);
+    FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
+    FSTAssert(queryView, @"Unknown targetId: %d", targetID);
     [self.localStore releaseQuery:queryView.query];
     [self removeAndCleanupQuery:queryView];
     [self.delegate handleError:error forQuery:queryView.query];
@@ -479,7 +481,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         break;
 
       case FSTLimboDocumentChangeTypeRemoved:
-        FSTLog(@"Document no longer in limbo: %@", limboChange.key);
+        FSTLog(@"Document no longer in limbo: %s", limboChange.key.ToString().c_str());
         [self.limboDocumentRefs removeReferenceToKey:limboChange.key forID:targetID];
         break;
 
@@ -491,19 +493,19 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 }
 
 - (void)trackLimboChange:(FSTLimboDocumentChange *)limboChange {
-  FSTDocumentKey *key = limboChange.key;
+  DocumentKey key{limboChange.key};
 
-  if (!self.limboTargetsByKey[key]) {
-    FSTLog(@"New document in limbo: %@", key);
-    FSTTargetID limboTargetID = _targetIdGenerator.NextId();
-    FSTQuery *query = [FSTQuery queryWithPath:key.path];
+  if (_limboTargetsByKey.find(key) == _limboTargetsByKey.end()) {
+    FSTLog(@"New document in limbo: %s", key.ToString().c_str());
+    TargetId limboTargetID = _targetIdGenerator.NextId();
+    FSTQuery *query = [FSTQuery queryWithPath:key.path()];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
                                              listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
-    self.limboKeysByTarget[@(limboTargetID)] = key;
+    _limboKeysByTarget[limboTargetID] = key;
     [self.remoteStore listenToTargetWithQueryData:queryData];
-    self.limboTargetsByKey[key] = @(limboTargetID);
+    _limboTargetsByKey[key] = limboTargetID;
   }
 }
 
@@ -511,22 +513,22 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)garbageCollectLimboDocuments {
   const std::set<DocumentKey> garbage = [self.limboCollector collectGarbage];
   for (const DocumentKey &key : garbage) {
-    FSTBoxedTargetID *limboTarget = self.limboTargetsByKey[static_cast<FSTDocumentKey *>(key)];
-    if (!limboTarget) {
+    const auto iter = _limboTargetsByKey.find(key);
+    if (iter == _limboTargetsByKey.end()) {
       // This target already got removed, because the query failed.
       return;
     }
-    FSTTargetID limboTargetID = limboTarget.intValue;
+    TargetId limboTargetID = iter->second;
     [self.remoteStore stopListeningToTargetID:limboTargetID];
-    [self.limboTargetsByKey removeObjectForKey:key];
-    [self.limboKeysByTarget removeObjectForKey:limboTarget];
+    _limboTargetsByKey.erase(key);
+    _limboKeysByTarget.erase(limboTargetID);
   }
 }
 
 // Used for testing
-- (NSDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *)currentLimboDocuments {
+- (std::map<DocumentKey, TargetId>)currentLimboDocuments {
   // Return defensive copy
-  return [self.limboTargetsByKey copy];
+  return _limboTargetsByKey;
 }
 
 - (void)userDidChange:(const User &)user {

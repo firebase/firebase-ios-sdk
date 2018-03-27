@@ -23,14 +23,15 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuery_Init.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::CreateAutoId;
 
@@ -99,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (parentPath.empty()) {
     return nil;
   } else {
-    FSTDocumentKey *key = [FSTDocumentKey keyWithPath:parentPath];
+    DocumentKey key{parentPath};
     return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
   }
 }
@@ -130,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *)documentWithAutoID {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:self.query.path.Append(CreateAutoId())];
+  const DocumentKey key{self.query.path.Append(CreateAutoId())};
   return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
 }
 

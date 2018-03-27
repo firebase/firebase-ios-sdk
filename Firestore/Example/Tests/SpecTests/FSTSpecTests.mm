@@ -16,6 +16,7 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#include <map>
 #include <utility>
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
@@ -44,10 +45,13 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -561,22 +565,22 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (void)validateLimboDocuments {
   // Make a copy so it can modified while checking against the expected limbo docs.
-  NSMutableDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *actualLimboDocs =
-      [NSMutableDictionary dictionaryWithDictionary:self.driver.currentLimboDocuments];
+  std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.currentLimboDocuments;
 
   // Validate that each limbo doc has an expected active target
-  [actualLimboDocs enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key,
-                                                       FSTBoxedTargetID *targetID, BOOL *stop) {
-    XCTAssertNotNil(self.driver.expectedActiveTargets[targetID],
+  for (const auto &kv : actualLimboDocs) {
+    XCTAssertNotNil(self.driver.expectedActiveTargets[@(kv.second)],
                     @"Found limbo doc without an expected active target");
-  }];
+  }
 
   for (FSTDocumentKey *expectedLimboDoc in self.driver.expectedLimboDocuments) {
-    XCTAssertNotNil(actualLimboDocs[expectedLimboDoc],
-                    @"Expected doc to be in limbo, but was not: %@", expectedLimboDoc);
-    [actualLimboDocs removeObjectForKey:expectedLimboDoc];
+    XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
+              @"Expected doc to be in limbo, but was not: %@", expectedLimboDoc);
+    actualLimboDocs.erase(expectedLimboDoc);
   }
-  XCTAssertTrue(actualLimboDocs.count == 0, "Unexpected docs in limbo: %@", actualLimboDocs);
+  XCTAssertTrue(actualLimboDocs.empty(), "%lu Unexpected docs in limbo, the first one is <%s, %d>",
+                actualLimboDocs.size(), actualLimboDocs.begin()->first.ToString().c_str(),
+                actualLimboDocs.begin()->second);
 }
 
 - (void)validateActiveTargets {

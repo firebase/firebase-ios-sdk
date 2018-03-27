@@ -48,6 +48,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -126,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectListenWithTargetID:(FSTBoxedTargetID *)targetID error:(NSError *)error {
+- (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
   FSTFail(@"Not implemented");
 }
 

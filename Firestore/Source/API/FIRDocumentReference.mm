@@ -16,6 +16,9 @@
 
 #import "FIRDocumentReference.h"
 
+#include <memory>
+#include <utility>
+
 #import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
@@ -30,7 +33,6 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -38,10 +40,12 @@
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -83,35 +87,17 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRDocumentReference
 
 @interface FIRDocumentReference ()
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(DocumentKey)key
                   firestore:(FIRFirestore *)firestore NS_DESIGNATED_INITIALIZER;
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @end
 
-@implementation FIRDocumentReference (Internal)
-
-+ (instancetype)referenceWithPath:(const ResourcePath &)path firestore:(FIRFirestore *)firestore {
-  if (path.size() % 2 != 0) {
-    FSTThrowInvalidArgument(
-        @"Invalid document reference. Document references must have an even "
-         "number of segments, but %s has %zu",
-        path.CanonicalString().c_str(), path.size());
-  }
-  return
-      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:path] firestore:firestore];
+@implementation FIRDocumentReference {
+  DocumentKey _key;
 }
 
-+ (instancetype)referenceWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore {
-  return [[FIRDocumentReference alloc] initWithKey:key firestore:firestore];
-}
-
-@end
-
-@implementation FIRDocumentReference
-
-- (instancetype)initWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore {
+- (instancetype)initWithKey:(DocumentKey)key firestore:(FIRFirestore *)firestore {
   if (self = [super init]) {
-    _key = key;
+    _key = std::move(key);
     _firestore = firestore;
   }
   return self;
@@ -129,28 +115,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToReference:(nullable FIRDocumentReference *)reference {
   if (self == reference) return YES;
   if (reference == nil) return NO;
-  return [self.firestore isEqual:reference.firestore] && [self.key isEqualToKey:reference.key];
+  return [self.firestore isEqual:reference.firestore] && self.key == reference.key;
 }
 
 - (NSUInteger)hash {
   NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + [self.key hash];
+  hash = hash * 31u + self.key.Hash();
   return hash;
 }
 
 #pragma mark - Public Methods
 
 - (NSString *)documentID {
-  return util::WrapNSString(self.key.path.last_segment());
+  return util::WrapNSString(self.key.path().last_segment());
 }
 
 - (FIRCollectionReference *)parent {
   return
-      [FIRCollectionReference referenceWithPath:self.key.path.PopLast() firestore:self.firestore];
+      [FIRCollectionReference referenceWithPath:self.key.path().PopLast() firestore:self.firestore];
 }
 
 - (NSString *)path {
-  return util::WrapNSString(self.key.path.CanonicalString());
+  return util::WrapNSString(self.key.path().CanonicalString());
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
@@ -158,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
   const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(collectionPath));
-  const ResourcePath path = self.key.path.Append(subPath);
+  const ResourcePath path = self.key.path().Append(subPath);
   return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
 }
 
@@ -271,8 +257,8 @@ NS_ASSUME_NONNULL_BEGIN
 addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                               listener:(FIRDocumentSnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
-  FSTQuery *query = [FSTQuery queryWithPath:self.key.path];
-  FSTDocumentKey *key = self.key;
+  FSTQuery *query = [FSTQuery queryWithPath:self.key.path()];
+  const DocumentKey key = self.key;
 
   FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {
     if (error) {
@@ -309,6 +295,30 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
       [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:options.includeMetadataChanges
                                      includeDocumentMetadataChanges:options.includeMetadataChanges
                                               waitForSyncWhenOnline:NO];
+}
+
+@end
+
+#pragma mark - FIRDocumentReference (Internal)
+
+@implementation FIRDocumentReference (Internal)
+
++ (instancetype)referenceWithPath:(const ResourcePath &)path firestore:(FIRFirestore *)firestore {
+  if (path.size() % 2 != 0) {
+    FSTThrowInvalidArgument(
+        @"Invalid document reference. Document references must have an even "
+         "number of segments, but %s has %zu",
+        path.CanonicalString().c_str(), path.size());
+  }
+  return [FIRDocumentReference referenceWithKey:DocumentKey{path} firestore:firestore];
+}
+
++ (instancetype)referenceWithKey:(DocumentKey)key firestore:(FIRFirestore *)firestore {
+  return [[FIRDocumentReference alloc] initWithKey:std::move(key) firestore:firestore];
+}
+
+- (const firebase::firestore::model::DocumentKey &)key {
+  return _key;
 }
 
 @end

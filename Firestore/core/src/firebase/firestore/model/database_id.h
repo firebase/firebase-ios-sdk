@@ -64,7 +64,7 @@ class DatabaseId {
 #if defined(__OBJC__)
   // For objective-c++ hash; to be removed after migration.
   // Do NOT use in C++ code.
-  uint64_t Hash() const {
+  NSUInteger Hash() const {
     std::hash<std::string> hash_fn;
     return hash_fn(project_id_) * 31u + hash_fn(database_id_);
   }

@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
 @class FSTDatastore;
-@class FSTDocumentKey;
 @class FSTLocalStore;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
@@ -59,7 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
  *     will be an indication that the user is no longer authorized to see the data matching the
  *     target.
  */
-- (void)rejectListenWithTargetID:(FSTBoxedTargetID *)targetID error:(NSError *)error;
+- (void)rejectListenWithTargetID:(const firebase::firestore::model::TargetId)targetID
+                           error:(NSError *)error;
 
 /**
  * Applies the result of a successful write of a mutation batch to the sync engine, emitting

@@ -28,19 +28,20 @@
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSetOptions+Internal.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -62,7 +63,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
   return self;
 }
 
-- (NSArray<FSTMutation *> *)mutationsWithKey:(FSTDocumentKey *)key
+- (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
                                 precondition:(FSTPrecondition *)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   if (self.fieldMask) {
@@ -99,7 +100,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
   return self;
 }
 
-- (NSArray<FSTMutation *> *)mutationsWithKey:(FSTDocumentKey *)key
+- (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
                                 precondition:(FSTPrecondition *)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
@@ -312,15 +313,21 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 #pragma mark - FSTDocumentKeyReference
 
-@implementation FSTDocumentKeyReference
+@implementation FSTDocumentKeyReference {
+  DocumentKey _key;
+}
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key databaseID:(const DatabaseId *)databaseID {
+- (instancetype)initWithKey:(DocumentKey)key databaseID:(const DatabaseId *)databaseID {
   self = [super init];
   if (self) {
-    _key = key;
+    _key = std::move(key);
     _databaseID = databaseID;
   }
   return self;
+}
+
+- (const firebase::firestore::model::DocumentKey &)key {
+  return _key;
 }
 
 @end

@@ -59,6 +59,10 @@ class DocumentKey {
   std::string ToString() const {
     return path().CanonicalString();
   }
+
+  NSUInteger Hash() const {
+    return std::hash<std::string>{}(ToString());
+  }
 #endif
 
   /**

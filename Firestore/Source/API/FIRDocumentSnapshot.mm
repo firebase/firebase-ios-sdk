@@ -16,34 +16,38 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#include <utility>
+
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDocumentSnapshot ()
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(BOOL)fromCache NS_DESIGNATED_INITIALIZER;
 
+- (const DocumentKey &)internalKey;
+
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
-@property(nonatomic, strong, readonly) FSTDocumentKey *internalKey;
 @property(nonatomic, strong, readonly, nullable) FSTDocument *internalDocument;
 @property(nonatomic, assign, readonly) BOOL fromCache;
 
@@ -52,11 +56,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentSnapshot (Internal)
 
 + (instancetype)snapshotWithFirestore:(FIRFirestore *)firestore
-                          documentKey:(FSTDocumentKey *)documentKey
+                          documentKey:(DocumentKey)documentKey
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache {
   return [[[self class] alloc] initWithFirestore:firestore
-                                     documentKey:documentKey
+                                     documentKey:std::move(documentKey)
                                         document:document
                                        fromCache:fromCache];
 }
@@ -65,21 +69,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDocumentSnapshot {
   FIRSnapshotMetadata *_cachedMetadata;
+  DocumentKey _internalKey;
 }
 
 @dynamic metadata;
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(BOOL)fromCache {
   if (self = [super init]) {
     _firestore = firestore;
-    _internalKey = documentKey;
+    _internalKey = std::move(documentKey);
     _internalDocument = document;
     _fromCache = fromCache;
   }
   return self;
+}
+
+- (const DocumentKey &)internalKey {
+  return _internalKey;
 }
 
 // NSObject Methods
@@ -95,8 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self == snapshot) return YES;
   if (snapshot == nil) return NO;
 
-  return [self.firestore isEqual:snapshot.firestore] &&
-         [self.internalKey isEqual:snapshot.internalKey] &&
+  return [self.firestore isEqual:snapshot.firestore] && self.internalKey == snapshot.internalKey &&
          (self.internalDocument == snapshot.internalDocument ||
           [self.internalDocument isEqual:snapshot.internalDocument]) &&
          self.fromCache == snapshot.fromCache;
@@ -104,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)hash {
   NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + [self.internalKey hash];
+  hash = hash * 31u + self.internalKey.Hash();
   hash = hash * 31u + [self.internalDocument hash];
   hash = hash * 31u + (self.fromCache ? 1 : 0);
   return hash;
@@ -121,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)documentID {
-  return util::WrapNSString(self.internalKey.path.last_segment());
+  return util::WrapNSString(self.internalKey.path().last_segment());
 }
 
 - (FIRSnapshotMetadata *)metadata {
@@ -221,7 +229,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRQueryDocumentSnapshot ()
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(FSTDocument *)document
                         fromCache:(BOOL)fromCache NS_DESIGNATED_INITIALIZER;
 
@@ -230,11 +238,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQueryDocumentSnapshot
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(FSTDocument *)document
                         fromCache:(BOOL)fromCache {
   self = [super initWithFirestore:firestore
-                      documentKey:documentKey
+                      documentKey:std::move(documentKey)
                          document:document
                         fromCache:fromCache];
   return self;

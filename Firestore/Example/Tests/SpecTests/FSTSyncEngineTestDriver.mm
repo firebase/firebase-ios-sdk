@@ -16,6 +16,7 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
+#include <map>
 #include <unordered_map>
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
@@ -40,12 +41,15 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -349,7 +353,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (NSDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *)currentLimboDocuments {
+- (std::map<DocumentKey, TargetId>)currentLimboDocuments {
   return [self.syncEngine currentLimboDocuments];
 }
 

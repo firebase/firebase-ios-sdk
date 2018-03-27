@@ -465,7 +465,7 @@ static const int kMaxPendingWrites = 10;
   for (FSTBoxedTargetID *targetID in change.targetIDs) {
     if (self.listenTargets[targetID]) {
       [self.listenTargets removeObjectForKey:targetID];
-      [self.syncEngine rejectListenWithTargetID:targetID error:change.cause];
+      [self.syncEngine rejectListenWithTargetID:[targetID intValue] error:change.cause];
     }
   }
 }
