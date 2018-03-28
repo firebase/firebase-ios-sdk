@@ -106,9 +106,8 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * @return A new map without that value.
    */
   TreeSortedMap erase(const K& key) const {
-    // TODO(wilhuff): Actually implement erase
-    (void)key;
-    return TreeSortedMap{this->comparator()};
+    const C& comparator = this->comparator();
+    return TreeSortedMap{root_.erase(key, comparator), comparator};
   }
 
   bool contains(const K& key) const {

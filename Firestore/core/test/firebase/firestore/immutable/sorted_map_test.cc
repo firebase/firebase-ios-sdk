@@ -102,12 +102,14 @@ TYPED_TEST(SortedMapTest, Size) {
 }
 
 TYPED_TEST(SortedMapTest, Increasing) {
-  std::vector<int> to_insert = Sequence(this->large_number());
+  int n = this->large_number();
+  std::vector<int> to_insert = Sequence(n);
   TypeParam map = ToMap<TypeParam>(to_insert);
   ASSERT_EQ(this->large_size(), map.size());
 
   for (int i : to_insert) {
     map = map.erase(i);
+    ASSERT_EQ(static_cast<size_t>(n - i - 1), map.size());
   }
   ASSERT_EQ(0u, map.size());
 
@@ -127,6 +129,94 @@ TYPED_TEST(SortedMapTest, BalanceProblem) {
 
   TypeParam map = ToMap<TypeParam>(to_insert);
   ASSERT_SEQ_EQ(Pairs(Sorted(to_insert)), map);
+}
+
+TYPED_TEST(SortedMapTest, EmptyRemoval) {
+  TypeParam map;
+  TypeParam new_map = map.erase(1);
+  EXPECT_TRUE(new_map.empty());
+  EXPECT_EQ(0u, new_map.size());
+  EXPECT_TRUE(NotFound(new_map, 1));
+}
+
+TYPED_TEST(SortedMapTest, RemoveKeyValuePair) {
+  TypeParam map = TypeParam{}.insert(1, 3).insert(2, 4);
+
+  TypeParam new_map = map.erase(1);
+  ASSERT_TRUE(Found(new_map, 2, 4));
+  ASSERT_TRUE(NotFound(new_map, 1));
+
+  // Make sure the original one is not mutated
+  ASSERT_TRUE(Found(map, 1, 3));
+  ASSERT_TRUE(Found(map, 2, 4));
+}
+
+TYPED_TEST(SortedMapTest, MoreRemovals) {
+  TypeParam map = TypeParam()
+                      .insert(1, 1)
+                      .insert(50, 50)
+                      .insert(3, 3)
+                      .insert(4, 4)
+                      .insert(7, 7)
+                      .insert(9, 9)
+                      .insert(1, 20)
+                      .insert(18, 18)
+                      .insert(3, 2)
+                      .insert(4, 71)
+                      .insert(7, 42)
+                      .insert(9, 88);
+
+  ASSERT_TRUE(Found(map, 7, 42));
+  ASSERT_TRUE(Found(map, 3, 2));
+  ASSERT_TRUE(Found(map, 1, 20));
+
+  TypeParam s1 = map.erase(7);
+  TypeParam s2 = map.erase(3);
+  TypeParam s3 = map.erase(1);
+
+  ASSERT_TRUE(NotFound(s1, 7));
+  ASSERT_TRUE(Found(s1, 3, 2));
+  ASSERT_TRUE(Found(s1, 1, 20));
+
+  ASSERT_TRUE(Found(s2, 7, 42));
+  ASSERT_TRUE(NotFound(s2, 3));
+  ASSERT_TRUE(Found(s2, 1, 20));
+
+  ASSERT_TRUE(Found(s3, 7, 42));
+  ASSERT_TRUE(Found(s3, 3, 2));
+  ASSERT_TRUE(NotFound(s3, 1));
+}
+
+TYPED_TEST(SortedMapTest, RemovesMiddle) {
+  TypeParam map = TypeParam{}.insert(1, 1).insert(2, 2).insert(3, 3);
+  ASSERT_TRUE(Found(map, 1, 1));
+  ASSERT_TRUE(Found(map, 2, 2));
+  ASSERT_TRUE(Found(map, 3, 3));
+
+  TypeParam s1 = map.erase(2);
+  ASSERT_TRUE(Found(s1, 1, 1));
+  ASSERT_TRUE(NotFound(s1, 2));
+  ASSERT_TRUE(Found(s1, 3, 3));
+}
+
+TYPED_TEST(SortedMapTest, InsertionAndRemovalOfMaxItems) {
+  auto expected_size = this->large_size();
+  int n = this->large_number();
+  std::vector<int> to_insert = Shuffled(Sequence(n));
+  std::vector<int> to_remove = Shuffled(to_insert);
+
+  // Add them to the map
+  TypeParam map = ToMap<TypeParam>(to_insert);
+  ASSERT_EQ(expected_size, map.size())
+      << "Check if all N objects are in the map";
+
+  // check the order is correct
+  ASSERT_SEQ_EQ(Pairs(Sorted(to_insert)), map);
+
+  for (int i : to_remove) {
+    map = map.erase(i);
+  }
+  ASSERT_EQ(0u, map.size()) << "Check we removed all of the items";
 }
 
 TYPED_TEST(SortedMapTest, FindEmpty) {

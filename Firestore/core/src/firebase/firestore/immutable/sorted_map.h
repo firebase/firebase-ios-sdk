@@ -196,7 +196,12 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Array:
         return SortedMap{array_.erase(key)};
       case Tag::Tree:
-        return SortedMap{tree_.erase(key)};
+        tree_type result = tree_.erase(key);
+        if (result.empty()) {
+          // Flip back to the array representation for empty arrays.
+          return SortedMap{};
+        }
+        return SortedMap{std::move(result)};
     }
     FIREBASE_UNREACHABLE();
   }
