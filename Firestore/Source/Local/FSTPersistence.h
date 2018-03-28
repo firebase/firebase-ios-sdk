@@ -91,7 +91,7 @@ struct FSTTransactionRunner;
 
 @protocol FSTTransactional
 
-- (void)startTransaction;
+- (void)startTransaction:(const std::string &)label;
 
 - (void)commitTransaction;
 
@@ -120,14 +120,14 @@ struct FSTTransactionRunner {
    */
 
   template <typename F>
-  auto operator()(F block) const ->
+  auto operator()(const std::string &label, F block) const ->
       typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
       FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
-      [strongDb startTransaction];
+      [strongDb startTransaction:label];
     }
     block();
     if (strongDb) {
@@ -136,7 +136,7 @@ struct FSTTransactionRunner {
   }
 
   template <typename F>
-  auto operator()(F block) const ->
+  auto operator()(const std::string &label, F block) const ->
       typename std::enable_if<!std::is_void<decltype(block())>::value, decltype(block())>::type {
     using ReturnT = decltype(block());
     __strong id<FSTTransactional> strongDb = _db;
@@ -144,7 +144,7 @@ struct FSTTransactionRunner {
       FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
-      [strongDb startTransaction];
+      [strongDb startTransaction:label];
     }
     ReturnT result = block();
     if (strongDb) {

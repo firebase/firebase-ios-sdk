@@ -144,7 +144,7 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  LevelDbTransaction transaction(_ptr.get());
+  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
   [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   transaction.Commit();
   return YES;
@@ -225,9 +225,9 @@ using leveldb::WriteOptions;
   return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
 }
 
-- (void)startTransaction {
+- (void)startTransaction:(const std::string &)label {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get());
+  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get(), label);
 }
 
 - (void)commitTransaction {

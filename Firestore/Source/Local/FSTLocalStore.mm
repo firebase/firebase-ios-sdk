@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)startMutationQueue {
-  self.persistence.run([&]() {
+  self.persistence.run("Start MutationQueue", [&]() {
     [self.mutationQueue start];
 
     // If we have any leftover mutation batch results from a prior run, just drop them.
@@ -172,6 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   NSArray<FSTMutationBatch *> *oldBatches = self.persistence.run(
+      "OldBatches",
       [&]() -> NSArray<FSTMutationBatch *> * { return [self.mutationQueue allMutationBatches]; });
 
   [self.mutationQueue shutdown];
@@ -182,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self startMutationQueue];
 
-  return self.persistence.run([&]() -> FSTMaybeDocumentDictionary * {
+  return self.persistence.run("NewBatches", [&]() -> FSTMaybeDocumentDictionary * {
     NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
@@ -206,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
-  return self.persistence.run([&]() -> FSTLocalWriteResult * {
+  return self.persistence.run("Locally write mutations", [&]() -> FSTLocalWriteResult * {
     FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
     FSTMutationBatch *batch =
         [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime mutations:mutations];
@@ -217,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocumentDictionary *)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
-  return self.persistence.run([&]() -> FSTMaybeDocumentDictionary * {
+  return self.persistence.run("Acknowledge batch", [&]() -> FSTMaybeDocumentDictionary * {
     id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
     [mutationQueue acknowledgeBatch:batchResult.batch streamToken:batchResult.streamToken];
@@ -242,7 +243,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID {
-  return self.persistence.run([&]() -> FSTMaybeDocumentDictionary * {
+  return self.persistence.run("Reject batch", [&]() -> FSTMaybeDocumentDictionary * {
     FSTMutationBatch *toReject = [self.mutationQueue lookupMutationBatch:batchID];
     FSTAssert(toReject, @"Attempt to reject nonexistent batch!");
 
@@ -262,7 +263,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setLastStreamToken:(nullable NSData *)streamToken {
-  self.persistence.run([&]() { [self.mutationQueue setLastStreamToken:streamToken]; });
+  self.persistence.run("Set stream token",
+                       [&]() { [self.mutationQueue setLastStreamToken:streamToken]; });
 }
 
 - (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
@@ -270,7 +272,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
-  return self.persistence.run([&]() -> FSTMaybeDocumentDictionary * {
+  return self.persistence.run("Apply remote event", [&]() -> FSTMaybeDocumentDictionary * {
     id<FSTQueryCache> queryCache = self.queryCache;
 
     FSTRemoteDocumentChangeBuffer *remoteDocuments =
@@ -367,7 +369,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
-  self.persistence.run([&]() {
+  self.persistence.run("NotifyLocalViewChanges", [&]() {
     FSTReferenceSet *localViewReferences = self.localViewReferences;
     for (FSTLocalViewChanges *view in viewChanges) {
       FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
@@ -380,20 +382,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
-  FSTMutationBatch *result = self.persistence.run([&]() -> FSTMutationBatch * {
-    return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
-  });
+  FSTMutationBatch *result =
+      self.persistence.run("NextMutationBatchAfterBatchID", [&]() -> FSTMutationBatch * {
+        return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+      });
   return result;
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run([&]() -> FSTMaybeDocument *_Nullable {
+  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
     return [self.localDocuments documentForKey:key];
   });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
-  FSTQueryData *queryData = self.persistence.run([&]() -> FSTQueryData * {
+  FSTQueryData *queryData = self.persistence.run("Allocate query", [&]() -> FSTQueryData * {
     FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
     FSTTargetID targetID;
     FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
@@ -420,7 +423,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)releaseQuery:(FSTQuery *)query {
-  self.persistence.run([&]() {
+  self.persistence.run("Release query", [&]() {
     FSTQueryData *queryData = [self.queryCache queryDataForQuery:query];
     FSTAssert(queryData, @"Tried to release nonexistent query: %@", query);
 
@@ -444,18 +447,19 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)executeQuery:(FSTQuery *)query {
-  return self.persistence.run([&]() -> FSTDocumentDictionary * {
+  return self.persistence.run("ExecuteQuery", [&]() -> FSTDocumentDictionary * {
     return [self.localDocuments documentsMatchingQuery:query];
   });
 }
 
 - (FSTDocumentKeySet *)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
-  return self.persistence.run(
-      [&]() -> FSTDocumentKeySet * { return [self.queryCache matchingKeysForTargetID:targetID]; });
+  return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> FSTDocumentKeySet * {
+    return [self.queryCache matchingKeysForTargetID:targetID];
+  });
 }
 
 - (void)collectGarbage {
-  self.persistence.run([&]() {
+  self.persistence.run("Garbage Collection", [&]() {
     // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
     // accumulate the garbage keys.
     std::set<DocumentKey> garbage = [self.garbageCollector collectGarbage];

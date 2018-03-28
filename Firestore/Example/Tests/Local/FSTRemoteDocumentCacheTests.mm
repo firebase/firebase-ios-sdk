@@ -51,13 +51,14 @@ static const int kVersion = 42;
 - (void)testReadDocumentNotInCache {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run(
-      [&]() { XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]); });
+  self.persistence.run("testReadDocumentNotInCache", [&]() {
+    XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]);
+  });
 }
 
 // Helper for next two tests.
 - (void)setAndReadADocumentAtPath:(const absl::string_view)path {
-  self.persistence.run([&]() {
+  self.persistence.run("setAndReadADocumentAtPath", [&]() {
     FSTDocument *written = [self setTestDocumentAtPath:path];
     FSTMaybeDocument *read = [self.remoteDocumentCache entryForKey:testutil::Key(path)];
     XCTAssertEqualObjects(read, written);
@@ -79,7 +80,7 @@ static const int kVersion = 42;
 - (void)testSetAndReadDeletedDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testSetAndReadDeletedDocument", [&]() {
     FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion);
     [self.remoteDocumentCache addEntry:deletedDoc];
 
@@ -91,7 +92,7 @@ static const int kVersion = 42;
 - (void)testSetDocumentToNewValue {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testSetDocumentToNewValue", [&]() {
     [self setTestDocumentAtPath:kDocPath];
     FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{ @"data" : @2 }, NO);
     [self.remoteDocumentCache addEntry:newDoc];
@@ -102,7 +103,7 @@ static const int kVersion = 42;
 - (void)testRemoveDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveDocument", [&]() {
     [self setTestDocumentAtPath:kDocPath];
     [self.remoteDocumentCache removeEntryForKey:testutil::Key(kDocPath)];
 
@@ -113,7 +114,7 @@ static const int kVersion = 42;
 - (void)testRemoveNonExistentDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveNonExistentDocument", [&]() {
     // no-op, but make sure it doesn't throw.
     XCTAssertNoThrow([self.remoteDocumentCache removeEntryForKey:testutil::Key(kDocPath)]);
   });
@@ -123,7 +124,7 @@ static const int kVersion = 42;
 - (void)testDocumentsMatchingQuery {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testDocumentsMatchingQuery", [&]() {
     // TODO(rsgowman): This just verifies that we do a prefix scan against the
     // query path. We'll need more tests once we add index support.
     [self setTestDocumentAtPath:"a/1"];
@@ -150,24 +151,7 @@ static const int kVersion = 42;
   [self.remoteDocumentCache addEntry:doc];
   return doc;
 }
-/*
-- (void)addEntry:(FSTMaybeDocument *)maybeDoc {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"addEntry"];
-  [self.remoteDocumentCache addEntry:maybeDoc];
-  [self.persistence commitGroup:group];
-}
 
-- (FSTMaybeDocument *_Nullable)readEntryAtPath:(const absl::string_view)path {
-  FSTMaybeDocument *result = [self.remoteDocumentCache entryForKey:testutil::Key(path)];
-  return result;
-}
-
-- (void)removeEntryAtPath:(const absl::string_view)path {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeEntryAtPath"];
-  [self.remoteDocumentCache removeEntryForKey:testutil::Key(path)];
-  [self.persistence commitGroup:group];
-}
-*/
 @end
 
 NS_ASSUME_NONNULL_END

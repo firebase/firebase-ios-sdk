@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCountBatches {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testCountBatches", [&]() {
     XCTAssertEqual(0, [self batchCount]);
     XCTAssertTrue([self.mutationQueue isEmpty]);
 
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
 
   // Adding mutation batches should not change the highest acked batchID.
-  self.persistence.run([&]() {
+  self.persistence.run("testAcknowledgeBatchID", [&]() {
     FSTMutationBatch *batch1 = [self addMutationBatch];
     FSTMutationBatch *batch2 = [self addMutationBatch];
     FSTMutationBatch *batch3 = [self addMutationBatch];
@@ -112,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAcknowledgeThenRemove {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testAcknowledgeThenRemove", [&]() {
     FSTMutationBatch *batch1 = [self addMutationBatch];
 
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
@@ -127,11 +127,13 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   FSTMutationBatch *batch1 =
-      self.persistence.run([&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
+      self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID batch1",
+                           [&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
   FSTMutationBatch *batch2 =
-      self.persistence.run([&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
+      self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID batch2",
+                           [&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
 
-  self.persistence.run([&]() {
+  self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID", [&]() {
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
     [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
@@ -143,24 +145,25 @@ NS_ASSUME_NONNULL_BEGIN
   // Restart the queue so that nextBatchID will be reset.
   [self.mutationQueue shutdown];
 
-  FSTMutationBatch *batch = self.persistence.run([&]() -> FSTMutationBatch * {
-    self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
+  FSTMutationBatch *batch = self.persistence.run(
+      "testHighestAcknowledgedBatchIDNeverExceedsNextBatchID restart", [&]() -> FSTMutationBatch * {
+        self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 
-    [self.mutationQueue start];
+        [self.mutationQueue start];
 
-    // Verify that on restart with an empty queue, nextBatchID falls to a lower value.
-    XCTAssertLessThan(self.mutationQueue.nextBatchID, batch2.batchID);
+        // Verify that on restart with an empty queue, nextBatchID falls to a lower value.
+        XCTAssertLessThan(self.mutationQueue.nextBatchID, batch2.batchID);
 
-    // As a result highestAcknowledgedBatchID must also reset lower.
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
+        // As a result highestAcknowledgedBatchID must also reset lower.
+        XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
 
-    // The mutation queue will reset the next batchID after all mutations are removed so adding
-    // another mutation will cause a collision.
-    FSTMutationBatch *newBatch = [self addMutationBatch];
-    XCTAssertEqual(newBatch.batchID, batch1.batchID);
-    return newBatch;
-  });
-  self.persistence.run([&]() {
+        // The mutation queue will reset the next batchID after all mutations are removed so adding
+        // another mutation will cause a collision.
+        FSTMutationBatch *newBatch = [self addMutationBatch];
+        XCTAssertEqual(newBatch.batchID, batch1.batchID);
+        return newBatch;
+      });
+  self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID restart2", [&]() {
     // Restart the queue with one unacknowledged batch in it.
     [self.mutationQueue start];
 
@@ -175,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   // Searching on an empty queue should not find a non-existent batch
-  self.persistence.run([&]() {
+  self.persistence.run("testLookupMutationBatch", [&]() {
     FSTMutationBatch *notFound = [self.mutationQueue lookupMutationBatch:42];
     XCTAssertNil(notFound);
 
@@ -203,7 +206,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testNextMutationBatchAfterBatchID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testNextMutationBatchAfterBatchID", [&]() {
     NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
 
     // This is an array of successors assuming the removals below will happen:
@@ -237,14 +240,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testNextMutationBatchAfterBatchIDSkipsAcknowledgedBatches {
   if ([self isTestBaseClass]) return;
 
-  NSMutableArray<FSTMutationBatch *> *batches =
-      self.persistence.run([&]() -> NSMutableArray<FSTMutationBatch *> * {
+  NSMutableArray<FSTMutationBatch *> *batches = self.persistence.run(
+      "testNextMutationBatchAfterBatchIDSkipsAcknowledgedBatches newBatches",
+      [&]() -> NSMutableArray<FSTMutationBatch *> * {
         NSMutableArray<FSTMutationBatch *> *newBatches = [self createBatches:3];
         XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
                               newBatches[0]);
         return newBatches;
       });
-  self.persistence.run([&]() {
+  self.persistence.run("testNextMutationBatchAfterBatchIDSkipsAcknowledgedBatches", [&]() {
 
     [self.mutationQueue acknowledgeBatch:batches[0] streamToken:nil];
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
@@ -259,7 +263,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesThroughBatchID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testAllMutationBatchesThroughBatchID", [&]() {
     NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
     [self makeHoles:@[ @2, @6, @7 ] inBatches:batches];
 
@@ -279,7 +283,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesAffectingDocumentKey {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     NSArray<FSTMutation *> *mutations = @[
       FSTTestSetMutation(@"fob/bar",
                          @{ @"a" : @1 }),
@@ -315,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesAffectingQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testAllMutationBatchesAffectingQuery", [&]() {
     NSArray<FSTMutation *> *mutations = @[
       FSTTestSetMutation(@"fob/bar",
                          @{ @"a" : @1 }),
@@ -352,7 +356,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveMutationBatches {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveMutationBatches", [&]() {
     NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
 
     [self.mutationQueue removeMutationBatches:@[ batches[0] ]];
@@ -411,7 +415,7 @@ NS_ASSUME_NONNULL_BEGIN
   [garbageCollector addGarbageSource:self.mutationQueue];
 
   NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveMutationBatchesEmitsGarbageEvents", [&]() {
     [batches addObjectsFromArray:@[
       [self addMutationBatchWithKey:@"foo/bar"],
       [self addMutationBatchWithKey:@"foo/ba"],
@@ -454,7 +458,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *streamToken1 = [@"token1" dataUsingEncoding:NSUTF8StringEncoding];
   NSData *streamToken2 = [@"token2" dataUsingEncoding:NSUTF8StringEncoding];
 
-  self.persistence.run([&]() {
+  self.persistence.run("testStreamToken", [&]() {
     [self.mutationQueue setLastStreamToken:streamToken1];
 
     FSTMutationBatch *batch1 = [self addMutationBatch];

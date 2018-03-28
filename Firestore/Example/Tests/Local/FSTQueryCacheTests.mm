@@ -60,13 +60,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReadQueryNotInCache {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() { XCTAssertNil([self.queryCache queryDataForQuery:_queryRooms]); });
+  self.persistence.run("testReadQueryNotInCache",
+                       [&]() { XCTAssertNil([self.queryCache queryDataForQuery:_queryRooms]); });
 }
 
 - (void)testSetAndReadAQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testSetAndReadAQuery", [&]() {
     FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
     [self.queryCache addQueryData:queryData];
 
@@ -80,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCanonicalIDCollision {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testCanonicalIDCollision", [&]() {
     // Type information is currently lost in our canonicalID implementations so this currently an
     // easy way to force colliding canonicalIDs
     FSTQuery *q1 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @(1))];
@@ -116,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSetQueryToNewValue {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testSetQueryToNewValue", [&]() {
     FSTQueryData *queryData1 =
         [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
     [self.queryCache addQueryData:queryData1];
@@ -136,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveQuery", [&]() {
     FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms];
     [self.queryCache addQueryData:queryData1];
 
@@ -150,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveNonExistentQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveNonExistentQuery", [&]() {
     FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
 
     // no-op, but make sure it doesn't throw.
@@ -161,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQueryRemovesMatchingKeysToo {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveQueryRemovesMatchingKeysToo", [&]() {
     FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
     [self.queryCache addQueryData:rooms];
 
@@ -182,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAddOrRemoveMatchingKeys {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testAddOrRemoveMatchingKeys", [&]() {
     DocumentKey key = testutil::Key("foo/bar");
 
     XCTAssertFalse([self.queryCache containsKey:key]);
@@ -204,7 +205,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveMatchingKeysForTargetID", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
@@ -231,7 +232,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveEmitsGarbageEvents {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testRemoveEmitsGarbageEvents", [&]() {
     FSTEagerGarbageCollector *garbageCollector = [[FSTEagerGarbageCollector alloc] init];
     [garbageCollector addGarbageSource:self.queryCache];
     XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
@@ -266,7 +267,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testMatchingKeysForTargetID", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
@@ -287,7 +288,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestListenSequenceNumber {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testHighestListenSequenceNumber", [&]() {
     FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
                                                       targetID:1
                                           listenSequenceNumber:10
@@ -321,7 +322,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Verify that the highestTargetID even survives restarts.
   [self.queryCache shutdown];
-  self.persistence.run([&]() {
+  self.persistence.run("testHighestListenSequenceNumber restart", [&]() {
     self.queryCache = [self.persistence queryCache];
     [self.queryCache start];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
@@ -331,7 +332,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestTargetID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testHighestTargetID", [&]() {
     XCTAssertEqual([self.queryCache highestTargetID], 0);
 
     FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
@@ -374,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Verify that the highestTargetID even survives restarts.
   [self.queryCache shutdown];
-  self.persistence.run([&]() {
+  self.persistence.run("testHighestTargetID restart", [&]() {
     self.queryCache = [self.persistence queryCache];
     [self.queryCache start];
     XCTAssertEqual([self.queryCache highestTargetID], 42);
@@ -384,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testLastRemoteSnapshotVersion {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run([&]() {
+  self.persistence.run("testLastRemoteSnapshotVersion", [&]() {
     XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion],
                           [FSTSnapshotVersion noVersion]);
 
@@ -395,7 +396,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Snapshot version persists restarts.
   self.queryCache = [self.persistence queryCache];
-  self.persistence.run([&]() {
+  self.persistence.run("testLastRemoteSnapshotVersion restart", [&]() {
     [self.queryCache start];
     XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
   });

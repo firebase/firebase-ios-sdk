@@ -58,7 +58,7 @@ using firebase::firestore::local::LevelDbTransaction;
 }
 
 - (void)testCreateTransaction {
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testCreateTransaction");
   std::string key = "key1";
 
   transaction.Put(key, "value");
@@ -83,7 +83,7 @@ using firebase::firestore::local::LevelDbTransaction;
   status = _db->Put(writeOptions, committed_key2, committed_value2);
   XCTAssertTrue(status.ok());
 
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testCanReadCommittedAndMutations");
   const std::string mutation_key1 = "m_key1";
   const std::string mutation_value1 = "m_value1";
   transaction.Put(mutation_key1, mutation_value1);
@@ -113,7 +113,7 @@ using firebase::firestore::local::LevelDbTransaction;
                              "value_" + std::to_string(i));
     XCTAssertTrue(status.ok());
   }
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testDeleteCommitted");
   transaction.Put("key_1", "new_value");
   std::string value;
   Status status = transaction.Get("key_1", &value);
@@ -142,7 +142,7 @@ using firebase::firestore::local::LevelDbTransaction;
     XCTAssertTrue(status.ok());
   }
   std::string value;
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testMutateDeleted");
   transaction.Delete("key_1");
   Status status = transaction.Get("key_1", &value);
   XCTAssertTrue(status.IsNotFound());
@@ -186,7 +186,7 @@ using firebase::firestore::local::LevelDbTransaction;
 }
 
 - (void)testProtobufSupport {
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testProtobufSupport");
 
   FSTPBTarget *target = [FSTPBTarget message];
   target.targetId = 1;
@@ -206,7 +206,7 @@ using firebase::firestore::local::LevelDbTransaction;
 }
 
 - (void)testCanIterateAndDelete {
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testCanIterateAndDelete");
 
   for (int i = 0; i < 4; ++i) {
     transaction.Put("key_" + std::to_string(i), "value_" + std::to_string(i));
@@ -233,7 +233,7 @@ using firebase::firestore::local::LevelDbTransaction;
   }
 
   // Create a transaction, iterate, deleting key_0. Verify we still iterate key_1.
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testCanIterateFromDeletionToCommitted");
   auto it = transaction.NewIterator();
   it->Seek("key_0");
   XCTAssertTrue(it->Valid());
@@ -255,7 +255,7 @@ using firebase::firestore::local::LevelDbTransaction;
   }
 
   // Create a transaction, iterate to key_1, delete key_2. Verify we still iterate key_3.
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testDeletingAheadOfAnIterator");
   auto it = transaction.NewIterator();
   it->Seek("key_0");
   XCTAssertTrue(it->Valid());
@@ -277,21 +277,21 @@ using firebase::firestore::local::LevelDbTransaction;
   FSTPBWriteBatch *message = [FSTPBWriteBatch message];
   message.batchId = 42;
 
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testToString");
   std::string description = transaction.ToString();
-  XCTAssertEqual(description, "<LevelDbTransaction: 0 changes (0 bytes):>");
+  XCTAssertEqual(description, "<LevelDbTransaction testToString: 0 changes (0 bytes):>");
 
   transaction.Put(key, message);
   description = transaction.ToString();
   XCTAssertEqual(description,
-                 "<LevelDbTransaction: 1 changes (2 bytes):\n"
+                 "<LevelDbTransaction testToString: 1 changes (2 bytes):\n"
                  "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 
   std::string key2 = LevelDbMutationKey::Key("user1", 43);
   transaction.Delete(key2);
   description = transaction.ToString();
   XCTAssertEqual(description,
-                 "<LevelDbTransaction: 2 changes (2 bytes):\n"
+                 "<LevelDbTransaction testToString: 2 changes (2 bytes):\n"
                  "  - Delete [mutation: user_id=user1 batch_id=43]\n"
                  "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 }

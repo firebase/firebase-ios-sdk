@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
   _remoteDocumentCache = [_db remoteDocumentCache];
 
   // Add a couple initial items to the cache.
-  _db.run([&]() {
+  _db.run("Test setup", [&]() {
     _kInitialADoc = FSTTestDoc("coll/a", 42, @{@"test" : @"data"}, NO);
     [_remoteDocumentCache addEntry:_kInitialADoc];
 
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testReadUnchangedEntry {
-  _db.run([&]() {
+  _db.run("testReadUnchangedEntry", [&]() {
     XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")],
                           _kInitialADoc);
   });
@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
 
   // B should still be unchanged.
-  _db.run([&]() {
+  _db.run("testAddEntryAndReadItBack", [&]() {
     XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/b")],
                           _kInitialBDoc);
   });
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testApplyChanges {
   FSTMaybeDocument *newADoc = FSTTestDoc("coll/a", 43, @{@"new" : @"data"}, NO);
   [_remoteDocumentBuffer addEntry:newADoc];
-  _db.run([&]() {
+  _db.run("testApplyChanges setup", [&]() {
     XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
 
     // Reading directly against the cache should still yield the old result.
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
                           _kInitialADoc);
   });
 
-  _db.run([&]() {
+  _db.run("testApplyChanges", [&]() {
     [_remoteDocumentBuffer apply];
 
     // Reading against the cache should now yield the new result.
@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testMethodsThrowAfterApply {
-  _db.run([&]() { [_remoteDocumentBuffer apply]; });
+  _db.run("testMethodsThrowAfterApply", [&]() { [_remoteDocumentBuffer apply]; });
 
   XCTAssertThrows([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")]);
   XCTAssertThrows([_remoteDocumentBuffer addEntry:_kInitialADoc]);
