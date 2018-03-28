@@ -20,7 +20,6 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 @class FSTDocument;
-@class FSTDocumentKey;
 @class FSTFieldValue;
 
 NS_ASSUME_NONNULL_BEGIN

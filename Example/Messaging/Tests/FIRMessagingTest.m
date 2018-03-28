@@ -17,9 +17,9 @@
 @import XCTest;
 
 #import <OCMock/OCMock.h>
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "FIRMessaging.h"
-#import "FIRMessagingInstanceIDProxy.h"
 #import "FIRMessaging_Private.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
@@ -28,10 +28,11 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
-@property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
+@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 @property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
 
-- (instancetype)initPrivately;
+- (instancetype)initWithInstanceID:(FIRInstanceID *)instanceID
+                      userDefaults:(NSUserDefaults *)defaults;
 // Direct Channel Methods
 - (void)updateAutomaticClientConnection;
 - (BOOL)shouldBeConnectedAutomatically;
@@ -42,7 +43,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 @property(nonatomic, readwrite, strong) id mockMessaging;
-@property(nonatomic, readwrite, strong) id mockInstanceIDProxy;
+@property(nonatomic, readwrite, strong) id mockInstanceID;
 
 @end
 
@@ -50,17 +51,21 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)setUp {
   [super setUp];
-  _messaging = [[FIRMessaging alloc] initPrivately];
+  _messaging = [[FIRMessaging alloc] initWithInstanceID:[FIRInstanceID instanceID]
+                                           userDefaults:[NSUserDefaults standardUserDefaults]];
   _mockMessaging = OCMPartialMock(self.messaging);
-  _mockInstanceIDProxy = OCMPartialMock(self.messaging.instanceIDProxy);
-  self.messaging.instanceIDProxy = _mockInstanceIDProxy;
+  _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
+  self.messaging.instanceID = _mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
 - (void)tearDown {
   _messaging = nil;
+  [_mockMessaging stopMocking];
   _mockMessaging = nil;
+  [_mockInstanceID stopMocking];
+  _mockInstanceID = nil;
   [super tearDown];
 }
 
@@ -137,7 +142,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Included APNS Token data in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
-  [[[self.mockInstanceIDProxy stub] andDo:^(NSInvocation *invocation) {
+  [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
     // Calling getArgument:atIndex: directly leads to an EXC_BAD_ACCESS; use OCMock's wrapper.
     NSDictionary *options = [invocation getArgumentAtIndexAsObject:4];
     if (options[@"apns_token"] != nil) {
@@ -154,7 +159,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Included APNS Token data not included in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
-  [[[self.mockInstanceIDProxy stub] andDo:^(NSInvocation *invocation) {
+  [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
     // Calling getArgument:atIndex: directly leads to an EXC_BAD_ACCESS; use OCMock's wrapper.
     NSDictionary *options = [invocation getArgumentAtIndexAsObject:4];
     if (options[@"apns_token"] == nil) {

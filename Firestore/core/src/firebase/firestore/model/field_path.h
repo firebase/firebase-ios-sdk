@@ -48,6 +48,8 @@ class FieldPath : public impl::BasePath<FieldPath> {
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
   }
+  explicit FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+  }
 
   /**
    * Creates and returns a new path from the server formatted field-path string,
@@ -83,14 +85,6 @@ class FieldPath : public impl::BasePath<FieldPath> {
   bool operator>=(const FieldPath& rhs) const {
     return BasePath::operator>=(rhs);
   }
-
- private:
-  explicit FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
-  }
-
-  // So that methods of base can construct FieldPath using the private
-  // constructor.
-  friend class BasePath;
 };
 
 }  // namespace model

@@ -31,7 +31,12 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Model/FSTPath.h"
+
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,29 +58,31 @@ FIRFirestore *FSTTestFirestore() {
   return sharedInstance;
 }
 
-FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
+FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
                                         FSTTestSnapshotVersion version,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
   FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;
   return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
-                                        documentKey:FSTTestDocKey(path)
+                                        documentKey:testutil::Key(path)
                                            document:doc
                                           fromCache:fromCache];
 }
 
-FIRCollectionReference *FSTTestCollectionRef(NSString *path) {
-  return [FIRCollectionReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
+FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
+  return [FIRCollectionReference referenceWithPath:testutil::Resource(path)
+                                         firestore:FSTTestFirestore()];
 }
 
-FIRDocumentReference *FSTTestDocRef(NSString *path) {
-  return [FIRDocumentReference referenceWithPath:FSTTestPath(path) firestore:FSTTestFirestore()];
+FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
+  return [FIRDocumentReference referenceWithPath:testutil::Resource(path)
+                                       firestore:FSTTestFirestore()];
 }
 
 /** A convenience method for creating a query snapshots for tests. */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
-    NSString *path,
+    const absl::string_view path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
@@ -85,14 +92,16 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   for (NSString *key in oldDocs) {
     oldDocuments = [oldDocuments
-        documentSetByAddingDocument:FSTTestDoc([NSString stringWithFormat:@"%@/%@", path, key], 1,
-                                               oldDocs[key], hasPendingWrites)];
+        documentSetByAddingDocument:FSTTestDoc(util::MakeStringView([NSString
+                                                   stringWithFormat:@"%s/%@", path.data(), key]),
+                                               1, oldDocs[key], hasPendingWrites)];
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
   for (NSString *key in docsToAdd) {
-    FSTDocument *docToAdd = FSTTestDoc([NSString stringWithFormat:@"%@/%@", path, key], 1,
-                                       docsToAdd[key], hasPendingWrites);
+    FSTDocument *docToAdd =
+        FSTTestDoc(util::MakeStringView([NSString stringWithFormat:@"%s/%@", path.data(), key]), 1,
+                   docsToAdd[key], hasPendingWrites);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
     documentChanges = [documentChanges
         arrayByAddingObject:[FSTDocumentViewChange

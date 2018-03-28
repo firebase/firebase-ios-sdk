@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add a couple initial items to the cache.
   FSTWriteGroup *group = [_db startGroupWithAction:@"Add initial docs."];
-  _kInitialADoc = FSTTestDoc(@"coll/a", 42, @{@"test" : @"data"}, NO);
+  _kInitialADoc = FSTTestDoc("coll/a", 42, @{@"test" : @"data"}, NO);
   [_remoteDocumentCache addEntry:_kInitialADoc group:group];
 
   _kInitialBDoc =
@@ -68,34 +68,40 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testReadUnchangedEntry {
+  FSTWriteGroup *group = [_db startGroupWithAction:@"ReadUnchangedEntry"];
   XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")],
                         _kInitialADoc);
+  [_db commitGroup:group];
 }
 
 - (void)testAddEntryAndReadItBack {
-  FSTMaybeDocument *newADoc = FSTTestDoc(@"coll/a", 43, @{@"new" : @"data"}, NO);
+  FSTMaybeDocument *newADoc = FSTTestDoc("coll/a", 43, @{@"new" : @"data"}, NO);
   [_remoteDocumentBuffer addEntry:newADoc];
   XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
 
   // B should still be unchanged.
+  FSTWriteGroup *group = [_db startGroupWithAction:@"AddEntryAndReadItBack"];
   XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/b")],
                         _kInitialBDoc);
+  [_db commitGroup:group];
 }
 
 - (void)testApplyChanges {
-  FSTMaybeDocument *newADoc = FSTTestDoc(@"coll/a", 43, @{@"new" : @"data"}, NO);
+  FSTMaybeDocument *newADoc = FSTTestDoc("coll/a", 43, @{@"new" : @"data"}, NO);
   [_remoteDocumentBuffer addEntry:newADoc];
+  FSTWriteGroup *group = [_db startGroupWithAction:@"Apply Changes"];
   XCTAssertEqualObjects([_remoteDocumentBuffer entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
 
   // Reading directly against the cache should still yield the old result.
   XCTAssertEqualObjects([_remoteDocumentCache entryForKey:FSTTestDocKey(@"coll/a")], _kInitialADoc);
-
-  FSTWriteGroup *group = [_db startGroupWithAction:@"Apply changes"];
-  [_remoteDocumentBuffer applyToWriteGroup:group];
   [_db commitGroup:group];
+
+  group = [_db startGroupWithAction:@"Apply changes"];
+  [_remoteDocumentBuffer applyToWriteGroup:group];
 
   // Reading against the cache should now yield the new result.
   XCTAssertEqualObjects([_remoteDocumentCache entryForKey:FSTTestDocKey(@"coll/a")], newADoc);
+  [_db commitGroup:group];
 }
 
 - (void)testMethodsThrowAfterApply {

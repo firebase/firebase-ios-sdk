@@ -16,8 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-@class FSTDocumentKey;
-@class FSTFieldPath;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+
 @class FSTFieldValue;
 @class FSTObjectValue;
 @class FSTSnapshotVersion;
@@ -30,18 +31,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTMaybeDocument : NSObject <NSCopying>
 - (id)init __attribute__((unavailable("Abstract base class")));
+- (const firebase::firestore::model::DocumentKey &)key;
 
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @property(nonatomic, readonly) FSTSnapshotVersion *version;
 @end
 
 @interface FSTDocument : FSTMaybeDocument
 + (instancetype)documentWithData:(FSTObjectValue *)data
-                             key:(FSTDocumentKey *)key
+                             key:(firebase::firestore::model::DocumentKey)key
                          version:(FSTSnapshotVersion *)version
                hasLocalMutations:(BOOL)mutations;
 
-- (nullable FSTFieldValue *)fieldForPath:(FSTFieldPath *)path;
+- (nullable FSTFieldValue *)fieldForPath:(const firebase::firestore::model::FieldPath &)path;
 
 @property(nonatomic, strong, readonly) FSTObjectValue *data;
 @property(nonatomic, readonly, getter=hasLocalMutations) BOOL localMutations;
@@ -49,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface FSTDeletedDocument : FSTMaybeDocument
-+ (instancetype)documentWithKey:(FSTDocumentKey *)key version:(FSTSnapshotVersion *)version;
++ (instancetype)documentWithKey:(firebase::firestore::model::DocumentKey)key
+                        version:(FSTSnapshotVersion *)version;
 @end
 
 /** An NSComparator suitable for comparing docs using only their keys. */

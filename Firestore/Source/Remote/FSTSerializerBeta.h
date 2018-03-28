@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
-@class FSTDocumentKey;
 @class FSTFieldValue;
 @class FSTMaybeDocument;
 @class FSTMutation;
@@ -70,8 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns the database ID, such as `projects/{project id}/databases/{database_id}`. */
 - (NSString *)encodedDatabaseID;
 
-- (NSString *)encodedDocumentKey:(FSTDocumentKey *)key;
-- (FSTDocumentKey *)decodedDocumentKey:(NSString *)key;
+- (NSString *)encodedDocumentKey:(const firebase::firestore::model::DocumentKey &)key;
+- (firebase::firestore::model::DocumentKey)decodedDocumentKey:(NSString *)key;
 
 - (GCFSValue *)encodedFieldValue:(FSTFieldValue *)fieldValue;
 - (FSTFieldValue *)decodedFieldValue:(GCFSValue *)valueProto;
@@ -95,7 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTWatchChange *)decodedWatchChange:(GCFSListenResponse *)watchChange;
 - (FSTSnapshotVersion *)versionFromListenResponse:(GCFSListenResponse *)watchChange;
 
-- (GCFSDocument *)encodedDocumentWithFields:(FSTObjectValue *)objectValue key:(FSTDocumentKey *)key;
+- (GCFSDocument *)encodedDocumentWithFields:(FSTObjectValue *)objectValue
+                                        key:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Encodes an FSTObjectValue into a dictionary.

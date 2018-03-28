@@ -22,6 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <string>
+
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -55,6 +57,12 @@ inline NSString* WrapNSString(const absl::string_view str) {
 inline absl::string_view MakeStringView(NSString* str) {
   return absl::string_view(
       [str UTF8String], [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
+}
+
+// Creates a std::string wrapper for the contents of the given NSString.
+inline std::string MakeString(NSString* str) {
+  return std::string([str UTF8String],
+                     [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
 }
 
 }  // namespace util

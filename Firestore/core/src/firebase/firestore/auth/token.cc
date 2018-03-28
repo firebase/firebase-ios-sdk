@@ -21,15 +21,13 @@ namespace firestore {
 namespace auth {
 
 Token::Token(const absl::string_view token, const User& user)
-    : token_(token), user_(user), is_valid_(true) {
+    : token_(token), user_(user) {
 }
 
-Token::Token() : token_(), user_(User::Unauthenticated()), is_valid_(false) {
-}
-
-const Token& Token::Invalid() {
-  static const Token kInvalidToken;
-  return kInvalidToken;
+const Token& Token::Unauthenticated() {
+  static const Token kUnauthenticatedToken(absl::string_view(),
+                                           User::Unauthenticated());
+  return kUnauthenticatedToken;
 }
 
 }  // namespace auth

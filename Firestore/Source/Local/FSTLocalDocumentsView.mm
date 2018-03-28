@@ -22,11 +22,15 @@
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (nullable FSTMaybeDocument *)documentForKey:(FSTDocumentKey *)key {
+- (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key {
   FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:key];
   return [self localDocument:remoteDoc key:key];
 }
@@ -75,19 +79,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  if ([FSTDocumentKey isDocumentKey:query.path]) {
-    return [self documentsMatchingDocumentQuery:[FSTResourcePath
-                                                    resourcePathWithCPPResourcePath:query.path]];
+  if (DocumentKey::IsDocumentKey(query.path)) {
+    return [self documentsMatchingDocumentQuery:query.path];
   } else {
     return [self documentsMatchingCollectionQuery:query];
   }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(FSTResourcePath *)docPath {
+- (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
   FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
   // Just do a simple document lookup.
-  FSTMaybeDocument *doc =
-      [self documentForKey:[FSTDocumentKey keyWithPath:[docPath toCPPResourcePath]]];
+  FSTMaybeDocument *doc = [self documentForKey:DocumentKey{docPath}];
   if ([doc isKindOfClass:[FSTDocument class]]) {
     result = [result dictionaryBySettingObject:(FSTDocument *)doc forKey:doc.key];
   }
@@ -147,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param documentKey The key of the document (necessary when remoteDocument is nil).
  */
 - (nullable FSTMaybeDocument *)localDocument:(nullable FSTMaybeDocument *)document
-                                         key:(FSTDocumentKey *)documentKey {
+                                         key:(const DocumentKey &)documentKey {
   NSArray<FSTMutationBatch *> *batches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKey:documentKey];
   for (FSTMutationBatch *batch in batches) {

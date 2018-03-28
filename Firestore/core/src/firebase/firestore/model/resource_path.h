@@ -70,11 +70,6 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
   bool operator>=(const ResourcePath& rhs) const {
     return BasePath::operator>=(rhs);
   }
-
- private:
-  // So that methods of base can construct ResourcePath using the private
-  // constructor.
-  friend class BasePath;
 };
 
 }  // namespace model

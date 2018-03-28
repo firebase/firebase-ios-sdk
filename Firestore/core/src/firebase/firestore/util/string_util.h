@@ -32,7 +32,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-/*
+/**
  * Returns the smallest lexicographically larger string of equal or smaller
  * length. Returns an empty string if there is no such successor (if the input
  * is empty or consists entirely of 0xff bytes).
@@ -44,7 +44,7 @@ namespace util {
  */
 std::string PrefixSuccessor(absl::string_view prefix);
 
-/*
+/**
  * Returns the immediate lexicographically-following string. This is useful to
  * turn an inclusive range into something that can be used with Bigtable's
  * SetLimitRow():
@@ -64,6 +64,11 @@ std::string PrefixSuccessor(absl::string_view prefix);
  * treatment of "" as infinity.
  */
 std::string ImmediateSuccessor(absl::string_view s);
+
+/**
+ * Returns true if the given value starts with the given prefix.
+ */
+bool StartsWith(const std::string &value, const std::string &prefix);
 
 }  // namespace util
 }  // namespace firestore

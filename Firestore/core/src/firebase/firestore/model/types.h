@@ -14,36 +14,29 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
 
-#include <vector>
-
-#include "gtest/gtest.h"
+#include <stdint.h>
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-TEST(Timestamp, Getter) {
-  const Timestamp timestamp_zero;
-  EXPECT_EQ(0, timestamp_zero.seconds());
-  EXPECT_EQ(0, timestamp_zero.nanos());
+/**
+ * BatchId is a locally assigned identifier for a batch of mutations that have
+ * been applied by the user but have not yet been fully committed at the server.
+ */
+using BatchId = int32_t;
 
-  const Timestamp timestamp(100, 200);
-  EXPECT_EQ(100, timestamp.seconds());
-  EXPECT_EQ(200, timestamp.nanos());
-
-  const Timestamp timestamp_now = Timestamp::Now();
-  EXPECT_LT(0, timestamp_now.seconds());
-  EXPECT_LE(0, timestamp_now.nanos());
-}
-
-TEST(Timestamp, Comparison) {
-  EXPECT_TRUE(Timestamp() < Timestamp(1, 2));
-  EXPECT_TRUE(Timestamp(1, 2) < Timestamp(2, 1));
-  EXPECT_TRUE(Timestamp(2, 1) < Timestamp(2, 2));
-}
+/**
+ * TargetId is a stable numeric identifier assigned for a specific query
+ * applied.
+ */
+using TargetId = int32_t;
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_

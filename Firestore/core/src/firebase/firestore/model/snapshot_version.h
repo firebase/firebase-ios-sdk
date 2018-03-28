@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
 
-#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 namespace firebase {
 namespace firestore {

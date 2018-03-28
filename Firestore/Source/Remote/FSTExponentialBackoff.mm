@@ -66,9 +66,8 @@ using firebase::firestore::util::SecureRandom;
 }
 
 - (void)backoffAndRunBlock:(void (^)(void))block {
-  if (self.timerCallback) {
-    [self.timerCallback cancel];
-  }
+  [self cancel];
+
   // First schedule the block using the current base (which may be 0 and should be honored as such).
   NSTimeInterval delayWithJitter = _currentBase + [self jitterDelay];
   if (_currentBase > 0) {
@@ -86,6 +85,13 @@ using firebase::firestore::util::SecureRandom;
   }
   if (_currentBase > _maxDelay) {
     _currentBase = _maxDelay;
+  }
+}
+
+- (void)cancel {
+  if (self.timerCallback) {
+    [self.timerCallback cancel];
+    self.timerCallback = nil;
   }
 }
 

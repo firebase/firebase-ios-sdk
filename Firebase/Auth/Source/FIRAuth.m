@@ -104,6 +104,14 @@ static NSString *const kUserKey = @"%@_firebase_user";
 static NSString *const kMissingEmailInvalidParameterExceptionReason =
     @"The email used to initiate password reset cannot be nil.";
 
+/** @var kHandleCodeInAppFalseExceptionReason
+    @brief The reason for @c invalidParameterException when the handleCodeInApp parameter is false
+        on the ActionCodeSettings object used to send the link for Email-link Authentication.
+ */
+static NSString *const kHandleCodeInAppFalseExceptionReason =
+    @"You must set handleCodeInApp in your ActionCodeSettings to true for Email-link "
+    "Authentication.";
+
 /** @var kPasswordResetRequestType
     @brief The action code type value for resetting password in the check action code response.
  */
@@ -525,7 +533,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRCreateAuthURIRequest *request =
         [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
                                                 continueURI:@"http://www.google.com/"
-                                       requestConfiguration:_requestConfiguration];
+                                       requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend createAuthURI:request callback:^(FIRCreateAuthURIResponse *_Nullable response,
                                                      NSError *_Nullable error) {
       if (completion) {
@@ -1108,10 +1116,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
           kMissingEmailInvalidParameterExceptionReason];
     }
+
+    if (!actionCodeSettings.handleCodeInApp) {
+      [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
+          kHandleCodeInAppFalseExceptionReason];
+    }
     FIRGetOOBConfirmationCodeRequest *request =
         [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
                                                   actionCodeSettings:actionCodeSettings
-                                                requestConfiguration:_requestConfiguration];
+                                                requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend getOOBConfirmationCode:request
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {

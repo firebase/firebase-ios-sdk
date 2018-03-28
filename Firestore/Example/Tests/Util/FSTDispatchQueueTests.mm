@@ -29,6 +29,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 @end
 
 @implementation FSTDispatchQueueTests {
+  dispatch_queue_t _underlyingQueue;
   FSTDispatchQueue *_queue;
   NSMutableArray *_completedSteps;
   NSArray *_expectedSteps;
@@ -37,11 +38,165 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 
 - (void)setUp {
   [super setUp];
-  dispatch_queue_t dispatch_queue =
-      dispatch_queue_create("FSTDispatchQueueTests", DISPATCH_QUEUE_SERIAL);
-  _queue = [[FSTDispatchQueue alloc] initWithQueue:dispatch_queue];
+  _underlyingQueue = dispatch_queue_create("FSTDispatchQueueTests", DISPATCH_QUEUE_SERIAL);
+  _queue = [[FSTDispatchQueue alloc] initWithQueue:_underlyingQueue];
   _completedSteps = [NSMutableArray array];
   _expectedSteps = nil;
+}
+
+- (void)testDispatchAsyncBlocksSubmissionFromTasksOnTheQueue {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+  __block NSString *problem = nil;
+
+  [_queue dispatchAsync:^{
+    @try {
+      [self->_queue dispatchAsync:^{
+      }];
+      problem = @"Should have disallowed submission into the queue while running";
+      [expectation fulfill];
+    } @catch (NSException *ex) {
+      caught = ex;
+      [expectation fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  XCTAssertNil(problem);
+  XCTAssertNotNil(caught);
+
+  XCTAssertEqualObjects(caught.name, NSInternalInconsistencyException);
+  XCTAssertTrue(
+      [caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
+                               @"dispatchAsync called when we are already running on target"]);
+}
+
+- (void)testDispatchAsyncAllowingSameQueueActuallyAllowsSameQueue {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+
+  [_queue dispatchAsync:^{
+    @try {
+      [self->_queue dispatchAsyncAllowingSameQueue:^{
+        [expectation fulfill];
+      }];
+    } @catch (NSException *ex) {
+      caught = ex;
+      [expectation fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  XCTAssertNil(caught);
+}
+
+- (void)testDispatchAsyncAllowsSameQueueForUnownedActions {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+
+  // Simulate the case of an action that runs on our queue because e.g. it's run by a user-owned
+  // deinitializer that happened to be last held in one of our API methods.
+  dispatch_async(_underlyingQueue, ^{
+    @try {
+      [self->_queue dispatchAsync:^{
+        [expectation fulfill];
+      }];
+    } @catch (NSException *ex) {
+      caught = ex;
+      [expectation fulfill];
+    }
+  });
+
+  [self awaitExpectations];
+  XCTAssertNil(caught);
+}
+
+- (void)testDispatchSyncBlocksSubmissionFromTasksOnTheQueue {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+  __block NSString *problem = nil;
+
+  [_queue dispatchSync:^{
+    @try {
+      [self->_queue dispatchSync:^{
+      }];
+      problem = @"Should have disallowed submission into the queue while running";
+      [expectation fulfill];
+    } @catch (NSException *ex) {
+      caught = ex;
+      [expectation fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  XCTAssertNil(problem);
+  XCTAssertNotNil(caught);
+
+  XCTAssertEqualObjects(caught.name, NSInternalInconsistencyException);
+  XCTAssertTrue(
+      [caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
+                               @"dispatchSync called when we are already running on target"]);
+}
+
+- (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {
+  XCTAssertNotEqualObjects(_underlyingQueue, dispatch_get_main_queue());
+
+  __block NSException *caught = nil;
+  @try {
+    // Run on the main queue not the FSTDispatchQueue's queue
+    [_queue verifyIsCurrentQueue];
+  } @catch (NSException *ex) {
+    caught = ex;
+  }
+  XCTAssertNotNil(caught);
+  XCTAssertTrue([caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
+                                         @"We are running on the wrong dispatch queue"]);
+}
+
+- (void)testVerifyIsCurrentQueueRequiresOperationIsInProgress {
+  __block NSException *caught = nil;
+  dispatch_sync(_underlyingQueue, ^{
+    @try {
+      [_queue verifyIsCurrentQueue];
+    } @catch (NSException *ex) {
+      caught = ex;
+    }
+  });
+  XCTAssertNotNil(caught);
+  XCTAssertTrue(
+      [caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
+                               @"verifyIsCurrentQueue called outside enterCheckedOperation"]);
+}
+
+- (void)testVerifyIsCurrentQueueWorksWithOperationIsInProgress {
+  __block NSException *caught = nil;
+  [_queue dispatchSync:^{
+    @try {
+      [_queue verifyIsCurrentQueue];
+    } @catch (NSException *ex) {
+      caught = ex;
+    }
+  }];
+  XCTAssertNil(caught);
+}
+
+- (void)testEnterCheckedOperationDisallowsNesting {
+  __block NSException *caught = nil;
+  __block NSString *problem = nil;
+  [_queue dispatchSync:^{
+    @try {
+      [_queue enterCheckedOperation:^{
+      }];
+      problem = @"Should not have been able to enter nested enterCheckedOperation";
+    } @catch (NSException *ex) {
+      caught = ex;
+    }
+  }];
+  XCTAssertNil(problem);
+  XCTAssertNotNil(caught);
+  XCTAssertTrue([caught.reason
+      hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
+                @"enterCheckedOperation may not be called when an operation is in progress"]);
 }
 
 /**

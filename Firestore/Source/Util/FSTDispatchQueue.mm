@@ -104,7 +104,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startWithDelay:(NSTimeInterval)delay {
   dispatch_time_t delayNs = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
   dispatch_after(delayNs, self.queue.queue, ^{
-    [self delayDidElapse];
+    [self.queue enterCheckedOperation:^{
+      [self delayDidElapse];
+    }];
   });
 }
 
@@ -151,6 +153,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly) NSMutableArray<FSTDelayedCallback *> *delayedCallbacks;
 
+/**
+ * Flag set while an FSTDispatchQueue operation is currently executing. Used for assertion
+ * sanity-checks.
+ */
+@property(nonatomic, assign) BOOL operationInProgress;
+
 - (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
 
 @end
@@ -165,6 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _queue = queue;
     _delayedCallbacks = [NSMutableArray array];
+    _operationInProgress = NO;
   }
   return self;
 }
@@ -173,22 +182,47 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert([self onTargetQueue],
             @"We are running on the wrong dispatch queue. Expected '%@' Actual: '%@'",
             [self targetQueueLabel], [self currentQueueLabel]);
+  FSTAssert(_operationInProgress,
+            @"verifyIsCurrentQueue called outside enterCheckedOperation on queue '%@'",
+            [self currentQueueLabel]);
+}
+
+- (void)enterCheckedOperation:(void (^)(void))block {
+  FSTAssert(!_operationInProgress,
+            @"enterCheckedOperation may not be called when an operation is in progress");
+  @try {
+    _operationInProgress = YES;
+    [self verifyIsCurrentQueue];
+    block();
+  } @finally {
+    _operationInProgress = NO;
+  }
 }
 
 - (void)dispatchAsync:(void (^)(void))block {
-  FSTAssert(![self onTargetQueue],
+  FSTAssert(!_operationInProgress || ![self onTargetQueue],
             @"dispatchAsync called when we are already running on target dispatch queue '%@'",
             [self targetQueueLabel]);
 
-  dispatch_async(self.queue, block);
+  dispatch_async(self.queue, ^{
+    [self enterCheckedOperation:block];
+  });
 }
 
 - (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block {
-  dispatch_async(self.queue, block);
+  dispatch_async(self.queue, ^{
+    [self enterCheckedOperation:block];
+  });
 }
 
 - (void)dispatchSync:(void (^)(void))block {
-  dispatch_sync(self.queue, block);
+  FSTAssert(!_operationInProgress || ![self onTargetQueue],
+            @"dispatchSync called when we are already running on target dispatch queue '%@'",
+            [self targetQueueLabel]);
+
+  dispatch_sync(self.queue, ^{
+    [self enterCheckedOperation:block];
+  });
 }
 
 - (FSTDelayedCallback *)dispatchAfterDelay:(NSTimeInterval)delay

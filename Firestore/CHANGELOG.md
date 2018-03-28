@@ -1,8 +1,16 @@
 # Unreleased
+- [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
+  cause `getDocument()` requests made while offline to be delayed by up to 10
+  seconds (rather than returning from cache immediately).
+
+# v0.10.4
 - [changed] If the SDK's attempt to connect to the Cloud Firestore backend
   neither succeeds nor fails within 10 seconds, the SDK will consider itself
   "offline", causing getDocument() calls to resolve with cached results, rather
   than continuing to wait.
+- [fixed] Fixed a race condition after calling `enableNetwork()` that could
+  result in a "Mutation batchIDs must be acknowledged in order" assertion crash.
+- [fixed] Fixed undefined symbols in the absl namespace (#898).
 
 # v0.10.3
 - [fixed] Fixed a regression in the 4.10.0 Firebase iOS SDK release that

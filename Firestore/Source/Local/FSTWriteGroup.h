@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "Firestore/Source/Local/StringView.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,13 +47,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)groupWithAction:(NSString *)action;
 
++ (instancetype)groupWithAction:(NSString *)action
+                    transaction:(firebase::firestore::local::LevelDbTransaction *)transaction;
+
 - (instancetype)init __attribute__((unavailable("Use a static constructor instead")));
 
 /** The action description assigned to this write group. */
 @property(nonatomic, copy, readonly) NSString *action;
 
-/** Returns YES if the write group has no messages in it. */
-- (BOOL)isEmpty;
+@property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *transaction;
 
 /**
  * Marks the given key for deletion.
@@ -78,8 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setData:(Firestore::StringView)data forKey:(Firestore::StringView)key;
 
-/** Writes the contents to the given LevelDB. */
-- (leveldb::Status)writeToDB:(std::shared_ptr<leveldb::DB>)db;
+/** Returns YES if the write group has no messages in it. */
+- (BOOL)isEmpty;
 
 @end
 

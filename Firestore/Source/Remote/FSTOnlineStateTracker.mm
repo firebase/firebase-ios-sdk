@@ -47,7 +47,7 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
  * Unknown to Offline without waiting for the stream to actually fail (kMaxWatchStreamFailures
  * times).
  */
-@property(nonatomic, strong, nullable) FSTDelayedCallback *watchStreamTimer;
+@property(nonatomic, strong, nullable) FSTDelayedCallback *onlineStateTimer;
 
 /**
  * Whether the client should log a warning message if it fails to connect to the backend
@@ -71,14 +71,15 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 }
 
 - (void)handleWatchStreamStart {
-  [self setAndBroadcastState:FSTOnlineStateUnknown];
+  if (self.watchStreamFailures == 0) {
+    [self setAndBroadcastState:FSTOnlineStateUnknown];
 
-  if (self.watchStreamTimer == nil) {
-    self.watchStreamTimer = [self.queue
+    FSTAssert(!self.onlineStateTimer, @"onlineStateTimer shouldn't be started yet");
+    self.onlineStateTimer = [self.queue
         dispatchAfterDelay:kOnlineStateTimeout
                    timerID:FSTTimerIDOnlineStateTimeout
                      block:^{
-                       self.watchStreamTimer = nil;
+                       self.onlineStateTimer = nil;
                        FSTAssert(
                            self.state == FSTOnlineStateUnknown,
                            @"Timer should be canceled if we transitioned to a different state.");
@@ -100,6 +101,11 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 - (void)handleWatchStreamFailure {
   if (self.state == FSTOnlineStateOnline) {
     [self setAndBroadcastState:FSTOnlineStateUnknown];
+
+    // To get to FSTOnlineStateOnline, updateState: must have been called which would have reset
+    // our heuristics.
+    FSTAssert(self.watchStreamFailures == 0, @"watchStreamFailures must be 0");
+    FSTAssert(!self.onlineStateTimer, @"onlineStateTimer must be nil");
   } else {
     self.watchStreamFailures++;
     if (self.watchStreamFailures >= kMaxWatchStreamFailures) {
@@ -138,9 +144,9 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 }
 
 - (void)clearOnlineStateTimer {
-  if (self.watchStreamTimer) {
-    [self.watchStreamTimer cancel];
-    self.watchStreamTimer = nil;
+  if (self.onlineStateTimer) {
+    [self.onlineStateTimer cancel];
+    self.onlineStateTimer = nil;
   }
 }
 

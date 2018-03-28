@@ -18,14 +18,15 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTSyncEngine (Testing)
 
 /** Returns the current set of limbo document keys and their associated target IDs. */
-- (NSDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *)currentLimboDocuments;
+- (std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId>)
+    currentLimboDocuments;
 
 @end
 

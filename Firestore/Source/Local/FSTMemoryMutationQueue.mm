@@ -18,14 +18,14 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTDocumentReference.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -192,10 +192,10 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
   // All batches with batchID <= self.highestAcknowledgedBatchID have been acknowledged so the
   // first unacknowledged batch after batchID will have a batchID larger than both of these values.
-  batchID = MAX(batchID + 1, self.highestAcknowledgedBatchID);
+  FSTBatchID nextBatchID = MAX(batchID, self.highestAcknowledgedBatchID) + 1;
 
   // The requested batchID may still be out of range so normalize it to the start of the queue.
-  NSInteger rawIndex = [self indexOfBatchID:batchID];
+  NSInteger rawIndex = [self indexOfBatchID:nextBatchID];
   NSUInteger index = rawIndex < 0 ? 0 : (NSUInteger)rawIndex;
 
   // Finally return the first non-tombstone batch.
@@ -231,7 +231,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
-    (FSTDocumentKey *)documentKey {
+    (const DocumentKey &)documentKey {
   FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:documentKey ID:0];
 
   NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray array];
@@ -259,17 +259,17 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   // key in this reference must have an even number of segments. The empty segment can be used as
   // a suffix of the query path because it precedes all other segments in an ordered traversal.
   ResourcePath startPath = query.path;
-  if (![FSTDocumentKey isDocumentKey:startPath]) {
+  if (!DocumentKey::IsDocumentKey(startPath)) {
     startPath = startPath.Append("");
   }
   FSTDocumentReference *start =
-      [[FSTDocumentReference alloc] initWithKey:[FSTDocumentKey keyWithPath:startPath] ID:0];
+      [[FSTDocumentReference alloc] initWithKey:DocumentKey{startPath} ID:0];
 
   // Find unique batchIDs referenced by all documents potentially matching the query.
   __block FSTImmutableSortedSet<NSNumber *> *uniqueBatchIDs =
       [FSTImmutableSortedSet setWithComparator:NumberComparator];
   FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-    const ResourcePath &rowKeyPath = reference.key.path;
+    const ResourcePath &rowKeyPath = reference.key.path();
     if (!prefix.IsPrefixOf(rowKeyPath)) {
       *stop = YES;
       return;
@@ -355,7 +355,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   for (FSTMutationBatch *batch in batches) {
     FSTBatchID batchID = batch.batchID;
     for (FSTMutation *mutation in batch.mutations) {
-      FSTDocumentKey *key = mutation.key;
+      const DocumentKey &key = mutation.key;
       [garbageCollector addPotentialGarbageKey:key];
 
       FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];
@@ -374,15 +374,15 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 #pragma mark - FSTGarbageSource implementation
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
+- (BOOL)containsKey:(const DocumentKey &)key {
   // Create a reference with a zero ID as the start position to find any document reference with
   // this key.
   FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:0];
 
   NSEnumerator<FSTDocumentReference *> *enumerator =
       [self.batchesByDocumentKey objectEnumeratorFrom:reference];
-  FSTDocumentKey *_Nullable firstKey = [enumerator nextObject].key;
-  return [firstKey isEqual:key];
+  FSTDocumentReference *_Nullable firstReference = [enumerator nextObject];
+  return firstReference && firstReference.key == reference.key;
 }
 
 #pragma mark - Helpers
