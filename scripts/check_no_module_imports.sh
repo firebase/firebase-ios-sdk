@@ -15,16 +15,23 @@
 # Fail if any source files contain Objective-C module @imports, excluding:
 #   * Example sources
 #   * Sample sources
-#
+
 options=(
   -n  # show line numbers
   -I  # exclude binary files
   '^@import'
 )
 
-git grep "${options[@]}" \
-    -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**'
-if [[ $? == 0 ]]; then
+function exit_with_error {
   echo "ERROR: @import statement found in the files above. Please use #import instead."
   exit 1
-fi
+}
+
+git grep "${options[@]}" \
+  -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' && exit_with_error
+
+# Tests are under the Example directory, so we have to separately grep them for
+# @import statements (otherwise they'd be excluded).
+git grep "${options[@]}" \
+  -- ':(glob)**/Tests/**' ':(glob)**/TestUtils/**' ':(glob)**/IntegrationTests/**' && \
+  exit_with_error
