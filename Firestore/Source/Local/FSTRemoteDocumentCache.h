@@ -35,9 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol FSTRemoteDocumentCache <NSObject>
 
-/** Shuts this cache down, closing open files, etc. */
-- (void)shutdown;
-
 /**
  * Adds or replaces an entry in the cache.
  *

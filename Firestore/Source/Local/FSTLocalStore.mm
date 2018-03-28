@@ -165,7 +165,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdown {
-  [self.remoteDocumentCache shutdown];
 }
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {

@@ -58,9 +58,6 @@ using leveldb::Status;
   return self;
 }
 
-- (void)shutdown {
-}
-
 - (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
   std::string key = [self remoteDocumentKey:document.key];
   [group setMessage:[self.serializer encodedMaybeDocument:document] forKey:key];
