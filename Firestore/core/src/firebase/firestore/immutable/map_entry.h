@@ -51,6 +51,10 @@ struct KeyComparator {
     return key_comparator_(lhs.first, rhs.first);
   }
 
+  const C& comparator() const {
+    return key_comparator_;
+  }
+
  private:
   C key_comparator_;
 };

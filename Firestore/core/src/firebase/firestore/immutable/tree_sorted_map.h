@@ -60,6 +60,18 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
   }
 
   /**
+   * Creates a TreeSortedMap from a range of pairs to insert.
+   */
+  template <typename Range>
+  static TreeSortedMap Create(const Range& range, const C& comparator) {
+    node_type node;
+    for (auto&& element : range) {
+      node = node.insert(element.first, element.second, comparator);
+    }
+    return TreeSortedMap{std::move(node), comparator};
+  }
+
+  /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
    *
