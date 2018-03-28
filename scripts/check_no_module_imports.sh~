@@ -14,17 +14,17 @@
 
 # Fail if any source files contain Objective-C module @imports, excluding:
 #   * Example sources
-#   * Sample sources
 #
 options=(
   -n  # show line numbers
   -I  # exclude binary files
-  '^@import'
+  ' $'
 )
 
 git grep "${options[@]}" \
-    -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**'
+    -- ':(exclude)Firestore/Protos/nanopb'
 if [[ $? == 0 ]]; then
-  echo "ERROR: @import statement found in the files above. Please use #import instead."
+  echo "ERROR: Trailing whitespace found in the files above. Please fix."
   exit 1
 fi
+
