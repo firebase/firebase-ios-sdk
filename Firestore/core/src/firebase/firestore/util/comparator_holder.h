@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_COMPARATOR_HOLDER_H
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_COMPARATOR_HOLDER_H
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_COMPARATOR_HOLDER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_COMPARATOR_HOLDER_H_
 
 #include <type_traits>
 
@@ -31,7 +31,8 @@ namespace util {
 template <typename C, bool = std::is_empty<C>::value>
 class ComparatorHolder {
  protected:
-  ComparatorHolder(const C& comparator) noexcept : comparator_(comparator) {
+  explicit ComparatorHolder(const C& comparator) noexcept
+      : comparator_(comparator) {
   }
 
   const C& comparator() const noexcept {
@@ -46,7 +47,7 @@ class ComparatorHolder {
 template <typename C>
 class ComparatorHolder<C, true> : private C {
  protected:
-  ComparatorHolder(const C& comparator) noexcept {
+  explicit ComparatorHolder(const C& comparator) noexcept {
     // Parameter is ignored because C is known stateless
     (void)comparator;
   }
@@ -60,4 +61,4 @@ class ComparatorHolder<C, true> : private C {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_COMPARATOR_HOLDER_H
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_COMPARATOR_HOLDER_H_
