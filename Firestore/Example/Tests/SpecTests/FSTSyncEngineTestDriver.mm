@@ -191,7 +191,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdown {
   [self.dispatchQueue dispatchSync:^{
     [self.remoteStore shutdown];
-    [self.localStore shutdown];
   }];
 }
 

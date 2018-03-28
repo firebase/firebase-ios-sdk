@@ -164,9 +164,6 @@ NS_ASSUME_NONNULL_BEGIN
   self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
-- (void)shutdown {
-}
-
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"OldBatches"];
