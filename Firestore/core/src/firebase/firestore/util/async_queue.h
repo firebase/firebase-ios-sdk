@@ -16,7 +16,8 @@
 
 #include <chrono>
 #include <functional>
-#include <utility>
+#include <memory>
+#include <vector>
 
 #include "dispatch/dispatch.h"
 
@@ -54,6 +55,32 @@ enum class TimerId {
 
 class AsyncQueue;
 
+/*
+// E.g.
+class DelayedOperation {
+ public:
+  void Cancel() {
+    if (auto instance = impl_.lock()) {
+      instance->Cancel();
+    }
+  }
+ private:
+  std::weak_ptr<impl::DelayedOperation> impl_;
+};
+
+namespace impl {
+class DelayedOperation {
+  // ...
+};
+}
+
+class AsyncQueue {
+  // ...
+  std::vector<std::shared_ptr<impl::DelayedOperation>> operations_;
+};
+
+ */
+
 /**
  * Handle to a callback scheduled via [FSTDispatchQueue dispatchAfterDelay:].
  * Supports cancellation via the cancel method.
@@ -82,17 +109,34 @@ class DelayedOperation {
 
   // aka StartWithDelay
   void Schedule(const Duration delay);
+  // aka delayDidElapse
   void Run();
   // aka SkipDelay
   void RunImmediately();
   void MarkDone();
 
-  AsyncQueue* queue_{};
-  TimerId timer_id_{};
-  TimePoint target_time_;
-  Operation operation_;
-  // True if the operation has either been run or canceled.
-  bool done_{};
+  bool operator==(const DelayedOperation& rhs) const {
+    return data_ == rhs.data_;
+  }
+  bool operator<(const DelayedOperation& rhs) const {
+    return data_->target_time_ < rhs.data_->target_time_;
+  }
+
+  struct Data {
+    Data(AsyncQueue* const queue,
+         const TimerId timer_id,
+         const Duration delay,
+         Operation&& operation);
+
+    AsyncQueue* queue_{};
+    TimerId timer_id_{};
+    TimePoint target_time_;
+    Operation operation_;
+    // True if the operation has either been run or canceled.
+    bool done_{};
+  };
+
+  std::shared_ptr<Data> data_;
 
   friend class AsyncQueue;
 };
@@ -101,6 +145,10 @@ class AsyncQueue {
  public:
   using Operation = DelayedOperation::Operation;
   using Duration = DelayedOperation::Duration;
+
+  explicit AsyncQueue(const dispatch_queue_t native_handle)
+      : native_handle_{native_handle} {
+  }
 
   /**
    * Asserts that we are already running on this queue (actually, we can only
@@ -189,7 +237,9 @@ class AsyncQueue {
  private:
   void Dequeue(const DelayedOperation& operation);
 
-  dispatch_queue_t native_handle_;
+  dispatch_queue_t native_handle_{};
+  std::vector<DelayedOperation> operations_;
+  bool is_operation_in_progress_{};
 
   friend class DelayedOperation;
 };

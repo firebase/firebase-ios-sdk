@@ -17,6 +17,8 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 #include <assert.h>
+#include <algorithm>
+#include <utility>
 
 #include "dispatch/dispatch.h"
 
@@ -28,16 +30,24 @@ DelayedOperation::DelayedOperation(AsyncQueue* const queue,
                                    const TimerId timer_id,
                                    const Duration delay,
                                    Operation&& operation)
+    : data_{std::make_shared<Data>(
+          queue, timer_id, delay, std::move(operation))} {
+  Schedule(delay);
+}
+
+DelayedOperation::Data::Data(AsyncQueue* const queue,
+                             const TimerId timer_id,
+                             const Duration delay,
+                             Operation&& operation)
     : queue_{queue},
       timer_id_{timer_id},
       target_time_{delay},
       operation_{std::move(operation)} {
-  Schedule(delay);
 }
 
 void DelayedOperation::Cancel() {
-  queue_->VerifyIsCurrentQueue();
-  if (!done_) {
+  data_->queue_->VerifyIsCurrentQueue();
+  if (!data_->done_) {
     MarkDone();
   }
 }
@@ -47,30 +57,37 @@ void DelayedOperation::Schedule(const Duration delay) {
   const dispatch_time_t delay_ns = dispatch_time(
       DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
   dispatch_after_f(
-      delay_ns, queue_->native_handle(), this, [](void* const raw_self) {
+      delay_ns, data_->queue_->native_handle(), this, [](void* const raw_self) {
         const auto self = static_cast<DelayedOperation*>(raw_self);
-        self->queue_->EnterCheckedOperation([self] { self->Run(); });
+        self->data_->queue_->EnterCheckedOperation([self] { self->Run(); });
       });
 }
 
 void DelayedOperation::Run() {
-  queue_->VerifyIsCurrentQueue();
-  if (!done_) {
+  data_->queue_->VerifyIsCurrentQueue();
+  if (!data_->done_) {
     MarkDone();
-    assert(operation_);
-    operation_();
+    assert(data_->operation_);
+    data_->operation_();
   }
 }
 
 void DelayedOperation::RunImmediately() {
-   queue_->EnqueueAllowingSameQueue([this] {
-   Run();
-  });
+  data_->queue_->EnqueueAllowingSameQueue([this] { Run(); });
 }
 
 void DelayedOperation::MarkDone() {
-  done_ = true;
-  queue_->Dequeue(*this);
+  data_->done_ = true;
+  data_->queue_->Dequeue(*this);
+}
+
+// AsyncQueue
+
+void AsyncQueue::Dequeue(const DelayedOperation& dequeued) {
+  const auto new_end =
+      std::remove(operations_.begin(), operations_.end(), dequeued);
+  assert(new_end != operations_.end());
+  operations_.erase(new_end, operations_.end());
 }
 
 }  // namespace util
