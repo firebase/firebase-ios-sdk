@@ -32,18 +32,6 @@ namespace impl {
 typedef ArraySortedMap<int, int> IntMap;
 constexpr IntMap::size_type kFixedSize = IntMap::kFixedSize;
 
-/**
- * Creates an ArraySortedMap by inserting a pair for each value in the vector.
- * Each pair will have the same key and value.
- */
-IntMap ToMap(const std::vector<int>& values) {
-  IntMap result;
-  for (auto&& value : values) {
-    result = result.insert(value, value);
-  }
-  return result;
-}
-
 // TODO(wilhuff): ReverseTraversal
 
 #define ASSERT_SEQ_EQ(x, y) ASSERT_EQ((x), Append(y));
@@ -70,7 +58,7 @@ TEST(ArraySortedMap, RemoveKeyValuePair) {
 }
 
 TEST(ArraySortedMap, MoreRemovals) {
-  IntMap map = IntMap()
+  IntMap map = IntMap{}
                    .insert(1, 1)
                    .insert(50, 50)
                    .insert(3, 3)
@@ -133,7 +121,7 @@ TEST(ArraySortedMap, Increasing) {
 }
 
 TEST(ArraySortedMap, Override) {
-  IntMap map = IntMap().insert(10, 10).insert(10, 8);
+  IntMap map = IntMap{}.insert(10, 10).insert(10, 8);
 
   ASSERT_TRUE(Found(map, 10, 8));
   ASSERT_FALSE(Found(map, 10, 10));
@@ -141,7 +129,7 @@ TEST(ArraySortedMap, Override) {
 
 TEST(ArraySortedMap, ChecksSize) {
   std::vector<int> to_insert = Sequence(kFixedSize);
-  IntMap map = ToMap(to_insert);
+  IntMap map = ToMap<IntMap>(to_insert);
 
   // Replacing an existing entry should not hit increase size
   map = map.insert(5, 10);
@@ -170,7 +158,7 @@ TEST(ArraySortedMap, InsertionAndRemovalOfMaxItems) {
   std::vector<int> to_remove = Shuffled(to_insert);
 
   // Add them to the map
-  IntMap map = ToMap(to_insert);
+  IntMap map = ToMap<IntMap>(to_insert);
   ASSERT_EQ(expected_size, map.size())
       << "Check if all N objects are in the map";
 
@@ -186,7 +174,7 @@ TEST(ArraySortedMap, InsertionAndRemovalOfMaxItems) {
 TEST(ArraySortedMap, BalanceProblem) {
   std::vector<int> to_insert{1, 7, 8, 5, 2, 6, 4, 0, 3};
 
-  IntMap map = ToMap(to_insert);
+  IntMap map = ToMap<IntMap>(to_insert);
   ASSERT_SEQ_EQ(Pairs(Sorted(to_insert)), map);
 }
 
@@ -195,7 +183,7 @@ TEST(ArraySortedMap, BalanceProblem) {
 // TODO(wilhuff): IndexOf
 
 TEST(ArraySortedMap, AvoidsCopying) {
-  IntMap map = IntMap().insert(10, 20);
+  IntMap map = IntMap{}.insert(10, 20);
   auto found = map.find(10);
   ASSERT_NE(found, map.end());
   EXPECT_EQ(20, found->second);

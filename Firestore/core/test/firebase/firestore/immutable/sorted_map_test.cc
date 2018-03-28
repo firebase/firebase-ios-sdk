@@ -62,7 +62,7 @@ TYPED_TEST(SortedMapTest, EmptySize) {
 }
 
 TYPED_TEST(SortedMapTest, Empty) {
-  TypeParam map = TypeParam().insert(10, 10).erase(10);
+  TypeParam map = TypeParam{}.insert(10, 10).erase(10);
   EXPECT_TRUE(map.empty());
   EXPECT_EQ(0u, map.size());
 

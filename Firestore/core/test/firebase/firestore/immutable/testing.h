@@ -58,7 +58,7 @@ testing::AssertionResult Found(const Container& map,
 
 /** Creates an empty vector (for readability). */
 inline std::vector<int> Empty() {
-  return std::vector<int>{};
+  return {};
 }
 
 /**
@@ -95,7 +95,7 @@ inline std::vector<int> Sequence(int num_elements) {
  * Creates a copy of the given vector with contents shuffled randomly.
  */
 inline std::vector<int> Shuffled(const std::vector<int>& values) {
-  std::vector<int> result(values);
+  std::vector<int> result{values};
   util::SecureRandom rng;
   std::shuffle(result.begin(), result.end(), rng);
   return result;
@@ -105,7 +105,7 @@ inline std::vector<int> Shuffled(const std::vector<int>& values) {
  * Creates a copy of the given vector with contents sorted.
  */
 inline std::vector<int> Sorted(const std::vector<int>& values) {
-  std::vector<int> result(values);
+  std::vector<int> result{values};
   std::sort(result.begin(), result.end());
   return result;
 }
@@ -114,7 +114,7 @@ inline std::vector<int> Sorted(const std::vector<int>& values) {
  * Creates a copy of the given vector with contents reversed.
  */
 inline std::vector<int> Reversed(const std::vector<int>& values) {
-  std::vector<int> result(values);
+  std::vector<int> result{values};
   std::reverse(result.begin(), result.end());
   return result;
 }
@@ -149,9 +149,7 @@ Container ToMap(const std::vector<int>& values) {
  */
 template <typename Container>
 std::vector<typename Container::value_type> Append(const Container& container) {
-  std::vector<typename Container::value_type> result;
-  result.insert(result.begin(), container.begin(), container.end());
-  return result;
+  return {container.begin(), container.end()};
 }
 
 #define ASSERT_SEQ_EQ(x, y) ASSERT_EQ((x), Append(y));

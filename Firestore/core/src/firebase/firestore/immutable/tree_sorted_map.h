@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/llrb_node.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/util/comparator_holder.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/iterator_adaptors.h"
 
@@ -40,7 +41,7 @@ namespace impl {
  * methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = util::Comparator<K>>
-class TreeSortedMap : public SortedMapBase {
+class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
  public:
   /**
    * The type of the entries stored in the map.
@@ -55,8 +56,8 @@ class TreeSortedMap : public SortedMapBase {
   /**
    * Creates an empty TreeSortedMap.
    */
-  explicit TreeSortedMap(const C& comparator = C())
-      : root_(node_type::Empty()), comparator_(comparator) {
+  explicit TreeSortedMap(const C& comparator = {})
+      : util::ComparatorHolder<C>{comparator}, root_{node_type::Empty()} {
   }
 
   /**
@@ -68,6 +69,7 @@ class TreeSortedMap : public SortedMapBase {
    * @return A new dictionary with the added/updated value.
    */
   TreeSortedMap insert(const K& key, const V& value) const {
+    // TODO(wilhuff): Actually implement insert
     (void)key;
     (void)value;
     return *this;
@@ -80,6 +82,7 @@ class TreeSortedMap : public SortedMapBase {
    * @return A new map without that value.
    */
   TreeSortedMap erase(const K& key) const {
+    // TODO(wilhuff): Actually implement erase
     (void)key;
     return *this;
   }
@@ -100,15 +103,14 @@ class TreeSortedMap : public SortedMapBase {
 
  private:
   TreeSortedMap(node_type&& root, const C& comparator) noexcept
-      : root_(std::move(root)), comparator_(comparator) {
+      : util::ComparatorHolder<C>{comparator}, root_{std::move(root)} {
   }
 
-  TreeSortedMap Wrap(node_type&& root) const noexcept {
-    return TreeSortedMap(std::move(root), comparator_);
+  TreeSortedMap Wrap(node_type&& root) noexcept {
+    return TreeSortedMap{std::move(root), this->comparator()};
   }
 
   node_type root_;
-  C comparator_;
 };
 
 }  // namespace impl

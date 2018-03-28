@@ -110,7 +110,7 @@ class FixedArray {
     return begin() + size_;
   }
 
-  array_type contents_;
+  array_type contents_{};
   size_type size_ = 0;
 };
 
@@ -140,7 +140,7 @@ class ArraySortedMap : public SortedMapBase {
    * Creates an empty ArraySortedMap.
    */
   explicit ArraySortedMap(const C& comparator = C())
-      : array_(EmptyArray()), key_comparator_(comparator) {
+      : array_{EmptyArray()}, key_comparator_{comparator} {
   }
 
   /**
@@ -148,8 +148,8 @@ class ArraySortedMap : public SortedMapBase {
    */
   ArraySortedMap(std::initializer_list<value_type> entries,
                  const C& comparator = C())
-      : array_(std::make_shared<array_type>(entries.begin(), entries.end())),
-        key_comparator_(comparator) {
+      : array_{std::make_shared<array_type>(entries.begin(), entries.end())},
+        key_comparator_{comparator} {
   }
 
   /**
@@ -179,7 +179,7 @@ class ArraySortedMap : public SortedMapBase {
     auto copy = std::make_shared<array_type>(begin(), pos);
 
     // Copy the value to be inserted.
-    copy->append(value_type(key, value));
+    copy->append({key, value});
 
     if (replacing_entry) {
       // Skip the thing at pos because it compares the same as the pair above.
@@ -265,11 +265,11 @@ class ArraySortedMap : public SortedMapBase {
 
   ArraySortedMap(const array_pointer& array,
                  const key_comparator_type& key_comparator) noexcept
-      : array_(array), key_comparator_(key_comparator) {
+      : array_{array}, key_comparator_{key_comparator} {
   }
 
   ArraySortedMap wrap(const array_pointer& array) const noexcept {
-    return ArraySortedMap(array, key_comparator_);
+    return ArraySortedMap{array, key_comparator_};
   }
 
   const_iterator LowerBound(const K& key) const {

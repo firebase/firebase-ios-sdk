@@ -30,11 +30,9 @@ namespace impl {
 /**
  * A Color of a tree node in a red-black tree.
  */
-enum Color {
-  Black = 0u,
-  Red = 1u,
-
-  Default = static_cast<unsigned int>(Red),
+enum Color : unsigned int {
+  Black,
+  Red,
 };
 
 /**
@@ -54,16 +52,20 @@ class LlrbNode : public SortedMapBase {
   /**
    * Constructs an empty node.
    */
+  // TODO(wilhuff): move this into NodeData if that structure is to live on.
   LlrbNode()
-      : LlrbNode(NodeData{std::pair<K, V>{}, Color::Black, /*size=*/0u,
-                          LlrbNode{nullptr}, LlrbNode{nullptr}}) {
+      : LlrbNode{NodeData{{},
+                          Color::Black,
+                          /*size=*/0u,
+                          LlrbNode{nullptr},
+                          LlrbNode{nullptr}}} {
   }
 
   /**
    * Returns a shared Empty node, to cut down on allocations in the base case.
    */
   static const LlrbNode& Empty() {
-    static const LlrbNode empty_node = LlrbNode{};
+    static const LlrbNode empty_node{};
     return empty_node;
   }
 
@@ -114,7 +116,7 @@ class LlrbNode : public SortedMapBase {
   };
 
   explicit LlrbNode(NodeData&& data)
-      : data_(std::make_shared<NodeData>(std::move(data))) {
+      : data_{std::make_shared<NodeData>(std::move(data))} {
   }
 
   /**
@@ -124,7 +126,7 @@ class LlrbNode : public SortedMapBase {
    *
    * This should only be called when constructing the empty node.
    */
-  explicit LlrbNode(std::nullptr_t) : data_(nullptr) {
+  explicit LlrbNode(std::nullptr_t) : data_{nullptr} {
   }
 
   std::shared_ptr<NodeData> data_;

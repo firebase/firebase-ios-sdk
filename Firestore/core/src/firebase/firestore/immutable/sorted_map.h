@@ -43,41 +43,42 @@ class SortedMap : public impl::SortedMapBase {
   /**
    * Creates an empty SortedMap.
    */
-  explicit SortedMap(const C& comparator = C())
-      : SortedMap(array_type{comparator}) {
+  explicit SortedMap(const C& comparator = {})
+      : SortedMap{array_type{comparator}} {
   }
 
   /**
    * Creates an SortedMap containing the given entries.
    */
   SortedMap(std::initializer_list<value_type> entries,
-            const C& comparator = C()) {
+            const C& comparator = {}) {
     if (entries.size() <= kFixedSize) {
       tag_ = Tag::Array;
-      new (&array_) array_type(entries, comparator);
+      new (&array_) array_type{entries, comparator};
     } else {
+      // TODO(wilhuff): implement tree initialization
       abort();
     }
   }
 
-  SortedMap(const SortedMap& other) : tag_(other.tag_) {
+  SortedMap(const SortedMap& other) : tag_{other.tag_} {
     switch (tag_) {
       case Tag::Array:
-        new (&array_) array_type(other.array_);
+        new (&array_) array_type{other.array_};
         break;
       case Tag::Tree:
-        new (&tree_) tree_type(other.tree_);
+        new (&tree_) tree_type{other.tree_};
         break;
     }
   }
 
-  SortedMap(SortedMap&& other) : tag_(other.tag_) {
+  SortedMap(SortedMap&& other) : tag_{other.tag_} {
     switch (tag_) {
       case Tag::Array:
-        new (&array_) array_type(std::move(other.array_));
+        new (&array_) array_type{std::move(other.array_)};
         break;
       case Tag::Tree:
-        new (&tree_) tree_type(std::move(other.tree_));
+        new (&tree_) tree_type{std::move(other.tree_)};
         break;
     }
   }
@@ -167,7 +168,6 @@ class SortedMap : public impl::SortedMapBase {
         return array_.empty();
       case Tag::Tree:
         return tree_.empty();
-        break;
     }
   }
 
@@ -183,11 +183,11 @@ class SortedMap : public impl::SortedMapBase {
 
  private:
   explicit SortedMap(array_type&& array)
-      : tag_(Tag::Array), array_(std::move(array)) {
+      : tag_{Tag::Array}, array_{std::move(array)} {
   }
 
   explicit SortedMap(tree_type&& tree)
-      : tag_(Tag::Tree), tree_(std::move(tree)) {
+      : tag_{Tag::Tree}, tree_{std::move(tree)} {
   }
 
   enum class Tag {
