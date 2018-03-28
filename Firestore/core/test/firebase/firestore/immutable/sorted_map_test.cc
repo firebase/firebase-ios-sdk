@@ -110,6 +110,41 @@ TYPED_TEST(SortedMapTest, Increasing) {
     map = map.erase(i);
   }
   ASSERT_EQ(0u, map.size());
+
+  std::vector<int> empty;
+  ASSERT_EQ(Pairs(empty), Collect(map));
+}
+
+TYPED_TEST(SortedMapTest, BeginEndEmpty) {
+  TypeParam map;
+  auto begin = map.begin();
+  auto end = map.end();
+  ASSERT_EQ(begin, end);
+}
+
+TYPED_TEST(SortedMapTest, BeginEndOne) {
+  TypeParam map = ToMap<TypeParam>(Sequence(1));
+  auto begin = map.begin();
+  auto end = map.end();
+
+  ASSERT_NE(begin, end);
+  ASSERT_EQ(0, begin->first);
+
+  ++begin;
+  ASSERT_EQ(begin, end);
+}
+
+TYPED_TEST(SortedMapTest, Iterates) {
+  std::vector<int> to_insert = Sequence(this->large_number());
+  TypeParam map = ToMap<TypeParam>(to_insert);
+  auto iter = map.begin();
+  auto end = map.end();
+
+  std::vector<int> actual;
+  for (; iter != end; ++iter) {
+    actual.push_back(iter->first);
+  }
+  ASSERT_EQ(to_insert, actual);
 }
 
 }  // namespace immutable
