@@ -61,11 +61,25 @@ class SortedMap : public impl::SortedMapBase {
   }
 
   SortedMap(const SortedMap& other) : tag_(other.tag_) {
-    CopySameTag(other);
+    switch (tag_) {
+      case Tag::Array:
+        new (&array_) array_type(other.array_);
+        break;
+      case Tag::Tree:
+        new (&tree_) tree_type(other.tree_);
+        break;
+    }
   }
 
   SortedMap(SortedMap&& other) : tag_(other.tag_) {
-    MoveSameTag(std::move(other));
+    switch (tag_) {
+      case Tag::Array:
+        new (&array_) array_type(std::move(other.array_));
+        break;
+      case Tag::Tree:
+        new (&tree_) tree_type(std::move(other.tree_));
+        break;
+    }
   }
 
   ~SortedMap() {
@@ -81,7 +95,14 @@ class SortedMap : public impl::SortedMapBase {
 
   SortedMap& operator=(const SortedMap& other) {
     if (tag_ == other.tag_) {
-      CopySameTag(other);
+      switch (tag_) {
+        case Tag::Array:
+          array_ = other.array_;
+          break;
+        case Tag::Tree:
+          tree_ = other.tree_;
+          break;
+      }
     } else {
       this->~SortedMap();
       new (this) SortedMap{other};
@@ -91,7 +112,14 @@ class SortedMap : public impl::SortedMapBase {
 
   SortedMap& operator=(SortedMap&& other) {
     if (tag_ == other.tag_) {
-      MoveSameTag(std::move(other));
+      switch (tag_) {
+        case Tag::Array:
+          array_ = std::move(other.array_);
+          break;
+        case Tag::Tree:
+          tree_ = std::move(other.tree_);
+          break;
+      }
     } else {
       this->~SortedMap();
       new (this) SortedMap{std::move(other)};
@@ -160,28 +188,6 @@ class SortedMap : public impl::SortedMapBase {
 
   explicit SortedMap(tree_type&& tree)
       : tag_(Tag::Tree), tree_(std::move(tree)) {
-  }
-
-  void CopySameTag(const SortedMap& other) {
-    switch (tag_) {
-      case Tag::Array:
-        array_ = other.array_;
-        break;
-      case Tag::Tree:
-        tree_ = other.tree_;
-        break;
-    }
-  }
-
-  void MoveSameTag(SortedMap&& other) {
-    switch (tag_) {
-      case Tag::Array:
-        array_ = std::move(other.array_);
-        break;
-      case Tag::Tree:
-        tree_ = std::move(other.tree_);
-        break;
-    }
   }
 
   enum class Tag {
