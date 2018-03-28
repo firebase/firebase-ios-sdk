@@ -46,11 +46,13 @@ class ComparatorHolder {
 template <typename C>
 class ComparatorHolder<C, true> : private C {
  protected:
-  ComparatorHolder(const C& comparator) noexcept : C(comparator) {
+  ComparatorHolder(const C& comparator) noexcept {
+    // Parameter is ignored because C is known stateless
+    (void)comparator;
   }
 
   const C& comparator() const noexcept {
-    return this;
+    return *this;
   }
 };
 

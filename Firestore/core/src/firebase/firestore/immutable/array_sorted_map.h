@@ -110,7 +110,7 @@ class FixedArray {
     return begin() + size_;
   }
 
-  array_type contents_{};
+  array_type contents_;
   size_type size_ = 0;
 };
 
