@@ -245,7 +245,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       if (!_settings.timestampsInSnapshotsEnabled) {
         // TODO(varconst): DO NOT SUBMIT: doublecheck these code snippets before submitting.
         FSTWarn(
-            @"The default behavior for system Date objects stored in Firestore is going to change "
+            @"The behavior for system Date objects stored in Firestore is going to change "
              "AND YOUR APP MAY BREAK.\n"
              "To hide this warning and ensure your app does not break, you need to add "
              "the following code to your app before calling any other Cloud Firestore methods:\n"
@@ -266,9 +266,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
              "let timestamp: Timestamp = documentSnapshot.get(\"created_at\") as! Timestamp\n"
              "let date: Date = timestamp.dateValue()\n"
              "\n"
-             "Please audit all existing usages of Date when you enable the new behavior. This new "
-             "behavior will become the default in a future release and so if you do not follow "
-             "these steps, YOUR APP MAY BREAK.");
+             "Please audit all existing usages of Date when you enable the new behavior. In a "
+             "future release, the behavior will be changed to the new behavior, so if you do not "
+             "follow these steps, YOUR APP MAY BREAK.");
       }
 
       const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
