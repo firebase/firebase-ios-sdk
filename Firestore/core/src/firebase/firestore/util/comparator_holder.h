@@ -47,9 +47,7 @@ class ComparatorHolder {
 template <typename C>
 class ComparatorHolder<C, true> : private C {
  protected:
-  explicit ComparatorHolder(const C& comparator) noexcept {
-    // Parameter is ignored because C is known stateless
-    (void)comparator;
+  explicit ComparatorHolder(const C&) noexcept {
   }
 
   const C& comparator() const noexcept {
