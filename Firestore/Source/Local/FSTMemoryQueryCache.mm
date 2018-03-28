@@ -61,10 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
   // Nothing to do.
 }
 
-- (void)shutdown {
-  // No resources to release.
-}
-
 - (FSTTargetID)highestTargetID {
   return _highestTargetID;
 }

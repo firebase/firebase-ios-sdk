@@ -324,7 +324,6 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence commitGroup:group];
 
   // Verify that the highestTargetID even survives restarts.
-  [self.queryCache shutdown];
   self.queryCache = [self.persistence queryCache];
   [self.queryCache start];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
@@ -374,7 +373,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual([self.queryCache highestTargetID], 42);
   [self.persistence commitGroup:group];
   // Verify that the highestTargetID even survives restarts.
-  [self.queryCache shutdown];
   self.queryCache = [self.persistence queryCache];
   [self.queryCache start];
   XCTAssertEqual([self.queryCache highestTargetID], 42);

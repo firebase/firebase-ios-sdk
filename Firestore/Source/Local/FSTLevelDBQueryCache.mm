@@ -144,9 +144,6 @@ using leveldb::Status;
   [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
 }
 
-- (void)shutdown {
-}
-
 - (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
