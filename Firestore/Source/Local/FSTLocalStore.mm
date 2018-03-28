@@ -165,7 +165,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdown {
-  [self.mutationQueue shutdown];
   [self.remoteDocumentCache shutdown];
   [self.queryCache shutdown];
 }
@@ -176,7 +175,6 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
   [self.persistence commitGroup:group];
 
-  [self.mutationQueue shutdown];
   [self.garbageCollector removeGarbageSource:self.mutationQueue];
 
   self.mutationQueue = [self.persistence mutationQueueForUser:user];

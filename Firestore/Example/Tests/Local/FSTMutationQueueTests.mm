@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTMutationQueueTests
 
 - (void)tearDown {
-  [self.mutationQueue shutdown];
   [self.persistence shutdown];
   [super tearDown];
 }
@@ -143,7 +142,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
   // Restart the queue so that nextBatchID will be reset.
-  [self.mutationQueue shutdown];
   self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
