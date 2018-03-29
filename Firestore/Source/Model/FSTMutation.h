@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 @class FSTDocument;
@@ -29,31 +30,6 @@
 @class FIRTimestamp;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTFieldMask
-
-/**
- * Provides a set of fields that can be used to partially patch a document. FieldMask is used in
- * conjunction with ObjectValue.
- *
- * Examples:
- *   foo - Overwrites foo entirely with the provided value. If foo is not present in the companion
- *       ObjectValue, the field is deleted.
- *   foo.bar - Overwrites only the field bar of the object foo. If foo is not an object, foo is
- *       replaced with an object containing bar.
- */
-@interface FSTFieldMask : NSObject
-- (id)init __attribute__((unavailable("Use initWithFields:")));
-
-/**
- * Initializes the field mask with the given field paths. Caller is expected to either copy or
- * or release the array of fields.
- */
-- (instancetype)initWithFields:(std::vector<firebase::firestore::model::FieldPath>)fields
-    NS_DESIGNATED_INITIALIZER;
-
-- (const std::vector<firebase::firestore::model::FieldPath> &)fields;
-@end
 
 #pragma mark - FSTFieldTransform
 
@@ -267,7 +243,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
                precondition:(FSTPrecondition *)precondition NS_UNAVAILABLE;
 
 /**
- * Initializes a new patch mutation with an explicit FSTFieldMask and FSTObjectValue representing
+ * Initializes a new patch mutation with an explicit FieldMask and FSTObjectValue representing
  * the updates to perform
  *
  * @param key Identifies the location of the document to mutate.
@@ -278,18 +254,18 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * @param precondition The precondition for this mutation.
  */
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
-                  fieldMask:(FSTFieldMask *)fieldMask
+                  fieldMask:(firebase::firestore::model::FieldMask)fieldMask
                       value:(FSTObjectValue *)value
                precondition:(FSTPrecondition *)precondition NS_DESIGNATED_INITIALIZER;
-
-/** The fields and associated values to use when patching the document. */
-@property(nonatomic, strong, readonly) FSTObjectValue *value;
 
 /**
  * A mask to apply to |value|, where only fields that are in both the fieldMask and the value
  * will be updated.
  */
-@property(nonatomic, strong, readonly) FSTFieldMask *fieldMask;
+- (const firebase::firestore::model::FieldMask &)fieldMask;
+
+/** The fields and associated values to use when patching the document. */
+@property(nonatomic, strong, readonly) FSTObjectValue *value;
 
 @end
 
