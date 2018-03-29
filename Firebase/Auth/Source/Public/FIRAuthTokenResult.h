@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthTokenResult
-    @brief A data class containing the ID token JWT string and other properties associated with
+    @brief A data class containing the ID token JWT string and other properties associated with the
     token including the decoded payload claims if available.
  */
 NS_SWIFT_NAME(AuthTokenResult)

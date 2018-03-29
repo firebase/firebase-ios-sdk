@@ -61,6 +61,11 @@ static NSString *const kTokenGetButtonText = @"Get Token";
  */
 static NSString *const kGetTokenResultButtonText = @"Get Token Result";
 
+/** @var kGetTokenResultForceButtonText
+    @brief The text of the "Force Token Result" button.
+ */
+static NSString *const kGetTokenResultForceButtonText = @"Force Token Result";
+
 /** @var kTokenRefreshButtonText
     @brief The text of the "Refresh Token" button.
  */
@@ -827,6 +832,8 @@ typedef enum {
         [StaticContentTableViewCell cellWithTitle:kTokenRefreshButtonText
                                            action:^{ [weakSelf getUserTokenWithForce:YES]; }],
         [StaticContentTableViewCell cellWithTitle:kGetTokenResultButtonText
+                                           action:^{ [weakSelf getUserTokenResultWithForce:NO]; }],
+        [StaticContentTableViewCell cellWithTitle:kGetTokenResultForceButtonText
                                            action:^{ [weakSelf getUserTokenResultWithForce:YES]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleLinkUnlinkAccounts cells:@[
@@ -2092,8 +2099,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
  */
 - (void)getUserTokenResultWithForce:(BOOL)force {
 
-  [[self user] getIDTokenResultForcingRefresh:force completion:^(FIRAuthTokenResult *_Nullable tokenResult,
-                                                                 NSError *_Nullable error) {
+  [[self user] getIDTokenResultForcingRefresh:force
+                                   completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                                NSError *_Nullable error) {
     if (error) {
       [self showMessagePromptWithTitle:kTokenRefreshErrorAlertTitle
                                message:error.localizedDescription
@@ -2107,7 +2115,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         [[NSMutableString alloc] initWithString:
             [NSString stringWithFormat:@"Token : %@\n", tokenResult.token]];
     [message appendString:[NSString stringWithFormat:@"Auth Date : %@\n", tokenResult.authDate]];
-    [message appendString:[NSString stringWithFormat:@"EXP Date : %@\n", tokenResult.expirationDate]];
+    [message appendString:
+        [NSString stringWithFormat:@"EXP Date : %@\n", tokenResult.expirationDate]];
     [message appendString:
         [NSString stringWithFormat:@"Issued Date : %@\n", tokenResult.issuedAtDate]];
     [self showMessagePromptWithTitle:kTokenRefreshedAlertTitle

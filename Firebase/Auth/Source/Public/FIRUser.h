@@ -52,7 +52,7 @@ typedef void (^FIRAuthTokenCallback)(NSString *_Nullable token, NSError *_Nullab
     @remarks One of: `token` or `error` will always be non-nil.
  */
 typedef void (^FIRAuthTokenResultCallback)(FIRAuthTokenResult *_Nullable tokenResult,
-                                            NSError *_Nullable error)
+                                           NSError *_Nullable error)
     NS_SWIFT_NAME(AuthTokenResultCallback);
 
 /** @typedef FIRUserProfileChangeCallback
@@ -266,17 +266,6 @@ NS_SWIFT_NAME(User)
 - (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
                                          completion:(nullable FIRAuthDataResultCallback) completion;
 
-/** @fn getIDTokenWithCompletion:
-    @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-    @param completion Optionally; the block invoked when the token is available. Invoked
-        asynchronously on the main thread in the future.
-
-    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
- */
-- (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
-    NS_SWIFT_NAME(getIDToken(completion:));
-
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
@@ -287,6 +276,34 @@ NS_SWIFT_NAME(User)
  */
 - (void)getIDTokenResultWithCompletion:(nullable FIRAuthTokenResultCallback)completion
     NS_SWIFT_NAME(getIDTokenResult(completion:));
+
+/** @fn getIDTokenResultForcingRefresh:completion:
+    @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+    @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+        other than an expiration.
+    @param completion Optionally; the block invoked when the token is available. Invoked
+        asynchronously on the main thread in the future.
+
+    @remarks The authentication token will be refreshed (by making a network request) if it has
+        expired, or if `forceRefresh` is YES.
+
+    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
+ */
+- (void)getIDTokenResultForcingRefresh:(BOOL)forceRefresh
+                            completion:(nullable FIRAuthTokenResultCallback)completion
+    NS_SWIFT_NAME(getIDTokenResult(forcingRefresh:completion:));
+
+/** @fn getIDTokenWithCompletion:
+    @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+    @param completion Optionally; the block invoked when the token is available. Invoked
+        asynchronously on the main thread in the future.
+
+    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
+ */
+- (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
+    NS_SWIFT_NAME(getIDToken(completion:)) __attribute__((deprecated));
 
 /** @fn getTokenWithCompletion:
     @brief Please use `getIDTokenWithCompletion:` instead.
@@ -313,23 +330,8 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
-                      completion:(nullable FIRAuthTokenCallback)completion;
-
-/** @fn getIDTokenResultForcingRefresh:completion:
-    @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-    @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-        other than an expiration.
-    @param completion Optionally; the block invoked when the token is available. Invoked
-        asynchronously on the main thread in the future.
-
-    @remarks The authentication token will be refreshed (by making a network request) if it has
-        expired, or if `forceRefresh` is YES.
-
-    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
- */
-- (void)getIDTokenResultForcingRefresh:(BOOL)forceRefresh
-                      completion:(nullable FIRAuthTokenResultCallback)completion;
+                      completion:(nullable FIRAuthTokenCallback)completion
+                          __attribute__((deprecated));
 
 /** @fn getTokenForcingRefresh:completion:
     @brief Please use getIDTokenForcingRefresh:completion instead.

@@ -862,8 +862,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 expirationDate:expDate
                                       authDate:authDate
                                   issuedAtDate:issuedDate
-                                signInProvider:tokenPayloadDictionary[@"signInProvider"]
-                                        claims:tokenPayloadDictionary[@"claims"]];
+                                signInProvider:tokenPayloadDictionary[@"sign_in_provider"]
+                                        claims:tokenPayloadDictionary];
   return result;
 }
 
