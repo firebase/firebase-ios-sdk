@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTopicsCommon.h"
+#import "FIRMessaging.h"
 
 @class FIRMessagingClient;
 @class FIRMessagingPubSubCache;

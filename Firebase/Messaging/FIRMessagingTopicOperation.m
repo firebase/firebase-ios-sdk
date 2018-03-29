@@ -125,7 +125,9 @@ NSString *FIRMessagingSubscriptionsServer() {
 
 - (void)start {
   if (self.isCancelled) {
-    [self finishWithResult:FIRMessagingTopicOperationResultCancelled error:nil];
+    NSError *error =
+        [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubOperationIsCancelled];
+    [self finishWithError:error];
     return;
   }
 
@@ -134,14 +136,14 @@ NSString *FIRMessagingSubscriptionsServer() {
   [self performSubscriptionChange];
 }
 
-- (void)finishWithResult:(FIRMessagingTopicOperationResult)result error:(NSError *)error {
+- (void)finishWithError:(NSError *)error {
   // Add a check to prevent this finish from being called more than once.
   if (self.isFinished) {
     return;
   }
   self.dataTask = nil;
   if (self.completion) {
-    self.completion(result, error);
+    self.completion(error);
   }
 
   [self setExecuting:NO];
@@ -151,7 +153,8 @@ NSString *FIRMessagingSubscriptionsServer() {
 - (void)cancel {
   [super cancel];
   [self.dataTask cancel];
-  [self finishWithResult:FIRMessagingTopicOperationResultCancelled error:nil];
+  NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubOperationIsCancelled];
+  [self finishWithError:error];
 }
 
 - (void)performSubscriptionChange {
@@ -218,13 +221,12 @@ NSString *FIRMessagingSubscriptionsServer() {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption001,
                               @"Device registration HTTP fetch error. Error Code: %ld",
                               _FIRMessaging_L(error.code));
-      [self finishWithResult:FIRMessagingTopicOperationResultError error:error];
+      [self finishWithError:error];
       return;
     }
     NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     if (response.length == 0) {
-      [self finishWithResult:FIRMessagingTopicOperationResultError
-                       error:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+      [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
       return;
     }
     NSArray *parts = [response componentsSeparatedByString:@"="];
@@ -232,15 +234,14 @@ NSString *FIRMessagingSubscriptionsServer() {
     if (![parts[0] isEqualToString:@"token"] || parts.count <= 1) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
                               @"Invalid registration request, response");
-      [self finishWithResult:FIRMessagingTopicOperationResultError
-                       error:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+      [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
       return;
     }
 #if DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS
     NSTimeInterval duration = -[start timeIntervalSinceNow];
     FIRMessagingLoggerDebug(@"%@ change took %.2fs", self.topic, duration);
 #endif
-    [self finishWithResult:FIRMessagingTopicOperationResultSucceeded error:nil];
+    [self finishWithError:nil];
 
   };
 

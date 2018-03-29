@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import "FIRMessaging.h"
 #import "FIRMessagingCheckinService.h"
-#import "FIRMessagingTopicsCommon.h"
 
 @class FIRMessagingCheckinStore;
 @class FIRMessagingPubSubRegistrar;
