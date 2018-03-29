@@ -44,7 +44,7 @@
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
 
-@import SafariServices;
+#import <SafariServices/SafariServices.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

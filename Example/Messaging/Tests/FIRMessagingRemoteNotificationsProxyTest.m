@@ -15,9 +15,9 @@
  */
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-@import UserNotifications;
+#import <UserNotifications/UserNotifications.h>
 #endif
-@import XCTest;
+#import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
 
