@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
+
+#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
+#include "Firestore/core/test/firebase/firestore/immutable/testing.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace immutable {
 namespace impl {
 
-// Define external storage for constants:
-constexpr ArraySortedMapBase::size_type ArraySortedMapBase::kFixedSize;
+typedef TreeSortedMap<int, int> IntMap;
+
+TEST(TreeSortedMap, EmptySize) {
+  IntMap map;
+  EXPECT_TRUE(map.empty());
+  EXPECT_EQ(0u, map.size());
+  EXPECT_EQ(Color::Black, map.root().color());
+}
 
 }  // namespace impl
 }  // namespace immutable
