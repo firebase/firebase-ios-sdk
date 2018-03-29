@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"SetAndReadQuery"];
   FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
-  [self.queryCache addQueryData:queryData group:group];
+  [self.queryCache addQueryData:queryData];
 
   FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
   XCTAssertEqualObjects(result.query, queryData.query);
@@ -91,25 +91,25 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
 
   FSTQueryData *data1 = [self queryDataWithQuery:q1];
-  [self.queryCache addQueryData:data1 group:group];
+  [self.queryCache addQueryData:data1];
 
   // Using the other query should not return the query cache entry despite equal canonicalIDs.
   XCTAssertNil([self.queryCache queryDataForQuery:q2]);
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
 
   FSTQueryData *data2 = [self queryDataWithQuery:q2];
-  [self.queryCache addQueryData:data2 group:group];
+  [self.queryCache addQueryData:data2];
   XCTAssertEqual([self.queryCache count], 2);
 
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
 
-  [self.queryCache removeQueryData:data1 group:group];
+  [self.queryCache removeQueryData:data1];
   XCTAssertNil([self.queryCache queryDataForQuery:q1]);
   XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
   XCTAssertEqual([self.queryCache count], 1);
 
-  [self.queryCache removeQueryData:data2 group:group];
+  [self.queryCache removeQueryData:data2];
   XCTAssertNil([self.queryCache queryDataForQuery:q1]);
   XCTAssertNil([self.queryCache queryDataForQuery:q2]);
   XCTAssertEqual([self.queryCache count], 0);
@@ -122,11 +122,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"SetQueryToNewValue"];
   FSTQueryData *queryData1 =
       [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
-  [self.queryCache addQueryData:queryData1 group:group];
+  [self.queryCache addQueryData:queryData1];
 
   FSTQueryData *queryData2 =
       [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:2];
-  [self.queryCache addQueryData:queryData2 group:group];
+  [self.queryCache addQueryData:queryData2];
 
   FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
   XCTAssertNotEqualObjects(queryData2.resumeToken, queryData1.resumeToken);
@@ -141,9 +141,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveQuery"];
   FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms];
-  [self.queryCache addQueryData:queryData1 group:group];
+  [self.queryCache addQueryData:queryData1];
 
-  [self.queryCache removeQueryData:queryData1 group:group];
+  [self.queryCache removeQueryData:queryData1];
 
   FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
   XCTAssertNil(result);
@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
 
   // no-op, but make sure it doesn't throw.
-  XCTAssertNoThrow([self.queryCache removeQueryData:queryData group:group]);
+  XCTAssertNoThrow([self.queryCache removeQueryData:queryData]);
   [self.persistence commitGroup:group];
 }
 
@@ -167,17 +167,17 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group =
       [self.persistence startGroupWithAction:@"RemoveQueryRemovesMatchingKeysToo"];
   FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
-  [self.queryCache addQueryData:rooms group:group];
+  [self.queryCache addQueryData:rooms];
 
   DocumentKey key1 = testutil::Key("rooms/foo");
   DocumentKey key2 = testutil::Key("rooms/bar");
-  [self addMatchingKey:key1 forTargetID:rooms.targetID group:group];
-  [self addMatchingKey:key2 forTargetID:rooms.targetID group:group];
+  [self addMatchingKey:key1 forTargetID:rooms.targetID];
+  [self addMatchingKey:key2 forTargetID:rooms.targetID];
 
   XCTAssertTrue([self.queryCache containsKey:key1]);
   XCTAssertTrue([self.queryCache containsKey:key2]);
 
-  [self.queryCache removeQueryData:rooms group:group];
+  [self.queryCache removeQueryData:rooms];
   XCTAssertFalse([self.queryCache containsKey:key1]);
   XCTAssertFalse([self.queryCache containsKey:key2]);
   [self.persistence commitGroup:group];
@@ -191,16 +191,16 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertFalse([self.queryCache containsKey:key]);
 
-  [self addMatchingKey:key forTargetID:1 group:group];
+  [self addMatchingKey:key forTargetID:1];
   XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self addMatchingKey:key forTargetID:2 group:group];
+  [self addMatchingKey:key forTargetID:2];
   XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self removeMatchingKey:key forTargetID:1 group:group];
+  [self removeMatchingKey:key forTargetID:1];
   XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self removeMatchingKey:key forTargetID:2 group:group];
+  [self removeMatchingKey:key forTargetID:2];
   XCTAssertFalse([self.queryCache containsKey:key]);
   [self.persistence commitGroup:group];
 }
@@ -213,19 +213,19 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKey key2 = testutil::Key("foo/baz");
   DocumentKey key3 = testutil::Key("foo/blah");
 
-  [self addMatchingKey:key1 forTargetID:1 group:group];
-  [self addMatchingKey:key2 forTargetID:1 group:group];
-  [self addMatchingKey:key3 forTargetID:2 group:group];
+  [self addMatchingKey:key1 forTargetID:1];
+  [self addMatchingKey:key2 forTargetID:1];
+  [self addMatchingKey:key3 forTargetID:2];
   XCTAssertTrue([self.queryCache containsKey:key1]);
   XCTAssertTrue([self.queryCache containsKey:key2]);
   XCTAssertTrue([self.queryCache containsKey:key3]);
 
-  [self.queryCache removeMatchingKeysForTargetID:1 group:group];
+  [self.queryCache removeMatchingKeysForTargetID:1];
   XCTAssertFalse([self.queryCache containsKey:key1]);
   XCTAssertFalse([self.queryCache containsKey:key2]);
   XCTAssertTrue([self.queryCache containsKey:key3]);
 
-  [self.queryCache removeMatchingKeysForTargetID:2 group:group];
+  [self.queryCache removeMatchingKeysForTargetID:2];
   XCTAssertFalse([self.queryCache containsKey:key1]);
   XCTAssertFalse([self.queryCache containsKey:key2]);
   XCTAssertFalse([self.queryCache containsKey:key3]);
@@ -243,26 +243,26 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery("rooms")];
   DocumentKey room1 = testutil::Key("rooms/bar");
   DocumentKey room2 = testutil::Key("rooms/foo");
-  [self.queryCache addQueryData:rooms group:group];
-  [self addMatchingKey:room1 forTargetID:rooms.targetID group:group];
-  [self addMatchingKey:room2 forTargetID:rooms.targetID group:group];
+  [self.queryCache addQueryData:rooms];
+  [self addMatchingKey:room1 forTargetID:rooms.targetID];
+  [self addMatchingKey:room2 forTargetID:rooms.targetID];
 
   FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery("halls")];
   DocumentKey hall1 = testutil::Key("halls/bar");
   DocumentKey hall2 = testutil::Key("halls/foo");
-  [self.queryCache addQueryData:halls group:group];
-  [self addMatchingKey:hall1 forTargetID:halls.targetID group:group];
-  [self addMatchingKey:hall2 forTargetID:halls.targetID group:group];
+  [self.queryCache addQueryData:halls];
+  [self addMatchingKey:hall1 forTargetID:halls.targetID];
+  [self addMatchingKey:hall2 forTargetID:halls.targetID];
 
   XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
 
-  [self removeMatchingKey:room1 forTargetID:rooms.targetID group:group];
+  [self removeMatchingKey:room1 forTargetID:rooms.targetID];
   XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room1}));
 
-  [self.queryCache removeQueryData:rooms group:group];
+  [self.queryCache removeQueryData:rooms];
   XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room2}));
 
-  [self.queryCache removeMatchingKeysForTargetID:halls.targetID group:group];
+  [self.queryCache removeMatchingKeysForTargetID:halls.targetID];
   XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({hall1, hall2}));
   [self.persistence commitGroup:group];
 }
@@ -275,14 +275,14 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKey key2 = testutil::Key("foo/baz");
   DocumentKey key3 = testutil::Key("foo/blah");
 
-  [self addMatchingKey:key1 forTargetID:1 group:group];
-  [self addMatchingKey:key2 forTargetID:1 group:group];
-  [self addMatchingKey:key3 forTargetID:2 group:group];
+  [self addMatchingKey:key1 forTargetID:1];
+  [self addMatchingKey:key2 forTargetID:1];
+  [self addMatchingKey:key3 forTargetID:2];
 
   FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
   FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
 
-  [self addMatchingKey:key1 forTargetID:2 group:group];
+  [self addMatchingKey:key1 forTargetID:2];
   FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
   FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
   [self.persistence commitGroup:group];
@@ -296,16 +296,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                     targetID:1
                                         listenSequenceNumber:10
                                                      purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query1 group:group];
+  [self.queryCache addQueryData:query1];
   FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
                                                     targetID:2
                                         listenSequenceNumber:20
                                                      purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query2 group:group];
+  [self.queryCache addQueryData:query2];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
   // TargetIDs never come down.
-  [self.queryCache removeQueryData:query2 group:group];
+  [self.queryCache removeQueryData:query2];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
   // A query with an empty result set still counts.
@@ -313,13 +313,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                     targetID:42
                                         listenSequenceNumber:100
                                                      purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query3 group:group];
+  [self.queryCache addQueryData:query3];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
 
-  [self.queryCache removeQueryData:query1 group:group];
+  [self.queryCache removeQueryData:query1];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
 
-  [self.queryCache removeQueryData:query3 group:group];
+  [self.queryCache removeQueryData:query3];
   XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
   [self.persistence commitGroup:group];
 
@@ -342,21 +342,21 @@ NS_ASSUME_NONNULL_BEGIN
                                                      purpose:FSTQueryPurposeListen];
   DocumentKey key1 = testutil::Key("rooms/bar");
   DocumentKey key2 = testutil::Key("rooms/foo");
-  [self.queryCache addQueryData:query1 group:group];
-  [self addMatchingKey:key1 forTargetID:1 group:group];
-  [self addMatchingKey:key2 forTargetID:1 group:group];
+  [self.queryCache addQueryData:query1];
+  [self addMatchingKey:key1 forTargetID:1];
+  [self addMatchingKey:key2 forTargetID:1];
 
   FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
                                                     targetID:2
                                         listenSequenceNumber:20
                                                      purpose:FSTQueryPurposeListen];
   DocumentKey key3 = testutil::Key("halls/foo");
-  [self.queryCache addQueryData:query2 group:group];
-  [self addMatchingKey:key3 forTargetID:2 group:group];
+  [self.queryCache addQueryData:query2];
+  [self addMatchingKey:key3 forTargetID:2];
   XCTAssertEqual([self.queryCache highestTargetID], 2);
 
   // TargetIDs never come down.
-  [self.queryCache removeQueryData:query2 group:group];
+  [self.queryCache removeQueryData:query2];
   XCTAssertEqual([self.queryCache highestTargetID], 2);
 
   // A query with an empty result set still counts.
@@ -364,13 +364,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                     targetID:42
                                         listenSequenceNumber:100
                                                      purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query3 group:group];
+  [self.queryCache addQueryData:query3];
   XCTAssertEqual([self.queryCache highestTargetID], 42);
 
-  [self.queryCache removeQueryData:query1 group:group];
+  [self.queryCache removeQueryData:query1];
   XCTAssertEqual([self.queryCache highestTargetID], 42);
 
-  [self.queryCache removeQueryData:query3 group:group];
+  [self.queryCache removeQueryData:query3];
   XCTAssertEqual([self.queryCache highestTargetID], 42);
   [self.persistence commitGroup:group];
   // Verify that the highestTargetID even survives restarts.
@@ -388,7 +388,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Can set the snapshot version.
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"setLastRemoteSnapshotVersion"];
-  [self.queryCache setLastRemoteSnapshotVersion:FSTTestVersion(42) group:group];
+  [self.queryCache setLastRemoteSnapshotVersion:FSTTestVersion(42)];
   [self.persistence commitGroup:group];
   XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
 
@@ -424,20 +424,16 @@ NS_ASSUME_NONNULL_BEGIN
                                  resumeToken:resumeToken];
 }
 
-- (void)addMatchingKey:(const DocumentKey &)key
-           forTargetID:(FSTTargetID)targetID
-                 group:(FSTWriteGroup *)group {
+- (void)addMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
-  [self.queryCache addMatchingKeys:keys forTargetID:targetID group:group];
+  [self.queryCache addMatchingKeys:keys forTargetID:targetID];
 }
 
-- (void)removeMatchingKey:(const DocumentKey &)key
-              forTargetID:(FSTTargetID)targetID
-                    group:(FSTWriteGroup *)group {
+- (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
-  [self.queryCache removeMatchingKeys:keys forTargetID:targetID group:group];
+  [self.queryCache removeMatchingKeys:keys forTargetID:targetID];
 }
 
 @end

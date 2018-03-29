@@ -25,7 +25,6 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
@@ -61,14 +60,14 @@ using leveldb::Status;
 - (void)shutdown {
 }
 
-- (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
+- (void)addEntry:(FSTMaybeDocument *)document {
   std::string key = [self remoteDocumentKey:document.key];
-  [group setMessage:[self.serializer encodedMaybeDocument:document] forKey:key];
+  _db.currentTransaction->Put(key, [self.serializer encodedMaybeDocument:document]);
 }
 
-- (void)removeEntryForKey:(const DocumentKey &)documentKey group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)documentKey {
   std::string key = [self remoteDocumentKey:documentKey];
-  [group removeMessageForKey:key];
+  _db.currentTransaction->Delete(key);
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {

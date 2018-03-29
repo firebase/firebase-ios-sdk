@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startMutationQueue {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
-  [self.mutationQueue startWithGroup:group];
+  [self.mutationQueue start];
 
   // If we have any leftover mutation batch results from a prior run, just drop them.
   // TODO(http://b/33446471): We probably need to repopulate heldBatchResults or similar instead,
@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (batches.count > 0) {
       // NOTE: This could be more efficient if we had a removeBatchesThroughBatchID, but this set
       // should be very small and this code should go away eventually.
-      [self.mutationQueue removeMutationBatches:batches group:group];
+      [self.mutationQueue removeMutationBatches:batches];
     }
   }
   [self.persistence commitGroup:group];
@@ -210,9 +210,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Locally write mutations"];
   FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-  FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
-                                                                    mutations:mutations
-                                                                        group:group];
+  FSTMutationBatch *batch =
+      [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime mutations:mutations];
   FSTDocumentKeySet *keys = [batch keys];
   FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
   [self.persistence commitGroup:group];
@@ -223,9 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Acknowledge batch"];
   id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
-  [mutationQueue acknowledgeBatch:batchResult.batch
-                      streamToken:batchResult.streamToken
-                            group:group];
+  [mutationQueue acknowledgeBatch:batchResult.batch streamToken:batchResult.streamToken];
 
   FSTDocumentKeySet *affected;
   if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {
@@ -273,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setLastStreamToken:(nullable NSData *)streamToken {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Set stream token"];
 
-  [self.mutationQueue setLastStreamToken:streamToken group:group];
+  [self.mutationQueue setLastStreamToken:streamToken];
   [self.persistence commitGroup:group];
 }
 
@@ -303,13 +300,13 @@ NS_ASSUME_NONNULL_BEGIN
       // First make sure that all references are deleted.
       if ([mapping isKindOfClass:[FSTResetMapping class]]) {
         FSTResetMapping *reset = (FSTResetMapping *)mapping;
-        [queryCache removeMatchingKeysForTargetID:targetID group:group];
-        [queryCache addMatchingKeys:reset.documents forTargetID:targetID group:group];
+        [queryCache removeMatchingKeysForTargetID:targetID];
+        [queryCache addMatchingKeys:reset.documents forTargetID:targetID];
 
       } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
         FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-        [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID group:group];
-        [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID group:group];
+        [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID];
+        [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID];
 
       } else {
         FSTFail(@"Unknown mapping type: %@", mapping);
@@ -322,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
       queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
                                                      resumeToken:resumeToken];
       self.targetIDs[targetIDNumber] = queryData;
-      [self.queryCache updateQueryData:queryData group:group];
+      [self.queryCache updateQueryData:queryData];
     }
   }];
 
@@ -360,7 +357,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTAssert([remoteVersion compare:lastRemoteVersion] != NSOrderedAscending,
               @"Watch stream reverted to previous snapshot?? (%@ < %@)", remoteVersion,
               lastRemoteVersion);
-    [self.queryCache setLastRemoteSnapshotVersion:remoteVersion group:group];
+    [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
   }
 
   FSTDocumentKeySet *releasedWriteKeys =
@@ -421,7 +418,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         targetID:targetID
                             listenSequenceNumber:sequenceNumber
                                          purpose:FSTQueryPurposeListen];
-    [self.queryCache addQueryData:cached group:group];
+    [self.queryCache addQueryData:cached];
   }
   [self.persistence commitGroup:group];
   // Sanity check to ensure that even when resuming a query it's not currently active.
@@ -440,7 +437,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self.localViewReferences removeReferencesForID:queryData.targetID];
   if (self.garbageCollector.isEager) {
-    [self.queryCache removeQueryData:queryData group:group];
+    [self.queryCache removeQueryData:queryData];
   }
   [self.targetIDs removeObjectForKey:@(queryData.targetID)];
 
@@ -479,7 +476,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::set<DocumentKey> garbage = [self.garbageCollector collectGarbage];
   if (garbage.size() > 0) {
     for (const DocumentKey &key : garbage) {
-      [self.remoteDocumentCache removeEntryForKey:key group:group];
+      [self.remoteDocumentCache removeEntryForKey:key];
     }
   }
   [self.persistence commitGroup:group];
@@ -550,7 +547,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  [self.mutationQueue removeMutationBatches:batches group:group];
+  [self.mutationQueue removeMutationBatches:batches];
 
   return affectedDocs;
 }

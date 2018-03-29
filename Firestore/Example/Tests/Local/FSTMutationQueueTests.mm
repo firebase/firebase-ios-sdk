@@ -122,8 +122,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutationBatch *batch1 = [self addMutationBatch];
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:NSStringFromSelector(_cmd)];
-  [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil group:group];
-  [self.mutationQueue removeMutationBatches:@[ batch1 ] group:group];
+  [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
+  [self.mutationQueue removeMutationBatches:@[ batch1 ]];
 
   XCTAssertEqual([self batchCount], 0);
   XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch1.batchID);
@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
-  [self.mutationQueue startWithGroup:group];
+  [self.mutationQueue start];
   [self.persistence commitGroup:group];
 
   // Verify that on restart with an empty queue, nextBatchID falls to a lower value.
@@ -162,9 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(newBatch.batchID, batch1.batchID);
 
   // Restart the queue with one unacknowledged batch in it.
-  group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
-  [self.mutationQueue startWithGroup:group];
-  [self.persistence commitGroup:group];
+  self.persistence.run([&]() { [self.mutationQueue start]; });
 
   XCTAssertEqual([self.mutationQueue nextBatchID], newBatch.batchID + 1);
 
@@ -304,8 +302,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTMutation *mutation in mutations) {
     FSTMutationBatch *batch =
         [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
-                                                mutations:@[ mutation ]
-                                                    group:group];
+                                                mutations:@[ mutation ]];
     [batches addObject:batch];
   }
 
@@ -341,8 +338,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTMutation *mutation in mutations) {
     FSTMutationBatch *batch =
         [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
-                                                mutations:@[ mutation ]
-                                                    group:group];
+                                                mutations:@[ mutation ]];
     [batches addObject:batch];
   }
 
@@ -488,18 +484,15 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *streamToken1 = [@"token1" dataUsingEncoding:NSUTF8StringEncoding];
   NSData *streamToken2 = [@"token2" dataUsingEncoding:NSUTF8StringEncoding];
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"initial stream token"];
-  [self.mutationQueue setLastStreamToken:streamToken1 group:group];
-  [self.persistence commitGroup:group];
+  self.persistence.run([&]() { [self.mutationQueue setLastStreamToken:streamToken1]; });
 
   FSTMutationBatch *batch1 = [self addMutationBatch];
   [self addMutationBatch];
 
   XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken1);
 
-  group = [self.persistence startGroupWithAction:@"acknowledgeBatchID"];
-  [self.mutationQueue acknowledgeBatch:batch1 streamToken:streamToken2 group:group];
-  [self.persistence commitGroup:group];
+  self.persistence.run(
+      [&]() { [self.mutationQueue acknowledgeBatch:batch1 streamToken:streamToken2]; });
 
   XCTAssertEqual(self.mutationQueue.highestAcknowledgedBatchID, batch1.batchID);
   XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken2);
@@ -520,8 +513,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"New mutation batch"];
   FSTMutationBatch *batch =
       [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
-                                              mutations:@[ mutation ]
-                                                  group:group];
+                                              mutations:@[ mutation ]];
   [self.persistence commitGroup:group];
   return batch;
 }
@@ -545,19 +537,17 @@ NS_ASSUME_NONNULL_BEGIN
  * Calls -acknowledgeBatch:streamToken:group: on the mutation queue in a new group and commits the
  * the group.
  */
+// TODO(gsoltis): delete this helper, just run it in a transaction directly
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Ack batchID"];
-  [self.mutationQueue acknowledgeBatch:batch streamToken:nil group:group];
-  [self.persistence commitGroup:group];
+  self.persistence.run([&]() { [self.mutationQueue acknowledgeBatch:batch streamToken:nil]; });
 }
 
 /**
  * Calls -removeMutationBatches:group: on the mutation queue in a new group and commits the group.
  */
+// TODO(gsoltis): delete this helper, just run it in a transaction directly
 - (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Remove mutation batch"];
-  [self.mutationQueue removeMutationBatches:batches group:group];
-  [self.persistence commitGroup:group];
+  self.persistence.run([&]() { [self.mutationQueue removeMutationBatches:batches]; });
 }
 
 /** Returns the number of mutation batches in the mutation queue. */

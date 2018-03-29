@@ -92,7 +92,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 #pragma mark - FSTMutationQueue implementation
 
-- (void)startWithGroup:(FSTWriteGroup *)group {
+- (void)start {
   // Note: The queue may be shutdown / started multiple times, since we maintain the queue for the
   // duration of the app session in case a user logs out / back in. To behave like the
   // LevelDB-backed MutationQueue (and accommodate tests that expect as much), we reset nextBatchID
@@ -118,9 +118,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return _highestAcknowledgedBatchID;
 }
 
-- (void)acknowledgeBatch:(FSTMutationBatch *)batch
-             streamToken:(nullable NSData *)streamToken
-                   group:(__unused FSTWriteGroup *)group {
+- (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
   FSTBatchID batchID = batch.batchID;
@@ -139,13 +137,8 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   self.lastStreamToken = streamToken;
 }
 
-- (void)setLastStreamToken:(nullable NSData *)streamToken group:(__unused FSTWriteGroup *)group {
-  self.lastStreamToken = streamToken;
-}
-
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
-                                          mutations:(NSArray<FSTMutation *> *)mutations
-                                              group:(FSTWriteGroup *)group {
+                                          mutations:(NSArray<FSTMutation *> *)mutations {
   FSTAssert(mutations.count > 0, @"Mutation batches should not be empty");
 
   FSTBatchID batchID = self.nextBatchID;
@@ -299,7 +292,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches group:(FSTWriteGroup *)group {
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   NSUInteger batchCount = batches.count;
   FSTAssert(batchCount > 0, @"Should not remove mutations when none exist.");
 

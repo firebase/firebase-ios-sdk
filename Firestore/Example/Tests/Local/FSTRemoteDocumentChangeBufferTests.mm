@@ -48,11 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
   // Add a couple initial items to the cache.
   FSTWriteGroup *group = [_db startGroupWithAction:@"Add initial docs."];
   _kInitialADoc = FSTTestDoc("coll/a", 42, @{@"test" : @"data"}, NO);
-  [_remoteDocumentCache addEntry:_kInitialADoc group:group];
+  [_remoteDocumentCache addEntry:_kInitialADoc];
 
   _kInitialBDoc =
       [FSTDeletedDocument documentWithKey:FSTTestDocKey(@"coll/b") version:FSTTestVersion(314)];
-  [_remoteDocumentCache addEntry:_kInitialBDoc group:group];
+  [_remoteDocumentCache addEntry:_kInitialBDoc];
   [_db commitGroup:group];
 
   _remoteDocumentBuffer =

@@ -22,7 +22,6 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #include "absl/strings/match.h"
 
@@ -137,24 +136,19 @@ using leveldb::Status;
   return _lastRemoteSnapshotVersion;
 }
 
-- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-                               group:(FSTWriteGroup *)group {
+- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
   _lastRemoteSnapshotVersion = snapshotVersion;
   self.metadata.lastRemoteSnapshotVersion = [self.serializer encodedVersion:snapshotVersion];
-  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
 - (void)shutdown {
 }
 
-- (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+- (void)saveQueryData:(FSTQueryData *)queryData {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
-  [group setMessage:[self.serializer encodedQueryData:queryData] forKey:key];
-}
-
-- (void)saveMetadataInGroup:(FSTWriteGroup *)group {
-  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+  _db.currentTransaction->Put(key, [self.serializer encodedQueryData:queryData]);
 }
 
 - (BOOL)updateMetadataForQueryData:(FSTQueryData *)queryData {
@@ -172,41 +166,41 @@ using leveldb::Status;
   return updatedMetadata;
 }
 
-- (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
-  [self saveQueryData:queryData group:group];
+- (void)addQueryData:(FSTQueryData *)queryData {
+  [self saveQueryData:queryData];
 
   NSString *canonicalID = queryData.query.canonicalID;
   std::string indexKey =
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:canonicalID targetID:queryData.targetID];
   std::string emptyBuffer;
-  [group setData:emptyBuffer forKey:indexKey];
+  _db.currentTransaction->Put(indexKey, emptyBuffer);
 
   self.metadata.targetCount += 1;
   [self updateMetadataForQueryData:queryData];
-  [self saveMetadataInGroup:group];
+  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
-- (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
-  [self saveQueryData:queryData group:group];
+- (void)updateQueryData:(FSTQueryData *)queryData {
+  [self saveQueryData:queryData];
 
   if ([self updateMetadataForQueryData:queryData]) {
-    [self saveMetadataInGroup:group];
+    _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
   }
 }
 
-- (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+- (void)removeQueryData:(FSTQueryData *)queryData {
   FSTTargetID targetID = queryData.targetID;
 
-  [self removeMatchingKeysForTargetID:targetID group:group];
+  [self removeMatchingKeysForTargetID:targetID];
 
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
-  [group removeMessageForKey:key];
+  _db.currentTransaction->Delete(key);
 
   std::string indexKey =
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
-  [group removeMessageForKey:indexKey];
+  _db.currentTransaction->Delete(indexKey);
   self.metadata.targetCount -= 1;
-  [self saveMetadataInGroup:group];
+  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
 - (int32_t)count {
@@ -284,35 +278,33 @@ using leveldb::Status;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
-            forTargetID:(FSTTargetID)targetID
-                  group:(FSTWriteGroup *)group {
+- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
 
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
-    [group setData:emptyBuffer
-            forKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey]];
-    [group setData:emptyBuffer
-            forKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]];
+    self->_db.currentTransaction->Put(
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey],
+        emptyBuffer);
+    self->_db.currentTransaction->Put(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
+        emptyBuffer);
   }];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
-               forTargetID:(FSTTargetID)targetID
-                     group:(FSTWriteGroup *)group {
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    [group
-        removeMessageForKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]];
-    [group
-        removeMessageForKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]];
+    self->_db.currentTransaction->Delete(
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
+    self->_db.currentTransaction->Delete(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
     [self.garbageCollector addPotentialGarbageKey:key];
   }];
 }
 
-- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
+- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
@@ -328,9 +320,9 @@ using leveldb::Status;
     const DocumentKey &documentKey = rowKey.documentKey;
 
     // Delete both index rows
-    [group removeMessageForKey:indexKey];
-    [group removeMessageForKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey
-                                                                      targetID:targetID]];
+    _db.currentTransaction->Delete(indexKey);
+    _db.currentTransaction->Delete(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]);
     [self.garbageCollector addPotentialGarbageKey:documentKey];
   }
 }
