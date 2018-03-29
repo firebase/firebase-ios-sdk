@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import XCTest;
+#import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>

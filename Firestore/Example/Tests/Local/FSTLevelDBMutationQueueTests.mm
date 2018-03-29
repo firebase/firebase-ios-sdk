@@ -74,7 +74,7 @@ std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batc
   self.persistence = _db;
 
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
-  [self.mutationQueue startWithGroup:group];
+  [self.mutationQueue start];
   [self.persistence commitGroup:group];
 }
 

@@ -58,7 +58,6 @@ static const char *kDummy = "1";
 }
 
 - (void)tearDown {
-  [self.remoteDocumentCache shutdown];
   self.remoteDocumentCache = nil;
   self.persistence = nil;
   _db = nil;

@@ -132,6 +132,7 @@ static const int kVersion = 42;
 }
 
 #pragma mark - Helpers
+// TODO(gsoltis): reevaluate if any of these helpers are still needed
 
 - (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
   FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, NO);
@@ -141,7 +142,7 @@ static const int kVersion = 42;
 
 - (void)addEntry:(FSTMaybeDocument *)maybeDoc {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"addEntry"];
-  [self.remoteDocumentCache addEntry:maybeDoc group:group];
+  [self.remoteDocumentCache addEntry:maybeDoc];
   [self.persistence commitGroup:group];
 }
 
@@ -154,7 +155,7 @@ static const int kVersion = 42;
 
 - (void)removeEntryAtPath:(const absl::string_view)path {
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeEntryAtPath"];
-  [self.remoteDocumentCache removeEntryForKey:testutil::Key(path) group:group];
+  [self.remoteDocumentCache removeEntryForKey:testutil::Key(path)];
   [self.persistence commitGroup:group];
 }
 
