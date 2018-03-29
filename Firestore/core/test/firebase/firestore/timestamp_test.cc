@@ -147,7 +147,7 @@ TEST(Timestamp, FromChronoNegativeTime) {
 
   if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
     const auto near_bounds =
-      Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1) + Ms(-544)});
+        Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1) + Ms(-544)});
     EXPECT_EQ(kUpperBound, near_bounds.seconds());
     EXPECT_EQ(456000000, near_bounds.nanoseconds());
   }
