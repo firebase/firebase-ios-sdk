@@ -143,6 +143,8 @@ class SortedMap : public impl::SortedMapBase {
         return SortedMap{array_.insert(key, value)};
       case Tag::Tree:
         return SortedMap{tree_.insert(key, value)};
+      default:
+        abort();
     }
   }
 
@@ -158,6 +160,8 @@ class SortedMap : public impl::SortedMapBase {
         return SortedMap{array_.erase(key)};
       case Tag::Tree:
         return SortedMap{tree_.erase(key)};
+      default:
+        abort();
     }
   }
 
@@ -168,6 +172,8 @@ class SortedMap : public impl::SortedMapBase {
         return array_.empty();
       case Tag::Tree:
         return tree_.empty();
+      default:
+        abort();
     }
   }
 
@@ -178,6 +184,8 @@ class SortedMap : public impl::SortedMapBase {
         return array_.size();
       case Tag::Tree:
         return tree_.size();
+      default:
+        abort();
     }
   }
 
