@@ -40,9 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Starts the query cache up. */
 - (void)start;
 
-/** Shuts this cache down, closing open files, etc. */
-- (void)shutdown;
-
 /**
  * Returns the highest target ID of any query in the cache. Typically called during startup to
  * seed a target ID generator and avoid collisions with existing queries. If there are no queries

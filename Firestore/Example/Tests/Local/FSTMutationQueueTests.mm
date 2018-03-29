@@ -39,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTMutationQueueTests
 
 - (void)tearDown {
-  [self.mutationQueue shutdown];
   [self.persistence shutdown];
   [super tearDown];
 }
@@ -143,8 +142,6 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Restart the queue so that nextBatchID will be reset.
-  [self.mutationQueue shutdown];
-
   FSTMutationBatch *batch = self.persistence.run(
       "testHighestAcknowledgedBatchIDNeverExceedsNextBatchID restart", [&]() -> FSTMutationBatch * {
         self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];

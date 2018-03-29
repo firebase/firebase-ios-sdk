@@ -321,7 +321,6 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Verify that the highestTargetID even survives restarts.
-  [self.queryCache shutdown];
   self.persistence.run("testHighestListenSequenceNumber restart", [&]() {
     self.queryCache = [self.persistence queryCache];
     [self.queryCache start];
@@ -374,7 +373,6 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Verify that the highestTargetID even survives restarts.
-  [self.queryCache shutdown];
   self.persistence.run("testHighestTargetID restart", [&]() {
     self.queryCache = [self.persistence queryCache];
     [self.queryCache start];

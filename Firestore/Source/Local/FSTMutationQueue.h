@@ -43,9 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)start;
 
-/** Shuts this mutation queue down, closing open files, etc. */
-- (void)shutdown;
-
 /** Returns YES if this queue contains no mutation batches. */
 - (BOOL)isEmpty;
 

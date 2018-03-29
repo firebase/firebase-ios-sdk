@@ -163,19 +163,12 @@ NS_ASSUME_NONNULL_BEGIN
   self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
-- (void)shutdown {
-  [self.mutationQueue shutdown];
-  [self.remoteDocumentCache shutdown];
-  [self.queryCache shutdown];
-}
-
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   NSArray<FSTMutationBatch *> *oldBatches = self.persistence.run(
       "OldBatches",
       [&]() -> NSArray<FSTMutationBatch *> * { return [self.mutationQueue allMutationBatches]; });
 
-  [self.mutationQueue shutdown];
   [self.garbageCollector removeGarbageSource:self.mutationQueue];
 
   self.mutationQueue = [self.persistence mutationQueueForUser:user];

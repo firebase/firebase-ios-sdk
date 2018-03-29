@@ -132,9 +132,6 @@ using leveldb::WriteOptions;
   self.metadata = metadata;
 }
 
-- (void)shutdown {
-}
-
 + (FSTBatchID)loadNextBatchIDFromDB:(std::shared_ptr<DB>)db {
   // TODO(gsoltis): implement Prev() and SeekToLast() on LevelDbTransaction::Iterator, then port
   // this to a transaction.
