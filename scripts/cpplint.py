@@ -5875,6 +5875,16 @@ def FlagCxx14Features(filename, clean_lines, linenum, error):
     error(filename, linenum, 'build/c++14', 5,
           ('<%s> is an unapproved C++14 header.') % include.group(1))
 
+  # These are classes and free functions with abeil equivalents
+  for top_name in (
+      # memory
+      'make_unique',
+      ):
+    if Search(r'\bstd::%s\b' % top_name, line):
+      error(filename, linenum, 'build/c++14', 5,
+            'std::%s does not exist in C++11. Use absl::%s instead.' %
+            (top_name, top_name))
+
 
 def ProcessFileData(filename, file_extension, lines, error,
                     extra_check_functions=[]):
@@ -5913,6 +5923,7 @@ def ProcessFileData(filename, file_extension, lines, error,
                 include_state, function_state, nesting_state, error,
                 extra_check_functions)
     FlagCxx11Features(filename, clean_lines, line, error)
+    FlagCxx14Features(filename, clean_lines, line, error)
   nesting_state.CheckCompletedBlocks(filename, error)
 
   CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error)
