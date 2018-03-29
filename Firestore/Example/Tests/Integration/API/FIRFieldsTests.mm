@@ -260,7 +260,6 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 }
 @end
 
-// Settings can only be redefined before client is initialized, so this has to happen in setUp.
 @interface FIRTimestampsInSnapshotsLegacyBehaviorTests : FSTIntegrationTestCase
 @end
 
@@ -268,6 +267,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 
 - (void)setUp {
   [super setUp];
+  // Settings can only be redefined before client is initialized, so this has to happen in setUp.
   FIRFirestoreSettings *settings = self.db.settings;
   settings.timestampsInSnapshotsEnabled = NO;
   self.db.settings = settings;
