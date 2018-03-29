@@ -42,11 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
+- (void)addEntry:(FSTMaybeDocument *)document {
   self.docs = [self.docs dictionaryBySettingObject:document forKey:document.key];
 }
 
-- (void)removeEntryForKey:(const DocumentKey &)key group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)key {
   self.docs = [self.docs dictionaryByRemovingObjectForKey:key];
 }
 

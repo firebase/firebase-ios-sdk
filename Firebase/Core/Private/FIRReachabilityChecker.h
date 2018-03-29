@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-@import Foundation;
-@import SystemConfiguration;
+#import <Foundation/Foundation.h>
+#import <SystemConfiguration/SystemConfiguration.h>
 
 /// Reachability Status
 typedef enum {

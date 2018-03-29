@@ -136,7 +136,7 @@ struct FSTTransactionRunner {
    */
 
   template <typename F>
-  auto operator()(F block) ->
+  auto operator()(F block) const ->
       typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {

@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertValid];
 
   for (const auto &kv : *_changes) {
-    [self.remoteDocumentCache addEntry:kv.second group:group];
+    [self.remoteDocumentCache addEntry:kv.second];
   }
 
   // We should not be used to buffer any more changes.
