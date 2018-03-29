@@ -26,8 +26,23 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-bool operator==(const DelayedOperation& lhs,
-                const DelayedOperation& rhs) {
+namespace {
+
+// Generic wrapper over dispatch_async_f
+template <typename Fun>
+void DispatchAsync(const dispatch_queue_t queue, const Fun& function) {
+  const auto wrap = new AsyncQueue::Operation(function);
+  dispatch_async_f(queue, wrap, [](void* const raw_operation) {
+    const auto unwrap =
+        static_cast<const AsyncQueue::Operation*>(raw_operation);
+    (*unwrap)();
+    delete unwrap;
+  });
+}
+
+}  // namespace
+
+bool operator==(const DelayedOperation& lhs, const DelayedOperation& rhs) {
   return lhs.data_ == rhs.data_;
 }
 bool operator<(const DelayedOperation& lhs, const DelayedOperation& rhs) {
@@ -124,11 +139,15 @@ void AsyncQueue::Enqueue(const Operation& operation) {
                           "Enqueue called when we are already running on "
                           "target dispatch queue '%s'",
                           GetTargetQueueLabel().data());
-  Dispatch(operation);
+  // Note: can't move operation into lambda until C++14.
+  DispatchAsync(native_handle(),
+                [this, operation] { EnterCheckedOperation(operation); });
 }
 
 void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
-  Dispatch(operation);
+  // Note: can't move operation into lambda until C++14.
+  DispatchAsync(native_handle(),
+                [this, operation] { EnterCheckedOperation(operation); });
 }
 
 DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
@@ -140,7 +159,6 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
                           "Attempted to schedule multiple callbacks with id %u",
                           timer_id);
 
-  // operations_.emplace_back(this, timer_id, delay, std::move(operation));
   operations_.push_back({this, timer_id, delay, std::move(operation)});
   return operations_.back();
 }
@@ -155,19 +173,15 @@ bool AsyncQueue::ContainsDelayedOperationWithTimerId(
 
 // Private
 
-void AsyncQueue::Dispatch(const Operation& operation) {
-  // Note: can't move operation into lambda until C++14.
-  const auto wrap =
-      new Operation([this, operation] { EnterCheckedOperation(operation); });
-  dispatch_async_f(native_handle(), wrap, [](void* const raw_operation) {
-    auto const unwrap = static_cast<Operation*>(raw_operation);
-    (*unwrap)();
-    delete unwrap;
-  });
-}
-
 bool AsyncQueue::OnTargetQueue() const {
   return GetCurrentQueueLabel() == GetTargetQueueLabel();
+}
+
+void RunDelayedOperationsUntil(const TimerId last_timer_id) {
+  dispatch_semaphore_t doneSemaphore = dispatch_semaphore_create(0);
+  (void)last_timer_id;
+
+  dispatch_semaphore_wait(doneSemaphore, DISPATCH_TIME_FOREVER);
 }
 
 namespace {

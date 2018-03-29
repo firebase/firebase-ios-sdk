@@ -224,7 +224,7 @@ class AsyncQueue {
    * scheduled using this FSTTimerID will be run. Method throws if no matching
    * callback exists.
    */
-  // void RunDelayedOperationsUntil(TimerId last_timer_id);
+  void RunDelayedOperationsUntil(TimerId last_timer_id);
 
   /** The underlying wrapped dispatch_queue_t */
   dispatch_queue_t native_handle() const {
