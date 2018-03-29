@@ -19,13 +19,14 @@
 #include <memory>
 #include <vector>
 
+#include "absl/strings/string_view.h"
 #include "dispatch/dispatch.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-enum class TimerId {
+enum class TimerId : unsigned int {
   /**
    * Well-known "timer" IDs used when scheduling delayed callbacks on the
    * FSTDispatchQueue. These IDs can then be used from tests to check for the
@@ -60,8 +61,8 @@ class AsyncQueue;
 class DelayedOperation {
  public:
   void Cancel() {
-    if (auto instance = impl_.lock()) {
-      instance->Cancel();
+    if (auto live_instance = impl_.lock()) {
+      live_instance->Cancel();
     }
   }
  private:
@@ -97,23 +98,24 @@ class DelayedOperation {
   void Cancel();
 
  private:
-  using Duration = std::chrono::seconds;
-  using TimePoint =
-      std::chrono::time_point<std::chrono::system_clock, Duration>;
+  using Seconds = std::chrono::seconds;
+  using TimePoint = std::chrono::time_point<std::chrono::system_clock, Seconds>;
   using Operation = std::function<void()>;
 
   DelayedOperation(AsyncQueue* const queue,
                    const TimerId timer_id,
-                   const Duration delay,
+                   const Seconds delay,
                    Operation&& operation);
 
   // aka StartWithDelay
-  void Schedule(const Duration delay);
+  void Schedule(Seconds delay);
   // aka delayDidElapse
   void Run();
   // aka SkipDelay
   void RunImmediately();
   void MarkDone();
+
+  TimerId timer_id() const { return data_->timer_id; }
 
   bool operator==(const DelayedOperation& rhs) const {
     return data_ == rhs.data_;
@@ -125,7 +127,7 @@ class DelayedOperation {
   struct Data {
     Data(AsyncQueue* const queue,
          const TimerId timer_id,
-         const Duration delay,
+         const Seconds delay,
          Operation&& operation);
 
     AsyncQueue* queue_{};
@@ -144,7 +146,7 @@ class DelayedOperation {
 class AsyncQueue {
  public:
   using Operation = DelayedOperation::Operation;
-  using Duration = DelayedOperation::Duration;
+  using Seconds = DelayedOperation::Seconds;
 
   explicit AsyncQueue(const dispatch_queue_t native_handle)
       : native_handle_{native_handle} {
@@ -155,7 +157,7 @@ class AsyncQueue {
    * verify that the queue's label is the same, but hopefully that's good
    * enough.)
    */
-  void VerifyIsCurrentQueue();
+  void VerifyIsCurrentQueue() const;
 
   /**
    * Declares that we are already executing on the correct dispatch_queue_t and
@@ -164,7 +166,7 @@ class AsyncQueue {
    * queue. This allows us to safely dispatch directly onto the worker queue
    * without destroying the invariants this class helps us maintain.
    */
-  void EnterCheckedOperation(Operation operation);
+  void EnterCheckedOperation(const Operation& operation);
 
   /**
    * Same as dispatch_async() except it asserts that we're not already on the
@@ -173,7 +175,7 @@ class AsyncQueue {
    *
    * @param block The block to run.
    */
-  void Enqueue(Operation operation);
+  void Enqueue(const Operation& operation);
 
   /**
    * Unlike dispatchAsync: this method does not require you to dispatch to a
@@ -186,7 +188,7 @@ class AsyncQueue {
    *
    * @param block The block to run.
    */
-  void EnqueueAllowingSameQueue(Operation operation);
+  void EnqueueAllowingSameQueue(const Operation& operation);
 
   /**
    * Schedules a callback after the specified delay.
@@ -203,7 +205,7 @@ class AsyncQueue {
    * presence of this callback or to schedule it to run early.
    * @return A FSTDelayedCallback instance that can be used for cancellation.
    */
-  DelayedOperation EnqueueWithDelay(Duration delay,
+  DelayedOperation EnqueueWithDelay(Seconds delay,
                                     TimerId timer_id,
                                     Operation operation);
 
@@ -218,7 +220,7 @@ class AsyncQueue {
    * For Tests: Determine if a delayed callback with a particular FSTTimerID
    * exists.
    */
-  // bool ContainsDelayedOperationWithTimerId(TimerId timer_id) const;
+  bool ContainsDelayedOperationWithTimerId(TimerId timer_id) const;
 
   /**
    * For Tests: Runs delayed callbacks early, blocking until completion.
@@ -235,7 +237,13 @@ class AsyncQueue {
   }
 
  private:
+  void Dispatch(const Operation& operation);
+
   void Dequeue(const DelayedOperation& operation);
+
+  bool OnTargetQueue() const;
+  absl::string_view GetCurrentQueueLabel() const;
+  absl::string_view GetTargetQueueLabel() const;
 
   dispatch_queue_t native_handle_{};
   std::vector<DelayedOperation> operations_;
