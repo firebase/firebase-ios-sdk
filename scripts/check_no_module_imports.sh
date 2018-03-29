@@ -35,3 +35,7 @@ git grep "${options[@]}" \
 git grep "${options[@]}" \
   -- ':(glob)**/Tests/**' ':(glob)**/TestUtils/**' ':(glob)**/IntegrationTests/**' && \
   exit_with_error
+
+# We need to explicitly exit 0, since we expect `git grep` to return an error
+# if no @import calls are found.
+exit 0
