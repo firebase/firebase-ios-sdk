@@ -168,8 +168,7 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
 // together (probably within their own file rather than here).
 
 Status Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
-  bool ok = pb_encode_tag(&stream_, wiretype, field_number);
-  if (!ok) {
+  if (!pb_encode_tag(&stream_, wiretype, field_number)) {
     const char* errmsg = PB_GET_ERROR(&stream_);
     FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
     return Status(FirestoreErrorCode::Internal, errmsg);
@@ -182,8 +181,7 @@ Status Writer::WriteSize(size_t size) {
 }
 
 Status Writer::WriteVarint(uint64_t value) {
-  bool ok = pb_encode_varint(&stream_, value);
-  if (!ok) {
+  if (!pb_encode_varint(&stream_, value)) {
     const char* errmsg = PB_GET_ERROR(&stream_);
     FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
     return Status(FirestoreErrorCode::Internal, errmsg);
@@ -202,8 +200,7 @@ Status Writer::WriteVarint(uint64_t value) {
  */
 uint64_t DecodeVarint(pb_istream_t* stream) {
   uint64_t varint_value;
-  bool ok = pb_decode_varint(stream, &varint_value);
-  if (!ok) {
+  if (!pb_decode_varint(stream, &varint_value)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -248,10 +245,9 @@ int64_t DecodeInteger(pb_istream_t* stream) {
 }
 
 Status Writer::WriteString(const std::string& string_value) {
-  bool ok = pb_encode_string(
-      &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
-      string_value.length());
-  if (!ok) {
+  if (!pb_encode_string(
+          &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
+          string_value.length())) {
     const char* errmsg = PB_GET_ERROR(&stream_);
     FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
     return Status(FirestoreErrorCode::Internal, errmsg);
@@ -262,16 +258,14 @@ Status Writer::WriteString(const std::string& string_value) {
 
 std::string DecodeString(pb_istream_t* stream) {
   pb_istream_t substream;
-  bool ok = pb_make_string_substream(stream, &substream);
-  if (!ok) {
+  if (!pb_make_string_substream(stream, &substream)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
 
   std::string result(substream.bytes_left, '\0');
-  ok = pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
-               substream.bytes_left);
-  if (!ok) {
+  if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
+               substream.bytes_left)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -341,8 +335,7 @@ FieldValue DecodeFieldValueImpl(pb_istream_t* stream) {
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
-  bool ok = pb_decode_tag(stream, &wire_type, &tag, &eof);
-  if (!ok) {
+  if (!pb_decode_tag(stream, &wire_type, &tag, &eof)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -404,8 +397,7 @@ Status Writer::WriteNestedMessage(
   // to pb_write. (If we try to write the contents into a sizing stream, it'll
   // fail since sizing streams don't actually have any buffer space.)
   if (stream_.callback == nullptr) {
-    bool ok = pb_write(&stream_, nullptr, size);
-    if (!ok) {
+    if (!pb_write(&stream_, nullptr, size)) {
       const char* errmsg = PB_GET_ERROR(&stream_);
       FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
       return Status(FirestoreErrorCode::Internal, errmsg);
@@ -449,8 +441,7 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
   pb_istream_t substream;
-  bool ok = pb_make_string_substream(stream, &substream);
-  if (!ok) {
+  if (!pb_make_string_substream(stream, &substream)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
@@ -512,21 +503,23 @@ ObjectValue::Map::value_type DecodeFieldsEntry(pb_istream_t* stream) {
   pb_wire_type_t wire_type;
   uint32_t tag;
   bool eof;
-  bool ok = pb_decode_tag(stream, &wire_type, &tag, &eof);
+  if (!pb_decode_tag(stream, &wire_type, &tag, &eof)) {
+    abort();
+  }
   // TODO(rsgowman): figure out error handling: We can do better than a failed
   // assertion.
   FIREBASE_ASSERT(tag == google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
   FIREBASE_ASSERT(wire_type == PB_WT_STRING);
   FIREBASE_ASSERT(!eof);
-  FIREBASE_ASSERT(ok);
   std::string key = DecodeString(stream);
 
-  ok = pb_decode_tag(stream, &wire_type, &tag, &eof);
+  if (!pb_decode_tag(stream, &wire_type, &tag, &eof)) {
+    abort();
+  }
   FIREBASE_ASSERT(tag ==
                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
   FIREBASE_ASSERT(wire_type == PB_WT_STRING);
   FIREBASE_ASSERT(!eof);
-  FIREBASE_ASSERT(ok);
 
   FieldValue value = DecodeNestedFieldValue(stream);
 
@@ -574,9 +567,8 @@ ObjectValue DecodeObject(pb_istream_t* stream) {
   };
   map_value.fields.arg = &result;
 
-  bool ok = pb_decode_delimited(
-      stream, google_firestore_v1beta1_MapValue_fields, &map_value);
-  if (!ok) {
+  if (!pb_decode_delimited(stream, google_firestore_v1beta1_MapValue_fields,
+                           &map_value)) {
     // TODO(rsgowman): figure out error handling
     abort();
   }
