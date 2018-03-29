@@ -130,11 +130,6 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
                                                    service:(NSString *)service
                                                     reason:(NSString *)reason;
 /**
- * Checks if the default app is configured without trying to configure it.
- */
-+ (BOOL)isDefaultAppConfigured;
-
-/**
  * Registers a given third-party library with the given version number to be reported for
  * analyitcs.
  *
