@@ -226,7 +226,7 @@ void LevelDbTransaction::Commit() {
 }
 
 std::string LevelDbTransaction::ToString() {
-  std::string dest(": <LevelDbTransaction " + label_ + ": ");
+  std::string dest("<LevelDbTransaction " + label_ + ": ");
   int64_t changes = deletions_.size() + mutations_.size();
   int64_t bytes = 0;  // accumulator for size of individual mutations.
   dest += std::to_string(changes) + " changes ";
