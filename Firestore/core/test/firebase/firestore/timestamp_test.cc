@@ -33,6 +33,23 @@ using Ms = std::chrono::milliseconds;
 const auto kUpperBound = 253402300800L - 1;
 const auto kLowerBound = -62135596800L;
 
+// For near-bounds tests that use <chrono>, it's important to only run them if
+// system_clock::duration can represent values this large (e.g., on Linux, it's
+// system_clock::duration uses nanoseconds precision and thus would overflow
+// trying to represent very large numbers).
+bool CanSystemClockDurationHold(const Sec seconds) {
+  namespace chr = std::chrono;
+  if (seconds.count() >= 0) {
+    const auto max_seconds =
+        chr::duration_cast<chr::seconds>(TimePoint::duration::max()).count();
+    return max_seconds >= seconds.count();
+  } else {
+    const auto min_seconds =
+        chr::duration_cast<chr::seconds>(TimePoint::duration::min()).count();
+    return min_seconds <= seconds.count();
+  }
+}
+
 }  // namespace
 
 TEST(Timestamp, Constructors) {
@@ -128,10 +145,12 @@ TEST(Timestamp, FromChronoNegativeTime) {
   EXPECT_EQ(0, positive_time_negative_fraction.seconds());
   EXPECT_EQ(456000000, positive_time_negative_fraction.nanoseconds());
 
-  const auto near_bounds =
-      Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1) + Ms(-544)});
-  EXPECT_EQ(kUpperBound, near_bounds.seconds());
-  EXPECT_EQ(456000000, near_bounds.nanoseconds());
+  if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
+    const auto near_bounds =
+        Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1) + Ms(-544)});
+    EXPECT_EQ(kUpperBound, near_bounds.seconds());
+    EXPECT_EQ(456000000, near_bounds.nanoseconds());
+  }
 }
 
 TEST(Timestamp, ToChrono) {
@@ -255,10 +274,18 @@ TEST(Timestamp, InvalidArguments) {
   // Seconds beyond supported range.
   ASSERT_ANY_THROW(Timestamp(kLowerBound - 1, 0));
   ASSERT_ANY_THROW(Timestamp(kUpperBound + 1, 0));
+}
 
-  // Using chrono.
-  ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}));
-  ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}));
+TEST(Timestamp, InvalidArgumentsChrono) {
+  // Make sure Timestamp doesn't accept values beyond the supported range, if
+  // system clock-based time_point on this platform can represent values this
+  // large.
+  if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
+    ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}));
+  }
+  if (CanSystemClockDurationHold(Sec(kLowerBound - 1))) {
+    ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}));
+  }
 }
 
 TEST(Timestamp, ToString) {
