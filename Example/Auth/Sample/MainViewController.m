@@ -28,6 +28,7 @@
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
+#import "FIRAuthTokenResult.h"
 #import "FirebaseAuth.h"
 #import "CustomTokenDataEntryViewController.h"
 #import "FacebookAuthProvider.h"
@@ -54,6 +55,11 @@ typedef void (^testAutomationCallback)(NSError *_Nullable error);
     @brief The text of the "Get Token" button.
  */
 static NSString *const kTokenGetButtonText = @"Get Token";
+
+/** @var kGetTokenResultButtonText
+    @brief The text of the "Get Token Result" button.
+ */
+static NSString *const kGetTokenResultButtonText = @"Get Token Result";
 
 /** @var kTokenRefreshButtonText
     @brief The text of the "Refresh Token" button.
@@ -819,7 +825,9 @@ typedef enum {
         [StaticContentTableViewCell cellWithTitle:kTokenGetButtonText
                                            action:^{ [weakSelf getUserTokenWithForce:NO]; }],
         [StaticContentTableViewCell cellWithTitle:kTokenRefreshButtonText
-                                           action:^{ [weakSelf getUserTokenWithForce:YES]; }]
+                                           action:^{ [weakSelf getUserTokenWithForce:YES]; }],
+        [StaticContentTableViewCell cellWithTitle:kGetTokenResultButtonText
+                                           action:^{ [weakSelf getUserTokenResultWithForce:YES]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleLinkUnlinkAccounts cells:@[
         [StaticContentTableViewCell cellWithTitle:kLinkWithGoogleText
@@ -2071,11 +2079,42 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn getUserTokenWithForce:
-    @brief Gets the token from @c FIRUser , optionally a refreshed one.
+    @brief Gets the token from @c FIRUser, optionally a refreshed one.
     @param force Whether the refresh is forced or not.
  */
 - (void)getUserTokenWithForce:(BOOL)force {
   [[self user] getIDTokenForcingRefresh:force completion:[self tokenCallback]];
+}
+
+/** @fn getUserTokenResultWithForce:
+    @brief Gets the token result object from @c FIRUser, optionally a refreshed one.
+    @param force Whether the refresh is forced or not.
+ */
+- (void)getUserTokenResultWithForce:(BOOL)force {
+
+  [[self user] getIDTokenResultForcingRefresh:force completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                                                 NSError *_Nullable error) {
+    if (error) {
+      [self showMessagePromptWithTitle:kTokenRefreshErrorAlertTitle
+                               message:error.localizedDescription
+                      showCancelButton:NO
+                            completion:nil];
+      [self logFailure:@"refresh token failed" error:error];
+      return;
+    }
+    [self logSuccess:@"refresh token succeeded."];
+    NSMutableString *message =
+        [[NSMutableString alloc] initWithString:
+            [NSString stringWithFormat:@"Token : %@\n", tokenResult.token]];
+    [message appendString:[NSString stringWithFormat:@"Auth Date : %@\n", tokenResult.authDate]];
+    [message appendString:[NSString stringWithFormat:@"EXP Date : %@\n", tokenResult.expirationDate]];
+    [message appendString:
+        [NSString stringWithFormat:@"Issued Date : %@\n", tokenResult.issuedAtDate]];
+    [self showMessagePromptWithTitle:kTokenRefreshedAlertTitle
+                             message:message
+                    showCancelButton:NO
+                          completion:nil];
+    }];
 }
 
 /** @fn getAppTokenWithForce:
