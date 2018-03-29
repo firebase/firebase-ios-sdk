@@ -252,7 +252,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 @interface FIRSecureTokenService ()
 
 /** @fn hasValidAccessToken
-    @brief private method exposed to it can be mocked to prevent the fake expiration date from
+    @brief private method exposed so it can be mocked to prevent the fake expiration date from
         affecting the the unit tests.
  */
 - (BOOL)hasValidAccessToken;
