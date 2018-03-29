@@ -164,19 +164,12 @@ NS_ASSUME_NONNULL_BEGIN
   self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
-- (void)shutdown {
-  [self.mutationQueue shutdown];
-  [self.remoteDocumentCache shutdown];
-  [self.queryCache shutdown];
-}
-
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   FSTWriteGroup *group = [self.persistence startGroupWithAction:@"OldBatches"];
   NSArray<FSTMutationBatch *> *oldBatches = [self.mutationQueue allMutationBatches];
   [self.persistence commitGroup:group];
 
-  [self.mutationQueue shutdown];
   [self.garbageCollector removeGarbageSource:self.mutationQueue];
 
   self.mutationQueue = [self.persistence mutationQueueForUser:user];

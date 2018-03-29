@@ -39,7 +39,6 @@
 }
 
 - (void)tearDown {
-  [self.remoteDocumentCache shutdown];
   self.persistence = nil;
   self.remoteDocumentCache = nil;
 

@@ -241,7 +241,6 @@ NS_ASSUME_NONNULL_BEGIN
     self->_credentialsProvider->SetUserChangeListener(nullptr);
 
     [self.remoteStore shutdown];
-    [self.localStore shutdown];
     [self.persistence shutdown];
     if (completion) {
       [self.userDispatchQueue dispatchAsync:^{

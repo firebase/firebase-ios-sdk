@@ -142,9 +142,6 @@ using leveldb::Status;
   _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
-- (void)shutdown {
-}
-
 - (void)saveQueryData:(FSTQueryData *)queryData {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];

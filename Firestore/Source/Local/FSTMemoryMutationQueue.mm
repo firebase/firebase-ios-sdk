@@ -105,9 +105,6 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
             @"highestAcknowledgedBatchID must be less than the nextBatchID");
 }
 
-- (void)shutdown {
-}
-
 - (BOOL)isEmpty {
   // If the queue has any entries at all, the first entry must not be a tombstone (otherwise it
   // would have been removed already).

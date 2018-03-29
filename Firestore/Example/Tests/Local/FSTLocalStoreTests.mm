@@ -88,7 +88,6 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 }
 
 - (void)tearDown {
-  [self.localStore shutdown];
   [self.localStorePersistence shutdown];
 
   [super tearDown];
@@ -109,8 +108,6 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
 /** Restarts the local store using the FSTNoOpGarbageCollector instead of the default. */
 - (void)restartWithNoopGarbageCollector {
-  [self.localStore shutdown];
-
   id<FSTGarbageCollector> garbageCollector = [[FSTNoOpGarbageCollector alloc] init];
   self.localStore = [[FSTLocalStore alloc] initWithPersistence:self.localStorePersistence
                                               garbageCollector:garbageCollector

@@ -57,9 +57,6 @@ using leveldb::Status;
   return self;
 }
 
-- (void)shutdown {
-}
-
 - (void)addEntry:(FSTMaybeDocument *)document {
   std::string key = [self remoteDocumentKey:document.key];
   _db.currentTransaction->Put(key, [self.serializer encodedMaybeDocument:document]);

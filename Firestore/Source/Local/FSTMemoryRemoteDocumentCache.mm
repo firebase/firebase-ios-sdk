@@ -42,9 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)shutdown {
-}
-
 - (void)addEntry:(FSTMaybeDocument *)document {
   self.docs = [self.docs dictionaryBySettingObject:document forKey:document.key];
 }
