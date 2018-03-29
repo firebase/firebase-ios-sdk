@@ -136,21 +136,6 @@ extern std::string StatusCheckOpHelperOutOfLine(const Status& v,
   FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION( \
       val.ok(), val.ok(), StatusCheckOpHelperOutOfLine(val, #val).c_str())
 
-// Run a command that returns a util::Status.  If the called code returns an
-// error status, return that status up out of this method too.
-//
-// Example:
-//   RETURN_IF_ERROR(DoThings(4));
-//
-// (Shamelessly stolen from
-// https://github.com/google/protobuf/blob/master/src/google/protobuf/stubs/status_macros.h)
-#define RETURN_IF_ERROR(expr)                                                \
-  do {                                                                       \
-    /* Using _status below to avoid capture problems if expr is "status". */ \
-    const ::firebase::firestore::util::Status _status = (expr);              \
-    if (!_status.ok()) return _status;                                       \
-  } while (0)
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

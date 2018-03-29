@@ -293,35 +293,50 @@ Status EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   switch (field_value.type()) {
-    case FieldValue::Type::Null:
-      RETURN_IF_ERROR(writer->WriteTag(
-          PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag));
-      RETURN_IF_ERROR(writer->WriteNull());
+    case FieldValue::Type::Null: {
+      Status status = writer->WriteTag(
+          PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag);
+      if (!status.ok()) return status;
+      status = writer->WriteNull();
+      if (!status.ok()) return status;
       break;
+    }
 
-    case FieldValue::Type::Boolean:
-      RETURN_IF_ERROR(writer->WriteTag(
-          PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag));
-      RETURN_IF_ERROR(writer->WriteBool(field_value.boolean_value()));
+    case FieldValue::Type::Boolean: {
+      Status status = writer->WriteTag(
+          PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag);
+      if (!status.ok()) return status;
+      status = writer->WriteBool(field_value.boolean_value());
+      if (!status.ok()) return status;
       break;
+    }
 
-    case FieldValue::Type::Integer:
-      RETURN_IF_ERROR(writer->WriteTag(
-          PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag));
-      RETURN_IF_ERROR(writer->WriteInteger(field_value.integer_value()));
+    case FieldValue::Type::Integer: {
+      Status status = writer->WriteTag(
+          PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag);
+      if (!status.ok()) return status;
+      status = writer->WriteInteger(field_value.integer_value());
+      if (!status.ok()) return status;
       break;
+    }
 
-    case FieldValue::Type::String:
-      RETURN_IF_ERROR(writer->WriteTag(
-          PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag));
-      RETURN_IF_ERROR(writer->WriteString(field_value.string_value()));
+    case FieldValue::Type::String: {
+      Status status = writer->WriteTag(
+          PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag);
+      if (!status.ok()) return status;
+      status = writer->WriteString(field_value.string_value());
+      if (!status.ok()) return status;
       break;
+    }
 
-    case FieldValue::Type::Object:
-      RETURN_IF_ERROR(writer->WriteTag(
-          PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag));
-      RETURN_IF_ERROR(EncodeObject(writer, field_value.object_value()));
+    case FieldValue::Type::Object: {
+      Status status = writer->WriteTag(
+          PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag);
+      if (!status.ok()) return status;
+      status = EncodeObject(writer, field_value.object_value());
+      if (!status.ok()) return status;
       break;
+    }
 
     default:
       // TODO(rsgowman): implement the other types
@@ -386,11 +401,13 @@ Status Writer::WriteNestedMessage(
     const std::function<Status(Writer*)>& write_message_fn) {
   // First calculate the message size using a non-writing substream.
   Writer sizer = Writer::Sizing();
-  RETURN_IF_ERROR(write_message_fn(&sizer));
+  Status status = write_message_fn(&sizer);
+  if (!status.ok()) return status;
   size_t size = sizer.bytes_written();
 
   // Write out the size to the output writer.
-  RETURN_IF_ERROR(WriteSize(size));
+  status = WriteSize(size);
+  if (!status.ok()) return status;
 
   // If this stream is itself a sizing stream, then we don't need to actually
   // parse field_value a second time; just update the bytes_written via a call
@@ -420,7 +437,8 @@ Status Writer::WriteNestedMessage(
   Writer writer({stream_.callback, stream_.state,
                  /*max_size=*/size, /*bytes_written=*/0,
                  /*errmsg=*/nullptr});
-  RETURN_IF_ERROR(write_message_fn(&writer));
+  status = write_message_fn(&writer);
+  if (!status.ok()) return status;
 
   stream_.bytes_written += writer.stream_.bytes_written;
   stream_.state = writer.stream_.state;
@@ -485,16 +503,20 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
 Status EncodeFieldsEntry(Writer* writer,
                          const ObjectValue::Map::value_type& kv) {
   // Write the key (string)
-  RETURN_IF_ERROR(writer->WriteTag(
-      PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag));
-  RETURN_IF_ERROR(writer->WriteString(kv.first));
+  Status status = writer->WriteTag(
+      PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  if (!status.ok()) return status;
+  status = writer->WriteString(kv.first);
+  if (!status.ok()) return status;
 
   // Write the value (FieldValue)
-  RETURN_IF_ERROR(writer->WriteTag(
-      PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_value_tag));
-  RETURN_IF_ERROR(writer->WriteNestedMessage([&kv](Writer* writer) -> Status {
+  status = writer->WriteTag(
+      PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  if (!status.ok()) return status;
+  status = writer->WriteNestedMessage([&kv](Writer* writer) -> Status {
     return EncodeFieldValueImpl(writer, kv.second);
-  }));
+  });
+  if (!status.ok()) return status;
 
   return Status::OK();
 }
@@ -530,12 +552,13 @@ Status EncodeObject(Writer* writer, const ObjectValue& object_value) {
   return writer->WriteNestedMessage([&object_value](Writer* writer) {
     // Write each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value.internal_value) {
-      RETURN_IF_ERROR(writer->WriteTag(
-          PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag));
-      RETURN_IF_ERROR(
-          writer->WriteNestedMessage([&kv](Writer* writer) -> Status {
-            return EncodeFieldsEntry(writer, kv);
-          }));
+      Status status = writer->WriteTag(
+          PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+      if (!status.ok()) return status;
+      status = writer->WriteNestedMessage([&kv](Writer* writer) -> Status {
+        return EncodeFieldsEntry(writer, kv);
+      });
+      if (!status.ok()) return status;
     }
 
     return Status::OK();
