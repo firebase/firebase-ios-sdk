@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "absl/memory/memory.h"
 
 using leveldb::DB;
 using leveldb::ReadOptions;
@@ -177,7 +178,7 @@ void LevelDbTransaction::Put(const absl::string_view& key,
 
 std::unique_ptr<LevelDbTransaction::Iterator>
 LevelDbTransaction::NewIterator() {
-  return std::make_unique<LevelDbTransaction::Iterator>(this);
+  return absl::make_unique<LevelDbTransaction::Iterator>(this);
 }
 
 Status LevelDbTransaction::Get(const absl::string_view& key,
