@@ -115,14 +115,7 @@ class DelayedOperation {
   void RunImmediately();
   void MarkDone();
 
-  TimerId timer_id() const { return data_->timer_id; }
-
-  bool operator==(const DelayedOperation& rhs) const {
-    return data_ == rhs.data_;
-  }
-  bool operator<(const DelayedOperation& rhs) const {
-    return data_->target_time_ < rhs.data_->target_time_;
-  }
+  TimerId timer_id() const { return data_->timer_id_; }
 
   struct Data {
     Data(AsyncQueue* const queue,
@@ -141,6 +134,8 @@ class DelayedOperation {
   std::shared_ptr<Data> data_;
 
   friend class AsyncQueue;
+  friend bool operator==(const DelayedOperation& lhs, const DelayedOperation& rhs);
+  friend bool operator<(const DelayedOperation& lhs, const DelayedOperation& rhs);
 };
 
 class AsyncQueue {
@@ -242,6 +237,8 @@ class AsyncQueue {
   void Dequeue(const DelayedOperation& operation);
 
   bool OnTargetQueue() const;
+  // GetLabel functions are guaranteed to never return a "null" string_view
+  // (i.e. data() != nullptr).
   absl::string_view GetCurrentQueueLabel() const;
   absl::string_view GetTargetQueueLabel() const;
 

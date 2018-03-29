@@ -20,9 +20,19 @@
 #include <algorithm>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
+
+bool operator==(const DelayedOperation& lhs,
+                const DelayedOperation& rhs) {
+  return lhs.data_ == rhs.data_;
+}
+bool operator<(const DelayedOperation& lhs, const DelayedOperation& rhs) {
+  return lhs.data_->target_time_ < rhs.data_->target_time_;
+}
 
 DelayedOperation::DelayedOperation(AsyncQueue* const queue,
                                    const TimerId timer_id,
@@ -92,11 +102,11 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
   FIREBASE_ASSERT_MESSAGE(
       OnTargetQueue(),
       "We are running on the wrong dispatch queue. Expected '%s' Actual: '%s'",
-      GetTargetQueueLabel().c_str(), GetCurrentQueueLabel().c_str());
+      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
   FIREBASE_ASSERT_MESSAGE(
       is_operation_in_progress_,
       "verifyIsCurrentQueue called outside enterCheckedOperation on queue '%@'",
-      GetTargetQueueLabel().c_str(), GetCurrentQueueLabel().c_str());
+      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
 }
 
 void AsyncQueue::EnterCheckedOperation(const Operation& operation) {
@@ -113,7 +123,7 @@ void AsyncQueue::Enqueue(const Operation& operation) {
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_ || !OnTargetQueue(),
                           "Enqueue called when we are already running on "
                           "target dispatch queue '%s'",
-                          GetTargetQueueLabel().c_str());
+                          GetTargetQueueLabel().data());
   Dispatch(operation);
 }
 
@@ -130,7 +140,8 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
                           "Attempted to schedule multiple callbacks with id %u",
                           timer_id);
 
-  operations_.emplace_back(this, timer_id, delay, std::move(operation));
+  // operations_.emplace_back(this, timer_id, delay, std::move(operation));
+  operations_.push_back({this, timer_id, delay, std::move(operation)});
   return operations_.back();
 }
 
@@ -146,11 +157,11 @@ bool AsyncQueue::ContainsDelayedOperationWithTimerId(
 
 void AsyncQueue::Dispatch(const Operation& operation) {
   // Note: can't move operation into lambda until C++14.
-  const Operation* const wrap =
+  const auto wrap =
       new Operation([this, operation] { EnterCheckedOperation(operation); });
-  dispatch_async_f(native_handle(), wrap, [](const void* const raw_operation) {
-    auto const unwrap = static_cast<const Operation*>(raw_operation);
-    unwrap();
+  dispatch_async_f(native_handle(), wrap, [](void* const raw_operation) {
+    auto const unwrap = static_cast<Operation*>(raw_operation);
+    (*unwrap)();
     delete unwrap;
   });
 }
@@ -159,15 +170,24 @@ bool AsyncQueue::OnTargetQueue() const {
   return GetCurrentQueueLabel() == GetTargetQueueLabel();
 }
 
+namespace {
+
+absl::string_view StringViewFromLabel(const char* const label) {
+  // Make sure string_view's data is not null, because it's used for logging.
+  return label ? absl::string_view{label} : absl::string_view{""};
+}
+
+}  // namespace
+
 absl::string_view AsyncQueue::GetCurrentQueueLabel() const {
   // Note: dispatch_queue_get_label may return nullptr if the queue wasn't
   // initialized with a label.
-  return absl::NullSafeStringView(
+  return StringViewFromLabel(
       dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
 }
 
 absl::string_view AsyncQueue::GetTargetQueueLabel() const {
-  return absl::NullSafeStringView(dispatch_queue_get_label(native_handle()));
+  return StringViewFromLabel(dispatch_queue_get_label(native_handle()));
 }
 
 }  // namespace util
