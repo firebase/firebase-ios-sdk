@@ -16,11 +16,7 @@
 
 #import "FIRMessagingClient.h"
 
-#ifdef COCOAPODS
-#import "FIRReachabilityChecker.h"
-#else
-#import "third_party/firebase/ios/Source/FirebaseCore/Library/Private/FIRReachabilityChecker.h"
-#endif
+#import <FirebaseCore/FIRReachabilityChecker.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingConnection.h"
