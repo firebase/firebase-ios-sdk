@@ -151,7 +151,7 @@ LevelDbTransaction::LevelDbTransaction(DB* db,
       read_options_(read_options),
       write_options_(write_options),
       version_(0),
-      label_(std::string(label)) {
+      label_(std::string{label}) {
 }
 
 const ReadOptions& LevelDbTransaction::DefaultReadOptions() {

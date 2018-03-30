@@ -391,17 +391,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
   FSTQueryData *queryData = self.persistence.run("Allocate query", [&]() -> FSTQueryData * {
     FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
-    FSTTargetID targetID;
-    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
-    if (cached) {
-      // This query has been listened to previously, so reuse the previous targetID.
-      // TODO(mcg): freshen last accessed date?
-      targetID = cached.targetID;
-    } else {
-      targetID = _targetIDGenerator.NextId();
+    // TODO(mcg): freshen last accessed date if cached exists?
+    if (!cached) {
       cached = [[FSTQueryData alloc] initWithQuery:query
-                                          targetID:targetID
-                              listenSequenceNumber:sequenceNumber
+                                          targetID:_targetIDGenerator.NextId()
+                              listenSequenceNumber:[self.listenSequence next]
                                            purpose:FSTQueryPurposeListen];
       [self.queryCache addQueryData:cached];
     }
