@@ -119,8 +119,6 @@ inline bool Status::operator!=(const Status& x) const {
   return !(*this == x);
 }
 
-std::ostream& operator<<(std::ostream& os, const Status& x);
-
 typedef std::function<void(const Status&)> StatusCallback;
 
 extern std::string StatusCheckOpHelperOutOfLine(const Status& v,
