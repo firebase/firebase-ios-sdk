@@ -71,8 +71,8 @@
   [service.pubsub subscribeWithToken:token
                                topic:topic
                              options:nil
-                             handler:^(FIRMessagingTopicOperationResult result, NSError *error) {
-                               // not a nil block
+                             handler:^(NSError *error){
+                                 // not a nil block
                              }];
 
   // should call updateSubscription
@@ -112,7 +112,7 @@
   [messaging.pubsub unsubscribeWithToken:token
                                    topic:topic
                                  options:nil
-                                 handler:^(FIRMessagingTopicOperationResult result, NSError *error){
+                                 handler:^(NSError *error){
 
                                  }];
 
@@ -128,15 +128,14 @@
  *  Test using PubSub without explicitly starting FIRMessagingService.
  */
 - (void)testSubscribeWithoutStart {
-  [[[FIRMessaging messaging] pubsub] subscribeWithToken:@"abcdef1234"
-                                                  topic:@"/topics/hello-world"
-                                                options:nil
-                                                handler:
-      ^(FIRMessagingTopicOperationResult result, NSError *error) {
-    XCTAssertNil(error);
-    XCTAssertEqual(kFIRMessagingErrorCodePubSubFIRMessagingNotSetup,
-                   error.code);
-  }];
+  [[[FIRMessaging messaging] pubsub]
+      subscribeWithToken:@"abcdef1234"
+                   topic:@"/topics/hello-world"
+                 options:nil
+                 handler:^(NSError *error) {
+                   XCTAssertNil(error);
+                   XCTAssertEqual(kFIRMessagingErrorCodePubSubFIRMessagingNotSetup, error.code);
+                 }];
 }
 
 // TODO(chliangGoogle) Investigate why invalid token can't throw assertion but the rest can under
@@ -150,10 +149,9 @@
     [messaging.pubsub subscribeWithToken:@"abcdef1234"
                                    topic:nil
                                  options:nil
-                                 handler:
-     ^(FIRMessagingTopicOperationResult result, NSError *error) {
-       XCTFail(@"Should not invoke the handler");
-     }];
+                                 handler:^(NSError *error) {
+                                   XCTFail(@"Should not invoke the handler");
+                                 }];
   }
   @catch (NSException *exception) {
     [exceptionExpectation fulfill];
@@ -174,10 +172,9 @@
     [messaging.pubsub unsubscribeWithToken:@"abcdef1234"
                                      topic:nil
                                    options:nil
-                                   handler:
-        ^(FIRMessagingTopicOperationResult result, NSError *error) {
-      XCTFail(@"Should not invoke the handler");
-    }];
+                                   handler:^(NSError *error) {
+                                     XCTFail(@"Should not invoke the handler");
+                                   }];
   }
   @catch (NSException *exception) {
     [exceptionExpectation fulfill];

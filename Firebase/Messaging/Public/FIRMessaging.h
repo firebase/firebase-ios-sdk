@@ -23,9 +23,9 @@
  *  If the call fails we return the appropriate `error code`, described by
  *  `FIRMessagingError`.
  *
- *  @param FCMToken The valid registration token returned by FCM.
- *  @param error The error describing why a token request failed. The error code
- *               will match a value from the FIRMessagingError enumeration.
+ *  @param FCMToken  The valid registration token returned by FCM.
+ *  @param error     The error describing why a token request failed. The error code
+ *                   will match a value from the FIRMessagingError enumeration.
  */
 typedef void(^FIRMessagingFCMTokenFetchCompletion)(NSString * _Nullable FCMToken,
     NSError * _Nullable error)
@@ -44,6 +44,16 @@ typedef void(^FIRMessagingFCMTokenFetchCompletion)(NSString * _Nullable FCMToken
  */
 typedef void(^FIRMessagingDeleteFCMTokenCompletion)(NSError * _Nullable error)
     NS_SWIFT_NAME(MessagingDeleteFCMTokenCompletion);
+
+/**
+ *  Callback to invoke once the HTTP call to FIRMessaging backend for updating
+ *  subscription finishes.
+ *
+ *  @param error  The error which occurred while updating the subscription topic
+ *                on the FIRMessaging server. This will be nil in case the operation
+ *                was successful, or if the operation was cancelled.
+ */
+typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
 
 /**
  *  The completion handler invoked once the data connection with FIRMessaging is
@@ -459,11 +469,39 @@ NS_SWIFT_NAME(Messaging)
 - (void)subscribeToTopic:(nonnull NSString *)topic NS_SWIFT_NAME(subscribe(toTopic:));
 
 /**
+ *  Asynchronously subscribe to the topic. Adds to the pending list of topic operations.
+ *  Retry in case of failures. This makes a repeated attempt to subscribe to the topic
+ *  as compared to the `subscribe` method above which tries once.
+ *
+ *  @param topic       The topic name to subscribe to. Should be of the form
+ *                     `"/topics/<topic-name>"`.
+ *  @param completion  The completion that is invoked once the unsubscribe call ends.
+ *                     In case of success, nil error is returned. Otherwise, an
+ *                     appropriate error object is returned.
+ */
+- (void)subscribeToTopic:(NSString *)topic
+              completion:(nullable FIRMessagingTopicOperationCompletion)completion;
+
+/**
  *  Asynchronously unsubscribe from a topic.
  *
  *  @param topic The name of the topic, for example @"sports".
  */
 - (void)unsubscribeFromTopic:(nonnull NSString *)topic NS_SWIFT_NAME(unsubscribe(fromTopic:));
+
+/**
+ *  Asynchronously unsubscribe from the topic. Adds to the pending list of topic operations.
+ *  Retry in case of failures. This makes a repeated attempt to unsubscribe from the topic
+ *  as compared to the `unsubscribe` method above which tries once.
+ *
+ *  @param topic       The topic name to unsubscribe from. Should be of the form
+ *                     `"/topics/<topic-name>"`.
+ *  @param completion  The completion that is invoked once the unsubscribe call ends.
+ *                     In case of success, nil error is returned. Otherwise, an
+ *                     appropriate error object is returned.
+ */
+- (void)unsubscribeFromTopic:(NSString *)topic
+                  completion:(nullable FIRMessagingTopicOperationCompletion)completion;
 
 #pragma mark - Upstream
 
