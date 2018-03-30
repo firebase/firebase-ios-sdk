@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthTokenResult_internal.h"
+#import "FIRAuthTokenResult_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
