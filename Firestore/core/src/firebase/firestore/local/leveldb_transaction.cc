@@ -143,6 +143,7 @@ bool LevelDbTransaction::Iterator::Valid() {
 }
 
 LevelDbTransaction::LevelDbTransaction(DB* db,
+                                       absl::string_view label,
                                        const ReadOptions& read_options,
                                        const WriteOptions& write_options)
     : db_(db),
@@ -150,7 +151,8 @@ LevelDbTransaction::LevelDbTransaction(DB* db,
       deletions_(),
       read_options_(read_options),
       write_options_(write_options),
-      version_(0) {
+      version_(0),
+      label_(std::string{label}) {
 }
 
 const ReadOptions& LevelDbTransaction::DefaultReadOptions() {
@@ -225,7 +227,7 @@ void LevelDbTransaction::Commit() {
 }
 
 std::string LevelDbTransaction::ToString() {
-  std::string dest("<LevelDbTransaction: ");
+  std::string dest("<LevelDbTransaction " + label_ + ": ");
   int64_t changes = deletions_.size() + mutations_.size();
   int64_t bytes = 0;  // accumulator for size of individual mutations.
   dest += std::to_string(changes) + " changes ";

@@ -126,6 +126,7 @@ class LevelDbTransaction {
 
   explicit LevelDbTransaction(
       leveldb::DB* db,
+      absl::string_view label,
       const leveldb::ReadOptions& read_options = DefaultReadOptions(),
       const leveldb::WriteOptions& write_options = DefaultWriteOptions());
 
@@ -197,6 +198,7 @@ class LevelDbTransaction {
   leveldb::ReadOptions read_options_;
   leveldb::WriteOptions write_options_;
   int32_t version_;
+  std::string label_;
 };
 
 }  // namespace local
