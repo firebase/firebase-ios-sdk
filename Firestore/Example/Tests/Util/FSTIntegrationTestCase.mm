@@ -129,6 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   settings.host = host;
   settings.persistenceEnabled = YES;
+  settings.timestampsInSnapshotsEnabled = YES;
   NSLog(@"Configured integration test for %@ with SSL: %@", settings.host,
         settings.sslEnabled ? @"YES" : @"NO");
   return settings;

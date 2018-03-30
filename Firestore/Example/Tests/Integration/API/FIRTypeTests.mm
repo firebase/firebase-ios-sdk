@@ -56,9 +56,22 @@
   }];
 }
 
-- (void)testCanReadAndWriteTimestampFields {
+- (void)testCanReadAndWriteDateFields {
   // Choose a value that can be converted losslessly between fixed point and double
-  NSDate *timestamp = [NSDate dateWithTimeIntervalSince1970:1491847082.125];
+  NSDate *date = [NSDate dateWithTimeIntervalSince1970:1491847082.125];
+
+  // NSDates are read back as FIRTimestamps, so assertSuccessfulRoundtrip cannot be used here.
+  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
+  [self writeDocumentRef:doc data:@{@"date" : date}];
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertTrue(document.exists);
+  XCTAssertEqualObjects(document.data, @{@"date" : [FIRTimestamp timestampWithDate:date]});
+}
+
+- (void)testCanReadAndWriteTimestampFields {
+  // Timestamps are currently truncated to microseconds on the backend, so only be precise to
+  // microseconds to ensure the value read back is exactly the same.
+  FIRTimestamp *timestamp = [FIRTimestamp timestampWithSeconds:123456 nanoseconds:123456000];
   [self assertSuccessfulRoundtrip:@{@"timestamp" : timestamp}];
 }
 

@@ -143,7 +143,7 @@ using firebase::firestore::model::DocumentKey;
                                          mutationResult:mutationResult];
 
   NSDictionary *expectedData =
-      @{ @"foo" : @{@"bar" : _timestamp.approximateDateValue},
+      @{ @"foo" : @{@"bar" : _timestamp.dateValue},
          @"baz" : @"baz-value" };
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 0, expectedData, NO));
 }

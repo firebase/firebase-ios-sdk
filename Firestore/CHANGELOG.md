@@ -2,6 +2,16 @@
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
   cause `getDocument()` requests made while offline to be delayed by up to 10
   seconds (rather than returning from cache immediately).
+- [feature] Added a new `Timestamp` class to represent timestamp fields,
+  currently supporting up to microsecond precision. It can be passed to API
+  methods anywhere a system Date is currently accepted. To make
+  `DocumentSnapshot`s read timestamp fields back as `Timestamp`s instead of
+  Dates, you can set the newly added property `areTimestampsInSnapshotsEnabled`
+  in `FirestoreSettings` to `true`. Note that the current behavior
+  (`DocumentSnapshot`s returning system Dates) will be removed in a future
+  release. Using `Timestamp`s avoids rounding errors (system Date is stored as
+  a floating-point value, so the value read back from a `DocumentSnapshot`
+  might be slightly different from the value written).
 
 # v0.10.4
 - [changed] If the SDK's attempt to connect to the Cloud Firestore backend

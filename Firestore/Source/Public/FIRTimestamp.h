@@ -60,7 +60,7 @@ NS_SWIFT_NAME(Timestamp)
 + (instancetype)timestamp;
 
 /** Returns a new NSDate corresponding to this timestamp. This may lose precision. */
-- (NSDate *)approximateDateValue;
+- (NSDate *)dateValue;
 
 - (NSComparisonResult)compare:(FIRTimestamp *)other;
 

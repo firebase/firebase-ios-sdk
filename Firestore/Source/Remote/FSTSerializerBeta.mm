@@ -191,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self encodedString:[fieldValue value]];
 
   } else if (fieldClass == [FSTTimestampValue class]) {
-    return [self encodedTimestampValue:((FSTTimestampValue *)fieldValue).internalValue];
+    return [self encodedTimestampValue:[fieldValue value]];
 
   } else if (fieldClass == [FSTGeoPointValue class]) {
     return [self encodedGeoPointValue:[fieldValue value]];
