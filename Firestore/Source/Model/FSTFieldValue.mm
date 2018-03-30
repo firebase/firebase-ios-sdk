@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTFieldValueOptions
 
 + (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options
-              timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
+             timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
   FSTServerTimestampBehavior convertedServerTimestampBehavior = FSTServerTimestampBehaviorNone;
   switch (options.serverTimestampBehavior) {
     case FIRServerTimestampBehaviorNone:
@@ -67,11 +67,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   return
       [[FSTFieldValueOptions alloc] initWithServerTimestampBehavior:convertedServerTimestampBehavior
-                                        timestampsInSnapshotsEnabled:timestampsInSnapshotsEnabled];
+                                       timestampsInSnapshotsEnabled:timestampsInSnapshotsEnabled];
 }
 
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
-                    timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
+                   timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
   self = [super init];
 
   if (self) {
@@ -519,7 +519,7 @@ struct Comparator<NSString *> {
     case FSTServerTimestampBehaviorNone:
       return [NSNull null];
     case FSTServerTimestampBehaviorEstimate:
-      return [[FSTTimestampValue timestampValue: self.localWriteTime] valueWithOptions: options];
+      return [[FSTTimestampValue timestampValue:self.localWriteTime] valueWithOptions:options];
     case FSTServerTimestampBehaviorPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:

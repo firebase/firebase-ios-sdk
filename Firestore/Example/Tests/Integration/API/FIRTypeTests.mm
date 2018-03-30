@@ -65,13 +65,13 @@
   [self writeDocumentRef:doc data:@{@"date" : date}];
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
   XCTAssertTrue(document.exists);
-  XCTAssertEqualObjects(document.data, @{@"date" : [FIRTimestamp timestampWithDate: date]});
+  XCTAssertEqualObjects(document.data, @{@"date" : [FIRTimestamp timestampWithDate:date]});
 }
 
 - (void)testCanReadAndWriteTimestampFields {
   // Timestamps are currently truncated to microseconds on the backend, so only be precise to
   // microseconds to ensure the value read back is exactly the same.
-  FIRTimestamp *timestamp = [FIRTimestamp timestampWithSeconds: 123456 nanoseconds: 123456000];
+  FIRTimestamp *timestamp = [FIRTimestamp timestampWithSeconds:123456 nanoseconds:123456000];
   [self assertSuccessfulRoundtrip:@{@"timestamp" : timestamp}];
 }
 

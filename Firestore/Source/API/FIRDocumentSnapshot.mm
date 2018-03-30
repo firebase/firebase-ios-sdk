@@ -152,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
              ? nil
              : [self convertedObject:[self.internalDocument data]
                              options:[FSTFieldValueOptions
-                                           optionsForSnapshotOptions:options
+                                            optionsForSnapshotOptions:options
                                          timestampsInSnapshotsEnabled:
                                              self.firestore.settings.timestampsInSnapshotsEnabled]];
 }
@@ -177,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
              ? nil
              : [self convertedValue:fieldValue
                             options:[FSTFieldValueOptions
-                                          optionsForSnapshotOptions:options
+                                           optionsForSnapshotOptions:options
                                         timestampsInSnapshotsEnabled:
                                             self.firestore.settings.timestampsInSnapshotsEnabled]];
 }

@@ -64,12 +64,12 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * server timestamps.
  */
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
-                    timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled
+                   timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled
     NS_DESIGNATED_INITIALIZER;
 
 /** Creates an FSTFieldValueOptions instance from FIRSnapshotOptions. */
 + (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)value
-              timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled;
+             timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled;
 
 @end
 
