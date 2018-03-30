@@ -303,7 +303,7 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
-    NS_SWIFT_NAME(getIDToken(completion:)) __attribute__((deprecated));
+    NS_SWIFT_NAME(getIDToken(completion:));
 
 /** @fn getTokenWithCompletion:
     @brief Please use `getIDTokenWithCompletion:` instead.
@@ -330,8 +330,7 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
-                      completion:(nullable FIRAuthTokenCallback)completion
-                          __attribute__((deprecated));
+                      completion:(nullable FIRAuthTokenCallback)completion;
 
 /** @fn getTokenForcingRefresh:completion:
     @brief Please use getIDTokenForcingRefresh:completion instead.
