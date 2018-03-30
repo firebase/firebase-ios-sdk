@@ -6,8 +6,8 @@
   currently supporting up to microsecond precision. It can be passed to API
   methods anywhere a system Date is currently accepted. To make
   `DocumentSnapshot`s read timestamp fields back as `Timestamp`s instead of
-  Dates, you can set the newly-added flag `areTimestampsInSnapshotsEnabled` in
-  `FirestoreSettings` to `true`. Note that the current behavior
+  Dates, you can set the newly added property `areTimestampsInSnapshotsEnabled`
+  in `FirestoreSettings` to `true`. Note that the current behavior
   (`DocumentSnapshot`s returning system Dates) will be removed in a future
   release. Using `Timestamp`s avoids rounding errors (system Date is stored as
   a floating-point value, so the value read back from a `DocumentSnapshot`
