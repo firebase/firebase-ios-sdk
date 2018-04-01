@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-#include <assert.h>
 #include <algorithm>
 #include <utility>
 
@@ -98,7 +97,8 @@ void DelayedOperation::Run() {
   data_->queue_->VerifyIsCurrentQueue();
   if (!data_->done_) {
     MarkDone();
-    assert(data_->operation_);
+    FIREBASE_ASSERT_MESSAGE(data_->operation_,
+                            "DelayedOperation contains null function object");
     data_->operation_();
   }
 }
@@ -117,7 +117,8 @@ void DelayedOperation::MarkDone() {
 void AsyncQueue::Dequeue(const DelayedOperation& dequeued) {
   const auto new_end =
       std::remove(operations_.begin(), operations_.end(), dequeued);
-  assert(new_end != operations_.end());
+  FIREBASE_ASSERT_MESSAGE(new_end != operations_.end(),
+                          "Delayed operation not found");
   operations_.erase(new_end, operations_.end());
 }
 
