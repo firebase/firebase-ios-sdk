@@ -136,6 +136,7 @@ class DelayedOperation {
   friend class AsyncQueue;
   friend bool operator==(const DelayedOperation& lhs, const DelayedOperation& rhs);
   friend bool operator<(const DelayedOperation& lhs, const DelayedOperation& rhs);
+  friend struct ByTimerId;
 };
 
 class AsyncQueue {
@@ -215,7 +216,7 @@ class AsyncQueue {
    * For Tests: Determine if a delayed callback with a particular FSTTimerID
    * exists.
    */
-  bool ContainsDelayedOperationWithTimerId(TimerId timer_id) const;
+  bool ContainsOperationWithTimerId(TimerId timer_id) const;
 
   /**
    * For Tests: Runs delayed callbacks early, blocking until completion.
@@ -244,6 +245,7 @@ class AsyncQueue {
 
   dispatch_queue_t native_handle_{};
   std::vector<DelayedOperation> operations_;
+  using OperationsIterator = std::vector<DelayedOperation>::iterator;
   bool is_operation_in_progress_{};
 
   friend class DelayedOperation;

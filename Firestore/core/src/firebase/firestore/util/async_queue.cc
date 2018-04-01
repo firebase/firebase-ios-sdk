@@ -48,6 +48,14 @@ bool operator==(const DelayedOperation& lhs, const DelayedOperation& rhs) {
 bool operator<(const DelayedOperation& lhs, const DelayedOperation& rhs) {
   return lhs.data_->target_time_ < rhs.data_->target_time_;
 }
+struct ByTimerId {
+  explicit ByTimerId(const TimerId timer_id) : timer_id{timer_id} {
+  }
+  bool operator()(const DelayedOperation& op) const {
+    return op.timer_id() == timer_id;
+  }
+  TimerId timer_id;
+};
 
 DelayedOperation::DelayedOperation(AsyncQueue* const queue,
                                    const TimerId timer_id,
@@ -120,7 +128,7 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
       GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
   FIREBASE_ASSERT_MESSAGE(
       is_operation_in_progress_,
-      "verifyIsCurrentQueue called outside enterCheckedOperation on queue '%@'",
+      "VerifyIsCurrentQueue called outside enterCheckedOperation on queue '%@'",
       GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
 }
 
@@ -128,9 +136,12 @@ void AsyncQueue::EnterCheckedOperation(const Operation& operation) {
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_,
                           "EnterCheckedOperation may not be called when an "
                           "operation is in progress");
+
   is_operation_in_progress_ = true;
   VerifyIsCurrentQueue();
+
   operation();
+
   is_operation_in_progress_ = false;
 }
 
@@ -155,7 +166,7 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
                                               Operation operation) {
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject them.
-  FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperationWithTimerId(timer_id),
+  FIREBASE_ASSERT_MESSAGE(!ContainsOperationWithTimerId(timer_id),
                           "Attempted to schedule multiple callbacks with id %u",
                           timer_id);
 
@@ -163,12 +174,9 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
   return operations_.back();
 }
 
-bool AsyncQueue::ContainsDelayedOperationWithTimerId(
-    const TimerId timer_id) const {
+bool AsyncQueue::ContainsOperationWithTimerId(const TimerId timer_id) const {
   return std::find_if(operations_.begin(), operations_.end(),
-                      [timer_id](const DelayedOperation& op) {
-                        return op.timer_id() == timer_id;
-                      }) != operations_.end();
+                      ByTimerId{timer_id}) != operations_.end();
 }
 
 // Private
@@ -177,11 +185,36 @@ bool AsyncQueue::OnTargetQueue() const {
   return GetCurrentQueueLabel() == GetTargetQueueLabel();
 }
 
-void RunDelayedOperationsUntil(const TimerId last_timer_id) {
-  dispatch_semaphore_t doneSemaphore = dispatch_semaphore_create(0);
-  (void)last_timer_id;
+void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
+  const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
 
-  dispatch_semaphore_wait(doneSemaphore, DISPATCH_TIME_FOREVER);
+  Enqueue([this, last_timer_id, done_semaphore] {
+    std::sort(operations_.begin(), operations_.end());
+
+    const auto until = [this, last_timer_id] {
+      if (last_timer_id == TimerId::All) {
+        return operations_.end();
+      }
+      const auto found = std::find_if(operations_.begin(), operations_.end(),
+                                      ByTimerId{last_timer_id});
+      FIREBASE_ASSERT_MESSAGE(
+          found != operations_.end(),
+          "Attempted to run operations until missing timer id: %u",
+          last_timer_id);
+      return found + 1;
+    }();
+
+    for (auto it = operations_.begin(); it != until; ++it) {
+      it->Run();
+    }
+
+    // Now that the callbacks are queued, we want to enqueue an additional item
+    // to release the 'done' semaphore.
+    EnqueueAllowingSameQueue(
+        [done_semaphore] { dispatch_semaphore_signal(done_semaphore); });
+  });
+
+  dispatch_semaphore_wait(done_semaphore, DISPATCH_TIME_FOREVER);
 }
 
 namespace {
