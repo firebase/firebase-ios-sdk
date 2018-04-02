@@ -59,7 +59,7 @@ class DelayedOperationImpl;
 }
 
 /**
- * Handle to a callback scheduled via [FSTDispatchQueue dispatchAfterDelay:].
+ * Handle to a callback scheduled via AsyncQueue::EnqueueWithDelay.
  * Supports cancellation via the cancel method.
  */
 class DelayedOperation {
@@ -83,46 +83,10 @@ class DelayedOperation {
   std::weak_ptr<detail::DelayedOperationImpl> handle_;
 };
 
-class AsyncQueue;
-
-namespace detail {
-
-class DelayedOperationHandle {
+class AsyncQueue {
  public:
   using Milliseconds = std::chrono::milliseconds;
   using Operation = std::function<void()>;
-
-  DelayedOperationHandle(AsyncQueue* const queue,
-                         const TimerId timer_id,
-                         const Milliseconds delay,
-                         Operation&& operation);
-
-  const std::shared_ptr<DelayedOperationImpl>& handle() const {
-    return handle_;
-  }
-
-  bool operator==(const DelayedOperationImpl& rhs) const {
-    return handle_.get() == &rhs;
-  }
-  bool operator<(const DelayedOperationHandle& rhs) const;
-
-  struct ByTimerId {
-    explicit ByTimerId(const TimerId timer_id) : timer_id{timer_id} {
-    }
-    bool operator()(const DelayedOperationHandle& op) const;
-    TimerId timer_id;
-  };
-
- private:
-  std::shared_ptr<DelayedOperationImpl> handle_;
-};
-
-}  // namespace detail
-
-class AsyncQueue {
- public:
-  using Milliseconds = detail::DelayedOperationHandle::Milliseconds;
-  using Operation = detail::DelayedOperationHandle::Operation;
 
   explicit AsyncQueue(const dispatch_queue_t native_handle)
       : native_handle_{native_handle} {
@@ -224,7 +188,8 @@ class AsyncQueue {
   absl::string_view GetTargetQueueLabel() const;
 
   dispatch_queue_t native_handle_{};
-  std::vector<detail::DelayedOperationHandle> operations_;
+  using OperationPtr = std::shared_ptr<detail::DelayedOperationImpl>;
+  std::vector<OperationPtr> operations_;
   using OperationsIterator = decltype(operations_)::iterator;
   bool is_operation_in_progress_{};
 

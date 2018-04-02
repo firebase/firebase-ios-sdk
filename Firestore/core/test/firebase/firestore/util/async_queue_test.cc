@@ -199,6 +199,19 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
   EXPECT_EQ(steps, "13");
 }
 
+TEST(AsyncQueue, DelayedOperationIsValidAfterTheOperationHasRun) {
+  auto signal_finished = CreateSignal();
+
+  auto queue = Queue();
+  DelayedOperation delayed_operation = queue.EnqueueWithDelay(
+      AsyncQueue::Milliseconds(1), kTimerId1, [&] { signal_finished(); });
+  EXPECT_TRUE(queue.ContainsOperationWithTimerId(kTimerId1));
+
+  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_FALSE(queue.ContainsOperationWithTimerId(kTimerId1));
+  EXPECT_NO_THROW(delayed_operation.Cancel());
+}
+
 TEST(AsyncQueue, CanManuallyDrainAllDelayedCallbacksForTesting) {
   std::string steps;
 

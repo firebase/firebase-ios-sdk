@@ -131,23 +131,6 @@ class DelayedOperationImpl {
   bool done_{};
 };
 
-DelayedOperationHandle::DelayedOperationHandle(AsyncQueue* const queue,
-                                               const TimerId timer_id,
-                                               const Milliseconds delay,
-                                               Operation&& operation)
-    : handle_{std::make_shared<DelayedOperationImpl>(
-          queue, timer_id, delay, std::move(operation))} {
-}
-
-bool DelayedOperationHandle::operator<(const DelayedOperationHandle& rhs) const {
-  return handle_->operator<(*rhs.handle_);
-}
-
-bool DelayedOperationHandle::ByTimerId::operator()(
-    const DelayedOperationHandle& op) const {
-  return timer_id == op.handle_->timer_id();
-}
-
 }  // namespace detail
 
 void DelayedOperation::Cancel() {
@@ -156,12 +139,12 @@ void DelayedOperation::Cancel() {
   }
 }
 
-using detail::DelayedOperationHandle;
 using detail::DelayedOperationImpl;
 
 void AsyncQueue::Dequeue(const DelayedOperationImpl& dequeued) {
-  const auto new_end =
-      std::remove(operations_.begin(), operations_.end(), dequeued);
+  const auto new_end = std::remove_if(
+      operations_.begin(), operations_.end(),
+      [&dequeued](const OperationPtr& op) { return op.get() == &dequeued; });
   FIREBASE_ASSERT_MESSAGE(new_end != operations_.end(),
                           "Delayed operation not found");
   operations_.erase(new_end, operations_.end());
@@ -216,8 +199,9 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Milliseconds delay,
                           "Attempted to schedule multiple callbacks with id %u",
                           timer_id);
 
-  operations_.emplace_back(this, timer_id, delay, std::move(operation));
-  return DelayedOperation{operations_.back().handle()};
+  operations_.emplace_back(std::make_shared<DelayedOperationImpl>(
+          this, timer_id, delay, std::move(operation)));
+  return DelayedOperation{operations_.back()};
 }
 
 void AsyncQueue::EnqueueSync(const Operation& operation) {
@@ -232,8 +216,9 @@ void AsyncQueue::EnqueueSync(const Operation& operation) {
 
 bool AsyncQueue::ContainsOperationWithTimerId(const TimerId timer_id) const {
   return std::find_if(operations_.begin(), operations_.end(),
-                      DelayedOperationHandle::ByTimerId{timer_id}) !=
-         operations_.end();
+                      [timer_id](const OperationPtr& op) {
+                        return op->timer_id() == timer_id;
+                      }) != operations_.end();
 }
 
 // Private
@@ -246,15 +231,19 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
   const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
 
   Enqueue([this, last_timer_id, done_semaphore] {
-    std::sort(operations_.begin(), operations_.end());
+    std::sort(operations_.begin(), operations_.end(),
+              [](const OperationPtr& lhs, const OperationPtr& rhs) {
+                return lhs->operator<(*rhs);
+              });
 
     const auto until = [this, last_timer_id] {
       if (last_timer_id == TimerId::All) {
         return operations_.end();
       }
-      const auto found =
-          std::find_if(operations_.begin(), operations_.end(),
-                       DelayedOperationHandle::ByTimerId{last_timer_id});
+      const auto found = std::find_if(operations_.begin(), operations_.end(),
+                                      [last_timer_id](const OperationPtr& op) {
+                                        return op->timer_id() == last_timer_id;
+                                      });
       FIREBASE_ASSERT_MESSAGE(
           found != operations_.end(),
           "Attempted to run operations until missing timer id: %u",
@@ -263,7 +252,7 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
     }();
 
     for (auto it = operations_.begin(); it != until; ++it) {
-      it->handle()->RunImmediately();
+      (*it)->RunImmediately();
     }
 
     // Now that the callbacks are queued, we want to enqueue an additional item
