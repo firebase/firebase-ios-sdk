@@ -18,6 +18,7 @@
 
 #include <chrono>
 #include <future>
+#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -25,10 +26,14 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+namespace {
+const auto underlying_queue =
+    dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL);
+
 AsyncQueue Queue() {
-  return AsyncQueue{
-      dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL)};
+  return AsyncQueue{underlying_queue};
 }
+}  // namespace
 
 TEST(AsyncQueue, SimpleUsage) {
   std::packaged_task<void()> signal_finished{[] {}};
@@ -53,7 +58,7 @@ TEST(AsyncQueue, EnqueuedTasksCannotSpawnEnqueuedTasks) {
   signal_finished.get_future().wait_for(std::chrono::seconds(1));
 }
 
-TEST(AsyncQueue, EnqueuedTasksCanEnqueueAllowingSameQueue) {
+TEST(AsyncQueue, EnqueuedTasksCanCallEnqueueAllowingSameQueue) {
   std::packaged_task<void()> signal_finished{[] {}};
 
   auto queue = Queue();
@@ -67,17 +72,33 @@ TEST(AsyncQueue, EnqueuedTasksCanEnqueueAllowingSameQueue) {
   EXPECT_EQ(status, std::future_status::ready);
 }
 
-// - (void)testDispatchAsyncAllowingSameQueueActuallyAllowsSameQueue
-// - (void)testDispatchAsyncAllowsSameQueueForUnownedActions {
-// - (void)testDispatchSyncBlocksSubmissionFromTasksOnTheQueue {
-// - (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {
-// - (void)testVerifyIsCurrentQueueRequiresOperationIsInProgress {
-// - (void)testVerifyIsCurrentQueueWorksWithOperationIsInProgress {
-// - (void)testEnterCheckedOperationDisallowsNesting {
-// - (void)testCanScheduleCallbacksInTheFuture {
-// - (void)testCanCancelDelayedCallbacks {
-// - (void)testCanManuallyDrainAllDelayedCallbacksForTesting {
-// - (void)testCanManuallyDrainSpecificDelayedCallbacksForTesting {
+TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
+  std::packaged_task<void()> signal_finished{[] {}};
+  auto queue = Queue();
+
+  using WrapT = std::pair<AsyncQueue*, std::packaged_task<void()>*>;
+  WrapT wrap{&queue, &signal_finished};
+  dispatch_async_f(underlying_queue, &wrap, [](void* const raw_wrap) {
+      auto unwrap = static_cast<const WrapT*>(raw_wrap);
+      unwrap->first->Enqueue([unwrap] {
+          (*unwrap->second)();
+          });
+      });
+
+  const auto status =
+      signal_finished.get_future().wait_for(std::chrono::seconds(1));
+  EXPECT_EQ(status, std::future_status::ready);
+}
+
+// 9 (void)testDispatchSyncBlocksSubmissionFromTasksOnTheQueue {
+// 8 (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {
+// 7 (void)testVerifyIsCurrentQueueRequiresOperationIsInProgress {
+// 6 (void)testVerifyIsCurrentQueueWorksWithOperationIsInProgress {
+// 5 (void)testEnterCheckedOperationDisallowsNesting {
+// 4 (void)testCanScheduleCallbacksInTheFuture {
+// 3 (void)testCanCancelDelayedCallbacks {
+// 2 (void)testCanManuallyDrainAllDelayedCallbacksForTesting {
+// 1 (void)testCanManuallyDrainSpecificDelayedCallbacksForTesting {
 
 }  // namespace util
 }  // namespace firestore
