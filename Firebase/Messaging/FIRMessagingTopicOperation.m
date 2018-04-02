@@ -226,6 +226,8 @@ NSString *FIRMessagingSubscriptionsServer() {
     }
     NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     if (response.length == 0) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse,
+                              @"Invalid registration response - zero length.");
       [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
       return;
     }
@@ -233,7 +235,7 @@ NSString *FIRMessagingSubscriptionsServer() {
     _FIRMessagingDevAssert(parts.count, @"Invalid registration response");
     if (![parts[0] isEqualToString:@"token"] || parts.count <= 1) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
-                              @"Invalid registration request, response");
+                              @"Invalid registration response %@", response);
       [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
       return;
     }

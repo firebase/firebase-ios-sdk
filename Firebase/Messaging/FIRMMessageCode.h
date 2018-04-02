@@ -172,6 +172,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTopicOption001 = 17001,  // I-FCM017001
   kFIRMessagingMessageCodeTopicOption002 = 17002,  // I-FCM017002
   kFIRMessagingMessageCodeTopicOptionTopicEncodingFailed = 17003,  // I-FCM017003
+  kFIRMessagingMessageCodeTopicOperationEmptyResponse = 17004,  // I-FCM017004
   // FIRMessagingUtilities.m
   kFIRMessagingMessageCodeUtilities000 = 18000,  // I-FCM018000
   kFIRMessagingMessageCodeUtilities001 = 18001,  // I-FCM018001
