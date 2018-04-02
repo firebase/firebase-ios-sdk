@@ -18,6 +18,7 @@
 
 #include <chrono>
 #include <future>
+#include <string>
 #include <utility>
 
 #include "gtest/gtest.h"
@@ -29,6 +30,9 @@ namespace util {
 namespace {
 const auto underlying_queue =
     dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL);
+// In these generic tests the specific timer ids don't matter.
+const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
+const TimerId kTimerId2 = TimerId::ListenStreamIdle;
 
 AsyncQueue Queue() {
   return AsyncQueue{underlying_queue};
@@ -130,15 +134,38 @@ TEST(AsyncQueue, VerifyIsCurrentQueueRequiresCurrentQueue) {
 TEST(AsyncQueue, VerifyIsCurrentQueueRequiresOperationInProgress) {
   auto queue = Queue();
   dispatch_sync_f(underlying_queue, &queue, [](void* const raw_queue) {
-    EXPECT_ANY_THROW(static_cast<AsyncQueue*>(raw_queue)->VerifyIsCurrentQueue());
+    EXPECT_ANY_THROW(
+        static_cast<AsyncQueue*>(raw_queue)->VerifyIsCurrentQueue());
   });
 }
 
 TEST(AsyncQueue, VerifyIsCurrentQueueWorksWithOperationInProgress) {
   auto queue = Queue();
-  queue.EnqueueSync([&] {
-      EXPECT_NO_THROW(queue.VerifyIsCurrentQueue());
-  });
+  queue.EnqueueSync([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
+}
+
+TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
+  std::packaged_task<void()> signal_finished{[] {}};
+  std::string steps;
+
+  auto queue = Queue();
+  queue.Enqueue([&steps] { steps += '1'; });
+  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(5), kTimerId1,
+                         [&steps, &signal_finished] {
+                           steps += '4';
+                           signal_finished();
+                         });
+  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(1), kTimerId2,
+                         [&steps] { steps += '3'; });
+  queue.Enqueue([&steps] { steps += '2'; });
+
+  (void)kTimerId1;
+  (void)kTimerId2;
+
+  const auto status =
+      signal_finished.get_future().wait_for(std::chrono::seconds(1));
+  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_EQ(steps, "1234");
 }
 
 // 4 (void)testCanScheduleCallbacksInTheFuture {

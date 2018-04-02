@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
+#include <iostream>
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -31,8 +32,8 @@ using Dispatcher = decltype(dispatch_async_f);
 
 template <typename Dispatched>
 void Dispatch(const dispatch_queue_t queue,
-                   Dispatcher dispatcher,
-                   const Dispatched& dispatched) {
+              Dispatcher dispatcher,
+              const Dispatched& dispatched) {
   const auto wrap = new AsyncQueue::Operation(dispatched);
   dispatcher(queue, wrap, [](void* const raw_operation) {
     const auto unwrap =
@@ -56,80 +57,110 @@ void DispatchSync(const dispatch_queue_t queue, const Dispatched& dispatched) {
 
 }  // namespace
 
-bool operator==(const DelayedOperation& lhs, const DelayedOperation& rhs) {
-  return lhs.data_ == rhs.data_;
-}
-bool operator<(const DelayedOperation& lhs, const DelayedOperation& rhs) {
-  return lhs.data_->target_time_ < rhs.data_->target_time_;
-}
-struct ByTimerId {
-  explicit ByTimerId(const TimerId timer_id) : timer_id{timer_id} {
+namespace detail {
+
+class DelayedOperationImpl {
+ public:
+  DelayedOperationImpl(AsyncQueue* const queue,
+                       const TimerId timer_id,
+                       const AsyncQueue::Milliseconds delay,
+                       AsyncQueue::Operation&& operation)
+      : queue_{queue},
+        timer_id_{timer_id},
+        target_time_{delay},
+        operation_{std::move(operation)} {
+    Schedule(delay);
   }
-  bool operator()(const DelayedOperation& op) const {
-    return op.timer_id() == timer_id;
+
+  void Cancel() {
+    queue_->VerifyIsCurrentQueue();
+    if (!done_) {
+      MarkDone();
+    }
   }
-  TimerId timer_id;
+
+  // aka StartWithDelay
+  void Schedule(const AsyncQueue::Milliseconds delay) {
+    namespace chr = std::chrono;
+    const dispatch_time_t delay_ns = dispatch_time(
+        DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
+    dispatch_after_f(
+        delay_ns, queue_->native_handle(), this, [](void* const raw_self) {
+          const auto self = static_cast<DelayedOperationImpl*>(raw_self);
+          self->queue_->EnterCheckedOperation([self] { self->Run(); });
+        });
+  }
+
+  // aka delayDidElapse
+  void Run() {
+    queue_->VerifyIsCurrentQueue();
+    if (!done_) {
+      MarkDone();
+      FIREBASE_ASSERT_MESSAGE(operation_,
+                              "DelayedOperation contains null function object");
+      operation_();
+    }
+  }
+
+  // aka SkipDelay
+  void RunImmediately() {
+    queue_->EnqueueAllowingSameQueue([this] { Run(); });
+  }
+
+  void MarkDone() {
+    done_ = true;
+    queue_->Dequeue(*this);
+  }
+
+  TimerId timer_id() const {
+    return timer_id_;
+  }
+
+  bool operator<(const DelayedOperationImpl& rhs) {
+    return target_time_ < rhs.target_time_;
+  }
+
+ private:
+  using TimePoint = std::chrono::time_point<std::chrono::system_clock,
+                                            AsyncQueue::Milliseconds>;
+
+  AsyncQueue* queue_{};
+  TimerId timer_id_{};
+  TimePoint target_time_;
+  AsyncQueue::Operation operation_;
+  // True if the operation has either been run or canceled.
+  bool done_{};
 };
 
-DelayedOperation::DelayedOperation(AsyncQueue* const queue,
-                                   const TimerId timer_id,
-                                   const Seconds delay,
-                                   Operation&& operation)
-    : data_{std::make_shared<Data>(
+DelayedOperationHandle::DelayedOperationHandle(AsyncQueue* const queue,
+                                               const TimerId timer_id,
+                                               const Milliseconds delay,
+                                               Operation&& operation)
+    : handle_{std::make_shared<DelayedOperationImpl>(
           queue, timer_id, delay, std::move(operation))} {
-  Schedule(delay);
 }
 
-DelayedOperation::Data::Data(AsyncQueue* const queue,
-                             const TimerId timer_id,
-                             const Seconds delay,
-                             Operation&& operation)
-    : queue_{queue},
-      timer_id_{timer_id},
-      target_time_{delay},
-      operation_{std::move(operation)} {
+bool DelayedOperationHandle::operator<(const DelayedOperationHandle& rhs) const {
+  return handle_->operator<(*rhs.handle_);
 }
+
+bool DelayedOperationHandle::ByTimerId::operator()(
+    const DelayedOperationHandle& op) const {
+  return timer_id == op.handle_->timer_id();
+}
+
+}  // namespace detail
 
 void DelayedOperation::Cancel() {
-  data_->queue_->VerifyIsCurrentQueue();
-  if (!data_->done_) {
-    MarkDone();
+  if (auto live_instance = handle_.lock()) {
+    live_instance->Cancel();
   }
 }
 
-void DelayedOperation::Schedule(const Seconds delay) {
-  namespace chr = std::chrono;
-  const dispatch_time_t delay_ns = dispatch_time(
-      DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
-  dispatch_after_f(
-      delay_ns, data_->queue_->native_handle(), this, [](void* const raw_self) {
-        const auto self = static_cast<DelayedOperation*>(raw_self);
-        self->data_->queue_->EnterCheckedOperation([self] { self->Run(); });
-      });
-}
+using detail::DelayedOperationHandle;
+using detail::DelayedOperationImpl;
 
-void DelayedOperation::Run() {
-  data_->queue_->VerifyIsCurrentQueue();
-  if (!data_->done_) {
-    MarkDone();
-    FIREBASE_ASSERT_MESSAGE(data_->operation_,
-                            "DelayedOperation contains null function object");
-    data_->operation_();
-  }
-}
-
-void DelayedOperation::RunImmediately() {
-  data_->queue_->EnqueueAllowingSameQueue([this] { Run(); });
-}
-
-void DelayedOperation::MarkDone() {
-  data_->done_ = true;
-  data_->queue_->Dequeue(*this);
-}
-
-// AsyncQueue
-
-void AsyncQueue::Dequeue(const DelayedOperation& dequeued) {
+void AsyncQueue::Dequeue(const DelayedOperationImpl& dequeued) {
   const auto new_end =
       std::remove(operations_.begin(), operations_.end(), dequeued);
   FIREBASE_ASSERT_MESSAGE(new_end != operations_.end(),
@@ -177,7 +208,7 @@ void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
                 [this, operation] { EnterCheckedOperation(operation); });
 }
 
-DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
+DelayedOperation AsyncQueue::EnqueueWithDelay(const Milliseconds delay,
                                               const TimerId timer_id,
                                               Operation operation) {
   // While not necessarily harmful, we currently don't expect to have multiple
@@ -186,8 +217,8 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
                           "Attempted to schedule multiple callbacks with id %u",
                           timer_id);
 
-  operations_.push_back({this, timer_id, delay, std::move(operation)});
-  return operations_.back();
+  operations_.emplace_back(this, timer_id, delay, std::move(operation));
+  return DelayedOperation{operations_.back().handle()};
 }
 
 void AsyncQueue::EnqueueSync(const Operation& operation) {
@@ -197,12 +228,13 @@ void AsyncQueue::EnqueueSync(const Operation& operation) {
                           GetTargetQueueLabel().data());
   // Note: can't move operation into lambda until C++14.
   DispatchSync(native_handle(),
-                [this, operation] { EnterCheckedOperation(operation); });
+               [this, operation] { EnterCheckedOperation(operation); });
 }
 
 bool AsyncQueue::ContainsOperationWithTimerId(const TimerId timer_id) const {
   return std::find_if(operations_.begin(), operations_.end(),
-                      ByTimerId{timer_id}) != operations_.end();
+                      DelayedOperationHandle::ByTimerId{timer_id}) !=
+         operations_.end();
 }
 
 // Private
@@ -221,8 +253,9 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
       if (last_timer_id == TimerId::All) {
         return operations_.end();
       }
-      const auto found = std::find_if(operations_.begin(), operations_.end(),
-                                      ByTimerId{last_timer_id});
+      const auto found =
+          std::find_if(operations_.begin(), operations_.end(),
+                       DelayedOperationHandle::ByTimerId{last_timer_id});
       FIREBASE_ASSERT_MESSAGE(
           found != operations_.end(),
           "Attempted to run operations until missing timer id: %u",
@@ -231,7 +264,7 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
     }();
 
     for (auto it = operations_.begin(); it != until; ++it) {
-      it->Run();
+      it->handle()->Run();
     }
 
     // Now that the callbacks are queued, we want to enqueue an additional item
