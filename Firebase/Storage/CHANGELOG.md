@@ -1,5 +1,5 @@
 # v2.2.0
-- [changed] Deprecated `downlaodURLs` property on `StorageMetadata`. Use `StorageReference.downloadURLWithCompletion()` to obtain a current download URL.
+- [changed] Deprecated `downloadURLs` property on `StorageMetadata`. Use `StorageReference.downloadURLWithCompletion()` to obtain a current download URL.
 
 # v2.1.3
 - [changed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of Xcode and CocoaPods.
