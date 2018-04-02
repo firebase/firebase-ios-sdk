@@ -159,17 +159,42 @@ TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
                          [&steps] { steps += '3'; });
   queue.Enqueue([&steps] { steps += '2'; });
 
-  (void)kTimerId1;
-  (void)kTimerId2;
-
   const auto status =
       signal_finished.get_future().wait_for(std::chrono::seconds(1));
   EXPECT_EQ(status, std::future_status::ready);
   EXPECT_EQ(steps, "1234");
 }
 
-// 4 (void)testCanScheduleCallbacksInTheFuture {
-// 3 (void)testCanCancelDelayedCallbacks {
+TEST(AsyncQueue, CanCancelDelayedCallbacks) {
+  std::packaged_task<void()> signal_finished{[] {}};
+  std::string steps;
+
+  auto queue = Queue();
+  queue.Enqueue([&] {
+    // Queue everything from the queue to ensure nothing completes before we
+    // cancel.
+
+    queue.EnqueueAllowingSameQueue([&steps] { steps += '1'; });
+
+    DelayedOperation delayed_operation = queue.EnqueueWithDelay(
+        AsyncQueue::Milliseconds(1), kTimerId1, [&steps] { steps += '2'; });
+
+    queue.EnqueueWithDelay(AsyncQueue::Milliseconds(5), kTimerId2,
+                           [&steps, &signal_finished] {
+                             steps += '3';
+                             signal_finished();
+                           });
+
+    EXPECT_TRUE(queue.ContainsOperationWithTimerId(kTimerId1));
+    delayed_operation.Cancel();
+    EXPECT_FALSE(queue.ContainsOperationWithTimerId(kTimerId1));
+  });
+
+  const auto status =
+      signal_finished.get_future().wait_for(std::chrono::seconds(1));
+  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_EQ(steps, "13");
+}
 
 // 2 (void)testCanManuallyDrainAllDelayedCallbacksForTesting {
 // 1 (void)testCanManuallyDrainSpecificDelayedCallbacksForTesting {
