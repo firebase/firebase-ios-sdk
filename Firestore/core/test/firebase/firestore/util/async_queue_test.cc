@@ -28,8 +28,10 @@ namespace firestore {
 namespace util {
 
 namespace {
+
 const auto underlying_queue =
     dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL);
+
 // In these generic tests the specific timer ids don't matter.
 const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
 const TimerId kTimerId2 = TimerId::ListenStreamIdle;
@@ -38,21 +40,31 @@ const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 AsyncQueue Queue() {
   return AsyncQueue{underlying_queue};
 }
+
+using SignalT = std::packaged_task<void()>;
+
+SignalT CreateSignal() {
+  return SignalT{[] {}};
+}
+
+bool WaitForTestFinish(SignalT* const signal) {
+  return signal->get_future().wait_for(std::chrono::seconds(1)) ==
+         std::future_status::ready;
+}
+
 }  // namespace
 
 TEST(AsyncQueue, Enqueue) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
 
   auto queue = Queue();
   queue.Enqueue([&] { signal_finished(); });
 
-  const auto status =
-      signal_finished.get_future().wait_for(std::chrono::seconds(1));
-  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
 }
 
 TEST(AsyncQueue, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
 
   auto queue = Queue();
   queue.Enqueue([&] {  // clang-format off
@@ -60,11 +72,11 @@ TEST(AsyncQueue, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
     // clang-format on
   });
 
-  signal_finished.get_future().wait_for(std::chrono::seconds(1));
+  WaitForTestFinish(&signal_finished);
 }
 
 TEST(AsyncQueue, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
 
   auto queue = Queue();
   queue.Enqueue([&] {  // clang-format off
@@ -72,13 +84,11 @@ TEST(AsyncQueue, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
     // clang-format on
   });
 
-  const auto status =
-      signal_finished.get_future().wait_for(std::chrono::seconds(1));
-  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
 }
 
 TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
   auto queue = Queue();
 
   using WrapT = std::pair<AsyncQueue*, std::packaged_task<void()>*>;
@@ -88,24 +98,20 @@ TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
     unwrap->first->Enqueue([unwrap] { (*unwrap->second)(); });
   });
 
-  const auto status =
-      signal_finished.get_future().wait_for(std::chrono::seconds(1));
-  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
 }
 
 TEST(AsyncQueue, EnqueueSync) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
 
   auto queue = Queue();
   queue.EnqueueSync([&] { signal_finished(); });
 
-  const auto status =
-      signal_finished.get_future().wait_for(std::chrono::seconds(1));
-  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
 }
 
 TEST(AsyncQueue, EnqueueSyncDisallowsEnqueuedTasksToUseEnqueue) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
 
   auto queue = Queue();
   queue.EnqueueSync([&] {  // clang-format off
@@ -117,7 +123,7 @@ TEST(AsyncQueue, EnqueueSyncDisallowsEnqueuedTasksToUseEnqueue) {
 }
 
 TEST(AsyncQueue, EnterCheckedOperationDisallowsNesting) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
 
   auto queue = Queue();
   queue.EnqueueSync([&] {
@@ -146,7 +152,7 @@ TEST(AsyncQueue, VerifyIsCurrentQueueWorksWithOperationInProgress) {
 }
 
 TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
   std::string steps;
 
   auto queue = Queue();
@@ -160,14 +166,12 @@ TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
                          [&steps] { steps += '3'; });
   queue.Enqueue([&steps] { steps += '2'; });
 
-  const auto status =
-      signal_finished.get_future().wait_for(std::chrono::seconds(1));
-  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
   EXPECT_EQ(steps, "1234");
 }
 
 TEST(AsyncQueue, CanCancelDelayedCallbacks) {
-  std::packaged_task<void()> signal_finished{[] {}};
+  auto signal_finished = CreateSignal();
   std::string steps;
 
   auto queue = Queue();
@@ -191,9 +195,7 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
     EXPECT_FALSE(queue.ContainsOperationWithTimerId(kTimerId1));
   });
 
-  const auto status =
-      signal_finished.get_future().wait_for(std::chrono::seconds(1));
-  EXPECT_EQ(status, std::future_status::ready);
+  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
   EXPECT_EQ(steps, "13");
 }
 
@@ -228,7 +230,6 @@ TEST(AsyncQueue, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
   queue.RunDelayedOperationsUntil(kTimerId3);
   EXPECT_EQ(steps, "1234");
 }
-
 
 }  // namespace util
 }  // namespace firestore
