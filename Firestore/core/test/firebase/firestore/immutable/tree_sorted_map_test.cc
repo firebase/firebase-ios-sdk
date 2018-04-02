@@ -34,6 +34,15 @@ TEST(TreeSortedMap, EmptySize) {
   EXPECT_EQ(Color::Black, map.root().color());
 }
 
+TEST(TreeSortedMap, EmptyHasEmptyChildren) {
+  IntMap map;
+  IntMap::node_type left = map.root().left();
+  ASSERT_TRUE(left.empty());
+
+  IntMap::node_type right = map.root().right();
+  ASSERT_TRUE(right.empty());
+}
+
 }  // namespace impl
 }  // namespace immutable
 }  // namespace firestore

@@ -52,26 +52,12 @@ class LlrbNode : public SortedMapBase {
   /**
    * Constructs an empty node.
    */
-  // TODO(wilhuff): move this into NodeData if that structure is to live on.
-  LlrbNode()
-      : LlrbNode{NodeData{{},
-                          Color::Black,
-                          /*size=*/0u,
-                          LlrbNode{nullptr},
-                          LlrbNode{nullptr}}} {
-  }
-
-  /**
-   * Returns a shared Empty node, to cut down on allocations in the base case.
-   */
-  static const LlrbNode& Empty() {
-    static const LlrbNode empty_node{};
-    return empty_node;
+  LlrbNode() : LlrbNode{EmptyRep()} {
   }
 
   /** Returns the number of elements at this node or beneath it in the tree. */
   size_type size() const {
-    return data_->size_;
+    return rep_->size_;
   }
 
   /** Returns true if this is an empty node--a leaf node in the tree. */
@@ -81,11 +67,11 @@ class LlrbNode : public SortedMapBase {
 
   /** Returns true if this node is red (as opposed to black). */
   bool red() const {
-    return static_cast<bool>(data_->red_);
+    return static_cast<bool>(rep_->color_);
   }
 
   const value_type& entry() const {
-    return data_->contents_;
+    return rep_->entry_;
   }
   const K& key() const {
     return entry().first;
@@ -94,42 +80,64 @@ class LlrbNode : public SortedMapBase {
     return entry().second;
   }
   Color color() const {
-    return data_->red_ ? Color::Red : Color::Black;
+    return static_cast<Color>(rep_->color_);
   }
   const LlrbNode& left() const {
-    return data_->left_;
+    return rep_->left_;
   }
   const LlrbNode& right() const {
-    return data_->right_;
+    return rep_->right_;
   }
 
  private:
-  struct NodeData {
-    value_type contents_;
+  struct Rep {
+    Rep(value_type&& entry,
+        size_type color,
+        size_type size,
+        LlrbNode left,
+        LlrbNode right)
+        : entry_{std::move(entry)},
+          color_{color},
+          size_{size},
+          left_{std::move(left)},
+          right_{std::move(right)} {
+    }
+
+    value_type entry_;
 
     // Store the color in the high bit of the size to save memory.
-    size_type red_ : 1;
+    size_type color_ : 1;
     size_type size_ : 31;
 
     LlrbNode left_;
     LlrbNode right_;
   };
 
-  explicit LlrbNode(NodeData&& data)
-      : data_{std::make_shared<NodeData>(std::move(data))} {
+  explicit LlrbNode(const std::shared_ptr<Rep>& rep) : rep_{rep} {
+  }
+
+  explicit LlrbNode(std::shared_ptr<Rep>&& rep) : rep_{std::move(rep)} {
   }
 
   /**
-   * Constructs a dummy node that's a child of the empty node. This exists so
-   * that every node can have non-optional left and right children, despite the
-   * fact that these don't actually get visited.
-   *
-   * This should only be called when constructing the empty node.
+   * Returns a shared Empty node, to cut down on allocations in the base case.
    */
-  explicit LlrbNode(std::nullptr_t) : data_{nullptr} {
+  static const std::shared_ptr<Rep>& EmptyRep() {
+    static const std::shared_ptr<Rep> empty_rep = [] {
+      auto empty = std::make_shared<Rep>(Rep{std::pair<K, V>{}, Color::Black,
+                                             /* size= */ 0u, LlrbNode{nullptr},
+                                             LlrbNode{nullptr}});
+
+      // Set up the empty Rep such that you can traverse infinitely down left
+      // and right links.
+      empty->left_.rep_ = empty;
+      empty->right_.rep_ = empty;
+      return empty;
+    }();
+    return empty_rep;
   }
 
-  std::shared_ptr<NodeData> data_;
+  std::shared_ptr<Rep> rep_;
 };
 
 }  // namespace impl
