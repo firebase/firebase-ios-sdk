@@ -144,8 +144,8 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
       GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
   FIREBASE_ASSERT_MESSAGE(
       is_operation_in_progress_,
-      "VerifyIsCurrentQueue called outside enterCheckedOperation on queue '%@'",
-      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
+      "VerifyIsCurrentQueue called outside enterCheckedOperation on queue '%s'",
+      GetCurrentQueueLabel().data());
 }
 
 void AsyncQueue::EnterCheckedOperation(const Operation& operation) {

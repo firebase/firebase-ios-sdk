@@ -79,11 +79,9 @@ TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
   using WrapT = std::pair<AsyncQueue*, std::packaged_task<void()>*>;
   WrapT wrap{&queue, &signal_finished};
   dispatch_async_f(underlying_queue, &wrap, [](void* const raw_wrap) {
-      auto unwrap = static_cast<const WrapT*>(raw_wrap);
-      unwrap->first->Enqueue([unwrap] {
-          (*unwrap->second)();
-          });
-      });
+    auto unwrap = static_cast<const WrapT*>(raw_wrap);
+    unwrap->first->Enqueue([unwrap] { (*unwrap->second)(); });
+  });
 
   const auto status =
       signal_finished.get_future().wait_for(std::chrono::seconds(1));
@@ -113,13 +111,39 @@ TEST(AsyncQueue, EnqueueSyncDisallowsEnqueuedTasksToUseEnqueue) {
   signal_finished.get_future().wait_for(std::chrono::seconds(1));
 }
 
-// 8 (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {
-// 7 (void)testVerifyIsCurrentQueueRequiresOperationIsInProgress {
-// 6 (void)testVerifyIsCurrentQueueWorksWithOperationIsInProgress {
+TEST(AsyncQueue, EnterCheckedOperationDisallowsNesting) {
+  std::packaged_task<void()> signal_finished{[] {}};
 
-// 5 (void)testEnterCheckedOperationDisallowsNesting {
+  auto queue = Queue();
+  queue.EnqueueSync([&] {
+    EXPECT_ANY_THROW(queue.EnterCheckedOperation([&] { signal_finished(); }););
+  });
+
+  signal_finished.get_future().wait_for(std::chrono::seconds(1));
+}
+
+TEST(AsyncQueue, VerifyIsCurrentQueueRequiresCurrentQueue) {
+  ASSERT_NE(underlying_queue, dispatch_get_main_queue());
+  EXPECT_ANY_THROW(Queue().VerifyIsCurrentQueue());
+}
+
+TEST(AsyncQueue, VerifyIsCurrentQueueRequiresOperationInProgress) {
+  auto queue = Queue();
+  dispatch_sync_f(underlying_queue, &queue, [](void* const raw_queue) {
+    EXPECT_ANY_THROW(static_cast<AsyncQueue*>(raw_queue)->VerifyIsCurrentQueue());
+  });
+}
+
+TEST(AsyncQueue, VerifyIsCurrentQueueWorksWithOperationInProgress) {
+  auto queue = Queue();
+  queue.EnqueueSync([&] {
+      EXPECT_NO_THROW(queue.VerifyIsCurrentQueue());
+  });
+}
+
 // 4 (void)testCanScheduleCallbacksInTheFuture {
 // 3 (void)testCanCancelDelayedCallbacks {
+
 // 2 (void)testCanManuallyDrainAllDelayedCallbacksForTesting {
 // 1 (void)testCanManuallyDrainSpecificDelayedCallbacksForTesting {
 
