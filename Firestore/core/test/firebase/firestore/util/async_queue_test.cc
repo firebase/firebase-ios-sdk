@@ -47,7 +47,7 @@ SignalT CreateSignal() {
   return SignalT{[] {}};
 }
 
-bool WaitForTestFinish(SignalT* const signal) {
+bool WaitForTestToFinish(SignalT* const signal) {
   return signal->get_future().wait_for(std::chrono::seconds(1)) ==
          std::future_status::ready;
 }
@@ -60,7 +60,7 @@ TEST(AsyncQueue, Enqueue) {
   auto queue = Queue();
   queue.Enqueue([&] { signal_finished(); });
 
-  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
 }
 
 TEST(AsyncQueue, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
@@ -72,7 +72,7 @@ TEST(AsyncQueue, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
     // clang-format on
   });
 
-  WaitForTestFinish(&signal_finished);
+  WaitForTestToFinish(&signal_finished);
 }
 
 TEST(AsyncQueue, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
@@ -84,7 +84,7 @@ TEST(AsyncQueue, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
     // clang-format on
   });
 
-  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
 }
 
 TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
@@ -98,39 +98,31 @@ TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
     unwrap->first->Enqueue([unwrap] { (*unwrap->second)(); });
   });
 
-  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
 }
 
 TEST(AsyncQueue, EnqueueSync) {
-  auto signal_finished = CreateSignal();
+  bool finished = false;
 
   auto queue = Queue();
-  queue.EnqueueSync([&] { signal_finished(); });
+  queue.EnqueueSync([&] { finished = true; });
 
-  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_TRUE(finished);
 }
 
 TEST(AsyncQueue, EnqueueSyncDisallowsEnqueuedTasksToUseEnqueue) {
-  auto signal_finished = CreateSignal();
-
   auto queue = Queue();
   queue.EnqueueSync([&] {  // clang-format off
-    EXPECT_ANY_THROW(queue.EnqueueSync([&] { signal_finished(); }););
+    EXPECT_ANY_THROW(queue.EnqueueSync([] {}););
     // clang-format on
   });
-
-  signal_finished.get_future().wait_for(std::chrono::seconds(1));
 }
 
 TEST(AsyncQueue, EnterCheckedOperationDisallowsNesting) {
-  auto signal_finished = CreateSignal();
-
   auto queue = Queue();
   queue.EnqueueSync([&] {
-    EXPECT_ANY_THROW(queue.EnterCheckedOperation([&] { signal_finished(); }););
+    EXPECT_ANY_THROW(queue.EnterCheckedOperation([&] {}););
   });
-
-  signal_finished.get_future().wait_for(std::chrono::seconds(1));
 }
 
 TEST(AsyncQueue, VerifyIsCurrentQueueRequiresCurrentQueue) {
@@ -166,7 +158,7 @@ TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
                          [&steps] { steps += '3'; });
   queue.Enqueue([&steps] { steps += '2'; });
 
-  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
   EXPECT_EQ(steps, "1234");
 }
 
@@ -195,7 +187,7 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
     EXPECT_FALSE(queue.ContainsOperationWithTimerId(kTimerId1));
   });
 
-  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
   EXPECT_EQ(steps, "13");
 }
 
@@ -207,7 +199,7 @@ TEST(AsyncQueue, DelayedOperationIsValidAfterTheOperationHasRun) {
       AsyncQueue::Milliseconds(1), kTimerId1, [&] { signal_finished(); });
   EXPECT_TRUE(queue.ContainsOperationWithTimerId(kTimerId1));
 
-  EXPECT_TRUE(WaitForTestFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
   EXPECT_FALSE(queue.ContainsOperationWithTimerId(kTimerId1));
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
