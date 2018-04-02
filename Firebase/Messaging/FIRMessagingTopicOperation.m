@@ -226,7 +226,7 @@ NSString *FIRMessagingSubscriptionsServer() {
     }
     NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     if (response.length == 0) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOpeartionEmptyResponse,
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse,
                               @"Invalid registration response - zero length.");
       [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
       return;
