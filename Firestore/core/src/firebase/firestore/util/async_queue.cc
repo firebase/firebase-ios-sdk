@@ -21,7 +21,6 @@
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
-#include <iostream>
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -116,7 +115,7 @@ class DelayedOperationImpl {
     return timer_id_;
   }
 
-  bool operator<(const DelayedOperationImpl& rhs) {
+  bool operator<(const DelayedOperationImpl& rhs) const {
     return target_time_ < rhs.target_time_;
   }
 
@@ -264,7 +263,7 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
     }();
 
     for (auto it = operations_.begin(); it != until; ++it) {
-      it->handle()->Run();
+      it->handle()->RunImmediately();
     }
 
     // Now that the callbacks are queued, we want to enqueue an additional item

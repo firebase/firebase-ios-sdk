@@ -33,6 +33,7 @@ const auto underlying_queue =
 // In these generic tests the specific timer ids don't matter.
 const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
 const TimerId kTimerId2 = TimerId::ListenStreamIdle;
+const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 
 AsyncQueue Queue() {
   return AsyncQueue{underlying_queue};
@@ -196,8 +197,38 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
   EXPECT_EQ(steps, "13");
 }
 
-// 2 (void)testCanManuallyDrainAllDelayedCallbacksForTesting {
-// 1 (void)testCanManuallyDrainSpecificDelayedCallbacksForTesting {
+TEST(AsyncQueue, CanManuallyDrainAllDelayedCallbacksForTesting) {
+  std::string steps;
+
+  auto queue = Queue();
+  queue.Enqueue([&steps] { steps += '1'; });
+  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
+                         [&steps] { steps += '4'; });
+  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
+                         [&steps] { steps += '3'; });
+  queue.Enqueue([&steps] { steps += '2'; });
+
+  queue.RunDelayedOperationsUntil(TimerId::All);
+  EXPECT_EQ(steps, "1234");
+}
+
+TEST(AsyncQueue, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
+  std::string steps;
+
+  auto queue = Queue();
+  queue.Enqueue([&] { steps += '1'; });
+  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
+                         [&steps] { steps += '5'; });
+  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
+                         [&steps] { steps += '3'; });
+  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
+                         [&steps] { steps += '4'; });
+  queue.Enqueue([&] { steps += '2'; });
+
+  queue.RunDelayedOperationsUntil(kTimerId3);
+  EXPECT_EQ(steps, "1234");
+}
+
 
 }  // namespace util
 }  // namespace firestore
