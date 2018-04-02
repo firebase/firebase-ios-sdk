@@ -88,7 +88,6 @@
 		5492E0A62021552D00B64F25 /* FSTPersistenceTestHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08D2021552B00B64F25 /* FSTPersistenceTestHelpers.mm */; };
 		5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08E2021552B00B64F25 /* FSTLevelDBKeyTests.mm */; };
 		5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */; };
-		5492E0A92021552D00B64F25 /* FSTRemoteDocumentChangeBufferTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0902021552B00B64F25 /* FSTRemoteDocumentChangeBufferTests.mm */; };
 		5492E0AA2021552D00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0922021552B00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm */; };
 		5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0932021552B00B64F25 /* StringViewTests.mm */; };
 		5492E0AC2021552D00B64F25 /* FSTMutationQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0962021552C00B64F25 /* FSTMutationQueueTests.mm */; };
@@ -299,7 +298,6 @@
 		5492E08D2021552B00B64F25 /* FSTPersistenceTestHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTPersistenceTestHelpers.mm; sourceTree = "<group>"; };
 		5492E08E2021552B00B64F25 /* FSTLevelDBKeyTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBKeyTests.mm; sourceTree = "<group>"; };
 		5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBLocalStoreTests.mm; sourceTree = "<group>"; };
-		5492E0902021552B00B64F25 /* FSTRemoteDocumentChangeBufferTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTRemoteDocumentChangeBufferTests.mm; sourceTree = "<group>"; };
 		5492E0912021552B00B64F25 /* FSTLocalStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTLocalStoreTests.h; sourceTree = "<group>"; };
 		5492E0922021552B00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBRemoteDocumentCacheTests.mm; sourceTree = "<group>"; };
 		5492E0932021552B00B64F25 /* StringViewTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringViewTests.mm; sourceTree = "<group>"; };
@@ -752,7 +750,6 @@
 				5492E09A2021552C00B64F25 /* FSTReferenceSetTests.mm */,
 				5492E0852021552A00B64F25 /* FSTRemoteDocumentCacheTests.h */,
 				5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */,
-				5492E0902021552B00B64F25 /* FSTRemoteDocumentChangeBufferTests.mm */,
 				5492E0932021552B00B64F25 /* StringViewTests.mm */,
 				132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */,
 			);
@@ -1469,7 +1466,6 @@
 				5492E03320213FFC00B64F25 /* FSTSyncEngineTestDriver.mm in Sources */,
 				AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */,
 				5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */,
-				5492E0A92021552D00B64F25 /* FSTRemoteDocumentChangeBufferTests.mm in Sources */,
 				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
 				B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */,
 				5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */,
