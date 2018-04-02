@@ -210,7 +210,7 @@ class AsyncQueue {
    *
    * @param block The block to run.
    */
-  // void EnqueueSync(Operation operation);
+  void EnqueueSync(const Operation& operation);
 
   /**
    * For Tests: Determine if a delayed callback with a particular FSTTimerID

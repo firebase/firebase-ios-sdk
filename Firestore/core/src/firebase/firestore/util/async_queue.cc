@@ -27,16 +27,31 @@ namespace util {
 
 namespace {
 
-// Generic wrapper over dispatch_async_f
-template <typename Fun>
-void DispatchAsync(const dispatch_queue_t queue, const Fun& function) {
-  const auto wrap = new AsyncQueue::Operation(function);
-  dispatch_async_f(queue, wrap, [](void* const raw_operation) {
+using Dispatcher = decltype(dispatch_async_f);
+
+template <typename Dispatched>
+void Dispatch(const dispatch_queue_t queue,
+                   Dispatcher dispatcher,
+                   const Dispatched& dispatched) {
+  const auto wrap = new AsyncQueue::Operation(dispatched);
+  dispatcher(queue, wrap, [](void* const raw_operation) {
     const auto unwrap =
         static_cast<const AsyncQueue::Operation*>(raw_operation);
     (*unwrap)();
     delete unwrap;
   });
+}
+
+// Generic wrapper over dispatch_async_f
+template <typename Dispatched>
+void DispatchAsync(const dispatch_queue_t queue, const Dispatched& dispatched) {
+  Dispatch(queue, dispatch_async_f, dispatched);
+}
+
+// Generic wrapper over dispatch_sync_f
+template <typename Dispatched>
+void DispatchSync(const dispatch_queue_t queue, const Dispatched& dispatched) {
+  Dispatch(queue, dispatch_sync_f, dispatched);
 }
 
 }  // namespace
@@ -173,6 +188,16 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Seconds delay,
 
   operations_.push_back({this, timer_id, delay, std::move(operation)});
   return operations_.back();
+}
+
+void AsyncQueue::EnqueueSync(const Operation& operation) {
+  FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_ || !OnTargetQueue(),
+                          "EnqueueSync called when we are already running on "
+                          "target dispatch queue '%s'",
+                          GetTargetQueueLabel().data());
+  // Note: can't move operation into lambda until C++14.
+  DispatchSync(native_handle(),
+                [this, operation] { EnterCheckedOperation(operation); });
 }
 
 bool AsyncQueue::ContainsOperationWithTimerId(const TimerId timer_id) const {

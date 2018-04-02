@@ -35,7 +35,7 @@ AsyncQueue Queue() {
 }
 }  // namespace
 
-TEST(AsyncQueue, SimpleUsage) {
+TEST(AsyncQueue, Enqueue) {
   std::packaged_task<void()> signal_finished{[] {}};
 
   auto queue = Queue();
@@ -46,7 +46,7 @@ TEST(AsyncQueue, SimpleUsage) {
   EXPECT_EQ(status, std::future_status::ready);
 }
 
-TEST(AsyncQueue, EnqueuedTasksCannotSpawnEnqueuedTasks) {
+TEST(AsyncQueue, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
   std::packaged_task<void()> signal_finished{[] {}};
 
   auto queue = Queue();
@@ -58,7 +58,7 @@ TEST(AsyncQueue, EnqueuedTasksCannotSpawnEnqueuedTasks) {
   signal_finished.get_future().wait_for(std::chrono::seconds(1));
 }
 
-TEST(AsyncQueue, EnqueuedTasksCanCallEnqueueAllowingSameQueue) {
+TEST(AsyncQueue, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
   std::packaged_task<void()> signal_finished{[] {}};
 
   auto queue = Queue();
@@ -90,10 +90,33 @@ TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
   EXPECT_EQ(status, std::future_status::ready);
 }
 
-// 9 (void)testDispatchSyncBlocksSubmissionFromTasksOnTheQueue {
+TEST(AsyncQueue, EnqueueSync) {
+  std::packaged_task<void()> signal_finished{[] {}};
+
+  auto queue = Queue();
+  queue.EnqueueSync([&] { signal_finished(); });
+
+  const auto status =
+      signal_finished.get_future().wait_for(std::chrono::seconds(1));
+  EXPECT_EQ(status, std::future_status::ready);
+}
+
+TEST(AsyncQueue, EnqueueSyncDisallowsEnqueuedTasksToUseEnqueue) {
+  std::packaged_task<void()> signal_finished{[] {}};
+
+  auto queue = Queue();
+  queue.EnqueueSync([&] {  // clang-format off
+    EXPECT_ANY_THROW(queue.EnqueueSync([&] { signal_finished(); }););
+    // clang-format on
+  });
+
+  signal_finished.get_future().wait_for(std::chrono::seconds(1));
+}
+
 // 8 (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {
 // 7 (void)testVerifyIsCurrentQueueRequiresOperationIsInProgress {
 // 6 (void)testVerifyIsCurrentQueueWorksWithOperationIsInProgress {
+
 // 5 (void)testEnterCheckedOperationDisallowsNesting {
 // 4 (void)testCanScheduleCallbacksInTheFuture {
 // 3 (void)testCanCancelDelayedCallbacks {
