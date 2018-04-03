@@ -44,8 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
              fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms
     NS_DESIGNATED_INITIALIZER;
 
-- (const firebase::firestore::model::FieldMask &)fieldMask;
-
 @property(nonatomic, strong, readonly) FSTObjectValue *data;
 @property(nonatomic, strong, readonly) NSArray<FSTFieldTransform *> *fieldTransforms;
 @property(nonatomic, assign, readonly) BOOL isPatch;

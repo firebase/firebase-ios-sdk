@@ -85,7 +85,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   if (self.isPatch) {
     [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
-                                                     fieldMask:self.fieldMask
+                                                     fieldMask:_fieldMask
                                                          value:self.data
                                                   precondition:precondition]];
   } else {
@@ -98,10 +98,6 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
                                                    fieldTransforms:self.fieldTransforms]];
   }
   return mutations;
-}
-
-- (const firebase::firestore::model::FieldMask &)fieldMask {
-  return _fieldMask;
 }
 
 @end
