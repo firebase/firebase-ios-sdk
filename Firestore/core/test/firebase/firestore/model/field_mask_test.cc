@@ -25,12 +25,30 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+TEST(FieldMask, ConstructorAndEqual) {
+  FieldMask mask_a{FieldPath::FromServerFormat("foo"),
+                   FieldPath::FromServerFormat("bar")};
+  std::vector<FieldPath> field_path_vector{FieldPath::FromServerFormat("foo"),
+                                           FieldPath::FromServerFormat("bar")};
+  FieldMask mask_b{field_path_vector};
+  FieldMask mask_c{std::vector<FieldPath>{FieldPath::FromServerFormat("foo"),
+                                          FieldPath::FromServerFormat("bar")}};
+  EXPECT_EQ(mask_a, mask_b);
+  EXPECT_EQ(mask_b, mask_c);
+}
+
 TEST(FieldMask, Getter) {
   FieldMask mask{FieldPath::FromServerFormat("foo"),
                  FieldPath::FromServerFormat("bar")};
   EXPECT_EQ(std::vector<FieldPath>({FieldPath::FromServerFormat("foo"),
                                     FieldPath::FromServerFormat("bar")}),
             mask.fields());
+}
+
+TEST(FieldMask, ToString) {
+  FieldMask mask{FieldPath::FromServerFormat("foo"),
+                 FieldPath::FromServerFormat("bar")};
+  EXPECT_EQ("{ foo bar }", mask.ToString());
 }
 
 }  // namespace model

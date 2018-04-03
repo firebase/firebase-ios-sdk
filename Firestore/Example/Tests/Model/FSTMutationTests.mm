@@ -72,7 +72,7 @@ using firebase::firestore::model::FieldMask;
 
   DocumentKey key = testutil::Key("collection/key");
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
-                                                   fieldMask:FieldMask({testutil::Field("foo.bar")})
+                                                   fieldMask:{testutil::Field("foo.bar")}
                                                        value:[FSTObjectValue objectValue]
                                                 precondition:[FSTPrecondition none]];
   FSTMaybeDocument *patchedDoc =

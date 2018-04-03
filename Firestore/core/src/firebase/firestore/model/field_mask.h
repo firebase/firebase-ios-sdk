@@ -17,7 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_MASK_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_MASK_H_
 
+#include <algorithm>
 #include <initializer_list>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -39,29 +41,35 @@ namespace model {
  */
 class FieldMask {
  public:
-  explicit FieldMask(std::initializer_list<FieldPath> list) : fields_{list} {
+  using const_iterator = std::vector<FieldPath>::const_iterator;
+
+  FieldMask(std::initializer_list<FieldPath> list) : fields_{list} {
   }
   explicit FieldMask(const std::vector<FieldPath>& fields) : fields_{fields} {
   }
-  explicit FieldMask(std::vector<FieldPath>&& fields) : fields_{fields} {
+  explicit FieldMask(std::vector<FieldPath>&& fields)
+      : fields_{std::move(fields)} {
   }
 
-  const std::vector<FieldPath>& fields() const {
-    return fields_;
+  const_iterator begin() const {
+    return fields_.begin();
   }
-
-#if defined(__OBJC__)
-  FieldMask() {
+  const_iterator end() const {
+    return fields_.end();
   }
 
   std::string ToString() const {
-    // Ideally, one should use a string builder. But since this is only
-    // temporary non-critical code, the logic is kept simple here.
+    // Ideally, one should use a string builder. Since this is only non-critical
+    // code for logging and debugging, the logic is kept simple here.
     std::string result("{ ");
     for (const FieldPath& field : fields_) {
       result += field.CanonicalString() + " ";
     }
     return result + "}";
+  }
+
+#if defined(__OBJC__)
+  FieldMask() {
   }
 
   NSUInteger Hash() const {
@@ -73,16 +81,19 @@ class FieldMask {
   }
 #endif
 
+  friend bool operator==(const FieldMask& lhs, const FieldMask& rhs);
+
  private:
   std::vector<FieldPath> fields_;
 };
 
 inline bool operator==(const FieldMask& lhs, const FieldMask& rhs) {
-  return lhs.fields() == rhs.fields();
+  return lhs.fields_.size() == rhs.fields_.size() &&
+         std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_NO_DOCUMENT_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_MASK_H_

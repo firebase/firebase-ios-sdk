@@ -543,7 +543,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask {
   GCFSDocumentMask *mask = [GCFSDocumentMask message];
-  for (const FieldPath &field : fieldMask.fields()) {
+  for (const FieldPath &field : fieldMask) {
     [mask.fieldPathsArray addObject:util::WrapNSString(field.CanonicalString())];
   }
   return mask;
