@@ -1,3 +1,8 @@
+# v4.5.1
+- Adds client-side validation to prevent setting `handleCodeInApp` to false when performing
+  email-link authentication. If `handleCodeInApp` is set to false an invalid argument exception
+  is thrown.
+
 # v4.5.0
 - Adds new API which provides a way to determine the sign-in methods associated with an
   email address.
