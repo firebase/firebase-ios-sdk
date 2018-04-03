@@ -19,11 +19,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @var kAPIKey
-    @brief The key used to encode the APIKey for NSSecureCoding.
- */
-static NSString *const kAPIKey = @"apiKey";
-
 @implementation FIRAuthRequestConfiguration
 
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
@@ -32,16 +27,6 @@ static NSString *const kAPIKey = @"apiKey";
     _APIKey = [APIKey copy];
   }
   return self;
-}
-
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSString *apiKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKey];
-  self = [self initWithAPIKey:apiKey];
-  return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:_APIKey forKey:kAPIKey];
 }
 
 @end

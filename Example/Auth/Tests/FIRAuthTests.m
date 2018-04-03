@@ -1778,10 +1778,10 @@ static const NSTimeInterval kWaitInterval = .5;
         call.
  */
 - (void)testUpdateCurrentUserFailure {
-  NSString *kTestAPIKey1 = @"fakeAPIKey2";
-  NSString *kTestAccessToken1 = @"fakeAccessToken2";
-  [self waitForSignInWithAccessToken:kTestAccessToken1
-                              APIKey:kTestAPIKey1
+  NSString *kTestAccessToken = @"fakeAccessToken";
+  NSString *kTestAPIKey = @"fakeAPIKey";
+  [self waitForSignInWithAccessToken:kTestAccessToken
+                              APIKey:kTestAPIKey
                           completion:nil];
     NSString *kTestAPIKey2 = @"fakeAPIKey2";
     FIRUser *user2 = [FIRAuth auth].currentUser;
@@ -1802,10 +1802,10 @@ static const NSTimeInterval kWaitInterval = .5;
         call with a network error.
  */
 - (void)testUpdateCurrentUserFailureNetworkError {
-  NSString *kTestAPIKey1 = @"fakeAPIKey2";
-  NSString *kTestAccessToken1 = @"fakeAccessToken2";
-  [self waitForSignInWithAccessToken:kTestAccessToken1
-                              APIKey:kTestAPIKey1
+  NSString *kTestAPIKey = @"fakeAPIKey";
+  NSString *kTestAccessToken = @"fakeAccessToken";
+  [self waitForSignInWithAccessToken:kTestAccessToken
+                              APIKey:kTestAPIKey
                           completion:nil];
     NSString *kTestAPIKey2 = @"fakeAPIKey2";
     FIRUser *user2 = [FIRAuth auth].currentUser;
@@ -1815,6 +1815,26 @@ static const NSTimeInterval kWaitInterval = .5;
     XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
     [[FIRAuth auth] updateCurrentUser:user2 completion:^(NSError *_Nullable error) {
       XCTAssertEqual(error.code, FIRAuthErrorCodeNetworkError);
+      [expectation fulfill];
+    }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testUpdateCurrentUserFailureNUllUser
+    @brief Tests the flow of a failed @c updateCurrentUser:completion:
+        call with FIRAuthErrorCodeNullUser.
+ */
+- (void)testUpdateCurrentUserFailureNUllUser {
+  NSString *kTestAccessToken = @"fakeAccessToken";
+  NSString *kTestAPIKey = @"fakeAPIKey";
+  [self waitForSignInWithAccessToken:kTestAccessToken
+                              APIKey:kTestAPIKey
+                          completion:nil];
+    FIRUser *fakeNilUser = nil;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    [[FIRAuth auth] updateCurrentUser:fakeNilUser completion:^(NSError *_Nullable error) {
+      XCTAssertEqual(error.code, FIRAuthErrorCodeNullUser);
       [expectation fulfill];
     }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];

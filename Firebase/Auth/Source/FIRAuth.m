@@ -1138,18 +1138,31 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)updateCurrentUser:(FIRUser *)user completion:(nullable FIRUserUpdateCallback)completion {
-  void (^updateUserBlock)(FIRUser *user) = ^(FIRUser *user) {
-    NSError *error;
-    [self updateCurrentUser:user byForce:YES savingToDisk:YES error:(&error)];
-    if (error) {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    if (!user) {
       if (completion) {
-        completion(error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion([FIRAuthErrorUtils nullUserErrorWithMessage:nil]);
+        });
       }
       return;
     }
-    completion(nil);
-  };
-  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    void (^updateUserBlock)(FIRUser *user) = ^(FIRUser *user) {
+      NSError *error;
+      [self updateCurrentUser:user byForce:YES savingToDisk:YES error:(&error)];
+      if (error) {
+        if (completion) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completion(error);
+          });
+        }
+        return;
+      } if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(nil);
+        });
+      }
+    };
     if (![user.requestConfiguration.APIKey isEqualToString:self->_requestConfiguration.APIKey]) {
       // If the API keys are different, then we need to confirm that the user belongs to the same
       // project before proceeding.
