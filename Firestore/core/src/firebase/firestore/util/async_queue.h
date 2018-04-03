@@ -22,21 +22,23 @@
 #include "absl/strings/string_view.h"
 #include "dispatch/dispatch.h"
 
+/** iOS implementation of `AsyncQueue` built on top of libdispatch. */
+
 namespace firebase {
 namespace firestore {
 namespace util {
 
-enum class TimerId : unsigned int {
-  /**
-   * Well-known "timer" IDs used when scheduling delayed callbacks on the
-   * FSTDispatchQueue. These IDs can then be used from tests to check for the
-   * presence of callbacks or to run them early.
-   */
-  /** All can be used with runDelayedCallbacksUntil: to run all timers. */
+/**
+ * Well-known "timer" ids used when scheduling delayed operations on the
+ * AsyncQueue. These ids can then be used from tests to check for the
+ * presence of delayed operations or to run them early.
+ */
+enum class TimerId {
+  /** All can be used with `RunDelayedOperationsUntil` to run all timers. */
   All,
 
   /**
-   * The following 4 timers are used in FSTStream for the listen and write
+   * The following 4 timers are used in `Stream` for the listen and write
    * streams. The "Idle" timer is used to close the stream due to inactivity.
    * The "ConnectionBackoff" timer is used to restart a stream once the
    * appropriate backoff delay has elapsed.
@@ -47,9 +49,9 @@ enum class TimerId : unsigned int {
   WriteStreamConnectionBackoff,
 
   /**
-   * A timer used in FSTOnlineStateTracker to transition from FSTOnlineState
-   * Unknown to Offline after a set timeout, rather than waiting indefinitely
-   * for success or failure.
+   * A timer used in `OnlineStateTracker` to transition from
+   * `OnlineStateUnknown` to `Offline` after a set timeout, rather than waiting
+   * indefinitely for success or failure.
    */
   OnlineStateTimeout,
 };
@@ -59,21 +61,22 @@ class DelayedOperationImpl;
 }
 
 /**
- * Handle to a callback scheduled via AsyncQueue::EnqueueWithDelay.
- * Supports cancellation via the cancel method.
+ * Handle to an operation scheduled via AsyncQueue::EnqueueWithDelay. Supports
+ * cancellation via the cancel method.
  */
 class DelayedOperation {
  public:
   /**
-   * Cancels the callback if it hasn't already been executed or canceled.
+   * Cancels the operation if it hasn't already been executed or canceled.
    *
-   * As long as the callback has not yet been run, calling cancel() (from a
-   * callback already running on the dispatch queue) provides a guarantee that
+   * As long as the operation has not yet been run, calling `Cancel()` (from an
+   * operation already running on the dispatch queue) provides a guarantee that
    * the operation will not be run.
    */
   void Cancel();
 
  private:
+  // Don't allow callers to create their own `DelayedOperation`s.
   friend class AsyncQueue;
   explicit DelayedOperation(
       const std::shared_ptr<detail::DelayedOperationImpl>& instance)
@@ -88,92 +91,92 @@ class AsyncQueue {
   using Milliseconds = std::chrono::milliseconds;
   using Operation = std::function<void()>;
 
-  explicit AsyncQueue(const dispatch_queue_t native_handle)
-      : native_handle_{native_handle} {
+  explicit AsyncQueue(const dispatch_queue_t dispatch_queue)
+      : dispatch_queue_{dispatch_queue} {
   }
 
   /**
    * Asserts that we are already running on this queue (actually, we can only
    * verify that the queue's label is the same, but hopefully that's good
-   * enough.)
+   * enough).
    */
   void VerifyIsCurrentQueue() const;
 
   /**
-   * Declares that we are already executing on the correct dispatch_queue_t and
-   * would like to officially execute code on behalf of this FSTDispatchQueue.
-   * To be used only when called  back by some other API directly onto our
-   * queue. This allows us to safely dispatch directly onto the worker queue
-   * without destroying the invariants this class helps us maintain.
+   * Declares that we are already executing on the correct `dispatch_queue_t`
+   * and would like to officially execute code on behalf of this `AsyncQueue`.
+   * To be used only when called back by some other API directly onto our queue.
+   * This allows us to safely dispatch directly onto the worker queue without
+   * destroying the invariants this class helps us maintain.
    */
   void EnterCheckedOperation(const Operation& operation);
 
   /**
-   * Same as dispatch_async() except it asserts that we're not already on the
+   * Same as `dispatch_async()` except it asserts that we're not already on the
    * queue, since this generally indicates a bug (and can lead to re-ordering of
    * operations, etc).
    *
-   * @param block The block to run.
+   * @param operation The operation to run.
    */
   void Enqueue(const Operation& operation);
 
   /**
-   * Unlike dispatchAsync: this method does not require you to dispatch to a
+   * Unlike `Enqueue`, this method does not require you to dispatch to a
    * different queue than the current one (thus it is equivalent to a raw
-   * dispatch_async()).
+   * `dispatch_async()`).
    *
    * This is useful, e.g. for dispatching to the user's queue directly from user
    * API call (in which case we don't know if we're already on the user's queue
    * or not).
    *
-   * @param block The block to run.
+   * @param operation The operation to run.
    */
   void EnqueueAllowingSameQueue(const Operation& operation);
 
   /**
-   * Schedules a callback after the specified delay.
+   * Schedules an operation after the specified delay.
    *
-   * Unlike dispatchAsync: this method does not require you to dispatch to a
+   * Unlike `Enqueue`, this method does not require you to dispatch to a
    * different queue than the current one.
    *
-   * The returned FSTDelayedCallback handle can be used to cancel the callback
+   * The returned `DelayedOperation` handle can be used to cancel the operation
    * prior to its running.
    *
-   * @param block The block to run.
-   * @param delay The delay (in seconds) after which to run the block.
-   * @param timerID An FSTTimerID that can be used from tests to check for the
-   * presence of this callback or to schedule it to run early.
-   * @return A FSTDelayedCallback instance that can be used for cancellation.
+   * @param operation The operation to run.
+   * @param delay The delay after which to run the operation.
+   * @param timer_id A `TimerId` that can be used from tests to check for the
+   *     presence of this operation or to schedule it to run early.
+   * @return A `DelayedOperation` instance that can be used for cancellation.
    */
   DelayedOperation EnqueueWithDelay(Milliseconds delay,
                                     TimerId timer_id,
                                     Operation operation);
 
   /**
-   * Wrapper for dispatch_sync(). Mostly meant for use in tests.
+   * Wrapper for `dispatch_sync()`. Mostly meant for use in tests.
    *
-   * @param block The block to run.
+   * @param operation The operation to run.
    */
   void EnqueueSync(const Operation& operation);
 
   /**
-   * For Tests: Determine if a delayed callback with a particular FSTTimerID
+   * For tests: determine if a delayed operation with a particular `TimerId`
    * exists.
    */
   bool ContainsOperationWithTimerId(TimerId timer_id) const;
 
   /**
-   * For Tests: Runs delayed callbacks early, blocking until completion.
+   * For tests: runs delayed operations early, blocking until completion.
    *
-   * @param lastTimerID Only delayed callbacks up to and including one that was
-   * scheduled using this FSTTimerID will be run. Method throws if no matching
-   * callback exists.
+   * @param last_timer_id Only delayed operations up to and including one that
+   *     was scheduled using this TimerId will be run. Method crashes if no
+   *     matching operation exists.
    */
   void RunDelayedOperationsUntil(TimerId last_timer_id);
 
-  /** The underlying wrapped dispatch_queue_t */
-  dispatch_queue_t native_handle() const {
-    return native_handle_;
+  /** The underlying wrapped `dispatch_queue_t`. */
+  dispatch_queue_t dispatch_queue() const {
+    return dispatch_queue_;
   }
 
  private:
@@ -187,12 +190,12 @@ class AsyncQueue {
   absl::string_view GetCurrentQueueLabel() const;
   absl::string_view GetTargetQueueLabel() const;
 
-  dispatch_queue_t native_handle_{};
+  dispatch_queue_t dispatch_queue_{};
   using OperationPtr = std::shared_ptr<detail::DelayedOperationImpl>;
   std::vector<OperationPtr> operations_;
-  using OperationsIterator = decltype(operations_)::iterator;
   bool is_operation_in_progress_{};
 
+  // For access to Dequeue.
   friend class detail::DelayedOperationImpl;
 };
 

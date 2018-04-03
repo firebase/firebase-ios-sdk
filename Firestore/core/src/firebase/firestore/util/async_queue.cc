@@ -27,42 +27,64 @@ namespace util {
 
 namespace {
 
+// Signature of libdispatch function to use.
 using Dispatcher = decltype(dispatch_async_f);
 
-template <typename Dispatched>
-void Dispatch(const dispatch_queue_t queue,
-              Dispatcher dispatcher,
-              const Dispatched& dispatched) {
-  const auto wrap = new AsyncQueue::Operation(dispatched);
+template <typename Work>
+void DoDispatch(const dispatch_queue_t queue,
+                Dispatcher dispatcher,
+                Work&& work) {
+  // Wrap the passed invocable object into a std::function. It's dynamically
+  // allocated and only deleted after the object is invoked by libdispatch.
+  const auto wrap = new AsyncQueue::Operation(std::forward<Work>(work));
   dispatcher(queue, wrap, [](void* const raw_operation) {
-    const auto unwrap =
-        static_cast<const AsyncQueue::Operation*>(raw_operation);
+    const auto unwrap = static_cast<AsyncQueue::Operation*>(raw_operation);
     (*unwrap)();
     delete unwrap;
   });
 }
 
-// Generic wrapper over dispatch_async_f
-template <typename Dispatched>
-void DispatchAsync(const dispatch_queue_t queue, const Dispatched& dispatched) {
-  Dispatch(queue, dispatch_async_f, dispatched);
+// Generic wrapper over dispatch_async_f, providing dispatch_async-like
+// interface: accepts an arbitrary invocable object in place of an Objective-C
+// block.
+template <typename Work>
+void DispatchAsync(dispatch_queue_t queue, Work&& work) {
+  DoDispatch(queue, dispatch_async_f, std::forward<Work>(work));
 }
 
-// Generic wrapper over dispatch_sync_f
-template <typename Dispatched>
-void DispatchSync(const dispatch_queue_t queue, const Dispatched& dispatched) {
-  Dispatch(queue, dispatch_sync_f, dispatched);
+// Similar to DispatchAsync but wraps dispatch_sync_f.
+template <typename Work>
+void DispatchSync(dispatch_queue_t queue, Work&& work) {
+  DoDispatch(queue, dispatch_sync_f, std::forward<Work>(work));
 }
 
 }  // namespace
 
 namespace detail {
 
+// DelayedOperationImpl contains the logic of scheduling a delayed operation.
+//
+// An instance of this class exists until it's run, which allows it to schedule
+// itself for delayed execution without worrying about lifetime issues.
+//
+// AsyncQueue holds a shared_ptr to the instance, while DelayedOperation
+// handle returned to the code using AsyncQueue holds a weak_ptr.
+// Consequently, DelayedOperation is always valid in the sense that it's
+// always safe to use, but the lifetime of DelayedOperationImpl only depends
+// on the AsyncQueue. AsyncQueue never removes delayed operations on its
+// own; only DelayedOperationImpl itself triggers its removal from the queue
+// in its Run method.
+//
+// It is impossible to actually cancel work scheduled with libdispatch; to work
+// around this, DelayedOperationImpl emulates cancelation by turning itself
+// into a no-op. Under the hood, even a "canceled" DelayedOperationImpl will
+// still run, and consequently the instance will still be alive until it's run.
+
 class DelayedOperationImpl {
  public:
-  DelayedOperationImpl(AsyncQueue* const queue,
-                       const TimerId timer_id,
-                       const AsyncQueue::Milliseconds delay,
+  DelayedOperationImpl(AsyncQueue* queue,
+                       TimerId timer_id,
+                       AsyncQueue::Milliseconds delay,
                        AsyncQueue::Operation&& operation)
       : queue_{queue},
         timer_id_{timer_id},
@@ -73,9 +95,7 @@ class DelayedOperationImpl {
 
   void Cancel() {
     queue_->VerifyIsCurrentQueue();
-    if (!done_) {
-      MarkDone();
-    }
+    done_ = true;
   }
 
   // aka StartWithDelay
@@ -84,7 +104,7 @@ class DelayedOperationImpl {
     const dispatch_time_t delay_ns = dispatch_time(
         DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
     dispatch_after_f(
-        delay_ns, queue_->native_handle(), this, [](void* const raw_self) {
+        delay_ns, queue_->dispatch_queue(), this, [](void* const raw_self) {
           const auto self = static_cast<DelayedOperationImpl*>(raw_self);
           self->queue_->EnterCheckedOperation([self] { self->Run(); });
         });
@@ -94,21 +114,24 @@ class DelayedOperationImpl {
   void Run() {
     queue_->VerifyIsCurrentQueue();
     if (!done_) {
-      MarkDone();
-      FIREBASE_ASSERT_MESSAGE(operation_,
-                              "DelayedOperation contains null function object");
+      done_ = true;
+      FIREBASE_ASSERT_MESSAGE(
+          operation_, "DelayedOperationImpl contains invalid function object");
       operation_();
     }
+
+    // PORTING NOTE: it's important to *only* remove the operation from the
+    // queue *after* it's run, *not* in Cancel method. Because it's
+    // impossible to cancel an invocation scheduled with dispatch_after_f,
+    // this object must be alive when libdispatch calls Run; it the object
+    // were removed from the queue in Cancel, it would have been deleted by
+    // the time Run gets invoked.
+    Dequeue();
   }
 
   // aka SkipDelay
   void RunImmediately() {
     queue_->EnqueueAllowingSameQueue([this] { Run(); });
-  }
-
-  void MarkDone() {
-    done_ = true;
-    queue_->Dequeue(*this);
   }
 
   TimerId timer_id() const {
@@ -120,6 +143,10 @@ class DelayedOperationImpl {
   }
 
  private:
+  void Dequeue() {
+    queue_->Dequeue(*this);
+  }
+
   using TimePoint = std::chrono::time_point<std::chrono::system_clock,
                                             AsyncQueue::Milliseconds>;
 
@@ -133,13 +160,13 @@ class DelayedOperationImpl {
 
 }  // namespace detail
 
+using detail::DelayedOperationImpl;
+
 void DelayedOperation::Cancel() {
   if (auto live_instance = handle_.lock()) {
     live_instance->Cancel();
   }
 }
-
-using detail::DelayedOperationImpl;
 
 void AsyncQueue::Dequeue(const DelayedOperationImpl& dequeued) {
   const auto new_end = std::remove_if(
@@ -167,8 +194,8 @@ void AsyncQueue::EnterCheckedOperation(const Operation& operation) {
                           "operation is in progress");
 
   is_operation_in_progress_ = true;
-  VerifyIsCurrentQueue();
 
+  VerifyIsCurrentQueue();
   operation();
 
   is_operation_in_progress_ = false;
@@ -180,13 +207,13 @@ void AsyncQueue::Enqueue(const Operation& operation) {
                           "target dispatch queue '%s'",
                           GetTargetQueueLabel().data());
   // Note: can't move operation into lambda until C++14.
-  DispatchAsync(native_handle(),
+  DispatchAsync(dispatch_queue(),
                 [this, operation] { EnterCheckedOperation(operation); });
 }
 
 void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
   // Note: can't move operation into lambda until C++14.
-  DispatchAsync(native_handle(),
+  DispatchAsync(dispatch_queue(),
                 [this, operation] { EnterCheckedOperation(operation); });
 }
 
@@ -200,7 +227,7 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Milliseconds delay,
                           timer_id);
 
   operations_.emplace_back(std::make_shared<DelayedOperationImpl>(
-          this, timer_id, delay, std::move(operation)));
+      this, timer_id, delay, std::move(operation)));
   return DelayedOperation{operations_.back()};
 }
 
@@ -210,7 +237,7 @@ void AsyncQueue::EnqueueSync(const Operation& operation) {
                           "target dispatch queue '%s'",
                           GetTargetQueueLabel().data());
   // Note: can't move operation into lambda until C++14.
-  DispatchSync(native_handle(),
+  DispatchSync(dispatch_queue(),
                [this, operation] { EnterCheckedOperation(operation); });
 }
 
@@ -266,7 +293,7 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
 
 namespace {
 
-absl::string_view StringViewFromLabel(const char* const label) {
+absl::string_view StringViewFromLabel(const char* label) {
   // Make sure string_view's data is not null, because it's used for logging.
   return label ? absl::string_view{label} : absl::string_view{""};
 }
@@ -281,7 +308,7 @@ absl::string_view AsyncQueue::GetCurrentQueueLabel() const {
 }
 
 absl::string_view AsyncQueue::GetTargetQueueLabel() const {
-  return StringViewFromLabel(dispatch_queue_get_label(native_handle()));
+  return StringViewFromLabel(dispatch_queue_get_label(dispatch_queue()));
 }
 
 }  // namespace util

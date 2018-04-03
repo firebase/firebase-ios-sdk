@@ -41,14 +41,20 @@ AsyncQueue Queue() {
   return AsyncQueue{underlying_queue};
 }
 
+const auto kTimeout = std::chrono::seconds(1);
+
 using SignalT = std::packaged_task<void()>;
 
 SignalT CreateSignal() {
   return SignalT{[] {}};
 }
 
+// Googletest doesn't contain built-in functionality to block until an async
+// operation completes, and there is no timeout by default. Work around both by
+// resolving a packaged_task in the async operation and blocking on the
+// associated future (with timeout).
 bool WaitForTestToFinish(SignalT* const signal) {
-  return signal->get_future().wait_for(std::chrono::seconds(1)) ==
+  return signal->get_future().wait_for(kTimeout) ==
          std::future_status::ready;
 }
 
