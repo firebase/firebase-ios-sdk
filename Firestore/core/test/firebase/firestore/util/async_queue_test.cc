@@ -190,7 +190,8 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
 
     EXPECT_TRUE(queue.ContainsOperationWithTimerId(kTimerId1));
     delayed_operation.Cancel();
-    EXPECT_FALSE(queue.ContainsOperationWithTimerId(kTimerId1));
+    // Note: the operation will only be removed from the queue after it's run,
+    // not immediately once it's canceled.
   });
 
   EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
