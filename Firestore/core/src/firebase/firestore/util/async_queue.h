@@ -61,7 +61,7 @@ class DelayedOperationImpl;
 }
 
 /**
- * Handle to an operation scheduled via AsyncQueue::EnqueueWithDelay. Supports
+ * Handle to an operation scheduled via AsyncQueue::EnqueueAfterDelay. Supports
  * cancellation via the cancel method.
  */
 class DelayedOperation {
@@ -148,7 +148,7 @@ class AsyncQueue {
    *     presence of this operation or to schedule it to run early.
    * @return A `DelayedOperation` instance that can be used for cancellation.
    */
-  DelayedOperation EnqueueWithDelay(Milliseconds delay,
+  DelayedOperation EnqueueAfterDelay(Milliseconds delay,
                                     TimerId timer_id,
                                     Operation operation);
 

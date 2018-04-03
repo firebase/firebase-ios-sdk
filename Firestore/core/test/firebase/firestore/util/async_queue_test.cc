@@ -155,12 +155,12 @@ TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
 
   auto queue = Queue();
   queue.Enqueue([&steps] { steps += '1'; });
-  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(5), kTimerId1,
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId1,
                          [&steps, &signal_finished] {
                            steps += '4';
                            signal_finished();
                          });
-  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(1), kTimerId2,
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1), kTimerId2,
                          [&steps] { steps += '3'; });
   queue.Enqueue([&steps] { steps += '2'; });
 
@@ -179,10 +179,10 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
 
     queue.EnqueueAllowingSameQueue([&steps] { steps += '1'; });
 
-    DelayedOperation delayed_operation = queue.EnqueueWithDelay(
+    DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
         AsyncQueue::Milliseconds(1), kTimerId1, [&steps] { steps += '2'; });
 
-    queue.EnqueueWithDelay(AsyncQueue::Milliseconds(5), kTimerId2,
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId2,
                            [&steps, &signal_finished] {
                              steps += '3';
                              signal_finished();
@@ -202,7 +202,7 @@ TEST(AsyncQueue, DelayedOperationIsValidAfterTheOperationHasRun) {
   auto signal_finished = CreateSignal();
 
   auto queue = Queue();
-  DelayedOperation delayed_operation = queue.EnqueueWithDelay(
+  DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
       AsyncQueue::Milliseconds(1), kTimerId1, [&] { signal_finished(); });
   EXPECT_TRUE(queue.ContainsDelayedOperation(kTimerId1));
 
@@ -216,9 +216,9 @@ TEST(AsyncQueue, CanManuallyDrainAllDelayedCallbacksForTesting) {
 
   auto queue = Queue();
   queue.Enqueue([&steps] { steps += '1'; });
-  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
                          [&steps] { steps += '4'; });
-  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                          [&steps] { steps += '3'; });
   queue.Enqueue([&steps] { steps += '2'; });
 
@@ -231,11 +231,11 @@ TEST(AsyncQueue, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
 
   auto queue = Queue();
   queue.Enqueue([&] { steps += '1'; });
-  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
                          [&steps] { steps += '5'; });
-  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                          [&steps] { steps += '3'; });
-  queue.EnqueueWithDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
                          [&steps] { steps += '4'; });
   queue.Enqueue([&] { steps += '2'; });
 

@@ -214,7 +214,7 @@ void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
                 [this, operation] { EnterCheckedOperation(operation); });
 }
 
-DelayedOperation AsyncQueue::EnqueueWithDelay(const Milliseconds delay,
+DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
                                               const TimerId timer_id,
                                               Operation operation) {
   // While not necessarily harmful, we currently don't expect to have multiple
