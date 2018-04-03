@@ -42,7 +42,7 @@ TEST(FieldMask, Getter) {
                  FieldPath::FromServerFormat("bar")};
   EXPECT_EQ(std::vector<FieldPath>({FieldPath::FromServerFormat("foo"),
                                     FieldPath::FromServerFormat("bar")}),
-            mask.fields());
+            std::vector<FieldPath>(mask.begin(), mask.end()));
 }
 
 TEST(FieldMask, ToString) {
