@@ -47,7 +47,9 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
@@ -55,6 +57,8 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -562,8 +566,8 @@ NS_ASSUME_NONNULL_BEGIN
     (NSArray<FSTFieldTransform *> *)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
   for (FSTFieldTransform *fieldTransform in fieldTransforms) {
-    FSTAssert([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]],
-              @"Unknown transform: %@", fieldTransform.transform);
+    FSTAssert(fieldTransform.transform->type() == TransformOperation::Type::ServerTimestamp,
+              @"Unknown transform: %d type", fieldTransform.transform->type());
     GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
     proto.fieldPath = util::WrapNSString(fieldTransform.path.CanonicalString());
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
@@ -579,11 +583,11 @@ NS_ASSUME_NONNULL_BEGIN
     FSTAssert(
         proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
         @"Unknown transform setToServerValue: %d", proto.setToServerValue);
-    [fieldTransforms
-        addObject:[[FSTFieldTransform alloc]
-                      initWithPath:FieldPath::FromServerFormat(
-                                       util::MakeStringView(proto.fieldPath))
-                         transform:[FSTServerTimestampTransform serverTimestampTransform]]];
+    [fieldTransforms addObject:[[FSTFieldTransform alloc]
+                                   initWithPath:FieldPath::FromServerFormat(
+                                                    util::MakeStringView(proto.fieldPath))
+                                      transform:absl::make_unique<ServerTimestampTransform>(
+                                                    ServerTimestampTransform::Get())]];
   }
   return fieldTransforms;
 }

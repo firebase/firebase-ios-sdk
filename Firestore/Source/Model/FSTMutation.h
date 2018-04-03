@@ -16,11 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
 @class FSTDocument;
 @class FSTFieldValue;
@@ -33,22 +35,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTFieldTransform
 
-/** Represents a transform within a TransformMutation. */
-@protocol FSTTransformOperation <NSObject>
-@end
-
-/** Transforms a value into a server-generated timestamp. */
-@interface FSTServerTimestampTransform : NSObject <FSTTransformOperation>
-+ (instancetype)serverTimestampTransform;
-@end
-
-/** A field path and the FSTTransformOperation to perform upon it. */
+/** A field path and the TransformOperation to perform upon it. */
 @interface FSTFieldTransform : NSObject
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithPath:(firebase::firestore::model::FieldPath)path
-                   transform:(id<FSTTransformOperation>)transform NS_DESIGNATED_INITIALIZER;
+                   transform:
+                       (std::unique_ptr<firebase::firestore::model::TransformOperation>)transform
+    NS_DESIGNATED_INITIALIZER;
 - (const firebase::firestore::model::FieldPath &)path;
-@property(nonatomic, strong, readonly) id<FSTTransformOperation> transform;
+- (const firebase::firestore::model::TransformOperation *)transform;
 @end
 
 #pragma mark - FSTPrecondition

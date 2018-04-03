@@ -87,7 +87,7 @@ class FieldMask {
 };
 
 inline bool operator==(const FieldMask& lhs, const FieldMask& rhs) {
-  return lhs.fields_== rhs.fields_;
+  return lhs.fields_ == rhs.fields_;
 }
 
 }  // namespace model

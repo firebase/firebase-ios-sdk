@@ -25,6 +25,7 @@ cc_test(
     no_document_test.cc
     resource_path_test.cc
     snapshot_version_test.cc
+    transform_operations_test.cc
   DEPENDS
     firebase_firestore_model
 )

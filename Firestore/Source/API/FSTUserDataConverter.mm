@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
@@ -45,6 +46,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ServerTimestampTransform;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -662,7 +664,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       [context.fieldTransforms
           addObject:[[FSTFieldTransform alloc]
                         initWithPath:*context.path
-                           transform:[FSTServerTimestampTransform serverTimestampTransform]]];
+                           transform:absl::make_unique<ServerTimestampTransform>(
+                                         ServerTimestampTransform::Get())]];
 
       // Return nil so this value is omitted from the parsed result.
       return nil;
