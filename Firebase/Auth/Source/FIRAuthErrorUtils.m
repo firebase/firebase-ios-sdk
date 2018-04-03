@@ -139,8 +139,9 @@ static NSString *const kFIRAuthErrorMessageNoSuchProvider = @"User was not linke
 /** @var kFIRAuthErrorMessageInvalidUserToken
     @brief Message for @c FIRAuthErrorCodeInvalidUserToken error code.
  */
-static NSString *const kFIRAuthErrorMessageInvalidUserToken = @"The user's credential is no longer "
-    "valid. The user must sign in again.";
+static NSString *const kFIRAuthErrorMessageInvalidUserToken = @"This user's credential isn't valid "
+    "for this project. This can happen if the user's token has been tampered with, or if the user "
+    "doesn’t belong to the project associated with the API key used in your request.";
 
 /** @var kFIRAuthErrorMessageNetworkError
     @brief Message for @c FIRAuthErrorCodeNetworkError error code.

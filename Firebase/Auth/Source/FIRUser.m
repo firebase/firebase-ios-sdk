@@ -120,6 +120,11 @@ static NSString *const kTokenServiceCodingKey = @"tokenService";
  */
 static NSString *const kMetadataCodingKey = @"metadata";
 
+/** @var kRequestConfigurationKey
+    @brief The key used to encode the request configuration object associated with this user.
+ */
+static NSString *const kRequestConfigurationKey = @"requestConfiguration";
+
 /** @var kMissingUsersErrorMessage
     @brief The error message when there is no users array in the getAccountInfo response.
  */
@@ -251,6 +256,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                      refreshToken:refreshToken];
   FIRUser *user = [[self alloc] initWithTokenService:tokenService];
   user.auth = auth;
+  user.requestConfiguration = auth.requestConfiguration;
   [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
     if (error) {
       callback(nil, error);
@@ -305,6 +311,8 @@ static void callInMainThreadWithAuthDataResultAndError(
   NSString *phoneNumber =
       [aDecoder decodeObjectOfClass:[NSString class] forKey:kPhoneNumberCodingKey];
   BOOL emailVerified = [aDecoder decodeBoolForKey:kEmailVerifiedCodingKey];
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [aDecoder decodeObjectOfClass:[NSString class] forKey:kRequestConfigurationKey];
   NSSet *providerDataClasses = [NSSet setWithArray:@[
       [NSDictionary class],
       [NSString class],
@@ -334,6 +342,9 @@ static void callInMainThreadWithAuthDataResultAndError(
     _providerData = providerData;
     _phoneNumber = phoneNumber;
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
+    if (requestConfiguration) {
+      _requestConfiguration = requestConfiguration;
+    }
   }
   return self;
 }
@@ -349,7 +360,8 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeObject:_photoURL forKey:kPhotoURLCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
   [aCoder encodeObject:_metadata forKey:kMetadataCodingKey];
-  // The API key is encoded even it is not used in decoding to be compatible with previous versions
+  [aCoder encodeObject:_requestConfiguration forKey:kRequestConfigurationKey];
+  // The API key is encoded even though is not used in decoding to be compatible with previous versions
   // of the library.
   [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   [aCoder encodeObject:_tokenService forKey:kTokenServiceCodingKey];

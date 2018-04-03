@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthRequestConfiguration
     @brief Defines configurations to be added to a request to Firebase Auth's backend.
   */
-@interface FIRAuthRequestConfiguration : NSObject
+@interface FIRAuthRequestConfiguration : NSObject<NSCoding>
 
 /** @property APIKey
     @brief The Firebase Auth API key used in the request.
