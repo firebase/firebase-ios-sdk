@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_MASK_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_MASK_H_
 
-#include <algorithm>
 #include <initializer_list>
 #include <string>
 #include <utility>
@@ -88,8 +87,7 @@ class FieldMask {
 };
 
 inline bool operator==(const FieldMask& lhs, const FieldMask& rhs) {
-  return lhs.fields_.size() == rhs.fields_.size() &&
-         std::equal(lhs.begin(), lhs.end(), rhs.begin());
+  return lhs.fields_== rhs.fields_;
 }
 
 }  // namespace model
