@@ -118,7 +118,8 @@ class DelayedOperationImpl {
     dispatch_after_f(
         delay_ns, queue_->dispatch_queue(), this, [](void* const raw_self) {
           const auto self = static_cast<DelayedOperationImpl*>(raw_self);
-          self->queue_->EnterCheckedOperation([self] { self->HandleDelayElapsed(); });
+          self->queue_->EnterCheckedOperation(
+              [self] { self->HandleDelayElapsed(); });
         });
   }
 
@@ -134,9 +135,9 @@ class DelayedOperationImpl {
     // PORTING NOTE: it's important to *only* remove the operation from the
     // queue *after* it's run, *not* in Cancel method. Because it's
     // impossible to cancel an invocation scheduled with dispatch_after_f,
-    // this object must be alive when libdispatch calls HandleDelayElapsed; it the object
-    // were removed from the queue in Cancel, it would have been deleted by
-    // the time HandleDelayElapsed gets invoked.
+    // this object must be alive when libdispatch calls HandleDelayElapsed; it
+    // the object were removed from the queue in Cancel, it would have been
+    // deleted by the time HandleDelayElapsed gets invoked.
     Dequeue();
   }
 
@@ -215,8 +216,8 @@ void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
 }
 
 DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
-                                              const TimerId timer_id,
-                                              Operation operation) {
+                                               const TimerId timer_id,
+                                               Operation operation) {
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject them.
   FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),

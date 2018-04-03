@@ -149,8 +149,8 @@ class AsyncQueue {
    * @return A `DelayedOperation` instance that can be used for cancellation.
    */
   DelayedOperation EnqueueAfterDelay(Milliseconds delay,
-                                    TimerId timer_id,
-                                    Operation operation);
+                                     TimerId timer_id,
+                                     Operation operation);
 
   /**
    * Wrapper for `dispatch_sync()`. Mostly meant for use in tests.
