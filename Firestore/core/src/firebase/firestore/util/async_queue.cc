@@ -73,7 +73,7 @@ namespace detail {
 // always safe to use, but the lifetime of DelayedOperationImpl only depends
 // on the AsyncQueue. AsyncQueue never removes delayed operations on its
 // own; only DelayedOperationImpl itself triggers its removal from the queue
-// in its Run method.
+// in its HandleDelayElapsed method.
 //
 // It is impossible to actually cancel work scheduled with libdispatch; to work
 // around this, DelayedOperationImpl emulates cancelation by turning itself
@@ -90,7 +90,7 @@ class DelayedOperationImpl {
         timer_id_{timer_id},
         target_time_{delay},
         operation_{std::move(operation)} {
-    Schedule(delay);
+    Start(delay);
   }
 
   void Cancel() {
@@ -98,40 +98,8 @@ class DelayedOperationImpl {
     done_ = true;
   }
 
-  // aka StartWithDelay
-  void Schedule(const AsyncQueue::Milliseconds delay) {
-    namespace chr = std::chrono;
-    const dispatch_time_t delay_ns = dispatch_time(
-        DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
-    dispatch_after_f(
-        delay_ns, queue_->dispatch_queue(), this, [](void* const raw_self) {
-          const auto self = static_cast<DelayedOperationImpl*>(raw_self);
-          self->queue_->EnterCheckedOperation([self] { self->Run(); });
-        });
-  }
-
-  // aka delayDidElapse
-  void Run() {
-    queue_->VerifyIsCurrentQueue();
-    if (!done_) {
-      done_ = true;
-      FIREBASE_ASSERT_MESSAGE(
-          operation_, "DelayedOperationImpl contains invalid function object");
-      operation_();
-    }
-
-    // PORTING NOTE: it's important to *only* remove the operation from the
-    // queue *after* it's run, *not* in Cancel method. Because it's
-    // impossible to cancel an invocation scheduled with dispatch_after_f,
-    // this object must be alive when libdispatch calls Run; it the object
-    // were removed from the queue in Cancel, it would have been deleted by
-    // the time Run gets invoked.
-    Dequeue();
-  }
-
-  // aka SkipDelay
-  void RunImmediately() {
-    queue_->EnqueueAllowingSameQueue([this] { Run(); });
+  void SkipDelay() {
+    queue_->EnqueueAllowingSameQueue([this] { HandleDelayElapsed(); });
   }
 
   TimerId timer_id() const {
@@ -143,8 +111,37 @@ class DelayedOperationImpl {
   }
 
  private:
+  void Start(const AsyncQueue::Milliseconds delay) {
+    namespace chr = std::chrono;
+    const dispatch_time_t delay_ns = dispatch_time(
+        DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
+    dispatch_after_f(
+        delay_ns, queue_->dispatch_queue(), this, [](void* const raw_self) {
+          const auto self = static_cast<DelayedOperationImpl*>(raw_self);
+          self->queue_->EnterCheckedOperation([self] { self->HandleDelayElapsed(); });
+        });
+  }
+
+  void HandleDelayElapsed() {
+    queue_->VerifyIsCurrentQueue();
+    if (!done_) {
+      done_ = true;
+      FIREBASE_ASSERT_MESSAGE(
+          operation_, "DelayedOperationImpl contains invalid function object");
+      operation_();
+    }
+
+    // PORTING NOTE: it's important to *only* remove the operation from the
+    // queue *after* it's run, *not* in Cancel method. Because it's
+    // impossible to cancel an invocation scheduled with dispatch_after_f,
+    // this object must be alive when libdispatch calls HandleDelayElapsed; it the object
+    // were removed from the queue in Cancel, it would have been deleted by
+    // the time HandleDelayElapsed gets invoked.
+    Dequeue();
+  }
+
   void Dequeue() {
-    queue_->Dequeue(*this);
+    queue_->RemoveDelayedOperation(*this);
   }
 
   using TimePoint = std::chrono::time_point<std::chrono::system_clock,
@@ -168,7 +165,7 @@ void DelayedOperation::Cancel() {
   }
 }
 
-void AsyncQueue::Dequeue(const DelayedOperationImpl& dequeued) {
+void AsyncQueue::RemoveDelayedOperation(const DelayedOperationImpl& dequeued) {
   const auto new_end = std::remove_if(
       operations_.begin(), operations_.end(),
       [&dequeued](const OperationPtr& op) { return op.get() == &dequeued; });
@@ -222,7 +219,7 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Milliseconds delay,
                                               Operation operation) {
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject them.
-  FIREBASE_ASSERT_MESSAGE(!ContainsOperationWithTimerId(timer_id),
+  FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
                           "Attempted to schedule multiple callbacks with id %u",
                           timer_id);
 
@@ -231,9 +228,9 @@ DelayedOperation AsyncQueue::EnqueueWithDelay(const Milliseconds delay,
   return DelayedOperation{operations_.back()};
 }
 
-void AsyncQueue::EnqueueSync(const Operation& operation) {
+void AsyncQueue::RunSync(const Operation& operation) {
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_ || !OnTargetQueue(),
-                          "EnqueueSync called when we are already running on "
+                          "RunSync called when we are already running on "
                           "target dispatch queue '%s'",
                           GetTargetQueueLabel().data());
   // Note: can't move operation into lambda until C++14.
@@ -241,7 +238,7 @@ void AsyncQueue::EnqueueSync(const Operation& operation) {
                [this, operation] { EnterCheckedOperation(operation); });
 }
 
-bool AsyncQueue::ContainsOperationWithTimerId(const TimerId timer_id) const {
+bool AsyncQueue::ContainsDelayedOperation(const TimerId timer_id) const {
   return std::find_if(operations_.begin(), operations_.end(),
                       [timer_id](const OperationPtr& op) {
                         return op->timer_id() == timer_id;
@@ -279,7 +276,7 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
     }();
 
     for (auto it = operations_.begin(); it != until; ++it) {
-      (*it)->RunImmediately();
+      (*it)->SkipDelay();
     }
 
     // Now that the callbacks are queued, we want to enqueue an additional item

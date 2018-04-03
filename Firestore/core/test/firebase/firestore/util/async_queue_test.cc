@@ -107,26 +107,26 @@ TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
   EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
 }
 
-TEST(AsyncQueue, EnqueueSync) {
+TEST(AsyncQueue, RunSync) {
   bool finished = false;
 
   auto queue = Queue();
-  queue.EnqueueSync([&] { finished = true; });
+  queue.RunSync([&] { finished = true; });
 
   EXPECT_TRUE(finished);
 }
 
-TEST(AsyncQueue, EnqueueSyncDisallowsEnqueuedTasksToUseEnqueue) {
+TEST(AsyncQueue, RunSyncDisallowsEnqueuedTasksToUseEnqueue) {
   auto queue = Queue();
-  queue.EnqueueSync([&] {  // clang-format off
-    EXPECT_ANY_THROW(queue.EnqueueSync([] {}););
+  queue.RunSync([&] {  // clang-format off
+    EXPECT_ANY_THROW(queue.RunSync([] {}););
     // clang-format on
   });
 }
 
 TEST(AsyncQueue, EnterCheckedOperationDisallowsNesting) {
   auto queue = Queue();
-  queue.EnqueueSync([&] {
+  queue.RunSync([&] {
     EXPECT_ANY_THROW(queue.EnterCheckedOperation([&] {}););
   });
 }
@@ -146,7 +146,7 @@ TEST(AsyncQueue, VerifyIsCurrentQueueRequiresOperationInProgress) {
 
 TEST(AsyncQueue, VerifyIsCurrentQueueWorksWithOperationInProgress) {
   auto queue = Queue();
-  queue.EnqueueSync([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
+  queue.RunSync([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
 }
 
 TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
@@ -188,7 +188,7 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
                              signal_finished();
                            });
 
-    EXPECT_TRUE(queue.ContainsOperationWithTimerId(kTimerId1));
+    EXPECT_TRUE(queue.ContainsDelayedOperation(kTimerId1));
     delayed_operation.Cancel();
     // Note: the operation will only be removed from the queue after it's run,
     // not immediately once it's canceled.
@@ -204,10 +204,10 @@ TEST(AsyncQueue, DelayedOperationIsValidAfterTheOperationHasRun) {
   auto queue = Queue();
   DelayedOperation delayed_operation = queue.EnqueueWithDelay(
       AsyncQueue::Milliseconds(1), kTimerId1, [&] { signal_finished(); });
-  EXPECT_TRUE(queue.ContainsOperationWithTimerId(kTimerId1));
+  EXPECT_TRUE(queue.ContainsDelayedOperation(kTimerId1));
 
   EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
-  EXPECT_FALSE(queue.ContainsOperationWithTimerId(kTimerId1));
+  EXPECT_FALSE(queue.ContainsDelayedOperation(kTimerId1));
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 

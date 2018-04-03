@@ -157,13 +157,13 @@ class AsyncQueue {
    *
    * @param operation The operation to run.
    */
-  void EnqueueSync(const Operation& operation);
+  void RunSync(const Operation& operation);
 
   /**
    * For tests: determine if a delayed operation with a particular `TimerId`
    * exists.
    */
-  bool ContainsOperationWithTimerId(TimerId timer_id) const;
+  bool ContainsDelayedOperation(TimerId timer_id) const;
 
   /**
    * For tests: runs delayed operations early, blocking until completion.
@@ -182,7 +182,7 @@ class AsyncQueue {
  private:
   void Dispatch(const Operation& operation);
 
-  void Dequeue(const detail::DelayedOperationImpl& operation);
+  void RemoveDelayedOperation(const detail::DelayedOperationImpl& operation);
 
   bool OnTargetQueue() const;
   // GetLabel functions are guaranteed to never return a "null" string_view
