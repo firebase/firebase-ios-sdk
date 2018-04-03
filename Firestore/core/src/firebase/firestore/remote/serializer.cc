@@ -299,8 +299,6 @@ std::string DecodeString(pb_istream_t* stream) {
 void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  if (!writer->status().ok()) return;
-
   switch (field_value.type()) {
     case FieldValue::Type::Null:
       writer->WriteTag(PB_WT_VARINT,
@@ -496,8 +494,6 @@ FieldValue DecodeNestedFieldValue(pb_istream_t* stream) {
  * @param kv The individual key/value pair to write.
  */
 void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
-  if (!writer->status().ok()) return;
-
   // Write the key (string)
   writer->WriteTag(PB_WT_STRING,
                    google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
@@ -538,8 +534,6 @@ ObjectValue::Map::value_type DecodeFieldsEntry(pb_istream_t* stream) {
 }
 
 void EncodeObject(Writer* writer, const ObjectValue& object_value) {
-  if (!writer->status().ok()) return;
-
   return writer->WriteNestedMessage([&object_value](Writer* writer) {
     // Write each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value.internal_value) {
