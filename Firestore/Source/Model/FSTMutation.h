@@ -33,19 +33,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTFieldTransform
-
-/** A field path and the TransformOperation to perform upon it. */
-@interface FSTFieldTransform : NSObject
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithPath:(firebase::firestore::model::FieldPath)path
-                   transform:
-                       (std::unique_ptr<firebase::firestore::model::TransformOperation>)transform
-    NS_DESIGNATED_INITIALIZER;
-- (const firebase::firestore::model::FieldPath &)path;
-- (const firebase::firestore::model::TransformOperation *)transform;
-@end
-
 #pragma mark - FSTPrecondition
 
 typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {

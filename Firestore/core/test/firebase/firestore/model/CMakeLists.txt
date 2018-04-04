@@ -20,6 +20,7 @@ cc_test(
     document_test.cc
     field_mask_test.cc
     field_path_test.cc
+    field_transform_test.cc
     field_value_test.cc
     maybe_document_test.cc
     no_document_test.cc

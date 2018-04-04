@@ -40,46 +40,6 @@ using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTFieldTransform
-
-@implementation FSTFieldTransform {
-  FieldPath _path;
-  std::unique_ptr<TransformOperation> _transform;
-}
-
-- (instancetype)initWithPath:(FieldPath)path
-                   transform:(std::unique_ptr<TransformOperation>)transform {
-  self = [super init];
-  if (self) {
-    _path = std::move(path);
-    _transform = std::move(transform);
-  }
-  return self;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) return YES;
-  if (![[other class] isEqual:[self class]]) return NO;
-  FSTFieldTransform *otherFieldTransform = other;
-  return self.path == otherFieldTransform.path && *self.transform == *otherFieldTransform.transform;
-}
-
-- (NSUInteger)hash {
-  NSUInteger hash = self.path.Hash();
-  hash = hash * 31 + self.transform->Hash();
-  return hash;
-}
-
-- (const firebase::firestore::model::FieldPath &)path {
-  return _path;
-}
-
-- (const firebase::firestore::model::TransformOperation *)transform {
-  return _transform.get();
-}
-
-@end
-
 #pragma mark - FSTPrecondition
 
 @implementation FSTPrecondition
