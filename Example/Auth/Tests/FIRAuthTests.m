@@ -196,11 +196,20 @@ static NSString *const kFIRFacebookAuthSignInMethod = @"facebook.com";
  */
 static NSString *const kBadSignInEmailLink = @"http://www.facebook.com";
 
+/** @var kFakeEmailSignInDeeplink
+    @brief Fake email sign-in link
+ */
+static NSString *const kFakeEmailSignInDeeplink =
+    @"https://example.domain.com/?apiKey=testAPIKey&oobCode=testoobcode&mode=signIn";
+
 /** @var kFakeEmailSignInlink
     @brief Fake email sign-in link
  */
-static NSString *const kFakeEmailSignInlink = @"https://fex9s.app.goo.gl?link="
-    "https://fb-sa-upgraded.firebaseapp.com/_?mode%3DsignIn%26oobCode%3Dtestoobcode";
+static NSString *const kFakeEmailSignInlink = @"https://test.app.goo.gl/?link=https://test.firebase"
+    "app.com/__/auth/action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueU"
+    "rl%3Dhttps://test.apps.com&ibi=com.test.com&ifl=https://test.firebaseapp.com/__/auth/action?ap"
+    "iKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueUrl%3Dhttps://test.apps.co"
+    "m";
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
@@ -610,6 +619,44 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] signInWithEmail:kEmail
                              link:kFakeEmailSignInlink
+                       completion:^(FIRAuthDataResult *_Nullable authResult,
+                                    NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNotNil(authResult.user);
+    XCTAssertEqualObjects(authResult.user.refreshToken, kRefreshToken);
+    XCTAssertFalse(authResult.user.anonymous);
+    XCTAssertEqualObjects(authResult.user.email, kEmail);
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUser:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInWithEmailLinkSuccessDeeplink
+    @brief Tests the flow of a successful @c signInWithEmail:link:completion: call using a deep
+        link.
+ */
+- (void)testSignInWithEmailLinkSuccessDeeplink {
+  NSString *fakeCode = @"testoobcode";
+  OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIREmailLinkSignInRequest *_Nullable request,
+                       FIREmailLinkSigninResponseCallback callback) {
+    XCTAssertEqualObjects(request.email, kEmail);
+    XCTAssertEqualObjects(request.oobCode, fakeCode);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockEmailLinkSignInResponse = OCMClassMock([FIREmailLinkSignInResponse class]);
+      [self stubTokensWithMockResponse:mockEmailLinkSignInResponse];
+      callback(mockEmailLinkSignInResponse, nil);
+    OCMStub([mockEmailLinkSignInResponse refreshToken]).andReturn(kRefreshToken);
+    });
+  });
+  [self expectGetAccountInfo];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInWithEmail:kEmail
+                             link:kFakeEmailSignInDeeplink
                        completion:^(FIRAuthDataResult *_Nullable authResult,
                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
@@ -1894,6 +1941,7 @@ static const NSTimeInterval kWaitInterval = .5;
 */
 - (void)testIsSignInWithEmailLink {
   XCTAssertTrue([[FIRAuth auth] isSignInWithEmailLink:kFakeEmailSignInlink]);
+  XCTAssertTrue([[FIRAuth auth] isSignInWithEmailLink:kFakeEmailSignInDeeplink]);
   XCTAssertFalse([[FIRAuth auth] isSignInWithEmailLink:kBadSignInEmailLink]);
   XCTAssertFalse([[FIRAuth auth] isSignInWithEmailLink:@""]);
 }
