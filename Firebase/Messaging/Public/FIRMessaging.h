@@ -470,8 +470,7 @@ NS_SWIFT_NAME(Messaging)
 
 /**
  *  Asynchronously subscribe to the topic. Adds to the pending list of topic operations.
- *  Retry in case of failures. This makes a repeated attempt to subscribe to the topic
- *  as compared to the `subscribe` method above which tries once.
+ *  Retry in case of failures.
  *
  *  @param topic       The topic name to subscribe to. Should be of the form
  *                     `"/topics/<topic-name>"`.
@@ -491,8 +490,7 @@ NS_SWIFT_NAME(Messaging)
 
 /**
  *  Asynchronously unsubscribe from the topic. Adds to the pending list of topic operations.
- *  Retry in case of failures. This makes a repeated attempt to unsubscribe from the topic
- *  as compared to the `unsubscribe` method above which tries once.
+ *  Retry in case of failures.
  *
  *  @param topic       The topic name to unsubscribe from. Should be of the form
  *                     `"/topics/<topic-name>"`.
