@@ -89,6 +89,12 @@ class LlrbNode : public SortedMapBase {
     return rep_->right_;
   }
 
+  /** Returns a tree node with the given key-value pair set/updated. */
+  template <typename Comparator>
+  LlrbNode insert(const K& key,
+                  const V& value,
+                  const Comparator& comparator) const;
+
  private:
   struct Rep {
     Rep(value_type&& entry,
@@ -103,6 +109,14 @@ class LlrbNode : public SortedMapBase {
           right_{std::move(right)} {
     }
 
+    Rep(value_type&& entry, size_type color, LlrbNode left, LlrbNode right)
+        : entry_{std::move(entry)},
+          color_{color},
+          size_{left.size() + 1 + right.size()},
+          left_{std::move(left)},
+          right_{std::move(right)} {
+    }
+
     value_type entry_;
 
     // Store the color in the high bit of the size to save memory.
@@ -112,6 +126,9 @@ class LlrbNode : public SortedMapBase {
     LlrbNode left_;
     LlrbNode right_;
   };
+
+  explicit LlrbNode(Rep rep) : rep_{std::make_shared<Rep>(std::move(rep))} {
+  }
 
   explicit LlrbNode(const std::shared_ptr<Rep>& rep) : rep_{rep} {
   }
@@ -137,8 +154,171 @@ class LlrbNode : public SortedMapBase {
     return empty_rep;
   }
 
+  LlrbNode Copy() const {
+    value_type entry_copy = entry();
+    return LlrbNode{
+        Rep{std::move(entry_copy), color(), size(), left(), right()}};
+  }
+
+  void set_size(size_type size) {
+    rep_->size_ = size;
+  }
+
+  void set_entry(const value_type& entry) {
+    rep_->entry_ = entry;
+  }
+  void set_entry(value_type&& entry) {
+    rep_->entry_ = std::move(entry);
+  }
+  void set_value(const V& value) {
+    rep_->entry_.second = value;
+  }
+  void set_color(size_type color) {
+    rep_->color_ = color;
+  }
+  void set_left(const LlrbNode& left) {
+    rep_->left_ = left;
+  }
+  void set_left(LlrbNode&& left) {
+    rep_->left_ = std::move(left);
+  }
+  void set_right(const LlrbNode& right) {
+    rep_->right_ = right;
+  }
+  void set_right(LlrbNode&& right) {
+    rep_->right_ = std::move(right);
+  }
+
+  template <typename Comparator>
+  LlrbNode InnerInsert(const K& key,
+                       const V& value,
+                       const Comparator& comparator) const;
+
+  void FixUp();
+
+  void RotateLeft();
+  void RotateRight();
+  void FlipColor();
+
+  /** Returns the opposite color of the argument. */
+  static size_type OppositeColor(size_type color) {
+    return color == Color::Red ? Color::Black : Color::Red;
+  }
+
   std::shared_ptr<Rep> rep_;
 };
+
+template <typename K, typename V>
+template <typename Comparator>
+LlrbNode<K, V> LlrbNode<K, V>::insert(const K& key,
+                                      const V& value,
+                                      const Comparator& comparator) const {
+  LlrbNode root = InnerInsert(key, value, comparator);
+  // The root must always be black
+  if (root.red()) {
+    root.rep_->color_ = Color::Black;
+  }
+  return root;
+}
+
+template <typename K, typename V>
+template <typename Comparator>
+LlrbNode<K, V> LlrbNode<K, V>::InnerInsert(const K& key,
+                                           const V& value,
+                                           const Comparator& comparator) const {
+  if (empty()) {
+    return LlrbNode{Rep{{key, value}, Color::Red, 1u, LlrbNode{}, LlrbNode{}}};
+  }
+
+  // Inserting is going to result in a copy but we can save some allocations by
+  // creating the copy once and fixing that up, rather than copying and
+  // re-copying the result.
+  LlrbNode result = Copy();
+
+  const K& this_key = this->key();
+  bool descending = comparator(key, this_key);
+  if (descending) {
+    result.set_left(result.left().InnerInsert(key, value, comparator));
+    result.FixUp();
+
+  } else {
+    bool ascending = comparator(this_key, key);
+    if (ascending) {
+      result.set_right(result.right().InnerInsert(key, value, comparator));
+      result.FixUp();
+
+    } else {
+      // keys are equal so update the value.
+      result.set_value(value);
+    }
+  }
+  return result;
+}
+
+template <typename K, typename V>
+void LlrbNode<K, V>::FixUp() {
+  set_size(left().size() + 1 + right().size());
+
+  if (right().red() && !left().red()) {
+    RotateLeft();
+  }
+  if (left().red() && left().left().red()) {
+    RotateRight();
+  }
+  if (left().red() && right().red()) {
+    FlipColor();
+  }
+}
+
+// Rotates left:
+//
+//      X              R
+//    /   \          /   \
+//   L     R   =>   X    RR
+//        / \      / \
+//       RL RR     L RL
+template <typename K, typename V>
+void LlrbNode<K, V>::RotateLeft() {
+  LlrbNode new_left{
+      Rep{std::move(rep_->entry_), Color::Red, left(), right().left()}};
+
+  // size_ and color remain unchanged after a rotation.
+  set_entry(right().entry());
+  set_left(std::move(new_left));
+  set_right(right().right());
+}
+
+// Rotates right:
+//
+//      X              L
+//    /   \          /   \
+//   L     R   =>   LL    X
+//  / \                  / \
+// LL LR                LR R
+template <typename K, typename V>
+void LlrbNode<K, V>::RotateRight() {
+  LlrbNode new_right{
+      Rep{std::move(rep_->entry_), Color::Red, left().right(), right()}};
+
+  // size_ remains unchanged after a rotation. Preserve color too.
+  set_entry(left().entry());
+  set_left(left().left());
+  set_right(std::move(new_right));
+}
+
+template <typename K, typename V>
+void LlrbNode<K, V>::FlipColor() {
+  LlrbNode new_left = left().Copy();
+  new_left.set_color(OppositeColor(left().color()));
+
+  LlrbNode new_right = right().Copy();
+  new_right.set_color(OppositeColor(right().color()));
+
+  // Preserve contents_ and size_
+  set_color(OppositeColor(color()));
+  set_left(std::move(new_left));
+  set_right(std::move(new_right));
+}
 
 }  // namespace impl
 }  // namespace immutable

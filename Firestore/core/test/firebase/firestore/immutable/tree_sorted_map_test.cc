@@ -43,6 +43,90 @@ TEST(TreeSortedMap, EmptyHasEmptyChildren) {
   ASSERT_TRUE(right.empty());
 }
 
+TEST(TreeSortedMap, PropertiesForEmpty) {
+  IntMap empty;
+  EXPECT_TRUE(empty.empty());
+  EXPECT_EQ(0, empty.root().value());
+
+  EXPECT_EQ(Color::Black, empty.root().color());
+  EXPECT_FALSE(empty.root().red());
+}
+
+TEST(TreeSortedMap, PropertiesForNonEmpty) {
+  IntMap empty;
+
+  IntMap non_empty = empty.insert(1, 2);
+  EXPECT_FALSE(non_empty.empty());
+  EXPECT_EQ(1, non_empty.root().key());
+  EXPECT_EQ(2, non_empty.root().value());
+
+  // Root nodes are always black
+  EXPECT_EQ(Color::Black, non_empty.root().color());
+  EXPECT_FALSE(non_empty.root().red());
+  EXPECT_TRUE(non_empty.root().left().empty());
+  EXPECT_TRUE(non_empty.root().right().empty());
+}
+
+TEST(TreeSortedMap, RotatesLeft) {
+  IntMap map;
+  map = map.insert(1, 1);
+  map = map.insert(2, 2);
+
+  EXPECT_EQ(2, map.root().key());
+  EXPECT_EQ(1, map.root().left().key());
+
+  EXPECT_EQ(Color::Red, map.root().left().color());
+}
+
+TEST(TreeSortedMap, RotatesRight) {
+  IntMap map;
+  map = map.insert(3, 3);
+  EXPECT_EQ(3, map.root().key());
+
+  map = map.insert(2, 2);
+  EXPECT_EQ(3, map.root().key());
+
+  map = map.insert(1, 1);
+  EXPECT_EQ(2, map.root().value());
+}
+
+TEST(TreeSortedMap, RotatesRightAndMaintainsColorInvariants) {
+  IntMap map;
+  EXPECT_EQ(Color::Black, map.root().color());
+
+  // root node, with two empty children
+  map = map.insert(3, 3);
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Black, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  // insert predecessor, leans left, no rotation
+  map = map.insert(2, 2);
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Red, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  EXPECT_EQ(Color::Black, map.root().left().left().color());
+
+  // insert predecessor, rotation required
+  map = map.insert(1, 2);
+  EXPECT_EQ(2, map.root().key());
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Black, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+}
+
+TEST(TreeSortedMap, InsertIsImmutable) {
+  IntMap original = IntMap{}.insert(3, 3);
+
+  IntMap modified = original.insert(2, 2).insert(1, 1);
+  EXPECT_EQ(3, original.root().key());
+  EXPECT_EQ(3, original.root().value());
+  EXPECT_EQ(Color::Black, original.root().color());
+  EXPECT_TRUE(original.root().left().empty());
+  EXPECT_TRUE(original.root().right().empty());
+}
+
 }  // namespace impl
 }  // namespace immutable
 }  // namespace firestore
