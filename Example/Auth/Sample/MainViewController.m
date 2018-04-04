@@ -429,6 +429,11 @@ static NSString *const kRemoveIDTokenListenerTitle = @"Remove Last ID Token Chan
  */
 static NSString *const kSectionTitleApp = @"APP";
 
+/** @var kUpdateCurrentUserFromSavedTitle
+    @brief The text of the "Upgrade to saved user" button.
+ */
+static NSString *const kUpdateCurrentUserFromSavedTitle = @"Upgrade to saved user";
+
 /** @var kCreateUserTitle
     @brief The text of the "Create User" button.
  */
@@ -745,6 +750,9 @@ typedef enum {
         }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSignIn cells:@[
+        [StaticContentTableViewCell cellWithTitle:kUpdateCurrentUserFromSavedTitle
+                                            value:nil
+                                           action:^{ [weakSelf updateToSavedUser]; }],
         [StaticContentTableViewCell cellWithTitle:kCreateUserTitle
                                             value:nil
                                            action:^{ [weakSelf createUser]; }
@@ -2741,6 +2749,29 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }];
       }];
     }];
+  }];
+}
+
+/** @fn updateToSavedUser
+    @brief updates the current user to the saved user.
+ */
+- (void)updateToSavedUser {
+  if(![AppManager auth].currentUser) {
+    NSLog(@"You must be signed in to perform this action");
+    return;
+  }
+
+  if (!_userInMemory) {
+    NSLog(@"You need an in memory user to perform this action");
+    return;
+  }
+
+  [[AppManager auth] updateCurrentUser:_userInMemory completion:^(NSError *_Nullable error) {
+    if (error) {
+      [self showMessagePrompt:
+          [NSString stringWithFormat:@"An error Occurred: %@", error.localizedDescription]];
+      return;
+    }
   }];
 }
 

@@ -1137,6 +1137,52 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)updateCurrentUser:(FIRUser *)user completion:(nullable FIRUserUpdateCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    if (!user) {
+      if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion([FIRAuthErrorUtils nullUserErrorWithMessage:nil]);
+        });
+      }
+      return;
+    }
+    void (^updateUserBlock)(FIRUser *user) = ^(FIRUser *user) {
+      NSError *error;
+      [self updateCurrentUser:user byForce:YES savingToDisk:YES error:(&error)];
+      if (error) {
+        if (completion) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completion(error);
+          });
+        }
+        return;
+      } if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(nil);
+        });
+      }
+    };
+    if (![user.requestConfiguration.APIKey isEqualToString:self->_requestConfiguration.APIKey]) {
+      // If the API keys are different, then we need to confirm that the user belongs to the same
+      // project before proceeding.
+      user.requestConfiguration = self->_requestConfiguration;
+      [user reloadWithCompletion:^(NSError *_Nullable error) {
+        if (error) {
+          if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              completion(error);
+            });
+          }
+          return;
+        }
+        updateUserBlock(user);
+      }];
+    } else {
+      updateUserBlock(user);
+    }
+  });
+}
 
 - (BOOL)signOut:(NSError *_Nullable __autoreleasing *_Nullable)error {
   __block BOOL result = YES;

@@ -370,6 +370,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeAppNotVerified =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeAppNotVerified,
 
+  /** Indicates that a non-null user was expected as an argmument to the operation but a null
+        user was provided.
+   */
+  FIRAuthInternalErrorCodeNullUser =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNullUser,
+
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.
       @remarks This is typically due to some sort of unexpected input value.

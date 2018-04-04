@@ -32,6 +32,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @typedef FIRUserUpdateCallback
+    @brief The type of block invoked when a request to update a current user is completed.
+ */
+typedef void (^FIRUserUpdateCallback)(NSError *_Nullable error) NS_SWIFT_NAME(UserUpdateCallback);
+
 /** @typedef FIRAuthStateDidChangeListenerHandle
     @brief The type of handle returned by `FIRAuth.addAuthStateDidChangeListener:`.
  */
@@ -296,6 +301,14 @@ NS_SWIFT_NAME(Auth)
     @brief Please access auth instances using `FIRAuth.auth` and `FIRAuth.authForApp:`.
  */
 - (instancetype)init NS_UNAVAILABLE;
+
+/** @fn updateCurrentUser:completion:
+    @brief Sets the currentUser on the calling Auth instance to the provided user object.
+    @param  user The user object to be set as the current user of the calling Auth instance.
+    @param completion Optionally; a block invoked after the user of the calling Auth instance has
+        been updated or an error was encountered.
+ */
+- (void)updateCurrentUser:(FIRUser *)user completion:(nullable FIRUserUpdateCallback)completion;
 
 /** @fn fetchProvidersForEmail:completion:
     @brief Fetches the list of IdPs that can be used for signing in with the provided email address.

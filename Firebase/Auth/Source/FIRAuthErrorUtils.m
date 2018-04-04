@@ -139,8 +139,9 @@ static NSString *const kFIRAuthErrorMessageNoSuchProvider = @"User was not linke
 /** @var kFIRAuthErrorMessageInvalidUserToken
     @brief Message for @c FIRAuthErrorCodeInvalidUserToken error code.
  */
-static NSString *const kFIRAuthErrorMessageInvalidUserToken = @"The user's credential is no longer "
-    "valid. The user must sign in again.";
+static NSString *const kFIRAuthErrorMessageInvalidUserToken = @"This user's credential isn't valid "
+    "for this project. This can happen if the user's token has been tampered with, or if the user "
+    "doesn’t belong to the project associated with the API key used in your request.";
 
 /** @var kFIRAuthErrorMessageNetworkError
     @brief Message for @c FIRAuthErrorCodeNetworkError error code.
@@ -400,6 +401,12 @@ static NSString *const kFIRAuthErrorMessageWebInternalError = @"An internal erro
 static NSString *const kFIRAuthErrorMessageAppVerificationUserInteractionFailure = @"The app "
   "verification process has failed, print and inspect the error details for more information";
 
+/** @var kFIRAuthErrorMessageNullUser
+    @brief Message for @c FIRAuthErrorCodeNullUser error code.
+ */
+static NSString *const kFIRAuthErrorMessageNullUser = @"A null user object was provided as the "
+    "argument for an operation which requires a non-null user object.";
+
 /** @var kFIRAuthErrorMessageInternalError
     @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
@@ -520,6 +527,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageAppVerificationUserInteractionFailure;
     case FIRAuthErrorCodeWebNetworkRequestFailed:
       return kFIRAuthErrorMessageWebRequestFailed;
+    case FIRAuthErrorCodeNullUser:
+      return kFIRAuthErrorMessageNullUser;
     case FIRAuthErrorCodeWebInternalError:
       return kFIRAuthErrorMessageWebInternalError;
   }
@@ -639,6 +648,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_APP_VERIFICATION_FAILED";
     case FIRAuthErrorCodeWebNetworkRequestFailed:
       return @"ERROR_WEB_NETWORK_REQUEST_FAILED";
+    case FIRAuthErrorCodeNullUser:
+      return @"ERROR_NULL_USER";
     case FIRAuthErrorCodeWebInternalError:
       return @"ERROR_WEB_INTERNAL_ERROR";
   }
@@ -979,6 +990,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     return [self errorWithCode:FIRAuthInternalErrorCodeWebInternalError message:message];
   }
   return nil;
+}
+
++ (NSError *)nullUserErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeNullUser message:message];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {
