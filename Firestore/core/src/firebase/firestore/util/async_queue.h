@@ -15,12 +15,14 @@
  */
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <functional>
 #include <mutex>
+#include <thread>
 
 namespace firebase {
 namespace firestore {
@@ -31,6 +33,14 @@ class Schedule {
  public:
   using TimePoint =
       std::chrono::time_point<std::chrono::system_clock, Duration>;
+
+  ~Schedule() {
+    ShutDown();
+  }
+  void ShutDown() {
+    shutting_down_ = true;
+    cv_.notify_one();
+  }
 
   void Push(const T& value, TimePoint due = TimePoint{}) {
     std::lock_guard<std::mutex> lock{mutex_};
@@ -52,53 +62,38 @@ class Schedule {
     assert(out);
 
     std::lock_guard<std::mutex> lock{mutex_};
-    if (!scheduled_.empty() && scheduled_.front().due <= time) {
-      *out = std::move(scheduled_.front().value);
-      scheduled_.pop_front();
+    if (HasDue(time)) {
+      DoPop(out);
       return true;
     }
     return false;
   }
 
   void PopBlocking(T* out) {
+    namespace chr = std::chrono;
     assert(out);
 
     std::unique_lock<std::mutex> lock{mutex_};
 
     while (true) {
-      cv_.wait(lock, [this] { return !scheduled_.empty(); });
+      cv_.wait(lock, [this] { return !scheduled_.empty() || shutting_down_; });
+      if (shutting_down_) return;
 
       const auto until = scheduled_.front().due;
       const bool have_due = cv_.wait_until(lock, until, [this] {
-        return !scheduled_.empty() &&
-               std::chrono::system_clock::now() >= scheduled_.front().due;
+        return HasDue(
+                   chr::time_point_cast<Duration>(chr::system_clock::now())) ||
+               shutting_down_;
       });
 
+      if (shutting_down_) return;
+
       if (have_due) {
-        *out = std::move(scheduled_.front().value);
-        scheduled_.pop_front();
+        DoPop(out);
         return;
       }
     }
   }
-
-    // while (true) {
-    //   if (!scheduled_.empty()) {
-    //     if (scheduled_.front().due <= time) {
-    //       *out = std::move(scheduled_.front().value);
-    //       scheduled_.pop_front();
-    //       return;
-    //     } else {
-    //       const auto until = scheduled_.front().due;
-    //       cv_.wait_until(lock, until, [this] {
-    //         return std::chrono::system_clock::now() <= scheduled_.front().due;
-    //       });
-    //     }
-    //   } else {
-    //     cv_.wait(lock, [this] { return !scheduled_.empty(); });
-    //   }
-    // }
-  // }
 
  private:
   struct Scheduled {
@@ -110,9 +105,52 @@ class Schedule {
     TimePoint due;
   };
 
+  bool HasDue(const TimePoint& time) const {
+    return !scheduled_.empty() && time >= scheduled_.front().due;
+  }
+
+  void DoPop(T* out) {
+    assert(out);
+    assert(!scheduled_.empty());
+
+    *out = std::move(scheduled_.front().value);
+    scheduled_.pop_front();
+  }
+
   std::mutex mutex_;
   std::condition_variable cv_;
   std::deque<Scheduled> scheduled_;
+  std::atomic<bool> shutting_down_;
+};
+
+class Queue {
+ public:
+  using Operation = std::function<void()>;
+  using Milliseconds = std::chrono::milliseconds;
+
+  Queue() {
+  }
+
+  ~Queue() {
+    shutting_down_ = true;
+    schedule_.ShutDown();
+    worker_thread_.join();
+  }
+
+  void Worker() {
+    while (!shutting_down_) {
+      Operation operation;
+      schedule_.PopBlocking(&operation);
+      if (operation) {
+        operation();
+      }
+    }
+  }
+
+ private:
+  Schedule<Operation, Milliseconds> schedule_;
+  std::thread worker_thread_;
+  std::atomic<bool> shutting_down_;
 };
 
 }  // namespace util
