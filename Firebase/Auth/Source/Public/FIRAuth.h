@@ -303,7 +303,7 @@ NS_SWIFT_NAME(Auth)
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @fn updateCurrentUser:completion:
-    @brief Sets the currentUser on the calling Auth instance to the provided user objectt.
+    @brief Sets the currentUser on the calling Auth instance to the provided user object.
     @param  user The user object to be set as the current user of the calling Auth instance.
     @param completion Optionally; a block invoked after the user of the calling Auth instance has
         been updated or an error was encountered.

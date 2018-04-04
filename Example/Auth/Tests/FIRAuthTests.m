@@ -2397,7 +2397,7 @@ static const NSTimeInterval kWaitInterval = .5;
       completion(user, error);
     }
   }];
-  [self waitForExpectationsWithTimeout:5 handler:nil];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
   XCTAssertNotNil([FIRAuth auth].currentUser);
 }

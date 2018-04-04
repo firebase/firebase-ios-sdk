@@ -2769,7 +2769,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   [[AppManager auth] updateCurrentUser:_userInMemory completion:^(NSError *_Nullable error) {
     if (error) {
       [self showMessagePrompt:
-          [NSString stringWithFormat:@"An error Occured: %@", error.localizedDescription]];
+          [NSString stringWithFormat:@"An error Occurred: %@", error.localizedDescription]];
       return;
     }
   }];
