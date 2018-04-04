@@ -281,8 +281,7 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path,
   NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
   for (NSString *field in serverTimestampFields) {
     const FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
-    std::unique_ptr<ServerTimestampTransform> transformOp =
-        absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get());
+    auto transformOp = absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get());
     FSTFieldTransform *transform =
         [[FSTFieldTransform alloc] initWithPath:fieldPath transform:std::move(transformOp)];
     [fieldTransforms addObject:transform];

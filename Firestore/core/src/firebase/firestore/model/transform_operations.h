@@ -31,6 +31,7 @@ class TransformOperation {
   /** All the different kinds to TransformOperation. */
   enum class Type {
     ServerTimestamp,
+    Test,  // Purely for test purpose.
   };
 
   /** Returns the actual type. */

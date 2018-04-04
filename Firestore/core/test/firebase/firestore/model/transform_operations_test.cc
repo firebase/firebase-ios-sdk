@@ -28,7 +28,7 @@ class DummyOperation : public TransformOperation {
   }
 
   Type type() const override {
-    return static_cast<Type>(-1);
+    return Type::Test;
   }
 
   bool operator==(const TransformOperation& other) const override {
