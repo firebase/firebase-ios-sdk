@@ -469,8 +469,7 @@ NS_SWIFT_NAME(Messaging)
 - (void)subscribeToTopic:(nonnull NSString *)topic NS_SWIFT_NAME(subscribe(toTopic:));
 
 /**
- *  Asynchronously subscribe to the topic. Adds to the pending list of topic operations.
- *  Retry in case of failures.
+ *  Asynchronously subscribe to the provided topic, retrying on failure.
  *
  *  @param topic       The topic name to subscribe to, for example, @"sports".
  *  @param completion  The completion that is invoked once the subscribe call ends.
@@ -488,8 +487,7 @@ NS_SWIFT_NAME(Messaging)
 - (void)unsubscribeFromTopic:(nonnull NSString *)topic NS_SWIFT_NAME(unsubscribe(fromTopic:));
 
 /**
- *  Asynchronously unsubscribe from the topic. Adds to the pending list of topic operations.
- *  Retry in case of failures.
+ *  Asynchronously unsubscribe from the provided topic, retrying on failure.
  *
  *  @param topic       The topic name to unsubscribe from, for example @"sports".
  *  @param completion  The completion that is invoked once the unsubscribe call ends.
