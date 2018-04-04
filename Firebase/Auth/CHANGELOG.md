@@ -9,7 +9,7 @@
   is thrown (#931).
 
 - Adds support for passing the deep link (which is embedded in the sign-in link sent via email) to the  
-  `signInWithEmail:link:completion:` and `isSignInWithEmailLink:kFakeEmailSignInlink` methods during an   
+  `signInWithEmail:link:completion:` and `isSignInWithEmailLink:` methods during an   
   email/link sign-in flow (#1023).
 
 # v4.5.0
