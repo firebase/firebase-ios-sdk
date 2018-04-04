@@ -31,8 +31,8 @@ class DummyOperation : public TransformOperation {
     return static_cast<Type>(-1);
   }
 
-  bool operator==(const TransformOperation* other) const override {
-    return this == other;
+  bool operator==(const TransformOperation& other) const override {
+    return this == &other;
   }
 };
 
@@ -42,8 +42,8 @@ TEST(TransformOperations, ServerTimestamp) {
 
   ServerTimestampTransform another = ServerTimestampTransform::Get();
   DummyOperation dummy;
-  EXPECT_TRUE(transform.operator==(&another));
-  EXPECT_FALSE(transform.operator==(&dummy));
+  EXPECT_EQ(transform, another);
+  EXPECT_FALSE(transform == dummy);
 }
 
 }  // namespace model

@@ -37,7 +37,7 @@ class TransformOperation {
   virtual Type type() const = 0;
 
   /** Returns whether the two are equal. */
-  virtual bool operator==(const TransformOperation* other) const = 0;
+  virtual bool operator==(const TransformOperation& other) const = 0;
 
 #if defined(__OBJC__)
   // For Objective-C++ hash; to be removed after migration.
@@ -53,9 +53,9 @@ class ServerTimestampTransform : public TransformOperation {
     return Type::ServerTimestamp;
   }
 
-  bool operator==(const TransformOperation* other) const override {
+  bool operator==(const TransformOperation& other) const override {
     // All ServerTimestampTransform objects are equal.
-    return other->type() == Type::ServerTimestamp;
+    return other.type() == Type::ServerTimestamp;
   }
 
   static const ServerTimestampTransform& Get() {

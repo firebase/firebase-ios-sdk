@@ -61,8 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
   FSTFieldTransform *otherFieldTransform = other;
-  return self.path == otherFieldTransform.path &&
-         self.transform->operator==(otherFieldTransform.transform);
+  return self.path == otherFieldTransform.path && *self.transform == *otherFieldTransform.transform;
 }
 
 - (NSUInteger)hash {
