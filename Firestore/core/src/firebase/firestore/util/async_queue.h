@@ -34,14 +34,6 @@ class Schedule {
   using TimePoint =
       std::chrono::time_point<std::chrono::system_clock, Duration>;
 
-  ~Schedule() {
-    ShutDown();
-  }
-  void ShutDown() {
-    shutting_down_ = true;
-    cv_.notify_one();
-  }
-
   void Push(const T& value, TimePoint due = TimePoint{}) {
     std::lock_guard<std::mutex> lock{mutex_};
     const auto insertion_point =
@@ -69,24 +61,26 @@ class Schedule {
     return false;
   }
 
-  void PopBlocking(T* out) {
+  void PopBlocking(T* out, const std::atomic<bool>& break_early) {
     namespace chr = std::chrono;
     assert(out);
 
     std::unique_lock<std::mutex> lock{mutex_};
 
     while (true) {
-      cv_.wait(lock, [this] { return !scheduled_.empty() || shutting_down_; });
-      if (shutting_down_) return;
+      cv_.wait(lock, [this, &break_early] {
+        return !scheduled_.empty() || break_early;
+      });
+      if (break_early) return;
 
       const auto until = scheduled_.front().due;
-      const bool have_due = cv_.wait_until(lock, until, [this] {
+      const bool have_due = cv_.wait_until(lock, until, [this, &break_early] {
         return HasDue(
                    chr::time_point_cast<Duration>(chr::system_clock::now())) ||
-               shutting_down_;
+               break_early;
       });
 
-      if (shutting_down_) return;
+      if (break_early) return;
 
       if (have_due) {
         DoPop(out);
@@ -120,7 +114,6 @@ class Schedule {
   std::mutex mutex_;
   std::condition_variable cv_;
   std::deque<Scheduled> scheduled_;
-  std::atomic<bool> shutting_down_;
 };
 
 class Queue {
@@ -133,14 +126,13 @@ class Queue {
 
   ~Queue() {
     shutting_down_ = true;
-    schedule_.ShutDown();
     worker_thread_.join();
   }
 
   void Worker() {
     while (!shutting_down_) {
       Operation operation;
-      schedule_.PopBlocking(&operation);
+      schedule_.PopBlocking(&operation, shutting_down_);
       if (operation) {
         operation();
       }
