@@ -469,13 +469,10 @@ NS_SWIFT_NAME(Messaging)
 - (void)subscribeToTopic:(nonnull NSString *)topic NS_SWIFT_NAME(subscribe(toTopic:));
 
 /**
- *  Asynchronously subscribe to the topic. Adds to the pending list of topic operations.
- *  Retry in case of failures. This makes a repeated attempt to subscribe to the topic
- *  as compared to the `subscribe` method above which tries once.
+ *  Asynchronously subscribe to the provided topic, retrying on failure.
  *
- *  @param topic       The topic name to subscribe to. Should be of the form
- *                     `"/topics/<topic-name>"`.
- *  @param completion  The completion that is invoked once the unsubscribe call ends.
+ *  @param topic       The topic name to subscribe to, for example, @"sports".
+ *  @param completion  The completion that is invoked once the subscribe call ends.
  *                     In case of success, nil error is returned. Otherwise, an
  *                     appropriate error object is returned.
  */
@@ -490,12 +487,9 @@ NS_SWIFT_NAME(Messaging)
 - (void)unsubscribeFromTopic:(nonnull NSString *)topic NS_SWIFT_NAME(unsubscribe(fromTopic:));
 
 /**
- *  Asynchronously unsubscribe from the topic. Adds to the pending list of topic operations.
- *  Retry in case of failures. This makes a repeated attempt to unsubscribe from the topic
- *  as compared to the `unsubscribe` method above which tries once.
+ *  Asynchronously unsubscribe from the provided topic, retrying on failure.
  *
- *  @param topic       The topic name to unsubscribe from. Should be of the form
- *                     `"/topics/<topic-name>"`.
+ *  @param topic       The topic name to unsubscribe from, for example @"sports".
  *  @param completion  The completion that is invoked once the unsubscribe call ends.
  *                     In case of success, nil error is returned. Otherwise, an
  *                     appropriate error object is returned.
