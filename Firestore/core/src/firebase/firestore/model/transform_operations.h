@@ -40,6 +40,11 @@ class TransformOperation {
   /** Returns whether the two are equal. */
   virtual bool operator==(const TransformOperation& other) const = 0;
 
+  /** Returns whether the two are not equal. */
+  bool operator!=(const TransformOperation& other) const {
+    return !operator==(other);
+  }
+
 #if defined(__OBJC__)
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.

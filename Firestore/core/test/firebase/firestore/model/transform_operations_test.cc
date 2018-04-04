@@ -43,7 +43,7 @@ TEST(TransformOperations, ServerTimestamp) {
   ServerTimestampTransform another = ServerTimestampTransform::Get();
   DummyOperation dummy;
   EXPECT_EQ(transform, another);
-  EXPECT_FALSE(transform == dummy);
+  EXPECT_NE(transform, dummy);
 }
 
 }  // namespace model
