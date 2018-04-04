@@ -8,6 +8,10 @@
   email-link authentication. If `handleCodeInApp` is set to false an invalid argument exception
   is thrown (#931).
 
+- Adds support for passing the deep link (which is embedded in the sign-in link sent via email) to the  
+  `signInWithEmail:link:completion:` and `isSignInWithEmailLink:` methods during an   
+  email/link sign-in flow (#1023).
+
 # v4.5.0
 - Adds new API which provides a way to determine the sign-in methods associated with an
   email address.
