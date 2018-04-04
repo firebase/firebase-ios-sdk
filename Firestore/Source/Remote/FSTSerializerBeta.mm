@@ -44,6 +44,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -51,6 +52,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
 
@@ -539,21 +541,21 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (GCFSDocumentMask *)encodedFieldMask:(FSTFieldMask *)fieldMask {
+- (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask {
   GCFSDocumentMask *mask = [GCFSDocumentMask message];
-  for (const FieldPath &field : fieldMask.fields) {
+  for (const FieldPath &field : fieldMask) {
     [mask.fieldPathsArray addObject:util::WrapNSString(field.CanonicalString())];
   }
   return mask;
 }
 
-- (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
+- (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
   std::vector<FieldPath> fields{};
   fields.reserve(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
     fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));
   }
-  return [[FSTFieldMask alloc] initWithFields:std::move(fields)];
+  return FieldMask(std::move(fields));
 }
 
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:

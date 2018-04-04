@@ -35,6 +35,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
@@ -42,6 +43,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,15 +52,30 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 
 #pragma mark - FSTParsedSetData
 
-@implementation FSTParsedSetData
+@implementation FSTParsedSetData {
+  FieldMask _fieldMask;
+}
+
 - (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(nullable FSTFieldMask *)fieldMask
              fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
   self = [super init];
   if (self) {
     _data = data;
-    _fieldMask = fieldMask;
     _fieldTransforms = fieldTransforms;
+    _isPatch = NO;
+  }
+  return self;
+}
+
+- (instancetype)initWithData:(FSTObjectValue *)data
+                   fieldMask:(FieldMask)fieldMask
+             fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
+  self = [super init];
+  if (self) {
+    _data = data;
+    _fieldMask = std::move(fieldMask);
+    _fieldTransforms = fieldTransforms;
+    _isPatch = YES;
   }
   return self;
 }
@@ -66,9 +83,9 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
                                 precondition:(FSTPrecondition *)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
-  if (self.fieldMask) {
+  if (self.isPatch) {
     [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
-                                                     fieldMask:self.fieldMask
+                                                     fieldMask:_fieldMask
                                                          value:self.data
                                                   precondition:precondition]];
   } else {
@@ -87,14 +104,17 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 
 #pragma mark - FSTParsedUpdateData
 
-@implementation FSTParsedUpdateData
+@implementation FSTParsedUpdateData {
+  FieldMask _fieldMask;
+}
+
 - (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(FSTFieldMask *)fieldMask
+                   fieldMask:(FieldMask)fieldMask
              fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
   self = [super init];
   if (self) {
     _data = data;
-    _fieldMask = fieldMask;
+    _fieldMask = std::move(fieldMask);
     _fieldTransforms = fieldTransforms;
   }
   return self;
@@ -112,6 +132,10 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
                                                    fieldTransforms:self.fieldTransforms]];
   }
   return mutations;
+}
+
+- (const firebase::firestore::model::FieldMask &)fieldMask {
+  return _fieldMask;
 }
 
 @end
@@ -364,10 +388,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  return [[FSTParsedSetData alloc]
-         initWithData:updateData
-            fieldMask:[[FSTFieldMask alloc] initWithFields:*context.fieldMask]
-      fieldTransforms:context.fieldTransforms];
+  return [[FSTParsedSetData alloc] initWithData:updateData
+                                      fieldMask:FieldMask{*context.fieldMask}
+                                fieldTransforms:context.fieldTransforms];
 }
 
 - (FSTParsedSetData *)parsedSetData:(id)input {
@@ -382,9 +405,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  return [[FSTParsedSetData alloc] initWithData:updateData
-                                      fieldMask:nil
-                                fieldTransforms:context.fieldTransforms];
+  return [[FSTParsedSetData alloc] initWithData:updateData fieldTransforms:context.fieldTransforms];
 }
 
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input {
@@ -428,9 +449,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     }
   }];
 
-  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:fieldMaskPaths];
   return [[FSTParsedUpdateData alloc] initWithData:updateData
-                                         fieldMask:mask
+                                         fieldMask:FieldMask{fieldMaskPaths}
                                    fieldTransforms:context.fieldTransforms];
 }
 

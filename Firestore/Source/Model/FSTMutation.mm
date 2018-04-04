@@ -27,50 +27,14 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTFieldMask
-
-@implementation FSTFieldMask {
-  std::vector<FieldPath> _fields;
-}
-
-- (instancetype)initWithFields:(std::vector<FieldPath>)fields {
-  if (self = [super init]) {
-    _fields = std::move(fields);
-  }
-  return self;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  if (![other isKindOfClass:[FSTFieldMask class]]) {
-    return NO;
-  }
-
-  FSTFieldMask *otherMask = (FSTFieldMask *)other;
-  return _fields == otherMask->_fields;
-}
-
-- (NSUInteger)hash {
-  NSUInteger hashResult = 0;
-  for (const FieldPath &field : _fields) {
-    hashResult = hashResult * 31u + field.Hash();
-  }
-  return hashResult;
-}
-
-- (const std::vector<FieldPath> &)fields {
-  return _fields;
-}
-@end
 
 #pragma mark - FSTServerTimestampTransform
 
@@ -354,18 +318,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTPatchMutation
 
-@implementation FSTPatchMutation
+@implementation FSTPatchMutation {
+  FieldMask _fieldMask;
+}
 
 - (instancetype)initWithKey:(DocumentKey)key
-                  fieldMask:(FSTFieldMask *)fieldMask
+                  fieldMask:(FieldMask)fieldMask
                       value:(FSTObjectValue *)value
                precondition:(FSTPrecondition *)precondition {
   self = [super initWithKey:std::move(key) precondition:precondition];
   if (self) {
-    _fieldMask = fieldMask;
+    _fieldMask = std::move(fieldMask);
     _value = value;
   }
   return self;
+}
+
+- (const firebase::firestore::model::FieldMask &)fieldMask {
+  return _fieldMask;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -377,7 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTPatchMutation *otherMutation = (FSTPatchMutation *)other;
-  return [self.key isEqual:otherMutation.key] && [self.fieldMask isEqual:otherMutation.fieldMask] &&
+  return [self.key isEqual:otherMutation.key] && self.fieldMask == otherMutation.fieldMask &&
          [self.value isEqual:otherMutation.value] &&
          [self.precondition isEqual:otherMutation.precondition];
 }
@@ -385,15 +355,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
   result = 31 * result + [self.precondition hash];
-  result = 31 * result + [self.fieldMask hash];
+  result = 31 * result + self.fieldMask.Hash();
   result = 31 * result + [self.value hash];
   return result;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%@ value=%@ precondition=%@>",
-                                    self.key.ToString().c_str(), self.fieldMask, self.value,
-                                    self.precondition];
+  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%@ precondition=%@>",
+                                    self.key.ToString().c_str(), self.fieldMask.ToString().c_str(),
+                                    self.value, self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -434,7 +404,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTObjectValue *)patchObjectValue:(FSTObjectValue *)objectValue {
   FSTObjectValue *result = objectValue;
-  for (const FieldPath &fieldPath : self.fieldMask.fields) {
+  for (const FieldPath &fieldPath : self.fieldMask) {
     FSTFieldValue *newValue = [self.value valueForPath:fieldPath];
     if (newValue) {
       result = [result objectBySettingValue:newValue forPath:fieldPath];

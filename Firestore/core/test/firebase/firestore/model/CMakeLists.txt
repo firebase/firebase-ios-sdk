@@ -18,6 +18,7 @@ cc_test(
     database_id_test.cc
     document_key_test.cc
     document_test.cc
+    field_mask_test.cc
     field_path_test.cc
     field_value_test.cc
     maybe_document_test.cc

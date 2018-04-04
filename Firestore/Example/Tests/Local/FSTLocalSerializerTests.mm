@@ -41,11 +41,13 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldMask;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -76,13 +78,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesMutationBatch {
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{ @"a" : @"b", @"num" : @1 });
-  FSTMutation *patch = [[FSTPatchMutation alloc]
-       initWithKey:FSTTestDocKey(@"bar/baz")
-         fieldMask:[[FSTFieldMask alloc] initWithFields:{testutil::Field("a")}]
-             value:FSTTestObjectValue(
-                       @{ @"a" : @"b",
-                          @"num" : @1 })
-      precondition:[FSTPrecondition preconditionWithExists:YES]];
+  FSTMutation *patch =
+      [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
+                                  fieldMask:FieldMask{testutil::Field("a")}
+                                      value:FSTTestObjectValue(
+                                                @{ @"a" : @"b",
+                                                   @"num" : @1 })
+                               precondition:[FSTPrecondition preconditionWithExists:YES]];
   FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
   FIRTimestamp *writeTime = [FIRTimestamp timestamp];
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42

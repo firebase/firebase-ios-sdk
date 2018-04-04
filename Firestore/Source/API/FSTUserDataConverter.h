@@ -18,10 +18,10 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 
 @class FIRSetOptions;
 @class FSTObjectValue;
-@class FSTFieldMask;
 @class FSTFieldValue;
 @class FSTFieldTransform;
 @class FSTMutation;
@@ -36,13 +36,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(nullable FSTFieldMask *)fieldMask
+             fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms
+    NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithData:(FSTObjectValue *)data
+                   fieldMask:(firebase::firestore::model::FieldMask)fieldMask
              fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms
     NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong, readonly) FSTObjectValue *data;
-@property(nonatomic, strong, readonly, nullable) FSTFieldMask *fieldMask;
 @property(nonatomic, strong, readonly) NSArray<FSTFieldTransform *> *fieldTransforms;
+@property(nonatomic, assign, readonly) BOOL isPatch;
 
 /**
  * Converts the parsed document data into 1 or 2 mutations (depending on whether there are any
@@ -59,12 +63,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(FSTFieldMask *)fieldMask
+                   fieldMask:(firebase::firestore::model::FieldMask)fieldMask
              fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms
     NS_DESIGNATED_INITIALIZER;
 
+- (const firebase::firestore::model::FieldMask &)fieldMask;
+
 @property(nonatomic, strong, readonly) FSTObjectValue *data;
-@property(nonatomic, strong, readonly) FSTFieldMask *fieldMask;
 @property(nonatomic, strong, readonly) NSArray<FSTFieldTransform *> *fieldTransforms;
 
 /**

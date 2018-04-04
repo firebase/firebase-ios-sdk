@@ -46,12 +46,14 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldMask;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSValue *)encodedString:(NSString *)value;
 - (GCFSValue *)encodedDate:(NSDate *)value;
 
-- (GCFSDocumentMask *)encodedFieldMask:(FSTFieldMask *)fieldMask;
+- (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask;
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
     (NSArray<FSTFieldTransform *> *)fieldTransforms;
 

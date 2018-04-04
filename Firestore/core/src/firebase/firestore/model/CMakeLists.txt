@@ -22,6 +22,7 @@ cc_library(
     document.h
     document_key.cc
     document_key.h
+    field_mask.h
     field_path.cc
     field_path.h
     field_value.cc
