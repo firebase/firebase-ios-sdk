@@ -116,7 +116,6 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
     _data = data;
     _fieldMask = std::move(fieldMask);
     _fieldTransforms = fieldTransforms;
-    _isPatch = YES;
   }
   return self;
 }
