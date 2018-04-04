@@ -70,9 +70,8 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
                                   withToken:kFIRMessagingAppIDToken
                                     options:nil
                                shouldDelete:NO
-                                    handler:
-      ^(FIRMessagingTopicOperationResult result, NSError *error) {
-  }];
+                                    handler:^(NSError *error){
+                                    }];
 
   OCMVerify([self.mockPubsubRegistrar updateSubscriptionToTopic:[OCMArg isEqual:kTopicToSubscribeTo]
                                                       withToken:[OCMArg isEqual:kFIRMessagingAppIDToken]
@@ -85,27 +84,23 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
   [self stubCheckinService];
 
   __block FIRMessagingTopicOperationCompletion pubsubCompletion;
-  [[[self.mockPubsubRegistrar stub]
-      andDo:^(NSInvocation *invocation) {
-        pubsubCompletion(FIRMessagingTopicOperationResultSucceeded, nil);
-      }]
-      updateSubscriptionToTopic:kTopicToSubscribeTo
-                      withToken:kFIRMessagingAppIDToken
-                        options:nil
-                   shouldDelete:NO
-                        handler:[OCMArg checkWithBlock:^BOOL(id obj) {
-                          return (pubsubCompletion = obj) != nil;
-                        }]];
+  [[[self.mockPubsubRegistrar stub] andDo:^(NSInvocation *invocation) {
+    pubsubCompletion(nil);
+  }] updateSubscriptionToTopic:kTopicToSubscribeTo
+                     withToken:kFIRMessagingAppIDToken
+                       options:nil
+                  shouldDelete:NO
+                       handler:[OCMArg checkWithBlock:^BOOL(id obj) {
+                         return (pubsubCompletion = obj) != nil;
+                       }]];
 
   [self.registrar updateSubscriptionToTopic:kTopicToSubscribeTo
                                   withToken:kFIRMessagingAppIDToken
                                     options:nil
                                shouldDelete:NO
-                                    handler:
-      ^(FIRMessagingTopicOperationResult result, NSError *error) {
-    XCTAssertNil(error);
-    XCTAssertEqual(result, FIRMessagingTopicOperationResultSucceeded);
-  }];
+                                    handler:^(NSError *error) {
+                                      XCTAssertNil(error);
+                                    }];
 }
 
 - (void)testFailedUpdateSubscriptionWithNoCheckin {
@@ -116,11 +111,9 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
                                   withToken:kFIRMessagingAppIDToken
                                     options:nil
                                shouldDelete:NO
-                                    handler:
-      ^(FIRMessagingTopicOperationResult result, NSError *error) {
-    XCTAssertNotNil(error);
-    XCTAssertEqual(result, FIRMessagingTopicOperationResultError);
-  }];
+                                    handler:^(NSError *error) {
+                                      XCTAssertNotNil(error);
+                                    }];
 }
 
 #pragma mark - Private Helpers

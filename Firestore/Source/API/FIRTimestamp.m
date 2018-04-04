@@ -121,7 +121,7 @@ static const int kNanosPerSecond = 1000000000;
 
 #pragma mark - Public methods
 
-- (NSDate *)approximateDateValue {
+- (NSDate *)dateValue {
   NSTimeInterval interval = (NSTimeInterval)self.seconds + ((NSTimeInterval)self.nanoseconds) / 1e9;
   return [NSDate dateWithTimeIntervalSince1970:interval];
 }

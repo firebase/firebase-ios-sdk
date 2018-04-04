@@ -29,6 +29,10 @@
 #import "FIRAuthBackend.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthOperationType.h"
+#import "FIRAuthTokenResult.h"
+#import "FIRSecureTokenService.h"
+#import "FIRSecureTokenRequest.h"
+#import "FIRSecureTokenResponse.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRSetAccountInfoRequest.h"
@@ -61,7 +65,16 @@ static NSString *const kAPIKey = @"FAKE_API_KEY";
 /** @var kAccessToken
     @brief The fake access token.
  */
-static NSString *const kAccessToken = @"ACCESS_TOKEN";
+static NSString *const kAccessToken = @"eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZDBhODBiYzh"
+    "jM2U5NDM0OTc0ZDFmMWRiNTEifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZmItc2EtdXBncm"
+    "FkZWQiLCJhdWQiOiJ0ZXN0X2F1ZCIsImF1dGhfdGltZSI6MTUyMjM2MDU0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZCIs"
+    "InN1YiI6InRlc3Rfc3ViIiwiaWF0IjoxNTIyMzYwNTU3LCJleHAiOjE1MjIzNjQxNTcsImVtYWlsIjoiYXVuaXRlc3R1c2"
+    "VyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6"
+    "WyJhdW5pdGVzdHVzZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0=.WFQqSrpVnxx7m"
+    "UrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_BKkcbZuq8O7iDVpOvqKC"
+    "3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjN"
+    "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW"
+    "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
 
 /** @var kNewAccessToken
     @brief A new value for the fake access token.
@@ -232,6 +245,18 @@ static NSTimeInterval const  kLastSignInDateTimeIntervalInSeconds = 1505858583;
     @brief The maximum time waiting for expectations to fulfill.
  */
 static const NSTimeInterval kExpectationTimeout = 2;
+
+/** @extention FIRSecureTokenService
+    @brief Extends the FIRSecureTokenService class to expose one private method for testing only.
+ */
+@interface FIRSecureTokenService ()
+
+/** @fn hasValidAccessToken
+    @brief private method exposed so it can be mocked to prevent the fake expiration date from
+        affecting the the unit tests.
+ */
+- (BOOL)hasValidAccessToken;
+@end
 
 /** @class FIRUserTests
     @brief Tests for @c FIRUser .
@@ -892,6 +917,115 @@ static const NSTimeInterval kExpectationTimeout = 2;
       XCTAssertNil(error);
       XCTAssertEqualObjects(user.email, kNewEmail);
       XCTAssertEqualObjects(user.displayName, kNewDisplayName);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetIDTokenResultSuccess
+    @brief Tests the flow of a successful @c getIDTokenResultWithCompletion: call.
+ */
+- (void)testGetIDTokenResultSuccess {
+  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
+  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id mockSecureTokenService = OCMClassMock([FIRSecureTokenService class]);
+  OCMStub([mockSecureTokenService hasValidAccessToken]).andReturn(YES);
+  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *user) {
+    [user getIDTokenResultWithCompletion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(tokenResult.token, kAccessToken);
+      XCTAssertTrue(tokenResult.issuedAtDate &&
+          [tokenResult.issuedAtDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.authDate && [tokenResult.authDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.expirationDate &&
+          [tokenResult.expirationDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.claims && [tokenResult.claims isKindOfClass:[NSDictionary class]]);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetIDTokenResultForcingRefreshSuccess
+    @brief Tests the flow of a successful @c getIDTokenResultForcingRefresh:completion: call.
+ */
+- (void)testGetIDTokenResultForcingRefreshSuccess {
+  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
+  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *user) {
+    OCMExpect([_mockBackend secureToken:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRSecureTokenRequest *_Nullable request,
+                         FIRSecureTokenResponseCallback callback) {
+      XCTAssertEqualObjects(request.APIKey, kAPIKey);
+
+      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+        id mockSecureTokenResponse = OCMClassMock([FIRSecureTokenResponse class]);
+        OCMStub([mockSecureTokenResponse accessToken]).andReturn(kAccessToken);
+        callback(mockSecureTokenResponse, nil);
+      });
+    });
+    [user getIDTokenResultForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(tokenResult.token, kAccessToken);
+      XCTAssertTrue(tokenResult.issuedAtDate &&
+          [tokenResult.issuedAtDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.authDate && [tokenResult.authDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.expirationDate &&
+          [tokenResult.expirationDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.claims && [tokenResult.claims isKindOfClass:[NSDictionary class]]);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetIDTokenResultForcingRefreshFailure
+    @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call.
+ */
+- (void)testGetIDTokenResultForcingRefreshFailure {
+  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
+  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *user) {
+    OCMExpect([_mockBackend secureToken:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRSecureTokenRequest *_Nullable request,
+                         FIRSecureTokenResponseCallback callback) {
+      XCTAssertEqualObjects(request.APIKey, kAPIKey);
+
+      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+
+        callback(nil, [FIRAuthErrorUtils networkErrorWithUnderlyingError:[NSError new]]);
+      });
+    });
+    [user getIDTokenResultForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
+      XCTAssertNil(tokenResult);
+      XCTAssertEqual(error.code, FIRAuthErrorCodeNetworkError);
       [expectation fulfill];
     }];
   }];

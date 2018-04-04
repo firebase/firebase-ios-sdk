@@ -112,6 +112,10 @@ static NSString *const kHandleCodeInAppFalseExceptionReason =
     @"You must set handleCodeInApp in your ActionCodeSettings to true for Email-link "
     "Authentication.";
 
+static NSString *const kInvalidEmailSignInLinkExceptionMessage =
+    @"The link provided is not valid for email/link sign-in. Please check the link by calling "
+    "isSignInWithEmailLink:link: on Auth before attempting to use it for email/link sign-in.";
+
 /** @var kPasswordResetRequestType
     @brief The action code type value for resetting password in the check action code response.
  */
@@ -655,8 +659,16 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)internalSignInWithEmail:(nonnull NSString *)email
                            link:(nonnull NSString *)link
                        callback:(nullable FIRAuthResultCallback)callback {
-  NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
-  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(urlComponents.query);
+  if (![self isSignInWithEmailLink:link]) {
+    [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
+        kInvalidEmailSignInLinkExceptionMessage];
+    return;
+  }
+  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
+  if (![queryItems count]) {
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
+    queryItems = FIRAuthParseURL(urlComponents.query);
+  }
   NSString *actionCode = queryItems[@"oobCode"];
 
   FIREmailLinkSignInRequest *request =
@@ -1137,6 +1149,52 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)updateCurrentUser:(FIRUser *)user completion:(nullable FIRUserUpdateCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    if (!user) {
+      if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion([FIRAuthErrorUtils nullUserErrorWithMessage:nil]);
+        });
+      }
+      return;
+    }
+    void (^updateUserBlock)(FIRUser *user) = ^(FIRUser *user) {
+      NSError *error;
+      [self updateCurrentUser:user byForce:YES savingToDisk:YES error:(&error)];
+      if (error) {
+        if (completion) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completion(error);
+          });
+        }
+        return;
+      } if (completion) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(nil);
+        });
+      }
+    };
+    if (![user.requestConfiguration.APIKey isEqualToString:self->_requestConfiguration.APIKey]) {
+      // If the API keys are different, then we need to confirm that the user belongs to the same
+      // project before proceeding.
+      user.requestConfiguration = self->_requestConfiguration;
+      [user reloadWithCompletion:^(NSError *_Nullable error) {
+        if (error) {
+          if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              completion(error);
+            });
+          }
+          return;
+        }
+        updateUserBlock(user);
+      }];
+    } else {
+      updateUserBlock(user);
+    }
+  });
+}
 
 - (BOOL)signOut:(NSError *_Nullable __autoreleasing *_Nullable)error {
   __block BOOL result = YES;
@@ -1160,11 +1218,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (link.length == 0) {
     return NO;
   }
-  NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
-  if (!urlComponents.query) {
+  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
+  if (![queryItems count]) {
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
+    if (!urlComponents.query) {
+      return NO;
+    }
+    queryItems = FIRAuthParseURL(urlComponents.query);
+  }
+
+  if (![queryItems count]) {
     return NO;
   }
-  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(urlComponents.query);
 
   NSString *actionCode = queryItems[@"oobCode"];
   NSString *mode = queryItems[@"mode"];
@@ -1182,6 +1247,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString) {
   NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  if (!linkURL) {
+    return @{};
+  }
   NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
   NSMutableDictionary<NSString *, NSString *> *queryItems =
       [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];

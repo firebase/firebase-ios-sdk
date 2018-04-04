@@ -22,7 +22,6 @@
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
@@ -73,9 +72,7 @@ std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batc
   self.mutationQueue = [_db mutationQueueForUser:User("user")];
   self.persistence = _db;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"Start MutationQueue"];
-  [self.mutationQueue start];
-  [self.persistence commitGroup:group];
+  self.persistence.run("Setup", [&]() { [self.mutationQueue start]; });
 }
 
 - (void)testLoadNextBatchID_zeroWhenTotallyEmpty {

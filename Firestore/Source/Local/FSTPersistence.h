@@ -19,7 +19,6 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
-@class FSTWriteGroup;
 @protocol FSTMutationQueue;
 @protocol FSTQueryCache;
 @protocol FSTRemoteDocumentCache;
@@ -86,28 +85,13 @@ struct FSTTransactionRunner;
 /** Creates an FSTRemoteDocumentCache representing the persisted cache of remote documents. */
 - (id<FSTRemoteDocumentCache>)remoteDocumentCache;
 
-/**
- * Creates an FSTWriteGroup with the specified action description.
- *
- * @param action A description of the action performed by this group, used for logging.
- * @return The created group.
- */
-- (FSTWriteGroup *)startGroupWithAction:(NSString *)action;
-
-/**
- * Commits all accumulated changes in the given group. If there are no changes this is a no-op.
- *
- * @param group The group of changes to write as a unit.
- */
-- (void)commitGroup:(FSTWriteGroup *)group;
-
 @property(nonatomic, readonly, assign) const FSTTransactionRunner &run;
 
 @end
 
 @protocol FSTTransactional
 
-- (void)startTransaction;
+- (void)startTransaction:(absl::string_view)label;
 
 - (void)commitTransaction;
 
@@ -136,14 +120,14 @@ struct FSTTransactionRunner {
    */
 
   template <typename F>
-  auto operator()(F block) const ->
+  auto operator()(absl::string_view label, F block) const ->
       typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
       FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
-      [strongDb startTransaction];
+      [strongDb startTransaction:label];
     }
     block();
     if (strongDb) {
@@ -152,7 +136,7 @@ struct FSTTransactionRunner {
   }
 
   template <typename F>
-  auto operator()(F block) const ->
+  auto operator()(absl::string_view label, F block) const ->
       typename std::enable_if<!std::is_void<decltype(block())>::value, decltype(block())>::type {
     using ReturnT = decltype(block());
     __strong id<FSTTransactional> strongDb = _db;
@@ -160,7 +144,7 @@ struct FSTTransactionRunner {
       FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
-      [strongDb startTransaction];
+      [strongDb startTransaction:label];
     }
     ReturnT result = block();
     if (strongDb) {

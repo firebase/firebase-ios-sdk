@@ -22,7 +22,6 @@
 #if !defined(_STLPORT_VERSION)
 #include <chrono>  // NOLINT(build/c++11)
 #endif             // !defined(_STLPORT_VERSION)
-#include <limits>
 #include <string>
 
 namespace firebase {
@@ -191,13 +190,13 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
   using TimePoint = chr::time_point<Clock, Duration>;
 
   // Saturate on overflow
-  const auto max_value = std::numeric_limits<typename Duration::rep>::max();
-  if (seconds_ > 0 && max_value / Duration::period::den <= seconds_) {
-    return TimePoint{Duration(max_value)};
+  const auto max_seconds = chr::duration_cast<chr::seconds>(Duration::max());
+  if (seconds_ > 0 && max_seconds.count() <= seconds_) {
+    return TimePoint{Duration::max()};
   }
-  const auto min_value = std::numeric_limits<typename Duration::rep>::min();
-  if (seconds_ < 0 && min_value / Duration::period::den >= seconds_) {
-    return TimePoint{Duration(min_value)};
+  const auto min_seconds = chr::duration_cast<chr::seconds>(Duration::min());
+  if (seconds_ < 0 && min_seconds.count() >= seconds_) {
+    return TimePoint{Duration::min()};
   }
 
   const auto seconds = chr::duration_cast<Duration>(chr::seconds(seconds_));

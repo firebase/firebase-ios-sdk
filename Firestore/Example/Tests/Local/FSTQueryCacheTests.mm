@@ -21,7 +21,6 @@
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
@@ -61,339 +60,344 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReadQueryNotInCache {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ReadQueryNotInCache"];
-  XCTAssertNil([self.queryCache queryDataForQuery:_queryRooms]);
-  [self.persistence commitGroup:group];
+  self.persistence.run("testReadQueryNotInCache",
+                       [&]() { XCTAssertNil([self.queryCache queryDataForQuery:_queryRooms]); });
 }
 
 - (void)testSetAndReadAQuery {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"SetAndReadQuery"];
-  FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
-  [self.queryCache addQueryData:queryData];
+  self.persistence.run("testSetAndReadAQuery", [&]() {
+    FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
+    [self.queryCache addQueryData:queryData];
 
-  FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
-  XCTAssertEqualObjects(result.query, queryData.query);
-  XCTAssertEqual(result.targetID, queryData.targetID);
-  XCTAssertEqualObjects(result.resumeToken, queryData.resumeToken);
-  [self.persistence commitGroup:group];
+    FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
+    XCTAssertEqualObjects(result.query, queryData.query);
+    XCTAssertEqual(result.targetID, queryData.targetID);
+    XCTAssertEqualObjects(result.resumeToken, queryData.resumeToken);
+  });
 }
 
 - (void)testCanonicalIDCollision {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"CanonicalIDCollision"];
-  // Type information is currently lost in our canonicalID implementations so this currently an
-  // easy way to force colliding canonicalIDs
-  FSTQuery *q1 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @(1))];
-  FSTQuery *q2 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @"1")];
-  XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
+  self.persistence.run("testCanonicalIDCollision", [&]() {
+    // Type information is currently lost in our canonicalID implementations so this currently an
+    // easy way to force colliding canonicalIDs
+    FSTQuery *q1 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @(1))];
+    FSTQuery *q2 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @"1")];
+    XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
 
-  FSTQueryData *data1 = [self queryDataWithQuery:q1];
-  [self.queryCache addQueryData:data1];
+    FSTQueryData *data1 = [self queryDataWithQuery:q1];
+    [self.queryCache addQueryData:data1];
 
-  // Using the other query should not return the query cache entry despite equal canonicalIDs.
-  XCTAssertNil([self.queryCache queryDataForQuery:q2]);
-  XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
+    // Using the other query should not return the query cache entry despite equal canonicalIDs.
+    XCTAssertNil([self.queryCache queryDataForQuery:q2]);
+    XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
 
-  FSTQueryData *data2 = [self queryDataWithQuery:q2];
-  [self.queryCache addQueryData:data2];
-  XCTAssertEqual([self.queryCache count], 2);
+    FSTQueryData *data2 = [self queryDataWithQuery:q2];
+    [self.queryCache addQueryData:data2];
+    XCTAssertEqual([self.queryCache count], 2);
 
-  XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
-  XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
+    XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
+    XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
 
-  [self.queryCache removeQueryData:data1];
-  XCTAssertNil([self.queryCache queryDataForQuery:q1]);
-  XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
-  XCTAssertEqual([self.queryCache count], 1);
+    [self.queryCache removeQueryData:data1];
+    XCTAssertNil([self.queryCache queryDataForQuery:q1]);
+    XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
+    XCTAssertEqual([self.queryCache count], 1);
 
-  [self.queryCache removeQueryData:data2];
-  XCTAssertNil([self.queryCache queryDataForQuery:q1]);
-  XCTAssertNil([self.queryCache queryDataForQuery:q2]);
-  XCTAssertEqual([self.queryCache count], 0);
-  [self.persistence commitGroup:group];
+    [self.queryCache removeQueryData:data2];
+    XCTAssertNil([self.queryCache queryDataForQuery:q1]);
+    XCTAssertNil([self.queryCache queryDataForQuery:q2]);
+    XCTAssertEqual([self.queryCache count], 0);
+  });
 }
 
 - (void)testSetQueryToNewValue {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"SetQueryToNewValue"];
-  FSTQueryData *queryData1 =
-      [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
-  [self.queryCache addQueryData:queryData1];
+  self.persistence.run("testSetQueryToNewValue", [&]() {
+    FSTQueryData *queryData1 =
+        [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
+    [self.queryCache addQueryData:queryData1];
 
-  FSTQueryData *queryData2 =
-      [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:2];
-  [self.queryCache addQueryData:queryData2];
+    FSTQueryData *queryData2 =
+        [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:2];
+    [self.queryCache addQueryData:queryData2];
 
-  FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
-  XCTAssertNotEqualObjects(queryData2.resumeToken, queryData1.resumeToken);
-  XCTAssertNotEqualObjects(queryData2.snapshotVersion, queryData1.snapshotVersion);
-  XCTAssertEqualObjects(result.resumeToken, queryData2.resumeToken);
-  XCTAssertEqualObjects(result.snapshotVersion, queryData2.snapshotVersion);
-  [self.persistence commitGroup:group];
+    FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
+    XCTAssertNotEqualObjects(queryData2.resumeToken, queryData1.resumeToken);
+    XCTAssertNotEqualObjects(queryData2.snapshotVersion, queryData1.snapshotVersion);
+    XCTAssertEqualObjects(result.resumeToken, queryData2.resumeToken);
+    XCTAssertEqualObjects(result.snapshotVersion, queryData2.snapshotVersion);
+  });
 }
 
 - (void)testRemoveQuery {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveQuery"];
-  FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms];
-  [self.queryCache addQueryData:queryData1];
+  self.persistence.run("testRemoveQuery", [&]() {
+    FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms];
+    [self.queryCache addQueryData:queryData1];
 
-  [self.queryCache removeQueryData:queryData1];
+    [self.queryCache removeQueryData:queryData1];
 
-  FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
-  XCTAssertNil(result);
-  [self.persistence commitGroup:group];
+    FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
+    XCTAssertNil(result);
+  });
 }
 
 - (void)testRemoveNonExistentQuery {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveNonExistentQuery"];
-  FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
+  self.persistence.run("testRemoveNonExistentQuery", [&]() {
+    FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
 
-  // no-op, but make sure it doesn't throw.
-  XCTAssertNoThrow([self.queryCache removeQueryData:queryData]);
-  [self.persistence commitGroup:group];
+    // no-op, but make sure it doesn't throw.
+    XCTAssertNoThrow([self.queryCache removeQueryData:queryData]);
+  });
 }
 
 - (void)testRemoveQueryRemovesMatchingKeysToo {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group =
-      [self.persistence startGroupWithAction:@"RemoveQueryRemovesMatchingKeysToo"];
-  FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
-  [self.queryCache addQueryData:rooms];
+  self.persistence.run("testRemoveQueryRemovesMatchingKeysToo", [&]() {
+    FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
+    [self.queryCache addQueryData:rooms];
 
-  DocumentKey key1 = testutil::Key("rooms/foo");
-  DocumentKey key2 = testutil::Key("rooms/bar");
-  [self addMatchingKey:key1 forTargetID:rooms.targetID];
-  [self addMatchingKey:key2 forTargetID:rooms.targetID];
+    DocumentKey key1 = testutil::Key("rooms/foo");
+    DocumentKey key2 = testutil::Key("rooms/bar");
+    [self addMatchingKey:key1 forTargetID:rooms.targetID];
+    [self addMatchingKey:key2 forTargetID:rooms.targetID];
 
-  XCTAssertTrue([self.queryCache containsKey:key1]);
-  XCTAssertTrue([self.queryCache containsKey:key2]);
+    XCTAssertTrue([self.queryCache containsKey:key1]);
+    XCTAssertTrue([self.queryCache containsKey:key2]);
 
-  [self.queryCache removeQueryData:rooms];
-  XCTAssertFalse([self.queryCache containsKey:key1]);
-  XCTAssertFalse([self.queryCache containsKey:key2]);
-  [self.persistence commitGroup:group];
+    [self.queryCache removeQueryData:rooms];
+    XCTAssertFalse([self.queryCache containsKey:key1]);
+    XCTAssertFalse([self.queryCache containsKey:key2]);
+  });
 }
 
 - (void)testAddOrRemoveMatchingKeys {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"AddOrRemoveMatchingKeys"];
-  DocumentKey key = testutil::Key("foo/bar");
+  self.persistence.run("testAddOrRemoveMatchingKeys", [&]() {
+    DocumentKey key = testutil::Key("foo/bar");
 
-  XCTAssertFalse([self.queryCache containsKey:key]);
+    XCTAssertFalse([self.queryCache containsKey:key]);
 
-  [self addMatchingKey:key forTargetID:1];
-  XCTAssertTrue([self.queryCache containsKey:key]);
+    [self addMatchingKey:key forTargetID:1];
+    XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self addMatchingKey:key forTargetID:2];
-  XCTAssertTrue([self.queryCache containsKey:key]);
+    [self addMatchingKey:key forTargetID:2];
+    XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self removeMatchingKey:key forTargetID:1];
-  XCTAssertTrue([self.queryCache containsKey:key]);
+    [self removeMatchingKey:key forTargetID:1];
+    XCTAssertTrue([self.queryCache containsKey:key]);
 
-  [self removeMatchingKey:key forTargetID:2];
-  XCTAssertFalse([self.queryCache containsKey:key]);
-  [self.persistence commitGroup:group];
+    [self removeMatchingKey:key forTargetID:2];
+    XCTAssertFalse([self.queryCache containsKey:key]);
+  });
 }
 
 - (void)testRemoveMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveMatchingKeysForTargetID"];
-  DocumentKey key1 = testutil::Key("foo/bar");
-  DocumentKey key2 = testutil::Key("foo/baz");
-  DocumentKey key3 = testutil::Key("foo/blah");
+  self.persistence.run("testRemoveMatchingKeysForTargetID", [&]() {
+    DocumentKey key1 = testutil::Key("foo/bar");
+    DocumentKey key2 = testutil::Key("foo/baz");
+    DocumentKey key3 = testutil::Key("foo/blah");
 
-  [self addMatchingKey:key1 forTargetID:1];
-  [self addMatchingKey:key2 forTargetID:1];
-  [self addMatchingKey:key3 forTargetID:2];
-  XCTAssertTrue([self.queryCache containsKey:key1]);
-  XCTAssertTrue([self.queryCache containsKey:key2]);
-  XCTAssertTrue([self.queryCache containsKey:key3]);
+    [self addMatchingKey:key1 forTargetID:1];
+    [self addMatchingKey:key2 forTargetID:1];
+    [self addMatchingKey:key3 forTargetID:2];
+    XCTAssertTrue([self.queryCache containsKey:key1]);
+    XCTAssertTrue([self.queryCache containsKey:key2]);
+    XCTAssertTrue([self.queryCache containsKey:key3]);
 
-  [self.queryCache removeMatchingKeysForTargetID:1];
-  XCTAssertFalse([self.queryCache containsKey:key1]);
-  XCTAssertFalse([self.queryCache containsKey:key2]);
-  XCTAssertTrue([self.queryCache containsKey:key3]);
+    [self.queryCache removeMatchingKeysForTargetID:1];
+    XCTAssertFalse([self.queryCache containsKey:key1]);
+    XCTAssertFalse([self.queryCache containsKey:key2]);
+    XCTAssertTrue([self.queryCache containsKey:key3]);
 
-  [self.queryCache removeMatchingKeysForTargetID:2];
-  XCTAssertFalse([self.queryCache containsKey:key1]);
-  XCTAssertFalse([self.queryCache containsKey:key2]);
-  XCTAssertFalse([self.queryCache containsKey:key3]);
-  [self.persistence commitGroup:group];
+    [self.queryCache removeMatchingKeysForTargetID:2];
+    XCTAssertFalse([self.queryCache containsKey:key1]);
+    XCTAssertFalse([self.queryCache containsKey:key2]);
+    XCTAssertFalse([self.queryCache containsKey:key3]);
+  });
 }
 
 - (void)testRemoveEmitsGarbageEvents {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveEmitsGarbageEvents"];
-  FSTEagerGarbageCollector *garbageCollector = [[FSTEagerGarbageCollector alloc] init];
-  [garbageCollector addGarbageSource:self.queryCache];
-  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
+  self.persistence.run("testRemoveEmitsGarbageEvents", [&]() {
+    FSTEagerGarbageCollector *garbageCollector = [[FSTEagerGarbageCollector alloc] init];
+    [garbageCollector addGarbageSource:self.queryCache];
+    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
 
-  FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery("rooms")];
-  DocumentKey room1 = testutil::Key("rooms/bar");
-  DocumentKey room2 = testutil::Key("rooms/foo");
-  [self.queryCache addQueryData:rooms];
-  [self addMatchingKey:room1 forTargetID:rooms.targetID];
-  [self addMatchingKey:room2 forTargetID:rooms.targetID];
+    FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery("rooms")];
+    DocumentKey room1 = testutil::Key("rooms/bar");
+    DocumentKey room2 = testutil::Key("rooms/foo");
+    [self.queryCache addQueryData:rooms];
+    [self addMatchingKey:room1 forTargetID:rooms.targetID];
+    [self addMatchingKey:room2 forTargetID:rooms.targetID];
 
-  FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery("halls")];
-  DocumentKey hall1 = testutil::Key("halls/bar");
-  DocumentKey hall2 = testutil::Key("halls/foo");
-  [self.queryCache addQueryData:halls];
-  [self addMatchingKey:hall1 forTargetID:halls.targetID];
-  [self addMatchingKey:hall2 forTargetID:halls.targetID];
+    FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery("halls")];
+    DocumentKey hall1 = testutil::Key("halls/bar");
+    DocumentKey hall2 = testutil::Key("halls/foo");
+    [self.queryCache addQueryData:halls];
+    [self addMatchingKey:hall1 forTargetID:halls.targetID];
+    [self addMatchingKey:hall2 forTargetID:halls.targetID];
 
-  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
+    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
 
-  [self removeMatchingKey:room1 forTargetID:rooms.targetID];
-  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room1}));
+    [self removeMatchingKey:room1 forTargetID:rooms.targetID];
+    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room1}));
 
-  [self.queryCache removeQueryData:rooms];
-  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room2}));
+    [self.queryCache removeQueryData:rooms];
+    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room2}));
 
-  [self.queryCache removeMatchingKeysForTargetID:halls.targetID];
-  XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({hall1, hall2}));
-  [self.persistence commitGroup:group];
+    [self.queryCache removeMatchingKeysForTargetID:halls.targetID];
+    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({hall1, hall2}));
+  });
 }
 
 - (void)testMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"MatchingKeysForTargetID"];
-  DocumentKey key1 = testutil::Key("foo/bar");
-  DocumentKey key2 = testutil::Key("foo/baz");
-  DocumentKey key3 = testutil::Key("foo/blah");
+  self.persistence.run("testMatchingKeysForTargetID", [&]() {
+    DocumentKey key1 = testutil::Key("foo/bar");
+    DocumentKey key2 = testutil::Key("foo/baz");
+    DocumentKey key3 = testutil::Key("foo/blah");
 
-  [self addMatchingKey:key1 forTargetID:1];
-  [self addMatchingKey:key2 forTargetID:1];
-  [self addMatchingKey:key3 forTargetID:2];
+    [self addMatchingKey:key1 forTargetID:1];
+    [self addMatchingKey:key2 forTargetID:1];
+    [self addMatchingKey:key3 forTargetID:2];
 
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
 
-  [self addMatchingKey:key1 forTargetID:2];
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-  FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
-  [self.persistence commitGroup:group];
+    [self addMatchingKey:key1 forTargetID:2];
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
+    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
+  });
 }
 
 - (void)testHighestListenSequenceNumber {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"HighestListenSequenceNumber"];
-  FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
-                                                    targetID:1
-                                        listenSequenceNumber:10
-                                                     purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query1];
-  FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
-                                                    targetID:2
-                                        listenSequenceNumber:20
-                                                     purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query2];
-  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
+  self.persistence.run("testHighestListenSequenceNumber", [&]() {
+    FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
+                                                      targetID:1
+                                          listenSequenceNumber:10
+                                                       purpose:FSTQueryPurposeListen];
+    [self.queryCache addQueryData:query1];
+    FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
+                                                      targetID:2
+                                          listenSequenceNumber:20
+                                                       purpose:FSTQueryPurposeListen];
+    [self.queryCache addQueryData:query2];
+    XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
-  // TargetIDs never come down.
-  [self.queryCache removeQueryData:query2];
-  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
+    // TargetIDs never come down.
+    [self.queryCache removeQueryData:query2];
+    XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
-  // A query with an empty result set still counts.
-  FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("garages")
-                                                    targetID:42
-                                        listenSequenceNumber:100
-                                                     purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query3];
-  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+    // A query with an empty result set still counts.
+    FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("garages")
+                                                      targetID:42
+                                          listenSequenceNumber:100
+                                                       purpose:FSTQueryPurposeListen];
+    [self.queryCache addQueryData:query3];
+    XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
 
-  [self.queryCache removeQueryData:query1];
-  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+    [self.queryCache removeQueryData:query1];
+    XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
 
-  [self.queryCache removeQueryData:query3];
-  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
-  [self.persistence commitGroup:group];
+    [self.queryCache removeQueryData:query3];
+    XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+  });
 
   // Verify that the highestTargetID even survives restarts.
-  self.queryCache = [self.persistence queryCache];
-  [self.queryCache start];
-  XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+  self.persistence.run("testHighestListenSequenceNumber restart", [&]() {
+    self.queryCache = [self.persistence queryCache];
+    [self.queryCache start];
+    XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
+  });
 }
 
 - (void)testHighestTargetID {
   if ([self isTestBaseClass]) return;
 
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"RemoveMatchingKeysForTargetID"];
-  XCTAssertEqual([self.queryCache highestTargetID], 0);
+  self.persistence.run("testHighestTargetID", [&]() {
+    XCTAssertEqual([self.queryCache highestTargetID], 0);
 
-  FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
-                                                    targetID:1
-                                        listenSequenceNumber:10
-                                                     purpose:FSTQueryPurposeListen];
-  DocumentKey key1 = testutil::Key("rooms/bar");
-  DocumentKey key2 = testutil::Key("rooms/foo");
-  [self.queryCache addQueryData:query1];
-  [self addMatchingKey:key1 forTargetID:1];
-  [self addMatchingKey:key2 forTargetID:1];
+    FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("rooms")
+                                                      targetID:1
+                                          listenSequenceNumber:10
+                                                       purpose:FSTQueryPurposeListen];
+    DocumentKey key1 = testutil::Key("rooms/bar");
+    DocumentKey key2 = testutil::Key("rooms/foo");
+    [self.queryCache addQueryData:query1];
+    [self addMatchingKey:key1 forTargetID:1];
+    [self addMatchingKey:key2 forTargetID:1];
 
-  FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
-                                                    targetID:2
-                                        listenSequenceNumber:20
-                                                     purpose:FSTQueryPurposeListen];
-  DocumentKey key3 = testutil::Key("halls/foo");
-  [self.queryCache addQueryData:query2];
-  [self addMatchingKey:key3 forTargetID:2];
-  XCTAssertEqual([self.queryCache highestTargetID], 2);
+    FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
+                                                      targetID:2
+                                          listenSequenceNumber:20
+                                                       purpose:FSTQueryPurposeListen];
+    DocumentKey key3 = testutil::Key("halls/foo");
+    [self.queryCache addQueryData:query2];
+    [self addMatchingKey:key3 forTargetID:2];
+    XCTAssertEqual([self.queryCache highestTargetID], 2);
 
-  // TargetIDs never come down.
-  [self.queryCache removeQueryData:query2];
-  XCTAssertEqual([self.queryCache highestTargetID], 2);
+    // TargetIDs never come down.
+    [self.queryCache removeQueryData:query2];
+    XCTAssertEqual([self.queryCache highestTargetID], 2);
 
-  // A query with an empty result set still counts.
-  FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("garages")
-                                                    targetID:42
-                                        listenSequenceNumber:100
-                                                     purpose:FSTQueryPurposeListen];
-  [self.queryCache addQueryData:query3];
-  XCTAssertEqual([self.queryCache highestTargetID], 42);
+    // A query with an empty result set still counts.
+    FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("garages")
+                                                      targetID:42
+                                          listenSequenceNumber:100
+                                                       purpose:FSTQueryPurposeListen];
+    [self.queryCache addQueryData:query3];
+    XCTAssertEqual([self.queryCache highestTargetID], 42);
 
-  [self.queryCache removeQueryData:query1];
-  XCTAssertEqual([self.queryCache highestTargetID], 42);
+    [self.queryCache removeQueryData:query1];
+    XCTAssertEqual([self.queryCache highestTargetID], 42);
 
-  [self.queryCache removeQueryData:query3];
-  XCTAssertEqual([self.queryCache highestTargetID], 42);
-  [self.persistence commitGroup:group];
+    [self.queryCache removeQueryData:query3];
+    XCTAssertEqual([self.queryCache highestTargetID], 42);
+  });
+
   // Verify that the highestTargetID even survives restarts.
-  self.queryCache = [self.persistence queryCache];
-  [self.queryCache start];
-  XCTAssertEqual([self.queryCache highestTargetID], 42);
+  self.persistence.run("testHighestTargetID restart", [&]() {
+    self.queryCache = [self.persistence queryCache];
+    [self.queryCache start];
+    XCTAssertEqual([self.queryCache highestTargetID], 42);
+  });
 }
 
 - (void)testLastRemoteSnapshotVersion {
   if ([self isTestBaseClass]) return;
 
-  XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion],
-                        [FSTSnapshotVersion noVersion]);
+  self.persistence.run("testLastRemoteSnapshotVersion", [&]() {
+    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion],
+                          [FSTSnapshotVersion noVersion]);
 
-  // Can set the snapshot version.
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"setLastRemoteSnapshotVersion"];
-  [self.queryCache setLastRemoteSnapshotVersion:FSTTestVersion(42)];
-  [self.persistence commitGroup:group];
-  XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
+    // Can set the snapshot version.
+    [self.queryCache setLastRemoteSnapshotVersion:FSTTestVersion(42)];
+    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
+  });
 
   // Snapshot version persists restarts.
   self.queryCache = [self.persistence queryCache];
-  [self.queryCache start];
-  XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
+  self.persistence.run("testLastRemoteSnapshotVersion restart", [&]() {
+    [self.queryCache start];
+    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
+  });
 }
 
 #pragma mark - Helpers

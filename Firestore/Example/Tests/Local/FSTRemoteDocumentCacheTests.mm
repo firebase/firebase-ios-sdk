@@ -18,7 +18,6 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
@@ -52,14 +51,18 @@ static const int kVersion = 42;
 - (void)testReadDocumentNotInCache {
   if (!self.remoteDocumentCache) return;
 
-  XCTAssertNil([self readEntryAtPath:kDocPath]);
+  self.persistence.run("testReadDocumentNotInCache", [&]() {
+    XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]);
+  });
 }
 
 // Helper for next two tests.
 - (void)setAndReadADocumentAtPath:(const absl::string_view)path {
-  FSTDocument *written = [self setTestDocumentAtPath:path];
-  FSTMaybeDocument *read = [self readEntryAtPath:path];
-  XCTAssertEqualObjects(read, written);
+  self.persistence.run("setAndReadADocumentAtPath", [&]() {
+    FSTDocument *written = [self setTestDocumentAtPath:path];
+    FSTMaybeDocument *read = [self.remoteDocumentCache entryForKey:testutil::Key(path)];
+    XCTAssertEqualObjects(read, written);
+  });
 }
 
 - (void)testSetAndReadADocument {
@@ -77,58 +80,67 @@ static const int kVersion = 42;
 - (void)testSetAndReadDeletedDocument {
   if (!self.remoteDocumentCache) return;
 
-  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion);
-  [self addEntry:deletedDoc];
+  self.persistence.run("testSetAndReadDeletedDocument", [&]() {
+    FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion);
+    [self.remoteDocumentCache addEntry:deletedDoc];
 
-  XCTAssertEqualObjects([self readEntryAtPath:kDocPath], deletedDoc);
+    XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)],
+                          deletedDoc);
+  });
 }
 
 - (void)testSetDocumentToNewValue {
   if (!self.remoteDocumentCache) return;
 
-  [self setTestDocumentAtPath:kDocPath];
-  FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{ @"data" : @2 }, NO);
-  [self addEntry:newDoc];
-  XCTAssertEqualObjects([self readEntryAtPath:kDocPath], newDoc);
+  self.persistence.run("testSetDocumentToNewValue", [&]() {
+    [self setTestDocumentAtPath:kDocPath];
+    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{ @"data" : @2 }, NO);
+    [self.remoteDocumentCache addEntry:newDoc];
+    XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)], newDoc);
+  });
 }
 
 - (void)testRemoveDocument {
   if (!self.remoteDocumentCache) return;
 
-  [self setTestDocumentAtPath:kDocPath];
-  [self removeEntryAtPath:kDocPath];
+  self.persistence.run("testRemoveDocument", [&]() {
+    [self setTestDocumentAtPath:kDocPath];
+    [self.remoteDocumentCache removeEntryForKey:testutil::Key(kDocPath)];
 
-  XCTAssertNil([self readEntryAtPath:kDocPath]);
+    XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]);
+  });
 }
 
 - (void)testRemoveNonExistentDocument {
   if (!self.remoteDocumentCache) return;
 
-  // no-op, but make sure it doesn't throw.
-  XCTAssertNoThrow([self removeEntryAtPath:kDocPath]);
+  self.persistence.run("testRemoveNonExistentDocument", [&]() {
+    // no-op, but make sure it doesn't throw.
+    XCTAssertNoThrow([self.remoteDocumentCache removeEntryForKey:testutil::Key(kDocPath)]);
+  });
 }
 
 // TODO(mikelehen): Write more elaborate tests once we have more elaborate implementations.
 - (void)testDocumentsMatchingQuery {
   if (!self.remoteDocumentCache) return;
 
-  // TODO(rsgowman): This just verifies that we do a prefix scan against the
-  // query path. We'll need more tests once we add index support.
-  [self setTestDocumentAtPath:"a/1"];
-  [self setTestDocumentAtPath:"b/1"];
-  [self setTestDocumentAtPath:"b/2"];
-  [self setTestDocumentAtPath:"c/1"];
+  self.persistence.run("testDocumentsMatchingQuery", [&]() {
+    // TODO(rsgowman): This just verifies that we do a prefix scan against the
+    // query path. We'll need more tests once we add index support.
+    [self setTestDocumentAtPath:"a/1"];
+    [self setTestDocumentAtPath:"b/1"];
+    [self setTestDocumentAtPath:"b/2"];
+    [self setTestDocumentAtPath:"c/1"];
 
-  FSTQuery *query = FSTTestQuery("b");
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"DocumentsMatchingQuery"];
-  FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-  NSArray *expected =
-      @[ FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO) ];
-  XCTAssertEqual([results count], [expected count]);
-  for (FSTDocument *doc in expected) {
-    XCTAssertEqualObjects([results objectForKey:doc.key], doc);
-  }
-  [self.persistence commitGroup:group];
+    FSTQuery *query = FSTTestQuery("b");
+    FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+    NSArray *expected =
+        @[ FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO) ];
+    XCTAssertEqual([results count], [expected count]);
+    for (FSTDocument *doc in expected) {
+      XCTAssertEqualObjects([results objectForKey:doc.key], doc);
+    }
+  });
 }
 
 #pragma mark - Helpers
@@ -136,27 +148,8 @@ static const int kVersion = 42;
 
 - (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
   FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, NO);
-  [self addEntry:doc];
+  [self.remoteDocumentCache addEntry:doc];
   return doc;
-}
-
-- (void)addEntry:(FSTMaybeDocument *)maybeDoc {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"addEntry"];
-  [self.remoteDocumentCache addEntry:maybeDoc];
-  [self.persistence commitGroup:group];
-}
-
-- (FSTMaybeDocument *_Nullable)readEntryAtPath:(const absl::string_view)path {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"ReadEntryAtPath"];
-  FSTMaybeDocument *result = [self.remoteDocumentCache entryForKey:testutil::Key(path)];
-  [self.persistence commitGroup:group];
-  return result;
-}
-
-- (void)removeEntryAtPath:(const absl::string_view)path {
-  FSTWriteGroup *group = [self.persistence startGroupWithAction:@"removeEntryAtPath"];
-  [self.remoteDocumentCache removeEntryForKey:testutil::Key(path)];
-  [self.persistence commitGroup:group];
 }
 
 @end

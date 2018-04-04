@@ -299,6 +299,11 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeWebInternalError = 17062,
 
+    /** Indicates that a non-null user was expected as an argmument to the operation but a null
+        user was provided.
+     */
+    FIRAuthErrorCodeNullUser = 17067,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,

@@ -60,7 +60,7 @@ using leveldb::Status;
 - (void)testAddsTargetGlobal {
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testAddsTargetGlobal");
   [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   transaction.Commit();
   metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
@@ -68,7 +68,7 @@ using leveldb::Status;
 }
 
 - (void)testSetsVersionNumber {
-  LevelDbTransaction transaction(_db.get());
+  LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber");
   FSTLevelDBSchemaVersion initial =
       [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
   XCTAssertEqual(0, initial, "No version should be equivalent to 0");
@@ -83,7 +83,7 @@ using leveldb::Status;
   NSUInteger expected = 50;
   {
     // Setup some targets to be counted in the migration.
-    LevelDbTransaction transaction(_db.get());
+    LevelDbTransaction transaction(_db.get(), "testCountsQueries setup");
     for (int i = 0; i < expected; i++) {
       std::string key = [FSTLevelDBTargetKey keyWithTargetID:i];
       transaction.Put(key, "dummy");
@@ -100,7 +100,7 @@ using leveldb::Status;
   }
 
   {
-    LevelDbTransaction transaction(_db.get());
+    LevelDbTransaction transaction(_db.get(), "testCountsQueries");
     [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
     transaction.Commit();
     FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];

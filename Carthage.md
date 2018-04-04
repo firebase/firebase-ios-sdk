@@ -7,7 +7,6 @@ This page introduces and provides instructions for an **experimental** Firebase
 feedback and usage, the Firebase team may decide to make the Carthage
 distribution official.
 
-FirebaseFirestore and FirebaseInvites are not yet supported from Carthage.
 Please [let us know](https://github.com/firebase/firebase-ios-sdk/issues) if you
 have suggestions about how best to distribute Carthage binaries that include
 resource bundles.
@@ -37,6 +36,9 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFunctionsBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
@@ -49,6 +51,15 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - Add the -ObjC flag to "Other Linker Flags".
 - Make sure that the build target(s) includes your project's `GoogleService-Info.plist`.
 - [Delete Firebase.framework from the Link Binary With Libraries Build Phase](https://github.com/firebase/firebase-ios-sdk/issues/911#issuecomment-372455235).
+- If you're including a Firebase component that has resources, copy its bundles
+    into the Xcode project and make sure they're added to the
+    `Copy Bundle Resources` Build Phase :
+    - For Firestore:
+        - ./Carthage/Build/iOS/gRPC.framework/gRPCCertificates.bundle
+    - For Invites:
+        - ./Carthage/Build/iOS/FirebaseInvites.framework/GoogleSignIn.bundle
+        - ./Carthage/Build/iOS/FirebaseInvites.framework/GPPACLPickerResources.bundle
+        - ./Carthage/Build/iOS/FirebaseInvites.framework/GINInviteResources.bundle
 
 ## Versioning
 
