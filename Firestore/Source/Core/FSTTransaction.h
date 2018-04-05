@@ -24,7 +24,6 @@
 
 @class FIRSetOptions;
 @class FSTDatastore;
-@class FSTFieldTransform;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
 @class FSTParsedSetData;

@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
 @class FSTDocument;
@@ -90,7 +91,7 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
 
 /**
  * The resulting fields returned from the backend after a FSTTransformMutation has been committed.
- * Contains one FieldValue for each FSTFieldTransform that was in the mutation.
+ * Contains one FieldValue for each FieldTransform that was in the mutation.
  *
  * Will be nil if the mutation was not a FSTTransformMutation.
  */
@@ -271,14 +272,14 @@ typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
  * Initializes a new transform mutation with the specified field transforms.
  *
  * @param key Identifies the location of the document to mutate.
- * @param fieldTransforms A list of FSTFieldTransform objects to perform to the document.
+ * @param fieldTransforms A list of FieldTransform objects to perform to the document.
  */
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
-            fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms
+            fieldTransforms:(std::vector<firebase::firestore::model::FieldTransform>)fieldTransforms
     NS_DESIGNATED_INITIALIZER;
 
 /** The field transforms to use when transforming the document. */
-@property(nonatomic, strong, readonly) NSArray<FSTFieldTransform *> *fieldTransforms;
+- (const std::vector<firebase::firestore::model::FieldTransform> &)fieldTransforms;
 
 @end
 

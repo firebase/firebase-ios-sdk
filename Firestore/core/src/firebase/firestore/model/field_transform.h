@@ -44,7 +44,7 @@ class FieldTransform {
 
 #if defined(__OBJC__)
   bool operator==(const FieldTransform& other) const {
-    return path_ == other.path && *self.transform == *other.transform;
+    return path_ == other.path_ && *transform_ == *other.transform_;
   }
 
   // For Objective-C++ hash; to be removed after migration.
@@ -58,7 +58,8 @@ class FieldTransform {
 
  private:
   FieldPath path_;
-  std::unique_ptr<TransformOperation> transform_;
+  // Shared by copies of the same FieldTransform.
+  std::shared_ptr<TransformOperation> transform_;
 };
 
 }  // namespace model
