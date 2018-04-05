@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -202,3 +205,5 @@ class AsyncQueue {
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif

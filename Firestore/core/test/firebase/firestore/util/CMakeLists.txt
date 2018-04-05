@@ -40,7 +40,6 @@ endif()
 cc_test(
   firebase_firestore_util_test
   SOURCES
-    async_queue_test.cc
     autoid_test.cc
     bits_test.cc
     comparison_test.cc
@@ -66,6 +65,14 @@ if(APPLE)
       log_test.cc
     DEPENDS
       firebase_firestore_util_apple
+  )
+
+  cc_test(
+    firebase_firestore_util_libdispatch_test
+    SOURCES
+      async_queue_test_libdispatch.cc
+    DEPENDS
+      firebase_firestore_util_async_queue
   )
 endif(APPLE)
 

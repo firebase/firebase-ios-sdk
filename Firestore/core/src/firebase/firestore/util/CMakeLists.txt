@@ -61,20 +61,6 @@ else()
   list(APPEND UTIL_DEPENDS firebase_firestore_util_stdio)
 endif()
 
-## async queue
-
-cc_library(
-  firebase_firestore_util_libdispatch
-  SOURCES
-    async_queue_libdispatch.cc
-    async_queue_libdispatch.h
-  EXCLUDE_FROM_ALL
-)
-
-if(APPLE)
-  list(APPEND UTIL_DEPENDS firebase_firestore_util_libdispatch)
-endif()
-
 ## secure_random
 
 check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
@@ -143,3 +129,17 @@ cc_library(
     firebase_firestore_util_base
     absl_base
 )
+
+## async queue
+
+if(APPLE)
+  cc_library(
+    firebase_firestore_util_async_queue
+    SOURCES
+      async_queue_libdispatch.cc
+      async_queue_libdispatch.h
+    DEPENDS
+      absl_strings
+      firebase_firestore_util
+  )
+endif()
