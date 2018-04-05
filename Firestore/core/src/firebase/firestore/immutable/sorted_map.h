@@ -202,6 +202,23 @@ class SortedMap : public impl::SortedMapBase {
   }
 
   /**
+   * Finds a value in the map.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key, or end() if
+   *     not found.
+   */
+  const_iterator find(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.find(key));
+      case Tag::Tree:
+        return const_iterator{tree_.find(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
    * Returns an iterator pointing to the first entry in the map. If there are
    * no entries in the map, begin() == end().
    */

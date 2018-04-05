@@ -112,6 +112,22 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
   }
 
   /**
+   * Finds a value in the map.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key, or end() if
+   *     not found.
+   */
+  const_iterator find(const K& key) const {
+    const_iterator found = LowerBound(key);
+    if (!found.is_end() && !this->comparator()(key, found->first)) {
+      return found;
+    } else {
+      return end();
+    }
+  }
+
+  /**
    * Returns a forward iterator pointing to the first entry in the map. If there
    * are no entries in the map, begin() == end().
    *
@@ -131,6 +147,10 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
  private:
   TreeSortedMap(node_type&& root, const C& comparator) noexcept
       : util::ComparatorHolder<C>{comparator}, root_{std::move(root)} {
+  }
+
+  const_iterator LowerBound(const K& key) const noexcept {
+    return const_iterator::LowerBound(&root_, key, this->comparator());
   }
 
   TreeSortedMap Wrap(node_type&& root) noexcept {
