@@ -61,6 +61,19 @@ else()
   list(APPEND UTIL_DEPENDS firebase_firestore_util_stdio)
 endif()
 
+## async queue
+
+cc_library(
+  firebase_firestore_util_libdispatch
+  SOURCES
+    async_queue_libdispatch.cc
+    async_queue_libdispatch.h
+  EXCLUDE_FROM_ALL
+)
+
+if(APPLE)
+  list(APPEND UTIL_DEPENDS firebase_firestore_util_libdispatch)
+endif()
 
 ## secure_random
 
@@ -105,8 +118,6 @@ configure_file(
 cc_library(
   firebase_firestore_util
   SOURCES
-    async_queue.cc
-    async_queue.h
     autoid.cc
     autoid.h
     bits.cc
