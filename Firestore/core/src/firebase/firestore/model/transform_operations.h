@@ -34,6 +34,9 @@ class TransformOperation {
     Test,  // Purely for test purpose.
   };
 
+  virtual ~TransformOperation() {
+  }
+
   /** Returns the actual type. */
   virtual Type type() const = 0;
 
@@ -55,6 +58,9 @@ class TransformOperation {
 /** Transforms a value into a server-generated timestamp. */
 class ServerTimestampTransform : public TransformOperation {
  public:
+  ~ServerTimestampTransform() override {
+  }
+
   Type type() const override {
     return Type::ServerTimestamp;
   }
