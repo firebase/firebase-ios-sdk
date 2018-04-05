@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#include <memory>
 #include <utility>
 
 #import "FIRTimestamp.h"
@@ -29,51 +30,29 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTServerTimestampTransform
-
-@implementation FSTServerTimestampTransform
-
-+ (instancetype)serverTimestampTransform {
-  static FSTServerTimestampTransform *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTServerTimestampTransform alloc] init];
-  });
-  return sharedInstance;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  return [other isKindOfClass:[FSTServerTimestampTransform class]];
-}
-
-- (NSUInteger)hash {
-  // arbitrary number since all instances are equal.
-  return 37;
-}
-
-@end
 
 #pragma mark - FSTFieldTransform
 
 @implementation FSTFieldTransform {
   FieldPath _path;
+  std::unique_ptr<TransformOperation> _transform;
 }
 
-- (instancetype)initWithPath:(FieldPath)path transform:(id<FSTTransformOperation>)transform {
+- (instancetype)initWithPath:(FieldPath)path
+                   transform:(std::unique_ptr<TransformOperation>)transform {
   self = [super init];
   if (self) {
     _path = std::move(path);
-    _transform = transform;
+    _transform = std::move(transform);
   }
   return self;
 }
@@ -82,18 +61,21 @@ NS_ASSUME_NONNULL_BEGIN
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
   FSTFieldTransform *otherFieldTransform = other;
-  return self.path == otherFieldTransform.path &&
-         [self.transform isEqual:otherFieldTransform.transform];
+  return self.path == otherFieldTransform.path && *self.transform == *otherFieldTransform.transform;
 }
 
 - (NSUInteger)hash {
   NSUInteger hash = self.path.Hash();
-  hash = hash * 31 + [self.transform hash];
+  hash = hash * 31 + self.transform->Hash();
   return hash;
 }
 
 - (const firebase::firestore::model::FieldPath &)path {
   return _path;
+}
+
+- (const firebase::firestore::model::TransformOperation *)transform {
+  return _transform.get();
 }
 
 @end
@@ -505,7 +487,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                           writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (FSTFieldTransform *fieldTransform in self.fieldTransforms) {
-    if ([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]]) {
+    if (fieldTransform.transform->type() == TransformOperation::Type::ServerTimestamp) {
       FSTFieldValue *previousValue = nil;
 
       if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
@@ -529,12 +511,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   for (NSUInteger i = 0; i < self.fieldTransforms.count; i++) {
     FSTFieldTransform *fieldTransform = self.fieldTransforms[i];
-    id<FSTTransformOperation> transform = fieldTransform.transform;
+    const TransformOperation *transform = fieldTransform.transform;
     FieldPath fieldPath = fieldTransform.path;
-    if ([transform isKindOfClass:[FSTServerTimestampTransform class]]) {
+    if (transform->type() == TransformOperation::Type::ServerTimestamp) {
       objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
     } else {
-      FSTFail(@"Encountered unknown transform: %@", transform);
+      FSTFail(@"Encountered unknown transform: %d type", transform->type());
     }
   }
   return objectValue;

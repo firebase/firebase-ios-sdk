@@ -47,8 +47,10 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
@@ -58,6 +60,8 @@ using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -277,9 +281,9 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path,
   NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
   for (NSString *field in serverTimestampFields) {
     const FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
-    id<FSTTransformOperation> transformOp = [FSTServerTimestampTransform serverTimestampTransform];
+    auto transformOp = absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get());
     FSTFieldTransform *transform =
-        [[FSTFieldTransform alloc] initWithPath:fieldPath transform:transformOp];
+        [[FSTFieldTransform alloc] initWithPath:fieldPath transform:std::move(transformOp)];
     [fieldTransforms addObject:transform];
   }
   return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:fieldTransforms];
