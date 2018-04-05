@@ -36,17 +36,19 @@ class Schedule {
 
   void Push(const T& value, TimePoint due = TimePoint{}) {
     std::lock_guard<std::mutex> lock{mutex_};
+    Scheduled new_entry{value, due};
     const auto insertion_point =
-        std::upper_bound(scheduled_.begin(), scheduled_.end());
-    scheduled_.insert(insertion_point, {value, due});
+        std::upper_bound(scheduled_.begin(), scheduled_.end(), new_entry);
+    scheduled_.insert(insertion_point, std::move(new_entry));
     cv_.notify_one();
   }
 
   void Push(T&& value, TimePoint due = TimePoint{}) {
     std::lock_guard<std::mutex> lock{mutex_};
+    Scheduled new_entry{std::move(value), due};
     const auto insertion_point =
-        std::upper_bound(scheduled_.begin(), scheduled_.end());
-    scheduled_.insert(insertion_point, {std::move(value), due});
+        std::upper_bound(scheduled_.begin(), scheduled_.end(), new_entry);
+    scheduled_.insert(insertion_point, std::move(new_entry));
     cv_.notify_one();
   }
 
@@ -61,26 +63,20 @@ class Schedule {
     return false;
   }
 
-  void PopBlocking(T* out, const std::atomic<bool>& break_early) {
+  void PopBlocking(T* out) {
     namespace chr = std::chrono;
+
     assert(out);
 
     std::unique_lock<std::mutex> lock{mutex_};
 
     while (true) {
-      cv_.wait(lock, [this, &break_early] {
-        return !scheduled_.empty() || break_early;
-      });
-      if (break_early) return;
+      cv_.wait(lock, [this] { return !scheduled_.empty(); });
 
       const auto until = scheduled_.front().due;
-      const bool have_due = cv_.wait_until(lock, until, [this, &break_early] {
-        return HasDue(
-                   chr::time_point_cast<Duration>(chr::system_clock::now())) ||
-               break_early;
+      const bool have_due = cv_.wait_until(lock, until, [this] {
+        return HasDue(chr::time_point_cast<Duration>(chr::system_clock::now()));
       });
-
-      if (break_early) return;
 
       if (have_due) {
         DoPop(out);
@@ -126,13 +122,14 @@ class Queue {
 
   ~Queue() {
     shutting_down_ = true;
+    schedule_.Push([]{});
     worker_thread_.join();
   }
 
   void Worker() {
     while (!shutting_down_) {
       Operation operation;
-      schedule_.PopBlocking(&operation, shutting_down_);
+      schedule_.PopBlocking(&operation);
       if (operation) {
         operation();
       }
