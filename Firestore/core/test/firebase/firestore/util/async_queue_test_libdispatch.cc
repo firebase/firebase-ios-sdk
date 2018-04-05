@@ -127,7 +127,7 @@ TEST(AsyncQueue, RunSyncDisallowsEnqueuedTasksToUseEnqueue) {
 TEST(AsyncQueue, EnterCheckedOperationDisallowsNesting) {
   auto queue = Queue();
   queue.RunSync(
-      [&] { EXPECT_ANY_THROW(queue.EnterCheckedOperation([&] {});); });
+      [&] { EXPECT_ANY_THROW(queue.EnterCheckedOperation([] {});); });
 }
 
 TEST(AsyncQueue, VerifyIsCurrentQueueRequiresCurrentQueue) {
