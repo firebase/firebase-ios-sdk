@@ -34,49 +34,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTPrecondition
-
-typedef NS_ENUM(NSUInteger, FSTPreconditionExists) {
-  FSTPreconditionExistsNotSet,
-  FSTPreconditionExistsYes,
-  FSTPreconditionExistsNo,
-};
-
-/**
- * Encodes a precondition for a mutation. This follows the model that the backend accepts with the
- * special case of an explicit "empty" precondition (meaning no precondition).
- */
-@interface FSTPrecondition : NSObject
-
-/** Creates a new FSTPrecondition with an exists flag. */
-+ (FSTPrecondition *)preconditionWithExists:(BOOL)exists;
-
-/** Creates a new FSTPrecondition based on a time the document exists at. */
-+ (FSTPrecondition *)preconditionWithUpdateTime:(FSTSnapshotVersion *)updateTime;
-
-/** Returns a precondition representing no precondition. */
-+ (FSTPrecondition *)none;
-
-/**
- * Returns true if the preconditions is valid for the given document (or null if no document is
- * available).
- */
-- (BOOL)isValidForDocument:(FSTMaybeDocument *_Nullable)maybeDoc;
-
-/** Returns whether this Precondition represents no precondition. */
-- (BOOL)isNone;
-
-/** If set, preconditions a mutation based on the last updateTime. */
-@property(nonatomic, strong, readonly, nullable) FSTSnapshotVersion *updateTime;
-
-/**
- * If set, preconditions a mutation based on whether the document exists.
- * Uses FSTPreconditionExistsNotSet to mark as unset.
- */
-@property(nonatomic, assign, readonly) FSTPreconditionExists exists;
-
-@end
-
 #pragma mark - FSTMutationResult
 
 @interface FSTMutationResult : NSObject

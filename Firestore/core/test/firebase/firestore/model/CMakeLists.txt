@@ -24,6 +24,7 @@ cc_test(
     field_value_test.cc
     maybe_document_test.cc
     no_document_test.cc
+    precondition_test.cc
     resource_path_test.cc
     snapshot_version_test.cc
     transform_operations_test.cc
