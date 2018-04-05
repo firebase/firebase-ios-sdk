@@ -34,21 +34,25 @@ class Schedule {
   using TimePoint =
       std::chrono::time_point<std::chrono::system_clock, Duration>;
 
-  void Push(const T& value, TimePoint due = TimePoint{}) {
+  void Push(const T& value, TimePoint due) {
     std::lock_guard<std::mutex> lock{mutex_};
+
     Scheduled new_entry{value, due};
     const auto insertion_point =
         std::upper_bound(scheduled_.begin(), scheduled_.end(), new_entry);
     scheduled_.insert(insertion_point, std::move(new_entry));
+
     cv_.notify_one();
   }
 
-  void Push(T&& value, TimePoint due = TimePoint{}) {
+  void Push(T&& value, TimePoint due) {
     std::lock_guard<std::mutex> lock{mutex_};
+
     Scheduled new_entry{std::move(value), due};
     const auto insertion_point =
         std::upper_bound(scheduled_.begin(), scheduled_.end(), new_entry);
     scheduled_.insert(insertion_point, std::move(new_entry));
+
     cv_.notify_one();
   }
 
@@ -57,7 +61,20 @@ class Schedule {
 
     std::lock_guard<std::mutex> lock{mutex_};
     if (HasDue(time)) {
-      DoPop(out);
+      DoPop(out, scheduled_.begin());
+      return true;
+    }
+    return false;
+  }
+
+  template <typename Pred>
+  bool PopIf(T* const out, const Pred pred) {
+    assert(out);
+
+    std::lock_guard<std::mutex> lock{mutex_};
+    const auto found = std::find_if(scheduled_.begin(), scheduled_.end(), pred);
+    if (found != scheduled_.end()) {
+      DoPop(out, found);
       return true;
     }
     return false;
@@ -79,7 +96,7 @@ class Schedule {
       });
 
       if (have_due) {
-        DoPop(out);
+        DoPop(out, scheduled_.begin());
         return;
       }
     }
@@ -94,17 +111,20 @@ class Schedule {
     T value;
     TimePoint due;
   };
+  using Container = std::deque<Scheduled>;
+  using Iterator = typename Container::iterator;
 
   bool HasDue(const TimePoint& time) const {
     return !scheduled_.empty() && time >= scheduled_.front().due;
   }
 
-  void DoPop(T* out) {
-    assert(out);
+  void DoPop(T* out, const Iterator where) {
     assert(!scheduled_.empty());
 
-    *out = std::move(scheduled_.front().value);
-    scheduled_.pop_front();
+    if (out) {
+      *out = std::move(where->value);
+    }
+    scheduled_.erase(where);
   }
 
   std::mutex mutex_;
@@ -112,34 +132,107 @@ class Schedule {
   std::deque<Scheduled> scheduled_;
 };
 
-class Queue {
+class AsyncQueue;
+
+class DelayedOperation {
+ public:
+  void Cancel() {
+    assert(queue_);
+    queue_->TryCancel(tag);
+  }
+
+ private:
+  using Tag = unsigned int;
+
+  friend class AsyncQueue;
+  DelayedOperation(AsyncQueue* const queue, const Tag tag)
+      : queue_{queue}, tag_{tag} {
+  }
+
+  const AsyncQueue* queue_ = nullptr;
+  const Tag tag_ = 0;
+};
+
+class AsyncQueue {
  public:
   using Operation = std::function<void()>;
   using Milliseconds = std::chrono::milliseconds;
 
-  Queue() {
+ private:
+  using TimePoint = Schedule<Operation, Milliseconds>::TimePoint;
+  using Tag = DelayedOperation::Tag;
+
+ public:
+  AsyncQueue() : worker_thread_{&AsyncQueue::Worker, this} {
   }
 
-  ~Queue() {
+  ~AsyncQueue() {
     shutting_down_ = true;
-    schedule_.Push([]{});
+    UnblockQueue();
     worker_thread_.join();
+  }
+
+  void Enqueue(Operation&& operation) {
+    DoEnqueue(std::move(operation), TimePoint{});
+  }
+
+  DelayedOperation EnqueueAfterDelay(Operation&& operation,
+                                     const Milliseconds delay) {
+    namespace chr = std::chrono;
+
+    const auto now =
+        chr::time_point_cast<Milliseconds>(chr::system_clock::now());
+    const auto tag = DoEnqueue(std::move(operation), now + delay);
+
+    return DelayedOperation{this, tag};
+  }
+
+  void TryCancel(const Tag tag) {
+    Entry discard;
+    schedule_.PopIf(&discard, [tag](const Entry& e) { return e.tag == tag; });
+  }
+
+ private:
+  Tag DoEnqueue(Operation&& operation, const TimePoint when) {
+    const auto tag = NextTag();
+    schedule_.Push(Entry{std::move(operation), tag}, when);
+    return tag;
   }
 
   void Worker() {
     while (!shutting_down_) {
-      Operation operation;
-      schedule_.PopBlocking(&operation);
-      if (operation) {
-        operation();
+      Entry entry;
+      schedule_.PopBlocking(&entry);
+
+      if (entry.operation) {
+        entry.operation();
       }
     }
   }
 
- private:
-  Schedule<Operation, Milliseconds> schedule_;
+  void UnblockQueue() {
+    schedule_.Push(Entry{[] {}, /*tag=*/0}, TimePoint{});
+  }
+
+  unsigned int NextTag() {
+    return current_tag_++;
+  }
+
+  struct Entry {
+    Entry() {
+    }
+    Entry(Operation&& operation, const AsyncQueue::Tag tag)
+        : operation{std::move(operation)}, tag{std::move(tag)} {
+    }
+    Operation operation;
+    unsigned int tag{};
+  };
+  Schedule<Entry, Milliseconds> schedule_;
+
   std::thread worker_thread_;
   std::atomic<bool> shutting_down_;
+
+  std::atomic<unsigned int> current_tag_;
 };
 
 }  // namespace util
