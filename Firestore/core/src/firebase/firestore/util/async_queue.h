@@ -34,7 +34,7 @@ class Schedule {
   using TimePoint =
       std::chrono::time_point<std::chrono::system_clock, Duration>;
 
-  void Push(const T& value, TimePoint due) {
+  void Push(const T& value, const TimePoint due) {
     std::lock_guard<std::mutex> lock{mutex_};
 
     Scheduled new_entry{value, due};
@@ -222,7 +222,7 @@ class AsyncQueue {
     Entry() {
     }
     Entry(Operation&& operation, const AsyncQueue::Tag tag)
-        : operation{std::move(operation)}, tag{std::move(tag)} {
+        : operation{std::move(operation)}, tag{tag} {
     }
     Operation operation;
     unsigned int tag{};
