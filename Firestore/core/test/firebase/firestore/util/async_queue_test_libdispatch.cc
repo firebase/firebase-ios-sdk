@@ -19,7 +19,6 @@
 #include <chrono>
 #include <future>
 #include <string>
-#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -96,11 +95,13 @@ TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
   auto signal_finished = CreateSignal();
   auto queue = Queue();
 
-  using WrapT = std::pair<AsyncQueue*, std::packaged_task<void()>*>;
-  WrapT wrap{&queue, &signal_finished};
-  dispatch_async_f(underlying_queue, &wrap, [](void* const raw_wrap) {
-    auto unwrap = static_cast<const WrapT*>(raw_wrap);
-    unwrap->first->Enqueue([unwrap] { (*unwrap->second)(); });
+  struct Context {
+    AsyncQueue& queue;
+    SignalT& signal_finished;
+  } context{queue, signal_finished};
+  dispatch_async_f(underlying_queue, &context, [](void* const raw_context) {
+    auto unwrap = static_cast<const Context*>(raw_context);
+    unwrap->queue.Enqueue([unwrap] { unwrap->signal_finished(); });
   });
 
   EXPECT_TRUE(WaitForTestToFinish(&signal_finished));

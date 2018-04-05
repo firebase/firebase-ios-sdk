@@ -27,40 +27,39 @@ namespace util {
 
 namespace {
 
-// Signature of libdispatch function to use.
-using Dispatcher = decltype(dispatch_async_f);
-
+// Generic wrapper over dispatch_async_f, providing dispatch_async-like
+// interface: accepts an arbitrary invocable object in place of an Objective-C
+// block.
 template <typename Work>
-void DoDispatch(const dispatch_queue_t queue,
-                Dispatcher dispatcher,
-                Work&& work) {
+void DispatchAsync(const dispatch_queue_t queue, Work&& work) {
   // Wrap the passed invocable object into a std::function. It's dynamically
-  // allocated and only deleted after the object is invoked by libdispatch.
+  // allocated to make sure the object is valid by the time libdispatch gets to
+  // it.
   const auto wrap = new AsyncQueue::Operation(std::forward<Work>(work));
-  dispatcher(queue, wrap, [](void* const raw_operation) {
+
+  dispatch_async_f(queue, wrap, [](void* const raw_operation) {
     const auto unwrap = static_cast<AsyncQueue::Operation*>(raw_operation);
     (*unwrap)();
     delete unwrap;
   });
 }
 
-// Generic wrapper over dispatch_async_f, providing dispatch_async-like
-// interface: accepts an arbitrary invocable object in place of an Objective-C
-// block.
-template <typename Work>
-void DispatchAsync(dispatch_queue_t queue, Work&& work) {
-  DoDispatch(queue, dispatch_async_f, std::forward<Work>(work));
-}
-
 // Similar to DispatchAsync but wraps dispatch_sync_f.
 template <typename Work>
-void DispatchSync(dispatch_queue_t queue, Work&& work) {
-  DoDispatch(queue, dispatch_sync_f, std::forward<Work>(work));
+void DispatchSync(const dispatch_queue_t queue, Work&& work) {
+  // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
+  // is done, so passing a pointer to a local variable is okay.
+  AsyncQueue::Operation wrap{std::forward<Work>(work)};
+
+  dispatch_sync_f(queue, &wrap, [](void* const raw_operation) {
+    const auto unwrap = static_cast<AsyncQueue::Operation*>(raw_operation);
+    (*unwrap)();
+  });
 }
 
 }  // namespace
 
-namespace detail {
+namespace internal {
 
 // DelayedOperationImpl contains the logic of scheduling a delayed operation.
 //
@@ -76,19 +75,21 @@ namespace detail {
 // in its HandleDelayElapsed method.
 //
 // It is impossible to actually cancel work scheduled with libdispatch; to work
-// around this, DelayedOperationImpl emulates cancelation by turning itself
+// around this, DelayedOperationImpl emulates cancellation by turning itself
 // into a no-op. Under the hood, even a "canceled" DelayedOperationImpl will
 // still run, and consequently the instance will still be alive until it's run.
 
 class DelayedOperationImpl {
  public:
-  DelayedOperationImpl(AsyncQueue* queue,
-                       TimerId timer_id,
-                       AsyncQueue::Milliseconds delay,
+  DelayedOperationImpl(AsyncQueue* const queue,
+                       const TimerId timer_id,
+                       const AsyncQueue::Milliseconds delay,
                        AsyncQueue::Operation&& operation)
       : queue_{queue},
         timer_id_{timer_id},
-        target_time_{delay},
+        target_time_{std::chrono::time_point_cast<AsyncQueue::Milliseconds>(
+                         std::chrono::system_clock::now()) +
+                     delay},
         operation_{std::move(operation)} {
     Start(delay);
   }
@@ -148,28 +149,36 @@ class DelayedOperationImpl {
   using TimePoint = std::chrono::time_point<std::chrono::system_clock,
                                             AsyncQueue::Milliseconds>;
 
-  AsyncQueue* queue_{};
-  TimerId timer_id_{};
-  TimePoint target_time_;
-  AsyncQueue::Operation operation_;
+  AsyncQueue* const queue_ = nullptr;
+  const TimerId timer_id_ = TimerId::All;
+  const TimePoint target_time_;
+  const AsyncQueue::Operation operation_;
   // True if the operation has either been run or canceled.
-  bool done_{};
+  //
+  // Note on thread-safety: done_ is only ever accessed from Cancel and
+  // HandleDelayElapsed member functions, both of which assert they are being
+  // called while on the dispatch queue. In other words, done_ is only accessed
+  // when invoked by dispatch_async/dispatch_sync, both of which provide
+  // synchronization.
+  bool done_ = false;
 };
 
-}  // namespace detail
+}  // namespace internal
 
-using detail::DelayedOperationImpl;
+using internal::DelayedOperationImpl;
 
 void DelayedOperation::Cancel() {
-  if (auto live_instance = handle_.lock()) {
+  if (std::shared_ptr<DelayedOperationImpl> live_instance = handle_.lock()) {
     live_instance->Cancel();
   }
 }
 
 void AsyncQueue::RemoveDelayedOperation(const DelayedOperationImpl& dequeued) {
-  const auto new_end = std::remove_if(
-      operations_.begin(), operations_.end(),
-      [&dequeued](const OperationPtr& op) { return op.get() == &dequeued; });
+  const auto new_end =
+      std::remove_if(operations_.begin(), operations_.end(),
+                     [&dequeued](const DelayedOperationPtr& op) {
+                       return op.get() == &dequeued;
+                     });
   FIREBASE_ASSERT_MESSAGE(new_end != operations_.end(),
                           "Delayed operation not found");
   operations_.erase(new_end, operations_.end());
@@ -182,7 +191,7 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
       GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
   FIREBASE_ASSERT_MESSAGE(
       is_operation_in_progress_,
-      "VerifyIsCurrentQueue called outside enterCheckedOperation on queue '%s'",
+      "VerifyIsCurrentQueue called outside EnterCheckedOperation on queue '%s'",
       GetCurrentQueueLabel().data());
 }
 
@@ -221,7 +230,7 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject them.
   FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
-                          "Attempted to schedule multiple callbacks with id %u",
+                          "Attempted to schedule multiple callbacks with id %d",
                           timer_id);
 
   operations_.emplace_back(std::make_shared<DelayedOperationImpl>(
@@ -241,7 +250,7 @@ void AsyncQueue::RunSync(const Operation& operation) {
 
 bool AsyncQueue::ContainsDelayedOperation(const TimerId timer_id) const {
   return std::find_if(operations_.begin(), operations_.end(),
-                      [timer_id](const OperationPtr& op) {
+                      [timer_id](const DelayedOperationPtr& op) {
                         return op->timer_id() == timer_id;
                       }) != operations_.end();
 }
@@ -256,22 +265,24 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
   const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
 
   Enqueue([this, last_timer_id, done_semaphore] {
-    std::sort(operations_.begin(), operations_.end(),
-              [](const OperationPtr& lhs, const OperationPtr& rhs) {
-                return lhs->operator<(*rhs);
-              });
+    std::sort(
+        operations_.begin(), operations_.end(),
+        [](const DelayedOperationPtr& lhs, const DelayedOperationPtr& rhs) {
+          return lhs->operator<(*rhs);
+        });
 
     const auto until = [this, last_timer_id] {
       if (last_timer_id == TimerId::All) {
         return operations_.end();
       }
-      const auto found = std::find_if(operations_.begin(), operations_.end(),
-                                      [last_timer_id](const OperationPtr& op) {
-                                        return op->timer_id() == last_timer_id;
-                                      });
+      const auto found =
+          std::find_if(operations_.begin(), operations_.end(),
+                       [last_timer_id](const DelayedOperationPtr& op) {
+                         return op->timer_id() == last_timer_id;
+                       });
       FIREBASE_ASSERT_MESSAGE(
           found != operations_.end(),
-          "Attempted to run operations until missing timer id: %u",
+          "Attempted to run operations until missing timer id: %d",
           last_timer_id);
       return found + 1;
     }();
@@ -291,7 +302,7 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
 
 namespace {
 
-absl::string_view StringViewFromLabel(const char* label) {
+absl::string_view StringViewFromLabel(const char* const label) {
   // Make sure string_view's data is not null, because it's used for logging.
   return label ? absl::string_view{label} : absl::string_view{""};
 }

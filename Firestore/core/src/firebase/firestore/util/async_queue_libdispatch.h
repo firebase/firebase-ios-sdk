@@ -59,9 +59,9 @@ enum class TimerId {
   OnlineStateTimeout,
 };
 
-namespace detail {
+namespace internal {
 class DelayedOperationImpl;
-}
+}  // namespace internal
 
 /**
  * Handle to an operation scheduled via AsyncQueue::EnqueueAfterDelay. Supports
@@ -82,11 +82,11 @@ class DelayedOperation {
   // Don't allow callers to create their own `DelayedOperation`s.
   friend class AsyncQueue;
   explicit DelayedOperation(
-      const std::shared_ptr<detail::DelayedOperationImpl>& instance)
+      const std::shared_ptr<internal::DelayedOperationImpl>& instance)
       : handle_{instance} {
   }
 
-  std::weak_ptr<detail::DelayedOperationImpl> handle_;
+  std::weak_ptr<internal::DelayedOperationImpl> handle_;
 };
 
 class AsyncQueue {
@@ -145,10 +145,10 @@ class AsyncQueue {
    * The returned `DelayedOperation` handle can be used to cancel the operation
    * prior to its running.
    *
-   * @param operation The operation to run.
    * @param delay The delay after which to run the operation.
    * @param timer_id A `TimerId` that can be used from tests to check for the
    *     presence of this operation or to schedule it to run early.
+   * @param operation The operation to run.
    * @return A `DelayedOperation` instance that can be used for cancellation.
    */
   DelayedOperation EnqueueAfterDelay(Milliseconds delay,
@@ -172,7 +172,7 @@ class AsyncQueue {
    * For tests: runs delayed operations early, blocking until completion.
    *
    * @param last_timer_id Only delayed operations up to and including one that
-   *     was scheduled using this TimerId will be run. Method crashes if no
+   *     was scheduled using this `TimerId` will be run. Method crashes if no
    *     matching operation exists.
    */
   void RunDelayedOperationsUntil(TimerId last_timer_id);
@@ -185,7 +185,7 @@ class AsyncQueue {
  private:
   void Dispatch(const Operation& operation);
 
-  void RemoveDelayedOperation(const detail::DelayedOperationImpl& operation);
+  void RemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
 
   bool OnTargetQueue() const;
   // GetLabel functions are guaranteed to never return a "null" string_view
@@ -193,13 +193,13 @@ class AsyncQueue {
   absl::string_view GetCurrentQueueLabel() const;
   absl::string_view GetTargetQueueLabel() const;
 
-  dispatch_queue_t dispatch_queue_{};
-  using OperationPtr = std::shared_ptr<detail::DelayedOperationImpl>;
-  std::vector<OperationPtr> operations_;
-  bool is_operation_in_progress_{};
+  const dispatch_queue_t dispatch_queue_ = nullptr;
+  using DelayedOperationPtr = std::shared_ptr<internal::DelayedOperationImpl>;
+  std::vector<DelayedOperationPtr> operations_;
+  bool is_operation_in_progress_ = false;
 
-  // For access to Dequeue.
-  friend class detail::DelayedOperationImpl;
+  // For access to RemoveDelayedOperation.
+  friend class internal::DelayedOperationImpl;
 };
 
 }  // namespace util
