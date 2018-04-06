@@ -28,150 +28,129 @@ namespace util {
 
 namespace {
 
-const auto underlying_queue =
-    dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL);
-
 // In these generic tests the specific timer ids don't matter.
 const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
 const TimerId kTimerId2 = TimerId::ListenStreamIdle;
 const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 
-AsyncQueue Queue() {
-  return AsyncQueue{underlying_queue};
-}
-
 const auto kTimeout = std::chrono::seconds(1);
 
-using SignalT = std::packaged_task<void()>;
+class AsyncQueueTest : public ::testing::Test {
+ protected:
+  AsyncQueueTest()
+      : underlying_queue{dispatch_queue_create("AsyncQueueTests",
+                                               DISPATCH_QUEUE_SERIAL)},
+        queue{underlying_queue},
+        signal_finished{[] {}} {
+  }
 
-SignalT CreateSignal() {
-  return SignalT{[] {}};
-}
+  // Googletest doesn't contain built-in functionality to block until an async
+  // operation completes, and there is no timeout by default. Work around both
+  // by resolving a packaged_task in the async operation and blocking on the
+  // associated future (with timeout).
+  bool WaitForTestToFinish() {
+    return signal_finished.get_future().wait_for(kTimeout) ==
+           std::future_status::ready;
+  }
 
-// Googletest doesn't contain built-in functionality to block until an async
-// operation completes, and there is no timeout by default. Work around both by
-// resolving a packaged_task in the async operation and blocking on the
-// associated future (with timeout).
-bool WaitForTestToFinish(SignalT* const signal) {
-  return signal->get_future().wait_for(kTimeout) == std::future_status::ready;
-}
+  using SignalT = std::packaged_task<void()>;
+
+  const dispatch_queue_t underlying_queue;
+  AsyncQueue queue;
+  SignalT signal_finished;
+};
 
 }  // namespace
 
-TEST(AsyncQueue, Enqueue) {
-  auto signal_finished = CreateSignal();
-
-  auto queue = Queue();
+TEST_F(AsyncQueueTest, Enqueue) {
   queue.Enqueue([&] { signal_finished(); });
-
-  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
-TEST(AsyncQueue, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
-  auto signal_finished = CreateSignal();
-
-  auto queue = Queue();
+TEST_F(AsyncQueueTest, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
   queue.Enqueue([&] {  // clang-format off
     EXPECT_ANY_THROW(queue.Enqueue([&] { signal_finished(); }););
     // clang-format on
   });
 
-  WaitForTestToFinish(&signal_finished);
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
-TEST(AsyncQueue, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
-  auto signal_finished = CreateSignal();
-
-  auto queue = Queue();
+TEST_F(AsyncQueueTest, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
   queue.Enqueue([&] {  // clang-format off
     queue.EnqueueAllowingSameQueue([&] { signal_finished(); });
     // clang-format on
   });
 
-  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
-TEST(AsyncQueue, SameQueueIsAllowedForUnownedActions) {
-  auto signal_finished = CreateSignal();
-  auto queue = Queue();
-
+TEST_F(AsyncQueueTest, SameQueueIsAllowedForUnownedActions) {
   struct Context {
     AsyncQueue& queue;
     SignalT& signal_finished;
   } context{queue, signal_finished};
+
   dispatch_async_f(underlying_queue, &context, [](void* const raw_context) {
     auto unwrap = static_cast<const Context*>(raw_context);
     unwrap->queue.Enqueue([unwrap] { unwrap->signal_finished(); });
   });
 
-  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
-TEST(AsyncQueue, RunSync) {
+TEST_F(AsyncQueueTest, RunSync) {
   bool finished = false;
-
-  auto queue = Queue();
   queue.RunSync([&] { finished = true; });
-
   EXPECT_TRUE(finished);
 }
 
-TEST(AsyncQueue, RunSyncDisallowsEnqueuedTasksToUseEnqueue) {
-  auto queue = Queue();
+TEST_F(AsyncQueueTest, RunSyncDisallowsEnqueuedTasksToUseEnqueue) {
   queue.RunSync([&] {  // clang-format off
     EXPECT_ANY_THROW(queue.RunSync([] {}););
     // clang-format on
   });
 }
 
-TEST(AsyncQueue, EnterCheckedOperationDisallowsNesting) {
-  auto queue = Queue();
-  queue.RunSync(
-      [&] { EXPECT_ANY_THROW(queue.EnterCheckedOperation([] {});); });
+TEST_F(AsyncQueueTest, EnterCheckedOperationDisallowsNesting) {
+  queue.RunSync([&] { EXPECT_ANY_THROW(queue.EnterCheckedOperation([] {});); });
 }
 
-TEST(AsyncQueue, VerifyIsCurrentQueueRequiresCurrentQueue) {
+TEST_F(AsyncQueueTest, VerifyIsCurrentQueueRequiresCurrentQueue) {
   ASSERT_NE(underlying_queue, dispatch_get_main_queue());
-  EXPECT_ANY_THROW(Queue().VerifyIsCurrentQueue());
+  EXPECT_ANY_THROW(queue.VerifyIsCurrentQueue());
 }
 
-TEST(AsyncQueue, VerifyIsCurrentQueueRequiresOperationInProgress) {
-  auto queue = Queue();
+TEST_F(AsyncQueueTest, VerifyIsCurrentQueueRequiresOperationInProgress) {
   dispatch_sync_f(underlying_queue, &queue, [](void* const raw_queue) {
     EXPECT_ANY_THROW(
         static_cast<AsyncQueue*>(raw_queue)->VerifyIsCurrentQueue());
   });
 }
 
-TEST(AsyncQueue, VerifyIsCurrentQueueWorksWithOperationInProgress) {
-  auto queue = Queue();
+TEST_F(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
   queue.RunSync([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
 }
 
-TEST(AsyncQueue, CanScheduleOperationsInTheFuture) {
-  auto signal_finished = CreateSignal();
+TEST_F(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
-  auto queue = Queue();
   queue.Enqueue([&steps] { steps += '1'; });
-  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId1,
-                          [&steps, &signal_finished] {
-                            steps += '4';
-                            signal_finished();
-                          });
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId1, [&] {
+    steps += '4';
+    signal_finished();
+  });
   queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1), kTimerId2,
                           [&steps] { steps += '3'; });
   queue.Enqueue([&steps] { steps += '2'; });
 
-  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_EQ(steps, "1234");
 }
 
-TEST(AsyncQueue, CanCancelDelayedCallbacks) {
-  auto signal_finished = CreateSignal();
+TEST_F(AsyncQueueTest, CanCancelDelayedCallbacks) {
   std::string steps;
 
-  auto queue = Queue();
   queue.Enqueue([&] {
     // Queue everything from the queue to ensure nothing completes before we
     // cancel.
@@ -181,11 +160,10 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
     DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
         AsyncQueue::Milliseconds(1), kTimerId1, [&steps] { steps += '2'; });
 
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId2,
-                            [&steps, &signal_finished] {
-                              steps += '3';
-                              signal_finished();
-                            });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId2, [&] {
+      steps += '3';
+      signal_finished();
+    });
 
     EXPECT_TRUE(queue.ContainsDelayedOperation(kTimerId1));
     delayed_operation.Cancel();
@@ -193,27 +171,23 @@ TEST(AsyncQueue, CanCancelDelayedCallbacks) {
     // not immediately once it's canceled.
   });
 
-  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_EQ(steps, "13");
 }
 
-TEST(AsyncQueue, DelayedOperationIsValidAfterTheOperationHasRun) {
-  auto signal_finished = CreateSignal();
-
-  auto queue = Queue();
+TEST_F(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
       AsyncQueue::Milliseconds(1), kTimerId1, [&] { signal_finished(); });
   EXPECT_TRUE(queue.ContainsDelayedOperation(kTimerId1));
 
-  EXPECT_TRUE(WaitForTestToFinish(&signal_finished));
+  EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_FALSE(queue.ContainsDelayedOperation(kTimerId1));
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
-TEST(AsyncQueue, CanManuallyDrainAllDelayedCallbacksForTesting) {
+TEST_F(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
   std::string steps;
 
-  auto queue = Queue();
   queue.Enqueue([&steps] { steps += '1'; });
   queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
                           [&steps] { steps += '4'; });
@@ -225,10 +199,9 @@ TEST(AsyncQueue, CanManuallyDrainAllDelayedCallbacksForTesting) {
   EXPECT_EQ(steps, "1234");
 }
 
-TEST(AsyncQueue, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
+TEST_F(AsyncQueueTest, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
   std::string steps;
 
-  auto queue = Queue();
   queue.Enqueue([&] { steps += '1'; });
   queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
                           [&steps] { steps += '5'; });

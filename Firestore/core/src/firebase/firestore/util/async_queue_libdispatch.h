@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -196,7 +197,7 @@ class AsyncQueue {
   const dispatch_queue_t dispatch_queue_ = nullptr;
   using DelayedOperationPtr = std::shared_ptr<internal::DelayedOperationImpl>;
   std::vector<DelayedOperationPtr> operations_;
-  bool is_operation_in_progress_ = false;
+  std::atomic<bool> is_operation_in_progress_{false};
 
   // For access to RemoveDelayedOperation.
   friend class internal::DelayedOperationImpl;
