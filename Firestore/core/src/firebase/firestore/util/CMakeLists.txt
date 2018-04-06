@@ -105,6 +105,8 @@ configure_file(
 cc_library(
   firebase_firestore_util
   SOURCES
+    async_queue.cc
+    async_queue.h
     autoid.cc
     autoid.h
     bits.cc

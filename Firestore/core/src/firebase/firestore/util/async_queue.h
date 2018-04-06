@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_H_
+
 #include <algorithm>
 #include <atomic>
 #include <cassert>
@@ -45,7 +48,7 @@ class Schedule {
     cv_.notify_one();
   }
 
-  void Push(T&& value, TimePoint due) {
+  void Push(T&& value, const TimePoint due) {
     std::lock_guard<std::mutex> lock{mutex_};
 
     Scheduled new_entry{std::move(value), due};
@@ -72,7 +75,9 @@ class Schedule {
     assert(out);
 
     std::lock_guard<std::mutex> lock{mutex_};
-    const auto found = std::find_if(scheduled_.begin(), scheduled_.end(), pred);
+    const auto found =
+        std::find_if(scheduled_.begin(), scheduled_.end(),
+                     [&pred](const Scheduled& s) { return pred(s.value); });
     if (found != scheduled_.end()) {
       DoPop(out, found);
       return true;
@@ -136,10 +141,7 @@ class AsyncQueue;
 
 class DelayedOperation {
  public:
-  void Cancel() {
-    assert(queue_);
-    queue_->TryCancel(tag);
-  }
+  void Cancel();
 
  private:
   using Tag = unsigned int;
@@ -149,7 +151,7 @@ class DelayedOperation {
       : queue_{queue}, tag_{tag} {
   }
 
-  const AsyncQueue* queue_ = nullptr;
+  AsyncQueue* const queue_ = nullptr;
   const Tag tag_ = 0;
 };
 
@@ -176,8 +178,8 @@ class AsyncQueue {
     DoEnqueue(std::move(operation), TimePoint{});
   }
 
-  DelayedOperation EnqueueAfterDelay(Operation&& operation,
-                                     const Milliseconds delay) {
+  DelayedOperation EnqueueAfterDelay(const Milliseconds delay,
+                                     Operation&& operation) {
     namespace chr = std::chrono;
 
     const auto now =
@@ -203,7 +205,6 @@ class AsyncQueue {
     while (!shutting_down_) {
       Entry entry;
       schedule_.PopBlocking(&entry);
-
       if (entry.operation) {
         entry.operation();
       }
@@ -230,11 +231,13 @@ class AsyncQueue {
   Schedule<Entry, Milliseconds> schedule_;
 
   std::thread worker_thread_;
-  std::atomic<bool> shutting_down_;
+  std::atomic<bool> shutting_down_{false};
 
-  std::atomic<unsigned int> current_tag_;
+  std::atomic<unsigned int> current_tag_{0};
 };
 
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_H_
