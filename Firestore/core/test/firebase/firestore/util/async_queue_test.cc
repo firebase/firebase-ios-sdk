@@ -132,6 +132,21 @@ TEST(ScheduleTest, Foo) {
   }
   const std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
   EXPECT_EQ(values, expected);
+
+  out = 0;
+  std::async(std::launch::async, [&] {
+    schedule.Push(1, now());
+  });
+  schedule.PopBlocking(&out);
+  EXPECT_EQ(out, 1);
+
+  out = 0;
+  schedule.Push(5, now() + chr::seconds(10));
+  std::async(std::launch::async, [&] {
+    schedule.Push(3, now());
+  });
+  schedule.PopBlocking(&out);
+  EXPECT_EQ(out, 3);
 }
 
 // AsyncQueue tests
