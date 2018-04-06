@@ -31,23 +31,22 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-template <typename T, typename Duration = std::chrono::system_clock::duration>
+template <typename T, typename DurationT = std::chrono::system_clock::duration>
 class Schedule {
  public:
+  using Duration = DurationT;
   using TimePoint =
       std::chrono::time_point<std::chrono::system_clock, Duration>;
 
   void Push(const T& value, const TimePoint due) {
-    InsertPreservingOrder(Scheduled{value, due});
+    InsertPreservingOrder(Entry{value, due});
   }
 
   void Push(T&& value, const TimePoint due) {
-    InsertPreservingOrder(Scheduled{std::move(value), due});
+    InsertPreservingOrder(Entry{std::move(value), due});
   }
 
   bool PopIfDue(T* const out, const TimePoint time) {
-    assert(out);
-
     std::lock_guard<std::mutex> lock{mutex_};
 
     if (HasDue(time)) {
@@ -58,13 +57,11 @@ class Schedule {
   }
 
   template <typename Pred>
-  bool PopIf(T* const out, const Pred pred) {
-    assert(out);
-
+  bool RemoveIf(T* const out, const Pred pred) {
     std::lock_guard<std::mutex> lock{mutex_};
     const auto found =
         std::find_if(scheduled_.begin(), scheduled_.end(),
-                     [&pred](const Scheduled& s) { return pred(s.value); });
+                     [&pred](const Entry& s) { return pred(s.value); });
     if (found != scheduled_.end()) {
       DoPop(out, found);
       return true;
@@ -74,8 +71,6 @@ class Schedule {
 
   void PopBlocking(T* const out) {
     namespace chr = std::chrono;
-
-    assert(out);
 
     std::unique_lock<std::mutex> lock{mutex_};
 
@@ -95,18 +90,18 @@ class Schedule {
   }
 
  private:
-  struct Scheduled {
-    bool operator<(const Scheduled& rhs) const {
+  struct Entry {
+    bool operator<(const Entry& rhs) const {
       return due < rhs.due;
     }
 
     T value;
     TimePoint due;
   };
-  using Container = std::deque<Scheduled>;
+  using Container = std::deque<Entry>;
   using Iterator = typename Container::iterator;
 
-  void InsertPreservingOrder(Scheduled&& new_entry) {
+  void InsertPreservingOrder(Entry&& new_entry) {
     std::lock_guard<std::mutex> lock{mutex_};
 
     const auto insertion_point =
@@ -188,7 +183,7 @@ class AsyncQueue {
 
   void TryCancel(const Id id) {
     Entry discard;
-    schedule_.PopIf(&discard, [id](const Entry& e) { return e.id == id; });
+    schedule_.RemoveIf(&discard, [id](const Entry& e) { return e.id == id; });
   }
 
  private:

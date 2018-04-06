@@ -19,6 +19,7 @@
 #include <chrono>
 #include <future>
 #include <string>
+#include <thread>
 
 #include <gtest/gtest.h>
 
@@ -49,6 +50,53 @@ class AsyncQueueTest : public ::testing::Test {
 };
 
 }  // namespace
+
+// Schedule tests
+
+TEST(ScheduleTest, Foo) {
+  namespace chr = std::chrono;
+  const auto now = [] {
+      return chr::time_point_cast<Schedule<int>::Duration>(chr::system_clock::now());
+  };
+
+  Schedule<int> schedule;
+  EXPECT_FALSE(schedule.PopIfDue(nullptr, now()));
+  schedule.Push(3, now());
+  schedule.Push(1, now());
+  schedule.Push(2, now());
+
+  int out = 0;
+  const auto pop = [&] {
+    const bool result = schedule.PopIfDue(&out, now());
+    EXPECT_TRUE(result);
+    return out;
+  };
+  EXPECT_EQ(pop(), 3);
+  EXPECT_EQ(pop(), 1);
+  EXPECT_EQ(pop(), 2);
+  EXPECT_FALSE(schedule.PopIfDue(nullptr, {}));
+
+  out = 0;
+  auto time_point = now();
+  schedule.Push(1, time_point + chr::milliseconds(5));
+  schedule.Push(2, time_point + chr::milliseconds(3));
+  schedule.Push(3, time_point + chr::milliseconds(1));
+  EXPECT_FALSE(schedule.PopIfDue(&out, time_point));
+  std::this_thread::sleep_for(chr::milliseconds(5));
+  EXPECT_EQ(pop(), 3);
+  EXPECT_EQ(pop(), 2);
+  EXPECT_EQ(pop(), 1);
+
+  out = 0;
+  time_point = now();
+  schedule.Push(1, time_point + chr::milliseconds(3));
+  EXPECT_FALSE(schedule.PopIfDue(&out, time_point));
+  schedule.PopBlocking(&out);
+  EXPECT_EQ(out, 1);
+  EXPECT_GE(now(), time_point + chr::milliseconds(3));
+}
+
+// AsyncQueue tests
 
 TEST_F(AsyncQueueTest, Enqueue) {
   queue.Enqueue([&] { signal_finished(); });
