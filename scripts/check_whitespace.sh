@@ -25,7 +25,7 @@ options=(
 )
 
 git grep "${options[@]}" \
-    -- ':(exclude)Firestore/Protos/nanopb'
+    -- ':(exclude)Firestore/Protos/nanopb' ':(exclude)Firestore/Protos/cpp'
 if [[ $? == 0 ]]; then
   echo "ERROR: Trailing whitespace found in the files above. Please fix."
   exit 1
