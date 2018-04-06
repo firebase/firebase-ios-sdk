@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 
 #include <atomic>
-#include <chrono>
+#include <chrono> // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
 #include <vector>
@@ -83,8 +83,8 @@ class DelayedOperation {
   // Don't allow callers to create their own `DelayedOperation`s.
   friend class AsyncQueue;
   explicit DelayedOperation(
-      const std::shared_ptr<internal::DelayedOperationImpl>& instance)
-      : handle_{instance} {
+      const std::shared_ptr<internal::DelayedOperationImpl>& operation)
+      : handle_{operation} {
   }
 
   std::weak_ptr<internal::DelayedOperationImpl> handle_;
