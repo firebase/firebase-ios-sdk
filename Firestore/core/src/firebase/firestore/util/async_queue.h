@@ -134,7 +134,7 @@ class Schedule {
 
   std::mutex mutex_;
   std::condition_variable cv_;
-  std::deque<Scheduled> scheduled_;
+  Container scheduled_;
 };
 
 class AsyncQueue;
