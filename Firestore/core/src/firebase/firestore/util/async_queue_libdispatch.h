@@ -147,8 +147,12 @@ class AsyncQueue {
    * prior to its running.
    *
    * @param delay The delay after which to run the operation.
-   * @param timer_id A `TimerId` that can be used from tests to check for the
-   *     presence of this operation or to schedule it to run early.
+   * @param timer_id A `TimerId` that is used as a tag to identify which caller
+   *     has scheduled this operation. For each value of `TimerId`, only
+   *     a single operation tagged with that value can be in the queue at any
+   *     given moment; an attempt to schedule a second one will result in an
+   *     error. The `TimerId` is mostly intended to be used from tests to check
+   *     for the presence of this operation or to schedule it to run early.
    * @param operation The operation to run.
    * @return A `DelayedOperation` instance that can be used for cancellation.
    */
