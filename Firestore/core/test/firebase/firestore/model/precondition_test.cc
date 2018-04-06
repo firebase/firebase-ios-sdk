@@ -15,6 +15,9 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 #include "gtest/gtest.h"
@@ -24,12 +27,40 @@ namespace firestore {
 namespace model {
 
 TEST(Precondition, None) {
+  const Precondition none = Precondition::None();
+  EXPECT_TRUE(none.IsNone());
+
+  const NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);
+  const Document doc = testutil::Doc("bar/doc", 7654321);
+  EXPECT_TRUE(none.IsValidFor(deleted_doc));
+  EXPECT_TRUE(none.IsValidFor(doc));
 }
 
 TEST(Precondition, Exists) {
+  const Precondition exists = Precondition::Exists(true);
+  const Precondition no_exists = Precondition::Exists(false);
+  EXPECT_FALSE(exists.IsNone());
+  EXPECT_FALSE(no_exists.IsNone());
+
+  const NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);
+  const Document doc = testutil::Doc("bar/doc", 7654321);
+  EXPECT_FALSE(exists.IsValidFor(deleted_doc));
+  EXPECT_TRUE(exists.IsValidFor(doc));
+  EXPECT_TRUE(no_exists.IsValidFor(deleted_doc));
+  EXPECT_FALSE(no_exists.IsValidFor(doc));
 }
 
 TEST(Precondition, UpdateTime) {
+  const Precondition update_time =
+      Precondition::UpdateTime(testutil::Version(1234567));
+  EXPECT_FALSE(update_time.IsNone());
+
+  const NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);
+  const Document not_match = testutil::Doc("bar/doc", 7654321);
+  const Document match = testutil::Doc("baz/doc", 1234567);
+  EXPECT_FALSE(update_time.IsValidFor(deleted_doc));
+  EXPECT_FALSE(update_time.IsValidFor(not_match));
+  EXPECT_TRUE(update_time.IsValidFor(match));
 }
 
 }  // namespace model

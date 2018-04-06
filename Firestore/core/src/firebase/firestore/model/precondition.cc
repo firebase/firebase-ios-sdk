@@ -67,6 +67,7 @@ bool Precondition::IsValidFor(const MaybeDocument& maybe_doc) const {
     case Type::None:
       FIREBASE_ASSERT_MESSAGE(IsNone(), "Precondition should be empty");
       return true;
+      break;
     default:
       FIREBASE_ASSERT_MESSAGE(false, "Invalid precondition");
       break;
