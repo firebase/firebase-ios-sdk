@@ -192,8 +192,7 @@ class AsyncQueue {
   }
 
   void TryCancel(const Id id) {
-    Entry discard;
-    schedule_.RemoveIf(&discard, [id](const Entry& e) { return e.id == id; });
+    schedule_.RemoveIf(nullptr, [id](const Entry& e) { return e.id == id; });
   }
 
  private:
