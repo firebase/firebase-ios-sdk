@@ -56,32 +56,33 @@ class AsyncQueueTest : public ::testing::Test {
 TEST(ScheduleTest, Foo) {
   namespace chr = std::chrono;
   const auto now = [] {
-      return chr::time_point_cast<Schedule<int>::Duration>(chr::system_clock::now());
+    return chr::time_point_cast<Schedule<int>::Duration>(
+        chr::system_clock::now());
   };
 
   Schedule<int> schedule;
-  EXPECT_FALSE(schedule.PopIfDue(nullptr, now()));
+  EXPECT_FALSE(schedule.PopIfDue(nullptr));
   schedule.Push(3, now());
   schedule.Push(1, now());
   schedule.Push(2, now());
 
   int out = 0;
   const auto pop = [&] {
-    const bool result = schedule.PopIfDue(&out, now());
+    const bool result = schedule.PopIfDue(&out);
     EXPECT_TRUE(result);
     return out;
   };
   EXPECT_EQ(pop(), 3);
   EXPECT_EQ(pop(), 1);
   EXPECT_EQ(pop(), 2);
-  EXPECT_FALSE(schedule.PopIfDue(nullptr, {}));
+  EXPECT_FALSE(schedule.PopIfDue(nullptr));
 
   out = 0;
   auto time_point = now();
   schedule.Push(1, time_point + chr::milliseconds(5));
   schedule.Push(2, time_point + chr::milliseconds(3));
   schedule.Push(3, time_point + chr::milliseconds(1));
-  EXPECT_FALSE(schedule.PopIfDue(&out, time_point));
+  EXPECT_FALSE(schedule.PopIfDue(&out));
   std::this_thread::sleep_for(chr::milliseconds(5));
   EXPECT_EQ(pop(), 3);
   EXPECT_EQ(pop(), 2);
@@ -90,10 +91,19 @@ TEST(ScheduleTest, Foo) {
   out = 0;
   time_point = now();
   schedule.Push(1, time_point + chr::milliseconds(3));
-  EXPECT_FALSE(schedule.PopIfDue(&out, time_point));
+  EXPECT_FALSE(schedule.PopIfDue(&out));
   schedule.PopBlocking(&out);
   EXPECT_EQ(out, 1);
   EXPECT_GE(now(), time_point + chr::milliseconds(3));
+
+  out = 0;
+  schedule.Push(1, now());
+  schedule.Push(2, now() + chr::minutes(1));
+  EXPECT_TRUE(schedule.RemoveIf(&out, [](const int v) { return v == 1; }));
+  EXPECT_EQ(out, 1);
+  EXPECT_TRUE(schedule.RemoveIf(&out, [](const int v) { return v == 2; }));
+  EXPECT_EQ(out, 2);
+  EXPECT_TRUE(schedule.empty());
 }
 
 // AsyncQueue tests

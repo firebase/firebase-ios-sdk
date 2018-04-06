@@ -46,10 +46,10 @@ class Schedule {
     InsertPreservingOrder(Entry{std::move(value), due});
   }
 
-  bool PopIfDue(T* const out, const TimePoint time) {
+  bool PopIfDue(T* const out) {
     std::lock_guard<std::mutex> lock{mutex_};
 
-    if (HasDue(time)) {
+    if (HasDue()) {
       DoPop(out, scheduled_.begin());
       return true;
     }
@@ -70,8 +70,6 @@ class Schedule {
   }
 
   void PopBlocking(T* const out) {
-    namespace chr = std::chrono;
-
     std::unique_lock<std::mutex> lock{mutex_};
 
     while (true) {
@@ -79,7 +77,7 @@ class Schedule {
 
       const auto until = scheduled_.front().due;
       const bool have_due = cv_.wait_until(lock, until, [this] {
-        return HasDue(chr::time_point_cast<Duration>(chr::system_clock::now()));
+        return HasDue();
       });
 
       if (have_due) {
@@ -87,6 +85,11 @@ class Schedule {
         return;
       }
     }
+  }
+
+  bool empty() const {
+    std::lock_guard<std::mutex> lock{mutex_};
+    return scheduled_.empty();
   }
 
  private:
@@ -111,8 +114,10 @@ class Schedule {
     cv_.notify_one();
   }
 
-  bool HasDue(const TimePoint time) const {
-    return !scheduled_.empty() && time >= scheduled_.front().due;
+  bool HasDue() const {
+    namespace chr = std::chrono;
+    const auto now = chr::time_point_cast<Duration>(chr::system_clock::now());
+    return !scheduled_.empty() && now >= scheduled_.front().due;
   }
 
   void DoPop(T* const out, const Iterator where) {
@@ -124,7 +129,7 @@ class Schedule {
     scheduled_.erase(where);
   }
 
-  std::mutex mutex_;
+  mutable std::mutex mutex_;
   std::condition_variable cv_;
   Container scheduled_;
 };
