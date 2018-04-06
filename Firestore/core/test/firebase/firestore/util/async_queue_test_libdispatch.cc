@@ -33,10 +33,10 @@ const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
 const TimerId kTimerId2 = TimerId::ListenStreamIdle;
 const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 
-const auto kTimeout = std::chrono::seconds(5);
+const auto kTimeout = std::chrono::seconds(10);
 
 class AsyncQueueTest : public ::testing::Test {
- protected:
+ public:
   AsyncQueueTest()
       : underlying_queue{dispatch_queue_create("AsyncQueueTests",
                                                DISPATCH_QUEUE_SERIAL)},
@@ -53,11 +53,9 @@ class AsyncQueueTest : public ::testing::Test {
            std::future_status::ready;
   }
 
-  using SignalT = std::packaged_task<void()>;
-
   const dispatch_queue_t underlying_queue;
   AsyncQueue queue;
-  SignalT signal_finished;
+  std::packaged_task<void()> signal_finished;
 };
 
 }  // namespace
@@ -69,13 +67,12 @@ TEST_F(AsyncQueueTest, Enqueue) {
 
 TEST_F(AsyncQueueTest, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
   queue.Enqueue([&] {  // clang-format off
-    EXPECT_ANY_THROW(queue.Enqueue([&] { signal_finished(); }););
     // clang-format on
+    EXPECT_ANY_THROW(queue.Enqueue([] {}););
+    signal_finished();
   });
 
-  // Not checking result; this is just to ensure the enqueued operation has
-  // enough time to run (and throw).
-  WaitForTestToFinish();
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
 TEST_F(AsyncQueueTest, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
@@ -88,14 +85,9 @@ TEST_F(AsyncQueueTest, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
 }
 
 TEST_F(AsyncQueueTest, SameQueueIsAllowedForUnownedActions) {
-  struct Context {
-    AsyncQueue& queue;
-    SignalT& signal_finished;
-  } context{queue, signal_finished};
-
-  dispatch_async_f(underlying_queue, &context, [](void* const raw_context) {
-    auto unwrap = static_cast<const Context*>(raw_context);
-    unwrap->queue.Enqueue([unwrap] { unwrap->signal_finished(); });
+  dispatch_async_f(underlying_queue, this, [](void* const raw_self) {
+    auto self = static_cast<AsyncQueueTest*>(raw_self);
+    self->queue.Enqueue([self] { self->signal_finished(); });
   });
 
   EXPECT_TRUE(WaitForTestToFinish());
