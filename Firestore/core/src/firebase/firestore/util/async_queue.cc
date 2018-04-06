@@ -22,7 +22,7 @@ namespace util {
 
 void DelayedOperation::Cancel() {
   assert(queue_);
-  queue_->TryCancel(tag_);
+  queue_->TryCancel(id_);
 }
 
 }  // namespace util
