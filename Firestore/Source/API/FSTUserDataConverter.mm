@@ -38,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
@@ -48,6 +49,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 
@@ -91,7 +93,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 }
 
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition {
+                                precondition:(const Precondition &)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   if (self.isPatch) {
     [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
@@ -132,7 +134,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 }
 
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition {
+                                precondition:(const Precondition &)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:self.fieldMask

@@ -19,6 +19,11 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
+#if defined(__OBJC__)
+#import "FIRTimestamp.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#endif  // defined(__OBJC__)
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -37,6 +42,29 @@ class SnapshotVersion {
 
   /** Creates a new version that is smaller than all other versions. */
   static const SnapshotVersion& None();
+
+#if defined(__OBJC__)
+  SnapshotVersion(FSTSnapshotVersion* version) {  // NOLINT(runtime/explicit)
+    if ([version isEqual:[FSTSnapshotVersion noVersion]]) {
+      timestamp_ = Timestamp{};
+    } else {
+      timestamp_ =
+          Timestamp{version.timestamp.seconds, version.timestamp.nanoseconds};
+    }
+  }
+
+  operator FSTSnapshotVersion*() const {
+    if (timestamp_ == Timestamp{}) {
+      return [FSTSnapshotVersion noVersion];
+    } else {
+      return [FSTSnapshotVersion
+          versionWithTimestamp:[FIRTimestamp
+                                   timestampWithSeconds:timestamp_.seconds()
+                                            nanoseconds:timestamp_
+                                                            .nanoseconds()]];
+    }
+  }
+#endif  // defined(__OBJC__)
 
  private:
   Timestamp timestamp_;

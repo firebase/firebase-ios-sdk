@@ -20,6 +20,12 @@
 #include <memory>
 #include <utility>
 
+#if defined(__OBJC__)
+#import "FIRTimestamp.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#endif  // defined(__OBJC__)
+
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
@@ -58,7 +64,44 @@ class Precondition {
   /** Returns whether this Precondition represents no precondition. */
   bool IsNone() const;
 
+  const SnapshotVersion& update_time() const {
+    return update_time_;
+  }
+
 #if defined(__OBJC__)
+  // Objective-C requires a default constructor.
+  Precondition()
+      : type_(Type::None),
+        update_time_(SnapshotVersion::None()),
+        exists_(false) {
+  }
+
+  // MaybeDocument is not fully ported yet. So we suppose this addition helper.
+  bool IsValidFor(FSTMaybeDocument* maybe_doc) const {
+    switch (type_) {
+      case Type::UpdateTime:
+        return [maybe_doc isKindOfClass:[FSTDocument class]] &&
+               firebase::firestore::model::SnapshotVersion(maybe_doc.version) ==
+                   update_time_;
+        break;
+      case Type::Exists:
+        if (exists_) {
+          return [maybe_doc isKindOfClass:[FSTDocument class]];
+        } else {
+          return maybe_doc == nil ||
+                 [maybe_doc isKindOfClass:[FSTDeletedDocument class]];
+        }
+        break;
+      case Type::None:
+        FIREBASE_ASSERT_MESSAGE(IsNone(), "Precondition should be empty");
+        return true;
+        break;
+      default:
+        FIREBASE_ASSERT_MESSAGE(false, "Invalid precondition");
+        break;
+    }
+  }
+
   bool operator==(const Precondition& other) const {
     return update_time_ == other.update_time_ && exists_ == other.exists_;
   }
@@ -66,12 +109,12 @@ class Precondition {
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
   NSUInteger Hash() const {
-    NSUInteger hash = update_time_.Hash();
-    hash = hash * 31 + other.exists_;
+    NSUInteger hash = std::hash<Timestamp>()(update_time_.timestamp());
+    hash = hash * 31 + exists_;
     return hash;
   }
 
-  NSString* description const {
+  NSString* description() const {
     switch (type_) {
       case Type::None:
         return @"<Precondition <none>>";
@@ -84,8 +127,9 @@ class Precondition {
         }
         break;
       case Type::UpdateTime:
-        return [NSString stringWithFormat:@"<Precondition update_time=%s>",
-                                          update_time_.ToString().c_str()];
+        return [NSString
+            stringWithFormat:@"<Precondition update_time=%s>",
+                             update_time_.timestamp().ToString().c_str()];
         break;
       default:
         // We do not raise assertion here. This function is mainly used in
@@ -100,7 +144,7 @@ class Precondition {
   Precondition(Type type, SnapshotVersion update_time, bool exists);
 
   // The actual time of this precondition.
-  Type type_;
+  Type type_ = Type::None;
 
   // For UpdateTime type, preconditions a mutation based on the last updateTime.
   SnapshotVersion update_time_;

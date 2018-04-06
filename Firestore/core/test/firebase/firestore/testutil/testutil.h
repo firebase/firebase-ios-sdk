@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
-#include <time.h>
+#include <inttypes.h>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -46,17 +46,21 @@ inline model::ResourcePath Resource(absl::string_view field) {
   return model::ResourcePath::FromString(field);
 }
 
-inline model::SnapshotVersion Version(time_t version) {
-  return model::SnapshotVersion{Timestamp::FromTimeT(version)};
+// Version is epoch time in macroseconds. This helper is defined so to match
+// SDKs in other platform.
+inline model::SnapshotVersion Version(int64_t version) {
+  return model::SnapshotVersion{
+      Timestamp{/*seconds=*/version / 1000,
+                /*nanoseconds=*/static_cast<int32_t>(version % 1000) * 1000}};
 }
 
-inline model::Document Doc(absl::string_view key, time_t version) {
+inline model::Document Doc(absl::string_view key, int64_t version) {
   return model::Document{model::FieldValue::ObjectValueFromMap({}), Key(key),
                          Version(version),
                          /* has_local_mutations= */ false};
 }
 
-inline model::NoDocument DeletedDoc(absl::string_view key, time_t version) {
+inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
   return model::NoDocument{Key(key), Version(version)};
 }
 

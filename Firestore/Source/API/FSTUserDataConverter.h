@@ -22,12 +22,12 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
 @class FIRSetOptions;
 @class FSTObjectValue;
 @class FSTFieldValue;
 @class FSTMutation;
-@class FSTPrecondition;
 @class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -58,7 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
  * field transforms) using the specified document key and precondition.
  */
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const firebase::firestore::model::DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition;
+                                precondition:
+                                    (const firebase::firestore::model::Precondition &)precondition;
 
 @end
 
@@ -83,7 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
  * field transforms) using the specified document key and precondition.
  */
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const firebase::firestore::model::DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition;
+                                precondition:
+                                    (const firebase::firestore::model::Precondition &)precondition;
 
 @end
 

@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
 @class FSTDocument;
@@ -72,7 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)init NS_UNAVAILABLE;
 
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
-               precondition:(FSTPrecondition *)precondition NS_DESIGNATED_INITIALIZER;
+               precondition:(firebase::firestore::model::Precondition)precondition
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * Applies this mutation to the given FSTDocument, FSTDeletedDocument or nil, if we don't have
@@ -133,8 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const firebase::firestore::model::DocumentKey &)key;
 
-/** The precondition for this mutation. */
-@property(nonatomic, strong, readonly) FSTPrecondition *precondition;
+- (const firebase::firestore::model::Precondition &)precondition;
 
 @end
 
@@ -147,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTSetMutation : FSTMutation
 
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
-               precondition:(FSTPrecondition *)precondition NS_UNAVAILABLE;
+               precondition:(firebase::firestore::model::Precondition)precondition NS_UNAVAILABLE;
 
 /**
  * Initializes the set mutation.
@@ -159,7 +160,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                       value:(FSTObjectValue *)value
-               precondition:(FSTPrecondition *)precondition NS_DESIGNATED_INITIALIZER;
+               precondition:(firebase::firestore::model::Precondition)precondition
+    NS_DESIGNATED_INITIALIZER;
 
 /** The object value to use when setting the document. */
 @property(nonatomic, strong, readonly) FSTObjectValue *value;
@@ -178,9 +180,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTPatchMutation : FSTMutation
 
-/** Returns the precondition for the given FSTPrecondition. */
+/** Returns the precondition for the given Precondition. */
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
-               precondition:(FSTPrecondition *)precondition NS_UNAVAILABLE;
+               precondition:(firebase::firestore::model::Precondition)precondition NS_UNAVAILABLE;
 
 /**
  * Initializes a new patch mutation with an explicit FieldMask and FSTObjectValue representing
@@ -196,7 +198,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
                   fieldMask:(firebase::firestore::model::FieldMask)fieldMask
                       value:(FSTObjectValue *)value
-               precondition:(FSTPrecondition *)precondition NS_DESIGNATED_INITIALIZER;
+               precondition:(firebase::firestore::model::Precondition)precondition
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * A mask to apply to |value|, where only fields that are in both the fieldMask and the value
@@ -223,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTTransformMutation : FSTMutation
 
 - (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
-               precondition:(FSTPrecondition *)precondition NS_UNAVAILABLE;
+               precondition:(firebase::firestore::model::Precondition)precondition NS_UNAVAILABLE;
 
 /**
  * Initializes a new transform mutation with the specified field transforms.
