@@ -33,7 +33,7 @@ const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
 const TimerId kTimerId2 = TimerId::ListenStreamIdle;
 const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 
-const auto kTimeout = std::chrono::seconds(1);
+const auto kTimeout = std::chrono::seconds(5);
 
 class AsyncQueueTest : public ::testing::Test {
  protected:
@@ -73,7 +73,9 @@ TEST_F(AsyncQueueTest, EnqueueDisallowsEnqueuedTasksToUseEnqueue) {
     // clang-format on
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  // Not checking result; this is just to ensure the enqueued operation has
+  // enough time to run (and throw).
+  WaitForTestToFinish();
 }
 
 TEST_F(AsyncQueueTest, EnqueueAllowsEnqueuedTasksToUseEnqueueUsingSameQueue) {
