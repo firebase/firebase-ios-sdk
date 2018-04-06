@@ -25,6 +25,55 @@ void DelayedOperation::Cancel() {
   queue_->TryCancel(id_);
 }
 
+AsyncQueue::~AsyncQueue() {
+  shutting_down_ = true;
+  UnblockQueue();
+  worker_thread_.join();
+}
+
+void AsyncQueue::Enqueue(Operation&& operation) {
+  DoEnqueue(std::move(operation), TimePoint{});
+}
+
+DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
+                                               Operation&& operation) {
+  namespace chr = std::chrono;
+
+  const auto now = chr::time_point_cast<Milliseconds>(chr::system_clock::now());
+  const auto id = DoEnqueue(std::move(operation), now + delay);
+
+  return DelayedOperation{this, id};
+}
+
+void AsyncQueue::TryCancel(const Id id) {
+  schedule_.RemoveIf(nullptr, [id](const Entry& e) { return e.id == id; });
+}
+
+AsyncQueue::Id AsyncQueue::DoEnqueue(Operation&& operation,
+                                     const TimePoint when) {
+  const auto id = NextId();
+  schedule_.Push(Entry{std::move(operation), id}, when);
+  return id;
+}
+
+void AsyncQueue::PollingThread() {
+  while (!shutting_down_) {
+    Entry entry;
+    schedule_.PopBlocking(&entry);
+    if (entry.operation) {
+      entry.operation();
+    }
+  }
+}
+
+void AsyncQueue::UnblockQueue() {
+  schedule_.Push(Entry{[] {}, /*id=*/0}, TimePoint{});
+}
+
+unsigned int AsyncQueue::NextId() {
+  return current_id_++;
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

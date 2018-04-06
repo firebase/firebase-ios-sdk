@@ -22,6 +22,8 @@
 #include <string>
 #include <thread>
 
+#include <iostream>
+
 #include <gtest/gtest.h>
 
 namespace firebase {
@@ -164,7 +166,7 @@ TEST_F(ScheduleTest, AddingEntryUnblocksEmptyQueue) {
   // Unfortunately, the future returned from std::async blocks in its destructor
   // until the async call is finished. If PopBlocking is buggy and hangs
   // forever, the future's destructor will also hang forever. To avoid all tests
-  // freezing, the only thing to do is to abort, which skips destructors.
+  // freezing, the only thing to do is to abort (which skips destructors).
   if (!WaitForTestToFinish()) {
     ADD_FAILURE();
     std::abort();
@@ -172,19 +174,26 @@ TEST_F(ScheduleTest, AddingEntryUnblocksEmptyQueue) {
 }
 
 TEST_F(ScheduleTest, PopBlockingNoticesNewEntriesThatAreSooner) {
-  schedule.Push(5, now() + chr::seconds(10));
+  schedule.Push(5, start_time + chr::seconds(10));
 
   const auto future = std::async(std::launch::async, [&] {
+      std::cout << "thread 2:1" << std::endl;
       std::this_thread::sleep_for(chr::milliseconds(1));
+      std::cout << "thread 2:2" << std::endl;
       schedule.Push(3, start_time);
+      std::cout << "thread 2:3" << std::endl;
       if (!WaitForTestToFinish()) {
         ADD_FAILURE();
         std::abort();
       }
+      std::cout << "thread 2:4" << std::endl;
   });
 
+  std::cout << "thread 1:1" << std::endl;
   ASSERT_FALSE(schedule.PopIfDue(&out));
+  std::cout << "thread 1:2" << std::endl;
   schedule.PopBlocking(&out);
+  std::cout << "thread 1:3" << std::endl;
   EXPECT_EQ(out, 3);
   signal_finished();
 }
