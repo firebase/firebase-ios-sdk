@@ -26,27 +26,82 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-TEST(AsyncQueue, Foo) {
+namespace {
+
+const auto kTimeout = std::chrono::seconds(5);
+
+class AsyncQueueTest : public ::testing::Test {
+ public:
+  AsyncQueueTest()
+      : signal_finished{[] {}} {
+  }
+
+  // Googletest doesn't contain built-in functionality to block until an async
+  // operation completes, and there is no timeout by default. Work around both
+  // by resolving a packaged_task in the async operation and blocking on the
+  // associated future (with timeout).
+  bool WaitForTestToFinish() {
+    return signal_finished.get_future().wait_for(kTimeout) ==
+           std::future_status::ready;
+  }
+
   AsyncQueue queue;
-  std::packaged_task<void()> signal_finished{[] {}};
+  std::packaged_task<void()> signal_finished;
+};
+
+}  // namespace
+
+TEST_F(AsyncQueueTest, Enqueue) {
+  queue.Enqueue([&] { signal_finished(); });
+  EXPECT_TRUE(WaitForTestToFinish());
+}
+
+TEST_F(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
-  queue.Enqueue([&] { steps += '1'; });
-  queue.Enqueue([&] { steps += '2'; });
-  queue.Enqueue([&] { steps += '3'; });
-  auto handle = queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1000), [&] {
-      steps += "foo";
-      });
-  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(2000), [&] {
+  queue.Enqueue([&steps] { steps += '1'; });
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), [&] {
     steps += '4';
     signal_finished();
   });
-  (void)handle;
-  // handle.Cancel();
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1),
+                          [&steps] { steps += '3'; });
+  queue.Enqueue([&steps] { steps += '2'; });
 
-  // signal_finished.get_future().wait_for(std::chrono::seconds(1));
-  signal_finished.get_future().wait();
+  EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_EQ(steps, "1234");
+}
+
+TEST_F(AsyncQueueTest, CanCancelDelayedCallbacks) {
+  std::string steps;
+
+  queue.Enqueue([&] {
+    // Queue everything from the queue to ensure nothing completes before we
+    // cancel.
+
+    queue.Enqueue([&steps] { steps += '1'; });
+
+    DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
+        AsyncQueue::Milliseconds(1), [&steps] { steps += '2'; });
+
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), [&] {
+      steps += '3';
+      signal_finished();
+    });
+
+    delayed_operation.Cancel();
+  });
+
+  EXPECT_TRUE(WaitForTestToFinish());
+  EXPECT_EQ(steps, "13");
+}
+
+TEST_F(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
+  DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
+      AsyncQueue::Milliseconds(1), [&] { signal_finished(); });
+
+  EXPECT_TRUE(WaitForTestToFinish());
+  EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
 }  // namespace util
