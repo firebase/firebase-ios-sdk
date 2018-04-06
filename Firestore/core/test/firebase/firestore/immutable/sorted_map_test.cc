@@ -41,12 +41,6 @@ struct TestPolicy {
 };
 
 template <>
-struct TestPolicy<SortedMap<int, int>> {
-  // SortedMap cannot insert more than this number
-  static const SizeType kLargeSize = SortedMapBase::kFixedSize;
-};
-
-template <>
 struct TestPolicy<impl::ArraySortedMap<int, int>> {
   // ArraySortedMap cannot insert more than this number
   static const SizeType kLargeSize = SortedMapBase::kFixedSize;
