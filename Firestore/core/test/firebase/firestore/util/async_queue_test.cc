@@ -65,6 +65,7 @@ TEST(ScheduleTest, Foo) {
   schedule.Push(3, now());
   schedule.Push(1, now());
   schedule.Push(2, now());
+  EXPECT_FALSE(schedule.empty());
 
   int out = 0;
   const auto pop = [&] {
@@ -76,6 +77,7 @@ TEST(ScheduleTest, Foo) {
   EXPECT_EQ(pop(), 1);
   EXPECT_EQ(pop(), 2);
   EXPECT_FALSE(schedule.PopIfDue(nullptr));
+  EXPECT_TRUE(schedule.empty());
 
   out = 0;
   auto time_point = now();
@@ -87,6 +89,7 @@ TEST(ScheduleTest, Foo) {
   EXPECT_EQ(pop(), 3);
   EXPECT_EQ(pop(), 2);
   EXPECT_EQ(pop(), 1);
+  EXPECT_TRUE(schedule.empty());
 
   out = 0;
   time_point = now();
@@ -95,6 +98,7 @@ TEST(ScheduleTest, Foo) {
   schedule.PopBlocking(&out);
   EXPECT_EQ(out, 1);
   EXPECT_GE(now(), time_point + chr::milliseconds(3));
+  EXPECT_TRUE(schedule.empty());
 
   out = 0;
   schedule.Push(1, now());
@@ -104,6 +108,30 @@ TEST(ScheduleTest, Foo) {
   EXPECT_TRUE(schedule.RemoveIf(&out, [](const int v) { return v == 2; }));
   EXPECT_EQ(out, 2);
   EXPECT_TRUE(schedule.empty());
+
+  std::vector<int> values;
+  const auto append = [&] {
+    values.push_back(0);
+    schedule.PopBlocking(&values.back());
+  };
+  time_point = now();
+  schedule.Push(11, time_point + chr::milliseconds(5));
+  schedule.Push(1, time_point);
+  schedule.Push(2, time_point);
+  schedule.Push(9, time_point + chr::milliseconds(2));
+  schedule.Push(3, time_point);
+  schedule.Push(10, time_point + chr::milliseconds(3));
+  schedule.Push(12, time_point + chr::milliseconds(5));
+  schedule.Push(4, time_point);
+  schedule.Push(5, time_point);
+  schedule.Push(6, time_point);
+  schedule.Push(8, time_point + chr::milliseconds(1));
+  schedule.Push(7, time_point);
+  while (!schedule.empty()) {
+    append();
+  }
+  const std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+  EXPECT_EQ(values, expected);
 }
 
 // AsyncQueue tests

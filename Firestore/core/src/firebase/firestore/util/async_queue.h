@@ -92,6 +92,11 @@ class Schedule {
     return scheduled_.empty();
   }
 
+  size_t size() const {
+    std::lock_guard<std::mutex> lock{mutex_};
+    return scheduled_.size();
+  }
+
  private:
   struct Entry {
     bool operator<(const Entry& rhs) const {
