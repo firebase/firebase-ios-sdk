@@ -58,16 +58,14 @@ TEST_F(AsyncQueueTest, Enqueue) {
 TEST_F(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
-  queue.Enqueue([&] {
-    queue.Enqueue([&steps] { steps += '1'; });
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), [&] {
-      steps += '4';
-      signal_finished();
-    });
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1),
-                            [&steps] { steps += '3'; });
-    queue.Enqueue([&steps] { steps += '2'; });
+  queue.Enqueue([&steps] { steps += '1'; });
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), [&] {
+    steps += '4';
+    signal_finished();
   });
+  queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1),
+                          [&steps] { steps += '3'; });
+  queue.Enqueue([&steps] { steps += '2'; });
 
   EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_EQ(steps, "1234");
