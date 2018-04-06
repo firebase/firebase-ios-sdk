@@ -33,7 +33,7 @@ const TimerId kTimerId1 = TimerId::ListenStreamConnectionBackoff;
 const TimerId kTimerId2 = TimerId::ListenStreamIdle;
 const TimerId kTimerId3 = TimerId::WriteStreamConnectionBackoff;
 
-const auto kTimeout = std::chrono::seconds(10);
+const auto kTimeout = std::chrono::seconds(5);
 
 class AsyncQueueTest : public ::testing::Test {
  public:
