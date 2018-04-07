@@ -248,6 +248,25 @@ class SortedMap : public impl::SortedMapBase {
   }
 
   /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.lower_bound(key));
+      case Tag::Tree:
+        return const_iterator{tree_.lower_bound(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
    * Returns an iterator pointing to the first entry in the map. If there are
    * no entries in the map, begin() == end().
    */
@@ -280,6 +299,14 @@ class SortedMap : public impl::SortedMapBase {
    */
   const util::range<const_key_iterator> keys() const {
     return impl::KeysView(*this);
+  }
+
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_from(const K& key) const {
+    return impl::KeysViewFrom(*this, key);
   }
 
  private:

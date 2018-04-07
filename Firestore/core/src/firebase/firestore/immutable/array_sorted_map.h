@@ -179,12 +179,12 @@ class ArraySortedMap : public SortedMapBase {
    */
   ArraySortedMap insert(const K& key, const V& value) const {
     const_iterator current_end = end();
-    const_iterator pos = LowerBound(key);
+    const_iterator pos = lower_bound(key);
     bool replacing_entry = false;
 
     if (pos != current_end) {
-      // LowerBound found an entry where pos->first >= pair.first. Reversing the
-      // argument order here tests pair.first < pos->first.
+      // lower_bound found an entry where pos->first >= pair.first. Reversing
+      // the argument order here tests pair.first < pos->first.
       replacing_entry = !key_comparator_(key, *pos);
       if (replacing_entry && value == pos->second) {
         return *this;
@@ -242,9 +242,9 @@ class ArraySortedMap : public SortedMapBase {
    */
   const_iterator find(const K& key) const {
     const_iterator not_found = end();
-    const_iterator lower_bound = LowerBound(key);
-    if (lower_bound != not_found && !key_comparator_(key, *lower_bound)) {
-      return lower_bound;
+    const_iterator bound = lower_bound(key);
+    if (bound != not_found && !key_comparator_(key, *bound)) {
+      return bound;
     } else {
       return not_found;
     }
@@ -259,6 +259,19 @@ class ArraySortedMap : public SortedMapBase {
   size_type find_index(const K& key) const {
     auto found = find(key);
     return found == end() ? npos : static_cast<size_type>(found - begin());
+  }
+
+  /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    return std::lower_bound(begin(), end(), key, key_comparator_);
   }
 
   /**
@@ -284,6 +297,14 @@ class ArraySortedMap : public SortedMapBase {
     return KeysView(*this);
   }
 
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_from(const K& key) const {
+    return KeysViewFrom(*this, key);
+  }
+
  private:
   static array_pointer EmptyArray() {
     static const array_pointer kEmptyArray =
@@ -298,10 +319,6 @@ class ArraySortedMap : public SortedMapBase {
 
   ArraySortedMap wrap(const array_pointer& array) const noexcept {
     return ArraySortedMap{array, key_comparator_};
-  }
-
-  const_iterator LowerBound(const K& key) const {
-    return std::lower_bound(begin(), end(), key, key_comparator_);
   }
 
   array_pointer array_;

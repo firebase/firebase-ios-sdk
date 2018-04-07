@@ -279,6 +279,24 @@ TYPED_TEST(SortedMapTest, KeyIterator) {
   ASSERT_SEQ_EQ(all, map.keys());
 }
 
+TYPED_TEST(SortedMapTest, KeysFrom) {
+  std::vector<int> all = Sequence(2, 42, 2);
+  TypeParam map = ToMap<TypeParam>(Shuffled(all));
+  ASSERT_EQ(20u, map.size());
+
+  // Test from before keys.
+  ASSERT_SEQ_EQ(all, map.keys_from(0));
+
+  // Test from after keys.
+  ASSERT_SEQ_EQ(Empty(), map.keys_from(100));
+
+  // Test from a key in the map: should start at that key.
+  ASSERT_SEQ_EQ(Sequence(10, 42, 2), map.keys_from(10));
+
+  // Test from in between keys: should start just after that key.
+  ASSERT_SEQ_EQ(Sequence(12, 42, 2), map.keys_from(11));
+}
+
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase

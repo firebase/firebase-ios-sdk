@@ -138,7 +138,7 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    *     not found.
    */
   const_iterator find(const K& key) const {
-    const_iterator found = LowerBound(key);
+    const_iterator found = lower_bound(key);
     if (!found.is_end() && !this->comparator()(key, found->first)) {
       return found;
     } else {
@@ -174,6 +174,19 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
   }
 
   /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    return const_iterator::LowerBound(&root_, key, this->comparator());
+  }
+
+  /**
    * Returns a forward iterator pointing to the first entry in the map. If there
    * are no entries in the map, begin() == end().
    *
@@ -198,13 +211,17 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
     return KeysView(*this);
   }
 
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_from(const K& key) const {
+    return KeysViewFrom(*this, key);
+  }
+
  private:
   TreeSortedMap(node_type&& root, const C& comparator) noexcept
       : util::ComparatorHolder<C>{comparator}, root_{std::move(root)} {
-  }
-
-  const_iterator LowerBound(const K& key) const noexcept {
-    return const_iterator::LowerBound(&root_, key, this->comparator());
   }
 
   TreeSortedMap Wrap(node_type&& root) noexcept {

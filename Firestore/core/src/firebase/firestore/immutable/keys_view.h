@@ -26,13 +26,21 @@ namespace immutable {
 namespace impl {
 
 /**
- * Returns of a view of the given range containing just the first par that have
+ * Returns of a view of the given range containing just the first part that have
  * been inserted.
  */
 template <typename Range>
 auto KeysView(const Range& range)
     -> util::range<util::iterator_first<decltype(std::begin(range))>> {
   auto keys_begin = util::make_iterator_first(std::begin(range));
+  auto keys_end = util::make_iterator_first(std::end(range));
+  return util::make_range(keys_begin, keys_end);
+}
+
+template <typename Range, typename K>
+auto KeysViewFrom(const Range& range, const K& key)
+    -> util::range<util::iterator_first<decltype(range.lower_bound(key))>> {
+  auto keys_begin = util::make_iterator_first(range.lower_bound(key));
   auto keys_end = util::make_iterator_first(std::end(range));
   return util::make_range(keys_begin, keys_end);
 }
