@@ -33,11 +33,8 @@ AsyncQueue::AsyncQueue()  {
 
 AsyncQueue::~AsyncQueue() {
   shutting_down_ = true;
-  std::cout << "dtr entered" << std::endl;
   UnblockQueue();
-  std::cout << "dtr before join" << std::endl;
   worker_thread_.join();
-  std::cout << "dtr after join" << std::endl;
 }
 
 void AsyncQueue::Enqueue(Operation&& operation) {
@@ -68,18 +65,14 @@ AsyncQueue::Id AsyncQueue::DoEnqueue(Operation&& operation,
 void AsyncQueue::PollingThread() {
   while (!shutting_down_) {
     Entry entry;
-    std::cout << "poll" << std::endl;
     schedule_.PopBlocking(&entry);
-    std::cout << "new op" << std::endl;
     if (entry.operation) {
       entry.operation();
     }
   }
-  std::cout << "shutting down" << std::endl;
 }
 
 void AsyncQueue::UnblockQueue() {
-  std::cout << "unblock queue" << std::endl;
   schedule_.Push(Entry{[] {}, /*id=*/0}, TimePoint{});
 }
 
