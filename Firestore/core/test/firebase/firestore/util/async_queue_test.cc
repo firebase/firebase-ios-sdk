@@ -39,38 +39,37 @@ chr::time_point<std::chrono::system_clock, chr::milliseconds> now() {
 
 const auto kTimeout = std::chrono::seconds(5);
 
-struct TimeoutMixin {
-  TimeoutMixin() : signal_finished{[] {}} {
+// Waits for the future to become ready and returns whether it timed out.
+bool WaitForFuture(const std::future<void>& future,
+                   const chr::milliseconds timeout = kTimeout) {
+  return future.wait_for(timeout) == std::future_status::ready;
+}
+
+// Unfortunately, the future returned from std::async blocks in its destructor
+// until the async call is finished. If the function called from std::async is
+// buggy and hangs forever, the future's destructor will also hang forever. To
+// avoid all tests freezing, the only thing to do is to abort (which skips
+// destructors).
+void Abort() {
+  ADD_FAILURE();
+  std::abort();
+}
+
+// Calls std::abort if the future times out.
+void AbortOnTimeout(const std::future<void>& future) {
+  if (!WaitForFuture(future, kTimeout)) {
+    Abort();
   }
+}
 
-  // Googletest doesn't contain built-in functionality to block until an async
-  // operation completes, and there is no timeout by default. Work around both
-  // by resolving a packaged_task in the async operation and blocking on the
-  // associated future (with timeout).
-  bool WaitForTestToFinish(const chr::milliseconds timeout = kTimeout) {
-    return signal_finished.get_future().wait_for(timeout) ==
-           std::future_status::ready;
-  }
+// The macro calls AbortOnTimeout, but preserves stack trace.
+#define ABORT_ON_TIMEOUT(future)                            \
+  do {                                                      \
+    SCOPED_TRACE("Async operation timed out, aborting..."); \
+    AbortOnTimeout(future);                                 \
+  } while (0)
 
-  // Unfortunately, the future returned from std::async blocks in its destructor
-  // until the async call is finished. If PopBlocking is buggy and hangs
-  // forever, the future's destructor will also hang forever. To avoid all tests
-  // freezing, the only thing to do is to abort (which skips destructors).
-  void Abort() {
-    ADD_FAILURE();
-    std::abort();
-  }
-
-  void AbortOnTimeout(const chr::milliseconds timeout = kTimeout) {
-    if (!WaitForTestToFinish(timeout)) {
-      Abort();
-    }
-  }
-
-  std::packaged_task<void()> signal_finished;
-};
-
-class ScheduleTest : public TimeoutMixin, public ::testing::Test {
+class ScheduleTest : public ::testing::Test {
  public:
   ScheduleTest() : start_time{now()} {
   }
@@ -95,16 +94,19 @@ class ScheduleTest : public TimeoutMixin, public ::testing::Test {
 TEST_F(ScheduleTest, PopIfDue_Immediate) {
   EXPECT_FALSE(schedule.PopIfDue(nullptr));
 
+  // Push values in a deliberately non-sorted order.
   schedule.Push(3, start_time);
   schedule.Push(1, start_time);
   schedule.Push(2, start_time);
   EXPECT_FALSE(schedule.empty());
+  EXPECT_EQ(schedule.size(), 3u);
 
   EXPECT_EQ(TryPop(), 3);
   EXPECT_EQ(TryPop(), 1);
   EXPECT_EQ(TryPop(), 2);
   EXPECT_FALSE(schedule.PopIfDue(nullptr));
   EXPECT_TRUE(schedule.empty());
+  EXPECT_EQ(schedule.size(), 0u);
 }
 
 TEST_F(ScheduleTest, PopIfDue_Delayed) {
@@ -172,27 +174,26 @@ TEST_F(ScheduleTest, AddingEntryUnblocksEmptyQueue) {
     ASSERT_FALSE(schedule.PopIfDue(&out));
     schedule.PopBlocking(&out);
     EXPECT_EQ(out, 1);
-    signal_finished();
   });
 
   std::this_thread::sleep_for(chr::milliseconds(5));
   schedule.Push(1, start_time);
-  AbortOnTimeout();
+  ABORT_ON_TIMEOUT(future);
 }
 
-TEST_F(ScheduleTest, PopBlockingUnblocksOnNewImmediateEntries) {
-  schedule.Push(5, start_time + chr::seconds(10));
+TEST_F(ScheduleTest, PopBlockingUnblocksOnNewPastDueEntries) {
+  const auto far_away = start_time + chr::seconds(10);
+  schedule.Push(5, far_away);
 
   const auto future = std::async(std::launch::async, [&] {
-    std::this_thread::sleep_for(chr::milliseconds(1));
-    schedule.Push(3, start_time);
-    AbortOnTimeout();
+    ASSERT_FALSE(schedule.PopIfDue(&out));
+    schedule.PopBlocking(&out);
+    EXPECT_EQ(out, 3);
   });
 
-  ASSERT_FALSE(schedule.PopIfDue(&out));
-  schedule.PopBlocking(&out);
-  EXPECT_EQ(out, 3);
-  signal_finished();
+  std::this_thread::sleep_for(chr::milliseconds(5));
+  schedule.Push(3, start_time);
+  ABORT_ON_TIMEOUT(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingAdjustsWaitTimeOnNewSoonerEntries) {
@@ -200,82 +201,93 @@ TEST_F(ScheduleTest, PopBlockingAdjustsWaitTimeOnNewSoonerEntries) {
   schedule.Push(5, far_away);
 
   const auto future = std::async(std::launch::async, [&] {
-    std::this_thread::sleep_for(chr::milliseconds(1));
-    schedule.Push(3, start_time + chr::milliseconds(100));
-    AbortOnTimeout();
+    ASSERT_FALSE(schedule.PopIfDue(&out));
+    schedule.PopBlocking(&out);
+    EXPECT_EQ(out, 3);
+    // Make sure schedule hasn't been waiting longer than necessary.
+    EXPECT_LE(now(), far_away);
   });
 
-  ASSERT_FALSE(schedule.PopIfDue(&out));
-  schedule.PopBlocking(&out);
-  EXPECT_EQ(out, 3);
-  EXPECT_LE(now(), far_away);
-  signal_finished();
+  std::this_thread::sleep_for(chr::milliseconds(5));
+  schedule.Push(3, start_time + chr::milliseconds(100));
+  ABORT_ON_TIMEOUT(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingCanReadjustTimeIfSeveralElementsAreAdded) {
   const auto far_away = start_time + chr::seconds(5);
-
-  schedule.Push(3, start_time + chr::seconds(10));
+  const auto very_far_away = start_time + chr::seconds(10);
+  schedule.Push(3, very_far_away);
 
   const auto future = std::async(std::launch::async, [&] {
-    std::this_thread::sleep_for(chr::milliseconds(1));
-    schedule.Push(2, far_away);
-    std::this_thread::sleep_for(chr::milliseconds(1));
-    schedule.Push(1, start_time + chr::milliseconds(100));
-    AbortOnTimeout();
+    ASSERT_FALSE(schedule.PopIfDue(&out));
+    schedule.PopBlocking(&out);
+    EXPECT_EQ(out, 1);
+    EXPECT_LE(now(), far_away);
   });
 
-  ASSERT_FALSE(schedule.PopIfDue(&out));
-  schedule.PopBlocking(&out);
-  EXPECT_EQ(out, 1);
-  EXPECT_LE(now(), far_away);
-  signal_finished();
+  std::this_thread::sleep_for(chr::milliseconds(5));
+  schedule.Push(2, far_away);
+  std::this_thread::sleep_for(chr::milliseconds(1));
+  schedule.Push(1, start_time + chr::milliseconds(100));
+  ABORT_ON_TIMEOUT(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingNoticesRemovals) {
   const auto future = std::async(std::launch::async, [&] {
-    while (schedule.empty()) {
-      std::this_thread::sleep_for(chr::milliseconds(1));
-    }
-    const bool removed =
-        schedule.RemoveIf(nullptr, [](const int v) { return v == 1; });
-    EXPECT_TRUE(removed);
-    AbortOnTimeout();
+    schedule.Push(1, start_time + chr::milliseconds(50));
+    schedule.Push(2, start_time + chr::milliseconds(100));
+    ASSERT_FALSE(schedule.PopIfDue(&out));
+    schedule.PopBlocking(&out);
+    EXPECT_EQ(out, 2);
   });
 
-  schedule.Push(1, start_time + chr::milliseconds(50));
-  schedule.Push(2, start_time + chr::milliseconds(100));
-  ASSERT_FALSE(schedule.PopIfDue(&out));
-  schedule.PopBlocking(&out);
-  EXPECT_EQ(out, 2);
-  signal_finished();
+  while (schedule.empty()) {
+    std::this_thread::sleep_for(chr::milliseconds(1));
+  }
+  const bool removed =
+      schedule.RemoveIf(nullptr, [](const int v) { return v == 1; });
+  EXPECT_TRUE(removed);
+  ABORT_ON_TIMEOUT(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
   const auto future = std::async(std::launch::async, [&] {
-    while (schedule.empty()) {
-      std::this_thread::sleep_for(chr::milliseconds(1));
-    }
-    const bool removed =
-        schedule.RemoveIf(nullptr, [](const int v) { return v == 2; });
-    EXPECT_TRUE(removed);
-    AbortOnTimeout();
+    schedule.Push(1, start_time + chr::milliseconds(50));
+    schedule.Push(2, start_time + chr::seconds(10));
+    ASSERT_FALSE(schedule.PopIfDue(&out));
+    schedule.PopBlocking(&out);
+    EXPECT_EQ(out, 1);
   });
 
-  schedule.Push(1, start_time + chr::milliseconds(50));
-  schedule.Push(2, start_time + chr::seconds(10));
-  ASSERT_FALSE(schedule.PopIfDue(&out));
-  schedule.PopBlocking(&out);
-  EXPECT_EQ(out, 1);
-  signal_finished();
+  while (schedule.empty()) {
+    std::this_thread::sleep_for(chr::milliseconds(1));
+  }
+  const bool removed =
+      schedule.RemoveIf(nullptr, [](const int v) { return v == 2; });
+  EXPECT_TRUE(removed);
+  ABORT_ON_TIMEOUT(future);
 }
 
 // AsyncQueue tests
 
 namespace {
 
-class AsyncQueueTest : public TimeoutMixin, public ::testing::Test {
+class AsyncQueueTest :public ::testing::Test {
  public:
+  AsyncQueueTest() : signal_finished{[] {}} {
+  }
+
+  // Googletest doesn't contain built-in functionality to block until an async
+  // operation completes, and there is no timeout by default. Work around both
+  // by resolving a packaged_task in the async operation and blocking on the
+  // associated future (with timeout).
+  bool WaitForTestToFinish(const chr::milliseconds timeout = kTimeout) {
+    return WaitForFuture(signal_finished.get_future(), timeout);
+  }
+
+  // Used in async tests to notify the main thread that an opration has
+  // finished.
+  std::packaged_task<void()> signal_finished;
   AsyncQueue queue;
 };
 
@@ -291,11 +303,10 @@ TEST_F(AsyncQueueTest, DestructorDoesNotBlockIfThereArePendingTasks) {
     AsyncQueue another_queue;
     another_queue.EnqueueAfterDelay(chr::minutes(5), [] {});
     another_queue.EnqueueAfterDelay(chr::minutes(10), [] {});
+    // Destructor shouldn't block waiting for the 5/10-minute-away operations.
   });
 
-  if (future.wait_for(kTimeout) != std::future_status::ready) {
-    Abort();
-  }
+  ABORT_ON_TIMEOUT(future);
 }
 
 TEST_F(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
@@ -314,7 +325,7 @@ TEST_F(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   EXPECT_EQ(steps, "1234");
 }
 
-TEST_F(AsyncQueueTest, CanCancelDelayedCallbacks) {
+TEST_F(AsyncQueueTest, CanCancelDelayedOperations) {
   std::string steps;
 
   queue.Enqueue([&] {
