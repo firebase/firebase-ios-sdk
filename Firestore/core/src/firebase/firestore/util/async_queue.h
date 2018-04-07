@@ -17,15 +17,16 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_H_
 
-#include <assert.h>
 #include <algorithm>
 #include <atomic>
-#include <chrono>
-#include <condition_variable>
+#include <chrono>              // NOLINT(build/c++11)
+#include <condition_variable>  // NOLINT(build/c++11)
 #include <deque>
 #include <functional>
-#include <mutex>
-#include <thread>
+#include <mutex>   // NOLINT(build/c++11)
+#include <thread>  // NOLINT(build/c++11)
+
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -173,7 +174,8 @@ class Schedule {
 
   // This function expects the mutex to be already locked.
   void DoPop(T* const out, const Iterator where) {
-    assert(!scheduled_.empty());
+    FIREBASE_ASSERT_MESSAGE(!scheduled_.empty(),
+                            "Trying to pop an entry from an empty queue.");
 
     if (out) {
       *out = std::move(where->value);

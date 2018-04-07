@@ -21,7 +21,7 @@ namespace firestore {
 namespace util {
 
 void DelayedOperation::Cancel() {
-  assert(queue_);
+  FIREBASE_ASSERT_MESSAGE(queue_, "Null pointer to queue.");
   queue_->TryCancel(*this);
 }
 
@@ -53,7 +53,8 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
   // While negative delay can be interpreted as a request for immediate
   // execution, supporting it would provide a hacky way to modify FIFO ordering
   // of immediate operations.
-  assert(delay.count() >= 0);
+  FIREBASE_ASSERT_MESSAGE(delay.count() >= 0,
+                          "EnqueueAfterDelay: delay cannot be negative");
 
   namespace chr = std::chrono;
 

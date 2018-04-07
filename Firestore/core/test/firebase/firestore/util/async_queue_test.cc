@@ -17,10 +17,10 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 #include <stdlib.h>
-#include <chrono>
-#include <future>
+#include <chrono>  // NOLINT(build/c++11)
+#include <future>  // NOLINT(build/c++11)
 #include <string>
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 
 #include <gtest/gtest.h>
 
