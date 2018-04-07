@@ -40,7 +40,7 @@ namespace impl {
  * methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = util::Comparator<K>>
-class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
+class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
  public:
   /**
    * The type of the entries stored in the map.
@@ -217,6 +217,15 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    */
   const util::range<const_key_iterator> keys_from(const K& key) const {
     return KeysViewFrom(*this, key);
+  }
+
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_in(const K& start_key,
+                                                const K& end_key) const {
+    return impl::KeysViewIn(*this, start_key, end_key, this->comparator());
   }
 
  private:

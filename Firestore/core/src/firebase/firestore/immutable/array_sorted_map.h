@@ -165,8 +165,8 @@ class ArraySortedMap : public SortedMapBase {
     return array_->size();
   }
 
-  const key_comparator_type& comparator() const {
-    return key_comparator_;
+  const C& comparator() const {
+    return key_comparator_.comparator();
   }
 
   /**
@@ -303,6 +303,15 @@ class ArraySortedMap : public SortedMapBase {
    */
   const util::range<const_key_iterator> keys_from(const K& key) const {
     return KeysViewFrom(*this, key);
+  }
+
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_in(const K& start_key,
+                                                const K& end_key) const {
+    return impl::KeysViewIn(*this, start_key, end_key, comparator());
   }
 
  private:

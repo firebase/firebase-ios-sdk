@@ -25,6 +25,14 @@ namespace firestore {
 namespace immutable {
 namespace impl {
 
+template <typename Iterator>
+util::range<util::iterator_first<Iterator>> MakeKeysRange(Iterator begin,
+                                                          Iterator end) {
+  auto keys_begin = util::make_iterator_first(begin);
+  auto keys_end = util::make_iterator_first(end);
+  return util::make_range(keys_begin, keys_end);
+}
+
 /**
  * Returns of a view of the given range containing just the first part that have
  * been inserted.
@@ -32,9 +40,9 @@ namespace impl {
 template <typename Range>
 auto KeysView(const Range& range)
     -> util::range<util::iterator_first<decltype(std::begin(range))>> {
-  auto keys_begin = util::make_iterator_first(std::begin(range));
-  auto keys_end = util::make_iterator_first(std::end(range));
-  return util::make_range(keys_begin, keys_end);
+  auto begin = std::begin(range);
+  auto end = std::end(range);
+  return MakeKeysRange(begin, end);
 }
 
 template <typename Range, typename K>
@@ -43,6 +51,29 @@ auto KeysViewFrom(const Range& range, const K& key)
   auto keys_begin = util::make_iterator_first(range.lower_bound(key));
   auto keys_end = util::make_iterator_first(std::end(range));
   return util::make_range(keys_begin, keys_end);
+}
+
+template <typename Range, typename K, typename C>
+auto KeysViewIn(const Range& range,
+                const K& start_key,
+                const K& end_key,
+                const C& comparator)
+    -> util::range<
+        util::iterator_first<decltype(range.lower_bound(start_key))>> {
+  // Forward iterators can't ever reach the end if the end is behind the start:
+  // they just keep incrementing until address space runs out. Adjust the range
+  // accordingly.
+
+  bool descending = comparator(start_key, end_key);
+  if (descending) {
+    auto range_begin = range.lower_bound(start_key);
+    auto range_end = range.lower_bound(end_key);
+    return MakeKeysRange(range_begin, range_end);
+  } else {
+    auto range_begin = std::end(range);
+    auto range_end = std::end(range);
+    return MakeKeysRange(range_begin, range_end);
+  }
 }
 
 }  // namespace impl

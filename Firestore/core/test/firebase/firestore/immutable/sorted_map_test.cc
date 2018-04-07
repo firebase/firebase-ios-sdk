@@ -297,6 +297,35 @@ TYPED_TEST(SortedMapTest, KeysFrom) {
   ASSERT_SEQ_EQ(Sequence(12, 42, 2), map.keys_from(11));
 }
 
+TYPED_TEST(SortedMapTest, KeysIn) {
+  std::vector<int> all = Sequence(2, 42, 2);
+  TypeParam map = ToMap<TypeParam>(Shuffled(all));
+  ASSERT_EQ(20u, map.size());
+
+  // Constructs a sequnce from `start` up to but not including `end` by 2.
+  auto Seq = [](int start, int end) { return Sequence(start, end, 2); };
+
+  ASSERT_SEQ_EQ(Empty(), map.keys_in(0, 1));   // before to before
+  ASSERT_SEQ_EQ(all, map.keys_in(0, 100))      // before to after
+  ASSERT_SEQ_EQ(Seq(2, 6), map.keys_in(0, 6))  // before to in map
+  ASSERT_SEQ_EQ(Seq(2, 8), map.keys_in(0, 7))  // before to in between
+
+  ASSERT_SEQ_EQ(Empty(), map.keys_in(100, 0));    // after to before
+  ASSERT_SEQ_EQ(Empty(), map.keys_in(100, 110));  // after to after
+  ASSERT_SEQ_EQ(Empty(), map.keys_in(100, 6));    // after to in map
+  ASSERT_SEQ_EQ(Empty(), map.keys_in(100, 7));    // after to in between
+
+  ASSERT_SEQ_EQ(Empty(), map.keys_in(6, 0));       // in map to before
+  ASSERT_SEQ_EQ(Seq(6, 42), map.keys_in(6, 100));  // in map to after
+  ASSERT_SEQ_EQ(Seq(6, 10), map.keys_in(6, 10));   // in map to in map
+  ASSERT_SEQ_EQ(Seq(6, 12), map.keys_in(6, 11));   // in map to in between
+
+  ASSERT_SEQ_EQ(Empty(), map.keys_in(7, 0));       // in between to before
+  ASSERT_SEQ_EQ(Seq(8, 42), map.keys_in(7, 100));  // in between to after
+  ASSERT_SEQ_EQ(Seq(8, 10), map.keys_in(7, 10));   // in between to key in map
+  ASSERT_SEQ_EQ(Seq(8, 14), map.keys_in(7, 13));   // in between to in between
+}
+
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase

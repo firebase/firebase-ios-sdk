@@ -176,8 +176,7 @@ class SortedMap : public impl::SortedMapBase {
           // exactly where this cut-off happens and just unconditionally
           // converting if the next insertion could overflow keeps things
           // simpler.
-          const C& comparator = array_.comparator().comparator();
-          tree_type tree = tree_type::Create(array_, comparator);
+          tree_type tree = tree_type::Create(array_, comparator());
           return SortedMap{tree.insert(key, value)};
         } else {
           return SortedMap{array_.insert(key, value)};
@@ -309,6 +308,15 @@ class SortedMap : public impl::SortedMapBase {
     return impl::KeysViewFrom(*this, key);
   }
 
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_in(const K& start_key,
+                                                const K& end_key) const {
+    return impl::KeysViewIn(*this, start_key, end_key, comparator());
+  }
+
  private:
   explicit SortedMap(array_type&& array)
       : tag_{Tag::Array}, array_{std::move(array)} {
@@ -316,6 +324,16 @@ class SortedMap : public impl::SortedMapBase {
 
   explicit SortedMap(tree_type&& tree)
       : tag_{Tag::Tree}, tree_{std::move(tree)} {
+  }
+
+  const C& comparator() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.comparator();
+      case Tag::Tree:
+        return tree_.comparator();
+    }
+    FIREBASE_UNREACHABLE();
   }
 
   enum class Tag {
