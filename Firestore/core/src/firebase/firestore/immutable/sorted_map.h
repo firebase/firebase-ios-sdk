@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
@@ -45,6 +46,8 @@ class SortedMap : public impl::SortedMapBase {
       value_type,
       typename impl::FixedArray<value_type>::const_iterator,
       typename impl::LlrbNode<K, V>::const_iterator>;
+
+  using const_key_iterator = util::iterator_first<const_iterator>;
 
   /**
    * Creates an empty SortedMap.
@@ -269,6 +272,14 @@ class SortedMap : public impl::SortedMapBase {
         return const_iterator{tree_.end()};
     }
     FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted.
+   */
+  const util::range<const_key_iterator> keys() const {
+    return impl::KeysView(*this);
   }
 
  private:

@@ -266,6 +266,19 @@ TYPED_TEST(SortedMapTest, IteratorInvalidation) {
   ASSERT_EQ(size, result.size());
 }
 
+TYPED_TEST(SortedMapTest, KeyIterator) {
+  std::vector<int> all = Sequence(this->large_number());
+  TypeParam map = ToMap<TypeParam>(Shuffled(all));
+
+  auto begin = map.keys().begin();
+  ASSERT_EQ(0, *begin);
+
+  auto end = map.keys().end();
+  ASSERT_EQ(all.size(), static_cast<size_t>(std::distance(begin, end)));
+
+  ASSERT_SEQ_EQ(all, map.keys());
+}
+
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase

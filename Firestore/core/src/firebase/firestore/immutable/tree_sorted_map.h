@@ -23,12 +23,12 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/llrb_node.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/util/comparator_holder.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/iterator_adaptors.h"
 
 namespace firebase {
 namespace firestore {
@@ -52,6 +52,7 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    */
   using node_type = LlrbNode<K, V>;
   using const_iterator = typename node_type::const_iterator;
+  using const_key_iterator = util::iterator_first<const_iterator>;
 
   /**
    * Creates an empty TreeSortedMap.
@@ -187,6 +188,14 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    */
   const_iterator end() const {
     return const_iterator::End();
+  }
+
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted.
+   */
+  const util::range<const_key_iterator> keys() const {
+    return KeysView(*this);
   }
 
  private:

@@ -24,10 +24,12 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/range.h"
 
 namespace firebase {
 namespace firestore {
@@ -133,6 +135,7 @@ class ArraySortedMap : public SortedMapBase {
    */
   using array_type = FixedArray<value_type>;
   using const_iterator = typename array_type::const_iterator;
+  using const_key_iterator = util::iterator_first<const_iterator>;
 
   using array_pointer = std::shared_ptr<const array_type>;
 
@@ -271,6 +274,14 @@ class ArraySortedMap : public SortedMapBase {
    */
   const_iterator end() const {
     return array_->end();
+  }
+
+  /**
+   * Returns of a view of this SortedMap containing just the keys that have been
+   * inserted.
+   */
+  const util::range<const_key_iterator> keys() const {
+    return KeysView(*this);
   }
 
  private:
