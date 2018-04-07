@@ -247,7 +247,7 @@ class AsyncQueue {
   DelayedOperation EnqueueAfterDelay(Milliseconds delay, Operation&& operation);
 
  private:
-  friend class DelayedOperation; // For access to `TryCancel`
+  friend class DelayedOperation;  // For access to `TryCancel`
   // If the operation hasn't yet been run, it will be removed from the queue.
   // Otherwise, this function is a no-op.
   void TryCancel(const DelayedOperation& operation);
@@ -263,7 +263,9 @@ class AsyncQueue {
   // always scheduled before any delayed operation, even in the corner case when
   // the immediate operation was scheduled after a delayed operation was due
   // (but hasn't yet run).
-  static TimePoint Immediate() { return TimePoint{}; }
+  static TimePoint Immediate() {
+    return TimePoint{};
+  }
 
   struct Entry {
     Entry() {
