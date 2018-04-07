@@ -25,6 +25,7 @@
 #include <functional>
 #include <mutex>   // NOLINT(build/c++11)
 #include <thread>  // NOLINT(build/c++11)
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
