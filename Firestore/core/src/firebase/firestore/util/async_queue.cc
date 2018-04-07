@@ -25,6 +25,12 @@ void DelayedOperation::Cancel() {
   queue_->TryCancel(id_);
 }
 
+AsyncQueue::AsyncQueue()  {
+  current_id_ = 0;
+  shutting_down_ = false;
+  worker_thread_ = std::thread{&AsyncQueue::PollingThread, this};
+}
+
 AsyncQueue::~AsyncQueue() {
   shutting_down_ = true;
   UnblockQueue();

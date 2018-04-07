@@ -111,7 +111,8 @@ class Schedule {
       cv_.wait_until(lock, until,
                      [this, until] {
                      // return HasDue();
-                     return scheduled_.front().due < until;
+                     // return scheduled_.front().due < until;
+                     return scheduled_.front().due != until;
                      });
 
       if (HasDue()) {
@@ -203,8 +204,7 @@ class AsyncQueue {
   using Id = DelayedOperation::Id;
 
  public:
-  AsyncQueue() : worker_thread_{&AsyncQueue::PollingThread, this} {
-  }
+  AsyncQueue();
   ~AsyncQueue();
 
   void Enqueue(Operation&& operation);

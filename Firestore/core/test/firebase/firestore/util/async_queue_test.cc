@@ -48,9 +48,20 @@ struct TimeoutMixin {
   // operation completes, and there is no timeout by default. Work around both
   // by resolving a packaged_task in the async operation and blocking on the
   // associated future (with timeout).
-  bool WaitForTestToFinish() {
-    return signal_finished.get_future().wait_for(kTimeout) ==
+  bool WaitForTestToFinish(const chr::milliseconds timeout = kTimeout) {
+    return signal_finished.get_future().wait_for(timeout) ==
            std::future_status::ready;
+  }
+
+  // Unfortunately, the future returned from std::async blocks in its destructor
+  // until the async call is finished. If PopBlocking is buggy and hangs
+  // forever, the future's destructor will also hang forever. To avoid all tests
+  // freezing, the only thing to do is to abort (which skips destructors).
+  void AbortOnTimeout() {
+    if (!WaitForTestToFinish()) {
+      ADD_FAILURE();
+      std::abort();
+    }
   }
 
   std::packaged_task<void()> signal_finished;
@@ -163,26 +174,16 @@ TEST_F(ScheduleTest, AddingEntryUnblocksEmptyQueue) {
 
   std::this_thread::sleep_for(chr::milliseconds(5));
   schedule.Push(1, start_time);
-  // Unfortunately, the future returned from std::async blocks in its destructor
-  // until the async call is finished. If PopBlocking is buggy and hangs
-  // forever, the future's destructor will also hang forever. To avoid all tests
-  // freezing, the only thing to do is to abort (which skips destructors).
-  if (!WaitForTestToFinish()) {
-    ADD_FAILURE();
-    std::abort();
-  }
+  AbortOnTimeout();
 }
 
 TEST_F(ScheduleTest, PopBlockingUnblocksOnNewImmediateEntries) {
   schedule.Push(5, start_time + chr::seconds(10));
 
   const auto future = std::async(std::launch::async, [&] {
-      std::this_thread::sleep_for(chr::milliseconds(1));
-      schedule.Push(3, start_time);
-      if (!WaitForTestToFinish()) {
-        ADD_FAILURE();
-        std::abort();
-      }
+    std::this_thread::sleep_for(chr::milliseconds(1));
+    schedule.Push(3, start_time);
+    AbortOnTimeout();
   });
 
   ASSERT_FALSE(schedule.PopIfDue(&out));
@@ -196,18 +197,73 @@ TEST_F(ScheduleTest, PopBlockingAdjustsWaitTimeOnNewSoonerEntries) {
   schedule.Push(5, far_away);
 
   const auto future = std::async(std::launch::async, [&] {
-      std::this_thread::sleep_for(chr::milliseconds(1));
-      schedule.Push(3, start_time + chr::milliseconds(100));
-      if (!WaitForTestToFinish()) {
-        ADD_FAILURE();
-        std::abort();
-      }
+    std::this_thread::sleep_for(chr::milliseconds(1));
+    schedule.Push(3, start_time + chr::milliseconds(100));
+    AbortOnTimeout();
   });
 
   ASSERT_FALSE(schedule.PopIfDue(&out));
   schedule.PopBlocking(&out);
   EXPECT_EQ(out, 3);
   EXPECT_LE(now(), far_away);
+  signal_finished();
+}
+
+TEST_F(ScheduleTest, PopBlockingCanReadjustTimeIfSeveralElementsAreAdded) {
+  const auto far_away = start_time + chr::seconds(5);
+
+  schedule.Push(3, start_time + chr::seconds(10));
+
+  const auto future = std::async(std::launch::async, [&] {
+    std::this_thread::sleep_for(chr::milliseconds(1));
+    schedule.Push(2, far_away);
+    std::this_thread::sleep_for(chr::milliseconds(1));
+    schedule.Push(1, start_time + chr::milliseconds(100));
+    AbortOnTimeout();
+  });
+
+  ASSERT_FALSE(schedule.PopIfDue(&out));
+  schedule.PopBlocking(&out);
+  EXPECT_EQ(out, 1);
+  EXPECT_LE(now(), far_away);
+  signal_finished();
+}
+
+TEST_F(ScheduleTest, PopBlockingNoticesRemovals) {
+  const auto future = std::async(std::launch::async, [&] {
+    while (schedule.empty()) {
+      std::this_thread::sleep_for(chr::milliseconds(1));
+    }
+    const bool removed =
+        schedule.RemoveIf(nullptr, [](const int v) { return v == 1; });
+    EXPECT_TRUE(removed);
+    AbortOnTimeout();
+  });
+
+  schedule.Push(1, start_time + chr::milliseconds(50));
+  schedule.Push(2, start_time + chr::milliseconds(100));
+  ASSERT_FALSE(schedule.PopIfDue(&out));
+  schedule.PopBlocking(&out);
+  EXPECT_EQ(out, 2);
+  signal_finished();
+}
+
+TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
+  const auto future = std::async(std::launch::async, [&] {
+    while (schedule.empty()) {
+      std::this_thread::sleep_for(chr::milliseconds(1));
+    }
+    const bool removed =
+        schedule.RemoveIf(nullptr, [](const int v) { return v == 2; });
+    EXPECT_TRUE(removed);
+    AbortOnTimeout();
+  });
+
+  schedule.Push(1, start_time + chr::milliseconds(50));
+  schedule.Push(2, start_time + chr::seconds(10));
+  ASSERT_FALSE(schedule.PopIfDue(&out));
+  schedule.PopBlocking(&out);
+  EXPECT_EQ(out, 1);
   signal_finished();
 }
 
@@ -225,6 +281,16 @@ class AsyncQueueTest : public TimeoutMixin, public ::testing::Test {
 TEST_F(AsyncQueueTest, Enqueue) {
   queue.Enqueue([&] { signal_finished(); });
   EXPECT_TRUE(WaitForTestToFinish());
+}
+
+TEST_F(AsyncQueueTest, DestructorDoesNotBlockIfThereArePendingTasks) {
+  const auto future = std::async(std::launch::async, [&] {
+    AsyncQueue another_queue;
+    another_queue.EnqueueAfterDelay(chr::minutes(10),
+                                    [&] { signal_finished(); });
+    std::this_thread::sleep_for(chr::milliseconds(1));
+  });
+  AbortOnTimeout();
 }
 
 TEST_F(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
@@ -275,6 +341,6 @@ TEST_F(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
+}  // namespace util
 }  // namespace firestore
-}  // namespace firebase
 }  // namespace firebase
