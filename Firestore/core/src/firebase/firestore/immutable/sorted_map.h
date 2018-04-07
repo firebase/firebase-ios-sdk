@@ -229,6 +229,22 @@ class SortedMap : public impl::SortedMapBase {
   }
 
   /**
+   * Finds the index of the give key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.find_index(key);
+      case Tag::Tree:
+        return tree_.find_index(key);
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
    * Returns an iterator pointing to the first entry in the map. If there are
    * no entries in the map, begin() == end().
    */

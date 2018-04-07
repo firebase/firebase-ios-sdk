@@ -146,6 +146,33 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
   }
 
   /**
+   * Finds the index of the give key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    const C& comparator = this->comparator();
+
+    size_type pruned_nodes = 0;
+    const node_type* node = &root_;
+    while (!node->empty()) {
+      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      if (cmp == util::ComparisonResult::Same) {
+        return pruned_nodes + node->left().size();
+
+      } else if (cmp == util::ComparisonResult::Ascending) {
+        node = &node->left();
+
+      } else if (cmp == util::ComparisonResult::Descending) {
+        pruned_nodes += node->left().size() + 1;
+        node = &node->right();
+      }
+    }
+    return npos;
+  }
+
+  /**
    * Returns a forward iterator pointing to the first entry in the map. If there
    * are no entries in the map, begin() == end().
    *

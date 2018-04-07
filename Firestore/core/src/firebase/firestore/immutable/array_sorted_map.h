@@ -248,6 +248,17 @@ class ArraySortedMap : public SortedMapBase {
   }
 
   /**
+   * Finds the index of the give key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    auto found = find(key);
+    return found == end() ? npos : static_cast<size_type>(found - begin());
+  }
+
+  /**
    * Returns an iterator pointing to the first entry in the map. If there are
    * no entries in the map, begin() == end().
    */

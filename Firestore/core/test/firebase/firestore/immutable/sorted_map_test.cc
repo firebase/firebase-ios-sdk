@@ -142,6 +142,23 @@ TYPED_TEST(SortedMapTest, FindSpecificKey) {
   ASSERT_TRUE(NotFound(map, 3));
 }
 
+TYPED_TEST(SortedMapTest, FindIndex) {
+  std::vector<int> to_insert{1, 3, 4, 7, 9, 50};
+  TypeParam map = ToMap<TypeParam>(to_insert);
+
+  ASSERT_EQ(TypeParam::npos, map.find_index(0));
+  ASSERT_EQ(0u, map.find_index(1));
+  ASSERT_EQ(TypeParam::npos, map.find_index(2));
+  ASSERT_EQ(1u, map.find_index(3));
+  ASSERT_EQ(2u, map.find_index(4));
+  ASSERT_EQ(TypeParam::npos, map.find_index(5));
+  ASSERT_EQ(TypeParam::npos, map.find_index(6));
+  ASSERT_EQ(3u, map.find_index(7));
+  ASSERT_EQ(TypeParam::npos, map.find_index(8));
+  ASSERT_EQ(4u, map.find_index(9));
+  ASSERT_EQ(5u, map.find_index(50));
+}
+
 TYPED_TEST(SortedMapTest, IteratorsAreDefaultConstructible) {
   // If this compiles the test has succeeded
   typename TypeParam::const_iterator iter;
