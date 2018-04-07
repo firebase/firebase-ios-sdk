@@ -272,7 +272,7 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
 
 namespace {
 
-class AsyncQueueTest :public ::testing::Test {
+class AsyncQueueTest : public ::testing::Test {
  public:
   AsyncQueueTest() : signal_finished{[] {}} {
   }
