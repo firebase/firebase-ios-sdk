@@ -22,8 +22,6 @@
 #include <string>
 #include <thread>
 
-#include <iostream>
-
 #include <gtest/gtest.h>
 
 namespace firebase {
@@ -35,7 +33,8 @@ namespace {
 namespace chr = std::chrono;
 
 chr::time_point<std::chrono::system_clock, chr::milliseconds> now() {
-  return chr::time_point_cast<chr::milliseconds>(chr::system_clock::now());
+  return chr::time_point_cast<AsyncQueue::Milliseconds>(
+      chr::system_clock::now());
 }
 
 const auto kTimeout = std::chrono::seconds(5);
