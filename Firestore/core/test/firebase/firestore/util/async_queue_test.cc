@@ -57,10 +57,14 @@ struct TimeoutMixin {
   // until the async call is finished. If PopBlocking is buggy and hangs
   // forever, the future's destructor will also hang forever. To avoid all tests
   // freezing, the only thing to do is to abort (which skips destructors).
-  void AbortOnTimeout() {
-    if (!WaitForTestToFinish()) {
-      ADD_FAILURE();
-      std::abort();
+  void Abort() {
+    ADD_FAILURE();
+    std::abort();
+  }
+
+  void AbortOnTimeout(const chr::milliseconds timeout = kTimeout) {
+    if (!WaitForTestToFinish(timeout)) {
+      Abort();
     }
   }
 
@@ -286,11 +290,13 @@ TEST_F(AsyncQueueTest, Enqueue) {
 TEST_F(AsyncQueueTest, DestructorDoesNotBlockIfThereArePendingTasks) {
   const auto future = std::async(std::launch::async, [&] {
     AsyncQueue another_queue;
-    another_queue.EnqueueAfterDelay(chr::minutes(10),
-                                    [&] { signal_finished(); });
-    std::this_thread::sleep_for(chr::milliseconds(1));
+    another_queue.EnqueueAfterDelay(chr::minutes(5), [] {});
+    another_queue.EnqueueAfterDelay(chr::minutes(10), [] {});
   });
-  AbortOnTimeout();
+
+  if (future.wait_for(kTimeout) != std::future_status::ready) {
+    Abort();
+  }
 }
 
 TEST_F(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
