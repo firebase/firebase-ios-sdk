@@ -19,9 +19,10 @@
 
 #import <Foundation/Foundation.h>
 
-#include <leveldb/slice.h>
 #include <string>
+
 #include "absl/strings/string_view.h"
+#include "leveldb/slice.h"
 
 namespace Firestore {
 

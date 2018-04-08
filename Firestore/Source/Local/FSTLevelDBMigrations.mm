@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-#include "Firestore/Source/Local/FSTLevelDBMigrations.h"
-
-#include <absl/strings/match.h>
+#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 
 #include <string>
-
-#include "leveldb/write_batch.h"
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "absl/strings/match.h"
+#include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

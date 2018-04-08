@@ -17,7 +17,6 @@
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 
 #import <XCTest/XCTest.h>
-#include <leveldb/db.h>
 
 #include <string>
 
@@ -30,6 +29,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

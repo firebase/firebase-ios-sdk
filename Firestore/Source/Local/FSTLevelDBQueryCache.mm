@@ -26,9 +26,9 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#include "absl/strings/match.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

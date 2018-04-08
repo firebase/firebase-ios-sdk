@@ -15,8 +15,6 @@
  */
 
 #import <XCTest/XCTest.h>
-#include <absl/strings/string_view.h>
-#include <leveldb/db.h>
 
 #include <memory>
 #include <string>
@@ -29,7 +27,10 @@
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "absl/strings/string_view.h"
+#include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

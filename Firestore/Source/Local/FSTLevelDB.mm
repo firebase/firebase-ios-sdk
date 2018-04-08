@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
-#include <leveldb/db.h>
-
 #include <memory>
 
 #import "FIRFirestoreErrors.h"
@@ -28,13 +26,14 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
-#include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
+#include "leveldb/db.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
