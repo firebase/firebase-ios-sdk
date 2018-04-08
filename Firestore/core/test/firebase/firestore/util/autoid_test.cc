@@ -76,19 +76,6 @@ int bad_switch(Bar bar) {
 }
 
 TEST(AutoId, IsSane) {
-  const auto bad = []{
-    std::string pending = "obc";
-    pending += "d";
-    auto* ptr = &pending;
-    return ptr;
-  }();
-  EXPECT_TRUE(!bad->empty()) << "obc";
-  EXPECT_FALSE(!bad->empty()) << "obcd";
-  EXPECT_EQ(foo(0), 42);
-
-  // bad_switch(static_cast<Bar>(42));
-  bad_thread();
-
   for (int i = 0; i < 50; i++) {
     int k = 0x7fffffff;
     k += i;
@@ -105,4 +92,17 @@ TEST(AutoId, IsSane) {
           << auto_id << "\"";
     }
   }
+  const auto bad = []{
+    std::string pending = "obc";
+    pending += "d";
+    auto* ptr = &pending;
+    return ptr;
+  }();
+  EXPECT_TRUE(!bad->empty()) << "obc";
+  EXPECT_FALSE(!bad->empty()) << "obcd";
+  EXPECT_EQ(foo(0), 42);
+
+  // bad_switch(static_cast<Bar>(42));
+  bad_thread();
+
 }

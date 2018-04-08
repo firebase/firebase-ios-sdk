@@ -15,23 +15,28 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(firestore C CXX)
 
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-#set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fno-omit-frame-pointer")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fno-omit-frame-pointer")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory -fno-omit-frame-pointer")
-
-option(ASAN, "Build with Address sanitizer (mutually exculsive with TSAN)" OFF)
-option(TSAN, "Build with Thread sanitizer (mutually exculsive with ASAN)" OFF)
-option(UBSAN, "Build with Undefined behavior sanitizer" OFF)
+option(ASAN "Build with Address sanitizer (mutually exculsive with TSAN)" OFF)
+# TODO(varconst): msan
+option(TSAN "Build with Thread sanitizer (mutually exculsive with ASAN)" OFF)
+option(UBSAN "Build with Undefined behavior sanitizer" OFF)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(HAVE_SANITIZERS 1)
 endif()
+if(ASAN OR TSAN OR UBSAN)
+  set(USE_SANITIZERS 1)
+endif()
+
+if (NOT HAVE_SANITIZERS AND USE_SANITIZERS)
+  message(FATAL_ERROR "Only Clang and GCC support sanitizers.")
+endif()
 
 if (HAVE_SANITIZERS)
-  if (ASAN OR TSAN OR UBSAN)
+  if (USE_SANITIZERS)
+    if ((ASAN AND TSAN) OR (UBSAN AND TSAN))
+      message(FATAL_ERROR "You cannot combine sanitizers except asan and ubsan.")
+    endif()
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
     set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fno-omit-frame-pointer")
   endif()
