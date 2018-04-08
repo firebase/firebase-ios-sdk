@@ -130,7 +130,6 @@
 		AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
-		AFC8BAA71EC257D800B8EEAE /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D01853831EDAD113003A645C /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D018537E1EDAD0E6003A645C /* FIRAppDelegate.m */; };
 		D01853841EDAD113003A645C /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D01853801EDAD0E6003A645C /* FIRViewController.m */; };
@@ -1039,7 +1038,6 @@
 		DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Sample_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE47C0EE207AC87F00B1AEDF /* Messaging_Example_iOS copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Messaging_Example_iOS copy-Info.plist"; path = "/Users/paulbeusterien/pure/firebase-ios-sdk/Example/Messaging_Example_iOS copy-Info.plist"; sourceTree = "<absolute>"; };
 		DE47C107207AC94A00B1AEDF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DE47C109207AC94A00B1AEDF /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		DE47C10A207AC94A00B1AEDF /* MessagingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingViewController.swift; sourceTree = "<group>"; };
@@ -1595,7 +1593,6 @@
 				DEDFEFED1FD1B8C100F7D466 /* Analytics_Tests_iOS */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
-				DE47C0EE207AC87F00B1AEDF /* Messaging_Example_iOS copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3570,7 +3567,6 @@
 				DE47C142207ACAA900B1AEDF /* main.m in Sources */,
 				DE47C143207ACAA900B1AEDF /* FIRAppDelegate.m in Sources */,
 				DE47C144207ACAA900B1AEDF /* FIRViewController.m in Sources */,
-				AFC8BAA71EC257D800B8EEAE /* FIRSampleAppUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6177,6 +6173,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6206,6 +6203,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

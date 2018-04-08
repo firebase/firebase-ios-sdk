@@ -119,6 +119,29 @@ case "$product-$method-$platform" in
           "${xcb_flags[@]}" \
           build \
           test
+
+      # Test iOS Objective-C static library build
+      cd Example
+      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+      pod update --no-repo-update
+      cd ..
+      RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "AllUnitTests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+
+      cd Functions/Example
+      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+      pod update --no-repo-update
+      cd ../..
+      RunXcodebuild \
+          -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
+          -scheme "FirebaseFunctions_Tests" \
+          "${xcb_flags[@]}" \
+          build \
+          test
     fi
     ;;
 
