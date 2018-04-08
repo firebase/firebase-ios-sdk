@@ -181,10 +181,6 @@
 		D01853B71EDAD364003A645C /* FIRSetAccountInfoResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315161E86C6FF0083EDBF /* FIRSetAccountInfoResponseTests.m */; };
 		D01853B81EDAD364003A645C /* FIRAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315031E86C6FF0083EDBF /* FIRAuthTests.m */; };
 		D01853BC1EDAD364003A645C /* FIRUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151A1E86C6FF0083EDBF /* FIRUserTests.m */; };
-		D064E69A1ED9B1BF001956DF /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D064E6991ED9B1BF001956DF /* FIRAppDelegate.m */; };
-		D064E69D1ED9B1BF001956DF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D064E69C1ED9B1BF001956DF /* main.m */; };
-		D064E6A01ED9B1BF001956DF /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D064E69F1ED9B1BF001956DF /* FIRViewController.m */; };
-		D064E6A51ED9B1BF001956DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D064E6A31ED9B1BF001956DF /* Main.storyboard */; };
 		D064E6AF1ED9B31C001956DF /* FIRAppAssociationRegistrationUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */; };
 		D064E6B01ED9B31C001956DF /* FIRAppTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D761E844677006FA992 /* FIRAppTest.m */; };
 		D064E6B11ED9B31C001956DF /* FIRConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D781E844677006FA992 /* FIRConfigurationTest.m */; };
@@ -193,7 +189,6 @@
 		D064E6B41ED9B31C001956DF /* FIRBundleUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D771E844677006FA992 /* FIRBundleUtilTest.m */; };
 		D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
-		D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
 		D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D0EDB2C51EDA04F800B6C31B /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -332,6 +327,27 @@
 		DE26D2931F705F4D004AE1D3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D2071F70333E004AE1D3 /* ViewController.swift */; };
 		DE26D2941F705F51004AE1D3 /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FE1F70333E004AE1D3 /* AuthCredentials.swift */; };
 		DE26D2951F705F53004AE1D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FD1F70333E004AE1D3 /* AppDelegate.swift */; };
+		DE4902EB207A601D00AB2244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902D6207A601D00AB2244 /* main.m */; };
+		DE4902EC207A601D00AB2244 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902D7207A601D00AB2244 /* FIRAppDelegate.m */; };
+		DE4902ED207A601D00AB2244 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902D8207A601D00AB2244 /* FIRViewController.m */; };
+		DE4902EE207A601D00AB2244 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE4902DB207A601D00AB2244 /* Assets.xcassets */; };
+		DE4902F4207A604900AB2244 /* Core-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE4902C9207A601D00AB2244 /* Core-Info.plist */; };
+		DE4902F5207A604900AB2244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902CA207A601D00AB2244 /* main.m */; };
+		DE4902F6207A604900AB2244 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902CB207A601D00AB2244 /* FIRAppDelegate.m */; };
+		DE4902F7207A604900AB2244 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902CC207A601D00AB2244 /* FIRViewController.m */; };
+		DE4902F8207A604900AB2244 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE4902CD207A601D00AB2244 /* GoogleService-Info.plist */; };
+		DE4902F9207A607A00AB2244 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902DC207A601D00AB2244 /* ViewController.m */; };
+		DE4902FA207A607A00AB2244 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE4902DD207A601D00AB2244 /* Main.storyboard */; };
+		DE4902FB207A607A00AB2244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902DE207A601D00AB2244 /* main.m */; };
+		DE4902FC207A607A00AB2244 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4902DF207A601D00AB2244 /* AppDelegate.m */; };
+		DE4902FD207A607A00AB2244 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE4902E0207A601D00AB2244 /* Info.plist */; };
+		DE4902FE207A609200AB2244 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE4902CD207A601D00AB2244 /* GoogleService-Info.plist */; };
+		DE4902FF207A609500AB2244 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE4902CD207A601D00AB2244 /* GoogleService-Info.plist */; };
+		DE490300207A617100AB2244 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		DE490301207A617500AB2244 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		DE490302207A63CF00AB2244 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE4902D3207A601D00AB2244 /* Main.storyboard */; };
+		DE490303207A63D800AB2244 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE4902D1207A601D00AB2244 /* LaunchScreen.storyboard */; };
+		DE490304207A656700AB2244 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE4902C7207A601D00AB2244 /* Main.storyboard */; };
 		DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */; };
 		DE750DBE1EB3DD6800A75E47 /* FIRAuthAPNSTokenManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */; };
 		DE750DBF1EB3DD6C00A75E47 /* FIRAuthAppCredentialManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */; };
@@ -451,11 +467,6 @@
 		DE9316031E8738E60083EDBF /* FIRMessagingSyncMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D41E8738B70083EDBF /* FIRMessagingSyncMessageManagerTest.m */; };
 		DE9316041E8738E60083EDBF /* FIRMessagingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D51E8738B70083EDBF /* FIRMessagingTest.m */; };
 		DE9316051E8738E60083EDBF /* FIRMessagingTestNotificationUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */; };
-		DEAAD3C31FBA1CD90053BF48 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD3BD1FBA1CD80053BF48 /* main.m */; };
-		DEAAD3CE1FBA1EFA0053BF48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEAAD3C51FBA1EF90053BF48 /* Assets.xcassets */; };
-		DEAAD3CF1FBA1EFA0053BF48 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD3C81FBA1EFA0053BF48 /* AppDelegate.m */; };
-		DEAAD3D01FBA1EFA0053BF48 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD3C91FBA1EFA0053BF48 /* ViewController.m */; };
-		DEAAD3D41FBA20480053BF48 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEAAD3D21FBA1F850053BF48 /* Main.storyboard */; };
 		DEAAD3D51FBA34250053BF48 /* FIRAppAssociationRegistrationUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */; };
 		DEAAD3D61FBA34250053BF48 /* FIRAppTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D761E844677006FA992 /* FIRAppTest.m */; };
 		DEAAD3D71FBA34250053BF48 /* FIRBundleUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D771E844677006FA992 /* FIRBundleUtilTest.m */; };
@@ -463,7 +474,6 @@
 		DEAAD3D91FBA34250053BF48 /* FIRLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D791E844677006FA992 /* FIRLoggerTest.m */; };
 		DEAAD3DA1FBA34250053BF48 /* FIROptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7A1E844677006FA992 /* FIROptionsTest.m */; };
 		DEAAD3DB1FBA34250053BF48 /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
-		DEAAD3DC1FBA36210053BF48 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
 		DEAAD41A1FBA470B0053BF48 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD4131FBA470A0053BF48 /* AppDelegate.m */; };
 		DEAAD41B1FBA470B0053BF48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEAAD4141FBA470A0053BF48 /* Assets.xcassets */; };
 		DEAAD41D1FBA470B0053BF48 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD4161FBA470A0053BF48 /* main.m */; };
@@ -503,12 +513,6 @@
 		DECE039B1E9ED01600164CA4 /* FIRPhoneAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */; };
 		DEDFEFEF1FD1B8C100F7D466 /* Analytics_Tests_iOS.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFEFEE1FD1B8C100F7D466 /* Analytics_Tests_iOS.m */; };
 		DEDFEFF71FD1B9AA00F7D466 /* DeprecatedHeaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFEFF61FD1B9AA00F7D466 /* DeprecatedHeaderTest.m */; };
-		DEE14D7E1E844677006FA992 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D681E844677006FA992 /* LaunchScreen.storyboard */; };
-		DEE14D7F1E844677006FA992 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D6A1E844677006FA992 /* Main.storyboard */; };
-		DEE14D811E844677006FA992 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D6E1E844677006FA992 /* FIRAppDelegate.m */; };
-		DEE14D821E844677006FA992 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D701E844677006FA992 /* FIRViewController.m */; };
-		DEE14D831E844677006FA992 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
-		DEE14D851E844677006FA992 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D731E844677006FA992 /* main.m */; };
 		DEE14D8E1E84468D006FA992 /* FIRAppAssociationRegistrationUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */; };
 		DEE14D8F1E84468D006FA992 /* FIRAppTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D761E844677006FA992 /* FIRAppTest.m */; };
 		DEE14D901E84468D006FA992 /* FIRBundleUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D771E844677006FA992 /* FIRBundleUtilTest.m */; };
@@ -929,13 +933,6 @@
 		D01853821EDAD0E6003A645C /* Auth-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Auth-Info.plist"; sourceTree = "<group>"; };
 		D01853C61EDAD364003A645C /* Auth_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D064E6961ED9B1BF001956DF /* Core_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D064E6981ED9B1BF001956DF /* FIRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
-		D064E6991ED9B1BF001956DF /* FIRAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
-		D064E69C1ED9B1BF001956DF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		D064E69E1ED9B1BF001956DF /* FIRViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
-		D064E69F1ED9B1BF001956DF /* FIRViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
-		D064E6A41ED9B1BF001956DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		D064E6A61ED9B1BF001956DF /* Core-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
 		D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = "OCMock-iOS/OCMock.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB2CD1EDA04F800B6C31B /* Storage_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1039,6 +1036,30 @@
 		DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		DE4902C5207A601D00AB2244 /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
+		DE4902C6207A601D00AB2244 /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
+		DE4902C8207A601D00AB2244 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DE4902C9207A601D00AB2244 /* Core-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
+		DE4902CA207A601D00AB2244 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DE4902CB207A601D00AB2244 /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
+		DE4902CC207A601D00AB2244 /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
+		DE4902CD207A601D00AB2244 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DE4902CF207A601D00AB2244 /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
+		DE4902D0207A601D00AB2244 /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
+		DE4902D2207A601D00AB2244 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DE4902D4207A601D00AB2244 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DE4902D5207A601D00AB2244 /* Core-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
+		DE4902D6207A601D00AB2244 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DE4902D7207A601D00AB2244 /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
+		DE4902D8207A601D00AB2244 /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
+		DE4902DA207A601D00AB2244 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		DE4902DB207A601D00AB2244 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DE4902DC207A601D00AB2244 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		DE4902DD207A601D00AB2244 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		DE4902DE207A601D00AB2244 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DE4902DF207A601D00AB2244 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		DE4902E0207A601D00AB2244 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DE4902E1207A601D00AB2244 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE53894C1FBB635400199FC2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE53894D1FBB635400199FC2 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1165,14 +1186,6 @@
 		DE9315D81E8738B70083EDBF /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEAAD3811FBA11270053BF48 /* Core_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAAD3951FBA11270053BF48 /* Core_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEAAD3BD1FBA1CD80053BF48 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		DEAAD3C41FBA1EF90053BF48 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DEAAD3C51FBA1EF90053BF48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DEAAD3C61FBA1EF90053BF48 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		DEAAD3C71FBA1EF90053BF48 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		DEAAD3C81FBA1EFA0053BF48 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		DEAAD3C91FBA1EFA0053BF48 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		DEAAD3D21FBA1F850053BF48 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		DEAAD3E11FBA46AA0053BF48 /* Storage_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAAD3F51FBA46AB0053BF48 /* Storage_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAAD4121FBA470A0053BF48 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1214,15 +1227,6 @@
 		DEDFEFF61FD1B9AA00F7D466 /* DeprecatedHeaderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DeprecatedHeaderTest.m; sourceTree = "<group>"; };
 		DEE14D411E84464D006FA992 /* Core_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE14D591E84464D006FA992 /* Core_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEE14D691E844677006FA992 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		DEE14D6B1E844677006FA992 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		DEE14D6C1E844677006FA992 /* Core-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
-		DEE14D6D1E844677006FA992 /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
-		DEE14D6E1E844677006FA992 /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
-		DEE14D6F1E844677006FA992 /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
-		DEE14D701E844677006FA992 /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
-		DEE14D711E844677006FA992 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DEE14D731E844677006FA992 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppAssociationRegistrationUnitTests.m; sourceTree = "<group>"; };
 		DEE14D761E844677006FA992 /* FIRAppTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppTest.m; sourceTree = "<group>"; };
 		DEE14D771E844677006FA992 /* FIRBundleUtilTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRBundleUtilTest.m; sourceTree = "<group>"; };
@@ -1560,6 +1564,7 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
+				DE4902C3207A601D00AB2244 /* TestHarnessApp */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				DE9314EB1E86C6FF0083EDBF /* Auth */,
 				DEE14D661E844677006FA992 /* Core */,
@@ -1703,35 +1708,6 @@
 			);
 			name = iOS;
 			path = App/iOS;
-			sourceTree = "<group>";
-		};
-		D0D857F61ED9ADA8002342D2 /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				DEE14D681E844677006FA992 /* LaunchScreen.storyboard */,
-				DEE14D6A1E844677006FA992 /* Main.storyboard */,
-				DEE14D6C1E844677006FA992 /* Core-Info.plist */,
-				DEE14D6D1E844677006FA992 /* FIRAppDelegate.h */,
-				DEE14D6E1E844677006FA992 /* FIRAppDelegate.m */,
-				DEE14D6F1E844677006FA992 /* FIRViewController.h */,
-				DEE14D701E844677006FA992 /* FIRViewController.m */,
-				DEE14D731E844677006FA992 /* main.m */,
-			);
-			path = iOS;
-			sourceTree = "<group>";
-		};
-		D0D857F71ED9ADAE002342D2 /* macOS */ = {
-			isa = PBXGroup;
-			children = (
-				D064E6981ED9B1BF001956DF /* FIRAppDelegate.h */,
-				D064E6991ED9B1BF001956DF /* FIRAppDelegate.m */,
-				D064E69E1ED9B1BF001956DF /* FIRViewController.h */,
-				D064E69F1ED9B1BF001956DF /* FIRViewController.m */,
-				D064E6A31ED9B1BF001956DF /* Main.storyboard */,
-				D064E6A61ED9B1BF001956DF /* Core-Info.plist */,
-				D064E69C1ED9B1BF001956DF /* main.m */,
-			);
-			path = macOS;
 			sourceTree = "<group>";
 		};
 		D0EDB2BA1EDA041900B6C31B /* iOS */ = {
@@ -1889,6 +1865,61 @@
 				DE26D2071F70333E004AE1D3 /* ViewController.swift */,
 			);
 			path = SwiftSample;
+			sourceTree = "<group>";
+		};
+		DE4902C3207A601D00AB2244 /* TestHarnessApp */ = {
+			isa = PBXGroup;
+			children = (
+				DE4902C4207A601D00AB2244 /* macOS */,
+				DE4902CD207A601D00AB2244 /* GoogleService-Info.plist */,
+				DE4902CE207A601D00AB2244 /* iOS */,
+				DE4902D9207A601D00AB2244 /* tvOS */,
+			);
+			path = TestHarnessApp;
+			sourceTree = "<group>";
+		};
+		DE4902C4207A601D00AB2244 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE4902C5207A601D00AB2244 /* FIRAppDelegate.h */,
+				DE4902C6207A601D00AB2244 /* FIRViewController.h */,
+				DE4902C7207A601D00AB2244 /* Main.storyboard */,
+				DE4902C9207A601D00AB2244 /* Core-Info.plist */,
+				DE4902CA207A601D00AB2244 /* main.m */,
+				DE4902CB207A601D00AB2244 /* FIRAppDelegate.m */,
+				DE4902CC207A601D00AB2244 /* FIRViewController.m */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		DE4902CE207A601D00AB2244 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE4902CF207A601D00AB2244 /* FIRAppDelegate.h */,
+				DE4902D0207A601D00AB2244 /* FIRViewController.h */,
+				DE4902D1207A601D00AB2244 /* LaunchScreen.storyboard */,
+				DE4902D3207A601D00AB2244 /* Main.storyboard */,
+				DE4902D5207A601D00AB2244 /* Core-Info.plist */,
+				DE4902D6207A601D00AB2244 /* main.m */,
+				DE4902D7207A601D00AB2244 /* FIRAppDelegate.m */,
+				DE4902D8207A601D00AB2244 /* FIRViewController.m */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		DE4902D9207A601D00AB2244 /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE4902DA207A601D00AB2244 /* AppDelegate.h */,
+				DE4902DB207A601D00AB2244 /* Assets.xcassets */,
+				DE4902DC207A601D00AB2244 /* ViewController.m */,
+				DE4902DD207A601D00AB2244 /* Main.storyboard */,
+				DE4902DE207A601D00AB2244 /* main.m */,
+				DE4902DF207A601D00AB2244 /* AppDelegate.m */,
+				DE4902E0207A601D00AB2244 /* Info.plist */,
+				DE4902E1207A601D00AB2244 /* ViewController.h */,
+			);
+			path = tvOS;
 			sourceTree = "<group>";
 		};
 		DE53894B1FBB635400199FC2 /* tvOS */ = {
@@ -2133,21 +2164,6 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
-		DEAAD3B31FBA1CD80053BF48 /* tvOS */ = {
-			isa = PBXGroup;
-			children = (
-				DEAAD3D21FBA1F850053BF48 /* Main.storyboard */,
-				DEAAD3C61FBA1EF90053BF48 /* AppDelegate.h */,
-				DEAAD3C81FBA1EFA0053BF48 /* AppDelegate.m */,
-				DEAAD3C51FBA1EF90053BF48 /* Assets.xcassets */,
-				DEAAD3C41FBA1EF90053BF48 /* Info.plist */,
-				DEAAD3C71FBA1EF90053BF48 /* ViewController.h */,
-				DEAAD3C91FBA1EFA0053BF48 /* ViewController.m */,
-				DEAAD3BD1FBA1CD80053BF48 /* main.m */,
-			);
-			path = tvOS;
-			sourceTree = "<group>";
-		};
 		DEAAD4111FBA470A0053BF48 /* tvOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -2207,21 +2223,9 @@
 		DEE14D661E844677006FA992 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				DEE14D671E844677006FA992 /* App */,
 				DEE14D741E844677006FA992 /* Tests */,
 			);
 			path = Core;
-			sourceTree = "<group>";
-		};
-		DEE14D671E844677006FA992 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				DEAAD3B31FBA1CD80053BF48 /* tvOS */,
-				DEE14D711E844677006FA992 /* GoogleService-Info.plist */,
-				D0D857F71ED9ADAE002342D2 /* macOS */,
-				D0D857F61ED9ADA8002342D2 /* iOS */,
-			);
-			path = App;
 			sourceTree = "<group>";
 		};
 		DEE14D741E844677006FA992 /* Tests */ = {
@@ -3170,8 +3174,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */,
-				D064E6A51ED9B1BF001956DF /* Main.storyboard in Resources */,
-				D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */,
+				DE4902F8207A604900AB2244 /* GoogleService-Info.plist in Resources */,
+				DE4902F4207A604900AB2244 /* Core-Info.plist in Resources */,
+				DE490304207A656700AB2244 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3257,6 +3262,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE1FAEB41FBCF60D00897AAA /* Info.plist in Resources */,
+				DE490301207A617500AB2244 /* Shared.xcassets in Resources */,
 				DE1FAEB71FBCF6CA00897AAA /* GoogleService-Info.plist in Resources */,
 				DE1FAEB51FBCF60D00897AAA /* Main.storyboard in Resources */,
 				DE1FAEB61FBCF60D00897AAA /* Assets.xcassets in Resources */,
@@ -3362,9 +3368,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAAD3CE1FBA1EFA0053BF48 /* Assets.xcassets in Resources */,
-				DEAAD3DC1FBA36210053BF48 /* GoogleService-Info.plist in Resources */,
-				DEAAD3D41FBA20480053BF48 /* Main.storyboard in Resources */,
+				DE4902FD207A607A00AB2244 /* Info.plist in Resources */,
+				DE4902FA207A607A00AB2244 /* Main.storyboard in Resources */,
+				DE490300207A617100AB2244 /* Shared.xcassets in Resources */,
+				DE4902FE207A609200AB2244 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3424,9 +3431,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				AFAF36F61EC28C25004BDEE5 /* Shared.xcassets in Resources */,
-				DEE14D831E844677006FA992 /* GoogleService-Info.plist in Resources */,
-				DEE14D7E1E844677006FA992 /* LaunchScreen.storyboard in Resources */,
-				DEE14D7F1E844677006FA992 /* Main.storyboard in Resources */,
+				DE4902EE207A601D00AB2244 /* Assets.xcassets in Resources */,
+				DE4902FF207A609500AB2244 /* GoogleService-Info.plist in Resources */,
+				DE490303207A63D800AB2244 /* LaunchScreen.storyboard in Resources */,
+				DE490302207A63CF00AB2244 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3553,9 +3561,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D064E6A01ED9B1BF001956DF /* FIRViewController.m in Sources */,
-				D064E69D1ED9B1BF001956DF /* main.m in Sources */,
-				D064E69A1ED9B1BF001956DF /* FIRAppDelegate.m in Sources */,
+				DE4902F7207A604900AB2244 /* FIRViewController.m in Sources */,
+				DE4902F6207A604900AB2244 /* FIRAppDelegate.m in Sources */,
+				DE4902F5207A604900AB2244 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3994,9 +4002,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAAD3D01FBA1EFA0053BF48 /* ViewController.m in Sources */,
-				DEAAD3CF1FBA1EFA0053BF48 /* AppDelegate.m in Sources */,
-				DEAAD3C31FBA1CD90053BF48 /* main.m in Sources */,
+				DE4902FB207A607A00AB2244 /* main.m in Sources */,
+				DE4902FC207A607A00AB2244 /* AppDelegate.m in Sources */,
+				DE4902F9207A607A00AB2244 /* ViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4081,9 +4089,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE14D821E844677006FA992 /* FIRViewController.m in Sources */,
-				DEE14D851E844677006FA992 /* main.m in Sources */,
-				DEE14D811E844677006FA992 /* FIRAppDelegate.m in Sources */,
+				DE4902EC207A601D00AB2244 /* FIRAppDelegate.m in Sources */,
+				DE4902EB207A601D00AB2244 /* main.m in Sources */,
+				DE4902ED207A601D00AB2244 /* FIRViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4306,14 +4314,6 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		D064E6A31ED9B1BF001956DF /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D064E6A41ED9B1BF001956DF /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		D0EDB2CF1EDA056A00B6C31B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -4340,6 +4340,30 @@
 				DE26D1F81F70333E004AE1D3 /* zh-Hans */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		DE4902C7207A601D00AB2244 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE4902C8207A601D00AB2244 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		DE4902D1207A601D00AB2244 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE4902D2207A601D00AB2244 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		DE4902D3207A601D00AB2244 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE4902D4207A601D00AB2244 /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 		DE7B8D2C1E8EF202009EB6DF /* LaunchScreen.storyboard */ = {
@@ -4394,22 +4418,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				DEB61EBC1E7C5DBB00C04B96 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		DEE14D681E844677006FA992 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DEE14D691E844677006FA992 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		DEE14D6A1E844677006FA992 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DEE14D6B1E844677006FA992 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -4765,7 +4773,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/Core/App/macOS/Core-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/TestHarnessApp/macOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-macOS";
@@ -4786,7 +4794,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/Core/App/macOS/Core-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/TestHarnessApp/macOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-macOS";
@@ -6081,7 +6089,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$(SRCROOT)/Core/App/tvOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/TestHarnessApp/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-tvOS";
@@ -6113,7 +6121,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$(SRCROOT)/Core/App/tvOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/TestHarnessApp/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-tvOS";
@@ -6478,7 +6486,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/Core/App/iOS/Core-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/TestHarnessApp/iOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-iOS";
@@ -6495,7 +6503,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/Core/App/iOS/Core-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/TestHarnessApp/iOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-iOS";
