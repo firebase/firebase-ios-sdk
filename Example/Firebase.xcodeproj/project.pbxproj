@@ -1225,7 +1225,7 @@
 		DEDFEFEE1FD1B8C100F7D466 /* Analytics_Tests_iOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Analytics_Tests_iOS.m; sourceTree = "<group>"; };
 		DEDFEFF01FD1B8C100F7D466 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEDFEFF61FD1B9AA00F7D466 /* DeprecatedHeaderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DeprecatedHeaderTest.m; sourceTree = "<group>"; };
-		DEE14D411E84464D006FA992 /* Core_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE14D411E84464D006FA992 /* TestHarness_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestHarness_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE14D591E84464D006FA992 /* Core_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppAssociationRegistrationUnitTests.m; sourceTree = "<group>"; };
 		DEE14D761E844677006FA992 /* FIRAppTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppTest.m; sourceTree = "<group>"; };
@@ -1583,7 +1583,7 @@
 			children = (
 				DEB13A081E73506A00AC236D /* Storage_Example_iOS.app */,
 				DEB13A231E73507E00AC236D /* Storage_Tests_iOS.xctest */,
-				DEE14D411E84464D006FA992 /* Core_Example_iOS.app */,
+				DEE14D411E84464D006FA992 /* TestHarness_iOS.app */,
 				DEE14D591E84464D006FA992 /* Core_Tests_iOS.xctest */,
 				DE9314C61E86C6BD0083EDBF /* Auth_Example_iOS.app */,
 				DE9314DE1E86C6BE0083EDBF /* Auth_Tests_iOS.xctest */,
@@ -2829,9 +2829,9 @@
 			productReference = DEDFEFEC1FD1B8C100F7D466 /* Analytics_Tests_iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DEE14D401E84464D006FA992 /* Core_Example_iOS */ = {
+		DEE14D401E84464D006FA992 /* TestHarness_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DEE14D641E84464D006FA992 /* Build configuration list for PBXNativeTarget "Core_Example_iOS" */;
+			buildConfigurationList = DEE14D641E84464D006FA992 /* Build configuration list for PBXNativeTarget "TestHarness_iOS" */;
 			buildPhases = (
 				DEE14D3D1E84464D006FA992 /* Sources */,
 				DEE14D3E1E84464D006FA992 /* Frameworks */,
@@ -2841,9 +2841,9 @@
 			);
 			dependencies = (
 			);
-			name = Core_Example_iOS;
+			name = TestHarness_iOS;
 			productName = Core_Example;
-			productReference = DEE14D411E84464D006FA992 /* Core_Example_iOS.app */;
+			productReference = DEE14D411E84464D006FA992 /* TestHarness_iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 		DEE14D581E84464D006FA992 /* Core_Tests_iOS */ = {
@@ -3054,6 +3054,7 @@
 					DEDFEFEB1FD1B8C100F7D466 = {
 						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
+						TestTargetID = DEE14D401E84464D006FA992;
 					};
 					DEE14D401E84464D006FA992 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -3094,7 +3095,7 @@
 				DE26D25C1F7049F1004AE1D3 /* Auth_ApiTests */,
 				DE26D26C1F705C35004AE1D3 /* Auth_EarlGreyTests */,
 				DE26D2971F70668F004AE1D3 /* Auth_AllTests */,
-				DEE14D401E84464D006FA992 /* Core_Example_iOS */,
+				DEE14D401E84464D006FA992 /* TestHarness_iOS */,
 				DEE14D581E84464D006FA992 /* Core_Tests_iOS */,
 				D064E6951ED9B1BF001956DF /* Core_Example_macOS */,
 				D064E6AA1ED9B31C001956DF /* Core_Tests_macOS */,
@@ -4274,12 +4275,12 @@
 		};
 		DEDFEFF21FD1B8C100F7D466 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DEE14D401E84464D006FA992 /* Core_Example_iOS */;
+			target = DEE14D401E84464D006FA992 /* TestHarness_iOS */;
 			targetProxy = DEDFEFF11FD1B8C100F7D466 /* PBXContainerItemProxy */;
 		};
 		DEE14D5B1E84464D006FA992 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DEE14D401E84464D006FA992 /* Core_Example_iOS */;
+			target = DEE14D401E84464D006FA992 /* TestHarness_iOS */;
 			targetProxy = DEE14D5A1E84464D006FA992 /* PBXContainerItemProxy */;
 		};
 		DEE14E0B1E844FDC006FA992 /* PBXTargetDependency */ = {
@@ -6442,7 +6443,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Analytics-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_iOS.app/Core_Example_iOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_iOS.app/TestHarness_iOS";
 			};
 			name = Debug;
 		};
@@ -6474,7 +6475,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Analytics-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_iOS.app/Core_Example_iOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_iOS.app/TestHarness_iOS";
 			};
 			name = Release;
 		};
@@ -6529,7 +6530,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_iOS.app/Core_Example_iOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_iOS.app/TestHarness_iOS";
 			};
 			name = Debug;
 		};
@@ -6552,7 +6553,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_iOS.app/Core_Example_iOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_iOS.app/TestHarness_iOS";
 			};
 			name = Release;
 		};
@@ -6911,7 +6912,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DEE14D641E84464D006FA992 /* Build configuration list for PBXNativeTarget "Core_Example_iOS" */ = {
+		DEE14D641E84464D006FA992 /* Build configuration list for PBXNativeTarget "TestHarness_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DEE14D601E84464D006FA992 /* Debug */,
