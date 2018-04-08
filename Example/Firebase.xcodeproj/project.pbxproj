@@ -939,7 +939,7 @@
 		D01853811EDAD0E6003A645C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D01853821EDAD0E6003A645C /* Auth-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Auth-Info.plist"; sourceTree = "<group>"; };
 		D01853C61EDAD364003A645C /* Auth_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D064E6961ED9B1BF001956DF /* Core_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D064E6961ED9B1BF001956DF /* TestHarness_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestHarness_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = "OCMock-iOS/OCMock.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB2CD1EDA04F800B6C31B /* Storage_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1191,7 +1191,7 @@
 		DE9315D61E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRMessagingTestNotificationUtilities.h; sourceTree = "<group>"; };
 		DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingTestNotificationUtilities.m; sourceTree = "<group>"; };
 		DE9315D81E8738B70083EDBF /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DEAAD3811FBA11270053BF48 /* Core_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEAAD3811FBA11270053BF48 /* TestHarness_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestHarness_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAAD3951FBA11270053BF48 /* Core_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAAD3E11FBA46AA0053BF48 /* Storage_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAAD3F51FBA46AB0053BF48 /* Storage_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Storage_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1600,7 +1600,7 @@
 				AFD562E51EB13C6D00EA2233 /* Messaging_Example_iOS.app */,
 				0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests_iOS.xctest */,
 				06121EBC1EC399C50008D70E /* Storage_IntegrationTests_iOS.xctest */,
-				D064E6961ED9B1BF001956DF /* Core_Example_macOS.app */,
+				D064E6961ED9B1BF001956DF /* TestHarness_macOS.app */,
 				D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */,
 				D0FE8A2F1ED9C804003F6722 /* Database_Example_macOS.app */,
 				D0FE8A621ED9C870003F6722 /* Database_Tests_macOS.xctest */,
@@ -1614,7 +1614,7 @@
 				DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */,
 				DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */,
 				DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */,
-				DEAAD3811FBA11270053BF48 /* Core_Example_tvOS.app */,
+				DEAAD3811FBA11270053BF48 /* TestHarness_tvOS.app */,
 				DEAAD3951FBA11270053BF48 /* Core_Tests_tvOS.xctest */,
 				DEAAD3E11FBA46AA0053BF48 /* Storage_Example_tvOS.app */,
 				DEAAD3F51FBA46AB0053BF48 /* Storage_Tests_tvOS.xctest */,
@@ -2344,9 +2344,9 @@
 			productReference = D01853C61EDAD364003A645C /* Auth_Tests_macOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		D064E6951ED9B1BF001956DF /* Core_Example_macOS */ = {
+		D064E6951ED9B1BF001956DF /* TestHarness_macOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D064E6A71ED9B1BF001956DF /* Build configuration list for PBXNativeTarget "Core_Example_macOS" */;
+			buildConfigurationList = D064E6A71ED9B1BF001956DF /* Build configuration list for PBXNativeTarget "TestHarness_macOS" */;
 			buildPhases = (
 				D064E6921ED9B1BF001956DF /* Sources */,
 				D064E6931ED9B1BF001956DF /* Frameworks */,
@@ -2356,9 +2356,9 @@
 			);
 			dependencies = (
 			);
-			name = Core_Example_macOS;
+			name = TestHarness_macOS;
 			productName = Core_Example_macOS;
-			productReference = D064E6961ED9B1BF001956DF /* Core_Example_macOS.app */;
+			productReference = D064E6961ED9B1BF001956DF /* TestHarness_macOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D064E6AA1ED9B31C001956DF /* Core_Tests_macOS */ = {
@@ -2714,9 +2714,9 @@
 			productReference = DE9315A71E8738460083EDBF /* Messaging_Tests_iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DEAAD3801FBA11270053BF48 /* Core_Example_tvOS */ = {
+		DEAAD3801FBA11270053BF48 /* TestHarness_tvOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DEAAD3A01FBA11280053BF48 /* Build configuration list for PBXNativeTarget "Core_Example_tvOS" */;
+			buildConfigurationList = DEAAD3A01FBA11280053BF48 /* Build configuration list for PBXNativeTarget "TestHarness_tvOS" */;
 			buildPhases = (
 				DEAAD37D1FBA11270053BF48 /* Sources */,
 				DEAAD37E1FBA11270053BF48 /* Frameworks */,
@@ -2726,9 +2726,9 @@
 			);
 			dependencies = (
 			);
-			name = Core_Example_tvOS;
+			name = TestHarness_tvOS;
 			productName = Core_Example_tvOS;
-			productReference = DEAAD3811FBA11270053BF48 /* Core_Example_tvOS.app */;
+			productReference = DEAAD3811FBA11270053BF48 /* TestHarness_tvOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 		DEAAD3941FBA11270053BF48 /* Core_Tests_tvOS */ = {
@@ -3105,9 +3105,9 @@
 				DE26D2971F70668F004AE1D3 /* Auth_AllTests */,
 				DEE14D401E84464D006FA992 /* TestHarness_iOS */,
 				DEE14D581E84464D006FA992 /* Core_Tests_iOS */,
-				D064E6951ED9B1BF001956DF /* Core_Example_macOS */,
+				D064E6951ED9B1BF001956DF /* TestHarness_macOS */,
 				D064E6AA1ED9B31C001956DF /* Core_Tests_macOS */,
-				DEAAD3801FBA11270053BF48 /* Core_Example_tvOS */,
+				DEAAD3801FBA11270053BF48 /* TestHarness_tvOS */,
 				DEAAD3941FBA11270053BF48 /* Core_Tests_tvOS */,
 				DE7B8D041E8EF077009EB6DF /* Database_Example_iOS */,
 				DE7B8D1C1E8EF078009EB6DF /* Database_Tests_iOS */,
@@ -4158,7 +4158,7 @@
 		};
 		D064E6C21ED9B369001956DF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D064E6951ED9B1BF001956DF /* Core_Example_macOS */;
+			target = D064E6951ED9B1BF001956DF /* TestHarness_macOS */;
 			targetProxy = D064E6C11ED9B369001956DF /* PBXContainerItemProxy */;
 		};
 		D0EDB30A1EDA07A300B6C31B /* PBXTargetDependency */ = {
@@ -4268,7 +4268,7 @@
 		};
 		DEAAD3971FBA11280053BF48 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DEAAD3801FBA11270053BF48 /* Core_Example_tvOS */;
+			target = DEAAD3801FBA11270053BF48 /* TestHarness_tvOS */;
 			targetProxy = DEAAD3961FBA11280053BF48 /* PBXContainerItemProxy */;
 		};
 		DEAAD3F71FBA46AB0053BF48 /* PBXTargetDependency */ = {
@@ -4832,7 +4832,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_macOS.app/Contents/MacOS/Core_Example_macOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_macOS.app/Contents/MacOS/TestHarness_macOS";
 			};
 			name = Debug;
 		};
@@ -4852,7 +4852,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_macOS.app/Contents/MacOS/Core_Example_macOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_macOS.app/Contents/MacOS/TestHarness_macOS";
 			};
 			name = Release;
 		};
@@ -6172,7 +6172,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_tvOS.app/Core_Example_tvOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_tvOS.app/TestHarness_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 11.1;
 			};
 			name = Debug;
@@ -6204,7 +6204,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Core_Example_tvOS.app/Core_Example_tvOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_tvOS.app/TestHarness_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 11.1;
 			};
 			name = Release;
@@ -6637,7 +6637,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D064E6A71ED9B1BF001956DF /* Build configuration list for PBXNativeTarget "Core_Example_macOS" */ = {
+		D064E6A71ED9B1BF001956DF /* Build configuration list for PBXNativeTarget "TestHarness_macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D064E6A81ED9B1BF001956DF /* Debug */,
@@ -6862,7 +6862,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DEAAD3A01FBA11280053BF48 /* Build configuration list for PBXNativeTarget "Core_Example_tvOS" */ = {
+		DEAAD3A01FBA11280053BF48 /* Build configuration list for PBXNativeTarget "TestHarness_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DEAAD39C1FBA11280053BF48 /* Debug */,

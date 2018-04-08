@@ -102,7 +102,7 @@ target 'Auth_SwiftSample' do
   pod 'FirebaseInstanceID'
 end
 
-target 'Core_Example_macOS' do
+target 'TestHarness_macOS' do
   platform :osx, '10.10'
 
   pod 'FirebaseCore', :path => '../'
@@ -156,7 +156,7 @@ target 'Storage_Example_macOS' do
   end
 end
 
-target 'Core_Example_tvOS' do
+target 'TestHarness_tvOS' do
   platform :tvos, '10.0'
 
   target 'Core_Tests_tvOS' do
