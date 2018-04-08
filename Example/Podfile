@@ -2,15 +2,21 @@ use_frameworks!
 
 pod 'FirebaseCore', :path => '../'
 
-target 'Core_Example_iOS' do
+target 'TestHarness_iOS' do
   platform :ios, '8.0'
 
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
   pod 'Firebase/Core', '4.11.0'
+  pod 'FirebaseMessaging' , :path => '../'
 
   target 'Core_Tests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+
+  target 'Messaging_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
@@ -50,14 +56,7 @@ end
 
 target 'Messaging_Example_iOS' do
   platform :ios, '8.0'
-
   pod 'FirebaseMessaging' , :path => '../'
-  pod 'FirebaseInstanceID'
-
-  target 'Messaging_Tests_iOS' do
-    inherit! :search_paths
-    pod 'OCMock'
-  end
 end
 
 target 'Storage_Example_iOS' do
@@ -103,7 +102,7 @@ target 'Auth_SwiftSample' do
   pod 'FirebaseInstanceID'
 end
 
-target 'Core_Example_macOS' do
+target 'TestHarness_macOS' do
   platform :osx, '10.10'
 
   pod 'FirebaseCore', :path => '../'
@@ -157,7 +156,7 @@ target 'Storage_Example_macOS' do
   end
 end
 
-target 'Core_Example_tvOS' do
+target 'TestHarness_tvOS' do
   platform :tvos, '10.0'
 
   target 'Core_Tests_tvOS' do

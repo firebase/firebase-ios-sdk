@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D064E6951ED9B1BF001956DF"
-               BuildableName = "Core_Example_macOS.app"
-               BlueprintName = "Core_Example_macOS"
+               BuildableName = "TestHarness_macOS.app"
+               BlueprintName = "TestHarness_macOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -43,8 +43,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D064E6951ED9B1BF001956DF"
-            BuildableName = "Core_Example_macOS.app"
-            BlueprintName = "Core_Example_macOS"
+            BuildableName = "TestHarness_macOS.app"
+            BlueprintName = "TestHarness_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D064E6951ED9B1BF001956DF"
-            BuildableName = "Core_Example_macOS.app"
-            BlueprintName = "Core_Example_macOS"
+            BuildableName = "TestHarness_macOS.app"
+            BlueprintName = "TestHarness_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,8 +85,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D064E6951ED9B1BF001956DF"
-            BuildableName = "Core_Example_macOS.app"
-            BlueprintName = "Core_Example_macOS"
+            BuildableName = "TestHarness_macOS.app"
+            BlueprintName = "TestHarness_macOS"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
