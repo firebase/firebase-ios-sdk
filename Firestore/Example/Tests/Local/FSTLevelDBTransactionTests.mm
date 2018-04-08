@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
-
 #import <XCTest/XCTest.h>
 #include <absl/strings/string_view.h>
 #include <leveldb/db.h>
+
+// This is out of order to satisfy the linter, which doesn't realize this is
+// the header corresponding to this test.
+// TODO(wilhuff): move this to the top once the test filename matches
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
