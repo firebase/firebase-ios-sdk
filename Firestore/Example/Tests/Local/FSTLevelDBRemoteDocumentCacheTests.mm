@@ -16,6 +16,8 @@
 
 #include <leveldb/db.h>
 
+#include <string>
+
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
 #import "Firestore/Source/Local/FSTLevelDB.h"

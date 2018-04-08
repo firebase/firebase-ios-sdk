@@ -16,6 +16,9 @@
 
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
+#include <memory>
+#include <string>
+
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"

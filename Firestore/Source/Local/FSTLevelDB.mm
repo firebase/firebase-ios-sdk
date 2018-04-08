@@ -18,6 +18,8 @@
 
 #include <leveldb/db.h>
 
+#include <memory>
+
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"

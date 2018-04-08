@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <map>
+
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"

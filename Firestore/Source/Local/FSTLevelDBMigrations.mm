@@ -17,6 +17,9 @@
 #include "Firestore/Source/Local/FSTLevelDBMigrations.h"
 
 #include <absl/strings/match.h>
+
+#include <string>
+
 #include "leveldb/write_batch.h"
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"

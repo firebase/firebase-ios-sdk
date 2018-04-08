@@ -17,6 +17,7 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #import <FirebaseCore/FIRLogger.h>

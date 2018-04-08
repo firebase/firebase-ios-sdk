@@ -17,6 +17,7 @@
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #import <future>
+#include <memory>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"

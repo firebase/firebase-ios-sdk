@@ -21,6 +21,10 @@
 #import <GRPCClient/GRPCCall.h>
 #import "FIRTimestamp.h"
 
+#include <string>
+#include <utility>
+#include <vector>
+
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"

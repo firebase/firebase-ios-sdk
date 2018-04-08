@@ -19,6 +19,7 @@
 #include <inttypes.h>
 #include <list>
 #include <map>
+#include <utility>
 #include <vector>
 
 #import <FirebaseFirestore/FIRFieldPath.h>

@@ -16,12 +16,13 @@
 
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 
-#include <set>
-#include <string>
-
 #include <absl/strings/match.h>
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
+
+#include <memory>
+#include <set>
+#include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"

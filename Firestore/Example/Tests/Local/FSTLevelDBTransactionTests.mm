@@ -18,6 +18,9 @@
 #include <absl/strings/string_view.h>
 #include <leveldb/db.h>
 
+#include <memory>
+#include <string>
+
 // This is out of order to satisfy the linter, which doesn't realize this is
 // the header corresponding to this test.
 // TODO(wilhuff): move this to the top once the test filename matches
