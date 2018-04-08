@@ -16,10 +16,10 @@
 
 #import "Firestore/Source/Core/FSTTransaction.h"
 
+#import <GRPCClient/GRPCCall.h>
+
 #include <map>
 #include <vector>
-
-#import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
 #import "FIRSetOptions.h"
