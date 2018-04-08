@@ -4549,6 +4549,15 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
           'C++ header <%s> was #imported. Should be #include <%s>' %
           (match.group(1), match.group(1)))
 
+  # Prefer C++ wrappers for C headers
+  match = Match(r'#include\s*<(([^>]+).h)>', line)
+  if match:
+    wrapper = 'c' + match.group(2)
+    if wrapper in _CPP_HEADERS:
+        error(filename, linenum, 'build/include', 4,
+              'Prefer C++ header <%s> for C system header %s' %
+              (wrapper, match.group(1)))
+
   # "include" should use the new style "foo/bar.h" instead of just "bar.h"
   # Only do this check if the included header follows google naming
   # conventions.  If not, assume that it's a 3rd party API that
