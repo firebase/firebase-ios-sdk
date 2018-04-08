@@ -2762,9 +2762,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }
 
   if (!_userInMemory) {
-    [self showMessagePrompt:[NSString
-        stringWithFormat:@"You need an in-memory user to perform this action, use the M+ button to
-        "save a user to memory.",nil]];
+    [self showMessagePrompt:[NSString stringWithFormat:@"You need an in-memory user to perform this"
+    "action, use the M+ button to save a user to memory.", nil]];
     return;
   }
 
