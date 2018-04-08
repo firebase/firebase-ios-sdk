@@ -4416,7 +4416,7 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
     CheckSectionSpacing(filename, clean_lines, classinfo, linenum, error)
 
 
-_RE_PATTERN_INCLUDE = re.compile(r'^\s*#\s*include\s*([<"])([^>"]*)[>"].*$')
+_RE_PATTERN_INCLUDE = re.compile(r'^\s*#\s*(?:include|import)\s*([<"])([^>"]*)[>"].*$')
 # Matches the first component of a filename delimited by -s and _s. That is:
 #  _RE_FIRST_COMPONENT.match('foo').group(0) == 'foo'
 #  _RE_FIRST_COMPONENT.match('foo.cc').group(0) == 'foo'
@@ -4449,6 +4449,11 @@ def _DropCommonSuffixes(filename):
     if (filename.endswith(suffix) and len(filename) > len(suffix) and
         filename[-len(suffix) - 1] in ('-', '_')):
       return filename[:-len(suffix) - 1]
+
+  for suffix in ['Tests.h', 'Tests.mm', 'Test.mm']:
+    if (filename.endswith(suffix) and len(filename) > len(suffix)):
+      return filename[:-len(suffix)]
+
   return os.path.splitext(filename)[0]
 
 
