@@ -20,7 +20,7 @@
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <list>
 #include <map>
 #include <utility>

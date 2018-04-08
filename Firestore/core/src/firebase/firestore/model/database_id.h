@@ -17,8 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <string>
 
 #include "absl/strings/string_view.h"
