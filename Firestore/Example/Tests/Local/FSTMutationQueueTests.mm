@@ -246,7 +246,6 @@ NS_ASSUME_NONNULL_BEGIN
         return newBatches;
       });
   self.persistence.run("testNextMutationBatchAfterBatchIDSkipsAcknowledgedBatches", [&]() {
-
     [self.mutationQueue acknowledgeBatch:batches[0] streamToken:nil];
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
                           batches[1]);

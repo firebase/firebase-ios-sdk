@@ -76,10 +76,6 @@
     }                                                                       \
   } while (0)
 
-// Assert with custom message that is not compiled out in release builds.
-#define FIREBASE_ASSERT_MESSAGE(expression, ...) \
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, __VA_ARGS__)
-
 // Assert condition is true otherwise display the specified expression,
 // message and abort. Compiled out of release builds.
 #if defined(NDEBUG)
@@ -106,18 +102,26 @@
 // Indicates an area of the code that cannot be reached (except possibly due to
 // undefined behaviour or other similar badness). The only reasonable thing to
 // do in these cases is to immediately abort.
+#if defined(__clang__) || defined(__GNUC__)
+// Clang, GCC, (and Intel) compilers have a builtin
+#define FIREBASE_UNREACHABLE() __builtin_unreachable()
+
+#elif defined(_WIN32)
+// Visual C++ doesn't have a builtin, but assuming an impossible condition has
+// the same effect.
+#define FIREBASE_UNREACHABLE() __assume(false)
+
+#else
 #define FIREBASE_UNREACHABLE() abort()
+#endif  // defined(__clang__) || defined(__GNUC__)
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-ABSL_ATTRIBUTE_NORETURN void FailAssert(const char* file,
-                                        const char* func,
-                                        const int line,
-                                        const char* format,
-                                        ...);
+ABSL_ATTRIBUTE_NORETURN void FailAssert(
+    const char* file, const char* func, int line, const char* format, ...);
 
 }  // namespace util
 }  // namespace firestore
