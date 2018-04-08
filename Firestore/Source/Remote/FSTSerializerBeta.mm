@@ -19,7 +19,6 @@
 #include <inttypes.h>
 
 #import <GRPCClient/GRPCCall.h>
-#import "FIRTimestamp.h"
 
 #include <string>
 #include <utility>
@@ -35,6 +34,7 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
+#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
