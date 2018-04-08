@@ -428,6 +428,11 @@ _CPP_HEADERS = frozenset([
     'cwctype',
     ])
 
+_C_SYSTEM_DIRECTORIES = frozenset([
+    'libkern',
+    'sys',
+])
+
 # Type names
 _TYPES = re.compile(
     r'^(?:'
@@ -4523,6 +4528,14 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
   """
   fileinfo = FileInfo(filename)
   line = clean_lines.lines[linenum]
+
+  # system-style includes should not be used for project includes
+  match = Match(r'#include\s*<(([^/>]+)/[^>]+)', line)
+  if match:
+    if match.group(2) not in _C_SYSTEM_DIRECTORIES:
+      error(filename, linenum, 'build/include', 4,
+            '<%s> should be #include "%s" or #import <%s>' %
+            (match.group(1), match.group(1), match.group(1)))
 
   # "include" should use the new style "foo/bar.h" instead of just "bar.h"
   # Only do this check if the included header follows google naming
