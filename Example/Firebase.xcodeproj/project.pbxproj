@@ -714,6 +714,13 @@
 			remoteGlobalIDString = DEB13A0A1E73507E00AC236D;
 			remoteInfo = Storage_Tests_iOS;
 		};
+		DE413D8C207A7B2400734895 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEE14D401E84464D006FA992;
+			remoteInfo = TestHarness_iOS;
+		};
 		DE545C831FBCA41C00C637AE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -2700,6 +2707,7 @@
 			);
 			dependencies = (
 				AFD563121EB140E100EA2233 /* PBXTargetDependency */,
+				DE413D8D207A7B2400734895 /* PBXTargetDependency */,
 			);
 			name = Messaging_Tests_iOS;
 			productName = Messaging_Example_iOSTests;
@@ -3024,7 +3032,7 @@
 					DE9315A61E8738460083EDBF = {
 						CreatedOnToolsVersion = 8.2.1;
 						ProvisioningStyle = Automatic;
-						TestTargetID = AFD562E41EB13C6D00EA2233;
+						TestTargetID = DEE14D401E84464D006FA992;
 					};
 					DEAAD3801FBA11270053BF48 = {
 						CreatedOnToolsVersion = 9.1;
@@ -4217,6 +4225,11 @@
 			isa = PBXTargetDependency;
 			target = DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */;
 			targetProxy = DE3373971E73776F00881891 /* PBXContainerItemProxy */;
+		};
+		DE413D8D207A7B2400734895 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEE14D401E84464D006FA992 /* TestHarness_iOS */;
+			targetProxy = DE413D8C207A7B2400734895 /* PBXContainerItemProxy */;
 		};
 		DE545C841FBCA41C00C637AE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6036,7 +6049,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Messaging-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_iOS.app/Messaging_Example_iOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_iOS.app/TestHarness_iOS";
 			};
 			name = Debug;
 		};
@@ -6066,7 +6079,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Messaging-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_iOS.app/Messaging_Example_iOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestHarness_iOS.app/TestHarness_iOS";
 			};
 			name = Release;
 		};
