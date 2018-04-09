@@ -33,7 +33,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRUserUpdateCallback
-    @brief The type of block invoked when a request to update a current user is completed.
+    @brief The type of block invoked when a request to update the current user is completed.
  */
 typedef void (^FIRUserUpdateCallback)(NSError *_Nullable error) NS_SWIFT_NAME(UserUpdateCallback);
 
