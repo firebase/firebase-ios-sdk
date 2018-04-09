@@ -55,7 +55,6 @@ FOUNDATION_EXPORT NSString *const kFIRStorageMetadataContentLanguage;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataContentType;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataCustomMetadata;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataSize;
-FOUNDATION_EXPORT NSString *const kFIRStorageMetadataDownloadURLs;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataGeneration;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataMetageneration;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataTimeCreated;

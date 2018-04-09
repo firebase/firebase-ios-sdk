@@ -15,6 +15,7 @@
 #import <FirebaseStorage/FIRStorageMetadata.h>
 #import <XCTest/XCTest.h>
 
+#import "FIRStorageGetDownloadURLTask.h"
 #import "FIRStorageMetadata.h"
 #import "FIRStorageMetadata_Private.h"
 #import "FIRStorageUtils.h"
@@ -39,7 +40,6 @@
     kFIRStorageMetadataContentLanguage : @"en-us",
     kFIRStorageMetadataContentType : @"application/octet-stream",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @{@"bar" : @"baz"}},
-    kFIRStorageMetadataDownloadTokens : @"1234567890",
     kFIRStorageMetadataGeneration : @"12345",
     kFIRStorageMetadataMetageneration : @"67890",
     kFIRStorageMetadataName : @"path/to/object",
@@ -58,12 +58,6 @@
   XCTAssertEqualObjects(metadata.contentType, metaDict[kFIRStorageMetadataContentType]);
   XCTAssertEqualObjects(metadata.customMetadata, metaDict[kFIRStorageMetadataCustomMetadata]);
   XCTAssertEqualObjects(metadata.md5Hash, metaDict[kFIRStorageMetadataMd5Hash]);
-  NSString *URLFormat = @"https://firebasestorage.googleapis.com/v0/b/%@/o/%@?alt=media&token=%@";
-  NSString *URLString = [NSString
-      stringWithFormat:URLFormat, metaDict[kFIRStorageMetadataBucket],
-                       [FIRStorageUtils GCSEscapedString:metaDict[kFIRStorageMetadataName]],
-                       metaDict[kFIRStorageMetadataDownloadTokens]];
-  XCTAssertEqualObjects([metadata.downloadURL description], URLString);
   NSString *generation = [NSString stringWithFormat:@"%lld", metadata.generation];
   XCTAssertEqualObjects(generation, metaDict[kFIRStorageMetadataGeneration]);
   NSString *metageneration = [NSString stringWithFormat:@"%lld", metadata.metageneration];
@@ -86,7 +80,6 @@
     kFIRStorageMetadataContentLanguage : @"en-us",
     kFIRStorageMetadataContentType : @"application/octet-stream",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @{@"bar" : @"baz"}},
-    kFIRStorageMetadataDownloadTokens : @"1234567890",
     kFIRStorageMetadataGeneration : @"12345",
     kFIRStorageMetadataMetageneration : @"67890",
     kFIRStorageMetadataName : @"path/to/object",
@@ -97,7 +90,7 @@
   };
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   NSDictionary *dictRepresentation = [metadata dictionaryRepresentation];
-  XCTAssertNotEqual(dictRepresentation, nil);
+  XCTAssertNotNil(dictRepresentation, );
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataBucket],
                         metaDict[kFIRStorageMetadataBucket]);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataCacheControl],
@@ -130,60 +123,28 @@
                         metaDict[kFIRStorageMetadataMd5Hash]);
 }
 
-- (void)testInitialzeNoDownloadTokensGetToken {
+- (void)testInitializeEmptyDownloadURL {
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
-  XCTAssertNotNil(metadata);
-  XCTAssertEqual(metadata.downloadURL, nil);
-  XCTAssertEqual(metadata.downloadURLs, nil);
+  NSURL *actualURL = [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:metaDict];
+  XCTAssertNil(actualURL);
 }
 
-- (void)testInitialzeMultipleDownloadTokensGetToken {
+- (void)testInitializeDownloadURLFromToken {
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",
-    kFIRStorageMetadataDownloadTokens : @"12345,67890",
+    kFIRStorageMetadataDownloadTokens : @"12345,ignored",
     kFIRStorageMetadataName : @"path/to/object",
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
-  XCTAssertNotNil(metadata);
   NSString *URLformat = @"https://firebasestorage.googleapis.com/v0/b/%@/o/%@?alt=media&token=%@";
-  NSString *URLString0 = [NSString
+  NSString *expectedURL = [NSString
       stringWithFormat:URLformat, metaDict[kFIRStorageMetadataBucket],
                        [FIRStorageUtils GCSEscapedString:metaDict[kFIRStorageMetadataName]],
                        @"12345"];
-  NSString *URLString1 = [NSString
-      stringWithFormat:URLformat, metaDict[kFIRStorageMetadataBucket],
-                       [FIRStorageUtils GCSEscapedString:metaDict[kFIRStorageMetadataName]],
-                       @"67890"];
-  XCTAssertEqualObjects([metadata.downloadURL absoluteString], URLString0);
-  XCTAssertEqualObjects([metadata.downloadURLs[0] absoluteString], URLString0);
-  XCTAssertEqualObjects([metadata.downloadURLs[1] absoluteString], URLString1);
-}
-
-- (void)testMultipleDownloadURLsGetToken {
-  NSDictionary *metaDict = @{
-    kFIRStorageMetadataBucket : @"bucket",
-    kFIRStorageMetadataName : @"path/to/object",
-  };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
-  NSString *URLformat = @"https://firebasestorage.googleapis.com/v0/b/%@/o/%@?alt=media&token=%@";
-  NSString *URLString0 = [NSString
-      stringWithFormat:URLformat, metaDict[kFIRStorageMetadataBucket],
-                       [FIRStorageUtils GCSEscapedString:metaDict[kFIRStorageMetadataName]],
-                       @"12345"];
-  NSString *URLString1 = [NSString
-      stringWithFormat:URLformat, metaDict[kFIRStorageMetadataBucket],
-                       [FIRStorageUtils GCSEscapedString:metaDict[kFIRStorageMetadataName]],
-                       @"67890"];
-  NSURL *URL0 = [NSURL URLWithString:URLString0];
-  NSURL *URL1 = [NSURL URLWithString:URLString1];
-  NSArray *downloadURLs = @[ URL0, URL1 ];
-  [metadata setValue:downloadURLs forKey:@"downloadURLs"];
-  NSDictionary *newMetaDict = metadata.dictionaryRepresentation;
-  XCTAssertEqualObjects(newMetaDict[kFIRStorageMetadataDownloadTokens], @"12345,67890");
+  NSURL *actualURL = [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:metaDict];
+  XCTAssertEqualObjects([actualURL absoluteString], expectedURL);
 }
 
 - (void)testInitialzeMetadataWithFile {

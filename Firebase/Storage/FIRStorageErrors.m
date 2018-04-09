@@ -170,4 +170,15 @@
   return clientError;
 }
 
++ (NSError *)errorWithInvalidRequest:(NSData *)request {
+  NSString *requestString = [[NSString alloc] initWithData:request encoding:NSUTF8StringEncoding];
+  NSString *invalidDataString =
+      [NSString stringWithFormat:kFIRStorageInvalidDataFormat, requestString];
+  NSDictionary *dict;
+  if (invalidDataString.length > 0) {
+    dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
+  }
+  return [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
+}
+
 @end

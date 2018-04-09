@@ -381,10 +381,26 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   /// Only allow 1kB size, which is smaller than our file
   [ref dataWithMaxSize:1 * 1024
             completion:^(NSData *data, NSError *error) {
-              XCTAssertEqual(data, nil);
+              XCTAssertNil(nil);
               XCTAssertEqual(error.code, FIRStorageErrorCodeDownloadSizeExceeded);
               [expectation fulfill];
             }];
+
+  [self waitForExpectations];
+}
+
+- (void)testUnauthenticatedSimpleGetDownloadURL {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedSimpleGetDownloadURL"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+
+  [ref downloadURLWithCompletion:^(NSURL *downloadURL, NSError *error) {
+    XCTAssertNil(error);
+    XCTAssertTrue(
+        [[downloadURL absoluteString] hasPrefix:@"https://firebasestorage.googleapis.com/"]);
+    [expectation fulfill];
+  }];
 
   [self waitForExpectations];
 }

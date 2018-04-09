@@ -64,37 +64,23 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion = ^(NSData *data, NSError *error) {
+    FIRStorageMetadata *metadata;
     if (error) {
       if (!self.error) {
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
       }
-      if (callback) {
-        callback(nil, self.error);
+    } else {
+      NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
+      if (responseDictionary) {
+        metadata = [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+        [metadata setType:FIRStorageMetadataTypeFile];
+      } else {
+        self.error = [FIRStorageErrors errorWithInvalidRequest:data];
       }
-      self->_fetcherCompletion = nil;
-      return;
     }
 
-    NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
-    if (responseDictionary) {
-      FIRStorageMetadata *metadata =
-          [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
-      [metadata setType:FIRStorageMetadataTypeFile];
-      if (callback) {
-        callback(metadata, nil);
-      }
-    } else {
-      NSString *returnedData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-      NSString *invalidDataString =
-          [NSString stringWithFormat:kFIRStorageInvalidDataFormat, returnedData];
-      NSDictionary *dict;
-      if (invalidDataString.length > 0) {
-        dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
-      }
-      self.error = [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
-      if (callback) {
-        callback(nil, self.error);
-      }
+    if (callback) {
+      callback(metadata, self.error);
     }
     self->_fetcherCompletion = nil;
   };
