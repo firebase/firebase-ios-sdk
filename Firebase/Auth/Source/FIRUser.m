@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRUser.h"
 #import "FIRUser_Internal.h"
 
 #import "FIRAdditionalUserInfo_Internal.h"
