@@ -219,7 +219,6 @@ class Reader {
    */
   uint64_t ReadVarint();
 
-  // TODO(rsgowman): convert to a pb_istream_t (i.e. not a pointer)
   pb_istream_t stream_;
 };
 
