@@ -298,13 +298,6 @@ static NSMutableDictionary *sLibraryVersions;
     return NO;
   }
 
-  if (NSClassFromString(@"FIRAppIndexing") != nil) {
-    FIRLogDebug(kFIRLoggerCore, @"I-COR000024",
-                @"Firebase App Indexing on iOS is deprecated. "
-                @"You don't need to take any action at this time. Learn more about Firebase App "
-                @"Indexing at https://firebase.google.com/docs/app-indexing/.");
-  }
-
   // Initialize the Analytics once there is a valid options under default app. Analytics should
   // always initialize first by itself before the other SDKs.
   if ([self.name isEqualToString:kFIRDefaultAppName]) {
