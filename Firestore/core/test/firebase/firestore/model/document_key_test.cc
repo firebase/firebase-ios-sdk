@@ -46,7 +46,7 @@ TEST(DocumentKey, Constructor_FromPath) {
   EXPECT_EQ(key_from_path_copy.path(), path);
 
   const DocumentKey key_from_moved_path{std::move(path)};
-  EXPECT_TRUE(path.empty());
+  EXPECT_TRUE(path.empty());  // NOLINT: use after move intended
   EXPECT_FALSE(key_from_moved_path.path().empty());
   EXPECT_EQ(key_from_path_copy.path(), key_from_moved_path.path());
 }
@@ -62,7 +62,7 @@ TEST(DocumentKey, CopyAndMove) {
 
   const DocumentKey moved = std::move(key);
   EXPECT_EQ(path_string, moved.path().CanonicalString());
-  EXPECT_NE(key, moved);
+  EXPECT_NE(key, moved);  // NOLINT: use after move intended
   EXPECT_TRUE(key.path().empty());
 
   // Reassignment.
@@ -74,7 +74,7 @@ TEST(DocumentKey, CopyAndMove) {
   key = {};
   EXPECT_TRUE(key.path().empty());
   key = std::move(copied);
-  EXPECT_NE(copied, key);
+  EXPECT_NE(copied, key);  // NOLINT: use after move intended
   EXPECT_TRUE(copied.path().empty());
   EXPECT_EQ(path_string, key.path().CanonicalString());
 }
