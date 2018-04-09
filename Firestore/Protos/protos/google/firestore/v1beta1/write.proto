@@ -1,4 +1,4 @@
-// Copyright 2017 Google Inc.
+// Copyright 2018 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ option java_multiple_files = true;
 option java_outer_classname = "WriteProto";
 option java_package = "com.google.firestore.v1beta1";
 option objc_class_prefix = "GCFS";
+option php_namespace = "Google\\Cloud\\Firestore\\V1beta1";
 
 
 // A write on a document.
@@ -40,11 +41,6 @@ message Write {
     // `projects/{project_id}/databases/{database_id}/documents/{document_path}`.
     string delete = 2;
 
-    // The name of a document on which to verify the `current_document`
-    // precondition.
-    // This only requires read access to the document.
-    string verify = 5;
-
     // Applies a tranformation to a document.
     // At most one `transform` per document is allowed in a given request.
     // An `update` cannot follow a `transform` on the same document in a given
@@ -55,9 +51,10 @@ message Write {
   // The fields to update in this write.
   //
   // This field can be set only when the operation is `update`.
-  // None of the field paths in the mask may contain a reserved name.
-  // If the document exists on the server and has fields not referenced in the
-  // mask, they are left unchanged.
+  // If the mask is not set for an `update` and the document exists, any
+  // existing data will be overwritten.
+  // If the mask is set and the document on the server has fields not covered by
+  // the mask, they are left unchanged.
   // Fields referenced in the mask, but not present in the input document, are
   // deleted from the document on the server.
   // The field paths in this mask must not contain a reserved field name.
@@ -78,7 +75,8 @@ message DocumentTransform {
       // Unspecified. This value must not be used.
       SERVER_VALUE_UNSPECIFIED = 0;
 
-      // The time at which the server processed the request.
+      // The time at which the server processed the request, with millisecond
+      // precision.
       REQUEST_TIME = 1;
     }
 
@@ -98,6 +96,7 @@ message DocumentTransform {
 
   // The list of transformations to apply to the fields of the document, in
   // order.
+  // This must not be empty.
   repeated FieldTransform field_transforms = 2;
 }
 
