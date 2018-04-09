@@ -690,7 +690,7 @@ def Search(pattern, s):
 
 def _IsSourceExtension(s):
   """File extension (excluding dot) matches a source file extension."""
-  return s in ('c', 'cc', 'cpp', 'cxx')
+  return s in ('c', 'cc', 'cpp', 'cxx', 'm', 'mm')
 
 
 class _IncludeState(object):
