@@ -52,12 +52,16 @@ target 'Messaging_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseMessaging' , :path => '../'
-  pod 'FirebaseInstanceID'
 
   target 'Messaging_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
   end
+end
+
+target 'Messaging_Sample_iOS' do
+  platform :ios, '8.0'
+  pod 'FirebaseMessaging' , :path => '../'
 end
 
 target 'Storage_Example_iOS' do
