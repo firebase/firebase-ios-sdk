@@ -45,60 +45,6 @@ using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTMutationResult
-
-@implementation FSTMutationResult
-
-- (instancetype)initWithVersion:(FSTSnapshotVersion *_Nullable)version
-               transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults {
-  if (self = [super init]) {
-    _version = version;
-    _transformResults = transformResults;
-  }
-  return self;
-}
-
-@end
-
-#pragma mark - FSTMutation
-
-@implementation FSTMutation {
-  DocumentKey _key;
-  Precondition _precondition;
-}
-
-- (instancetype)initWithKey:(DocumentKey)key precondition:(Precondition)precondition {
-  if (self = [super init]) {
-    _key = std::move(key);
-    _precondition = std::move(precondition);
-  }
-  return self;
-}
-
-- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
-                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FIRTimestamp *)localWriteTime
-                        mutationResult:(nullable FSTMutationResult *)mutationResult {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
-- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
-                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(nullable FIRTimestamp *)localWriteTime {
-  return
-      [self applyTo:maybeDoc baseDocument:baseDoc localWriteTime:localWriteTime mutationResult:nil];
-}
-
-- (const DocumentKey &)key {
-  return _key;
-}
-
-- (const firebase::firestore::model::Precondition &)precondition {
-  return _precondition;
-}
-
-@end
-
 #pragma mark - FSTSetMutation
 
 @implementation FSTSetMutation

@@ -30,6 +30,8 @@ cc_library(
     field_value.h
     maybe_document.cc
     maybe_document.h
+    mutations.cc
+    mutations.h
     no_document.cc
     no_document.h
     precondition.cc
