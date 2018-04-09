@@ -229,8 +229,6 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
-  // TODO(wilhuff): indexof
-
   /** Returns true if the map contains no elements. */
   bool empty() const {
     return size() == 0;

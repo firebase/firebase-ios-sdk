@@ -48,7 +48,7 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app)
                 std::unique_lock<std::mutex> lock(contents->mutex);
                 NSDictionary<NSString*, id>* user_info = notification.userInfo;
 
-                // ensure we're only notifiying for the current app.
+                // ensure we're only notifying for the current app.
                 FIRApp* notified_app =
                     user_info[FIRAuthStateDidChangeInternalNotificationAppKey];
                 if (![contents->app isEqual:notified_app]) {

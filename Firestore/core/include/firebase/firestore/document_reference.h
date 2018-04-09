@@ -16,7 +16,7 @@
 
 // TODO(rsgowman): This file isn't intended to be used just yet. It's just an
 // outline of what the API might eventually look like. Most of this was
-// shamelessly stolen and modified from rtdb's header file, melded with the
+// shamelessly stolen and modified from RTDB's header file, melded with the
 // (java) firestore api.
 
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DOCUMENT_REFERENCE_H_
@@ -36,7 +36,7 @@
 // here so we don't forget to mention this during the API review, and should be
 // removed once this note has migrated to the API review doc.
 
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
+// TODO(rsgowman): replace these forward decls with appropriate includes (once
 // they exist)
 namespace firebase {
 class App;
@@ -47,7 +47,7 @@ class Future;
 namespace firebase {
 namespace firestore {
 
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
+// TODO(rsgowman): replace these forward decls with appropriate includes (once
 // they exist)
 class FieldValue;
 class DocumentSnapshot;
@@ -361,7 +361,7 @@ namespace std {
 // C++ style guide. But we think this is probably ok in this case since:
 // a) It's the standard way of doing this outside of Google (as the style guide
 // itself points out), and
-// b) This has a straightfoward hash function anyway (just hash the path) so I
+// b) This has a straightforward hash function anyway (just hash the path) so I
 // don't think the concerns in the style guide are going to bite us.
 //
 // Raise this concern during the API review.

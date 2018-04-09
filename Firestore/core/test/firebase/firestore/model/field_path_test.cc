@@ -68,7 +68,7 @@ TEST(FieldPath, PopFirst) {
   const FieldPath bc{"Eros", "messages"};
   const FieldPath c{"messages"};
   const FieldPath empty;
-  const FieldPath abc_dupl{"rooms", "Eros", "messages"};
+  const FieldPath abc_dup{"rooms", "Eros", "messages"};
 
   EXPECT_NE(empty, c);
   EXPECT_NE(c, bc);
@@ -77,7 +77,7 @@ TEST(FieldPath, PopFirst) {
   EXPECT_EQ(bc, abc.PopFirst());
   EXPECT_EQ(c, abc.PopFirst(2));
   EXPECT_EQ(empty, abc.PopFirst(3));
-  EXPECT_EQ(abc_dupl, abc);
+  EXPECT_EQ(abc_dup, abc);
 }
 
 TEST(FieldPath, PopLast) {
@@ -85,7 +85,7 @@ TEST(FieldPath, PopLast) {
   const FieldPath ab{"rooms", "Eros"};
   const FieldPath a{"rooms"};
   const FieldPath empty;
-  const FieldPath abc_dupl{"rooms", "Eros", "messages"};
+  const FieldPath abc_dup{"rooms", "Eros", "messages"};
 
   EXPECT_EQ(ab, abc.PopLast());
   EXPECT_EQ(a, abc.PopLast().PopLast());
