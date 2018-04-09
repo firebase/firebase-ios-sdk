@@ -302,12 +302,6 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, weak, nullable) id<FIRMessagingDelegate> delegate;
 
 /**
- * Delegate to handle remote data messages received via FCM for devices running iOS 10 or above.
- */
-@property(nonatomic, weak, nullable) id<FIRMessagingDelegate> remoteMessageDelegate
-    __deprecated_msg("Use 'delegate' property");
-
-/**
  *  When set to `YES`, Firebase Messaging will automatically establish a socket-based, direct
  *  channel to the FCM server. Enable this only if you are sending upstream messages or
  *  receiving non-APNS, data-only messages in foregrounded apps.
