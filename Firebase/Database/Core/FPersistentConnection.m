@@ -735,18 +735,22 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
 }
 
 - (void) cancelSentTransactions {
-    NSMutableArray* toPrune = [[NSMutableArray alloc] init];
+    NSMutableDictionary<NSNumber*, FOutstandingPut*>* cancelledOutstandingPuts =  [[NSMutableDictionary alloc] init];
+
     for (NSNumber* index in self.outstandingPuts) {
         FOutstandingPut* put = self.outstandingPuts[index];
         if (put.request[kFWPRequestHash] && put.sent) {
-            // This is a sent transaction put
-            put.onCompleteBlock(kFTransactionDisconnect, @"Client was disconnected while running a transaction");
-            [toPrune addObject:index];
+            // This is a sent transaction put.
+            cancelledOutstandingPuts[index] = put;
         }
     }
-    for (NSNumber* index in toPrune) {
+
+    [cancelledOutstandingPuts enumerateKeysAndObjectsUsingBlock:^(NSNumber *index, FOutstandingPut *outstandingPut, BOOL *stop) {
+        // `onCompleteBlock:` may invoke `rerunTransactionsForPath:` and enqueue new writes. We defer calling
+        // it until we have finished enumerating all existing writes.
+        outstandingPut.onCompleteBlock(kFTransactionDisconnect, @"Client was disconnected while running a transaction");
         [self.outstandingPuts removeObjectForKey:index];
-    }
+    }];
 }
 
 - (void) onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body {
