@@ -76,7 +76,9 @@ CPP_STATUS=$?
 
 # Objective-C++ files get a looser cpplint
 "${command[@]}" "${git_options[@]}" \
-    -- 'Firestore/Source/**/*.'{h,mm} 'Firestore/Example/Tests/**/*.'{h,mm} \
+    -- 'Firestore/Source/**/*.'{h,mm} \
+      'Firestore/Example/Tests/**/*.'{h,mm} \
+      'Firestore/core/**/*.mm' \
   | xargs -0 python scripts/cpplint.py "${objc_lint_options[@]}" --quiet 2>&1
 OBJC_STATUS=$?
 
