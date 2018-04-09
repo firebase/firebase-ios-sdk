@@ -283,8 +283,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields) {
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
-  std::vector<FieldTransform> fieldTransforms{};
-  fieldTransforms.reserve(serverTimestampFields.count);
+  std::vector<FieldTransform> fieldTransforms;
   for (NSString *field in serverTimestampFields) {
     FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
     auto transformOp = absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get());

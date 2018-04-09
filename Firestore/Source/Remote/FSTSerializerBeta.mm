@@ -560,7 +560,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields{};
+  std::vector<FieldPath> fields;
   fields.reserve(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
     fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));
@@ -572,8 +572,8 @@ NS_ASSUME_NONNULL_BEGIN
     (const std::vector<FieldTransform> &)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : fieldTransforms) {
-    FSTAssert(fieldTransform.transform()->type() == TransformOperation::Type::ServerTimestamp,
-              @"Unknown transform: %d type", fieldTransform.transform()->type());
+    FSTAssert(fieldTransform.transformation()->type() == TransformOperation::Type::ServerTimestamp,
+              @"Unknown transform: %d type", fieldTransform.transformation()->type());
     GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
     proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
@@ -584,7 +584,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::vector<FieldTransform>)decodedFieldTransforms:
     (NSArray<GCFSDocumentTransform_FieldTransform *> *)protos {
-  std::vector<FieldTransform> fieldTransforms{};
+  std::vector<FieldTransform> fieldTransforms;
   fieldTransforms.reserve(protos.count);
   for (GCFSDocumentTransform_FieldTransform *proto in protos) {
     FSTAssert(

@@ -30,28 +30,29 @@ namespace model {
 /** A field path and the TransformOperation to perform upon it. */
 class FieldTransform {
  public:
-  FieldTransform(FieldPath path, std::unique_ptr<TransformOperation> transform)
-      : path_(std::move(path)), transform_(std::move(transform)) {
+  FieldTransform(FieldPath path,
+                 std::unique_ptr<TransformOperation> transformation)
+      : path_(std::move(path)), transformation_(std::move(transformation)) {
   }
 
   const FieldPath& path() const {
     return path_;
   }
 
-  const TransformOperation* transform() const {
-    return transform_.get();
+  const TransformOperation* transformation() const {
+    return transformation_.get();
+  }
+
+  bool operator==(const FieldTransform& other) const {
+    return path_ == other.path_ && *transformation_ == *other.transformation_;
   }
 
 #if defined(__OBJC__)
-  bool operator==(const FieldTransform& other) const {
-    return path_ == other.path_ && *transform_ == *other.transform_;
-  }
-
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
   NSUInteger Hash() const {
     NSUInteger hash = path_.Hash();
-    hash = hash * 31 + transform_->Hash();
+    hash = hash * 31 + transformation_->Hash();
     return hash;
   }
 #endif  // defined(__OBJC__)
@@ -59,7 +60,7 @@ class FieldTransform {
  private:
   FieldPath path_;
   // Shared by copies of the same FieldTransform.
-  std::shared_ptr<TransformOperation> transform_;
+  std::shared_ptr<const TransformOperation> transformation_;
 };
 
 }  // namespace model
