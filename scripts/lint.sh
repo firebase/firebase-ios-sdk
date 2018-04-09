@@ -50,7 +50,7 @@ objc_lint_filters=(
 
 objc_lint_options=(
   # cpplint normally excludes Objective-C++
-  --extensions=h,mm
+  --extensions=h,m,mm
 
   # Objective-C style allows longer lines
   --linelength=100
@@ -76,8 +76,8 @@ CPP_STATUS=$?
 
 # Objective-C++ files get a looser cpplint
 "${command[@]}" "${git_options[@]}" \
-    -- 'Firestore/Source/**/*.'{h,mm} \
-      'Firestore/Example/Tests/**/*.'{h,mm} \
+    -- 'Firestore/Source/**/*.'{h,m,mm} \
+      'Firestore/Example/Tests/**/*.'{h,m,mm} \
       'Firestore/core/**/*.mm' \
   | xargs -0 python scripts/cpplint.py "${objc_lint_options[@]}" --quiet 2>&1
 OBJC_STATUS=$?

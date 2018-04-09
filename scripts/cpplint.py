@@ -4450,7 +4450,7 @@ def _DropCommonSuffixes(filename):
         filename[-len(suffix) - 1] in ('-', '_')):
       return filename[:-len(suffix) - 1]
 
-  for suffix in ['Tests.h', 'Tests.mm', 'Test.mm']:
+  for suffix in ['Tests.h', 'Test.m', 'Test.mm', 'Tests.m', 'Tests.mm']:
     if (filename.endswith(suffix) and len(filename) > len(suffix)):
       return filename[:-len(suffix)]
 
