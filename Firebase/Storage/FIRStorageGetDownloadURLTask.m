@@ -13,10 +13,8 @@
 // limitations under the License.
 
 #import "FIRStorageGetDownloadURLTask.h"
-#import <UIKit/UIKit.h>
 
 #import "FIRStorageConstants.h"
-#import "FIRStorageMetadata_Private.h"
 #import "FIRStorageTask_Private.h"
 #import "FIRStorageUtils.h"
 
