@@ -56,23 +56,23 @@ class StringView {
   // Creates a StringView from the given char* pointer but computes the size
   // with strlen. This is really only suitable for passing C string literals.
   StringView(const char *data)  // NOLINT(runtime/explicit)
-    : data_(data), size_(strlen(data)) {
+      : data_(data), size_(strlen(data)) {
   }
 
   // Creates a StringView from the given slice.
   StringView(leveldb::Slice slice)  // NOLINT(runtime/explicit)
-    : data_(slice.data()), size_(slice.size()) {
+      : data_(slice.data()), size_(slice.size()) {
   }
 
   // Creates a StringView from the absl::string_view.
   StringView(absl::string_view s)  // NOLINT(runtime/explicit)
-    : data_(s.data()), size_(s.size()) {
+      : data_(s.data()), size_(s.size()) {
   }
 
   // Creates a StringView from the given std::string. The string must be an
   // lvalue for the lifetime requirements to be satisfied.
-  StringView(const std::string &str) // NOLINT(runtime/explicit)
-    : data_(str.data()), size_(str.size()) {
+  StringView(const std::string &str)  // NOLINT(runtime/explicit)
+      : data_(str.data()), size_(str.size()) {
   }
 
   // Converts this StringView to a Slice, which is an equivalent (and more
