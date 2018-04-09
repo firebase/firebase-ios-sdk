@@ -38,6 +38,7 @@ endif()
 function(add_to_compile_and_link_flags flag)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
   set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${flag}")
+  message("${flag}")
 endfunction()
 
 if (HAVE_SANITIZERS AND USE_SANITIZERS)
