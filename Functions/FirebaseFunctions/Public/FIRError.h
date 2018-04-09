@@ -86,6 +86,6 @@ typedef NS_ENUM(NSInteger, FIRFunctionsErrorCode) {
   FIRFunctionsErrorCodeDataLoss = 15,
   /** The request does not have valid authentication credentials for the operation. */
   FIRFunctionsErrorCodeUnauthenticated = 16,
-};
+} NS_SWIFT_NAME(FunctionsErrorCode);
 
 NS_ASSUME_NONNULL_END
