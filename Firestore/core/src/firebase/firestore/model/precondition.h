@@ -28,6 +28,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -47,17 +48,17 @@ class Precondition {
   };
 
   /** Creates a new Precondition with an exists flag. */
-  static const Precondition& Exists(bool exists);
+  static Precondition Exists(bool exists);
 
   /** Creates a new Precondition based on a time the document exists at. */
   static Precondition UpdateTime(SnapshotVersion update_time);
 
   /** Returns a precondition representing no precondition. */
-  static const Precondition& None();
+  static Precondition None();
 
   /**
-   * Returns true if the preconditions is valid for the given document (or null
-   * if no document is available).
+   * Returns true if the precondition is valid for the given document (and the
+   * document is available).
    */
   bool IsValidFor(const MaybeDocument& maybe_doc) const;
 
@@ -96,14 +97,13 @@ class Precondition {
         FIREBASE_ASSERT_MESSAGE(IsNone(), "Precondition should be empty");
         return true;
         break;
-      default:
-        FIREBASE_ASSERT_MESSAGE(false, "Invalid precondition");
-        break;
     }
+    FIREBASE_UNREACHABLE();
   }
 
   bool operator==(const Precondition& other) const {
-    return update_time_ == other.update_time_ && exists_ == other.exists_;
+    return type_ == other.type_ && update_time_ == other.update_time_ &&
+           exists_ == other.exists_;
   }
 
   // For Objective-C++ hash; to be removed after migration.
@@ -132,8 +132,9 @@ class Precondition {
                              update_time_.timestamp().ToString().c_str()];
         break;
       default:
-        // We do not raise assertion here. This function is mainly used in
+        // We only raise dev assertion here. This function is mainly used in
         // logging.
+        FIREBASE_DEV_ASSERT_MESSAGE(false, "precondition invalid");
         return @"<Precondition invalid>";
         break;
     }

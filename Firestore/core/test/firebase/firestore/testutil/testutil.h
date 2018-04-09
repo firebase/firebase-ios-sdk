@@ -46,7 +46,7 @@ inline model::ResourcePath Resource(absl::string_view field) {
   return model::ResourcePath::FromString(field);
 }
 
-// Version is epoch time in macroseconds. This helper is defined so to match
+// Version is epoch time in microseconds. This helper is defined so to match
 // SDKs in other platform.
 inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{

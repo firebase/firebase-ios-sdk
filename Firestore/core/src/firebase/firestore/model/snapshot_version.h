@@ -45,9 +45,7 @@ class SnapshotVersion {
 
 #if defined(__OBJC__)
   SnapshotVersion(FSTSnapshotVersion* version) {  // NOLINT(runtime/explicit)
-    if ([version isEqual:[FSTSnapshotVersion noVersion]]) {
-      timestamp_ = Timestamp{};
-    } else {
+    if (![version isEqual:[FSTSnapshotVersion noVersion]]) {
       timestamp_ =
           Timestamp{version.timestamp.seconds, version.timestamp.nanoseconds};
     }

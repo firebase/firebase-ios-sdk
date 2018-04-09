@@ -31,10 +31,8 @@ Precondition::Precondition(Type type, SnapshotVersion update_time, bool exists)
 }
 
 /* static */
-const Precondition& Precondition::Exists(bool exists) {
-  static Precondition kExist{Type::Exists, SnapshotVersion::None(), true};
-  static Precondition kNotExist{Type::Exists, SnapshotVersion::None(), false};
-  return exists ? kExist : kNotExist;
+Precondition Precondition::Exists(bool exists) {
+  return Precondition{Type::Exists, SnapshotVersion::None(), exists};
 }
 
 /* static */
@@ -45,10 +43,8 @@ Precondition Precondition::UpdateTime(SnapshotVersion update_time) {
 }
 
 /* static */
-const Precondition& Precondition::None() {
-  static Precondition kNoPrecondition{Type::None, SnapshotVersion::None(),
-                                      false};
-  return kNoPrecondition;
+Precondition Precondition::None() {
+  return Precondition{Type::None, SnapshotVersion::None(), false};
 }
 
 bool Precondition::IsValidFor(const MaybeDocument& maybe_doc) const {
@@ -68,10 +64,8 @@ bool Precondition::IsValidFor(const MaybeDocument& maybe_doc) const {
       FIREBASE_ASSERT_MESSAGE(IsNone(), "Precondition should be empty");
       return true;
       break;
-    default:
-      FIREBASE_ASSERT_MESSAGE(false, "Invalid precondition");
-      break;
   }
+  FIREBASE_UNREACHABLE();
 }
 
 bool Precondition::IsNone() const {
