@@ -85,6 +85,11 @@ NS_SWIFT_NAME(FirebaseApp)
 + (nullable FIRApp *)defaultApp NS_SWIFT_NAME(app());
 
 /**
+ * Checks if the default app is configured without trying to configure it.
+ */
++ (BOOL)isDefaultAppConfigured;
+
+/**
  * Returns a previously created FIRApp instance with the given name, or nil if no such app exists.
  * This method is thread safe.
  */
