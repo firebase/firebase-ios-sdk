@@ -17,6 +17,10 @@ project(firestore C CXX)
 
 option(ASAN "Build with Address sanitizer (mutually exculsive with TSAN)" OFF)
 # TODO(varconst): msan
+# Memory sanitizer is more complicated:
+# - it requires all dependencies to be compiled with msan enabled (see
+#   https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo);
+# - AppleClang doesn't support it.
 option(TSAN "Build with Thread sanitizer (mutually exculsive with ASAN)" OFF)
 option(UBSAN "Build with Undefined behavior sanitizer" OFF)
 
@@ -31,27 +35,29 @@ if (NOT HAVE_SANITIZERS AND USE_SANITIZERS)
   message(FATAL_ERROR "Only Clang and GCC support sanitizers.")
 endif()
 
-if (HAVE_SANITIZERS)
-  if (USE_SANITIZERS)
-    if ((ASAN AND TSAN) OR (UBSAN AND TSAN))
-      message(FATAL_ERROR "You cannot combine sanitizers except asan and ubsan.")
-    endif()
+function(add_to_compile_and_link_flags flag)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+  set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${flag}")
+endfunction()
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
-    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fno-omit-frame-pointer")
+if (HAVE_SANITIZERS AND USE_SANITIZERS)
+  if ((ASAN AND TSAN) OR (UBSAN AND TSAN))
+    message(FATAL_ERROR "You cannot combine sanitizers except asan and ubsan.")
   endif()
 
+  # Recommended to "get nicer stack traces in error messages"
+  # TODO(varconst): double-check that tsan actually needs this flag (it's
+  # explicitly recommended in the docs for asan and ubsan)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
+
   if (TSAN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
-    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=thread")
+    add_to_compile_and_link_flags("-fsanitize=thread")
   else()
     if (ASAN)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-      set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address")
+      add_to_compile_and_link_flags("-fsanitize=address")
     endif()
     if (UBSAN)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
-      set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=undefined")
+      add_to_compile_and_link_flags("-fsanitize=undefined")
     endif()
   endif()
 endif()
