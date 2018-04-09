@@ -65,6 +65,10 @@ class Precondition {
   /** Returns whether this Precondition represents no precondition. */
   bool IsNone() const;
 
+  Type type() const {
+    return type_;
+  }
+
   const SnapshotVersion& update_time() const {
     return update_time_;
   }
@@ -111,6 +115,7 @@ class Precondition {
   NSUInteger Hash() const {
     NSUInteger hash = std::hash<Timestamp>()(update_time_.timestamp());
     hash = hash * 31 + exists_;
+    hash = hash * 31 + static_cast<NSUInteger>(type_);
     return hash;
   }
 

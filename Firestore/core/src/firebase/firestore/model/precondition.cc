@@ -37,8 +37,8 @@ Precondition Precondition::Exists(bool exists) {
 
 /* static */
 Precondition Precondition::UpdateTime(SnapshotVersion update_time) {
-  FIREBASE_ASSERT_MESSAGE(update_time != SnapshotVersion::None(),
-                          "Invalid update time");
+  // update_time could be SnapshotVersion::None() in particular for locally
+  // deleted documents.
   return Precondition{Type::UpdateTime, std::move(update_time), false};
 }
 

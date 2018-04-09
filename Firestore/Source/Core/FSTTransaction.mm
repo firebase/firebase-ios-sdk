@@ -188,10 +188,10 @@ NS_ASSUME_NONNULL_BEGIN
   NSError *error = nil;
   const Precondition precondition = [self preconditionForUpdateWithDocumentKey:key error:&error];
   if (precondition.IsNone()) {
-    [self writeMutations:[data mutationsWithKey:key precondition:precondition]];
-  } else {
     FSTAssert(error, @"Got nil precondition, but error was not set");
     self.lastWriteError = error;
+  } else {
+    [self writeMutations:[data mutationsWithKey:key precondition:precondition]];
   }
 }
 
@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
                             initWithKey:key
                            precondition:[self preconditionForDocumentKey:key]] ]];
   // Since the delete will be applied before all following writes, we need to ensure that the
-  // precondition for the next write will be exists: false.
+  // precondition for the next write will be exists without timestamp.
   _readVersions[key] = [FSTSnapshotVersion noVersion];
 }
 

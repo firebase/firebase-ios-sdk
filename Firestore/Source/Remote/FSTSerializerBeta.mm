@@ -523,11 +523,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSPrecondition *)encodedPrecondition:(const Precondition &)precondition {
   FSTAssert(!precondition.IsNone(), @"Can't serialize an empty precondition");
   GCFSPrecondition *message = [GCFSPrecondition message];
-  if (precondition.update_time() != SnapshotVersion::None()) {
+  if (precondition.type() == Precondition::Type::UpdateTime) {
     message.updateTime =
         [self encodedVersion:static_cast<FSTSnapshotVersion *>(precondition.update_time())];
-  } else if (precondition == Precondition::Exists(true) ||
-             precondition == Precondition::Exists(false)) {
+  } else if (precondition.type() == Precondition::Type::Exists) {
     message.exists = precondition == Precondition::Exists(true);
   } else {
     FSTFail(@"Unknown precondition: %@", precondition.description());

@@ -29,6 +29,7 @@ namespace model {
 
 TEST(Precondition, None) {
   const Precondition none = Precondition::None();
+  EXPECT_EQ(Precondition::Type::None, none.type());
   EXPECT_TRUE(none.IsNone());
   EXPECT_EQ(SnapshotVersion::None(), none.update_time());
 
@@ -41,6 +42,8 @@ TEST(Precondition, None) {
 TEST(Precondition, Exists) {
   const Precondition exists = Precondition::Exists(true);
   const Precondition no_exists = Precondition::Exists(false);
+  EXPECT_EQ(Precondition::Type::Exists, exists.type());
+  EXPECT_EQ(Precondition::Type::Exists, no_exists.type());
   EXPECT_FALSE(exists.IsNone());
   EXPECT_FALSE(no_exists.IsNone());
   EXPECT_EQ(SnapshotVersion::None(), exists.update_time());
@@ -57,6 +60,7 @@ TEST(Precondition, Exists) {
 TEST(Precondition, UpdateTime) {
   const Precondition update_time =
       Precondition::UpdateTime(testutil::Version(1234567));
+  EXPECT_EQ(Precondition::Type::UpdateTime, update_time.type());
   EXPECT_FALSE(update_time.IsNone());
   EXPECT_EQ(testutil::Version(1234567), update_time.update_time());
 
