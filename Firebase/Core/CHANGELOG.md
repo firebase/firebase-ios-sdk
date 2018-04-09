@@ -1,4 +1,6 @@
 # Unreleased
+- [changed] Removed dependency on UIKit.
+- [changed] Removed deprecated methods.
 
 # 2018-03-06 -- v4.0.16 -- M22
 - [changed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of Xcode and CocoaPods.
