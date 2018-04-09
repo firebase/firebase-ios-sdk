@@ -513,11 +513,11 @@
 }
 
 - (void)onConnect:(FPersistentConnection *)fpconnection {
-    [self updateInfo:kDotInfoConnected withValue:@true];
+    [self updateInfo:kDotInfoConnected withValue:@YES];
 }
 
 - (void)onDisconnect:(FPersistentConnection *)fpconnection {
-    [self updateInfo:kDotInfoConnected withValue:@false];
+    [self updateInfo:kDotInfoConnected withValue:@NO];
     [self runOnDisconnectEvents];
 }
 
