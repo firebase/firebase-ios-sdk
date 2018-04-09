@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <string>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/StringView.h"
 

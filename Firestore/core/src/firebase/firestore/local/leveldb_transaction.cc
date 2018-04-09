@@ -16,12 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
-#include <leveldb/write_batch.h>
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
+#include "leveldb/write_batch.h"
 
 using leveldb::DB;
 using leveldb::ReadOptions;

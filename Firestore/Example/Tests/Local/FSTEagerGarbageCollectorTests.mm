@@ -16,9 +16,9 @@
 
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 
-#include <set>
-
 #import <XCTest/XCTest.h>
+
+#include <set>
 
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"

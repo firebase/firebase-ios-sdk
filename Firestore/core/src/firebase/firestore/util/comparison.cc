@@ -16,8 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
-#include <math.h>
-
+#include <cmath>
 #include <limits>
 
 namespace firebase {

@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 
+#include <set>
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;

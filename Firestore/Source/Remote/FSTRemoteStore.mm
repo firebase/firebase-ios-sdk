@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"

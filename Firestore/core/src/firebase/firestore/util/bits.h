@@ -22,7 +22,7 @@
 // Munging bits in _signed_ integers is fraught with peril! For example,
 // -5 << n has undefined behavior (for some values of n).
 
-#include <stdint.h>
+#include <cstdint>
 
 class Bits_Port32_Test;
 class Bits_Port64_Test;

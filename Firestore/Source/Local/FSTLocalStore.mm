@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
+#include <set>
+
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"

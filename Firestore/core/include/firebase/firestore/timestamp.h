@@ -17,12 +17,13 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_
 
-#include <stdint.h>
-#include <time.h>
+#include <cstdint>
+#include <ctime>
+#include <string>
+
 #if !defined(_STLPORT_VERSION)
 #include <chrono>  // NOLINT(build/c++11)
 #endif             // !defined(_STLPORT_VERSION)
-#include <string>
 
 namespace firebase {
 

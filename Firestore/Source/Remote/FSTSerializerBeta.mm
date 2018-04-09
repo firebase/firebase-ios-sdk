@@ -16,10 +16,12 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#include <inttypes.h>
-
 #import <GRPCClient/GRPCCall.h>
-#import "FIRTimestamp.h"
+
+#include <cinttypes>
+#include <string>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
@@ -31,6 +33,7 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
+#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"

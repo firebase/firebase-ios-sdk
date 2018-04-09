@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTListenSequence.h"
+#import "Firestore/Source/Core/FSTListenSequence.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

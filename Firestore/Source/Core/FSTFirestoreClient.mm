@@ -16,7 +16,8 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#import <future>
+#include <future>  // NOLINT(build/c++11)
+#include <memory>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-
 #import <Foundation/Foundation.h>
 
-#include <string.h>
-
+// TODO(wilhuff): match basenames so this can move up top
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace firebase {
