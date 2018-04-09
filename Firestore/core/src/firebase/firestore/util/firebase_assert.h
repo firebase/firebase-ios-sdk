@@ -103,6 +103,11 @@
   FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, \
                                               __VA_ARGS__)
 
+// Indicates an area of the code that cannot be reached (except possibly due to
+// undefined behaviour or other similar badness). The only reasonable thing to
+// do in these cases is to immediately abort.
+#define FIREBASE_UNREACHABLE() abort()
+
 namespace firebase {
 namespace firestore {
 namespace util {

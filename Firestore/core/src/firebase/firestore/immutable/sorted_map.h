@@ -144,6 +144,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return SortedMap{tree_.insert(key, value)};
     }
+    FIREBASE_UNREACHABLE();
   }
 
   /**
@@ -159,6 +160,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return SortedMap{tree_.erase(key)};
     }
+    FIREBASE_UNREACHABLE();
   }
 
   /** Returns true if the map contains no elements. */
@@ -169,6 +171,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return tree_.empty();
     }
+    FIREBASE_UNREACHABLE();
   }
 
   /** Returns the number of items in this map. */
@@ -179,6 +182,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return tree_.size();
     }
+    FIREBASE_UNREACHABLE();
   }
 
  private:

@@ -194,12 +194,7 @@
 		D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
-		D09005311EDB32D600154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005331EDB32F100154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005351EDB330E00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D09005391EDB333A00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D090053B1EDB334400154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D0EDB2C51EDA04F800B6C31B /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D0EDB2D71EDA057800B6C31B /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D21EDA056A00B6C31B /* FIRAppDelegate.m */; };
@@ -816,36 +811,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		D090052F1EDB32B700154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005311EDB32D600154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D09005321EDB32EA00154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005331EDB32F100154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D09005341EDB330800154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005351EDB330E00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D09005361EDB331700154410 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -853,26 +818,6 @@
 			dstSubfolderSpec = 16;
 			files = (
 				D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D09005381EDB333700154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D09005391EDB333A00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D090053A1EDB334000154410 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				D090053B1EDB334400154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2693,7 +2638,6 @@
 				DE7B8D191E8EF078009EB6DF /* Sources */,
 				DE7B8D1A1E8EF078009EB6DF /* Frameworks */,
 				DE7B8D1B1E8EF078009EB6DF /* Resources */,
-				D09005341EDB330800154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2729,7 +2673,6 @@
 				DE9314DA1E86C6BE0083EDBF /* Sources */,
 				DE9314DB1E86C6BE0083EDBF /* Frameworks */,
 				DE9314DC1E86C6BE0083EDBF /* Resources */,
-				D090052F1EDB32B700154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2748,7 +2691,6 @@
 				DE9315A31E8738460083EDBF /* Sources */,
 				DE9315A41E8738460083EDBF /* Frameworks */,
 				DE9315A51E8738460083EDBF /* Resources */,
-				D09005381EDB333700154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2854,7 +2796,6 @@
 				DEB13A0E1E73507E00AC236D /* Sources */,
 				DEB13A161E73507E00AC236D /* Frameworks */,
 				DEB13A1D1E73507E00AC236D /* Resources */,
-				D090053A1EDB334000154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2908,7 +2849,6 @@
 				DEE14D551E84464D006FA992 /* Sources */,
 				DEE14D561E84464D006FA992 /* Frameworks */,
 				DEE14D571E84464D006FA992 /* Resources */,
-				D09005321EDB32EA00154410 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -5915,6 +5855,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -5955,6 +5896,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Database/Persistence\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary\"",
 					"\"${PODS_ROOT}/../../Firebase/Database/Core/View\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Database/Tests/FirebaseTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -6022,6 +5964,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -6047,6 +5990,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -6433,6 +6377,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Storage-Tests-iOS";
@@ -6452,6 +6397,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Storage/Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Storage-Tests-iOS";
@@ -6565,7 +6511,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_ROOT}/Headers/Private",
+				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6585,7 +6534,10 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_ROOT}/Headers/Private",
+				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

@@ -429,10 +429,10 @@ static NSString *const kRemoveIDTokenListenerTitle = @"Remove Last ID Token Chan
  */
 static NSString *const kSectionTitleApp = @"APP";
 
-/** @var kUpdateCurrentUserFromSavedTitle
-    @brief The text of the "Upgrade to saved user" button.
+/** @var kSwitchToInMemoryUserTitle
+    @brief The text of the "Switch to in memory user" button.
  */
-static NSString *const kUpdateCurrentUserFromSavedTitle = @"Upgrade to saved user";
+static NSString *const kSwitchToInMemoryUserTitle = @"Switch to in memory user";
 
 /** @var kCreateUserTitle
     @brief The text of the "Create User" button.
@@ -750,7 +750,7 @@ typedef enum {
         }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSignIn cells:@[
-        [StaticContentTableViewCell cellWithTitle:kUpdateCurrentUserFromSavedTitle
+        [StaticContentTableViewCell cellWithTitle:kSwitchToInMemoryUserTitle
                                             value:nil
                                            action:^{ [weakSelf updateToSavedUser]; }],
         [StaticContentTableViewCell cellWithTitle:kCreateUserTitle
@@ -2762,7 +2762,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }
 
   if (!_userInMemory) {
-    NSLog(@"You need an in memory user to perform this action");
+    [self showMessagePrompt:[NSString stringWithFormat:@"You need an in-memory user to perform this"
+    "action, use the M+ button to save a user to memory.", nil]];
     return;
   }
 
