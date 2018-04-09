@@ -90,7 +90,7 @@
   };
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
   NSDictionary *dictRepresentation = [metadata dictionaryRepresentation];
-  XCTAssertNotNil(dictRepresentation, );
+  XCTAssertNotNil(dictRepresentation);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataBucket],
                         metaDict[kFIRStorageMetadataBucket]);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataCacheControl],
