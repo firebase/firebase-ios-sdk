@@ -307,12 +307,7 @@ NS_SWIFT_NAME(Messaging)
  *  receiving non-APNS, data-only messages in foregrounded apps.
  *  Default is `NO`.
  */
-@property(nonatomic) BOOL shouldEstablishDirectChannel;
-
-/**
- *  Returns `YES` if the direct channel to the FCM server is active, and `NO` otherwise.
- */
-@property(nonatomic, readonly) BOOL isDirectChannelEstablished;
+@property(nonatomic, assign, getter=isDirectChannelEstablished) BOOL shouldEstablishDirectChannel;
 
 /**
  *  FIRMessaging
