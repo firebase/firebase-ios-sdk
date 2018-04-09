@@ -99,6 +99,9 @@ message StructuredQuery {
 
       // Equal.
       EQUAL = 5;
+
+      // Contains. Requires that the field is an array.
+      ARRAY_CONTAINS = 7;
     }
 
     // The field to filter by.
