@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 // NB: This is also defined in Firestore/Source/Public/FIRFirestoreErrors.h
+// NOLINTNEXTLINE: public constant
 NSString* const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 namespace firebase {

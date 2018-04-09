@@ -45,8 +45,8 @@ class DatabaseInfo {
    * @param ssl_enabled Whether to use SSL when connecting.
    */
   DatabaseInfo(const firebase::firestore::model::DatabaseId& database_id,
-               const absl::string_view persistence_key,
-               const absl::string_view host,
+               absl::string_view persistence_key,
+               absl::string_view host,
                bool ssl_enabled);
 
   const firebase::firestore::model::DatabaseId& database_id() const {

@@ -373,7 +373,7 @@ DocumentKey Reader::ReadDocumentKey() {
   }
 
   ResourcePath path{std::move(path_segments)};
-  if (ok_ && path.size() > 0 && DocumentKey::IsDocumentKey(path)) {
+  if (ok_ && !path.empty() && DocumentKey::IsDocumentKey(path)) {
     return DocumentKey{std::move(path)};
   }
 

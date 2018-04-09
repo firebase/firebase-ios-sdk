@@ -31,10 +31,10 @@ namespace firestore {
 namespace auth {
 
 // `TokenErrorListener` is a listener that gets a token or an error.
-typedef std::function<void(util::StatusOr<Token>)> TokenListener;
+using TokenListener = std::function<void(util::StatusOr<Token>)>;
 
 // Listener notified with a User change.
-typedef std::function<void(User user)> UserChangeListener;
+using UserChangeListener = std::function<void(User user)>;
 
 /**
  * Provides methods for getting the uid and token for the current user and

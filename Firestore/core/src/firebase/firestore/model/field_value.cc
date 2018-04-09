@@ -148,7 +148,8 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       return *this;
     default:
       // We just copy over POD union types.
-      return *this = value;
+      *this = value;
+      return *this;
   }
 }
 

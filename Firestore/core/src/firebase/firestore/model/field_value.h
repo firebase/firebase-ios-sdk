@@ -163,7 +163,7 @@ class FieldValue {
   /**
    * Switch to the specified type, if different from the current type.
    */
-  void SwitchTo(const Type type);
+  void SwitchTo(Type type);
 
   Type tag_ = Type::Null;
   union {
