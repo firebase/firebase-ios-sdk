@@ -16,11 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS
-// TODO: Remove UIKit import on next breaking change release
-#import <UIKit/UIKit.h>
-#endif
-
 @class FIROptions;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -90,19 +85,11 @@ NS_SWIFT_NAME(FirebaseApp)
  */
 + (nullable FIRApp *)appNamed:(NSString *)name NS_SWIFT_NAME(app(name:));
 
-#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /**
  * Returns the set of all extant FIRApp instances, or nil if there are no FIRApp instances. This
  * method is thread safe.
  */
 @property(class, readonly, nullable) NSDictionary<NSString *, FIRApp *> *allApps;
-#else
-/**
- * Returns the set of all extant FIRApp instances, or nil if there are no FIRApp instances. This
- * method is thread safe.
- */
-+ (nullable NSDictionary<NSString *, FIRApp *> *)allApps NS_SWIFT_NAME(allApps());
-#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /**
  * Cleans up the current FIRApp, freeing associated data and returning its name to the pool for
