@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Removed dependency on UIKit.
+- [changed] Removed `UIKit` import from `FIRApp.h`.
 - [changed] Removed deprecated methods.
 
 # 2018-03-06 -- v4.0.16 -- M22
