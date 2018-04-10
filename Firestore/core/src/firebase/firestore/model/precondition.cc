@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
-#include <utility>
-
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
@@ -52,24 +50,16 @@ bool Precondition::IsValidFor(const MaybeDocument& maybe_doc) const {
     case Type::UpdateTime:
       return maybe_doc.type() == MaybeDocument::Type::Document &&
              maybe_doc.version() == update_time_;
-      break;
     case Type::Exists:
       if (exists_) {
         return maybe_doc.type() == MaybeDocument::Type::Document;
       } else {
         return maybe_doc.type() == MaybeDocument::Type::NoDocument;
       }
-      break;
     case Type::None:
-      FIREBASE_ASSERT_MESSAGE(IsNone(), "Precondition should be empty");
       return true;
-      break;
   }
   FIREBASE_UNREACHABLE();
-}
-
-bool Precondition::IsNone() const {
-  return type_ == Type::None;
 }
 
 }  // namespace model
