@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef DEBUG
+// The tests depend upon library methods only built with #ifdef DEBUG
+
 #import "FIRTestCase.h"
 
 #import <FirebaseCore/FIRLogger.h>
@@ -267,3 +270,4 @@ static NSString *const kMessageCode = @"I-COR000001";
 }
 
 @end
+#endif

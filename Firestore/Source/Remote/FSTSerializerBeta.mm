@@ -573,8 +573,8 @@ NS_ASSUME_NONNULL_BEGIN
     (const std::vector<FieldTransform> &)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : fieldTransforms) {
-    FSTAssert(fieldTransform.transformation()->type() == TransformOperation::Type::ServerTimestamp,
-              @"Unknown transform: %d type", fieldTransform.transformation()->type());
+    FSTAssert(fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp,
+              @"Unknown transform: %d type", fieldTransform.transformation().type());
     GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
     proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;

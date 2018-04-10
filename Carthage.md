@@ -26,8 +26,9 @@ more details and additional installation methods.
 
 ## Carthage Usage
 
-- Create a Cartfile with a **subset** of the following components. Note that
-    **FirebaseAnalytics** must always be included.
+- Create a Cartfile with a **subset** of the following components - choosing the
+Firebase components that you want to include in your app. Note that
+**FirebaseAnalytics** must always be included.
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"

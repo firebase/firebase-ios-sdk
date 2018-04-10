@@ -31,16 +31,16 @@ namespace model {
 class FieldTransform {
  public:
   FieldTransform(FieldPath path,
-                 std::unique_ptr<TransformOperation> transformation)
-      : path_(std::move(path)), transformation_(std::move(transformation)) {
+                 std::unique_ptr<TransformOperation> transformation) noexcept
+      : path_{std::move(path)}, transformation_{std::move(transformation)} {
   }
 
   const FieldPath& path() const {
     return path_;
   }
 
-  const TransformOperation* transformation() const {
-    return transformation_.get();
+  const TransformOperation& transformation() const {
+    return *transformation_.get();
   }
 
   bool operator==(const FieldTransform& other) const {
