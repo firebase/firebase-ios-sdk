@@ -177,8 +177,7 @@ void Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
 
   if (!pb_encode_tag(&stream_, wiretype, field_number)) {
     const char* errmsg = PB_GET_ERROR(&stream_);
-    FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
-    status_ = Status(FirestoreErrorCode::Internal, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, errmsg);
   }
 }
 
@@ -191,8 +190,7 @@ void Writer::WriteVarint(uint64_t value) {
 
   if (!pb_encode_varint(&stream_, value)) {
     const char* errmsg = PB_GET_ERROR(&stream_);
-    FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
-    status_ = Status(FirestoreErrorCode::Internal, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, errmsg);
   }
 }
 
@@ -258,8 +256,7 @@ void Writer::WriteString(const std::string& string_value) {
           &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
           string_value.length())) {
     const char* errmsg = PB_GET_ERROR(&stream_);
-    FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
-    status_ = Status(FirestoreErrorCode::Internal, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, errmsg);
   }
 }
 
@@ -409,8 +406,7 @@ void Writer::WriteNestedMessage(
   if (stream_.callback == nullptr) {
     if (!pb_write(&stream_, nullptr, size)) {
       const char* errmsg = PB_GET_ERROR(&stream_);
-      FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
-      status_ = Status(FirestoreErrorCode::Internal, errmsg);
+      FIREBASE_ASSERT_MESSAGE(false, errmsg);
     }
     return;
   }
@@ -419,8 +415,7 @@ void Writer::WriteNestedMessage(
   if (stream_.bytes_written + size > stream_.max_size) {
     const char* errmsg =
         "Insufficient space in the output stream to write the given message";
-    FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
-    status_ = Status(FirestoreErrorCode::Internal, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, errmsg);
     return;
   }
 
@@ -443,8 +438,7 @@ void Writer::WriteNestedMessage(
     // submsg size changed
     const char* errmsg =
         "Parsing the nested message twice yielded different sizes";
-    FIREBASE_DEV_ASSERT_MESSAGE(false, errmsg);
-    status_ = Status(FirestoreErrorCode::Internal, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, errmsg);
   }
 }
 
