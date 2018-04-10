@@ -61,6 +61,19 @@ if(HAVE_OPENSSL_RAND_H)
   )
 endif()
 
+## async queue
+
+if(HAVE_LIBDISPATCH)
+  cc_test(
+    firebase_firestore_util_async_queue_libdispatch_test
+    SOURCES
+      async_queue_test_libdispatch.cc
+    DEPENDS
+      absl_strings
+      firebase_firestore_util_async_queue_libdispatch
+  )
+endif()
+
 ## main library
 
 cc_test(
