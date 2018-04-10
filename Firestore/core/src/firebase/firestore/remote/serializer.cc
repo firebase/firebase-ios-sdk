@@ -176,8 +176,7 @@ void Writer::WriteTag(pb_wire_type_t wiretype, uint32_t field_number) {
   if (!status_.ok()) return;
 
   if (!pb_encode_tag(&stream_, wiretype, field_number)) {
-    const char* errmsg = PB_GET_ERROR(&stream_);
-    FIREBASE_ASSERT_MESSAGE(false, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
   }
 }
 
@@ -189,8 +188,7 @@ void Writer::WriteVarint(uint64_t value) {
   if (!status_.ok()) return;
 
   if (!pb_encode_varint(&stream_, value)) {
-    const char* errmsg = PB_GET_ERROR(&stream_);
-    FIREBASE_ASSERT_MESSAGE(false, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
   }
 }
 
@@ -255,8 +253,7 @@ void Writer::WriteString(const std::string& string_value) {
   if (!pb_encode_string(
           &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
           string_value.length())) {
-    const char* errmsg = PB_GET_ERROR(&stream_);
-    FIREBASE_ASSERT_MESSAGE(false, errmsg);
+    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
   }
 }
 
@@ -405,18 +402,16 @@ void Writer::WriteNestedMessage(
   // fail since sizing streams don't actually have any buffer space.)
   if (stream_.callback == nullptr) {
     if (!pb_write(&stream_, nullptr, size)) {
-      const char* errmsg = PB_GET_ERROR(&stream_);
-      FIREBASE_ASSERT_MESSAGE(false, errmsg);
+      FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
     }
     return;
   }
 
   // Ensure the output stream has enough space
   if (stream_.bytes_written + size > stream_.max_size) {
-    const char* errmsg =
-        "Insufficient space in the output stream to write the given message";
-    FIREBASE_ASSERT_MESSAGE(false, errmsg);
-    return;
+    FIREBASE_ASSERT_MESSAGE(
+        false,
+        "Insufficient space in the output stream to write the given message");
   }
 
   // Use a substream to verify that a callback doesn't write more than what it
@@ -436,9 +431,8 @@ void Writer::WriteNestedMessage(
 
   if (writer.bytes_written() != size) {
     // submsg size changed
-    const char* errmsg =
-        "Parsing the nested message twice yielded different sizes";
-    FIREBASE_ASSERT_MESSAGE(false, errmsg);
+    FIREBASE_ASSERT_MESSAGE(
+        false, "Parsing the nested message twice yielded different sizes");
   }
 }
 
