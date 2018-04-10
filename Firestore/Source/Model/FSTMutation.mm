@@ -17,6 +17,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
