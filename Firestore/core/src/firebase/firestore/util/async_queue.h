@@ -229,12 +229,6 @@ class AsyncQueue {
   using Operation = std::function<void()>;
   using Milliseconds = std::chrono::milliseconds;
 
- private:
-  using TimePoint = Schedule<Operation, Milliseconds>::TimePoint;
-  // To allow canceling operations, each scheduled operation is assigned
-  // a monotonically increasing identifier.
-  using Id = DelayedOperation::Id;
-
  public:
   AsyncQueue();
   ~AsyncQueue();
@@ -250,6 +244,11 @@ class AsyncQueue {
   DelayedOperation EnqueueAfterDelay(Milliseconds delay, Operation&& operation);
 
  private:
+  using TimePoint = Schedule<Operation, Milliseconds>::TimePoint;
+  // To allow canceling operations, each scheduled operation is assigned
+  // a monotonically increasing identifier.
+  using Id = DelayedOperation::Id;
+
   friend class DelayedOperation;  // For access to `TryCancel`
   // If the operation hasn't yet been run, it will be removed from the queue.
   // Otherwise, this function is a no-op.
@@ -259,7 +258,7 @@ class AsyncQueue {
 
   void PollingThread();
   void UnblockQueue();
-  unsigned int NextId();
+  Id NextId();
 
   // As a convention, assign the epoch time to all operations scheduled for
   // immediate execution. Note that it means that an immediate operation is
@@ -277,7 +276,7 @@ class AsyncQueue {
         : operation{std::move(operation)}, id{id} {
     }
     Operation operation;
-    unsigned int id = 0;
+    Id id = 0;
   };
   // Operations scheduled for immediate execution are also put on the schedule
   // (with due time set to `Immediate`).
@@ -287,7 +286,7 @@ class AsyncQueue {
   // Used to stop the worker thread.
   std::atomic<bool> shutting_down_{false};
 
-  std::atomic<unsigned int> current_id_{0};
+  std::atomic<Id> current_id_{0};
 };
 
 }  // namespace util

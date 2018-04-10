@@ -95,7 +95,7 @@ void AsyncQueue::UnblockQueue() {
   schedule_.Push(Entry{[] {}, /*id=*/0}, Immediate());
 }
 
-unsigned int AsyncQueue::NextId() {
+AsyncQueue::Id AsyncQueue::NextId() {
   // The wrap around after ~4 billion operations is explicitly ignored. Even if
   // an instance of `AsyncQueue` runs long enough to get `current_id_` to
   // overflow, it's extremely unlikely that any object still holds a reference

@@ -16,13 +16,13 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-#include <stdlib.h>
 #include <chrono>  // NOLINT(build/c++11)
+#include <cstdlib>
 #include <future>  // NOLINT(build/c++11)
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
