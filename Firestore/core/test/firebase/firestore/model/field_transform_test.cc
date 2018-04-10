@@ -31,7 +31,7 @@ TEST(FieldTransform, Getter) {
                                ServerTimestampTransform::Get()));
 
   EXPECT_EQ(testutil::Field("foo"), transform.path());
-  EXPECT_EQ(ServerTimestampTransform::Get(), *transform.transformation());
+  EXPECT_EQ(ServerTimestampTransform::Get(), transform.transformation());
 }
 
 }  // namespace model
