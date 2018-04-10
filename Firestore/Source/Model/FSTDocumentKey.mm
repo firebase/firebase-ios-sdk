@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 
+#include <string>
 #include <utility>
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"

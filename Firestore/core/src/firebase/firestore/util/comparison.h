@@ -21,9 +21,9 @@
 #import <Foundation/Foundation.h>
 #endif
 
-#include <stdint.h>
 #include <sys/types.h>
 
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <vector>

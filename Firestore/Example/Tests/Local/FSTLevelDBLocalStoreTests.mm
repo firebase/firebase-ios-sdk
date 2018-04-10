@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTLocalStore.h"
-
-#import <XCTest/XCTest.h>
+#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
-#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN

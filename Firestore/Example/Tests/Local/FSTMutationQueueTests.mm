@@ -17,6 +17,9 @@
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 
 #import <FirebaseFirestore/FIRTimestamp.h>
+
+#include <set>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
@@ -246,7 +249,6 @@ NS_ASSUME_NONNULL_BEGIN
         return newBatches;
       });
   self.persistence.run("testNextMutationBatchAfterBatchIDSkipsAcknowledgedBatches", [&]() {
-
     [self.mutationQueue acknowledgeBatch:batches[0] streamToken:nil];
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:kFSTBatchIDUnknown],
                           batches[1]);

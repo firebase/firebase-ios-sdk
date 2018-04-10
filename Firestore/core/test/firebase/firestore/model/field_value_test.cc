@@ -16,8 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-#include <limits.h>
-
+#include <climits>
 #include <vector>
 
 #include "gtest/gtest.h"

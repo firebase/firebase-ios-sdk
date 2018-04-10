@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
+#include <set>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"

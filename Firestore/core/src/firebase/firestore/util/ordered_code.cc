@@ -16,12 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 
-#include <absl/base/internal/endian.h>
-#include <absl/base/internal/unaligned_access.h>
-#include <absl/base/port.h>
-
 #include "Firestore/core/src/firebase/firestore/util/bits.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "absl/base/internal/endian.h"
+#include "absl/base/internal/unaligned_access.h"
+#include "absl/base/port.h"
 
 #define UNALIGNED_LOAD32 ABSL_INTERNAL_UNALIGNED_LOAD32
 #define UNALIGNED_LOAD64 ABSL_INTERNAL_UNALIGNED_LOAD64

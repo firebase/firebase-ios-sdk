@@ -130,15 +130,6 @@
 		AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
-		AFC8BA9D1EBD230E00B8EEAE /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */; };
-		AFC8BA9F1EBD51A700B8EEAE /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */; };
-		AFC8BAA71EC257D800B8EEAE /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
-		AFD5630E1EB1402300EA2233 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */; };
-		AFD5630F1EB1402300EA2233 /* MessagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563011EB13DF200EA2233 /* MessagingViewController.swift */; };
-		AFD563151EB29EDE00EA2233 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AFD563131EB1466100EA2233 /* GoogleService-Info.plist */; };
-		AFD563171EBBEF7B00EA2233 /* Data+MessagingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */; };
-		D018534D1EDACED4003A645C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D01853491EDACED4003A645C /* LaunchScreen.storyboard */; };
-		D018534E1EDACED4003A645C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D018534B1EDACED4003A645C /* Main.storyboard */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D01853831EDAD113003A645C /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D018537E1EDAD0E6003A645C /* FIRAppDelegate.m */; };
 		D01853841EDAD113003A645C /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D01853801EDAD0E6003A645C /* FIRViewController.m */; };
@@ -332,6 +323,22 @@
 		DE26D2931F705F4D004AE1D3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D2071F70333E004AE1D3 /* ViewController.swift */; };
 		DE26D2941F705F51004AE1D3 /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FE1F70333E004AE1D3 /* AuthCredentials.swift */; };
 		DE26D2951F705F53004AE1D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FD1F70333E004AE1D3 /* AppDelegate.swift */; };
+		DE47C0E2207AC87D00B1AEDF /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
+		DE47C0E7207AC87D00B1AEDF /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		DE47C114207AC94A00B1AEDF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE47C107207AC94A00B1AEDF /* GoogleService-Info.plist */; };
+		DE47C115207AC94A00B1AEDF /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE47C109207AC94A00B1AEDF /* Environment.swift */; };
+		DE47C116207AC94A00B1AEDF /* MessagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE47C10A207AC94A00B1AEDF /* MessagingViewController.swift */; };
+		DE47C117207AC94A00B1AEDF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE47C10C207AC94A00B1AEDF /* LaunchScreen.storyboard */; };
+		DE47C118207AC94A00B1AEDF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE47C10E207AC94A00B1AEDF /* Main.storyboard */; };
+		DE47C119207AC94A00B1AEDF /* Messaging-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE47C110207AC94A00B1AEDF /* Messaging-Info.plist */; };
+		DE47C11A207AC94A00B1AEDF /* Data+MessagingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE47C111207AC94A00B1AEDF /* Data+MessagingExtensions.swift */; };
+		DE47C11B207AC94A00B1AEDF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE47C112207AC94A00B1AEDF /* AppDelegate.swift */; };
+		DE47C11C207AC94A00B1AEDF /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE47C113207AC94A00B1AEDF /* NotificationsController.swift */; };
+		DE47C13F207ACAA900B1AEDF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE47C136207ACAA900B1AEDF /* LaunchScreen.storyboard */; };
+		DE47C140207ACAA900B1AEDF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE47C138207ACAA900B1AEDF /* Main.storyboard */; };
+		DE47C142207ACAA900B1AEDF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE47C13B207ACAA900B1AEDF /* main.m */; };
+		DE47C143207ACAA900B1AEDF /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE47C13C207ACAA900B1AEDF /* FIRAppDelegate.m */; };
+		DE47C144207ACAA900B1AEDF /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE47C13D207ACAA900B1AEDF /* FIRViewController.m */; };
 		DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */; };
 		DE750DBE1EB3DD6800A75E47 /* FIRAuthAPNSTokenManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */; };
 		DE750DBF1EB3DD6C00A75E47 /* FIRAuthAppCredentialManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */; };
@@ -451,6 +458,7 @@
 		DE9316031E8738E60083EDBF /* FIRMessagingSyncMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D41E8738B70083EDBF /* FIRMessagingSyncMessageManagerTest.m */; };
 		DE9316041E8738E60083EDBF /* FIRMessagingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D51E8738B70083EDBF /* FIRMessagingTest.m */; };
 		DE9316051E8738E60083EDBF /* FIRMessagingTestNotificationUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */; };
+		DEA7795D207ACC8000245121 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE47C107207AC94A00B1AEDF /* GoogleService-Info.plist */; };
 		DEAAD3C31FBA1CD90053BF48 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD3BD1FBA1CD80053BF48 /* main.m */; };
 		DEAAD3CE1FBA1EFA0053BF48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEAAD3C51FBA1EF90053BF48 /* Assets.xcassets */; };
 		DEAAD3CF1FBA1EFA0053BF48 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAD3C81FBA1EFA0053BF48 /* AppDelegate.m */; };
@@ -905,20 +913,10 @@
 		923F824D206C4D8B00034974 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		923F8250206C4DC500034974 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Shared.xcassets; path = Shared/Shared.xcassets; sourceTree = "<group>"; };
-		AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
-		AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Messaging_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRSampleAppUtilities.h; path = Shared/FIRSampleAppUtilities.h; sourceTree = "<group>"; };
 		AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRSampleAppUtilities.m; path = Shared/FIRSampleAppUtilities.m; sourceTree = "<group>"; };
 		AFD562E51EB13C6D00EA2233 /* Messaging_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		AFD563001EB13DF200EA2233 /* Messaging-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Messaging-Info.plist"; sourceTree = "<group>"; };
-		AFD563011EB13DF200EA2233 /* MessagingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingViewController.swift; sourceTree = "<group>"; };
-		AFD563131EB1466100EA2233 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "App/GoogleService-Info.plist"; sourceTree = "<group>"; };
-		AFD563141EB29B8C00EA2233 /* Messaging_Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Messaging_Example.entitlements; sourceTree = "<group>"; };
-		AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Data+MessagingExtensions.swift"; sourceTree = "<group>"; };
-		D018534A1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		D018534C1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D01853791EDAD084003A645C /* Auth_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auth_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D018537C1EDAD0E6003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D018537D1EDAD0E6003A645C /* FIRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
@@ -1039,6 +1037,24 @@
 		DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Sample_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE47C107207AC94A00B1AEDF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DE47C109207AC94A00B1AEDF /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		DE47C10A207AC94A00B1AEDF /* MessagingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingViewController.swift; sourceTree = "<group>"; };
+		DE47C10B207AC94A00B1AEDF /* Messaging_Example.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Messaging_Example.entitlements; sourceTree = "<group>"; };
+		DE47C10D207AC94A00B1AEDF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DE47C10F207AC94A00B1AEDF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DE47C110207AC94A00B1AEDF /* Messaging-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Messaging-Info.plist"; sourceTree = "<group>"; };
+		DE47C111207AC94A00B1AEDF /* Data+MessagingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Data+MessagingExtensions.swift"; sourceTree = "<group>"; };
+		DE47C112207AC94A00B1AEDF /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DE47C113207AC94A00B1AEDF /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
+		DE47C134207ACAA900B1AEDF /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
+		DE47C135207ACAA900B1AEDF /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
+		DE47C137207ACAA900B1AEDF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DE47C139207ACAA900B1AEDF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DE47C13B207ACAA900B1AEDF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DE47C13C207ACAA900B1AEDF /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
+		DE47C13D207ACAA900B1AEDF /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
 		DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE53894C1FBB635400199FC2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE53894D1FBB635400199FC2 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1378,6 +1394,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE47C0E4207AC87D00B1AEDF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE53893B1FBB62E100199FC2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1611,6 +1634,7 @@
 				DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */,
 				DE1FAE901FBCF5E100897AAA /* Auth_Example_tvOS.app */,
 				DEDFEFEC1FD1B8C100F7D466 /* Analytics_Tests_iOS.xctest */,
+				DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1650,15 +1674,6 @@
 			name = Shared;
 			sourceTree = "<group>";
 		};
-		AFD562F71EB13CC700EA2233 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				AFD563131EB1466100EA2233 /* GoogleService-Info.plist */,
-				D01853481EDACE1A003A645C /* iOS */,
-			);
-			name = App;
-			sourceTree = "<group>";
-		};
 		D01853461EDACC10003A645C /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1686,23 +1701,6 @@
 				D01853821EDAD0E6003A645C /* Auth-Info.plist */,
 			);
 			path = macOS;
-			sourceTree = "<group>";
-		};
-		D01853481EDACE1A003A645C /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				AFD563001EB13DF200EA2233 /* Messaging-Info.plist */,
-				AFD563141EB29B8C00EA2233 /* Messaging_Example.entitlements */,
-				AFD562FF1EB13DF200EA2233 /* AppDelegate.swift */,
-				AFD563161EBBEF7B00EA2233 /* Data+MessagingExtensions.swift */,
-				AFC8BA9E1EBD51A700B8EEAE /* Environment.swift */,
-				AFD563011EB13DF200EA2233 /* MessagingViewController.swift */,
-				AFC8BA9C1EBD230E00B8EEAE /* NotificationsController.swift */,
-				D01853491EDACED4003A645C /* LaunchScreen.storyboard */,
-				D018534B1EDACED4003A645C /* Main.storyboard */,
-			);
-			name = iOS;
-			path = App/iOS;
 			sourceTree = "<group>";
 		};
 		D0D857F61ED9ADA8002342D2 /* iOS */ = {
@@ -1889,6 +1887,53 @@
 				DE26D2071F70333E004AE1D3 /* ViewController.swift */,
 			);
 			path = SwiftSample;
+			sourceTree = "<group>";
+		};
+		DE47C106207AC94A00B1AEDF /* Sample */ = {
+			isa = PBXGroup;
+			children = (
+				DE47C107207AC94A00B1AEDF /* GoogleService-Info.plist */,
+				DE47C108207AC94A00B1AEDF /* iOS */,
+			);
+			path = Sample;
+			sourceTree = "<group>";
+		};
+		DE47C108207AC94A00B1AEDF /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE47C109207AC94A00B1AEDF /* Environment.swift */,
+				DE47C10A207AC94A00B1AEDF /* MessagingViewController.swift */,
+				DE47C10B207AC94A00B1AEDF /* Messaging_Example.entitlements */,
+				DE47C10C207AC94A00B1AEDF /* LaunchScreen.storyboard */,
+				DE47C10E207AC94A00B1AEDF /* Main.storyboard */,
+				DE47C110207AC94A00B1AEDF /* Messaging-Info.plist */,
+				DE47C111207AC94A00B1AEDF /* Data+MessagingExtensions.swift */,
+				DE47C112207AC94A00B1AEDF /* AppDelegate.swift */,
+				DE47C113207AC94A00B1AEDF /* NotificationsController.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		DE47C131207ACAA900B1AEDF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DE47C133207ACAA900B1AEDF /* iOS */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DE47C133207ACAA900B1AEDF /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE47C134207ACAA900B1AEDF /* FIRAppDelegate.h */,
+				DE47C135207ACAA900B1AEDF /* FIRViewController.h */,
+				DE47C136207ACAA900B1AEDF /* LaunchScreen.storyboard */,
+				DE47C138207ACAA900B1AEDF /* Main.storyboard */,
+				DE47C13B207ACAA900B1AEDF /* main.m */,
+				DE47C13C207ACAA900B1AEDF /* FIRAppDelegate.m */,
+				DE47C13D207ACAA900B1AEDF /* FIRViewController.m */,
+			);
+			path = iOS;
 			sourceTree = "<group>";
 		};
 		DE53894B1FBB635400199FC2 /* tvOS */ = {
@@ -2097,8 +2142,9 @@
 		DE9315B41E8738B70083EDBF /* Messaging */ = {
 			isa = PBXGroup;
 			children = (
+				DE47C131207ACAA900B1AEDF /* App */,
+				DE47C106207AC94A00B1AEDF /* Sample */,
 				AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */,
-				AFD562F71EB13CC700EA2233 /* App */,
 				DE9315C21E8738B70083EDBF /* Tests */,
 			);
 			path = Messaging;
@@ -2596,6 +2642,23 @@
 			productReference = DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE47C0EA207AC87D00B1AEDF /* Build configuration list for PBXNativeTarget "Messaging_Sample_iOS" */;
+			buildPhases = (
+				DE47C0DD207AC87D00B1AEDF /* Sources */,
+				DE47C0E4207AC87D00B1AEDF /* Frameworks */,
+				DE47C0E5207AC87D00B1AEDF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Messaging_Sample_iOS;
+			productName = Messaging_Example_iOS;
+			productReference = DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 		DE53893D1FBB62E100199FC2 /* Auth_Tests_tvOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DE5389491FBB62E100199FC2 /* Build configuration list for PBXNativeTarget "Auth_Tests_tvOS" */;
@@ -2987,6 +3050,9 @@
 						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
 					};
+					DE47C0DC207AC87D00B1AEDF = {
+						DevelopmentTeam = EQHXZ8M8AV;
+					};
 					DE53893D1FBB62E100199FC2 = {
 						CreatedOnToolsVersion = 9.1;
 						DevelopmentTeam = EQHXZ8M8AV;
@@ -3106,6 +3172,7 @@
 				DE1EC27E1FBA5E63007D18D8 /* Database_Tests_tvOS */,
 				AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */,
 				DE9315A61E8738460083EDBF /* Messaging_Tests_iOS */,
+				DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */,
 				DEB139E01E73506A00AC236D /* Storage_Example_iOS */,
 				DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */,
 				06121EBB1EC399C50008D70E /* Storage_IntegrationTests_iOS */,
@@ -3141,10 +3208,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D018534D1EDACED4003A645C /* LaunchScreen.storyboard in Resources */,
+				DE47C13F207ACAA900B1AEDF /* LaunchScreen.storyboard in Resources */,
+				DEA7795D207ACC8000245121 /* GoogleService-Info.plist in Resources */,
 				AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */,
-				AFD563151EB29EDE00EA2233 /* GoogleService-Info.plist in Resources */,
-				D018534E1EDACED4003A645C /* Main.storyboard in Resources */,
+				DE47C140207ACAA900B1AEDF /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3300,6 +3367,18 @@
 				DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
 				DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */,
 				DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE47C0E5207AC87D00B1AEDF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE47C118207AC94A00B1AEDF /* Main.storyboard in Resources */,
+				DE47C0E7207AC87D00B1AEDF /* Shared.xcassets in Resources */,
+				DE47C114207AC94A00B1AEDF /* GoogleService-Info.plist in Resources */,
+				DE47C117207AC94A00B1AEDF /* LaunchScreen.storyboard in Resources */,
+				DE47C119207AC94A00B1AEDF /* Messaging-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3485,12 +3564,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AFD563171EBBEF7B00EA2233 /* Data+MessagingExtensions.swift in Sources */,
-				AFD5630E1EB1402300EA2233 /* AppDelegate.swift in Sources */,
-				AFC8BA9D1EBD230E00B8EEAE /* NotificationsController.swift in Sources */,
-				AFD5630F1EB1402300EA2233 /* MessagingViewController.swift in Sources */,
-				AFC8BAA71EC257D800B8EEAE /* FIRSampleAppUtilities.m in Sources */,
-				AFC8BA9F1EBD51A700B8EEAE /* Environment.swift in Sources */,
+				DE47C142207ACAA900B1AEDF /* main.m in Sources */,
+				DE47C143207ACAA900B1AEDF /* FIRAppDelegate.m in Sources */,
+				DE47C144207ACAA900B1AEDF /* FIRViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3793,6 +3869,19 @@
 				DE26D2941F705F51004AE1D3 /* AuthCredentials.swift in Sources */,
 				DE26D2951F705F53004AE1D3 /* AppDelegate.swift in Sources */,
 				DE26D2931F705F4D004AE1D3 /* ViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE47C0DD207AC87D00B1AEDF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE47C11A207AC94A00B1AEDF /* Data+MessagingExtensions.swift in Sources */,
+				DE47C115207AC94A00B1AEDF /* Environment.swift in Sources */,
+				DE47C116207AC94A00B1AEDF /* MessagingViewController.swift in Sources */,
+				DE47C0E2207AC87D00B1AEDF /* FIRSampleAppUtilities.m in Sources */,
+				DE47C11C207AC94A00B1AEDF /* NotificationsController.swift in Sources */,
+				DE47C11B207AC94A00B1AEDF /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4282,22 +4371,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		D01853491EDACED4003A645C /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D018534A1EDACED4003A645C /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		D018534B1EDACED4003A645C /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D018534C1EDACED4003A645C /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		D018537B1EDAD0E6003A645C /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -4340,6 +4413,38 @@
 				DE26D1F81F70333E004AE1D3 /* zh-Hans */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		DE47C10C207AC94A00B1AEDF /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE47C10D207AC94A00B1AEDF /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		DE47C10E207AC94A00B1AEDF /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE47C10F207AC94A00B1AEDF /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		DE47C136207ACAA900B1AEDF /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE47C137207ACAA900B1AEDF /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		DE47C138207ACAA900B1AEDF /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE47C139207ACAA900B1AEDF /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 		DE7B8D2C1E8EF202009EB6DF /* LaunchScreen.storyboard */ = {
@@ -4623,11 +4728,11 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CODE_SIGN_ENTITLEMENTS = Messaging/App/iOS/Messaging_Example.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				INFOPLIST_FILE = "Messaging/App/iOS/Messaging-Info.plist";
+				INFOPLIST_FILE = "Messaging/Sample/iOS/Messaging-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
@@ -4647,12 +4752,12 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CODE_SIGN_ENTITLEMENTS = Messaging/App/iOS/Messaging_Example.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				INFOPLIST_FILE = "Messaging/App/iOS/Messaging-Info.plist";
+				INFOPLIST_FILE = "Messaging/Sample/iOS/Messaging-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
@@ -5702,6 +5807,54 @@
 			};
 			name = Release;
 		};
+		DE47C0EB207AC87D00B1AEDF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/Sample/iOS/Messaging-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "Messaging/Messaging_Example-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		DE47C0EC207AC87D00B1AEDF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/Sample/iOS/Messaging-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Messaging/Messaging_Example-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
 		DE5389451FBB62E100199FC2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -6005,7 +6158,6 @@
 		DE9315B01E8738460083EDBF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -6021,6 +6173,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6034,7 +6187,6 @@
 		DE9315B11E8738460083EDBF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -6051,6 +6203,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
 					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6773,6 +6926,15 @@
 			buildConfigurations = (
 				DE33738B1E73773400881891 /* Debug */,
 				DE33738C1E73773400881891 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE47C0EA207AC87D00B1AEDF /* Build configuration list for PBXNativeTarget "Messaging_Sample_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE47C0EB207AC87D00B1AEDF /* Debug */,
+				DE47C0EC207AC87D00B1AEDF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

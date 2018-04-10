@@ -17,9 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_TREE_SORTED_MAP_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_TREE_SORTED_MAP_H_
 
-#include <assert.h>
-
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <utility>

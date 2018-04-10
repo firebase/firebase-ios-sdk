@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
@@ -29,8 +27,11 @@
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

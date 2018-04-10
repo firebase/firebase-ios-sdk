@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
