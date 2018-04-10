@@ -19,6 +19,8 @@
 #include <cmath>
 #include <limits>
 
+using std::isnan;
+
 namespace firebase {
 namespace firestore {
 namespace util {

@@ -20,6 +20,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
+using std::isnan;
+
 namespace firebase {
 namespace firestore {
 
