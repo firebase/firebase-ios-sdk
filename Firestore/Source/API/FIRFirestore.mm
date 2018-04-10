@@ -16,13 +16,13 @@
 
 #import "FIRFirestore.h"
 
-#include <memory>
-#include <utility>
-
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
+
+#include <memory>
+#include <utility>
 
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
@@ -31,7 +31,6 @@
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"

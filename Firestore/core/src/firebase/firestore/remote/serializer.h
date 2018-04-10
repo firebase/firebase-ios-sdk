@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_SERIALIZER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_SERIALIZER_H_
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"

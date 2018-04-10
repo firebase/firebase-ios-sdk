@@ -20,8 +20,8 @@
 
 #if HAVE_OPENSSL_RAND_H
 
-#include <openssl/err.h>
-#include <openssl/rand.h>
+#include "openssl/err.h"
+#include "openssl/rand.h"
 
 namespace firebase {
 namespace firestore {

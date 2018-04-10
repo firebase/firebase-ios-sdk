@@ -16,6 +16,9 @@
 
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
+#include <memory>
+#include <string>
+
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -23,9 +26,9 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#include "absl/strings/match.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

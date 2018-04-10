@@ -16,13 +16,14 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include <memory>
-#include <utility>
-
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
+
+#include <memory>
+#include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"

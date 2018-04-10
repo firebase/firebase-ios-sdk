@@ -20,7 +20,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/base/attributes.h"

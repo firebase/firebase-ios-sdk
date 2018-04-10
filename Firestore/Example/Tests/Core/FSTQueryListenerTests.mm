@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTEventManager.h"
-
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Model/FSTDocument.h"

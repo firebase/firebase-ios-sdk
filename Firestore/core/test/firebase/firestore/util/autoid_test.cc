@@ -16,9 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
-#include <ctype.h>
+#include <cctype>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 using firebase::firestore::util::CreateAutoId;
 

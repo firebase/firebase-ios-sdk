@@ -16,10 +16,11 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
-#include <map>
-#include <unordered_map>
-
 #import <GRPCClient/GRPCCall.h>
+
+#include <map>
+#include <set>
+#include <unordered_map>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTQuery.h"

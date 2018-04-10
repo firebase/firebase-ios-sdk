@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Remote/FSTDatastore.h"
-
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <GRPCClient/GRPCCall.h>
 
@@ -24,6 +22,7 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTBufferedWriter.h"
+#import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTExponentialBackoff.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"

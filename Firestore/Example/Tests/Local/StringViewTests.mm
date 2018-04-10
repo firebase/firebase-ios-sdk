@@ -17,7 +17,8 @@
 #import "Firestore/Source/Local/StringView.h"
 
 #import <XCTest/XCTest.h>
-#include <leveldb/slice.h>
+
+#include "leveldb/slice.h"
 
 using Firestore::StringView;
 
