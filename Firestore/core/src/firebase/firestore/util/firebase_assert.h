@@ -102,18 +102,7 @@
 // Indicates an area of the code that cannot be reached (except possibly due to
 // undefined behaviour or other similar badness). The only reasonable thing to
 // do in these cases is to immediately abort.
-#if defined(__clang__) || defined(__GNUC__)
-// Clang, GCC, (and Intel) compilers have a builtin
-#define FIREBASE_UNREACHABLE() __builtin_unreachable()
-
-#elif defined(_WIN32)
-// Visual C++ doesn't have a builtin, but assuming an impossible condition has
-// the same effect.
-#define FIREBASE_UNREACHABLE() __assume(false)
-
-#else
 #define FIREBASE_UNREACHABLE() abort()
-#endif  // defined(__clang__) || defined(__GNUC__)
 
 namespace firebase {
 namespace firestore {
