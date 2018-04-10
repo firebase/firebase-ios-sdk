@@ -23,6 +23,8 @@
 #import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>
 
+#include <vector>
+
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
@@ -47,6 +49,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
@@ -54,6 +57,7 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldTransform;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask;
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
-    (NSArray<FSTFieldTransform *> *)fieldTransforms;
+    (const std::vector<FieldTransform> &)fieldTransforms;
 
 - (GCFSStructuredQuery_Filter *)encodedRelationFilter:(FSTRelationFilter *)filter;
 @end

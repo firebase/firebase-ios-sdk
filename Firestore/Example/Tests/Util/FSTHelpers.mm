@@ -46,6 +46,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
@@ -59,6 +60,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -279,15 +281,13 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields) {
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
-  NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
+  std::vector<FieldTransform> fieldTransforms;
   for (NSString *field in serverTimestampFields) {
-    const FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
+    FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
     auto transformOp = absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get());
-    FSTFieldTransform *transform =
-        [[FSTFieldTransform alloc] initWithPath:fieldPath transform:std::move(transformOp)];
-    [fieldTransforms addObject:transform];
+    fieldTransforms.emplace_back(std::move(fieldPath), std::move(transformOp));
   }
-  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:fieldTransforms];
+  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:std::move(fieldTransforms)];
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
