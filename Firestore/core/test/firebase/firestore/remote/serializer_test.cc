@@ -60,9 +60,7 @@ class SerializerTest : public ::testing::Test {
   }
   Serializer serializer;
 
-  void ExpectRoundTrip(const FieldValue& model, FieldValue::Type type) {
-    google::firestore::v1beta1::Value proto = ConvertModelToProto(model);
-
+  void ExpectRoundTrip(const FieldValue& model, const google::firestore::v1beta1::Value& proto, FieldValue::Type type) {
     // First, serialize model with our (nanopb based) serializer, then
     // deserialize the resulting bytes with libprotobuf and ensure the result is
     // the same as the expected proto.
@@ -74,51 +72,51 @@ class SerializerTest : public ::testing::Test {
     ExpectDeserializationRoundTrip(model, proto, type);
   }
 
- private:
-  google::firestore::v1beta1::Value ConvertModelToProto(
-      const FieldValue& model) {
+  google::firestore::v1beta1::Value ValueProto() {
+    std::vector<uint8_t> bytes;
+    Status status = serializer.EncodeFieldValue(FieldValue::NullValue(), &bytes);
+    EXPECT_TRUE(status.ok());
     google::firestore::v1beta1::Value proto;
-    switch (model.type()) {
-      case FieldValue::Type::Null:
-        proto.set_null_value(google::protobuf::NullValue::NULL_VALUE);
-        break;
-
-      case FieldValue::Type::Boolean:
-        proto.set_boolean_value(model.boolean_value());
-        break;
-
-      case FieldValue::Type::Integer:
-        proto.set_integer_value(model.integer_value());
-        break;
-
-      case FieldValue::Type::String:
-        proto.set_string_value(model.string_value());
-        break;
-
-      case FieldValue::Type::Object: {
-        google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
-            fields = proto.mutable_map_value()->mutable_fields();
-        for (const ObjectValue::Map::value_type& kv :
-             model.object_value().internal_value) {
-          (*fields)[kv.first] = ConvertModelToProto(kv.second);
-        }
-        break;
-      }
-
-      case FieldValue::Type::Double:
-      case FieldValue::Type::Timestamp:
-      case FieldValue::Type::ServerTimestamp:
-      case FieldValue::Type::Blob:
-      case FieldValue::Type::Reference:
-      case FieldValue::Type::GeoPoint:
-      case FieldValue::Type::Array:
-      default:
-        // TODO(rsgowman): Implement this type
-        abort();
-    }
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
     return proto;
   }
 
+  google::firestore::v1beta1::Value ValueProto(bool b) {
+    std::vector<uint8_t> bytes;
+    Status status = serializer.EncodeFieldValue(FieldValue::BooleanValue(b), &bytes);
+    EXPECT_TRUE(status.ok());
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  google::firestore::v1beta1::Value ValueProto(int64_t i) {
+    std::vector<uint8_t> bytes;
+    Status status = serializer.EncodeFieldValue(FieldValue::IntegerValue(i), &bytes);
+    EXPECT_TRUE(status.ok());
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  google::firestore::v1beta1::Value ValueProto(const char* s) {
+    return ValueProto(std::string(s));
+  }
+
+  google::firestore::v1beta1::Value ValueProto(const std::string& s) {
+    std::vector<uint8_t> bytes;
+    Status status = serializer.EncodeFieldValue(FieldValue::StringValue(s), &bytes);
+    EXPECT_TRUE(status.ok());
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+ private:
   void ExpectSerializationRoundTrip(
       const FieldValue& model,
       const google::firestore::v1beta1::Value& proto,
@@ -150,19 +148,19 @@ class SerializerTest : public ::testing::Test {
 // TODO(rsgowman): whoops! A previous commit performed approx s/Encodes/Writes/,
 // but should not have done so here. Change it back in this file.
 
-TEST_F(SerializerTest, WritesNullModelToBytes) {
+TEST_F(SerializerTest, WritesNull) {
   FieldValue model = FieldValue::NullValue();
-  ExpectRoundTrip(model, FieldValue::Type::Null);
+  ExpectRoundTrip(model, ValueProto(), FieldValue::Type::Null);
 }
 
-TEST_F(SerializerTest, WritesBoolModelToBytes) {
+TEST_F(SerializerTest, WritesBool) {
   for (bool bool_value : {true, false}) {
     FieldValue model = FieldValue::BooleanValue(bool_value);
-    ExpectRoundTrip(model, FieldValue::Type::Boolean);
+    ExpectRoundTrip(model, ValueProto(bool_value), FieldValue::Type::Boolean);
   }
 }
 
-TEST_F(SerializerTest, WritesIntegersModelToBytes) {
+TEST_F(SerializerTest, WritesIntegers) {
   std::vector<int64_t> cases{0,
                              1,
                              -1,
@@ -173,11 +171,11 @@ TEST_F(SerializerTest, WritesIntegersModelToBytes) {
 
   for (int64_t int_value : cases) {
     FieldValue model = FieldValue::IntegerValue(int_value);
-    ExpectRoundTrip(model, FieldValue::Type::Integer);
+    ExpectRoundTrip(model, ValueProto(int_value), FieldValue::Type::Integer);
   }
 }
 
-TEST_F(SerializerTest, WritesStringModelToBytes) {
+TEST_F(SerializerTest, WritesString) {
   std::vector<std::string> cases{
       "",
       "a",
@@ -195,16 +193,20 @@ TEST_F(SerializerTest, WritesStringModelToBytes) {
 
   for (const std::string& string_value : cases) {
     FieldValue model = FieldValue::StringValue(string_value);
-    ExpectRoundTrip(model, FieldValue::Type::String);
+    ExpectRoundTrip(model, ValueProto(string_value), FieldValue::Type::String);
   }
 }
 
-TEST_F(SerializerTest, WritesEmptyMapToBytes) {
+TEST_F(SerializerTest, WritesEmptyMap) {
   FieldValue model = FieldValue::ObjectValueFromMap({});
-  ExpectRoundTrip(model, FieldValue::Type::Object);
+
+  google::firestore::v1beta1::Value proto;
+  proto.mutable_map_value();
+
+  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
-TEST_F(SerializerTest, WritesNestedObjectsToBytes) {
+TEST_F(SerializerTest, WritesNestedObjects) {
   FieldValue model = FieldValue::ObjectValueFromMap(
       {{"b", FieldValue::TrueValue()},
        // TODO(rsgowman): add doubles (once they're supported)
@@ -221,7 +223,25 @@ TEST_F(SerializerTest, WritesNestedObjectsToBytes) {
                        {{"e", FieldValue::IntegerValue(
                                   std::numeric_limits<int64_t>::max())}})}})}});
 
-  ExpectRoundTrip(model, FieldValue::Type::Object);
+  google::firestore::v1beta1::Value inner_proto;
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>* inner_fields = inner_proto.mutable_map_value()->mutable_fields();
+  (*inner_fields)["e"] = ValueProto(std::numeric_limits<int64_t>::max());
+
+  google::firestore::v1beta1::Value middle_proto;
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>* middle_fields = middle_proto.mutable_map_value()->mutable_fields();
+  (*middle_fields)["d"] = ValueProto(100L);
+  (*middle_fields)["nested"] = inner_proto;
+
+  google::firestore::v1beta1::Value proto;
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>* fields = proto.mutable_map_value()->mutable_fields();
+  (*fields)["b"] = ValueProto(true);
+  (*fields)["i"] = ValueProto(1L);
+  (*fields)["n"] = ValueProto();
+  (*fields)["s"] = ValueProto("foo");
+  (*fields)["o"] = middle_proto;
+
+
+  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
