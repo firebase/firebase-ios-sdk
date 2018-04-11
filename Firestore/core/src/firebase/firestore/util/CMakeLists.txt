@@ -108,6 +108,33 @@ else()
 
 endif()
 
+## async queue
+
+check_symbol_exists(dispatch_async_f dispatch/dispatch.h HAVE_LIBDISPATCH)
+cc_library(
+  firebase_firestore_util_async_queue_libdispatch
+  SOURCES
+    async_queue_libdispatch.cc
+    async_queue_libdispatch.h
+  DEPENDS
+    absl_strings
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+  EXCLUDE_FROM_ALL
+)
+
+if(HAVE_LIBDISPATCH)
+  set(
+    FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE
+    firebase_firestore_util_async_queue_libdispatch
+  )
+
+else()
+  # TODO(var-const): non-libdispatch implementation
+  set(
+    FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE
+  )
+
+endif()
 
 ## main library
 
@@ -141,20 +168,7 @@ cc_library(
   DEPENDS
     absl_base
     firebase_firestore_util_base
+    ${FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE}
     ${FIREBASE_FIRESTORE_UTIL_LOG}
     ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )
-
-## async queue
-
-if(APPLE)
-  cc_library(
-    firebase_firestore_util_async_queue
-    SOURCES
-      async_queue_libdispatch.cc
-      async_queue_libdispatch.h
-    DEPENDS
-      absl_strings
-      firebase_firestore_util
-  )
-endif()

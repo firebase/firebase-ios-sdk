@@ -61,6 +61,19 @@ if(HAVE_OPENSSL_RAND_H)
   )
 endif()
 
+## async queue
+
+if(HAVE_LIBDISPATCH)
+  cc_test(
+    firebase_firestore_util_async_queue_libdispatch_test
+    SOURCES
+      async_queue_test_libdispatch.cc
+    DEPENDS
+      absl_strings
+      firebase_firestore_util_async_queue_libdispatch
+  )
+endif()
+
 ## main library
 
 cc_test(
@@ -82,34 +95,3 @@ cc_test(
     firebase_firestore_util
     gmock
 )
-<<<<<<< HEAD
-
-if(APPLE)
-  cc_test(
-    firebase_firestore_util_apple_test
-    SOURCES
-      assert_test.cc
-      log_test.cc
-    DEPENDS
-      firebase_firestore_util_apple
-  )
-
-  cc_test(
-    firebase_firestore_util_libdispatch_test
-    SOURCES
-      async_queue_test_libdispatch.cc
-    DEPENDS
-      firebase_firestore_util_async_queue
-  )
-endif(APPLE)
-
-cc_test(
-  firebase_firestore_util_stdio_test
-  SOURCES
-    assert_test.cc
-    log_test.cc
-  DEPENDS
-    firebase_firestore_util_stdio
-)
-=======
->>>>>>> master
