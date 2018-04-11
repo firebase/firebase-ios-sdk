@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -49,13 +50,9 @@ MaybeDocument SetMutation::ApplyTo(
     const MaybeDocument& base_doc,
     const Timestamp& local_write_time,
     const MutationResult& mutation_result) const {
-  /*
-  if (mutation.Result) {
-    FSTAssert(!mutationResult.transformResults, @"Transform results received by
-  FSTSetMutation.");
-  }
+  FIREBASE_ASSERT_MESSAGE(mutation_result.transform_results.empty(), "Transform results received by FSTSetMutation.");
 
-  if (!self.precondition.IsValidFor(maybeDoc)) {
+  if (!precondition_.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
