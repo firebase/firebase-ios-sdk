@@ -22,12 +22,10 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_EVENT_LISTENER_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_EVENT_LISTENER_H_
 
+#include "firebase/firestore/firestore_errors.h"
+
 namespace firebase {
 namespace firestore {
-
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
-// they exist)
-class Error;
 
 /**
  * @brief An interface for event listeners.

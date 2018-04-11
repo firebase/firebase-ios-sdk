@@ -26,17 +26,15 @@
 #include <string>
 
 #include "firebase/app.h"
+#include "firebase/firestore/collection_reference.h"
+#include "firebase/firestore/document_reference.h"
+#include "firebase/firestore/settings.h"
 
 namespace firebase {
 namespace firestore {
 
-class FirestoreInternal;
-
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
-// they exist)
 class DocumentReference;
-class CollectionReference;
-class Settings;
+class FirestoreInternal;
 
 /**
  * @brief Entry point for the Firebase Firestore C++ SDK.
@@ -159,7 +157,7 @@ class Firestore {
 
   // TODO(zxu123): investigate possibility to use std::unique_ptr or
   // firebase::UniquePtr.
-  FirestoreInternal* internal_;
+  FirestoreInternal* internal_ = nullptr;
 };
 
 }  // namespace firestore

@@ -29,6 +29,17 @@
 #include <functional>
 #endif
 
+#include "firebase/app.h"
+#include "firebase/firestore/collection_reference.h"
+#include "firebase/firestore/document_snapshot.h"
+#include "firebase/firestore/event_listener.h"
+#include "firebase/firestore/field_value.h"
+#include "firebase/firestore/firestore.h"
+#include "firebase/firestore/firestore_errors.h"
+#include "firebase/firestore/listener_registration.h"
+#include "firebase/firestore/set_options.h"
+#include "firebase/future.h"
+
 // TODO(rsgowman): Note that RTDB uses:
 //   #if defined(FIREBASE_USE_MOVE_OPERATORS) || defined(DOXYGEN
 // to protect move operators from older compilers. But all our supported
@@ -36,34 +47,12 @@
 // here so we don't forget to mention this during the API review, and should be
 // removed once this note has migrated to the API review doc.
 
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
-// they exist)
-namespace firebase {
-class App;
-template <typename T>
-class Future;
-}  // namespace firebase
-
 namespace firebase {
 namespace firestore {
 
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
-// they exist)
-class FieldValue;
-class DocumentSnapshot;
+class DocumentReferenceInternal;
 class Firestore;
-class Error;
-template <typename T>
-class EventListener;
-class ListenerRegistration;
-class CollectionReference;
-class DocumentListenOptions;
-// TODO(rsgowman): not quite a forward decl, but required to make the default
-// parameter to Set() "compile".
-class SetOptions {
- public:
-  SetOptions();
-};
+class FirestoreInternal;
 
 // TODO(rsgowman): move this into the FieldValue header
 #ifdef STLPORT
@@ -71,6 +60,10 @@ using MapFieldValue = std::tr1::unordered_map<std::string, FieldValue>;
 #else
 using MapFieldValue = std::unordered_map<std::string, FieldValue>;
 #endif
+
+// TODO(zxu123): Revisit the file structure. Right now put here to make client code
+// consistent since FIRDocumentListenOptions is in FIRDocumentReference.h.
+class DocumentListenOptions {};
 
 /**
  * A DocumentReference refers to a document location in a Firestore database and
@@ -325,9 +318,18 @@ class DocumentReference {
       const DocumentListenOptions& options,
       std::function<void(const DocumentSnapshot*, const Error*)> callback);
 #endif  // defined(FIREBASE_USE_STD_FUNCTION) || defined(DOXYGEN)
+
+ protected:
+  explicit DocumentReference(DocumentReferenceInternal* internal);
+
+ private:
+  friend class FirestoreInternal;
+
+  // TODO(zxu123): investigate possibility to use std::unique_ptr or
+  // firebase::UniquePtr.
+  DocumentReferenceInternal* internal_ = nullptr;
 };
 
-// TODO(rsgowman): probably define and inline here.
 bool operator==(const DocumentReference& lhs, const DocumentReference& rhs);
 
 inline bool operator!=(const DocumentReference& lhs,
