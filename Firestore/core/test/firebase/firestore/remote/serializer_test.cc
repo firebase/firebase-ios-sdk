@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/* NB: Most tests use libprotobuf to create the bytes used for testing the
+/* Most tests use libprotobuf to create the bytes used for testing the
  * serializer. (Previously, protoc was used, but that meant that the bytes were
  * generated ahead of time and just copy+paste'd into the test suite, leading to
  * a lot of magic.) Also note that bytes are no longer compared in any of the
