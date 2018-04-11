@@ -669,8 +669,8 @@ id userInfoFromNotification(id notification) {
   return notificationUserInfo;
 }
 
-void FCM_swizzle_applicationReceivedRemoteMessage(id self, SEL _cmd, FIRMessaging *message,
-                                                  FIRMessagingRemoteMessage *remoteMessage) {
+void FCM_swizzle_messagingDidReceiveMessage(id self, SEL _cmd, FIRMessaging *message,
+                                            FIRMessagingRemoteMessage *remoteMessage) {
   [[FIRMessaging messaging] appDidReceiveMessage:remoteMessage.appData];
 
   IMP original_imp =
