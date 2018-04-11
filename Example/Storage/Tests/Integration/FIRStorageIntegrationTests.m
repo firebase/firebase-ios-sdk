@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageMetadata.h>
 #import <XCTest/XCTest.h>
-#import <math.h>
-
 #import "FirebaseStorage.h"
 
 #import <FirebaseCore/FIRApp.h>
@@ -381,7 +378,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   /// Only allow 1kB size, which is smaller than our file
   [ref dataWithMaxSize:1 * 1024
             completion:^(NSData *data, NSError *error) {
-              XCTAssertNil(nil);
+              XCTAssertNil(data);
               XCTAssertEqual(error.code, FIRStorageErrorCodeDownloadSizeExceeded);
               [expectation fulfill];
             }];
