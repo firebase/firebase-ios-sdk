@@ -250,8 +250,7 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
 }
 
 Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
-  pb_istream_t raw_stream = pb_istream_from_buffer(bytes, length);
-  return Reader(raw_stream);
+  return Reader{pb_istream_from_buffer(bytes, length)};
 }
 
 // TODO(rsgowman): I've left the methods as near as possible to where they were
