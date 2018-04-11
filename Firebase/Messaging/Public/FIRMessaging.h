@@ -467,7 +467,7 @@ NS_SWIFT_NAME(Messaging)
  *                     In case of success, nil error is returned. Otherwise, an
  *                     appropriate error object is returned.
  */
-- (void)subscribeToTopic:(NSString *)topic
+- (void)subscribeToTopic:(nonnull NSString *)topic
               completion:(nullable FIRMessagingTopicOperationCompletion)completion;
 
 /**
@@ -485,7 +485,7 @@ NS_SWIFT_NAME(Messaging)
  *                     In case of success, nil error is returned. Otherwise, an
  *                     appropriate error object is returned.
  */
-- (void)unsubscribeFromTopic:(NSString *)topic
+- (void)unsubscribeFromTopic:(nonnull NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion;
 
 #pragma mark - Upstream
