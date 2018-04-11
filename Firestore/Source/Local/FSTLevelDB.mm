@@ -16,25 +16,24 @@
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
-#include <leveldb/db.h>
+#include <memory>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Source/Local/FSTWriteGroupTracker.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
-#include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
+#include "leveldb/db.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
@@ -55,7 +54,6 @@ using leveldb::WriteOptions;
 @interface FSTLevelDB ()
 
 @property(nonatomic, copy) NSString *directory;
-@property(nonatomic, strong) FSTWriteGroupTracker *writeGroupTracker;
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 @property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
 
@@ -79,7 +77,6 @@ using leveldb::WriteOptions;
                        serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     _directory = [directory copy];
-    _writeGroupTracker = [FSTWriteGroupTracker tracker];
     _serializer = serializer;
     _transactionRunner.SetBackingPersistence(self);
   }
@@ -148,7 +145,7 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  LevelDbTransaction transaction(_ptr.get());
+  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
   [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   transaction.Commit();
   return YES;
@@ -229,26 +226,13 @@ using leveldb::WriteOptions;
   return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
 }
 
-- (void)startTransaction {
+- (void)startTransaction:(absl::string_view)label {
   FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get());
+  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get(), label);
 }
 
 - (void)commitTransaction {
   FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
-  _transaction->Commit();
-  _transaction.reset();
-}
-
-- (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
-  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
-  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get());
-  return [self.writeGroupTracker startGroupWithAction:action transaction:_transaction.get()];
-}
-
-- (void)commitGroup:(FSTWriteGroup *)group {
-  FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
-  [self.writeGroupTracker endGroup:group];
   _transaction->Commit();
   _transaction.reset();
 }

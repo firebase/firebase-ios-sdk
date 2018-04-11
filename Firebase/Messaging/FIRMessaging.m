@@ -28,7 +28,6 @@
 #import "FIRMessagingContextManagerService.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
-#import "FIRMessagingInstanceIDProxy.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingReceiver.h"
@@ -38,6 +37,7 @@
 #import "FIRMessagingVersionUtilities.h"
 
 #import <FirebaseCore/FIRReachabilityChecker.h>
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -76,10 +76,25 @@ NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
 static NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
-// Copied from Apple's header in case it is missing in some cases (e.g. pre-Xcode 8 builds).
-#ifndef NSFoundationVersionNumber_iOS_8_x_Max
-#define NSFoundationVersionNumber_iOS_8_x_Max 1199
-#endif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+/// A private helper to convert enum values without depending on their numerical values
+/// (avoid casting). This can be removed when InstanceID's deprecated APNS type enum is
+/// removed.
+FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNSTokenType type) {
+  switch (type) {
+    case FIRMessagingAPNSTokenTypeProd:
+      return FIRInstanceIDAPNSTokenTypeProd;
+    case FIRMessagingAPNSTokenTypeSandbox:
+      return FIRInstanceIDAPNSTokenTypeSandbox;
+    case FIRMessagingAPNSTokenTypeUnknown:
+      return FIRInstanceIDAPNSTokenTypeUnknown;
+
+    default:
+      return FIRInstanceIDAPNSTokenTypeUnknown;
+  }
+}
+#pragma clang diagnostic pop
 
 @interface FIRMessagingMessageInfo ()
 
@@ -127,16 +142,16 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
 @end
 
 @interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
-                           FIRReachabilityDelegate>
+                           FIRReachabilityDelegate> {
+  BOOL _shouldEstablishDirectChannel;
+}
 
 // FIRApp properties
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 
-// This object is used as a proxy for reflection-based calls to FIRInstanceID.
-// Due to our packaging requirements, we can't directly depend on FIRInstanceID currently.
-@property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
+@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
 @property(nonatomic, readwrite, assign) BOOL isClientSetup;
 
@@ -154,6 +169,9 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
 /// calling it implicitly during swizzling.
 @property(nonatomic, readwrite, strong) NSMutableSet *loggedMessageIDs;
 
+- (instancetype)initWithInstanceID:(FIRInstanceID *)instanceID
+                      userDefaults:(NSUserDefaults *)defaults NS_DESIGNATED_INITIALIZER;
+
 @end
 
 @implementation FIRMessaging
@@ -168,28 +186,26 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   return messaging;
 }
 
-- (instancetype)initPrivately {
+- (instancetype)initWithInstanceID:(FIRInstanceID *)instanceID
+                      userDefaults:(NSUserDefaults *)defaults {
   self = [super init];
-  if (self) {
+  if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
-    _instanceIDProxy = [[FIRMessagingInstanceIDProxy alloc] init];
-    _messagingUserDefaults = [NSUserDefaults standardUserDefaults];
+    _instanceID = instanceID;
+    _messagingUserDefaults = defaults;
   }
   return self;
+}
+
+- (instancetype)initPrivately {
+  return [self initWithInstanceID:[FIRInstanceID instanceID]
+                     userDefaults:[NSUserDefaults standardUserDefaults]];
 }
 
 - (void)dealloc {
   [self.reachability stop];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [self teardown];
-}
-
-- (void)setRemoteMessageDelegate:(id<FIRMessagingDelegate>)delegate {
-  _delegate = delegate;
-}
-
-- (id<FIRMessagingDelegate>)remoteMessageDelegate {
-  return self.delegate;
 }
 
 #pragma mark - Config
@@ -454,7 +470,12 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
     return;
   }
   self.apnsTokenData = apnsToken;
-  [self.instanceIDProxy setAPNSToken:apnsToken type:(FIRMessagingInstanceIDProxyAPNSTokenType)type];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  [self.instanceID setAPNSToken:apnsToken
+                           type:FIRIIDAPNSTokenTypeFromAPNSTokenType(type)];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - FCM
@@ -482,7 +503,7 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   [_messagingUserDefaults setBool:autoInitEnabled
                            forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
-    self.defaultFcmToken = [self.instanceIDProxy token];
+    self.defaultFcmToken = self.instanceID.token;
   }
 }
 
@@ -490,7 +511,7 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   NSString *token = self.defaultFcmToken;
   if (!token) {
     // We may not have received it from Instance ID yet (via NSNotification), so extract it directly
-    token = [self.instanceIDProxy token];
+    token = self.instanceID.token;
   }
   return token;
 }
@@ -520,10 +541,10 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
                            @"Be sure to re-retrieve the FCM token once the APNS device token is "
                            @"set.", senderID);
   }
-  [self.instanceIDProxy tokenWithAuthorizedEntity:senderID
-                                            scope:kFIRMessagingDefaultTokenScope
-                                          options:options
-                                          handler:completion];
+  [self.instanceID tokenWithAuthorizedEntity:senderID
+                                       scope:kFIRMessagingDefaultTokenScope
+                                     options:options
+                                     handler:completion];
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
@@ -540,9 +561,9 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
     }
     return;
   }
-  [self.instanceIDProxy deleteTokenWithAuthorizedEntity:senderID
-                                                  scope:kFIRMessagingDefaultTokenScope
-                                                handler:completion];
+  [self.instanceID deleteTokenWithAuthorizedEntity:senderID
+                                             scope:kFIRMessagingDefaultTokenScope
+                                           handler:completion];
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
@@ -851,7 +872,7 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   // Retrieve the Instance ID default token, and if it is non-nil, post it
-  NSString *token = [self.instanceIDProxy token];
+  NSString *token = self.instanceID.token;
   // Sometimes Instance ID doesn't yet have a token, so wait until the default
   // token is fetched, and then notify. This ensures that this token should not
   // be nil when the developer accesses it.

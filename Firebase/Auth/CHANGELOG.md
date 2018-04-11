@@ -1,3 +1,17 @@
+# v4.6.0
+- Adds `getIDTokenResultWithCompletion:` and `getIDTokenResultForcingRefresh:completion:` APIs which
+  call back with an AuthTokenResult object. The Auth token result object contains the ID token JWT string and other properties associated with the token including the decoded available payload claims (#1004).
+
+- Adds the `updateCurrentUser:completion:` API which sets the currentUser on the calling Auth instance to the provided user object (#1018).
+
+- Adds client-side validation to prevent setting `handleCodeInApp` to false when performing
+  email-link authentication. If `handleCodeInApp` is set to false an invalid argument exception
+  is thrown (#931).
+
+- Adds support for passing the deep link (which is embedded in the sign-in link sent via email) to the
+  `signInWithEmail:link:completion:` and `isSignInWithEmailLink:` methods during an
+  email/link sign-in flow (#1023).
+
 # v4.5.0
 - Adds new API which provides a way to determine the sign-in methods associated with an
   email address.

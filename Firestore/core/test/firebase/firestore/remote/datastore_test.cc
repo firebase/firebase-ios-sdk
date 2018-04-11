@@ -16,8 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
-#include <grpc/grpc.h>
-#include <gtest/gtest.h>
+#include "grpc/grpc.h"
+
+#include "gtest/gtest.h"
 
 TEST(Datastore, CanLinkToGrpc) {
   // This test doesn't actually do anything interesting as far as actually

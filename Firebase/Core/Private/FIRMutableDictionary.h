@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 /// A mutable dictionary that provides atomic accessor and mutators.
 @interface FIRMutableDictionary : NSObject

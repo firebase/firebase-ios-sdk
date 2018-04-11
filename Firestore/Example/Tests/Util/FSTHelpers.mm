@@ -16,14 +16,15 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
-#include <inttypes.h>
-#include <list>
-#include <map>
-#include <vector>
-
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
+
+#include <cinttypes>
+#include <list>
+#include <map>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
@@ -44,18 +45,26 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -260,8 +269,8 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
     }
   }];
 
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(path)];
-  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:merge ? updateMask : fieldMaskPaths];
+  DocumentKey key = testutil::Key(path);
+  FieldMask mask(merge ? updateMask : fieldMaskPaths);
   return [[FSTPatchMutation alloc] initWithKey:key
                                      fieldMask:mask
                                          value:objectValue
@@ -272,15 +281,13 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 FSTTransformMutation *FSTTestTransformMutation(NSString *path,
                                                NSArray<NSString *> *serverTimestampFields) {
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
-  NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
+  std::vector<FieldTransform> fieldTransforms;
   for (NSString *field in serverTimestampFields) {
-    const FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
-    id<FSTTransformOperation> transformOp = [FSTServerTimestampTransform serverTimestampTransform];
-    FSTFieldTransform *transform =
-        [[FSTFieldTransform alloc] initWithPath:fieldPath transform:transformOp];
-    [fieldTransforms addObject:transform];
+    FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
+    auto transformOp = absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get());
+    fieldTransforms.emplace_back(std::move(fieldPath), std::move(transformOp));
   }
-  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:fieldTransforms];
+  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:std::move(fieldTransforms)];
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {

@@ -52,6 +52,7 @@ func initializeDb() -> Firestore {
   let settings = FirestoreSettings()
   settings.host = "localhost"
   settings.isPersistenceEnabled = true
+  settings.areTimestampsInSnapshotsEnabled = true
   firestore.settings = settings
 
   return firestore
@@ -333,6 +334,7 @@ func types() {
   let _: Firestore
   let _: FirestoreSettings
   let _: GeoPoint
+  let _: Timestamp
   let _: ListenerRegistration
   let _: QueryListenOptions
   let _: Query

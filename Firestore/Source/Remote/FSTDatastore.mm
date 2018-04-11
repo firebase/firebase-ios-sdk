@@ -16,11 +16,11 @@
 
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
-#include <memory>
-#include <vector>
-
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
+
+#include <memory>
+#include <vector>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"

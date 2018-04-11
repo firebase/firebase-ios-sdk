@@ -119,6 +119,33 @@ case "$product-$method-$platform" in
           "${xcb_flags[@]}" \
           build \
           test
+
+      # Test iOS Objective-C static library build
+      cd Example
+      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+      pod update --no-repo-update
+      # Workarounds for https://github.com/CocoaPods/CocoaPods/issues/7592.
+      # Remove when updating to CocoaPods 1.5.1
+      sed -i -e 's/-l"FirebaseMessaging"//' "Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.debug.xcconfig"
+      sed -i -e 's/-l"FirebaseAuth-iOS" -l"FirebaseCore-iOS"//' "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.debug.xcconfig"
+      cd ..
+      RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "AllUnitTests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+
+      cd Functions/Example
+      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+      pod update --no-repo-update
+      cd ../..
+      RunXcodebuild \
+          -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
+          -scheme "FirebaseFunctions_Tests" \
+          "${xcb_flags[@]}" \
+          build \
+          test
     fi
     ;;
 

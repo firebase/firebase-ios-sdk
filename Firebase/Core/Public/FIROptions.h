@@ -91,25 +91,6 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *storageBucket;
 
 /**
- * Initializes a customized instance of FIROptions with keys. googleAppID, bundleID and GCMSenderID
- * are required. Other keys may required for configuring specific services.
- */
-- (instancetype)initWithGoogleAppID:(NSString *)googleAppID
-                           bundleID:(NSString *)bundleID
-                        GCMSenderID:(NSString *)GCMSenderID
-                             APIKey:(NSString *)APIKey
-                           clientID:(NSString *)clientID
-                         trackingID:(NSString *)trackingID
-                    androidClientID:(NSString *)androidClientID
-                        databaseURL:(NSString *)databaseURL
-                      storageBucket:(NSString *)storageBucket
-                  deepLinkURLScheme:(NSString *)deepLinkURLScheme
-    DEPRECATED_MSG_ATTRIBUTE(
-        "Use `-[[FIROptions alloc] initWithGoogleAppID:GCMSenderID:]` "
-        "(`FirebaseOptions(googleAppID:gcmSenderID:)` in Swift)` and property "
-        "setters instead.");
-
-/**
  * Initializes a customized instance of FIROptions from the file at the given plist file path. This
  * will read the file synchronously from disk.
  * For example,

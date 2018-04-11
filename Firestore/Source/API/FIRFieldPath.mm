@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "FIRFieldPath.h"
 
 #include <functional>
 #include <string>
 #include <utility>
 #include <vector>
 
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"

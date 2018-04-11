@@ -16,7 +16,10 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 #import "FIRTimestamp.h"
 
@@ -27,112 +30,19 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTFieldMask
-
-@implementation FSTFieldMask {
-  std::vector<FieldPath> _fields;
-}
-
-- (instancetype)initWithFields:(std::vector<FieldPath>)fields {
-  if (self = [super init]) {
-    _fields = std::move(fields);
-  }
-  return self;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  if (![other isKindOfClass:[FSTFieldMask class]]) {
-    return NO;
-  }
-
-  FSTFieldMask *otherMask = (FSTFieldMask *)other;
-  return _fields == otherMask->_fields;
-}
-
-- (NSUInteger)hash {
-  NSUInteger hashResult = 0;
-  for (const FieldPath &field : _fields) {
-    hashResult = hashResult * 31u + field.Hash();
-  }
-  return hashResult;
-}
-
-- (const std::vector<FieldPath> &)fields {
-  return _fields;
-}
-@end
-
-#pragma mark - FSTServerTimestampTransform
-
-@implementation FSTServerTimestampTransform
-
-+ (instancetype)serverTimestampTransform {
-  static FSTServerTimestampTransform *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTServerTimestampTransform alloc] init];
-  });
-  return sharedInstance;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  return [other isKindOfClass:[FSTServerTimestampTransform class]];
-}
-
-- (NSUInteger)hash {
-  // arbitrary number since all instances are equal.
-  return 37;
-}
-
-@end
-
-#pragma mark - FSTFieldTransform
-
-@implementation FSTFieldTransform {
-  FieldPath _path;
-}
-
-- (instancetype)initWithPath:(FieldPath)path transform:(id<FSTTransformOperation>)transform {
-  self = [super init];
-  if (self) {
-    _path = std::move(path);
-    _transform = transform;
-  }
-  return self;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) return YES;
-  if (![[other class] isEqual:[self class]]) return NO;
-  FSTFieldTransform *otherFieldTransform = other;
-  return self.path == otherFieldTransform.path &&
-         [self.transform isEqual:otherFieldTransform.transform];
-}
-
-- (NSUInteger)hash {
-  NSUInteger hash = self.path.Hash();
-  hash = hash * 31 + [self.transform hash];
-  return hash;
-}
-
-- (const firebase::firestore::model::FieldPath &)path {
-  return _path;
-}
-
-@end
 
 #pragma mark - FSTPrecondition
 
@@ -354,18 +264,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTPatchMutation
 
-@implementation FSTPatchMutation
+@implementation FSTPatchMutation {
+  FieldMask _fieldMask;
+}
 
 - (instancetype)initWithKey:(DocumentKey)key
-                  fieldMask:(FSTFieldMask *)fieldMask
+                  fieldMask:(FieldMask)fieldMask
                       value:(FSTObjectValue *)value
                precondition:(FSTPrecondition *)precondition {
   self = [super initWithKey:std::move(key) precondition:precondition];
   if (self) {
-    _fieldMask = fieldMask;
+    _fieldMask = std::move(fieldMask);
     _value = value;
   }
   return self;
+}
+
+- (const firebase::firestore::model::FieldMask &)fieldMask {
+  return _fieldMask;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -377,7 +293,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTPatchMutation *otherMutation = (FSTPatchMutation *)other;
-  return [self.key isEqual:otherMutation.key] && [self.fieldMask isEqual:otherMutation.fieldMask] &&
+  return [self.key isEqual:otherMutation.key] && self.fieldMask == otherMutation.fieldMask &&
          [self.value isEqual:otherMutation.value] &&
          [self.precondition isEqual:otherMutation.precondition];
 }
@@ -385,15 +301,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
   result = 31 * result + [self.precondition hash];
-  result = 31 * result + [self.fieldMask hash];
+  result = 31 * result + self.fieldMask.Hash();
   result = 31 * result + [self.value hash];
   return result;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%@ value=%@ precondition=%@>",
-                                    self.key.ToString().c_str(), self.fieldMask, self.value,
-                                    self.precondition];
+  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%@ precondition=%@>",
+                                    self.key.ToString().c_str(), self.fieldMask.ToString().c_str(),
+                                    self.value, self.precondition];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -434,7 +350,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTObjectValue *)patchObjectValue:(FSTObjectValue *)objectValue {
   FSTObjectValue *result = objectValue;
-  for (const FieldPath &fieldPath : self.fieldMask.fields) {
+  for (const FieldPath &fieldPath : self.fieldMask) {
     FSTFieldValue *newValue = [self.value valueForPath:fieldPath];
     if (newValue) {
       result = [result objectBySettingValue:newValue forPath:fieldPath];
@@ -447,18 +363,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTTransformMutation
+@implementation FSTTransformMutation {
+  /** The field transforms to use when transforming the document. */
+  std::vector<FieldTransform> _fieldTransforms;
+}
 
 - (instancetype)initWithKey:(DocumentKey)key
-            fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
+            fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
   // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
   // FSTTransformMutations with a FSTSetMutation or FSTPatchMutation which (if successful) should
   // end up with an existing document.
   if (self = [super initWithKey:std::move(key)
                    precondition:[FSTPrecondition preconditionWithExists:YES]]) {
-    _fieldTransforms = fieldTransforms;
+    _fieldTransforms = std::move(fieldTransforms);
   }
   return self;
+}
+
+- (const std::vector<FieldTransform> &)fieldTransforms {
+  return _fieldTransforms;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -471,20 +394,26 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTTransformMutation *otherMutation = (FSTTransformMutation *)other;
   return [self.key isEqual:otherMutation.key] &&
-         [self.fieldTransforms isEqual:otherMutation.fieldTransforms] &&
+         self.fieldTransforms == otherMutation.fieldTransforms &&
          [self.precondition isEqual:otherMutation.precondition];
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
   result = 31 * result + [self.precondition hash];
-  result = 31 * result + [self.fieldTransforms hash];
+  for (const auto &transform : self.fieldTransforms) {
+    result = 31 * result + transform.Hash();
+  }
   return result;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%@ precondition=%@>",
-                                    self.key.ToString().c_str(), self.fieldTransforms,
+  std::string fieldTransforms;
+  for (const auto &transform : self.fieldTransforms) {
+    fieldTransforms += " " + transform.path().CanonicalString();
+  }
+  return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%s precondition=%@>",
+                                    self.key.ToString().c_str(), fieldTransforms.c_str(),
                                     self.precondition];
 }
 
@@ -534,19 +463,19 @@ NS_ASSUME_NONNULL_BEGIN
                                   (FSTMaybeDocument *_Nullable)baseDocument
                                                           writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
-  for (FSTFieldTransform *fieldTransform in self.fieldTransforms) {
-    if ([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]]) {
+  for (const FieldTransform &fieldTransform : self.fieldTransforms) {
+    if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
       FSTFieldValue *previousValue = nil;
 
       if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
-        previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path];
+        previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
       }
 
       [transformResults
           addObject:[FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
                                                                       previousValue:previousValue]];
     } else {
-      FSTFail(@"Encountered unknown transform: %@", fieldTransform);
+      FSTFail(@"Encountered unknown transform: %d type", fieldTransform.transformation().type());
     }
   }
   return transformResults;
@@ -554,17 +483,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTObjectValue *)transformObject:(FSTObjectValue *)objectValue
                    transformResults:(NSArray<FSTFieldValue *> *)transformResults {
-  FSTAssert(transformResults.count == self.fieldTransforms.count,
+  FSTAssert(transformResults.count == self.fieldTransforms.size(),
             @"Transform results length mismatch.");
 
-  for (NSUInteger i = 0; i < self.fieldTransforms.count; i++) {
-    FSTFieldTransform *fieldTransform = self.fieldTransforms[i];
-    id<FSTTransformOperation> transform = fieldTransform.transform;
-    FieldPath fieldPath = fieldTransform.path;
-    if ([transform isKindOfClass:[FSTServerTimestampTransform class]]) {
+  for (size_t i = 0; i < self.fieldTransforms.size(); i++) {
+    const FieldTransform &fieldTransform = self.fieldTransforms[i];
+    const TransformOperation &transform = fieldTransform.transformation();
+    const FieldPath &fieldPath = fieldTransform.path();
+    if (transform.type() == TransformOperation::Type::ServerTimestamp) {
       objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
     } else {
-      FSTFail(@"Encountered unknown transform: %@", transform);
+      FSTFail(@"Encountered unknown transform: %d type", transform.type());
     }
   }
   return objectValue;

@@ -25,10 +25,12 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 
 @interface FSTMutationTests : XCTestCase
 @end
@@ -69,9 +71,8 @@ using firebase::firestore::model::DocumentKey;
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
   DocumentKey key = testutil::Key("collection/key");
-  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:{testutil::Field("foo.bar")}];
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
-                                                   fieldMask:mask
+                                                   fieldMask:{testutil::Field("foo.bar")}
                                                        value:[FSTObjectValue objectValue]
                                                 precondition:[FSTPrecondition none]];
   FSTMaybeDocument *patchedDoc =
@@ -143,7 +144,7 @@ using firebase::firestore::model::DocumentKey;
                                          mutationResult:mutationResult];
 
   NSDictionary *expectedData =
-      @{ @"foo" : @{@"bar" : _timestamp.approximateDateValue},
+      @{ @"foo" : @{@"bar" : _timestamp.dateValue},
          @"baz" : @"baz-value" };
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 0, expectedData, NO));
 }

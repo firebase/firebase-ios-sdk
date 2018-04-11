@@ -16,10 +16,12 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#include <inttypes.h>
-
 #import <GRPCClient/GRPCCall.h>
-#import "FIRTimestamp.h"
+
+#include <cinttypes>
+#include <string>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
@@ -31,6 +33,7 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
+#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -44,15 +47,23 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -191,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self encodedString:[fieldValue value]];
 
   } else if (fieldClass == [FSTTimestampValue class]) {
-    return [self encodedTimestampValue:((FSTTimestampValue *)fieldValue).internalValue];
+    return [self encodedTimestampValue:[fieldValue value]];
 
   } else if (fieldClass == [FSTGeoPointValue class]) {
     return [self encodedGeoPointValue:[fieldValue value]];
@@ -539,49 +550,48 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (GCFSDocumentMask *)encodedFieldMask:(FSTFieldMask *)fieldMask {
+- (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask {
   GCFSDocumentMask *mask = [GCFSDocumentMask message];
-  for (const FieldPath &field : fieldMask.fields) {
+  for (const FieldPath &field : fieldMask) {
     [mask.fieldPathsArray addObject:util::WrapNSString(field.CanonicalString())];
   }
   return mask;
 }
 
-- (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields{};
+- (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
+  std::vector<FieldPath> fields;
   fields.reserve(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
     fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));
   }
-  return [[FSTFieldMask alloc] initWithFields:std::move(fields)];
+  return FieldMask(std::move(fields));
 }
 
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
-    (NSArray<FSTFieldTransform *> *)fieldTransforms {
+    (const std::vector<FieldTransform> &)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
-  for (FSTFieldTransform *fieldTransform in fieldTransforms) {
-    FSTAssert([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]],
-              @"Unknown transform: %@", fieldTransform.transform);
+  for (const FieldTransform &fieldTransform : fieldTransforms) {
+    FSTAssert(fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp,
+              @"Unknown transform: %d type", fieldTransform.transformation().type());
     GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
-    proto.fieldPath = util::WrapNSString(fieldTransform.path.CanonicalString());
+    proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
     [protos addObject:proto];
   }
   return protos;
 }
 
-- (NSArray<FSTFieldTransform *> *)decodedFieldTransforms:
+- (std::vector<FieldTransform>)decodedFieldTransforms:
     (NSArray<GCFSDocumentTransform_FieldTransform *> *)protos {
-  NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
+  std::vector<FieldTransform> fieldTransforms;
+  fieldTransforms.reserve(protos.count);
   for (GCFSDocumentTransform_FieldTransform *proto in protos) {
     FSTAssert(
         proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
         @"Unknown transform setToServerValue: %d", proto.setToServerValue);
-    [fieldTransforms
-        addObject:[[FSTFieldTransform alloc]
-                      initWithPath:FieldPath::FromServerFormat(
-                                       util::MakeStringView(proto.fieldPath))
-                         transform:[FSTServerTimestampTransform serverTimestampTransform]]];
+    fieldTransforms.emplace_back(
+        FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+        absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
   }
   return fieldTransforms;
 }

@@ -16,10 +16,11 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
-#include <map>
-#include <unordered_map>
-
 #import <GRPCClient/GRPCCall.h>
+
+#include <map>
+#include <set>
+#include <unordered_map>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -295,8 +296,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
                                  FSTBoxedTargetID *_Nonnull targetID,
                                  FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
-    const auto iter = _limboKeysByTarget.find([targetID intValue]);
-    if (iter == _limboKeysByTarget.end()) {
+    const auto iter = self->_limboKeysByTarget.find([targetID intValue]);
+    if (iter == self->_limboKeysByTarget.end()) {
       return;
     }
     const DocumentKey &limboKey = iter->second;

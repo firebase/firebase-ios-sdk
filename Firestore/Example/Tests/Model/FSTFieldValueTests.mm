@@ -22,7 +22,6 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -227,10 +226,8 @@ union DoubleBits {
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTTimestampValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-
-    XCTAssertEqualObjects(((FSTTimestampValue *)wrapped).internalValue,
-                          [FIRTimestamp timestampWithDate:value]);
+    XCTAssertEqualObjects([[wrapped value] class], [FIRTimestamp class]);
+    XCTAssertEqualObjects([wrapped value], [FIRTimestamp timestampWithDate:value]);
   }
 }
 
@@ -572,14 +569,14 @@ union DoubleBits {
   FSTObjectValue *value = FSTTestObjectValue(input);
   id output = [value value];
   {
-    XCTAssertTrue([output[@"array"][1] isKindOfClass:[NSDate class]]);
-    NSDate *actual = output[@"array"][1];
-    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970, 0.000001);
+    XCTAssertTrue([output[@"array"][1] isKindOfClass:[FIRTimestamp class]]);
+    FIRTimestamp *actual = output[@"array"][1];
+    XCTAssertEqualObjects([FIRTimestamp timestampWithDate:date], actual);
   }
   {
-    XCTAssertTrue([output[@"obj"][@"date"] isKindOfClass:[NSDate class]]);
-    NSDate *actual = output[@"obj"][@"date"];
-    XCTAssertEqualWithAccuracy(date.timeIntervalSince1970, actual.timeIntervalSince1970, 0.000001);
+    XCTAssertTrue([output[@"obj"][@"date"] isKindOfClass:[FIRTimestamp class]]);
+    FIRTimestamp *actual = output[@"array"][1];
+    XCTAssertEqualObjects([FIRTimestamp timestampWithDate:date], actual);
   }
 }
 

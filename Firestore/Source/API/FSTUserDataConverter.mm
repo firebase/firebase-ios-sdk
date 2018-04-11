@@ -35,14 +35,21 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,25 +57,45 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 
 #pragma mark - FSTParsedSetData
 
-@implementation FSTParsedSetData
+@implementation FSTParsedSetData {
+  FieldMask _fieldMask;
+  std::vector<FieldTransform> _fieldTransforms;
+}
+
 - (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(nullable FSTFieldMask *)fieldMask
-             fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
+             fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
   self = [super init];
   if (self) {
     _data = data;
-    _fieldMask = fieldMask;
-    _fieldTransforms = fieldTransforms;
+    _fieldTransforms = std::move(fieldTransforms);
+    _isPatch = NO;
   }
   return self;
+}
+
+- (instancetype)initWithData:(FSTObjectValue *)data
+                   fieldMask:(FieldMask)fieldMask
+             fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
+  self = [super init];
+  if (self) {
+    _data = data;
+    _fieldMask = std::move(fieldMask);
+    _fieldTransforms = std::move(fieldTransforms);
+    _isPatch = YES;
+  }
+  return self;
+}
+
+- (const std::vector<FieldTransform> &)fieldTransforms {
+  return _fieldTransforms;
 }
 
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
                                 precondition:(FSTPrecondition *)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
-  if (self.fieldMask) {
+  if (self.isPatch) {
     [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
-                                                     fieldMask:self.fieldMask
+                                                     fieldMask:_fieldMask
                                                          value:self.data
                                                   precondition:precondition]];
   } else {
@@ -76,7 +103,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
                                                        value:self.data
                                                 precondition:precondition]];
   }
-  if (self.fieldTransforms.count > 0) {
+  if (!self.fieldTransforms.empty()) {
     [mutations addObject:[[FSTTransformMutation alloc] initWithKey:key
                                                    fieldTransforms:self.fieldTransforms]];
   }
@@ -87,15 +114,19 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 
 #pragma mark - FSTParsedUpdateData
 
-@implementation FSTParsedUpdateData
+@implementation FSTParsedUpdateData {
+  FieldMask _fieldMask;
+  std::vector<FieldTransform> _fieldTransforms;
+}
+
 - (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(FSTFieldMask *)fieldMask
-             fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
+                   fieldMask:(FieldMask)fieldMask
+             fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
   self = [super init];
   if (self) {
     _data = data;
-    _fieldMask = fieldMask;
-    _fieldTransforms = fieldTransforms;
+    _fieldMask = std::move(fieldMask);
+    _fieldTransforms = std::move(fieldTransforms);
   }
   return self;
 }
@@ -107,11 +138,19 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
                                                    fieldMask:self.fieldMask
                                                        value:self.data
                                                 precondition:precondition]];
-  if (self.fieldTransforms.count > 0) {
+  if (!self.fieldTransforms.empty()) {
     [mutations addObject:[[FSTTransformMutation alloc] initWithKey:key
                                                    fieldTransforms:self.fieldTransforms]];
   }
   return mutations;
+}
+
+- (const firebase::firestore::model::FieldMask &)fieldMask {
+  return _fieldMask;
+}
+
+- (const std::vector<FieldTransform> &)fieldTransforms {
+  return _fieldTransforms;
 }
 
 @end
@@ -142,7 +181,6 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
  * conditions apply during parsing and providing better error messages.
  */
 @property(nonatomic, assign) FSTUserDataSource dataSource;
-@property(nonatomic, strong, readonly) NSMutableArray<FSTFieldTransform *> *fieldTransforms;
 
 - (instancetype)init NS_UNAVAILABLE;
 /**
@@ -160,7 +198,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
                           path:(std::unique_ptr<FieldPath>)path
                   arrayElement:(BOOL)arrayElement
-               fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
+               fieldTransforms:(std::shared_ptr<std::vector<FieldTransform>>)fieldTransforms
                      fieldMask:(std::shared_ptr<std::vector<FieldPath>>)fieldMask
     NS_DESIGNATED_INITIALIZER;
 
@@ -178,16 +216,22 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (void)appendToFieldMaskWithFieldPath:(FieldPath)fieldPath;
 
+- (const std::vector<FieldTransform> *)fieldTransforms;
+
+- (void)appendToFieldTransformsWithFieldPath:(FieldPath)fieldPath
+                          transformOperation:
+                              (std::unique_ptr<TransformOperation>)transformOperation;
 @end
 
 @implementation FSTParseContext {
   /** The current path being parsed. */
   // TODO(b/34871131): path should never be nullptr, but we don't support array paths right now.
   std::unique_ptr<FieldPath> _path;
-  // _fieldMask is shared across all active context objects to accumulate the result. For example,
-  // the result of calling any of contextForField, contextForFieldPath and contextForArrayIndex
-  // shares the ownership of _fieldMask.
+  // _fieldMask and _fieldTransforms are shared across all active context objects to accumulate the
+  // result. For example, the result of calling any of contextForField, contextForFieldPath and
+  // contextForArrayIndex shares the ownership of _fieldMask and _fieldTransforms.
   std::shared_ptr<std::vector<FieldPath>> _fieldMask;
+  std::shared_ptr<std::vector<FieldTransform>> _fieldTransforms;
 }
 
 + (instancetype)contextWithSource:(FSTUserDataSource)dataSource
@@ -196,7 +240,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       [[FSTParseContext alloc] initWithSource:dataSource
                                          path:std::move(path)
                                  arrayElement:NO
-                              fieldTransforms:[NSMutableArray array]
+                              fieldTransforms:std::make_shared<std::vector<FieldTransform>>()
                                     fieldMask:std::make_shared<std::vector<FieldPath>>()];
   [context validatePath];
   return context;
@@ -205,13 +249,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 - (instancetype)initWithSource:(FSTUserDataSource)dataSource
                           path:(std::unique_ptr<FieldPath>)path
                   arrayElement:(BOOL)arrayElement
-               fieldTransforms:(NSMutableArray<FSTFieldTransform *> *)fieldTransforms
+               fieldTransforms:(std::shared_ptr<std::vector<FieldTransform>>)fieldTransforms
                      fieldMask:(std::shared_ptr<std::vector<FieldPath>>)fieldMask {
   if (self = [super init]) {
     _dataSource = dataSource;
     _path = std::move(path);
     _arrayElement = arrayElement;
-    _fieldTransforms = fieldTransforms;
+    _fieldTransforms = std::move(fieldTransforms);
     _fieldMask = std::move(fieldMask);
   }
   return self;
@@ -225,7 +269,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTParseContext *context = [[FSTParseContext alloc] initWithSource:self.dataSource
                                                                 path:std::move(path)
                                                         arrayElement:NO
-                                                     fieldTransforms:self.fieldTransforms
+                                                     fieldTransforms:_fieldTransforms
                                                            fieldMask:_fieldMask];
   [context validatePathSegment:fieldName];
   return context;
@@ -239,7 +283,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTParseContext *context = [[FSTParseContext alloc] initWithSource:self.dataSource
                                                                 path:std::move(path)
                                                         arrayElement:NO
-                                                     fieldTransforms:self.fieldTransforms
+                                                     fieldTransforms:_fieldTransforms
                                                            fieldMask:_fieldMask];
   [context validatePath];
   return context;
@@ -250,7 +294,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   return [[FSTParseContext alloc] initWithSource:self.dataSource
                                             path:nil
                                     arrayElement:YES
-                                 fieldTransforms:self.fieldTransforms
+                                 fieldTransforms:_fieldTransforms
                                        fieldMask:_fieldMask];
 }
 
@@ -309,6 +353,16 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   _fieldMask->push_back(std::move(fieldPath));
 }
 
+- (const std::vector<FieldTransform> *)fieldTransforms {
+  return _fieldTransforms.get();
+}
+
+- (void)appendToFieldTransformsWithFieldPath:(FieldPath)fieldPath
+                          transformOperation:
+                              (std::unique_ptr<TransformOperation>)transformOperation {
+  _fieldTransforms->emplace_back(std::move(fieldPath), std::move(transformOperation));
+}
+
 @end
 
 #pragma mark - FSTDocumentKeyReference
@@ -364,10 +418,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  return [[FSTParsedSetData alloc]
-         initWithData:updateData
-            fieldMask:[[FSTFieldMask alloc] initWithFields:*context.fieldMask]
-      fieldTransforms:context.fieldTransforms];
+  return [[FSTParsedSetData alloc] initWithData:updateData
+                                      fieldMask:FieldMask{*context.fieldMask}
+                                fieldTransforms:*context.fieldTransforms];
 }
 
 - (FSTParsedSetData *)parsedSetData:(id)input {
@@ -382,9 +435,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  return [[FSTParsedSetData alloc] initWithData:updateData
-                                      fieldMask:nil
-                                fieldTransforms:context.fieldTransforms];
+  return
+      [[FSTParsedSetData alloc] initWithData:updateData fieldTransforms:*context.fieldTransforms];
 }
 
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input {
@@ -428,10 +480,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     }
   }];
 
-  FSTFieldMask *mask = [[FSTFieldMask alloc] initWithFields:fieldMaskPaths];
   return [[FSTParsedUpdateData alloc] initWithData:updateData
-                                         fieldMask:mask
-                                   fieldTransforms:context.fieldTransforms];
+                                         fieldMask:FieldMask{fieldMaskPaths}
+                                   fieldTransforms:*context.fieldTransforms];
 }
 
 - (FSTFieldValue *)parsedQueryValue:(id)input {
@@ -440,7 +491,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTFieldValue *_Nullable parsed = [self parseData:input context:context];
   FSTAssert(parsed, @"Parsed data should not be nil.");
-  FSTAssert(context.fieldTransforms.count == 0, @"Field transforms should have been disallowed.");
+  FSTAssert(context.fieldTransforms->empty(), @"Field transforms should have been disallowed.");
   return parsed;
 }
 
@@ -639,10 +690,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
             @"FieldValue.serverTimestamp() is not currently supported inside arrays%@",
             [context fieldDescription]);
       }
-      [context.fieldTransforms
-          addObject:[[FSTFieldTransform alloc]
-                        initWithPath:*context.path
-                           transform:[FSTServerTimestampTransform serverTimestampTransform]]];
+      [context appendToFieldTransformsWithFieldPath:*context.path
+                                 transformOperation:absl::make_unique<ServerTimestampTransform>(
+                                                        ServerTimestampTransform::Get())];
 
       // Return nil so this value is omitted from the parsed result.
       return nil;
