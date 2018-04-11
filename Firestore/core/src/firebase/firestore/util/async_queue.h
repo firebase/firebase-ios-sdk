@@ -73,7 +73,7 @@ class Schedule {
     std::lock_guard<std::mutex> lock{mutex_};
 
     if (HasDue()) {
-      DoPop(out, scheduled_.begin());
+      Extract(out, scheduled_.begin());
       return true;
     }
     return false;
@@ -94,7 +94,7 @@ class Schedule {
         std::find_if(scheduled_.begin(), scheduled_.end(),
                      [&pred](const Entry& s) { return pred(s.value); });
     if (found != scheduled_.end()) {
-      DoPop(out, found);
+      Extract(out, found);
       return true;
     }
     return false;
@@ -126,7 +126,7 @@ class Schedule {
       //   reevaluated, similar to #2.
 
       if (HasDue()) {
-        DoPop(out, scheduled_.begin());
+        Extract(out, scheduled_.begin());
         return;
       }
     }
@@ -174,7 +174,7 @@ class Schedule {
   }
 
   // This function expects the mutex to be already locked.
-  void DoPop(T* const out, const Iterator where) {
+  void Extract(T* const out, const Iterator where) {
     FIREBASE_ASSERT_MESSAGE(!scheduled_.empty(),
                             "Trying to pop an entry from an empty queue.");
 
