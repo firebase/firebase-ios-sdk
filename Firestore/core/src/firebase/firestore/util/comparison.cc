@@ -16,9 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
-#include <math.h>
-
+#include <cmath>
 #include <limits>
+
+using std::isnan;
 
 namespace firebase {
 namespace firestore {

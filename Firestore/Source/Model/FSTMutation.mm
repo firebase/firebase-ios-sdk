@@ -17,6 +17,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -318,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                           writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
-    if (fieldTransform.transformation()->type() == TransformOperation::Type::ServerTimestamp) {
+    if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
       FSTFieldValue *previousValue = nil;
 
       if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
@@ -329,7 +330,7 @@ NS_ASSUME_NONNULL_BEGIN
           addObject:[FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
                                                                       previousValue:previousValue]];
     } else {
-      FSTFail(@"Encountered unknown transform: %d type", fieldTransform.transformation()->type());
+      FSTFail(@"Encountered unknown transform: %d type", fieldTransform.transformation().type());
     }
   }
   return transformResults;
@@ -340,14 +341,14 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(transformResults.count == self.fieldTransforms.size(),
             @"Transform results length mismatch.");
 
-  for (NSUInteger i = 0; i < self.fieldTransforms.size(); i++) {
+  for (size_t i = 0; i < self.fieldTransforms.size(); i++) {
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
-    const TransformOperation *transform = fieldTransform.transformation();
+    const TransformOperation &transform = fieldTransform.transformation();
     const FieldPath &fieldPath = fieldTransform.path();
-    if (transform->type() == TransformOperation::Type::ServerTimestamp) {
+    if (transform.type() == TransformOperation::Type::ServerTimestamp) {
       objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
     } else {
-      FSTFail(@"Encountered unknown transform: %d type", transform->type());
+      FSTFail(@"Encountered unknown transform: %d type", transform.type());
     }
   }
   return objectValue;

@@ -16,12 +16,9 @@
 
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 
+#include <memory>
 #include <set>
 #include <string>
-
-#include <absl/strings/match.h>
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -38,6 +35,9 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
+#include "absl/strings/match.h"
+#include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

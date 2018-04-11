@@ -81,51 +81,19 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInitCustomizedOptions {
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                       bundleID:kBundleID
-                                                    GCMSenderID:kGCMSenderID
-                                                         APIKey:kAPIKey
-                                                       clientID:kClientID
-                                                     trackingID:kTrackingID
-                                                androidClientID:(id _Nonnull)nil
-                                                    databaseURL:kDatabaseURL
-                                                  storageBucket:kStorageBucket
-                                              deepLinkURLScheme:kDeepLinkURLScheme];
-#pragma clang pop
-  [self assertOptionsMatchDefaults:options andProjectID:NO];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  options.APIKey = kAPIKey;
+  options.bundleID = kBundleID;
+  options.clientID = kClientID;
+  options.databaseURL = kDatabaseURL;
+  options.deepLinkURLScheme = kDeepLinkURLScheme;
+  options.projectID = kProjectID;
+  options.storageBucket = kStorageBucket;
+  options.trackingID = kTrackingID;
+  [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
-
-  FIROptions *options2 =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
-  options2.APIKey = kAPIKey;
-  options2.bundleID = kBundleID;
-  options2.clientID = kClientID;
-  options2.databaseURL = kDatabaseURL;
-  options2.deepLinkURLScheme = kDeepLinkURLScheme;
-  options2.projectID = kProjectID;
-  options2.storageBucket = kStorageBucket;
-  options2.trackingID = kTrackingID;
-  [self assertOptionsMatchDefaults:options2 andProjectID:YES];
-  XCTAssertEqualObjects(options2.deepLinkURLScheme, kDeepLinkURLScheme);
-  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
-
-// nil GoogleAppID should throw an exception
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertThrows([[FIROptions alloc] initWithGoogleAppID:nil
-                                                 bundleID:kBundleID
-                                              GCMSenderID:kGCMSenderID
-                                                   APIKey:kCustomizedAPIKey
-                                                 clientID:nil
-                                               trackingID:nil
-                                          androidClientID:nil
-                                              databaseURL:nil
-                                            storageBucket:nil
-                                        deepLinkURLScheme:nil]);
-#pragma clang diagnostic pop
 }
 
 - (void)testInitWithContentsOfFile {
@@ -239,16 +207,9 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
 
   // customized options
-  FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                                 bundleID:kBundleID
-                                                              GCMSenderID:kGCMSenderID
-                                                                   APIKey:kAPIKey
-                                                                 clientID:kClientID
-                                                               trackingID:kTrackingID
-                                                          androidClientID:(id _Nonnull)nil
-                                                              databaseURL:kDatabaseURL
-                                                            storageBucket:kStorageBucket
-                                                        deepLinkURLScheme:kDeepLinkURLScheme];
+  FIROptions *customizedOptions =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  customizedOptions.deepLinkURLScheme = kDeepLinkURLScheme;
   FIROptions *copyCustomizedOptions = [customizedOptions copy];
   [copyCustomizedOptions setDeepLinkURLScheme:kNewDeepLinkURLScheme];
   XCTAssertEqualObjects(customizedOptions.deepLinkURLScheme, kDeepLinkURLScheme);

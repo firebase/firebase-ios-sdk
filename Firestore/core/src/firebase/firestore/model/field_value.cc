@@ -16,9 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-#include <math.h>
-
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <utility>
 #include <vector>

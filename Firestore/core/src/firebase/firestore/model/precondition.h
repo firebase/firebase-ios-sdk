@@ -17,13 +17,13 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_PRECONDITION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_PRECONDITION_H_
 
-#include <memory>
 #include <utility>
 
 #if defined(__OBJC__)
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #endif  // defined(__OBJC__)
 
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -63,7 +63,9 @@ class Precondition {
   bool IsValidFor(const MaybeDocument& maybe_doc) const;
 
   /** Returns whether this Precondition represents no precondition. */
-  bool IsNone() const;
+  bool IsNone() const {
+    return type_ == Type::None;
+  }
 
   Type type() const {
     return type_;
@@ -71,6 +73,11 @@ class Precondition {
 
   const SnapshotVersion& update_time() const {
     return update_time_;
+  }
+
+  bool operator==(const Precondition& other) const {
+    return type_ == other.type_ && update_time_ == other.update_time_ &&
+           exists_ == other.exists_;
   }
 
 #if defined(__OBJC__)
@@ -88,7 +95,6 @@ class Precondition {
         return [maybe_doc isKindOfClass:[FSTDocument class]] &&
                firebase::firestore::model::SnapshotVersion(maybe_doc.version) ==
                    update_time_;
-        break;
       case Type::Exists:
         if (exists_) {
           return [maybe_doc isKindOfClass:[FSTDocument class]];
@@ -96,18 +102,10 @@ class Precondition {
           return maybe_doc == nil ||
                  [maybe_doc isKindOfClass:[FSTDeletedDocument class]];
         }
-        break;
       case Type::None:
-        FIREBASE_ASSERT_MESSAGE(IsNone(), "Precondition should be empty");
         return true;
-        break;
     }
     FIREBASE_UNREACHABLE();
-  }
-
-  bool operator==(const Precondition& other) const {
-    return type_ == other.type_ && update_time_ == other.update_time_ &&
-           exists_ == other.exists_;
   }
 
   // For Objective-C++ hash; to be removed after migration.
@@ -123,26 +121,21 @@ class Precondition {
     switch (type_) {
       case Type::None:
         return @"<Precondition <none>>";
-        break;
       case Type::Exists:
         if (exists_) {
           return @"<Precondition exists=yes>";
         } else {
           return @"<Precondition exists=no>";
         }
-        break;
       case Type::UpdateTime:
         return [NSString
             stringWithFormat:@"<Precondition update_time=%s>",
                              update_time_.timestamp().ToString().c_str()];
-        break;
-      default:
-        // We only raise dev assertion here. This function is mainly used in
-        // logging.
-        FIREBASE_DEV_ASSERT_MESSAGE(false, "precondition invalid");
-        return @"<Precondition invalid>";
-        break;
     }
+    // We only raise dev assertion here. This function is mainly used in
+    // logging.
+    FIREBASE_DEV_ASSERT_MESSAGE(false, "precondition invalid");
+    return @"<Precondition invalid>";
   }
 #endif  // defined(__OBJC__)
 

@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace firebase {
 namespace firestore {

@@ -17,7 +17,8 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
-#include <inttypes.h>
+#include <chrono>  // NOLINT(build/c++11)
+#include <cstdint>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -49,9 +50,10 @@ inline model::ResourcePath Resource(absl::string_view field) {
 // Version is epoch time in microseconds. This helper is defined so to match
 // SDKs in other platform.
 inline model::SnapshotVersion Version(int64_t version) {
-  return model::SnapshotVersion{
-      Timestamp{/*seconds=*/version / 1000,
-                /*nanoseconds=*/static_cast<int32_t>(version % 1000) * 1000}};
+  namespace chr = std::chrono;
+  auto timepoint =
+      chr::time_point<chr::system_clock>(chr::microseconds(version));
+  return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
 inline model::Document Doc(absl::string_view key, int64_t version) {

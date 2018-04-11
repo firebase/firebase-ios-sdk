@@ -16,11 +16,11 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
-#include <map>
-#include <unordered_map>
-
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
+
+#include <map>
+#include <unordered_map>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"

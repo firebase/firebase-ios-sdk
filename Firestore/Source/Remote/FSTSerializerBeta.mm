@@ -16,11 +16,12 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#include <inttypes.h>
-#include <vector>
-
 #import <GRPCClient/GRPCCall.h>
-#import "FIRTimestamp.h"
+
+#include <cinttypes>
+#include <string>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
@@ -32,6 +33,7 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
+#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -571,8 +573,8 @@ NS_ASSUME_NONNULL_BEGIN
     (const std::vector<FieldTransform> &)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : fieldTransforms) {
-    FSTAssert(fieldTransform.transformation()->type() == TransformOperation::Type::ServerTimestamp,
-              @"Unknown transform: %d type", fieldTransform.transformation()->type());
+    FSTAssert(fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp,
+              @"Unknown transform: %d type", fieldTransform.transformation().type());
     GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
     proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;

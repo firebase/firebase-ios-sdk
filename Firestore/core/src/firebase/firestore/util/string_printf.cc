@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/string_printf.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 namespace firebase {
 namespace firestore {

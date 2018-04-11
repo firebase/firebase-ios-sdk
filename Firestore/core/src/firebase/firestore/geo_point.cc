@@ -16,9 +16,11 @@
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+
+using std::isnan;
 
 namespace firebase {
 namespace firestore {

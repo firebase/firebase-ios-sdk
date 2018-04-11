@@ -17,15 +17,15 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 
-#include <absl/strings/string_view.h>
-#include <leveldb/db.h>
-
-#include <stdint.h>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
 #include <utility>
+
+#include "absl/strings/string_view.h"
+#include "leveldb/db.h"
 
 #if __OBJC__
 #import <Protobuf/GPBProtocolBuffers.h>
