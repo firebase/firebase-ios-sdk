@@ -15,50 +15,45 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(firestore C CXX)
 
-option(ASAN "Build with Address sanitizer (mutually exculsive with TSAN)" OFF)
+option(WITH_ASAN "Build with Address Sanitizer" OFF)
 # TODO(varconst): msan
 # Memory sanitizer is more complicated:
 # - it requires all dependencies to be compiled with msan enabled (see
 #   https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo);
 # - AppleClang doesn't support it.
-option(TSAN "Build with Thread sanitizer (mutually exculsive with ASAN)" OFF)
-option(UBSAN "Build with Undefined behavior sanitizer" OFF)
+option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other sanitizers)" OFF)
+option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(HAVE_SANITIZERS 1)
-endif()
-if(ASAN OR TSAN OR UBSAN)
-  set(USE_SANITIZERS 1)
-endif()
+macro(add_to_compile_and_link_flags flag)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}")
+endmacro()
 
-if (NOT HAVE_SANITIZERS AND USE_SANITIZERS)
-  message(FATAL_ERROR "Only Clang and GCC support sanitizers.")
-endif()
-
-function(add_to_compile_and_link_flags flag)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}" PARENT_SCOPE)
-  set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${flag}" PARENT_SCOPE)
-endfunction()
-
-if (HAVE_SANITIZERS AND USE_SANITIZERS)
-  if ((ASAN AND TSAN) OR (UBSAN AND TSAN))
-    message(FATAL_ERROR "You cannot combine sanitizers except asan and ubsan.")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(WITH_ASAN)
+    add_to_compile_and_link_flags("-fsanitize=address")
   endif()
 
-  # Recommended to "get nicer stack traces in error messages"
-  # TODO(varconst): double-check that tsan actually needs this flag (it's
-  # explicitly recommended in the docs for asan and ubsan)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
-
-  if (TSAN)
+  if(WITH_TSAN)
+    if(WITH_ASAN OR WITH_UBSAN)
+      message(FATAL_ERROR "Cannot combine TSan with other santizers")
+    endif()
     add_to_compile_and_link_flags("-fsanitize=thread")
-  else()
-    if (ASAN)
-      add_to_compile_and_link_flags("-fsanitize=address")
-    endif()
-    if (UBSAN)
-      add_to_compile_and_link_flags("-fsanitize=undefined")
-    endif()
+  endif()
+
+  if(WITH_UBSAN)
+    add_to_compile_and_link_flags("-fsanitize=undefined")
+  endif()
+
+  if (WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
+    # Recommended to "get nicer stack traces in error messages"
+    # TODO(varconst): double-check that TSan actually needs this flag (it's
+    # explicitly recommended in the docs for ASan and UBSan)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
+  endif()
+else()
+  if(WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
+    message(FATAL_ERROR "Only Clang and GCC support sanitizers")
   endif()
 endif()
 
