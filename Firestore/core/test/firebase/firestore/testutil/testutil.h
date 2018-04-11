@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
 #include <chrono>  // NOLINT(build/c++11)
-#include <cinttypes>
+#include <cstdint>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"

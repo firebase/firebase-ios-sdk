@@ -23,7 +23,7 @@
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#include "Firestore/core/include/firebase/firestore/timestamp.h";
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #endif  // defined(__OBJC__)
 
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
