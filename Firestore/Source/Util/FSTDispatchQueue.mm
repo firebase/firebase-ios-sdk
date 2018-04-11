@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <atomic>
+#include <atomic>
 
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
