@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#include <string>
+
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"

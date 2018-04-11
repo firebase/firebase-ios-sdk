@@ -16,11 +16,15 @@
 
 #import <XCTest/XCTest.h>
 
+#include <memory>
+#include <string>
+
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
+
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "leveldb/db.h"
 

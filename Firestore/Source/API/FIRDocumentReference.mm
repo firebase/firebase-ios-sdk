@@ -16,10 +16,10 @@
 
 #import "FIRDocumentReference.h"
 
+#import <GRPCClient/GRPCCall.h>
+
 #include <memory>
 #include <utility>
-
-#import <GRPCClient/GRPCCall.h>
 
 #import "FIRFirestoreErrors.h"
 #import "FIRSnapshotMetadata.h"

@@ -20,7 +20,7 @@
 
 #if HAVE_ARC4RANDOM
 
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace firebase {
 namespace firestore {

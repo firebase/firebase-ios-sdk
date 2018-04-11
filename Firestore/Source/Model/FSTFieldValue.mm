@@ -18,9 +18,6 @@
 
 #import "FIRTimestamp.h"
 
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -29,6 +26,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;

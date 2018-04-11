@@ -25,6 +25,7 @@ cc_library(
     field_mask.h
     field_path.cc
     field_path.h
+    field_transform.h
     field_value.cc
     field_value.h
     maybe_document.cc

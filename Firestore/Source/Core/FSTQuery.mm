@@ -17,6 +17,7 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"

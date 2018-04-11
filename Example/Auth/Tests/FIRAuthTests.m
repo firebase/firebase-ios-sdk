@@ -20,9 +20,7 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
-#import <FirebaseAuth/FIREmailAuthProvider.h>
-#import <FirebaseAuth/FIRGoogleAuthProvider.h>
-#import <FirebaseAuth/FIRAdditionalUserInfo.h>
+#import <FirebaseAuth/FirebaseAuth.h>
 
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"
