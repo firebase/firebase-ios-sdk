@@ -276,11 +276,6 @@ NS_SWIFT_NAME(MessagingDelegate)
     NS_SWIFT_NAME(messaging(_:didReceive:))
     __IOS_AVAILABLE(10.0);
 
-/// The callback to handle data message received via FCM for devices running iOS 10 or above.
-- (void)applicationReceivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage
-    NS_SWIFT_NAME(application(received:))
-    __deprecated_msg("Use FIRMessagingDelegate’s -messaging:didReceiveMessage:");
-
 @end
 
 /**
