@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <atomic>
+
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
@@ -145,19 +147,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTDispatchQueue
 
-@interface FSTDispatchQueue ()
+@interface FSTDispatchQueue () {
+  /**
+   * Flag set while an FSTDispatchQueue operation is currently executing. Used for assertion
+   * sanity-checks.
+   */
+  std::atomic<bool> _operationInProgress;
+}
 
 /**
  * Callbacks scheduled to be queued in the future. Callbacks are automatically removed after they
  * are run or canceled.
  */
 @property(nonatomic, strong, readonly) NSMutableArray<FSTDelayedCallback *> *delayedCallbacks;
-
-/**
- * Flag set while an FSTDispatchQueue operation is currently executing. Used for assertion
- * sanity-checks.
- */
-@property(nonatomic, assign) BOOL operationInProgress;
 
 - (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
 
@@ -171,9 +173,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithQueue:(dispatch_queue_t)queue {
   if (self = [super init]) {
+    _operationInProgress = false;
     _queue = queue;
     _delayedCallbacks = [NSMutableArray array];
-    _operationInProgress = NO;
   }
   return self;
 }
@@ -191,11 +193,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(!_operationInProgress,
             @"enterCheckedOperation may not be called when an operation is in progress");
   @try {
-    _operationInProgress = YES;
+    _operationInProgress = true;
     [self verifyIsCurrentQueue];
     block();
   } @finally {
-    _operationInProgress = NO;
+    _operationInProgress = false;
   }
 }
 
