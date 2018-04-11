@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include <initializer_list>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 

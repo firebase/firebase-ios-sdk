@@ -16,13 +16,13 @@
 
 #import "FIRFirestore.h"
 
-#include <memory>
-#include <utility>
-
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
+
+#include <memory>
+#include <utility>
 
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
@@ -31,7 +31,6 @@
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
@@ -241,6 +240,34 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       // These values are validated elsewhere; this is just double-checking:
       FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
       FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
+
+      if (!_settings.timestampsInSnapshotsEnabled) {
+        FSTWarn(
+            @"The behavior for system Date objects stored in Firestore is going to change "
+             "AND YOUR APP MAY BREAK.\n"
+             "To hide this warning and ensure your app does not break, you need to add "
+             "the following code to your app before calling any other Cloud Firestore methods:\n"
+             "\n"
+             "let db = Firestore.firestore()\n"
+             "let settings = db.settings\n"
+             "settings.areTimestampsInSnapshotsEnabled = true\n"
+             "db.settings = settings\n"
+             "\n"
+             "With this change, timestamps stored in Cloud Firestore will be read back as "
+             "Firebase Timestamp objects instead of as system Date objects. So you will "
+             "also need to update code expecting a Date to instead expect a Timestamp. "
+             "For example:\n"
+             "\n"
+             "// old:\n"
+             "let date: Date = documentSnapshot.get(\"created_at\") as! Date\n"
+             "// new:\n"
+             "let timestamp: Timestamp = documentSnapshot.get(\"created_at\") as! Timestamp\n"
+             "let date: Date = timestamp.dateValue()\n"
+             "\n"
+             "Please audit all existing usages of Date when you enable the new behavior. In a "
+             "future release, the behavior will be changed to the new behavior, so if you do not "
+             "follow these steps, YOUR APP MAY BREAK.");
+      }
 
       const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
                                        util::MakeStringView(_settings.host), _settings.sslEnabled);

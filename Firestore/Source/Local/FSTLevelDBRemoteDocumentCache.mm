@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
@@ -25,13 +23,15 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -58,17 +58,14 @@ using leveldb::Status;
   return self;
 }
 
-- (void)shutdown {
-}
-
-- (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
+- (void)addEntry:(FSTMaybeDocument *)document {
   std::string key = [self remoteDocumentKey:document.key];
-  [group setMessage:[self.serializer encodedMaybeDocument:document] forKey:key];
+  _db.currentTransaction->Put(key, [self.serializer encodedMaybeDocument:document]);
 }
 
-- (void)removeEntryForKey:(const DocumentKey &)documentKey group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)documentKey {
   std::string key = [self remoteDocumentKey:documentKey];
-  [group removeMessageForKey:key];
+  _db.currentTransaction->Delete(key);
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {

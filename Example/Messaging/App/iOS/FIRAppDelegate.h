@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2017 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
+@import UIKit;
 
-namespace firebase {
-namespace firestore {
-namespace immutable {
-namespace impl {
+@interface FIRAppDelegate : UIResponder <UIApplicationDelegate>
 
-// Define external storage for constants:
-constexpr ArraySortedMapBase::size_type ArraySortedMapBase::kFixedSize;
+@property(strong, nonatomic) UIWindow *window;
 
-}  // namespace impl
-}  // namespace immutable
-}  // namespace firestore
-}  // namespace firebase
+@end

@@ -17,15 +17,15 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_TRANSACTION_H_
 
-#include <absl/strings/string_view.h>
-#include <leveldb/db.h>
-
-#include <stdint.h>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
 #include <utility>
+
+#include "absl/strings/string_view.h"
+#include "leveldb/db.h"
 
 #if __OBJC__
 #import <Protobuf/GPBProtocolBuffers.h>
@@ -126,6 +126,7 @@ class LevelDbTransaction {
 
   explicit LevelDbTransaction(
       leveldb::DB* db,
+      absl::string_view label,
       const leveldb::ReadOptions& read_options = DefaultReadOptions(),
       const leveldb::WriteOptions& write_options = DefaultWriteOptions());
 
@@ -197,6 +198,7 @@ class LevelDbTransaction {
   leveldb::ReadOptions read_options_;
   leveldb::WriteOptions write_options_;
   int32_t version_;
+  std::string label_;
 };
 
 }  // namespace local

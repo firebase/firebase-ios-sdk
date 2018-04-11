@@ -17,8 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_PRINTF_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_PRINTF_H_
 
-#include <stdarg.h>
-
+#include <cstdarg>
 #include <string>
 
 #include "absl/base/attributes.h"

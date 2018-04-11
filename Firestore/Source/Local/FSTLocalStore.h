@@ -90,9 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Performs any initial startup actions required by the local store. */
 - (void)start;
 
-/** Releases any open resources. */
-- (void)shutdown;
-
 /**
  * Tells the FSTLocalStore that the currently authenticated user has changed.
  *

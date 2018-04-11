@@ -181,7 +181,7 @@
 
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
   XCTAssertEqual(document[@"updated"], @NO);
-  XCTAssertTrue([document[@"time"] isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([document[@"time"] isKindOfClass:[FIRTimestamp class]]);
 }
 
 - (void)testCanDeleteFieldUsingMerge {

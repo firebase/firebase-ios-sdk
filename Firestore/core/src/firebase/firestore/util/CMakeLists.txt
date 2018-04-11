@@ -150,6 +150,7 @@ cc_library(
     autoid.h
     bits.cc
     bits.h
+    comparator_holder.h
     comparison.cc
     comparison.h
     config.h

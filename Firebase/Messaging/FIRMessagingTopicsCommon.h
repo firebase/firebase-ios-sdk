@@ -26,27 +26,4 @@ typedef NS_ENUM(NSInteger, FIRMessagingTopicAction) {
   FIRMessagingTopicActionUnsubscribe
 };
 
-/**
- * Represents the possible results of a topic operation.
- */
-typedef NS_ENUM(NSInteger, FIRMessagingTopicOperationResult) {
-  FIRMessagingTopicOperationResultSucceeded,
-  FIRMessagingTopicOperationResultError,
-  FIRMessagingTopicOperationResultCancelled,
-};
-
-/**
- *  Callback to invoke once the HTTP call to FIRMessaging backend for updating
- *  subscription finishes.
- *
- *  @param result         The result of the operation. If the result is
- *                        FIRMessagingTopicOperationResultError, the error parameter will be
- *                        non-nil.
- *  @param error          The error which occurred while updating the subscription topic
- *                        on the FIRMessaging server. This will be nil in case the operation
- *                        was successful, or if the operation was cancelled.
- */
-typedef void(^FIRMessagingTopicOperationCompletion)
-    (FIRMessagingTopicOperationResult result, NSError * _Nullable error);
-
 NS_ASSUME_NONNULL_END

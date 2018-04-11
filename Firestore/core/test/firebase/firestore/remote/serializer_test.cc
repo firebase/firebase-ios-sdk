@@ -42,10 +42,12 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "gtest/gtest.h"
 
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::remote::Serializer;
+using firebase::firestore::util::Status;
 
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
@@ -67,7 +69,8 @@ class SerializerTest : public ::testing::Test {
                        FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> actual_bytes;
-    serializer.EncodeFieldValue(model, &actual_bytes);
+    Status status = serializer.EncodeFieldValue(model, &actual_bytes);
+    EXPECT_TRUE(status.ok());
     EXPECT_EQ(bytes, actual_bytes);
     FieldValue actual_model = serializer.DecodeFieldValue(bytes);
     EXPECT_EQ(type, actual_model.type());
@@ -194,7 +197,7 @@ TEST_F(SerializerTest, WritesStringModelToBytes) {
 }
 
 TEST_F(SerializerTest, WritesEmptyMapToBytes) {
-  FieldValue model = FieldValue::ObjectValue({});
+  FieldValue model = FieldValue::ObjectValueFromMap({});
   // TEXT_FORMAT_PROTO: 'map_value: {}'
   std::vector<uint8_t> bytes{0x32, 0x00};
   ExpectRoundTrip(model, bytes, FieldValue::Type::Object);
@@ -206,7 +209,7 @@ TEST_F(SerializerTest, WritesNestedObjectsToBytes) {
   // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
   // above.
 
-  FieldValue model = FieldValue::ObjectValue(
+  FieldValue model = FieldValue::ObjectValueFromMap(
       {{"b", FieldValue::TrueValue()},
        // TODO(rsgowman): add doubles (once they're supported)
        // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
@@ -215,10 +218,10 @@ TEST_F(SerializerTest, WritesNestedObjectsToBytes) {
        {"s", FieldValue::StringValue("foo")},
        // TODO(rsgowman): add arrays (once they're supported)
        // {"a", [2, "bar", {"b", false}]},
-       {"o", FieldValue::ObjectValue(
+       {"o", FieldValue::ObjectValueFromMap(
                  {{"d", FieldValue::IntegerValue(100)},
                   {"nested",
-                   FieldValue::ObjectValue(
+                   FieldValue::ObjectValueFromMap(
                        {{"e", FieldValue::IntegerValue(
                                   std::numeric_limits<int64_t>::max())}})}})}});
 

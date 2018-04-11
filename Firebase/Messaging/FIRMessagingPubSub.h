@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTopicsCommon.h"
+#import "FIRMessaging.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class FIRMessagingClient;
 @class FIRMessagingPubSubCache;
@@ -155,3 +157,5 @@
 + (BOOL)isValidTopicWithPrefix:(NSString *)topic;
 
 @end
+
+NS_ASSUME_NONNULL_END

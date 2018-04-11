@@ -116,11 +116,6 @@ void Status::IgnoreError() const {
   // no-op
 }
 
-std::ostream& operator<<(std::ostream& os, const Status& x) {
-  os << x.ToString();
-  return os;
-}
-
 std::string StatusCheckOpHelperOutOfLine(const Status& v, const char* msg) {
   FIREBASE_ASSERT(!v.ok());
   std::string r("Non-OK-status: ");

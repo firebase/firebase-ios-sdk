@@ -35,12 +35,6 @@ extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
   return self;
 }
 
-// This is deprecated, use setLoggerLevel instead.
-- (void)setLogLevel:(FIRLogLevel)logLevel {
-  NSAssert(logLevel <= kFIRLogLevelMax, @"Invalid log level, %ld", (long)logLevel);
-  _logLevel = logLevel;
-}
-
 - (void)setLoggerLevel:(FIRLoggerLevel)loggerLevel {
   NSAssert(loggerLevel <= FIRLoggerLevelMax && loggerLevel >= FIRLoggerLevelMin,
            @"Invalid logger level, %ld", (long)loggerLevel);

@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 
 namespace firebase {
