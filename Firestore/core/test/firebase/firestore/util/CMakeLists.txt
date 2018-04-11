@@ -17,25 +17,51 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # Required to allow 0 length printf style strings for testing purposes.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-zero-length")
 
+## assert and log
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_util_log_apple_test
+    SOURCES
+      assert_test.cc
+      log_test.cc
+    DEPENDS
+      firebase_firestore_util_log_apple
+  )
+endif(APPLE)
+
+cc_test(
+  firebase_firestore_util_log_stdio_test
+  SOURCES
+    assert_test.cc
+    log_test.cc
+  DEPENDS
+    firebase_firestore_util_log_stdio
+)
+
+## secure random
+
 if(HAVE_ARC4RANDOM)
   cc_test(
-    firebase_firestore_util_arc4random_test
+    firebase_firestore_util_random_arc4random_test
     SOURCES
       secure_random_test.cc
     DEPENDS
-      firebase_firestore_util_arc4random
+      firebase_firestore_util_random_arc4random
   )
 endif()
 
 if(HAVE_OPENSSL_RAND_H)
   cc_test(
-    firebase_firestore_util_openssl_test
+    firebase_firestore_util_random_openssl_test
     SOURCES
       secure_random_test.cc
     DEPENDS
-      firebase_firestore_util_openssl
+      firebase_firestore_util_random_openssl
   )
 endif()
+
+## main library
 
 cc_test(
   firebase_firestore_util_test
@@ -55,24 +81,4 @@ cc_test(
     absl_strings
     firebase_firestore_util
     gmock
-)
-
-if(APPLE)
-  cc_test(
-    firebase_firestore_util_apple_test
-    SOURCES
-      assert_test.cc
-      log_test.cc
-    DEPENDS
-      firebase_firestore_util_apple
-  )
-endif(APPLE)
-
-cc_test(
-  firebase_firestore_util_stdio_test
-  SOURCES
-    assert_test.cc
-    log_test.cc
-  DEPENDS
-    firebase_firestore_util_stdio
 )
