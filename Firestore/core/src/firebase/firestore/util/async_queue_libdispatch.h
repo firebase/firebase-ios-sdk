@@ -211,4 +211,4 @@ class AsyncQueue {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
