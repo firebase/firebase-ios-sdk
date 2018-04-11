@@ -147,14 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTDispatchQueue
 
-@interface FSTDispatchQueue () {
-  /**
-   * Flag set while an FSTDispatchQueue operation is currently executing. Used for assertion
-   * sanity-checks.
-   */
-  std::atomic<bool> _operationInProgress;
-}
-
+@interface FSTDispatchQueue ()
 /**
  * Callbacks scheduled to be queued in the future. Callbacks are automatically removed after they
  * are run or canceled.
@@ -165,7 +158,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTDispatchQueue
+@implementation FSTDispatchQueue {
+  /**
+   * Flag set while an FSTDispatchQueue operation is currently executing. Used for assertion
+   * sanity-checks.
+   */
+  std::atomic<bool> _operationInProgress;
+}
 
 + (instancetype)queueWith:(dispatch_queue_t)dispatchQueue {
   return [[FSTDispatchQueue alloc] initWithQueue:dispatchQueue];
