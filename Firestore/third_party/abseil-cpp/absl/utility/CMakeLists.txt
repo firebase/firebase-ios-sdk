@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 list(APPEND UTILITY_PUBLIC_HEADERS
   "utility.h"
 )
@@ -24,22 +23,4 @@ absl_header_library(
     absl_utility
   EXPORT_NAME
     utility
-)
-
-
-#
-## TESTS
-#
-
-# test utility_test
-set(UTILITY_TEST_SRC "utility_test.cc")
-set(UTILITY_TEST_PUBLIC_LIBRARIES absl::utility)
-
-absl_test(
-  TARGET
-    utility_test
-  SOURCES
-    ${UTILITY_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${UTILITY_TEST_PUBLIC_LIBRARIES}
 )

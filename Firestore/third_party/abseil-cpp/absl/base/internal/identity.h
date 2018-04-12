@@ -11,30 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
 
-#include "absl/types/bad_any_cast.h"
-
-#include <cstdlib>
-
-#include "absl/base/config.h"
-#include "absl/base/internal/raw_logging.h"
+#ifndef ABSL_BASE_INTERNAL_IDENTITY_H_
+#define ABSL_BASE_INTERNAL_IDENTITY_H_
 
 namespace absl {
+namespace internal {
 
-bad_any_cast::~bad_any_cast() = default;
+template <typename T>
+struct identity {
+  typedef T type;
+};
 
-const char* bad_any_cast::what() const noexcept { return "Bad any cast"; }
+template <typename T>
+using identity_t = typename identity<T>::type;
 
-namespace any_internal {
+}  //  namespace internal
+}  //  namespace absl
 
-void ThrowBadAnyCast() {
-#ifdef ABSL_HAVE_EXCEPTIONS
-  throw bad_any_cast();
-#else
-  ABSL_RAW_LOG(FATAL, "Bad any cast");
-  std::abort();
-#endif
-}
-
-}  // namespace any_internal
-}  // namespace absl
+#endif  // ABSL_BASE_INTERNAL_IDENTITY_H_

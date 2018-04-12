@@ -37,7 +37,7 @@
 #define ABSL_TYPES_OPTIONAL_H_
 
 #include "absl/base/config.h"
-//#include "absl/utility/utility.h"
+#include "absl/utility/utility.h"
 
 #ifdef ABSL_HAVE_STD_OPTIONAL
 
@@ -62,7 +62,7 @@ using std::nullopt;
 
 #include "absl/memory/memory.h"
 #include "absl/meta/type_traits.h"
-//#include "absl/types/bad_optional_access.h"
+#include "absl/types/bad_optional_access.h"
 
 // ABSL_OPTIONAL_USE_INHERITING_CONSTRUCTORS
 //

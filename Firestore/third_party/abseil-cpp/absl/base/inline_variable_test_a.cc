@@ -12,33 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ABSL_TYPES_BAD_ANY_CAST_H_
-#define ABSL_TYPES_BAD_ANY_CAST_H_
-
-#include <typeinfo>
+#include "absl/base/internal/inline_variable_testing.h"
 
 namespace absl {
+namespace inline_variable_testing_internal {
 
-////////////////////////
-// [any.bad_any_cast] //
-////////////////////////
+const Foo& get_foo_a() { return inline_variable_foo; }
 
-// Objects of type bad_any_cast are thrown by a failed any_cast.
-class bad_any_cast : public std::bad_cast {
- public:
-  ~bad_any_cast() override;
-  const char* what() const noexcept override;
-};
+const int& get_int_a() { return inline_variable_int; }
 
-//////////////////////////////////////////////
-// Implementation-details beyond this point //
-//////////////////////////////////////////////
-
-namespace any_internal {
-
-[[noreturn]] void ThrowBadAnyCast();
-
-}  // namespace any_internal
+}  // namespace inline_variable_testing_internal
 }  // namespace absl
-
-#endif  // ABSL_TYPES_BAD_ANY_CAST_H_
