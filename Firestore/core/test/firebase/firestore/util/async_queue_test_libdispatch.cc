@@ -172,21 +172,20 @@ TEST_F(AsyncQueueTest, CanCancelDelayedCallbacks) {
   EXPECT_EQ(steps, "13");
 }
 
-/*
 TEST_F(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   std::packaged_task<void()> signal{[]{}};
+  DelayedOperation delayed_operation;
   queue.Enqueue([&] {
-    DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
+    delayed_operation = queue.EnqueueAfterDelay(
         AsyncQueue::Milliseconds(1), kTimerId1, [&] { signal_finished(); });
     //EXPECT_TRUE(queue.ContainsDelayedOperation(kTimerId1));
-    EXPECT_TRUE(WaitForTestToFinish());
-    //EXPECT_FALSE(queue.ContainsDelayedOperation(kTimerId1));
-    EXPECT_NO_THROW(delayed_operation.Cancel());
     signal();
   });
+  EXPECT_TRUE(WaitForTestToFinish());
   signal.get_future().wait();
+  //EXPECT_FALSE(queue.ContainsDelayedOperation(kTimerId1));
+  EXPECT_NO_THROW(delayed_operation.Cancel());
 }
-*/
 
 // TEST_F(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
 //   std::string steps;

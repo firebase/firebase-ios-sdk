@@ -79,6 +79,8 @@ class DelayedOperation {
    */
   void Cancel();
 
+  DelayedOperation() = default;
+
  private:
   // Don't allow callers to create their own `DelayedOperation`s.
   friend class AsyncQueue;
