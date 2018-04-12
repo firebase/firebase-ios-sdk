@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 
-#include <dispatch/dispatch.h>
+#include "dispatch/dispatch.h"
 #include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
@@ -26,7 +26,7 @@
 
 #include "absl/strings/string_view.h"
 
-/** iOS implementation of `AsyncQueue` built on top of libdispatch. */
+/** An implementation of `AsyncQueue` built on top of libdispatch. */
 
 namespace firebase {
 namespace firestore {
