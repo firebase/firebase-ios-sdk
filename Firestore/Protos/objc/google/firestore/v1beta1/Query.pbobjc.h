@@ -140,6 +140,9 @@ typedef GPB_ENUM(GCFSStructuredQuery_FieldFilter_Operator) {
 
   /** Equal. */
   GCFSStructuredQuery_FieldFilter_Operator_Equal = 5,
+
+  /** Contains. Requires that the field is an array. */
+  GCFSStructuredQuery_FieldFilter_Operator_ArrayContains = 7,
 };
 
 GPBEnumDescriptor *GCFSStructuredQuery_FieldFilter_Operator_EnumDescriptor(void);
