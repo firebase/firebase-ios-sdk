@@ -255,8 +255,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// * Subscribing to any topics.
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(NSString *)fcmToken
-    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:))
-    __IOS_AVAILABLE(10.0);
+    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
 
 /// This method is called on iOS 10 devices to handle data messages received via FCM through its
 /// direct channel (not via APNS). For iOS 9 and below, the FCM data message is delivered via the
