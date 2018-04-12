@@ -17,12 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 
-#include "dispatch/dispatch.h"
 #include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
 #include <vector>
+#include "dispatch/dispatch.h"
 
 #include "absl/strings/string_view.h"
 
@@ -83,7 +83,7 @@ class DelayedOperation {
 
  private:
   // Don't allow callers to create their own `DelayedOperation`s.
-  friend class AsyncQueue;
+  friend class AsyncQueueImpl;
   explicit DelayedOperation(
       const std::shared_ptr<internal::DelayedOperationImpl>& operation)
       : handle_{operation} {
@@ -91,6 +91,8 @@ class DelayedOperation {
 
   std::weak_ptr<internal::DelayedOperationImpl> handle_;
 };
+
+class AsyncQueueImpl;
 
 class AsyncQueue {
  public:
@@ -183,6 +185,34 @@ class AsyncQueue {
   void RunDelayedOperationsUntil(TimerId last_timer_id);
 
   /** The underlying wrapped `dispatch_queue_t`. */
+  dispatch_queue_t dispatch_queue() const;
+
+ private:
+  std::shared_ptr<AsyncQueueImpl> impl_;
+};
+
+class AsyncQueueImpl : public std::enable_shared_from_this<AsyncQueueImpl> {
+ public:
+  using Milliseconds = AsyncQueue::Milliseconds;
+  using Operation = AsyncQueue::Operation;
+
+  explicit AsyncQueueImpl(const dispatch_queue_t dispatch_queue);
+
+  void VerifyIsCurrentQueue() const;
+  void EnterCheckedOperation(const Operation& operation);
+
+  void Enqueue(const Operation& operation);
+  void EnqueueAllowingSameQueue(const Operation& operation);
+
+  DelayedOperation EnqueueAfterDelay(Milliseconds delay,
+                                     TimerId timer_id,
+                                     Operation operation);
+
+  void RunSync(const Operation& operation);
+
+  bool ContainsDelayedOperation(TimerId timer_id) const;
+  void RunDelayedOperationsUntil(TimerId last_timer_id);
+
   dispatch_queue_t dispatch_queue() const {
     return dispatch_queue_;
   }
@@ -190,7 +220,7 @@ class AsyncQueue {
  private:
   void Dispatch(const Operation& operation);
 
-    std::shared_ptr<internal::DelayedOperationImpl> RemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
+  void RemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
 
   bool OnTargetQueue() const;
   void VerifyOnTargetQueue() const;

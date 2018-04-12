@@ -81,7 +81,7 @@ namespace internal {
 
 class DelayedOperationImpl {
  public:
-  DelayedOperationImpl(AsyncQueue* const queue,
+  DelayedOperationImpl(const std::shared_ptr<AsyncQueueImpl>& queue,
                        const TimerId timer_id,
                        const AsyncQueue::Milliseconds delay,
                        AsyncQueue::Operation&& operation)
@@ -91,16 +91,30 @@ class DelayedOperationImpl {
                          std::chrono::system_clock::now()) +
                      delay},
         operation_{std::move(operation)} {
-    Start(delay);
+  }
+
+  void Start(const dispatch_queue_t dispatch_queue,
+             const std::shared_ptr<DelayedOperationImpl>& self,
+             const AsyncQueue::Milliseconds delay) {
+    namespace chr = std::chrono;
+    const dispatch_time_t delay_ns = dispatch_time(
+        DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
+    const auto self_ptr = new Self(self);
+    dispatch_after_f(delay_ns, dispatch_queue, self_ptr,
+                     DelayedOperationImpl::DoStart);
   }
 
   void Cancel() {
-    queue_->VerifyIsCurrentQueue();
+    if (auto queue = queue_.lock()) {
+      queue->VerifyIsCurrentQueue();
+    }
     done_ = true;
   }
 
   void SkipDelay() {
-    queue_->EnqueueAllowingSameQueue([this] { HandleDelayElapsed(); });
+    if (auto queue = queue_.lock()) {
+      queue->EnqueueAllowingSameQueue([this] { HandleDelayElapsed(); });
+    }
   }
 
   TimerId timer_id() const {
@@ -112,45 +126,48 @@ class DelayedOperationImpl {
   }
 
  private:
-  void Start(const AsyncQueue::Milliseconds delay) {
-    namespace chr = std::chrono;
-    const dispatch_time_t delay_ns = dispatch_time(
-        DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
-    dispatch_after_f(
-        delay_ns, queue_->dispatch_queue(), this, [](void* const raw_self) {
-          const auto self = static_cast<DelayedOperationImpl*>(raw_self);
-          self->queue_->EnterCheckedOperation(
-              [self] { self->HandleDelayElapsed(); });
-        });
+  using Self = std::shared_ptr<DelayedOperationImpl>;
+
+  static void DoStart(void* const raw_self) {
+    auto self = static_cast<Self*>(raw_self);
+    if (auto queue = (*self)->queue_.lock()) {
+      queue->EnterCheckedOperation([self] { (*self)->HandleDelayElapsed(); });
+    }
+    delete self;
   }
 
   void HandleDelayElapsed() {
-    queue_->VerifyIsCurrentQueue();
+    if (auto queue = queue_.lock()) {
+      queue->VerifyIsCurrentQueue();
 
-    // PORTING NOTE: it's important to *only* remove the operation from the
-    // queue *after* it's run, *not* in Cancel method. Because it's
-    // impossible to cancel an invocation scheduled with dispatch_after_f,
-    // this object must be alive when libdispatch calls HandleDelayElapsed; it
-    // the object were removed from the queue in Cancel, it would have been
-    // deleted by the time HandleDelayElapsed gets invoked.
-    const auto self = Dequeue();
+      // PORTING NOTE: it's important to *only* remove the operation from the
+      // queue *after* it's run, *not* in Cancel method. Because it's
+      // impossible to cancel an invocation scheduled with dispatch_after_f,
+      // this object must be alive when libdispatch calls HandleDelayElapsed; it
+      // the object were removed from the queue in Cancel, it would have been
+      // deleted by the time HandleDelayElapsed gets invoked.
+      Dequeue();
 
-    if (!done_) {
-      done_ = true;
-      FIREBASE_ASSERT_MESSAGE(
-          operation_, "DelayedOperationImpl contains invalid function object");
-      operation_();
+      if (!done_) {
+        done_ = true;
+        FIREBASE_ASSERT_MESSAGE(
+            operation_,
+            "DelayedOperationImpl contains invalid function object");
+        operation_();
+      }
     }
   }
 
-  std::shared_ptr<DelayedOperationImpl> Dequeue() {
-    return queue_->RemoveDelayedOperation(*this);
+  void Dequeue() {
+    if (auto queue = queue_.lock()) {
+      queue->RemoveDelayedOperation(*this);
+    }
   }
 
   using TimePoint = std::chrono::time_point<std::chrono::system_clock,
                                             AsyncQueue::Milliseconds>;
 
-  AsyncQueue* const queue_;
+  std::weak_ptr<AsyncQueueImpl> queue_;
   const TimerId timer_id_;
   const TimePoint target_time_;
   const AsyncQueue::Operation operation_;
@@ -174,35 +191,67 @@ void DelayedOperation::Cancel() {
   }
 }
 
-AsyncQueue::DelayedOperationPtr AsyncQueue::RemoveDelayedOperation(
+// AsyncQueue
+
+AsyncQueue::AsyncQueue(const dispatch_queue_t dispatch_queue)
+    : impl_{std::make_shared<AsyncQueueImpl>(dispatch_queue)} {
+}
+void AsyncQueue::VerifyIsCurrentQueue() const {
+  impl_->VerifyIsCurrentQueue();
+}
+void AsyncQueue::EnterCheckedOperation(const Operation& operation) {
+  impl_->EnterCheckedOperation(operation);
+}
+void AsyncQueue::Enqueue(const Operation& operation) {
+  impl_->Enqueue(operation);
+}
+void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
+  impl_->EnqueueAllowingSameQueue(operation);
+}
+DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
+                                               TimerId timer_id,
+                                               Operation operation) {
+  return impl_->EnqueueAfterDelay(delay, timer_id, std::move(operation));
+}
+void AsyncQueue::RunSync(const Operation& operation) {
+  impl_->RunSync(operation);
+}
+bool AsyncQueue::ContainsDelayedOperation(TimerId timer_id) const {
+  return impl_->ContainsDelayedOperation(timer_id);
+}
+void AsyncQueue::RunDelayedOperationsUntil(TimerId last_timer_id) {
+  impl_->RunDelayedOperationsUntil(last_timer_id);
+}
+dispatch_queue_t AsyncQueue::dispatch_queue() const {
+  return impl_->dispatch_queue();
+}
+
+// AsyncQueueImpl
+
+void AsyncQueueImpl::RemoveDelayedOperation(
     const DelayedOperationImpl& dequeued) {
   const auto found = std::find_if(operations_.begin(), operations_.end(),
                                   [&dequeued](const DelayedOperationPtr& op) {
                                     return op.get() == &dequeued;
                                   });
-  FIREBASE_ASSERT_MESSAGE(found != operations_.end(),
-                          "Delayed operation not found");
-  const auto result = *found;
-  operations_.erase(found);
-  return result;
+  if (found != operations_.end()) {
+    operations_.erase(found);
+  }
 }
 
-AsyncQueue::AsyncQueue(const dispatch_queue_t dispatch_queue) {
+AsyncQueueImpl::AsyncQueueImpl(const dispatch_queue_t dispatch_queue) {
   dispatch_queue_ = dispatch_queue;
-  // DispatchSync([&] {
-  //     dispatch_queue_ = dispatch_queue;
-  // });
 }
 
-void AsyncQueue::VerifyIsCurrentQueue() const {
+void AsyncQueueImpl::VerifyIsCurrentQueue() const {
   VerifyOnTargetQueue();
-  FIREBASE_ASSERT_MESSAGE(
-      is_operation_in_progress_,
-      "VerifyIsCurrentQueue called outside EnterCheckedOperation on queue '%s'",
-      GetCurrentQueueLabel().data());
+  FIREBASE_ASSERT_MESSAGE(is_operation_in_progress_,
+                          "VerifyIsCurrentQueue called outside "
+                          "EnterCheckedOperation on queue '%s'",
+                          GetCurrentQueueLabel().data());
 }
 
-void AsyncQueue::EnterCheckedOperation(const Operation& operation) {
+void AsyncQueueImpl::EnterCheckedOperation(const Operation& operation) {
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_,
                           "EnterCheckedOperation may not be called when an "
                           "operation is in progress");
@@ -215,7 +264,7 @@ void AsyncQueue::EnterCheckedOperation(const Operation& operation) {
   is_operation_in_progress_ = false;
 }
 
-void AsyncQueue::Enqueue(const Operation& operation) {
+void AsyncQueueImpl::Enqueue(const Operation& operation) {
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_ || !OnTargetQueue(),
                           "Enqueue called when we are already running on "
                           "target dispatch queue '%s'",
@@ -225,20 +274,20 @@ void AsyncQueue::Enqueue(const Operation& operation) {
                 [this, operation] { EnterCheckedOperation(operation); });
 }
 
-void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
+void AsyncQueueImpl::EnqueueAllowingSameQueue(const Operation& operation) {
   // Note: can't move operation into lambda until C++14.
   DispatchAsync(dispatch_queue(),
                 [this, operation] { EnterCheckedOperation(operation); });
 }
 
-DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
-                                               const TimerId timer_id,
-                                               Operation operation) {
+DelayedOperation AsyncQueueImpl::EnqueueAfterDelay(const Milliseconds delay,
+                                                   const TimerId timer_id,
+                                                   Operation operation) {
   VerifyOnTargetQueue();
 
   // While not necessarily harmful, we currently don't expect to have multiple
-  // callbacks with the same timer_id in the queue, so defensively reject them.
-  // FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
+  // callbacks with the same timer_id in the queue, so defensively reject
+  // them. FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
   //"Attempted to schedule multiple callbacks with id %d",
   // timer_id);
 
@@ -255,11 +304,12 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
   // return DelayedOperation{operations_.back()};
 
   operations_.push_back(std::make_shared<DelayedOperationImpl>(
-      this, timer_id, delay, std::move(operation)));
+      shared_from_this(), timer_id, delay, std::move(operation)));
+  operations_.back()->Start(dispatch_queue(), operations_.back(), delay);
   return DelayedOperation{operations_.back()};
 }
 
-void AsyncQueue::RunSync(const Operation& operation) {
+void AsyncQueueImpl::RunSync(const Operation& operation) {
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_ || !OnTargetQueue(),
                           "RunSync called when we are already running on "
                           "target dispatch queue '%s'",
@@ -269,7 +319,7 @@ void AsyncQueue::RunSync(const Operation& operation) {
                [this, operation] { EnterCheckedOperation(operation); });
 }
 
-bool AsyncQueue::ContainsDelayedOperation(const TimerId timer_id) const {
+bool AsyncQueueImpl::ContainsDelayedOperation(const TimerId timer_id) const {
   VerifyOnTargetQueue();
   return std::find_if(operations_.begin(), operations_.end(),
                       [timer_id](const DelayedOperationPtr& op) {
@@ -279,22 +329,23 @@ bool AsyncQueue::ContainsDelayedOperation(const TimerId timer_id) const {
 
 // Private
 
-bool AsyncQueue::OnTargetQueue() const {
+bool AsyncQueueImpl::OnTargetQueue() const {
   return GetCurrentQueueLabel() == GetTargetQueueLabel();
 }
 
-void AsyncQueue::VerifyOnTargetQueue() const {
-  FIREBASE_ASSERT_MESSAGE(
-      OnTargetQueue(),
-      "We are running on the wrong dispatch queue. Expected '%s' Actual: '%s'",
-      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
+void AsyncQueueImpl::VerifyOnTargetQueue() const {
+  FIREBASE_ASSERT_MESSAGE(OnTargetQueue(),
+                          "We are running on the wrong dispatch queue. "
+                          "Expected '%s' Actual: '%s'",
+                          GetTargetQueueLabel().data(),
+                          GetCurrentQueueLabel().data());
 }
 
-void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
-  // const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
+void AsyncQueueImpl::RunDelayedOperationsUntil(const TimerId last_timer_id) {
+  const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
 
-  // Enqueue([this, last_timer_id, done_semaphore] {
-  RunSync([this, last_timer_id] {
+  Enqueue([this, last_timer_id, done_semaphore] {
+  // RunSync([this, last_timer_id] {
     std::sort(
         operations_.begin(), operations_.end(),
         [](const DelayedOperationPtr& lhs, const DelayedOperationPtr& rhs) {
@@ -321,13 +372,14 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
       (*it)->SkipDelay();
     }
 
-    // // Now that the callbacks are queued, we want to enqueue an additional item
+    // // Now that the callbacks are queued, we want to enqueue an additional
+    // item
     // // to release the 'done' semaphore.
-    // EnqueueAllowingSameQueue(
-    //     [done_semaphore] { dispatch_semaphore_signal(done_semaphore); });
+    EnqueueAllowingSameQueue(
+        [done_semaphore] { dispatch_semaphore_signal(done_semaphore); });
   });
 
-  // dispatch_semaphore_wait(done_semaphore, DISPATCH_TIME_FOREVER);
+  dispatch_semaphore_wait(done_semaphore, DISPATCH_TIME_FOREVER);
 }
 
 namespace {
@@ -339,14 +391,14 @@ absl::string_view StringViewFromLabel(const char* const label) {
 
 }  // namespace
 
-absl::string_view AsyncQueue::GetCurrentQueueLabel() const {
+absl::string_view AsyncQueueImpl::GetCurrentQueueLabel() const {
   // Note: dispatch_queue_get_label may return nullptr if the queue wasn't
   // initialized with a label.
   return StringViewFromLabel(
       dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
 }
 
-absl::string_view AsyncQueue::GetTargetQueueLabel() const {
+absl::string_view AsyncQueueImpl::GetTargetQueueLabel() const {
   return StringViewFromLabel(dispatch_queue_get_label(dispatch_queue()));
 }
 
