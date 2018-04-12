@@ -193,6 +193,7 @@ class AsyncQueue {
     std::shared_ptr<internal::DelayedOperationImpl> RemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
 
   bool OnTargetQueue() const;
+  void VerifyOnTargetQueue() const;
   // GetLabel functions are guaranteed to never return a "null" string_view
   // (i.e. data() != nullptr).
   absl::string_view GetCurrentQueueLabel() const;

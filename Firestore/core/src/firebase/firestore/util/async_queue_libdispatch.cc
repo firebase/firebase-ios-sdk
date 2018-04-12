@@ -195,10 +195,7 @@ AsyncQueue::AsyncQueue(const dispatch_queue_t dispatch_queue) {
 }
 
 void AsyncQueue::VerifyIsCurrentQueue() const {
-  FIREBASE_ASSERT_MESSAGE(
-      OnTargetQueue(),
-      "We are running on the wrong dispatch queue. Expected '%s' Actual: '%s'",
-      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
+  VerifyOnTargetQueue();
   FIREBASE_ASSERT_MESSAGE(
       is_operation_in_progress_,
       "VerifyIsCurrentQueue called outside EnterCheckedOperation on queue '%s'",
@@ -237,10 +234,7 @@ void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
 DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
                                                const TimerId timer_id,
                                                Operation operation) {
-  FIREBASE_ASSERT_MESSAGE(
-      OnTargetQueue(),
-      "We are running on the wrong dispatch queue. Expected '%s' Actual: '%s'",
-      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
+  VerifyOnTargetQueue();
 
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject them.
@@ -260,8 +254,8 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
   // });
   // return DelayedOperation{operations_.back()};
 
-    operations_.push_back(std::make_shared<DelayedOperationImpl>(
-        this, timer_id, delay, std::move(operation)));
+  operations_.push_back(std::make_shared<DelayedOperationImpl>(
+      this, timer_id, delay, std::move(operation)));
   return DelayedOperation{operations_.back()};
 }
 
@@ -276,6 +270,7 @@ void AsyncQueue::RunSync(const Operation& operation) {
 }
 
 bool AsyncQueue::ContainsDelayedOperation(const TimerId timer_id) const {
+  VerifyOnTargetQueue();
   return std::find_if(operations_.begin(), operations_.end(),
                       [timer_id](const DelayedOperationPtr& op) {
                         return op->timer_id() == timer_id;
@@ -286,6 +281,13 @@ bool AsyncQueue::ContainsDelayedOperation(const TimerId timer_id) const {
 
 bool AsyncQueue::OnTargetQueue() const {
   return GetCurrentQueueLabel() == GetTargetQueueLabel();
+}
+
+void AsyncQueue::VerifyOnTargetQueue() const {
+  FIREBASE_ASSERT_MESSAGE(
+      OnTargetQueue(),
+      "We are running on the wrong dispatch queue. Expected '%s' Actual: '%s'",
+      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
 }
 
 void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
