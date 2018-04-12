@@ -198,7 +198,7 @@ class AsyncQueue {
   absl::string_view GetCurrentQueueLabel() const;
   absl::string_view GetTargetQueueLabel() const;
 
-  const dispatch_queue_t dispatch_queue_ = nullptr;
+  const dispatch_queue_t dispatch_queue_;
   using DelayedOperationPtr = std::shared_ptr<internal::DelayedOperationImpl>;
   std::vector<DelayedOperationPtr> operations_;
   std::atomic<bool> is_operation_in_progress_{false};

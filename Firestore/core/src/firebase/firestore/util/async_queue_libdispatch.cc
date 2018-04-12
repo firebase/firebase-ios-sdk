@@ -150,8 +150,8 @@ class DelayedOperationImpl {
   using TimePoint = std::chrono::time_point<std::chrono::system_clock,
                                             AsyncQueue::Milliseconds>;
 
-  AsyncQueue* const queue_ = nullptr;
-  const TimerId timer_id_ = TimerId::All;
+  AsyncQueue* const queue_;
+  const TimerId timer_id_;
   const TimePoint target_time_;
   const AsyncQueue::Operation operation_;
   // True if the operation has either been run or canceled.
