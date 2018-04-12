@@ -239,10 +239,8 @@ NS_SWIFT_NAME(MessagingRemoteMessage)
 
 @class FIRMessaging;
 /**
- * A protocol to handle events from FCM for devices running iOS 10 or above.
+ * A protocol to handle token update or data message delivery from FCM.
  *
- * To support devices running iOS 9 or below, use the local and remote notifications handlers
- * defined in UIApplicationDelegate protocol.
  */
 NS_SWIFT_NAME(MessagingDelegate)
 @protocol FIRMessagingDelegate <NSObject>
