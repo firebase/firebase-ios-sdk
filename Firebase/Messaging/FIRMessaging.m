@@ -572,7 +572,7 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
   [self validateDelegateConformsToTokenAvailabilityMethods];
 }
 
-// Check if the delegate conforms to either |didReceiveRegistrationToken:|,
+// Check if the delegate conforms to |didReceiveRegistrationToken:|
 // and display a warning to the developer if not.
 // NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
 // check can be removed.
