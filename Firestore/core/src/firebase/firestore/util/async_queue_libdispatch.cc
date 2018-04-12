@@ -234,14 +234,9 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
                           "Attempted to schedule multiple callbacks with id %d",
                           timer_id);
 
-  auto store_operation = std::make_shared<DelayedOperationImpl>(
-      this, timer_id, delay, std::move(operation));
-  // Wrap in a libdispatch call to ensure thread safety. operations_ is also
-  // from other thread(s).
-  DispatchAsync(dispatch_queue(), [this, store_operation] {
-    operations_.push_back(store_operation);
-  });
-  return DelayedOperation{store_operation};
+  operations_.push_back(std::make_shared<DelayedOperationImpl>(
+      this, timer_id, delay, std::move(operation)));
+  return DelayedOperation{operations_.back()};
 }
 
 void AsyncQueue::RunSync(const Operation& operation) {
