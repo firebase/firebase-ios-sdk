@@ -642,10 +642,7 @@ typedef GPB_ENUM(GCFSCommitRequest_FieldNumber) {
 /** The number of items in @c writesArray without causing the array to be created. */
 @property(nonatomic, readonly) NSUInteger writesArray_Count;
 
-/**
- * If non-empty, applies all writes in this transaction, and commits it.
- * Otherwise, applies the writes as if they were in their own transaction.
- **/
+/** If set, applies all writes in this transaction, and commits it. */
 @property(nonatomic, readwrite, copy, null_resettable) NSData *transaction;
 
 @end

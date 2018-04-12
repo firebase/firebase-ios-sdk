@@ -74,7 +74,6 @@ static GPBFileDescriptor *GCFSWriteRoot_FileDescriptor(void) {
 @dynamic operationOneOfCase;
 @dynamic update;
 @dynamic delete_p;
-@dynamic verify;
 @dynamic transform;
 @dynamic hasUpdateMask, updateMask;
 @dynamic hasCurrentDocument, currentDocument;
@@ -85,7 +84,6 @@ typedef struct GCFSWrite__storage_ {
   NSString *delete_p;
   GCFSDocumentMask *updateMask;
   GCFSPrecondition *currentDocument;
-  NSString *verify;
   GCFSDocumentTransform *transform;
 } GCFSWrite__storage_;
 
@@ -130,15 +128,6 @@ typedef struct GCFSWrite__storage_ {
         .offset = (uint32_t)offsetof(GCFSWrite__storage_, currentDocument),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeMessage,
-      },
-      {
-        .name = "verify",
-        .dataTypeSpecific.className = NULL,
-        .number = GCFSWrite_FieldNumber_Verify,
-        .hasIndex = -1,
-        .offset = (uint32_t)offsetof(GCFSWrite__storage_, verify),
-        .flags = GPBFieldOptional,
-        .dataType = GPBDataTypeString,
       },
       {
         .name = "transform",
@@ -238,11 +227,15 @@ typedef struct GCFSDocumentTransform__storage_ {
 @dynamic transformTypeOneOfCase;
 @dynamic fieldPath;
 @dynamic setToServerValue;
+@dynamic appendMissingElements;
+@dynamic removeAllFromArray_p;
 
 typedef struct GCFSDocumentTransform_FieldTransform__storage_ {
   uint32_t _has_storage_[2];
   GCFSDocumentTransform_FieldTransform_ServerValue setToServerValue;
   NSString *fieldPath;
+  GCFSArrayValue *appendMissingElements;
+  GCFSArrayValue *removeAllFromArray_p;
 } GCFSDocumentTransform_FieldTransform__storage_;
 
 // This method is threadsafe because it is initially called
@@ -268,6 +261,24 @@ typedef struct GCFSDocumentTransform_FieldTransform__storage_ {
         .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, setToServerValue),
         .flags = (GPBFieldFlags)(GPBFieldOptional | GPBFieldHasEnumDescriptor),
         .dataType = GPBDataTypeEnum,
+      },
+      {
+        .name = "appendMissingElements",
+        .dataTypeSpecific.className = GPBStringifySymbol(GCFSArrayValue),
+        .number = GCFSDocumentTransform_FieldTransform_FieldNumber_AppendMissingElements,
+        .hasIndex = -1,
+        .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, appendMissingElements),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
+      },
+      {
+        .name = "removeAllFromArray_p",
+        .dataTypeSpecific.className = GPBStringifySymbol(GCFSArrayValue),
+        .number = GCFSDocumentTransform_FieldTransform_FieldNumber_RemoveAllFromArray_p,
+        .hasIndex = -1,
+        .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, removeAllFromArray_p),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
       },
     };
     GPBDescriptor *localDescriptor =
