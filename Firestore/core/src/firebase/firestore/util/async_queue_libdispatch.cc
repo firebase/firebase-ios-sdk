@@ -127,24 +127,24 @@ class DelayedOperationImpl {
   void HandleDelayElapsed() {
     queue_->VerifyIsCurrentQueue();
 
-    if (!done_) {
-      done_ = true;
-      FIREBASE_ASSERT_MESSAGE(
-          operation_, "DelayedOperationImpl contains invalid function object");
-      operation_();
-    }
-
     // PORTING NOTE: it's important to *only* remove the operation from the
     // queue *after* it's run, *not* in Cancel method. Because it's
     // impossible to cancel an invocation scheduled with dispatch_after_f,
     // this object must be alive when libdispatch calls HandleDelayElapsed; it
     // the object were removed from the queue in Cancel, it would have been
     // deleted by the time HandleDelayElapsed gets invoked.
-    Dequeue();
+    const auto self = Dequeue();
+
+    if (!done_) {
+      done_ = true;
+      FIREBASE_ASSERT_MESSAGE(
+          operation_, "DelayedOperationImpl contains invalid function object");
+      operation_();
+    }
   }
 
-  void Dequeue() {
-    queue_->RemoveDelayedOperation(*this);
+  std::shared_ptr<DelayedOperationImpl> Dequeue() {
+    return queue_->RemoveDelayedOperation(*this);
   }
 
   using TimePoint = std::chrono::time_point<std::chrono::system_clock,
@@ -174,15 +174,17 @@ void DelayedOperation::Cancel() {
   }
 }
 
-void AsyncQueue::RemoveDelayedOperation(const DelayedOperationImpl& dequeued) {
-  const auto new_end =
-      std::remove_if(operations_.begin(), operations_.end(),
+AsyncQueue::DelayedOperationPtr AsyncQueue::RemoveDelayedOperation(const DelayedOperationImpl& dequeued) {
+  const auto found =
+      std::find_if(operations_.begin(), operations_.end(),
                      [&dequeued](const DelayedOperationPtr& op) {
                        return op.get() == &dequeued;
                      });
-  FIREBASE_ASSERT_MESSAGE(new_end != operations_.end(),
+  FIREBASE_ASSERT_MESSAGE(found != operations_.end(),
                           "Delayed operation not found");
-  operations_.erase(new_end, operations_.end());
+  const auto result = *found;
+  operations_.erase(found);
+  return result;
 }
 
 void AsyncQueue::VerifyIsCurrentQueue() const {

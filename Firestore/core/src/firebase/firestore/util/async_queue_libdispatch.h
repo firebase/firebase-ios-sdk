@@ -190,7 +190,7 @@ class AsyncQueue {
  private:
   void Dispatch(const Operation& operation);
 
-  void RemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
+    std::shared_ptr<internal::DelayedOperationImpl> RemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
 
   bool OnTargetQueue() const;
   // GetLabel functions are guaranteed to never return a "null" string_view
