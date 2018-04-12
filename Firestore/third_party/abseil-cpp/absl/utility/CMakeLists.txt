@@ -15,11 +15,31 @@
 #
 
 
+list(APPEND UTILITY_PUBLIC_HEADERS
+  "utility.h"
+)
 
-add_subdirectory(base)
-add_subdirectory(memory)
-add_subdirectory(meta)
-add_subdirectory(numeric)
-#add_subdirectory(types)
-add_subdirectory(strings)
-add_subdirectory(utility)
+absl_header_library(
+  TARGET
+    absl_utility
+  EXPORT_NAME
+    utility
+)
+
+
+#
+## TESTS
+#
+
+# test utility_test
+set(UTILITY_TEST_SRC "utility_test.cc")
+set(UTILITY_TEST_PUBLIC_LIBRARIES absl::utility)
+
+absl_test(
+  TARGET
+    utility_test
+  SOURCES
+    ${UTILITY_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${UTILITY_TEST_PUBLIC_LIBRARIES}
+)
