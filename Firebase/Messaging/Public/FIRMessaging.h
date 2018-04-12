@@ -257,16 +257,8 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// * Subscribing to any topics.
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(NSString *)fcmToken
-    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
-
-/// This method will be called whenever FCM receives a new, default FCM token for your
-/// Firebase project's Sender ID. This method is deprecated. Please use
-/// `messaging:didReceiveRegistrationToken:`.
-- (void)messaging:(FIRMessaging *)messaging
-    didRefreshRegistrationToken:(NSString *)fcmToken
-    NS_SWIFT_NAME(messaging(_:didRefreshRegistrationToken:))
-    __deprecated_msg("Please use messaging:didReceiveRegistrationToken:, which is called for both \
-                     current and refreshed tokens.");
+    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:))
+    __IOS_AVAILABLE(10.0);
 
 /// This method is called on iOS 10 devices to handle data messages received via FCM through its
 /// direct channel (not via APNS). For iOS 9 and below, the FCM data message is delivered via the
