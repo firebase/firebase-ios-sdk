@@ -208,23 +208,25 @@ TEST_F(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
   EXPECT_EQ(steps, "1234");
 }
 
-// TEST_F(AsyncQueueTest, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
-//   std::string steps;
+TEST_F(AsyncQueueTest, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
+  std::string steps;
 
-//   queue.Enqueue([&] {
-//     queue.EnqueueAllowingSameQueue([&] { steps += '1'; });
-//     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
-//                             [&steps] { steps += '5'; });
-//     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
-//                             [&steps] { steps += '3'; });
-//     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
-//                             [&steps] { steps += '4'; });
-//     queue.EnqueueAllowingSameQueue([&] { steps += '2'; });
-//   });
+  queue.Enqueue([&] {
+    queue.EnqueueAllowingSameQueue([&] { steps += '1'; });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
+                            [&steps] { steps += '5'; });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
+                            [&steps] { steps += '3'; });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
+                            [&steps] { steps += '4'; });
+    queue.EnqueueAllowingSameQueue([&] { steps += '2'; });
+    signal_finished();
+  });
 
-//   queue.RunDelayedOperationsUntil(kTimerId3);
-//   EXPECT_EQ(steps, "1234");
-// }
+  EXPECT_TRUE(WaitForTestToFinish());
+  queue.RunDelayedOperationsUntil(kTimerId3);
+  EXPECT_EQ(steps, "1234");
+}
 
 }  // namespace util
 }  // namespace firestore
