@@ -239,10 +239,8 @@ NS_SWIFT_NAME(MessagingRemoteMessage)
 
 @class FIRMessaging;
 /**
- * A protocol to handle events from FCM for devices running iOS 10 or above.
+ * A protocol to handle token update or data message delivery from FCM.
  *
- * To support devices running iOS 9 or below, use the local and remote notifications handlers
- * defined in UIApplicationDelegate protocol.
  */
 NS_SWIFT_NAME(MessagingDelegate)
 @protocol FIRMessagingDelegate <NSObject>
@@ -258,15 +256,6 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
-
-/// This method will be called whenever FCM receives a new, default FCM token for your
-/// Firebase project's Sender ID. This method is deprecated. Please use
-/// `messaging:didReceiveRegistrationToken:`.
-- (void)messaging:(FIRMessaging *)messaging
-    didRefreshRegistrationToken:(NSString *)fcmToken
-    NS_SWIFT_NAME(messaging(_:didRefreshRegistrationToken:))
-    __deprecated_msg("Please use messaging:didReceiveRegistrationToken:, which is called for both \
-                     current and refreshed tokens.");
 
 /// This method is called on iOS 10 devices to handle data messages received via FCM through its
 /// direct channel (not via APNS). For iOS 9 and below, the FCM data message is delivered via the
