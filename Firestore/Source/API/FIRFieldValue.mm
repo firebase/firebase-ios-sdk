@@ -46,6 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
   return sharedInstance;
 }
 
+- (NSString *)methodName {
+  return @"FieldValue.delete()";
+}
+
 @end
 
 #pragma mark - FSTServerTimestampFieldValue
@@ -70,6 +74,10 @@ NS_ASSUME_NONNULL_BEGIN
     sharedInstance = [[FSTServerTimestampFieldValue alloc] initPrivate];
   });
   return sharedInstance;
+}
+
+- (NSString *)methodName {
+  return @"FieldValue.serverTimestamp()";
 }
 
 @end
