@@ -294,7 +294,7 @@ void Writer::WriteVarint(uint64_t value) {
  * Note that (despite the return type) this works for bool, enum, int32, int64,
  * uint32 and uint64 proto field types.
  *
- * Note: This is not expected to be called direclty, but rather only via the
+ * Note: This is not expected to be called directly, but rather only via the
  * other Decode* methods (i.e. DecodeBool, DecodeLong, etc)
  *
  * @return The decoded varint as a uint64_t.

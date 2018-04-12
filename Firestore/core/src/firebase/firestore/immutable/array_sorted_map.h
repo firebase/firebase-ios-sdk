@@ -70,8 +70,8 @@ class FixedArray {
    */
   template <typename SourceIterator>
   void append(SourceIterator src_begin, SourceIterator src_end) {
-    size_type appending = static_cast<size_type>(src_end - src_begin);
-    size_type new_size = size_ + appending;
+    auto appending = static_cast<size_type>(src_end - src_begin);
+    auto new_size = size_ + appending;
     FIREBASE_ASSERT(new_size <= fixed_size);
 
     std::copy(src_begin, src_end, end());
@@ -228,8 +228,6 @@ class ArraySortedMap : public SortedMapBase {
       return not_found;
     }
   }
-
-  // TODO(wilhuff): indexof
 
   /** Returns true if the map contains no elements. */
   bool empty() const {

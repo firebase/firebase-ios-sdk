@@ -139,23 +139,23 @@ inline int Bits::Log2FloorNonZero_Portable(uint32_t n) {
 
 // Log2Floor64() is defined in terms of Log2Floor32(), Log2FloorNonZero32()
 inline int Bits::Log2Floor64_Portable(uint64_t n) {
-  const uint32_t topbits = static_cast<uint32_t>(n >> 32);
-  if (topbits == 0) {
+  const auto top_bits = static_cast<uint32_t>(n >> 32);
+  if (top_bits == 0) {
     // Top bits are zero, so scan in bottom bits
     return Log2Floor(static_cast<uint32_t>(n));
   } else {
-    return 32 + Log2FloorNonZero(topbits);
+    return 32 + Log2FloorNonZero(top_bits);
   }
 }
 
 // Log2FloorNonZero64() is defined in terms of Log2FloorNonZero32()
 inline int Bits::Log2FloorNonZero64_Portable(uint64_t n) {
-  const uint32_t topbits = static_cast<uint32_t>(n >> 32);
-  if (topbits == 0) {
+  const auto top_bits = static_cast<uint32_t>(n >> 32);
+  if (top_bits == 0) {
     // Top bits are zero, so scan in bottom bits
     return Log2FloorNonZero(static_cast<uint32_t>(n));
   } else {
-    return 32 + Log2FloorNonZero(topbits);
+    return 32 + Log2FloorNonZero(top_bits);
   }
 }
 

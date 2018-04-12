@@ -54,7 +54,7 @@ TEST(Serializer, CanLinkToNanopb) {
   // nanopb is concerned but that it can run at all is proof that all the
   // libraries required for nanopb to work are actually linked correctly into
   // the test.
-  pb_ostream_from_buffer(NULL, 0);
+  pb_ostream_from_buffer(nullptr, 0);
 }
 
 // Fixture for running serializer tests.

@@ -49,6 +49,7 @@ class SortedMapTest : public ::testing::Test {
   }
 };
 
+// NOLINTNEXTLINE: must be a typedef for the gtest macros
 typedef ::testing::Types<SortedMap<int, int>,
                          impl::ArraySortedMap<int, int>,
                          impl::TreeSortedMap<int, int>>

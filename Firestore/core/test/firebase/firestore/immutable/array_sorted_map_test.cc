@@ -29,7 +29,7 @@ namespace firestore {
 namespace immutable {
 namespace impl {
 
-typedef ArraySortedMap<int, int> IntMap;
+using IntMap = ArraySortedMap<int, int>;
 constexpr IntMap::size_type kFixedSize = IntMap::kFixedSize;
 
 // TODO(wilhuff): ReverseTraversal
@@ -153,7 +153,7 @@ TEST(ArraySortedMap, EmptyRemoval) {
 
 TEST(ArraySortedMap, InsertionAndRemovalOfMaxItems) {
   auto expected_size = kFixedSize;
-  int n = static_cast<int>(expected_size);
+  auto n = static_cast<int>(expected_size);
   std::vector<int> to_insert = Shuffled(Sequence(n));
   std::vector<int> to_remove = Shuffled(to_insert);
 
