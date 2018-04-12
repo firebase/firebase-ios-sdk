@@ -189,21 +189,24 @@ TEST_F(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
-// TEST_F(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
-//   std::string steps;
+TEST_F(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
+  std::string steps;
 
-//   queue.Enqueue([&] {
-//     queue.EnqueueAllowingSameQueue([&steps] { steps += '1'; });
-//     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
-//                             [&steps] { steps += '4'; });
-//     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
-//                             [&steps] { steps += '3'; });
-//     queue.EnqueueAllowingSameQueue([&steps] { steps += '2'; });
-//   });
+  queue.Enqueue([&] {
+    queue.EnqueueAllowingSameQueue([&steps] { steps += '1'; });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1, [&] {
+      steps += '4';
+      signal_finished();
+    });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
+                            [&steps] { steps += '3'; });
+    queue.EnqueueAllowingSameQueue([&steps] { steps += '2';  });
+  });
 
-//   queue.RunDelayedOperationsUntil(TimerId::All);
-//   EXPECT_EQ(steps, "1234");
-// }
+  queue.RunDelayedOperationsUntil(TimerId::All);
+  EXPECT_TRUE(WaitForTestToFinish());
+  EXPECT_EQ(steps, "1234");
+}
 
 // TEST_F(AsyncQueueTest, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
 //   std::string steps;

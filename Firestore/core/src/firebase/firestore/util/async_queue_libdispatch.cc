@@ -291,9 +291,10 @@ void AsyncQueue::VerifyOnTargetQueue() const {
 }
 
 void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
-  const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
+  // const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
 
-  Enqueue([this, last_timer_id, done_semaphore] {
+  // Enqueue([this, last_timer_id, done_semaphore] {
+  RunSync([this, last_timer_id] {
     std::sort(
         operations_.begin(), operations_.end(),
         [](const DelayedOperationPtr& lhs, const DelayedOperationPtr& rhs) {
@@ -320,13 +321,13 @@ void AsyncQueue::RunDelayedOperationsUntil(const TimerId last_timer_id) {
       (*it)->SkipDelay();
     }
 
-    // Now that the callbacks are queued, we want to enqueue an additional item
-    // to release the 'done' semaphore.
-    EnqueueAllowingSameQueue(
-        [done_semaphore] { dispatch_semaphore_signal(done_semaphore); });
+    // // Now that the callbacks are queued, we want to enqueue an additional item
+    // // to release the 'done' semaphore.
+    // EnqueueAllowingSameQueue(
+    //     [done_semaphore] { dispatch_semaphore_signal(done_semaphore); });
   });
 
-  dispatch_semaphore_wait(done_semaphore, DISPATCH_TIME_FOREVER);
+  // dispatch_semaphore_wait(done_semaphore, DISPATCH_TIME_FOREVER);
 }
 
 namespace {
