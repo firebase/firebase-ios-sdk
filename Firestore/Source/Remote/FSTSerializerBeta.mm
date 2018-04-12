@@ -526,8 +526,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(!precondition.IsNone(), @"Can't serialize an empty precondition");
   GCFSPrecondition *message = [GCFSPrecondition message];
   if (precondition.type() == Precondition::Type::UpdateTime) {
-    message.updateTime =
-        [self encodedVersion:static_cast<FSTSnapshotVersion *>(precondition.update_time())];
+    message.updateTime = [self encodedVersion:precondition.update_time()];
   } else if (precondition.type() == Precondition::Type::Exists) {
     message.exists = precondition == Precondition::Exists(true);
   } else {
