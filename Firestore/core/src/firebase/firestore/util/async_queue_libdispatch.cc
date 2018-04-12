@@ -174,17 +174,24 @@ void DelayedOperation::Cancel() {
   }
 }
 
-AsyncQueue::DelayedOperationPtr AsyncQueue::RemoveDelayedOperation(const DelayedOperationImpl& dequeued) {
-  const auto found =
-      std::find_if(operations_.begin(), operations_.end(),
-                     [&dequeued](const DelayedOperationPtr& op) {
-                       return op.get() == &dequeued;
-                     });
+AsyncQueue::DelayedOperationPtr AsyncQueue::RemoveDelayedOperation(
+    const DelayedOperationImpl& dequeued) {
+  const auto found = std::find_if(operations_.begin(), operations_.end(),
+                                  [&dequeued](const DelayedOperationPtr& op) {
+                                    return op.get() == &dequeued;
+                                  });
   FIREBASE_ASSERT_MESSAGE(found != operations_.end(),
                           "Delayed operation not found");
   const auto result = *found;
   operations_.erase(found);
   return result;
+}
+
+AsyncQueue::AsyncQueue(const dispatch_queue_t dispatch_queue) {
+  dispatch_queue_ = dispatch_queue;
+  // DispatchSync([&] {
+  //     dispatch_queue_ = dispatch_queue;
+  // });
 }
 
 void AsyncQueue::VerifyIsCurrentQueue() const {
@@ -230,14 +237,31 @@ void AsyncQueue::EnqueueAllowingSameQueue(const Operation& operation) {
 DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
                                                const TimerId timer_id,
                                                Operation operation) {
+  FIREBASE_ASSERT_MESSAGE(
+      OnTargetQueue(),
+      "We are running on the wrong dispatch queue. Expected '%s' Actual: '%s'",
+      GetTargetQueueLabel().data(), GetCurrentQueueLabel().data());
+
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject them.
-  FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
-                          "Attempted to schedule multiple callbacks with id %d",
-                          timer_id);
+  // FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
+  //"Attempted to schedule multiple callbacks with id %d",
+  // timer_id);
 
-  operations_.push_back(std::make_shared<DelayedOperationImpl>(
-      this, timer_id, delay, std::move(operation)));
+  // auto op = std::make_shared<DelayedOperationImpl>(
+  //       this, timer_id, delay, std::move(operation));
+  // DispatchAsync(dispatch_queue(), [this, op] {
+  //   operations_.push_back(op);
+  // });
+  // return DelayedOperation{op};
+  // DispatchSync(dispatch_queue(), [&] {
+  //   operations_.push_back(std::make_shared<DelayedOperationImpl>(
+  //       this, timer_id, delay, std::move(operation)));
+  // });
+  // return DelayedOperation{operations_.back()};
+
+    operations_.push_back(std::make_shared<DelayedOperationImpl>(
+        this, timer_id, delay, std::move(operation)));
   return DelayedOperation{operations_.back()};
 }
 
