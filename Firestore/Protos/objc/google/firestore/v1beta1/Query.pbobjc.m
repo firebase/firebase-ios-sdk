@@ -542,7 +542,7 @@ GPBEnumDescriptor *GCFSStructuredQuery_FieldFilter_Operator_EnumDescriptor(void)
     static const char *valueNames =
         "OperatorUnspecified\000LessThan\000LessThanOrE"
         "qual\000GreaterThan\000GreaterThanOrEqual\000Equa"
-        "l\000";
+        "l\000ArrayContains\000";
     static const int32_t values[] = {
         GCFSStructuredQuery_FieldFilter_Operator_OperatorUnspecified,
         GCFSStructuredQuery_FieldFilter_Operator_LessThan,
@@ -550,6 +550,7 @@ GPBEnumDescriptor *GCFSStructuredQuery_FieldFilter_Operator_EnumDescriptor(void)
         GCFSStructuredQuery_FieldFilter_Operator_GreaterThan,
         GCFSStructuredQuery_FieldFilter_Operator_GreaterThanOrEqual,
         GCFSStructuredQuery_FieldFilter_Operator_Equal,
+        GCFSStructuredQuery_FieldFilter_Operator_ArrayContains,
     };
     GPBEnumDescriptor *worker =
         [GPBEnumDescriptor allocDescriptorForName:GPBNSStringifySymbol(GCFSStructuredQuery_FieldFilter_Operator)
@@ -572,6 +573,7 @@ BOOL GCFSStructuredQuery_FieldFilter_Operator_IsValidValue(int32_t value__) {
     case GCFSStructuredQuery_FieldFilter_Operator_GreaterThan:
     case GCFSStructuredQuery_FieldFilter_Operator_GreaterThanOrEqual:
     case GCFSStructuredQuery_FieldFilter_Operator_Equal:
+    case GCFSStructuredQuery_FieldFilter_Operator_ArrayContains:
       return YES;
     default:
       return NO;
