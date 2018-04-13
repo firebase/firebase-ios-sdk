@@ -37,7 +37,8 @@
 #import "FIRMessagingVersionUtilities.h"
 
 #import <FirebaseCore/FIRReachabilityChecker.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+
+#import "FirebaseInstanceID_Internal.h"
 
 #import "NSError+FIRMessaging.h"
 
@@ -258,11 +259,6 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
                  name:kFIRMessagingRegistrationTokenRefreshNotification
                object:nil];
   [center addObserver:self
-             selector:@selector(didReceiveAPNSToken:)
-                 name:kFIRMessagingAPNSTokenNotification
-               object:nil];
-
-  [center addObserver:self
              selector:@selector(applicationStateChanged)
                  name:UIApplicationDidBecomeActiveNotification
                object:nil];
@@ -471,11 +467,8 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
   }
   self.apnsTokenData = apnsToken;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID setAPNSToken:apnsToken
                            type:FIRIIDAPNSTokenTypeFromAPNSTokenType(type)];
-#pragma clang diagnostic pop
 }
 
 #pragma mark - FCM
@@ -784,12 +777,6 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
   return [self currentLocale];
 }
 
-- (void)setAPNSToken:(NSData *)apnsToken error:(NSError *)error {
-  if (apnsToken) {
-    self.apnsTokenData = [apnsToken copy];
-  }
-}
-
 #pragma mark - FIRMessagingReceiverDelegate
 
 - (void)receiver:(FIRMessagingReceiver *)receiver
@@ -878,17 +865,6 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
   }
-}
-
-- (void)didReceiveAPNSToken:(NSNotification *)notification {
-  NSData *apnsToken = notification.object;
-  if (![apnsToken isKindOfClass:[NSData class]]) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging016, @"Invalid APNS token type %@",
-                            NSStringFromClass([notification.object class]));
-    return;
-  }
-  // Set this value directly, and since this came from InstanceID, don't set it back to InstanceID
-  self.apnsTokenData = [apnsToken copy];
 }
 
 #pragma mark - Application Support Directory

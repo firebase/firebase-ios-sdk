@@ -52,7 +52,4 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled;
 - (BOOL)isNetworkAvailable;
 - (FIRMessagingNetworkStatus)networkType;
 
-// Set the APNS token for FCM.
-- (void)setAPNSToken:(NSData *)apnsToken error:(NSError *)error;
-
 @end
