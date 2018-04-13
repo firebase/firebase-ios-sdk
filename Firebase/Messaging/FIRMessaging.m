@@ -38,7 +38,7 @@
 
 #import <FirebaseCore/FIRReachabilityChecker.h>
 
-#import "FirebaseInstanceID_Internal.h"
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -74,28 +74,10 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
 
+NSString *const kFIRMessagingAPNSTokenType = @"APNSTokenType"; // APNS Token type key stored in user info.
+
 static NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-/// A private helper to convert enum values without depending on their numerical values
-/// (avoid casting). This can be removed when InstanceID's deprecated APNS type enum is
-/// removed.
-FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNSTokenType type) {
-  switch (type) {
-    case FIRMessagingAPNSTokenTypeProd:
-      return FIRInstanceIDAPNSTokenTypeProd;
-    case FIRMessagingAPNSTokenTypeSandbox:
-      return FIRInstanceIDAPNSTokenTypeSandbox;
-    case FIRMessagingAPNSTokenTypeUnknown:
-      return FIRInstanceIDAPNSTokenTypeUnknown;
-
-    default:
-      return FIRInstanceIDAPNSTokenTypeUnknown;
-  }
-}
-#pragma clang diagnostic pop
 
 @interface FIRMessagingMessageInfo ()
 
@@ -467,8 +449,12 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
   }
   self.apnsTokenData = apnsToken;
 
-  [self.instanceID setAPNSToken:apnsToken
-                           type:FIRIIDAPNSTokenTypeFromAPNSTokenType(type)];
+  NSDictionary *userInfo = @{kFIRMessagingAPNSTokenType : @(type)};
+  NSNotification *notification =
+      [NSNotification notificationWithName:kFIRMessagingAPNSTokenNotification
+                                    object:apnsToken
+                                  userInfo:userInfo];
+  [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
 
 #pragma mark - FCM
