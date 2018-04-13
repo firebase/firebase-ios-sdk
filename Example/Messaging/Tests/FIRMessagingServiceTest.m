@@ -146,12 +146,15 @@
   XCTestExpectation *exceptionExpectation =
   [self expectationWithDescription:@"Should throw exception for invalid token"];
   @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
     [messaging.pubsub subscribeWithToken:@"abcdef1234"
                                    topic:nil
                                  options:nil
                                  handler:^(NSError *error) {
                                    XCTFail(@"Should not invoke the handler");
                                  }];
+#pragma clang diagnostic pop
   }
   @catch (NSException *exception) {
     [exceptionExpectation fulfill];
@@ -169,12 +172,15 @@
   XCTestExpectation *exceptionExpectation =
       [self expectationWithDescription:@"Should throw exception for invalid token"];
   @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
     [messaging.pubsub unsubscribeWithToken:@"abcdef1234"
                                      topic:nil
                                    options:nil
                                    handler:^(NSError *error) {
                                      XCTFail(@"Should not invoke the handler");
                                    }];
+#pragma clang diagnostic pop
   }
   @catch (NSException *exception) {
     [exceptionExpectation fulfill];
