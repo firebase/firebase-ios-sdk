@@ -42,4 +42,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 @end
 
+/** FIRFieldValue class for array unions. */
+@interface FSTArrayUnionFieldValue : FIRFieldValue
+- (instancetype)init NS_UNAVAILABLE;
+@property(strong, nonatomic, readonly) NSArray<id> *elements;
+@end
+
+/** FIRFieldValue class for array removes. */
+@interface FSTArrayRemoveFieldValue : FIRFieldValue
+- (instancetype)init NS_UNAVAILABLE;
+@property(strong, nonatomic, readonly) NSArray<id> *elements;
+@end
+
 NS_ASSUME_NONNULL_END

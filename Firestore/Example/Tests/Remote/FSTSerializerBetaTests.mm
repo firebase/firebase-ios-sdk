@@ -17,6 +17,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import <FirebaseFirestore/FIRFieldPath.h>
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
@@ -367,7 +368,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesTransformMutation {
-  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @[ @"a", @"bar.baz" ]);
+  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForServerTimestamp],
+    @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
+  });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];
   proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];

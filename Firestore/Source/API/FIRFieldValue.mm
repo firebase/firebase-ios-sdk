@@ -82,6 +82,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark - FSTArrayUnionFieldValue
+
+@interface FSTArrayUnionFieldValue ()
+- (instancetype)initWithElements:(NSArray<id> *)elements;
+@end
+
+@implementation FSTArrayUnionFieldValue
+- (instancetype)initWithElements:(NSArray<id> *)elements {
+  if (self = [super initPrivate]) {
+    _elements = elements;
+  }
+  return self;
+}
+@end
+
+#pragma mark - FSTArrayRemoveFieldValue
+
+@interface FSTArrayRemoveFieldValue ()
+- (instancetype)initWithElements:(NSArray<id> *)elements;
+@end
+
+@implementation FSTArrayRemoveFieldValue
+- (instancetype)initWithElements:(NSArray<id> *)elements {
+  if (self = [super initPrivate]) {
+    _elements = elements;
+  }
+  return self;
+}
+@end
+
 #pragma mark - FIRFieldValue
 
 @implementation FIRFieldValue
@@ -97,6 +127,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)fieldValueForServerTimestamp {
   return [FSTServerTimestampFieldValue serverTimestampFieldValue];
+}
+
++ (instancetype)fieldValueForArrayUnion:(NSArray<id> *)elements {
+  return [[FSTArrayUnionFieldValue alloc] initWithElements:elements];
+}
+
++ (instancetype)fieldValueForArrayRemove:(NSArray<id> *)elements {
+  return [[FSTArrayRemoveFieldValue alloc] initWithElements:elements];
 }
 
 @end

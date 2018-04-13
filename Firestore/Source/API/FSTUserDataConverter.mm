@@ -44,6 +44,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
@@ -165,7 +166,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTUserDataSourceSet,
   FSTUserDataSourceMergeSet,
   FSTUserDataSourceUpdate,
-  FSTUserDataSourceQueryValue,  // from a where clause or cursor bound.
+  /**
+   * Indicates the source is a where clause, cursor bound, arrayUnion() element, etc. In particular,
+   * this will result in [FSTParseContext isWrite] returning NO.
+   */
+  FSTUserDataSourceArgument,
 };
 
 #pragma mark - FSTParseContext
@@ -318,7 +323,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     case FSTUserDataSourceMergeSet:  // Falls through.
     case FSTUserDataSourceUpdate:
       return YES;
-    case FSTUserDataSourceQueryValue:
+    case FSTUserDataSourceArgument:
       return NO;
     default:
       FSTThrowInvalidArgument(@"Unexpected case for FSTUserDataSource: %d", self.dataSource);
@@ -489,7 +494,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (FSTFieldValue *)parsedQueryValue:(id)input {
   FSTParseContext *context =
-      [FSTParseContext contextWithSource:FSTUserDataSourceQueryValue
+      [FSTParseContext contextWithSource:FSTUserDataSourceArgument
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTFieldValue *_Nullable parsed = [self parseData:input context:context];
   FSTAssert(parsed, @"Parsed data should not be nil.");
@@ -593,10 +598,28 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
           @"SetOptions.merge()%@",
           [context fieldDescription]);
     }
+
   } else if ([fieldValue isKindOfClass:[FSTServerTimestampFieldValue class]]) {
     [context appendToFieldTransformsWithFieldPath:*context.path
                                transformOperation:absl::make_unique<ServerTimestampTransform>(
                                                       ServerTimestampTransform::Get())];
+
+  } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
+    std::vector<FSTFieldValue *> parsedElements =
+        [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
+    auto array_union =
+        absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion, parsedElements);
+    [context appendToFieldTransformsWithFieldPath:*context.path
+                               transformOperation:std::move(array_union)];
+
+  } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
+    std::vector<FSTFieldValue *> parsedElements =
+        [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
+    auto array_remove =
+        absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove, parsedElements);
+    [context appendToFieldTransformsWithFieldPath:*context.path
+                               transformOperation:std::move(array_remove)];
+
   } else {
     FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([fieldValue class]));
   }
@@ -751,6 +774,22 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     FSTThrowInvalidArgument(@"Unsupported type: %@%@", NSStringFromClass([input class]),
                             [context fieldDescription]);
   }
+}
+
+- (std::vector<FSTFieldValue *>)parseArrayTransformElements:(NSArray<id> *)elements {
+  std::vector<FSTFieldValue *> results;
+  for (id element in elements) {
+    // Although array transforms are used with writes, the actual elements being unioned or removed
+    // are not considered writes since they cannot contain any FieldValue sentinels, etc.
+    FSTParseContext *context =
+        [FSTParseContext contextWithSource:FSTUserDataSourceArgument
+                                      path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
+    FSTFieldValue *parsedElement = [self parseData:element context:context];
+    FSTAssert(parsedElement && context.fieldTransforms->size() == 0,
+              @"Failed to properly parse array transform element: %@", element);
+    results.push_back(parsedElement);
+  }
+  return results;
 }
 
 @end

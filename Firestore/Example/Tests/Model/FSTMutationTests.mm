@@ -16,8 +16,11 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
+
+#include <vector>
 
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -26,13 +29,19 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::TransformOperation;
 
 @interface FSTMutationTests : XCTestCase
 @end
@@ -104,11 +113,12 @@ using firebase::firestore::model::Precondition;
   XCTAssertEqualObjects(patchedDoc, baseDoc);
 }
 
-- (void)testAppliesLocalTransformsToDocuments {
+- (void)testAppliesLocalServerTimestampTransformToDocuments {
   NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value" };
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @[ @"foo.bar" ]);
+  FSTMutation *transform = FSTTestTransformMutation(
+      @"collection/key", @{@"foo.bar" : [FIRFieldValue fieldValueForServerTimestamp]});
   FSTMaybeDocument *transformedDoc =
       [transform applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
@@ -130,11 +140,57 @@ using firebase::firestore::model::Precondition;
   XCTAssertEqualObjects(transformedDoc, expectedDoc);
 }
 
+// NOTE: This is more a test of FSTUserDataConverter code than FSTMutation code but we don't have
+// unit tests for it currently. We could consider removing this test once we have integration tests.
+- (void)testCreateArrayUnionTransform {
+  FSTTransformMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @[ @1, @2 ], @{@"a" : @"b"} ]]
+  });
+  XCTAssertEqual(transform.fieldTransforms.size(), 2);
+
+  const FieldTransform &first = transform.fieldTransforms[0];
+  XCTAssertEqual(first.path(), FieldPath({"foo"}));
+  {
+    std::vector<FSTFieldValue *> expectedElements{FSTTestFieldValue(@"tag")};
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
+  }
+
+  const FieldTransform &second = transform.fieldTransforms[1];
+  XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
+  {
+    std::vector<FSTFieldValue *> expectedElements {
+      FSTTestFieldValue(@YES), FSTTestFieldValue(@[ @1, @2 ]), FSTTestFieldValue(@{@"a" : @"b"})
+    };
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(second.transformation()), expected);
+  }
+}
+
+// NOTE: This is more a test of FSTUserDataConverter code than FSTMutation code but we don't have
+// unit tests for it currently. We could consider removing this test once we have integration tests.
+- (void)testCreateArrayRemoveTransform {
+  FSTTransformMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @"tag" ]],
+  });
+  XCTAssertEqual(transform.fieldTransforms.size(), 1);
+
+  const FieldTransform &first = transform.fieldTransforms[0];
+  XCTAssertEqual(first.path(), FieldPath({"foo"}));
+  {
+    std::vector<FSTFieldValue *> expectedElements{FSTTestFieldValue(@"tag")};
+    const ArrayTransform expected(TransformOperation::Type::ArrayRemove, expectedElements);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
+  }
+}
+
 - (void)testAppliesServerAckedTransformsToDocuments {
   NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value" };
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @[ @"foo.bar" ]);
+  FSTMutation *transform = FSTTestTransformMutation(
+      @"collection/key", @{@"foo.bar" : [FIRFieldValue fieldValueForServerTimestamp]});
 
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc]
        initWithVersion:FSTTestVersion(1)
