@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
@@ -373,21 +374,71 @@ NS_ASSUME_NONNULL_BEGIN
                                                           writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
-    if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
-      FSTFieldValue *previousValue = nil;
-
-      if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
-        previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
-      }
-
-      [transformResults
-          addObject:[FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
-                                                                      previousValue:previousValue]];
-    } else {
-      FSTFail(@"Encountered unknown transform: %d type", fieldTransform.transformation().type());
+    FSTFieldValue *previousValue = nil;
+    if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
+      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
     }
+
+    FSTFieldValue *transformResult = [self localTransformResultWithPreviousValue:previousValue
+                                                                       transform:fieldTransform
+                                                                       writeTime:localWriteTime];
+
+    [transformResults addObject:transformResult];
   }
   return transformResults;
+}
+
+/**
+ * Transforms the provided `baseValue` via the provided `fieldTransform`, returning the
+ * resulting FSTFieldValue.
+ *
+ * @param baseValue The value to transform.
+ * @param fieldTransform The transform to apply.
+ * @param localWriteTime The local time of the transform mutation (used to generate
+ * FSTServerTimestampValues).
+ * @return The transformed value.
+ */
+- (FSTFieldValue *)localTransformResultWithPreviousValue:(FSTFieldValue *)previousValue
+                                               transform:(const FieldTransform &)fieldTransform
+                                               writeTime:(FIRTimestamp *)localWriteTime {
+  if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
+    return [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
+                                                             previousValue:previousValue];
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+    auto array_transform = static_cast<const ArrayTransform &>(fieldTransform.transformation());
+    NSMutableArray *result = [self coercedFieldValuesArray:previousValue];
+    for (FSTFieldValue *element : array_transform.elements()) {
+      if (![result containsObject:element]) {
+        [result addObject:element];
+      }
+    }
+    return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+    auto array_transform = static_cast<const ArrayTransform &>(fieldTransform.transformation());
+    NSMutableArray *result = [self coercedFieldValuesArray:previousValue];
+    for (FSTFieldValue *element : array_transform.elements()) {
+      [result removeObject:element];
+    }
+    return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+
+  } else {
+    FSTFail(@"Encountered unknown transform: %d type", fieldTransform.transformation().type());
+  }
+}
+
+/**
+ * Inspects the provided value, returning a mutable copy of the internal array if it's an
+ * FSTArrayValue and an empty mutable array if it's nil or any other type of FSTFieldValue.
+ */
+- (NSMutableArray<FSTFieldValue *> *)coercedFieldValuesArray:(FSTFieldValue *_Nullable)value {
+  if ([value isMemberOfClass:[FSTArrayValue class]]) {
+    return [NSMutableArray arrayWithArray:((FSTArrayValue *)value).internalValue];
+  } else {
+    // coerce to empty array.
+    return [NSMutableArray array];
+  }
 }
 
 - (FSTObjectValue *)transformObject:(FSTObjectValue *)objectValue
@@ -399,11 +450,7 @@ NS_ASSUME_NONNULL_BEGIN
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
     const TransformOperation &transform = fieldTransform.transformation();
     const FieldPath &fieldPath = fieldTransform.path();
-    if (transform.type() == TransformOperation::Type::ServerTimestamp) {
-      objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
-    } else {
-      FSTFail(@"Encountered unknown transform: %d type", transform.type());
-    }
+    objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
   }
   return objectValue;
 }
