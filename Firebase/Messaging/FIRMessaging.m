@@ -452,7 +452,7 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   NSDictionary *userInfo = @{kFIRMessagingAPNSTokenType : @(type)};
   NSNotification *notification =
       [NSNotification notificationWithName:kFIRMessagingAPNSTokenNotification
-                                    object:apnsToken
+                                    object:[apnsToken copy]
                                   userInfo:userInfo];
   [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
