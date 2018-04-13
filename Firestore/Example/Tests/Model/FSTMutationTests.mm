@@ -26,11 +26,13 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::Precondition;
 
 @interface FSTMutationTests : XCTestCase
 @end
@@ -74,7 +76,7 @@ using firebase::firestore::model::FieldMask;
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:{testutil::Field("foo.bar")}
                                                        value:[FSTObjectValue objectValue]
-                                                precondition:[FSTPrecondition none]];
+                                                precondition:Precondition::None()];
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 

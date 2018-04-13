@@ -33,8 +33,10 @@
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::Precondition;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -136,25 +138,26 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns version of this doc when it was read in this transaction as a precondition, or no
  * precondition if it was not read.
  */
-- (FSTPrecondition *)preconditionForDocumentKey:(const DocumentKey &)key {
+- (Precondition)preconditionForDocumentKey:(const DocumentKey &)key {
   const auto iter = _readVersions.find(key);
   if (iter == _readVersions.end()) {
-    return [FSTPrecondition none];
+    return Precondition::None();
   } else {
-    return [FSTPrecondition preconditionWithUpdateTime:iter->second];
+    return Precondition::UpdateTime(iter->second);
   }
 }
 
 /**
  * Returns the precondition for a document if the operation is an update, based on the provided
- * UpdateOptions. Will return nil if an error occurred, in which case it sets the error parameter.
+ * UpdateOptions. Will return none precondition if an error occurred, in which case it sets the
+ * error parameter.
  */
-- (nullable FSTPrecondition *)preconditionForUpdateWithDocumentKey:(const DocumentKey &)key
-                                                             error:(NSError **)error {
+- (Precondition)preconditionForUpdateWithDocumentKey:(const DocumentKey &)key
+                                               error:(NSError **)error {
   const auto iter = _readVersions.find(key);
   if (iter == _readVersions.end()) {
     // Document was not read, so we just use the preconditions for an update.
-    return [FSTPrecondition preconditionWithExists:YES];
+    return Precondition::Exists(true);
   }
 
   FSTSnapshotVersion *version = iter->second;
@@ -169,10 +172,10 @@ NS_ASSUME_NONNULL_BEGIN
                    NSLocalizedDescriptionKey : @"Can't update a document that doesn't exist."
                  }];
     }
-    return nil;
+    return Precondition::None();
   } else {
     // Document exists, just base precondition on document update time.
-    return [FSTPrecondition preconditionWithUpdateTime:version];
+    return Precondition::UpdateTime(version);
   }
 }
 
@@ -183,13 +186,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateData:(FSTParsedUpdateData *)data forDocument:(const DocumentKey &)key {
   NSError *error = nil;
-  FSTPrecondition *_Nullable precondition =
-      [self preconditionForUpdateWithDocumentKey:key error:&error];
-  if (precondition) {
-    [self writeMutations:[data mutationsWithKey:key precondition:precondition]];
-  } else {
+  const Precondition precondition = [self preconditionForUpdateWithDocumentKey:key error:&error];
+  if (precondition.IsNone()) {
     FSTAssert(error, @"Got nil precondition, but error was not set");
     self.lastWriteError = error;
+  } else {
+    [self writeMutations:[data mutationsWithKey:key precondition:precondition]];
   }
 }
 
@@ -198,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
                             initWithKey:key
                            precondition:[self preconditionForDocumentKey:key]] ]];
   // Since the delete will be applied before all following writes, we need to ensure that the
-  // precondition for the next write will be exists: false.
+  // precondition for the next write will be exists without timestamp.
   _readVersions[key] = [FSTSnapshotVersion noVersion];
 }
 

@@ -48,6 +48,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -62,6 +63,7 @@ using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
@@ -250,7 +252,7 @@ FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs) {
 FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
   return [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(path)
                                        value:FSTTestObjectValue(values)
-                                precondition:[FSTPrecondition none]];
+                                precondition:Precondition::None()];
 }
 
 FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
@@ -274,7 +276,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   return [[FSTPatchMutation alloc] initWithKey:key
                                      fieldMask:mask
                                          value:objectValue
-                                  precondition:[FSTPrecondition preconditionWithExists:YES]];
+                                  precondition:Precondition::Exists(true)];
 }
 
 // For now this only creates TransformMutations with server timestamps.
@@ -291,8 +293,8 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path,
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
-  return [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path)
-                                   precondition:[FSTPrecondition none]];
+  return
+      [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path) precondition:Precondition::None()];
 }
 
 FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {

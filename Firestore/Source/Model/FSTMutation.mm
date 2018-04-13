@@ -33,114 +33,18 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTPrecondition
-
-@implementation FSTPrecondition
-
-+ (FSTPrecondition *)preconditionWithExists:(BOOL)exists {
-  FSTPreconditionExists existsEnum = exists ? FSTPreconditionExistsYes : FSTPreconditionExistsNo;
-  return [[FSTPrecondition alloc] initWithUpdateTime:nil exists:existsEnum];
-}
-
-+ (FSTPrecondition *)preconditionWithUpdateTime:(FSTSnapshotVersion *)updateTime {
-  return [[FSTPrecondition alloc] initWithUpdateTime:updateTime exists:FSTPreconditionExistsNotSet];
-}
-
-+ (FSTPrecondition *)none {
-  static dispatch_once_t onceToken;
-  static FSTPrecondition *noPrecondition;
-  dispatch_once(&onceToken, ^{
-    noPrecondition =
-        [[FSTPrecondition alloc] initWithUpdateTime:nil exists:FSTPreconditionExistsNotSet];
-  });
-  return noPrecondition;
-}
-
-- (instancetype)initWithUpdateTime:(FSTSnapshotVersion *_Nullable)updateTime
-                            exists:(FSTPreconditionExists)exists {
-  if (self = [super init]) {
-    _updateTime = updateTime;
-    _exists = exists;
-  }
-  return self;
-}
-
-- (BOOL)isValidForDocument:(FSTMaybeDocument *_Nullable)maybeDoc {
-  if (self.updateTime) {
-    return
-        [maybeDoc isKindOfClass:[FSTDocument class]] && [maybeDoc.version isEqual:self.updateTime];
-  } else if (self.exists != FSTPreconditionExistsNotSet) {
-    if (self.exists == FSTPreconditionExistsYes) {
-      return [maybeDoc isKindOfClass:[FSTDocument class]];
-    } else {
-      FSTAssert(self.exists == FSTPreconditionExistsNo, @"Invalid precondition");
-      return maybeDoc == nil || [maybeDoc isKindOfClass:[FSTDeletedDocument class]];
-    }
-  } else {
-    FSTAssert(self.isNone, @"Precondition should be empty");
-    return YES;
-  }
-}
-
-- (BOOL)isNone {
-  return self.updateTime == nil && self.exists == FSTPreconditionExistsNotSet;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (self == other) {
-    return YES;
-  }
-
-  if (![other isKindOfClass:[FSTPrecondition class]]) {
-    return NO;
-  }
-
-  FSTPrecondition *otherPrecondition = (FSTPrecondition *)other;
-  // Compare references to cover nil equality
-  return (self.updateTime == otherPrecondition.updateTime ||
-          [self.updateTime isEqual:otherPrecondition.updateTime]) &&
-         self.exists == otherPrecondition.exists;
-}
-
-- (NSUInteger)hash {
-  NSUInteger hash = [self.updateTime hash];
-  hash = hash * 31 + self.exists;
-  return hash;
-}
-
-- (NSString *)description {
-  if (self.isNone) {
-    return @"<FSTPrecondition <none>>";
-  } else {
-    NSString *existsString;
-    switch (self.exists) {
-      case FSTPreconditionExistsYes:
-        existsString = @"yes";
-        break;
-      case FSTPreconditionExistsNo:
-        existsString = @"no";
-        break;
-      default:
-        existsString = @"<not-set>";
-        break;
-    }
-    return [NSString stringWithFormat:@"<FSTPrecondition updateTime=%@ exists=%@>", self.updateTime,
-                                      existsString];
-  }
-}
-
-@end
 
 #pragma mark - FSTMutationResult
 
@@ -161,12 +65,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMutation {
   DocumentKey _key;
+  Precondition _precondition;
 }
 
-- (instancetype)initWithKey:(DocumentKey)key precondition:(FSTPrecondition *)precondition {
+- (instancetype)initWithKey:(DocumentKey)key precondition:(Precondition)precondition {
   if (self = [super init]) {
     _key = std::move(key);
-    _precondition = precondition;
+    _precondition = std::move(precondition);
   }
   return self;
 }
@@ -189,6 +94,10 @@ NS_ASSUME_NONNULL_BEGIN
   return _key;
 }
 
+- (const firebase::firestore::model::Precondition &)precondition {
+  return _precondition;
+}
+
 @end
 
 #pragma mark - FSTSetMutation
@@ -197,8 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithKey:(DocumentKey)key
                       value:(FSTObjectValue *)value
-               precondition:(FSTPrecondition *)precondition {
-  if (self = [super initWithKey:std::move(key) precondition:precondition]) {
+               precondition:(Precondition)precondition {
+  if (self = [super initWithKey:std::move(key) precondition:std::move(precondition)]) {
     _value = value;
   }
   return self;
@@ -206,7 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%@ precondition=%@>",
-                                    self.key.ToString().c_str(), self.value, self.precondition];
+                                    self.key.ToString().c_str(), self.value,
+                                    self.precondition.description()];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -219,12 +129,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTSetMutation *otherMutation = (FSTSetMutation *)other;
   return [self.key isEqual:otherMutation.key] && [self.value isEqual:otherMutation.value] &&
-         [self.precondition isEqual:otherMutation.precondition];
+         self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
+  result = 31 * result + self.precondition.Hash();
   result = 31 * result + [self.value hash];
   return result;
 }
@@ -237,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTSetMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
@@ -271,8 +181,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithKey:(DocumentKey)key
                   fieldMask:(FieldMask)fieldMask
                       value:(FSTObjectValue *)value
-               precondition:(FSTPrecondition *)precondition {
-  self = [super initWithKey:std::move(key) precondition:precondition];
+               precondition:(Precondition)precondition {
+  self = [super initWithKey:std::move(key) precondition:std::move(precondition)];
   if (self) {
     _fieldMask = std::move(fieldMask);
     _value = value;
@@ -295,12 +205,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTPatchMutation *otherMutation = (FSTPatchMutation *)other;
   return [self.key isEqual:otherMutation.key] && self.fieldMask == otherMutation.fieldMask &&
          [self.value isEqual:otherMutation.value] &&
-         [self.precondition isEqual:otherMutation.precondition];
+         self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
+  result = 31 * result + self.precondition.Hash();
   result = 31 * result + self.fieldMask.Hash();
   result = 31 * result + [self.value hash];
   return result;
@@ -309,7 +219,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)description {
   return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%@ precondition=%@>",
                                     self.key.ToString().c_str(), self.fieldMask.ToString().c_str(),
-                                    self.value, self.precondition];
+                                    self.value, self.precondition.description()];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -320,7 +230,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTPatchMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
@@ -373,8 +283,7 @@ NS_ASSUME_NONNULL_BEGIN
   // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
   // FSTTransformMutations with a FSTSetMutation or FSTPatchMutation which (if successful) should
   // end up with an existing document.
-  if (self = [super initWithKey:std::move(key)
-                   precondition:[FSTPrecondition preconditionWithExists:YES]]) {
+  if (self = [super initWithKey:std::move(key) precondition:Precondition::Exists(true)]) {
     _fieldTransforms = std::move(fieldTransforms);
   }
   return self;
@@ -395,12 +304,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTransformMutation *otherMutation = (FSTTransformMutation *)other;
   return [self.key isEqual:otherMutation.key] &&
          self.fieldTransforms == otherMutation.fieldTransforms &&
-         [self.precondition isEqual:otherMutation.precondition];
+         self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
+  result = 31 * result + self.precondition.Hash();
   for (const auto &transform : self.fieldTransforms) {
     result = 31 * result + transform.Hash();
   }
@@ -414,7 +323,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%s precondition=%@>",
                                     self.key.ToString().c_str(), fieldTransforms.c_str(),
-                                    self.precondition];
+                                    self.precondition.description()];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -426,7 +335,7 @@ NS_ASSUME_NONNULL_BEGIN
               @"Transform results missing for FSTTransformMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
@@ -514,19 +423,18 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTDeleteMutation *otherMutation = (FSTDeleteMutation *)other;
-  return [self.key isEqual:otherMutation.key] &&
-         [self.precondition isEqual:otherMutation.precondition];
+  return [self.key isEqual:otherMutation.key] && self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
+  result = 31 * result + self.precondition.Hash();
   return result;
 }
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<FSTDeleteMutation key=%s precondition=%@>",
-                                    self.key.ToString().c_str(), self.precondition];
+                                    self.key.ToString().c_str(), self.precondition.description()];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -538,7 +446,7 @@ NS_ASSUME_NONNULL_BEGIN
               @"Transform results received by FSTDeleteMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 

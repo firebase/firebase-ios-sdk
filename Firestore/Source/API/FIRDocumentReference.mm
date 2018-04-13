@@ -41,11 +41,13 @@
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -168,7 +170,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  ? [self.firestore.dataConverter parsedMergeData:documentData]
                                  : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key precondition:[FSTPrecondition none]]
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
           completion:completion];
 }
 
@@ -180,8 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
         completion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key
-                                 precondition:[FSTPrecondition preconditionWithExists:YES]]
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::Exists(true)]
           completion:completion];
 }
 
@@ -191,7 +192,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTDeleteMutation *mutation =
-      [[FSTDeleteMutation alloc] initWithKey:self.key precondition:[FSTPrecondition none]];
+      [[FSTDeleteMutation alloc] initWithKey:self.key precondition:Precondition::None()];
   return [self.firestore.client writeMutations:@[ mutation ] completion:completion];
 }
 
