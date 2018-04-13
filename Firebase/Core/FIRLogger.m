@@ -101,6 +101,7 @@ void FIRLoggerInitializeASL() {
       aslOptions = ASL_OPT_STDERR;
     }
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations" // asl is deprecated
     // Initialize the ASL client handle.
     sFIRLoggerClient = asl_open(NULL, kFIRLoggerASLClientFacilityName, aslOptions);
 
@@ -237,6 +238,7 @@ void FIRLogBasic(FIRLoggerLevel level,
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
   });
 }
+#pragma clang diagnostic pop
 
 /**
  * Generates the logging functions using macros.
