@@ -17,6 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 
+#include <vector>
+
+#if defined(__OBJC__)
+@class FSTFieldValue;
+#endif
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -31,6 +37,8 @@ class TransformOperation {
   /** All the different kinds to TransformOperation. */
   enum class Type {
     ServerTimestamp,
+    ArrayUnion,
+    ArrayRemove,
     Test,  // Purely for test purpose.
   };
 
@@ -89,6 +97,55 @@ class ServerTimestampTransform : public TransformOperation {
   ServerTimestampTransform() {
   }
 };
+
+// TODO(mikelehen): ArrayTransform can only be used from Obj-C until we switch
+// to using FieldValue instead of FSTFieldValue.
+#if defined(__OBJC__)
+/**
+ * Transforms an array via a union or remove operation (for convenience, we use
+ * this class for both Type::ArrayUnion and Type::ArrayRemove).
+ */
+class ArrayTransform : public TransformOperation {
+ public:
+  ArrayTransform(const Type& type, const std::vector<FSTFieldValue*> elements)
+      : type_(type), elements_(elements) {
+  }
+
+  ~ArrayTransform() override {
+  }
+
+  Type type() const override {
+    return type_;
+  }
+
+  std::vector<FSTFieldValue*> elements() const {
+    return elements_;
+  }
+
+  bool operator==(const TransformOperation& other) const override {
+    if (other.type() == type()) {
+      auto arrayTransform = static_cast<const ArrayTransform&>(other);
+      return arrayTransform.elements() == elements();
+    }
+    return false;
+  }
+
+#if defined(__OBJC__)
+  // For Objective-C++ hash; to be removed after migration.
+  // Do NOT use in C++ code.
+  NSUInteger Hash() const override {
+    // TODO(mikelehen): This is a terrible implementation of hash, but this
+    // method is going away and I don't expect these objects to be used as
+    // dictionary keys so ¯\_(ツ)_/¯.
+    return 37;
+  }
+#endif  // defined(__OBJC__)
+
+ private:
+  Type type_;
+  std::vector<FSTFieldValue*> elements_;
+};
+#endif
 
 }  // namespace model
 }  // namespace firestore
