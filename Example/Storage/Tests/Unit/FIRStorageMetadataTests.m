@@ -16,6 +16,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRStorageGetDownloadURLTask.h"
+#import "FIRStorageGetDownloadURLTask_Private.h"
 #import "FIRStorageMetadata.h"
 #import "FIRStorageMetadata_Private.h"
 #import "FIRStorageUtils.h"

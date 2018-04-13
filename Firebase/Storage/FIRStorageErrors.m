@@ -181,4 +181,10 @@
   return [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
 }
 
++ (NSError *)errorWithCustomMessage:(NSString *)errorMessage {
+  return [NSError errorWithDomain:FIRStorageErrorDomain
+                             code:FIRStorageErrorCodeUnknown
+                         userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
+}
+
 @end

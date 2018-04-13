@@ -392,10 +392,21 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
+  // Download URL format is
+  // "https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}"
+  NSString *downloadURLPattern =
+      @"^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/"
+      @"ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$";
+
   [ref downloadURLWithCompletion:^(NSURL *downloadURL, NSError *error) {
     XCTAssertNil(error);
-    XCTAssertTrue(
-        [[downloadURL absoluteString] hasPrefix:@"https://firebasestorage.googleapis.com/"]);
+    NSRegularExpression *testRegex =
+        [NSRegularExpression regularExpressionWithPattern:downloadURLPattern options:0 error:nil];
+    NSString *urlString = [downloadURL absoluteString];
+    XCTAssertEqual([testRegex numberOfMatchesInString:urlString
+                                              options:0
+                                                range:NSMakeRange(0, [urlString length])],
+                   1);
     [expectation fulfill];
   }];
 

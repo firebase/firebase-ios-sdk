@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRStorageTask.h"
-
-@class GTMSessionFetcherService;
+#import "FIRStorageGetDownloadURLTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Task which provides the ability to get a download URL for an object in Firebase Storage.
  */
-@interface FIRStorageGetDownloadURLTask : FIRStorageTask <FIRStorageTaskManagement>
+@interface FIRStorageGetDownloadURLTask ()
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
-                   fetcherService:(GTMSessionFetcherService *)service
-                       completion:(FIRStorageVoidURLError)completion;
++ (NSURL *)downloadURLFromMetadataDictionary:(NSDictionary *)dictionary;
 
 @end
 

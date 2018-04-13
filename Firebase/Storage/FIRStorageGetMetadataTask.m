@@ -46,7 +46,7 @@
 - (void)enqueue {
   NSMutableURLRequest *request = [self.baseRequest mutableCopy];
   request.HTTPMethod = @"GET";
-  request.timeoutInterval = self.reference.storage.maxDownloadRetryTime;
+  request.timeoutInterval = self.reference.storage.maxOperationRetryTime;
 
   FIRStorageVoidMetadataError callback = _completion;
   _completion = nil;

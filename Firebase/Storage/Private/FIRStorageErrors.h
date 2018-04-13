@@ -57,6 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)errorWithInvalidRequest:(NSData *)request;
 
+/**
+ * Creates a Firebase Storage error with a custom error message.
+ *
+ * @param errorMessage A custom error message.
+ * @return Returns the corresponding Firebase Storage error.
+ */
++ (NSError *)errorWithCustomMessage:(NSString *)errorMessage;
+
 @end
 
 NS_ASSUME_NONNULL_END

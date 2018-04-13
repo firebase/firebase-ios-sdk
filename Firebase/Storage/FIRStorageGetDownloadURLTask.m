@@ -14,11 +14,7 @@
 
 #import "FIRStorageGetDownloadURLTask.h"
 
-#import "FIRStorageConstants.h"
 #import "FIRStorageTask_Private.h"
-#import "FIRStorageUtils.h"
-
-#import "FirebaseStorage.h"
 
 @implementation FIRStorageGetDownloadURLTask {
  @private
@@ -56,7 +52,13 @@
     components.scheme = kFIRStorageScheme;
     components.host = kFIRStorageHost;
     components.percentEncodedPath = fullPath;
-    components.query = [NSString stringWithFormat:@"alt=media&token=%@", downloadTokenArray[0]];
+
+    // The backend can return an arbitrary number of download tokens, but we only expose the first
+    // token via the download URL.
+    NSURLQueryItem *altItem = [[NSURLQueryItem alloc] initWithName:@"alt" value:@"media"];
+    NSURLQueryItem *tokenItem =
+        [[NSURLQueryItem alloc] initWithName:@"token" value:downloadTokenArray[0]];
+    components.queryItems = @[ altItem, tokenItem ];
 
     return [components URL];
   }
@@ -67,14 +69,14 @@
 - (void)enqueue {
   NSMutableURLRequest *request = [self.baseRequest mutableCopy];
   request.HTTPMethod = @"GET";
-  request.timeoutInterval = self.reference.storage.maxDownloadRetryTime;
+  request.timeoutInterval = self.reference.storage.maxOperationRetryTime;
 
   FIRStorageVoidURLError callback = _completion;
   _completion = nil;
 
   GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
   _fetcher = fetcher;
-  fetcher.comment = @"DownloadURLTask";
+  fetcher.comment = @"GetDownloadURLTask";
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
@@ -89,6 +91,10 @@
       if (responseDictionary != nil) {
         downloadURL =
             [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:responseDictionary];
+        if (!downloadURL) {
+          self.error =
+              [FIRStorageErrors errorWithCustomMessage:@"Failed to retrieve a download URL"];
+        }
       } else {
         self.error = [FIRStorageErrors errorWithInvalidRequest:data];
       }
